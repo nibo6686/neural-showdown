@@ -1,0 +1,20 @@
+{
+  "name": "neural-showdown-sim-core",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/src/server.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/server.js",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "test:soak": "npm run build && node dist/tests/soak.js"
+  },
+  "dependencies": {
+    "@smogon/calc": "latest",
+    "pokemon-showdown": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "typescript": "^5.6.3"
+  }
+}

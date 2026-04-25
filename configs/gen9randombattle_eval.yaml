@@ -1,0 +1,32 @@
+{
+  "profile": "full",
+  "sim_core": {
+    "command": ["node", "../sim-core/dist/src/server.js"],
+    "cwd": "../sim-core"
+  },
+  "evaluation": {
+    "num_battles": 100,
+    "format": "gen9randombattle",
+    "checkpoint_path": "../artifacts/checkpoints/gen9randombattle_bc.pt",
+    "opponent": "random",
+    "output_path": "../artifacts/eval/gen9randombattle_eval.json",
+    "latency_output_path": "../artifacts/latency/gen9randombattle_eval_latency.json"
+  },
+  "runtime": {
+    "num_envs": 8,
+    "heartbeat_interval_sec": 15,
+    "retry_attempts_per_battle": 2,
+    "timeouts_sec": {
+      "create_env": 15,
+      "reset": 45,
+      "step": 20,
+      "agent_action": 10,
+      "close_env": 5,
+      "ping": 5,
+      "batch": 45
+    }
+  },
+  "model": {
+    "hidden_sizes": [256, 256]
+  }
+}
