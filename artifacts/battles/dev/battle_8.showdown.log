@@ -1,4 +1,4 @@
-|t:|1777163584
+|t:|1777226256
 |gametype|singles
 |player|p1|Agent-1||
 |player|p2|Agent-2||
@@ -11,188 +11,182 @@
 |rule|Sleep Clause Mod: Limit one foe put to sleep
 |rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
 |
-|t:|1777163584
+|t:|1777226256
 |start
 |switch|p1a: Regigigas|Regigigas, L84|100/100
 |switch|p2a: Mismagius|Mismagius, L86, F|100/100
 |-start|p1a: Regigigas|ability: Slow Start
 |turn|1
 |
-|t:|1777163584
-|move|p2a: Mismagius|Shadow Ball|p1a: Regigigas
-|-immune|p1a: Regigigas
+|t:|1777226256
+|-terastallize|p2a: Mismagius|Electric
+|move|p2a: Mismagius|Dazzling Gleam|p1a: Regigigas
+|-crit|p1a: Regigigas
+|-damage|p1a: Regigigas|69/100
+|-damage|p2a: Mismagius|91/100|[from] item: Life Orb
 |move|p1a: Regigigas|Knock Off|p2a: Mismagius
-|-supereffective|p2a: Mismagius
-|-crit|p2a: Mismagius
-|-damage|p2a: Mismagius|20/100
+|-damage|p2a: Mismagius|62/100
 |-enditem|p2a: Mismagius|Life Orb|[from] move: Knock Off|[of] p1a: Regigigas
 |
+|-heal|p1a: Regigigas|75/100|[from] item: Leftovers
 |upkeep
 |turn|2
 |
-|t:|1777163584
+|t:|1777226256
 |move|p2a: Mismagius|Thunderbolt|p1a: Regigigas
-|-damage|p1a: Regigigas|81/100
-|move|p1a: Regigigas|Knock Off|p2a: Mismagius
-|-supereffective|p2a: Mismagius
-|-damage|p2a: Mismagius|0 fnt
-|faint|p2a: Mismagius
+|-damage|p1a: Regigigas|46/100
+|move|p1a: Regigigas|Body Slam|p2a: Mismagius
+|-damage|p2a: Mismagius|24/100
 |
-|-heal|p1a: Regigigas|87/100|[from] item: Leftovers
+|-heal|p1a: Regigigas|52/100|[from] item: Leftovers
 |upkeep
-|
-|t:|1777163584
-|switch|p2a: Blissey|Blissey, L85, F|100/100
 |turn|3
 |
-|t:|1777163584
-|move|p2a: Blissey|Heal Bell||[still]
-|-activate|p2a: Blissey|move: Heal Bell
-|-fail|p2a: Blissey
-|move|p1a: Regigigas|Body Slam|p2a: Blissey
-|-damage|p2a: Blissey|63/100
-|
-|-heal|p2a: Blissey|69/100|[from] item: Leftovers
-|-heal|p1a: Regigigas|93/100|[from] item: Leftovers
-|upkeep
-|turn|4
-|
-|t:|1777163584
+|t:|1777226256
 |switch|p2a: Azumarill|Azumarill, L82, M|100/100
 |move|p1a: Regigigas|Body Slam|p2a: Azumarill
 |-damage|p2a: Azumarill|77/100
 |
-|-heal|p1a: Regigigas|99/100|[from] item: Leftovers
+|-heal|p1a: Regigigas|58/100|[from] item: Leftovers
+|upkeep
+|turn|4
+|
+|t:|1777226256
+|move|p2a: Azumarill|Ice Spinner|p1a: Regigigas
+|-damage|p1a: Regigigas|33/100
+|move|p1a: Regigigas|Body Slam|p2a: Azumarill
+|-damage|p2a: Azumarill|53/100
+|-status|p2a: Azumarill|par
+|
+|-heal|p1a: Regigigas|40/100|[from] item: Leftovers
 |upkeep
 |turn|5
 |
-|t:|1777163584
-|switch|p2a: Blissey|Blissey, L85, F|69/100
-|move|p1a: Regigigas|Body Slam|p2a: Blissey
-|-damage|p2a: Blissey|37/100
-|-status|p2a: Blissey|par
+|t:|1777226256
+|switch|p2a: Mismagius|Mismagius, L86, F, tera:Electric|24/100
+|move|p1a: Regigigas|Body Slam|p2a: Mismagius
+|-crit|p2a: Mismagius
+|-damage|p2a: Mismagius|0 fnt
+|faint|p2a: Mismagius
 |
-|-heal|p1a: Regigigas|100/100|[from] item: Leftovers
-|-heal|p2a: Blissey|43/100 par|[from] item: Leftovers
+|-heal|p1a: Regigigas|46/100|[from] item: Leftovers
 |-end|p1a: Regigigas|Slow Start
 |upkeep
+|
+|t:|1777226256
+|switch|p2a: Blissey|Blissey, L85, F|100/100
 |turn|6
 |
-|t:|1777163584
-|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure
-|switch|p2a: Haxorus|Haxorus, L77, M|100/100
-|-ability|p2a: Haxorus|Mold Breaker
-|move|p1a: Regigigas|Body Slam|p2a: Haxorus
-|-damage|p2a: Haxorus|36/100
+|t:|1777226256
+|move|p1a: Regigigas|Body Slam|p2a: Blissey
+|-damage|p2a: Blissey|33/100
+|-status|p2a: Blissey|par
+|move|p2a: Blissey|Seismic Toss|p1a: Regigigas
+|-damage|p1a: Regigigas|19/100
 |
+|-heal|p1a: Regigigas|26/100|[from] item: Leftovers
+|-heal|p2a: Blissey|39/100 par|[from] item: Leftovers
 |upkeep
 |turn|7
 |
-|t:|1777163584
-|-terastallize|p2a: Haxorus|Steel
-|move|p1a: Regigigas|Body Slam|p2a: Haxorus
-|-resisted|p2a: Haxorus
-|-damage|p2a: Haxorus|6/100
-|move|p2a: Haxorus|Earthquake|p1a: Regigigas
-|-damage|p1a: Regigigas|77/100
-|
-|-heal|p1a: Regigigas|83/100|[from] item: Leftovers
-|upkeep
-|turn|8
-|
-|t:|1777163584
-|move|p1a: Regigigas|Body Slam|p2a: Haxorus
-|-resisted|p2a: Haxorus
-|-damage|p2a: Haxorus|0 fnt
-|faint|p2a: Haxorus
-|
-|-heal|p1a: Regigigas|89/100|[from] item: Leftovers
-|upkeep
-|
-|t:|1777163584
-|switch|p2a: Azumarill|Azumarill, L82, M|77/100
-|turn|9
-|
-|t:|1777163584
-|move|p1a: Regigigas|Body Slam|p2a: Azumarill
-|-crit|p2a: Azumarill
-|-damage|p2a: Azumarill|9/100
-|move|p2a: Azumarill|Play Rough|p1a: Regigigas
-|-damage|p1a: Regigigas|47/100
-|
-|-heal|p1a: Regigigas|54/100|[from] item: Leftovers
-|upkeep
-|turn|10
-|
-|t:|1777163584
-|switch|p2a: Hawlucha|Hawlucha, L80, M|100/100
-|move|p1a: Regigigas|Body Slam|p2a: Hawlucha
-|-damage|p2a: Hawlucha|38/100
-|-status|p2a: Hawlucha|par
-|
-|-heal|p1a: Regigigas|60/100|[from] item: Leftovers
-|upkeep
-|turn|11
-|
-|t:|1777163584
-|switch|p2a: Blissey|Blissey, L85, F|43/100
+|t:|1777226256
 |move|p1a: Regigigas|Body Slam|p2a: Blissey
 |-damage|p2a: Blissey|0 fnt
 |faint|p2a: Blissey
 |
-|-heal|p1a: Regigigas|66/100|[from] item: Leftovers
+|-heal|p1a: Regigigas|32/100|[from] item: Leftovers
 |upkeep
 |
-|t:|1777163584
-|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par
-|turn|12
+|t:|1777226256
+|switch|p2a: Azumarill|Azumarill, L82, M|53/100 par
+|turn|8
 |
-|t:|1777163584
-|switch|p2a: Azumarill|Azumarill, L82, M|9/100
+|t:|1777226256
 |move|p1a: Regigigas|Body Slam|p2a: Azumarill
-|-crit|p2a: Azumarill
-|-damage|p2a: Azumarill|0 fnt
-|faint|p2a: Azumarill
-|
-|-heal|p1a: Regigigas|72/100|[from] item: Leftovers
-|upkeep
-|
-|t:|1777163584
-|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par
-|turn|13
-|
-|t:|1777163584
-|move|p1a: Regigigas|Body Slam|p2a: Hawlucha
-|-damage|p2a: Hawlucha|0 fnt
-|faint|p2a: Hawlucha
-|
-|-heal|p1a: Regigigas|78/100|[from] item: Leftovers
-|upkeep
-|
-|t:|1777163584
-|switch|p2a: Weavile|Weavile, L79, M|100/100
-|turn|14
-|
-|t:|1777163584
-|move|p2a: Weavile|Low Kick|p1a: Regigigas
-|-supereffective|p1a: Regigigas
-|-crit|p1a: Regigigas
+|-damage|p2a: Azumarill|7/100 par
+|move|p2a: Azumarill|Play Rough|p1a: Regigigas
 |-damage|p1a: Regigigas|0 fnt
 |faint|p1a: Regigigas
 |-end|p1a: Regigigas|Slow Start|[silent]
 |
 |upkeep
 |
-|t:|1777163584
+|t:|1777226256
 |switch|p1a: Tinkaton|Tinkaton, L82, F|100/100
 |-ability|p1a: Tinkaton|Mold Breaker
+|turn|9
+|
+|t:|1777226256
+|switch|p2a: Hawlucha|Hawlucha, L80, M|100/100
+|move|p1a: Tinkaton|Gigaton Hammer|p2a: Hawlucha
+|-damage|p2a: Hawlucha|42/100
+|
+|upkeep
+|turn|10
+|
+|t:|1777226256
+|switch|p2a: Haxorus|Haxorus, L77, M|100/100
+|-ability|p2a: Haxorus|Mold Breaker
+|move|p1a: Tinkaton|Play Rough|p2a: Haxorus
+|-supereffective|p2a: Haxorus
+|-damage|p2a: Haxorus|41/100
+|-unboost|p2a: Haxorus|atk|1
+|
+|upkeep
+|turn|11
+|
+|t:|1777226256
+|move|p1a: Tinkaton|Gigaton Hammer|p2a: Haxorus
+|-damage|p2a: Haxorus|0 fnt
+|faint|p2a: Haxorus
+|
+|upkeep
+|
+|t:|1777226256
+|switch|p2a: Azumarill|Azumarill, L82, M|7/100 par
+|turn|12
+|
+|t:|1777226256
+|move|p1a: Tinkaton|Play Rough|p2a: Azumarill
+|-damage|p2a: Azumarill|0 fnt
+|faint|p2a: Azumarill
+|
+|upkeep
+|
+|t:|1777226256
+|switch|p2a: Weavile|Weavile, L79, M|100/100
+|turn|13
+|
+|t:|1777226256
+|switch|p2a: Hawlucha|Hawlucha, L80, M|42/100
+|move|p1a: Tinkaton|Gigaton Hammer|p2a: Hawlucha
+|-damage|p2a: Hawlucha|0 fnt
+|faint|p2a: Hawlucha
+|
+|upkeep
+|
+|t:|1777226256
+|switch|p2a: Weavile|Weavile, L79, M|100/100
+|turn|14
+|
+|t:|1777226256
+|move|p2a: Weavile|Low Kick|p1a: Tinkaton
+|-damage|p1a: Tinkaton|56/100
+|move|p1a: Tinkaton|Play Rough|p2a: Weavile
+|-supereffective|p2a: Weavile
+|-damage|p2a: Weavile|17/100
+|-unboost|p2a: Weavile|atk|1
+|
+|-heal|p1a: Tinkaton|63/100|[from] item: Leftovers
+|upkeep
 |turn|15
 |
-|t:|1777163584
+|t:|1777226256
 |move|p2a: Weavile|Low Kick|p1a: Tinkaton
-|-damage|p1a: Tinkaton|57/100
-|move|p1a: Tinkaton|Gigaton Hammer|p2a: Weavile
+|-damage|p1a: Tinkaton|33/100
+|move|p1a: Tinkaton|Play Rough|p2a: Weavile
 |-supereffective|p2a: Weavile
+|-crit|p2a: Weavile
 |-damage|p2a: Weavile|0 fnt
 |faint|p2a: Weavile
 |

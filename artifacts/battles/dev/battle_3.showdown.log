@@ -1,4 +1,4 @@
-|t:|1777163583
+|t:|1777226255
 |gametype|singles
 |player|p1|Agent-1||
 |player|p2|Agent-2||
@@ -11,13 +11,13 @@
 |rule|Sleep Clause Mod: Limit one foe put to sleep
 |rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
 |
-|t:|1777163583
+|t:|1777226255
 |start
 |switch|p1a: Cetitan|Cetitan, L82, F|100/100
 |switch|p2a: Enamorus|Enamorus-Therian, L83, F|100/100
 |turn|1
 |
-|t:|1777163583
+|t:|1777226255
 |-terastallize|p2a: Enamorus|Ground
 |move|p1a: Cetitan|Icicle Crash|p2a: Enamorus
 |-supereffective|p2a: Enamorus
@@ -26,51 +26,66 @@
 |
 |upkeep
 |
-|t:|1777163583
+|t:|1777226255
 |switch|p2a: Ludicolo|Ludicolo, L90, F|100/100
 |turn|2
 |
-|t:|1777163583
-|switch|p2a: Ampharos|Ampharos, L88, M|100/100
-|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos
-|-damage|p2a: Ampharos|51/100
+|t:|1777226255
+|move|p2a: Ludicolo|Ice Beam|p1a: Cetitan
+|-resisted|p1a: Cetitan
+|-damage|p1a: Cetitan|84/100
+|move|p1a: Cetitan|Icicle Crash|p2a: Ludicolo
+|-damage|p2a: Ludicolo|36/100
 |
 |upkeep
 |turn|3
 |
-|t:|1777163583
-|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos
-|-damage|p2a: Ampharos|0 fnt
-|faint|p2a: Ampharos
+|t:|1777226255
+|switch|p2a: Clodsire|Clodsire, L81, F|100/100
+|move|p1a: Cetitan|Icicle Crash|p2a: Clodsire
+|-supereffective|p2a: Clodsire
+|-damage|p2a: Clodsire|0 fnt
+|faint|p2a: Clodsire
 |
 |upkeep
 |
-|t:|1777163583
-|switch|p2a: Torterra|Torterra, L78, F|100/100
+|t:|1777226255
+|switch|p2a: Mabosstiff|Mabosstiff, L86, F|100/100
 |turn|4
 |
-|t:|1777163583
+|t:|1777226255
 |-terastallize|p1a: Cetitan|Water
-|move|p1a: Cetitan|Liquidation|p2a: Torterra
-|-damage|p2a: Torterra|45/100
-|move|p2a: Torterra|Shell Smash|p2a: Torterra
-|-unboost|p2a: Torterra|def|1
-|-unboost|p2a: Torterra|spd|1
-|-boost|p2a: Torterra|atk|2
-|-boost|p2a: Torterra|spa|2
-|-boost|p2a: Torterra|spe|2
+|move|p2a: Mabosstiff|Psychic Fangs|p1a: Cetitan
+|-damage|p1a: Cetitan|60/100
+|move|p1a: Cetitan|Liquidation|p2a: Mabosstiff
+|-damage|p2a: Mabosstiff|49/100
 |
 |upkeep
 |turn|5
 |
-|t:|1777163583
+|t:|1777226256
+|switch|p2a: Ludicolo|Ludicolo, L90, F|36/100
+|move|p1a: Cetitan|Icicle Crash|p2a: Ludicolo
+|-crit|p2a: Ludicolo
+|-damage|p2a: Ludicolo|0 fnt
+|faint|p2a: Ludicolo
+|
+|upkeep
+|
+|t:|1777226256
+|switch|p2a: Torterra|Torterra, L78, F|100/100
+|turn|6
+|
+|t:|1777226256
+|move|p1a: Cetitan|Liquidation|p2a: Torterra
+|-damage|p2a: Torterra|41/100
 |move|p2a: Torterra|Bullet Seed|p1a: Cetitan
 |-supereffective|p1a: Cetitan
-|-damage|p1a: Cetitan|67/100
+|-damage|p1a: Cetitan|42/100
 |-supereffective|p1a: Cetitan
-|-damage|p1a: Cetitan|38/100
+|-damage|p1a: Cetitan|27/100
 |-supereffective|p1a: Cetitan
-|-damage|p1a: Cetitan|3/100
+|-damage|p1a: Cetitan|11/100
 |-supereffective|p1a: Cetitan
 |-damage|p1a: Cetitan|0 fnt
 |faint|p1a: Cetitan
@@ -78,29 +93,11 @@
 |
 |upkeep
 |
-|t:|1777163583
+|t:|1777226256
 |switch|p1a: Houndoom|Houndoom, L87, M|100/100
-|turn|6
-|
-|t:|1777163583
-|switch|p2a: Mabosstiff|Mabosstiff, L86, F|100/100
-|move|p1a: Houndoom|Sludge Bomb|p2a: Mabosstiff
-|-crit|p2a: Mabosstiff
-|-damage|p2a: Mabosstiff|51/100
-|
-|upkeep
 |turn|7
 |
-|t:|1777163583
-|switch|p2a: Ludicolo|Ludicolo, L90, F|100/100
-|move|p1a: Houndoom|Fire Blast|p2a: Ludicolo
-|-damage|p2a: Ludicolo|57/100
-|
-|upkeep
-|turn|8
-|
-|t:|1777163583
-|switch|p2a: Torterra|Torterra, L78, F|45/100
+|t:|1777226256
 |move|p1a: Houndoom|Fire Blast|p2a: Torterra
 |-supereffective|p2a: Torterra
 |-damage|p2a: Torterra|0 fnt
@@ -108,111 +105,148 @@
 |
 |upkeep
 |
-|t:|1777163583
-|switch|p2a: Mabosstiff|Mabosstiff, L86, F|51/100
-|turn|9
+|t:|1777226256
+|switch|p2a: Ampharos|Ampharos, L88, M|100/100
+|turn|8
 |
-|t:|1777163583
-|move|p2a: Mabosstiff|Wild Charge|p1a: Houndoom
-|-damage|p1a: Houndoom|59/100
-|-damage|p2a: Mabosstiff|41/100|[from] Recoil
-|move|p1a: Houndoom|Fire Blast|p2a: Mabosstiff
-|-damage|p2a: Mabosstiff|0 fnt
-|faint|p2a: Mabosstiff
+|t:|1777226256
+|move|p1a: Houndoom|Fire Blast|p2a: Ampharos
+|-damage|p2a: Ampharos|72/100
+|move|p2a: Ampharos|Volt Switch|p1a: Houndoom
+|-damage|p1a: Houndoom|67/100
+|
+|t:|1777226256
+|switch|p2a: Mabosstiff|Mabosstiff, L86, F|49/100|[from] Volt Switch
 |
 |upkeep
+|turn|9
 |
-|t:|1777163583
-|switch|p2a: Clodsire|Clodsire, L81, F|100/100
+|t:|1777226256
+|switch|p2a: Ampharos|Ampharos, L88, M|72/100
+|move|p1a: Houndoom|Dark Pulse|p2a: Ampharos
+|-damage|p2a: Ampharos|51/100
+|
+|upkeep
 |turn|10
 |
-|t:|1777163583
-|move|p1a: Houndoom|Fire Blast|p2a: Clodsire
-|-damage|p2a: Clodsire|65/100
-|move|p2a: Clodsire|Gunk Shot|p1a: Houndoom|[miss]
-|-miss|p2a: Clodsire|p1a: Houndoom
+|t:|1777226256
+|move|p1a: Houndoom|Fire Blast|p2a: Ampharos|[miss]
+|-miss|p1a: Houndoom|p2a: Ampharos
+|move|p2a: Ampharos|Discharge|p1a: Houndoom
+|-damage|p1a: Houndoom|29/100
+|-status|p1a: Houndoom|par
 |
-|-heal|p2a: Clodsire|71/100|[from] item: Leftovers
 |upkeep
 |turn|11
 |
-|t:|1777163583
-|move|p1a: Houndoom|Fire Blast|p2a: Clodsire
-|-damage|p2a: Clodsire|33/100
-|move|p2a: Clodsire|Earthquake|p1a: Houndoom
-|-supereffective|p1a: Houndoom
+|t:|1777226256
+|move|p2a: Ampharos|Volt Switch|p1a: Houndoom
 |-damage|p1a: Houndoom|0 fnt
 |faint|p1a: Houndoom
 |
-|-heal|p2a: Clodsire|40/100|[from] item: Leftovers
+|t:|1777226256
+|switch|p2a: Mabosstiff|Mabosstiff, L86, F|49/100|[from] Volt Switch
+|
 |upkeep
 |
-|t:|1777163583
+|t:|1777226256
 |switch|p1a: Forretress|Forretress, L84, M|100/100
 |turn|12
 |
-|t:|1777163583
-|switch|p2a: Ludicolo|Ludicolo, L90, F|57/100
-|move|p1a: Forretress|Iron Head|p2a: Ludicolo
-|-resisted|p2a: Ludicolo
-|-damage|p2a: Ludicolo|41/100
+|t:|1777226256
+|move|p2a: Mabosstiff|Crunch|p1a: Forretress
+|-damage|p1a: Forretress|71/100
+|move|p1a: Forretress|Rapid Spin|p2a: Mabosstiff
+|-damage|p2a: Mabosstiff|38/100
+|-boost|p1a: Forretress|spe|1
 |
+|-heal|p1a: Forretress|77/100|[from] item: Leftovers
 |upkeep
 |turn|13
 |
-|t:|1777163583
-|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress
-|-damage|p1a: Forretress|9/100
-|move|p1a: Forretress|Body Press|p2a: Ludicolo
-|-damage|p2a: Ludicolo|14/100
+|t:|1777226256
+|move|p2a: Mabosstiff|Crunch|p1a: Forretress
+|-damage|p1a: Forretress|50/100
+|-unboost|p1a: Forretress|def|1
+|move|p1a: Forretress|Rapid Spin|p2a: Mabosstiff
+|-damage|p2a: Mabosstiff|26/100
+|-boost|p1a: Forretress|spe|1
 |
-|-heal|p1a: Forretress|15/100|[from] item: Leftovers
+|-heal|p1a: Forretress|56/100|[from] item: Leftovers
 |upkeep
 |turn|14
 |
-|t:|1777163583
-|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress
-|-damage|p1a: Forretress|0 fnt
-|faint|p1a: Forretress
+|t:|1777226256
+|switch|p2a: Ampharos|Ampharos, L88, M|51/100
+|move|p1a: Forretress|Rapid Spin|p2a: Ampharos
+|-damage|p2a: Ampharos|40/100
+|-boost|p1a: Forretress|spe|1
 |
+|-heal|p1a: Forretress|62/100|[from] item: Leftovers
 |upkeep
-|
-|t:|1777163583
-|switch|p1a: Suicune|Suicune, L82|100/100
-|-ability|p1a: Suicune|Pressure
 |turn|15
 |
-|t:|1777163583
-|move|p1a: Suicune|Scald|p2a: Ludicolo
-|-resisted|p2a: Ludicolo
-|-damage|p2a: Ludicolo|9/100
-|-status|p2a: Ludicolo|brn
-|move|p2a: Ludicolo|Hydro Pump|p1a: Suicune
-|-resisted|p1a: Suicune
-|-damage|p1a: Suicune|75/100
+|t:|1777226256
+|move|p1a: Forretress|Rapid Spin|p2a: Ampharos
+|-damage|p2a: Ampharos|29/100
+|-boost|p1a: Forretress|spe|1
+|move|p2a: Ampharos|Discharge|p1a: Forretress
+|-damage|p1a: Forretress|9/100
 |
-|-heal|p1a: Suicune|81/100|[from] item: Leftovers
-|-damage|p2a: Ludicolo|3/100 brn|[from] brn
+|-heal|p1a: Forretress|15/100|[from] item: Leftovers
 |upkeep
 |turn|16
 |
-|t:|1777163583
-|move|p1a: Suicune|Scald|p2a: Ludicolo
-|-resisted|p2a: Ludicolo
-|-damage|p2a: Ludicolo|0 fnt
-|faint|p2a: Ludicolo
+|t:|1777226256
+|move|p1a: Forretress|Rapid Spin|p2a: Ampharos
+|-damage|p2a: Ampharos|19/100
+|-boost|p1a: Forretress|spe|1
+|-status|p1a: Forretress|par|[from] ability: Static|[of] p2a: Ampharos
+|move|p2a: Ampharos|Volt Switch|p1a: Forretress
+|-crit|p1a: Forretress
+|-damage|p1a: Forretress|0 fnt
+|faint|p1a: Forretress
 |
-|-heal|p1a: Suicune|87/100|[from] item: Leftovers
+|t:|1777226256
+|switch|p2a: Mabosstiff|Mabosstiff, L86, F|26/100|[from] Volt Switch
+|
 |upkeep
 |
-|t:|1777163583
-|switch|p2a: Clodsire|Clodsire, L81, F|40/100
+|t:|1777226256
+|switch|p1a: Suicune|Suicune, L82|100/100
+|-ability|p1a: Suicune|Pressure
 |turn|17
 |
-|t:|1777163583
-|move|p1a: Suicune|Scald|p2a: Clodsire
-|-supereffective|p2a: Clodsire
-|-damage|p2a: Clodsire|0 fnt
-|faint|p2a: Clodsire
+|t:|1777226256
+|move|p2a: Mabosstiff|Wild Charge|p1a: Suicune
+|-supereffective|p1a: Suicune
+|-damage|p1a: Suicune|55/100
+|-damage|p2a: Mabosstiff|14/100|[from] Recoil
+|move|p1a: Suicune|Scald|p2a: Mabosstiff
+|-damage|p2a: Mabosstiff|0 fnt
+|faint|p2a: Mabosstiff
+|
+|-heal|p1a: Suicune|61/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777226256
+|switch|p2a: Ampharos|Ampharos, L88, M|19/100
+|turn|18
+|
+|t:|1777226256
+|move|p1a: Suicune|Scald|p2a: Ampharos
+|-damage|p2a: Ampharos|3/100
+|move|p2a: Ampharos|Dragon Tail|p1a: Suicune|[miss]
+|-miss|p2a: Ampharos|p1a: Suicune
+|
+|-heal|p1a: Suicune|67/100|[from] item: Leftovers
+|upkeep
+|turn|19
+|
+|t:|1777226256
+|move|p1a: Suicune|Scald|p2a: Ampharos
+|-crit|p2a: Ampharos
+|-damage|p2a: Ampharos|0 fnt
+|faint|p2a: Ampharos
 |
 |win|Agent-1

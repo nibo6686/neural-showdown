@@ -139,7 +139,7 @@ class LoopDetector:
             return diagnostics
 
         # Look for recent opponent as defensive Pokemon
-        recent_opponents = set(opponents[-turn_threshold:])
+        recent_opponents = {str(opponent).lower() for opponent in opponents[-turn_threshold:]}
         defensive = recent_opponents & self.DEFENSIVE_POKEMON
 
         if not defensive:

@@ -87,6 +87,15 @@ Available actions:
 .\scripts\run_windows.ps1 -Action improve
 .\scripts\run_windows.ps1 -Action analyze
 .\scripts\run_windows.ps1 -Action trace-eval
+.\scripts\run_windows.ps1 -Action build-value-dataset
+.\scripts\run_windows.ps1 -Action train-value
+.\scripts\run_windows.ps1 -Action analyze-state
+.\scripts\run_windows.ps1 -Action collect-selfplay
+.\scripts\run_windows.ps1 -Action compare-checkpoints
+.\scripts\run_windows.ps1 -Action fetch-replays
+.\scripts\run_windows.ps1 -Action parse-replays
+.\scripts\run_windows.ps1 -Action build-replay-value-dataset
+.\scripts\run_windows.ps1 -Action build-replay-policy-dataset
 .\scripts\run_windows.ps1 -Action server
 .\scripts\run_windows.ps1 -Action all
 ```
@@ -226,6 +235,123 @@ Decision categories:
 - **recovery**: full_hp_recover, partial_hp_recover
 - **hazard**: first_placement, redundant_hazard
 - **switch**: forced_switch, no_move_options_switch, voluntary_switch
+
+Diagnostics explain behavior; they are not policy rules. The training and value/search paths should learn from returns, rollouts, and outcome targets, not hardcoded bans such as forbidding resisted moves, immunities, switches, or early terastallization.
+
+#### Value model and state analysis
+
+Build an outcome-labeled battle-state dataset from traced battles:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-value-dataset -TraceDir .\artifacts\battles\dev
+```
+
+This writes:
+- `data/value/gen9randombattle_value.npz`
+- `artifacts/analysis/value_dataset_report.json`
+- `artifacts/analysis/value_dataset_report.md`
+
+Train the first value model:
+
+```powershell
+.\scripts\run_windows.ps1 -Action train-value -DatasetPath .\data\value\gen9randombattle_value.npz
+```
+
+This writes:
+- `artifacts/checkpoints/gen9randombattle_value.pt`
+- `artifacts/checkpoints/gen9randombattle_value.train.json`
+- `artifacts/checkpoints/gen9randombattle_value.train.md`
+
+Inspect one traced position like an engine board evaluation:
+
+```powershell
+.\scripts\run_windows.ps1 -Action analyze-state `
+  -TracePath .\artifacts\battles\dev\battle_0.json `
+  -StepIndex 10 `
+  -ValueCheckpoint .\artifacts\checkpoints\gen9randombattle_value.pt
+```
+
+The current rollout action evaluator lives behind `neural.action_value_search`. Exact simulator branching is not exposed by `sim-core` yet, so this pass provides a trace-continuation/value-prior interface and documents the missing clone/replay-to-state hook rather than adding rule-based action filters.
+
+Feature status for value/search:
+- Available in `BattleView`/`ChoiceRequestView`: HP fractions, status, active boosts, revealed move counts, legal action mask, move PP/disabled flags, tera availability/type, weather, terrain, hazards/side conditions, volatiles, and remaining unfainted counts.
+- Available from traces/protocol logs: recent moves, damage, switches, faints, and repeated-action summaries.
+- Missing for exact search: a `sim-core` RPC to clone a battle state or replay deterministically to an arbitrary decision point. That should be exposed in `sim-core/src/env_manager.ts` and `sim-core/src/server.ts` before full rollout branching can be implemented.
+
+#### Outcome-weighted policy improvement
+
+Advantage-weighted BC is opt-in:
+
+```powershell
+.\scripts\run_windows.ps1 -Action train -DatasetConfig .\configs\gen9randombattle_bc.awbc.dev.windows.yaml
+```
+
+It still learns from chosen legal actions, but weights examples by return/value advantage with clipping. It does not drop examples based on type matchup diagnostics.
+
+#### Self-play data
+
+Collect model-vs-pool episodes for future value and policy improvement:
+
+```powershell
+.\scripts\run_windows.ps1 -Action collect-selfplay -Profile dev -SimCoreMode native
+```
+
+This writes:
+- `data/selfplay/gen9randombattle_selfplay.jsonl.gz`
+- `artifacts/selfplay/selfplay_report.json`
+- `artifacts/selfplay/selfplay_report.md`
+
+Opponent pools support `random`, `heuristic`, and `checkpoint` entries. Checkpoint opponents can be configured as previous best, current, or current best models when those checkpoints exist.
+
+#### Public replay ingestion
+
+The replay pipeline ingests only public saved replays from `https://replay.pokemonshowdown.com`. It does not collect private replays, does not join live battle rooms, and does not inspect live server traffic. Downloads are rate-limited, raw files are cached, and replay ids/source metadata are preserved for reproducibility. Public replay data can be biased toward games players chose to save or upload, so reports keep source counts and skip/failure reasons visible.
+
+Fetch a small public sample:
+
+```powershell
+.\scripts\run_windows.ps1 -Action fetch-replays `
+  -Format gen9randombattle `
+  -MaxReplays 10 `
+  -DelaySec 0.5 `
+  -SimCoreMode native
+```
+
+Parse public protocol logs:
+
+```powershell
+.\scripts\run_windows.ps1 -Action parse-replays `
+  -Format gen9randombattle `
+  -ReplayDir .\data\replays\raw\gen9randombattle `
+  -SimCoreMode native
+```
+
+Build the first public replay value dataset:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-replay-value-dataset `
+  -Format gen9randombattle `
+  -ReplayDir .\data\replays\raw\gen9randombattle `
+  -SimCoreMode native
+```
+
+Optional policy/action labels:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-replay-policy-dataset `
+  -Format gen9randombattle `
+  -ReplayDir .\data\replays\raw\gen9randombattle `
+  -SimCoreMode native
+```
+
+Outputs:
+- Raw replay cache: `data/replays/raw/<format>/<replay_id>.json` and `.log`
+- Raw metadata: `data/replays/raw/<format>/metadata.jsonl`
+- Parsed trajectories: `data/replays/processed/<format>_trajectories.jsonl.gz`
+- Value dataset: `data/value/<format>_public_replay_value.npz`
+- Reports: `artifacts/replays/fetch_report.json`, `parse_report.json`, and `value_dataset_report.json`
+
+The current public replay value dataset uses a temporary event-derived feature vector from public protocol events such as HP percentages, faints, switches, status, boosts, tera usage, and final outcome. It is not yet the same 1179D sim-core trace feature vector; that needs deterministic replay-to-state reconstruction before the formats can be unified.
 
 #### Interpreting switch categories
 

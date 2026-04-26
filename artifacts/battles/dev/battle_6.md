@@ -1,5 +1,5 @@
 # Battle 6: gen9randombattle
-**Result:** p1 win (20 turns)
+**Result:** p1 win (17 turns)
 
 ## Turn 2
 ### p1: Avalugg (HP 100%, None)
@@ -9,129 +9,116 @@
 
 ## Turn 3
 ### p1: Avalugg (HP 100%, None)
-- **Choice:** move:Avalanche
+- **Choice:** move:Body Press
 - **Legal actions:** 13
-- **Model confidence:** 99.6%
+- **Model confidence:** 93.4%
 
 ## Turn 4
-### p1: Avalugg (HP 54%, brn)
-- **Choice:** move_tera:Stone Edge
+### p1: Avalugg (HP 15%, None)
+- **Choice:** move:Stone Edge
 - **Legal actions:** 13
-- **Model confidence:** 84.5%
+- **Model confidence:** 57.6%
 
 ## Turn 5
-### p1: Avalugg (HP 48%, brn)
+### p1: Avalugg (HP 15%, None)
 - **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 87.3%
+- **Legal actions:** 13
+- **Model confidence:** 34.6%
 
 ## Turn 6
-### p1: Avalugg (HP 42%, brn)
+### p1: Avalugg (HP 15%, None)
 - **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 88.9%
-
-## Turn 7
-### p1: Avalugg (HP 36%, brn)
-- **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 86.9%
-
-## Turn 8
-### p1: Avalugg (HP 30%, brn)
-- **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 79.1%
-
-## Turn 9
-### p1: Avalugg (HP 24%, brn)
-- **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 92.3%
-
-## Turn 10
-### p1: Avalugg (HP 18%, brn)
-- **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 97.0%
-
-## Turn 11
-### p1: Avalugg (HP 12%, brn)
-- **Choice:** move:Body Press
-- **Legal actions:** 9
-- **Model confidence:** 82.6%
-
-## Turn 12
-### p1: Avalugg (HP 6%, brn)
-- **Choice:** move:Avalanche
-- **Legal actions:** 9
-- **Model confidence:** 84.4%
+- **Legal actions:** 13
+- **Model confidence:** 60.1%
 
 ### p1: Avalugg (HP 0%, None)
 - **Choice:** move:Avalanche
-- **Legal actions:** 9
-- **Model confidence:** 81.3%
+- **Legal actions:** 13
+- **Model confidence:** 57.2%
 
-## Turn 13
+## Turn 7
+### p1: Perrserker (HP 94%, None)
+- **Choice:** switch:Perrserker, L89, F
+- **Legal actions:** 5
+- **Model confidence:** 90.6%
+
+### p1: Perrserker (HP 94%, None)
+- **Choice:** move:U-turn
+- **Legal actions:** 12
+- **Model confidence:** 41.7%
+
+## Turn 8
 ### p1: Toxicroak (HP 94%, None)
 - **Choice:** switch:Toxicroak, L84, F
-- **Legal actions:** 5
-- **Model confidence:** 81.5%
+- **Legal actions:** 4
+- **Model confidence:** 75.9%
 
-## Turn 14
+## Turn 9
 ### p1: Toxicroak (HP 84%, None)
+- **Choice:** move_tera:Earthquake
+- **Legal actions:** 12
+- **Model confidence:** 99.4%
+
+## Turn 10
+### p1: Toxicroak (HP 74%, None)
 - **Choice:** move:Gunk Shot
 - **Legal actions:** 8
-- **Model confidence:** 87.1%
+- **Model confidence:** 93.0%
 
-## Turn 15
-### p1: Toxicroak (HP 74%, None)
-- **Choice:** move:Earthquake
-- **Legal actions:** 8
-- **Model confidence:** 94.5%
-
-## Turn 16
+## Turn 11
 ### p1: Toxicroak (HP 65%, None)
 - **Choice:** move:Gunk Shot
 - **Legal actions:** 8
-- **Model confidence:** 58.3%
+- **Model confidence:** 78.3%
+
+## Turn 12
+### p1: Toxicroak (HP 55%, None)
+- **Choice:** move:Gunk Shot
+- **Legal actions:** 8
+- **Model confidence:** 60.8%
+
+## Turn 13
+### p1: Toxicroak (HP 45%, None)
+- **Choice:** move:Close Combat
+- **Legal actions:** 8
+- **Model confidence:** 65.3%
+
+## Turn 14
+### p1: Toxicroak (HP 35%, None)
+- **Choice:** move:Close Combat
+- **Legal actions:** 8
+- **Model confidence:** 59.1%
+
+## Turn 15
+### p1: Toxicroak (HP 26%, None)
+- **Choice:** move:Close Combat
+- **Legal actions:** 8
+- **Model confidence:** 97.1%
+
+## Turn 16
+### p1: Toxicroak (HP 16%, None)
+- **Choice:** move:Close Combat
+- **Legal actions:** 8
+- **Model confidence:** 88.3%
 
 ## Turn 17
-### p1: Toxicroak (HP 32%, None)
-- **Choice:** move:Gunk Shot
+### p1: Toxicroak (HP 6%, None)
+- **Choice:** move:Close Combat
 - **Legal actions:** 8
-- **Model confidence:** 85.0%
-
-## Turn 18
-### p1: Toxicroak (HP 18%, None)
-- **Choice:** move:Gunk Shot
-- **Legal actions:** 8
-- **Model confidence:** 45.5%
+- **Model confidence:** 99.2%
 
 ### p1: Toxicroak (HP 0%, None)
-- **Choice:** move:Earthquake
+- **Choice:** move:Close Combat
 - **Legal actions:** 8
-- **Model confidence:** 69.1%
+- **Model confidence:** 96.5%
 
-## Turn 19
-### p1: Salamence (HP 100%, None)
-- **Choice:** switch:Salamence, L77, M
+## Turn 18
+### p1: Latios (HP 88%, None)
+- **Choice:** switch:Latios, L78, M
 - **Legal actions:** 4
-- **Model confidence:** 1.4%
+- **Model confidence:** 85.0%
 
-## Turn 20
-### p1: Salamence (HP 100%, None)
-- **Choice:** move:Earthquake
+### p1: Latios (HP 88%, None (spa:-2))
+- **Choice:** move:Draco Meteor
 - **Legal actions:** 7
-- **Model confidence:** 93.7%
-
-## Turn 21
-### p1: Salamence (HP 100%, None)
-- **Choice:** move:Outrage
-- **Legal actions:** 7
-- **Model confidence:** 98.1%
-
-### p1: Salamence (HP 100%, None)
-- **Choice:** default
-- **Legal actions:** 1
-- **Model confidence:** 100.0%
+- **Model confidence:** 99.9%

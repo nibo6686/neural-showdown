@@ -3,8 +3,8 @@
   "env_id": "env-12",
   "format": "gen9randombattle",
   "winner": "p1",
-  "total_turns": 21,
-  "start_time": "2026-04-26T00:33:04.870191Z",
+  "total_turns": 23,
+  "start_time": "2026-04-26T17:57:37.207018Z",
   "turns": [
     {
       "turn": 2,
@@ -16,8 +16,8 @@
           "p1_hp_ratio": 0.9028776978417267,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.91,
+          "p2_species": "Samurott",
+          "p2_hp_ratio": 0.07,
           "p2_status": null,
           "legal_actions": [
             {
@@ -145,7 +145,7 @@
             }
           ],
           "protocol_log": [
-            "|t:|1777163584",
+            "|t:|1777226256",
             "|gametype|singles",
             "|player|p1|Agent-1||",
             "|player|p2|Agent-2||",
@@ -158,7 +158,7 @@
             "|rule|Sleep Clause Mod: Limit one foe put to sleep",
             "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
             "|",
-            "|t:|1777163584",
+            "|t:|1777226256",
             "|start",
             "|switch|p1a: Cacturne|Cacturne, L92, F|100/100",
             "|switch|p2a: Donphan|Donphan, L84, F|100/100",
@@ -174,11 +174,11 @@
           "turn": 3,
           "step_index": 1,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.8057553956834532,
+          "p1_hp_ratio": 0.9028776978417267,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.59,
+          "p2_species": "Samurott",
+          "p2_hp_ratio": 0.07,
           "p2_status": null,
           "legal_actions": [
             {
@@ -277,42 +277,41 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Sucker Punch",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9521589279174805,
+          "chosen_action_probability": 0.7298349142074585,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 7.881146430969238,
-              "probability": 0.9521589279174805
+              "logit": 8.54324722290039,
+              "probability": 0.7298349142074585
             },
             {
               "index": 0,
-              "logit": 4.885930061340332,
-              "probability": 0.04763251170516014
+              "logit": 7.547871112823486,
+              "probability": 0.26973557472229004
             },
             {
               "index": 6,
-              "logit": -1.0830988883972168,
-              "probability": 0.00012178321048850194
+              "logit": 0.7782520651817322,
+              "probability": 0.0003096920845564455
             },
             {
-              "index": 12,
-              "logit": -1.831676721572876,
-              "probability": 5.7608169299783185e-05
+              "index": 1,
+              "logit": -0.8453019857406616,
+              "probability": 6.10702481935732e-05
             },
             {
               "index": 4,
-              "logit": -2.515251874923706,
-              "probability": 2.9081109460094012e-05
+              "logit": -0.8837092518806458,
+              "probability": 5.876917202840559e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
-            "|-ability|p2a: Vespiquen|Pressure",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-            "|-resisted|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|91/100",
+            "|t:|1777226256",
+            "|switch|p2a: Samurott|Samurott, L88, M|100/100",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Samurott",
+            "|-supereffective|p2a: Samurott",
+            "|-damage|p2a: Samurott|7/100",
             "|-damage|p1a: Cacturne|91/100|[from] item: Life Orb",
             "|",
             "|upkeep",
@@ -328,11 +327,11 @@
           "turn": 4,
           "step_index": 2,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.8057553956834532,
+          "p1_hp_ratio": 0.9028776978417267,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Barraskewda",
-          "p2_hp_ratio": 1,
+          "p2_species": "Samurott",
+          "p2_hp_ratio": 0.07,
           "p2_status": null,
           "legal_actions": [
             {
@@ -431,43 +430,41 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Sucker Punch",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.6101832985877991,
+          "chosen_action_probability": 0.7001968622207642,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 7.0388007164001465,
-              "probability": 0.6101832985877991
+              "logit": 8.241299629211426,
+              "probability": 0.7001968622207642
             },
             {
               "index": 0,
-              "logit": 6.567262172698975,
-              "probability": 0.3807796239852905
+              "logit": 7.390644550323486,
+              "probability": 0.29907864332199097
             },
             {
               "index": 6,
-              "logit": 2.725754976272583,
-              "probability": 0.00817200168967247
+              "logit": 1.118491768836975,
+              "probability": 0.0005647080251947045
+            },
+            {
+              "index": 1,
+              "logit": -0.44794371724128723,
+              "probability": 0.00011790432472480461
             },
             {
               "index": 4,
-              "logit": 0.3101716935634613,
-              "probability": 0.0007298839627765119
-            },
-            {
-              "index": 12,
-              "logit": -1.3759366273880005,
-              "probability": 0.00013520295033231378
+              "logit": -1.483067512512207,
+              "probability": 4.1877541661961004e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|-terastallize|p2a: Vespiquen|Steel",
-            "|move|p1a: Cacturne|Sucker Punch|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|59/100",
-            "|-damage|p1a: Cacturne|81/100|[from] item: Life Orb",
-            "|move|p2a: Vespiquen|Hurricane|p1a: Cacturne|[miss]",
-            "|-miss|p2a: Vespiquen|p1a: Cacturne",
+            "|t:|1777226256",
+            "|move|p1a: Cacturne|Sucker Punch||[still]",
+            "|-fail|p1a: Cacturne",
+            "|move|p2a: Samurott|Swords Dance|p2a: Samurott",
+            "|-boost|p2a: Samurott|atk|2",
             "|",
             "|upkeep",
             "|turn|3"
@@ -482,10 +479,10 @@
           "turn": 5,
           "step_index": 3,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.7086330935251799,
+          "p1_hp_ratio": 0.8057553956834532,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Donphan",
+          "p2_species": "Klefki",
           "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
@@ -585,52 +582,53 @@
           "chosen_action_index": 0,
           "chosen_action_label": "move:Seed Bomb",
           "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9565744400024414,
+          "chosen_action_probability": 0.9245144724845886,
           "model_top_k": [
             {
               "index": 0,
-              "logit": 6.488420486450195,
-              "probability": 0.9565744400024414
+              "logit": 9.140885353088379,
+              "probability": 0.9245144724845886
             },
             {
               "index": 2,
-              "logit": 3.3143155574798584,
-              "probability": 0.040014974772930145
+              "logit": 6.632851600646973,
+              "probability": 0.0752815455198288
             },
             {
-              "index": 12,
-              "logit": 0.6359457969665527,
-              "probability": 0.002748028840869665
+              "index": 4,
+              "logit": 0.31027907133102417,
+              "probability": 0.00013515436148736626
             },
             {
               "index": 6,
-              "logit": -1.128335952758789,
-              "probability": 0.0004707642656285316
+              "logit": -0.6350685954093933,
+              "probability": 5.2513474656734616e-05
             },
             {
-              "index": 10,
-              "logit": -2.0263559818267822,
-              "probability": 0.00019177785725332797
+              "index": 1,
+              "logit": -1.798413872718811,
+              "probability": 1.6407268049078993e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Barraskewda|Barraskewda, L81, F|100/100",
+            "|t:|1777226256",
+            "|-terastallize|p2a: Samurott|Water",
             "|move|p1a: Cacturne|Sucker Punch||[still]",
             "|-fail|p1a: Cacturne",
+            "|move|p2a: Samurott|Swords Dance|p2a: Samurott",
+            "|-boost|p2a: Samurott|atk|2",
             "|",
             "|upkeep",
             "|turn|4",
             "|",
-            "|t:|1777163584",
-            "|move|p2a: Barraskewda|Psychic Fangs|p1a: Cacturne",
-            "|-immune|p1a: Cacturne",
+            "|t:|1777226256",
+            "|switch|p2a: Barraskewda|Barraskewda, L81, F|100/100",
             "|move|p1a: Cacturne|Seed Bomb|p2a: Barraskewda",
             "|-supereffective|p2a: Barraskewda",
             "|-damage|p2a: Barraskewda|0 fnt",
             "|faint|p2a: Barraskewda",
-            "|-damage|p1a: Cacturne|71/100|[from] item: Life Orb",
+            "|-damage|p1a: Cacturne|81/100|[from] item: Life Orb",
             "|",
             "|upkeep"
           ]
@@ -644,322 +642,10 @@
           "turn": 6,
           "step_index": 4,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.31654676258992803,
+          "p1_hp_ratio": 0.8057553956834532,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Donphan",
-          "p2_hp_ratio": 0.23,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Seed Bomb",
-              "choice": "move 1",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Knock Off",
-              "choice": "move 2",
-              "move": "Knock Off"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Sucker Punch",
-              "choice": "move 3",
-              "move": "Sucker Punch"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Swords Dance",
-              "choice": "move 4",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 4,
-              "kind": "move_tera",
-              "label": "move_tera:Seed Bomb",
-              "choice": "move 1 terastallize",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 5,
-              "kind": "move_tera",
-              "label": "move_tera:Knock Off",
-              "choice": "move 2 terastallize",
-              "move": "Knock Off"
-            },
-            {
-              "index": 6,
-              "kind": "move_tera",
-              "label": "move_tera:Sucker Punch",
-              "choice": "move 3 terastallize",
-              "move": "Sucker Punch"
-            },
-            {
-              "index": 7,
-              "kind": "move_tera",
-              "label": "move_tera:Swords Dance",
-              "choice": "move 4 terastallize",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Zapdos, L78",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 12,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 13,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Seed Bomb",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9803687930107117,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 8.42941665649414,
-              "probability": 0.9803687930107117
-            },
-            {
-              "index": 2,
-              "logit": 4.5055365562438965,
-              "probability": 0.01937626302242279
-            },
-            {
-              "index": 10,
-              "logit": -0.6975095272064209,
-              "probability": 0.00010656526865204796
-            },
-            {
-              "index": 12,
-              "logit": -0.7158223390579224,
-              "probability": 0.00010463156650075689
-            },
-            {
-              "index": 6,
-              "logit": -1.5889732837677002,
-              "probability": 4.3697651562979445e-05
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163584",
-            "|switch|p2a: Donphan|Donphan, L84, F|100/100",
-            "|turn|5"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 7,
-      "steps": [
-        {
-          "turn": 7,
-          "step_index": 5,
-          "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.21942446043165467,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.59,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Seed Bomb",
-              "choice": "move 1",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Knock Off",
-              "choice": "move 2",
-              "move": "Knock Off"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Sucker Punch",
-              "choice": "move 3",
-              "move": "Sucker Punch"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Swords Dance",
-              "choice": "move 4",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 4,
-              "kind": "move_tera",
-              "label": "move_tera:Seed Bomb",
-              "choice": "move 1 terastallize",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 5,
-              "kind": "move_tera",
-              "label": "move_tera:Knock Off",
-              "choice": "move 2 terastallize",
-              "move": "Knock Off"
-            },
-            {
-              "index": 6,
-              "kind": "move_tera",
-              "label": "move_tera:Sucker Punch",
-              "choice": "move 3 terastallize",
-              "move": "Sucker Punch"
-            },
-            {
-              "index": 7,
-              "kind": "move_tera",
-              "label": "move_tera:Swords Dance",
-              "choice": "move 4 terastallize",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Zapdos, L78",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 12,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 13,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Seed Bomb",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9892027974128723,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 9.246916770935059,
-              "probability": 0.9892027974128723
-            },
-            {
-              "index": 2,
-              "logit": 4.723433971405029,
-              "probability": 0.01073400303721428
-            },
-            {
-              "index": 12,
-              "logit": -0.9812084436416626,
-              "probability": 3.574924267013557e-05
-            },
-            {
-              "index": 10,
-              "logit": -1.3497626781463623,
-              "probability": 2.472895721439272e-05
-            },
-            {
-              "index": 6,
-              "logit": -3.5541393756866455,
-              "probability": 2.7280818812869256e-06
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163584",
-            "|move|p2a: Donphan|Ice Shard|p1a: Cacturne",
-            "|-supereffective|p1a: Cacturne",
-            "|-damage|p1a: Cacturne|42/100",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
-            "|-supereffective|p2a: Donphan",
-            "|-damage|p2a: Donphan|16/100",
-            "|-damage|p1a: Cacturne|32/100|[from] item: Life Orb",
-            "|",
-            "|-heal|p2a: Donphan|23/100|[from] item: Leftovers",
-            "|upkeep",
-            "|turn|6",
-            "|",
-            "|t:|1777163584",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
-            "|-supereffective|p2a: Donphan",
-            "|-damage|p2a: Donphan|0 fnt",
-            "|faint|p2a: Donphan",
-            "|-damage|p1a: Cacturne|22/100|[from] item: Life Orb",
-            "|",
-            "|upkeep"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 8,
-      "steps": [
-        {
-          "turn": 8,
-          "step_index": 6,
-          "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.21942446043165467,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Samurott",
+          "p2_species": "Klefki",
           "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
@@ -1059,56 +745,55 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Sucker Punch",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.6092354655265808,
+          "chosen_action_probability": 0.5460339784622192,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 5.073991298675537,
-              "probability": 0.6092354655265808
+              "logit": 6.177350044250488,
+              "probability": 0.5460339784622192
             },
             {
               "index": 0,
-              "logit": 4.437771320343018,
-              "probability": 0.3224618434906006
+              "logit": 5.961666107177734,
+              "probability": 0.4400978982448578
             },
             {
               "index": 12,
-              "logit": 2.500264883041382,
-              "probability": 0.04645473510026932
+              "logit": 2.435077667236328,
+              "probability": 0.012941106222569942
             },
             {
               "index": 10,
-              "logit": 1.334082007408142,
-              "probability": 0.014473156072199345
+              "logit": -0.5229657888412476,
+              "probability": 0.0006719074444845319
             },
             {
-              "index": 6,
-              "logit": 0.6598531603813171,
-              "probability": 0.007374782580882311
+              "index": 9,
+              "logit": -1.491349697113037,
+              "probability": 0.00025512068532407284
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|59/100",
-            "|-ability|p2a: Vespiquen|Pressure",
-            "|turn|7"
+            "|t:|1777226256",
+            "|switch|p2a: Klefki|Klefki, L84, F|100/100",
+            "|turn|5"
           ]
         }
       ]
     },
     {
-      "turn": 9,
+      "turn": 7,
       "steps": [
         {
-          "turn": 9,
-          "step_index": 7,
+          "turn": 7,
+          "step_index": 5,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.37050359712230213,
+          "p1_hp_ratio": 0.8057553956834532,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Samurott",
-          "p2_hp_ratio": 0.62,
+          "p2_species": "Vespiquen",
+          "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
             {
@@ -1207,42 +892,353 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Sucker Punch",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.5569452047348022,
+          "chosen_action_probability": 0.679523766040802,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 5.40622615814209,
-              "probability": 0.5569452047348022
+              "logit": 6.588338375091553,
+              "probability": 0.679523766040802
             },
             {
               "index": 0,
-              "logit": 4.969123840332031,
-              "probability": 0.3597338795661926
+              "logit": 5.796940326690674,
+              "probability": 0.3079674541950226
             },
             {
               "index": 12,
-              "logit": 3.179114818572998,
-              "probability": 0.06006069481372833
+              "logit": 2.542661428451538,
+              "probability": 0.011890205554664135
             },
             {
               "index": 10,
-              "logit": 2.2125558853149414,
-              "probability": 0.022846467792987823
+              "logit": -0.7635201811790466,
+              "probability": 0.00043584598461166024
             },
             {
               "index": 9,
-              "logit": -1.7985239028930664,
-              "probability": 0.00041383696952834725
+              "logit": -1.6324825286865234,
+              "probability": 0.00018278784409631044
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Samurott|Samurott, L88, M|100/100",
+            "|t:|1777226256",
+            "|move|p2a: Klefki|Thunder Wave|p1a: Cacturne",
+            "|-hint|Since gen 7, Dark is immune to Prankster moves.",
+            "|-immune|p1a: Cacturne",
             "|move|p1a: Cacturne|Sucker Punch||[still]",
             "|-fail|p1a: Cacturne",
             "|",
             "|upkeep",
+            "|turn|6"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0.7086330935251799,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9718905687332153,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.606358528137207,
+              "probability": 0.9718905687332153
+            },
+            {
+              "index": 2,
+              "logit": 4.996474742889404,
+              "probability": 0.026294490322470665
+            },
+            {
+              "index": 10,
+              "logit": 2.180504322052002,
+              "probability": 0.0015736361965537071
+            },
+            {
+              "index": 12,
+              "logit": 0.30074775218963623,
+              "probability": 0.00024017979740165174
+            },
+            {
+              "index": 1,
+              "logit": -5.016104698181152,
+              "probability": 1.178845195681788e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
+            "|-ability|p2a: Vespiquen|Pressure",
+            "|move|p1a: Cacturne|Sucker Punch||[still]",
+            "|-fail|p1a: Cacturne",
+            "|",
+            "|upkeep",
+            "|turn|7",
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Samurott|Samurott, L88, M, tera:Water|7/100",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Samurott",
+            "|-supereffective|p2a: Samurott",
+            "|-damage|p2a: Samurott|0 fnt",
+            "|faint|p2a: Samurott",
+            "|-damage|p1a: Cacturne|71/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0.6115107913669064,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9752200841903687,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.324834823608398,
+              "probability": 0.9752200841903687
+            },
+            {
+              "index": 2,
+              "logit": 5.646729469299316,
+              "probability": 0.024644598364830017
+            },
+            {
+              "index": 6,
+              "logit": -0.05684724822640419,
+              "probability": 8.216554851969704e-05
+            },
+            {
+              "index": 12,
+              "logit": -0.5777726173400879,
+              "probability": 4.880395863438025e-05
+            },
+            {
+              "index": 10,
+              "logit": -3.0067572593688965,
+              "probability": 4.300906311982544e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
             "|turn|8"
           ]
         }
@@ -1255,11 +1251,11 @@
           "turn": 10,
           "step_index": 8,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.5215827338129496,
+          "p1_hp_ratio": 0.5143884892086331,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Samurott",
-          "p2_hp_ratio": 0.17,
+          "p2_species": "Vespiquen",
+          "p2_hp_ratio": 0.91,
           "p2_status": null,
           "legal_actions": [
             {
@@ -1355,45 +1351,48 @@
             }
           ],
           "legal_actions_count": 13,
-          "chosen_action_index": 2,
-          "chosen_action_label": "move:Sucker Punch",
-          "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.8039456009864807,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9727665781974792,
           "model_top_k": [
             {
-              "index": 2,
-              "logit": 6.943722248077393,
-              "probability": 0.8039456009864807
-            },
-            {
               "index": 0,
-              "logit": 5.49028205871582,
-              "probability": 0.18793410062789917
+              "logit": 9.095940589904785,
+              "probability": 0.9727665781974792
             },
             {
-              "index": 12,
-              "logit": 2.195265769958496,
-              "probability": 0.006966236513108015
-            },
-            {
-              "index": 10,
-              "logit": 0.28590941429138184,
-              "probability": 0.0010322268353775144
+              "index": 2,
+              "logit": 5.511767387390137,
+              "probability": 0.02700362168252468
             },
             {
               "index": 6,
-              "logit": -1.8512253761291504,
-              "probability": 0.0001217949902638793
+              "logit": 0.07187590003013611,
+              "probability": 0.00011719443864421919
+            },
+            {
+              "index": 12,
+              "logit": -0.056420259177684784,
+              "probability": 0.00010308341006748378
+            },
+            {
+              "index": 10,
+              "logit": -2.434826374053955,
+              "probability": 9.555645192449447e-06
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Cacturne|Sucker Punch|p2a: Samurott",
-            "|-damage|p2a: Samurott|62/100",
-            "|-damage|p1a: Cacturne|13/100|[from] item: Life Orb",
-            "|move|p2a: Samurott|Liquidation|p1a: Cacturne",
-            "|-heal|p1a: Cacturne|38/100|[from] ability: Water Absorb|[of] p2a: Samurott",
+            "|t:|1777226257",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|66/100",
+            "|-damage|p1a: Cacturne|62/100|[from] item: Life Orb",
+            "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+            "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+            "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
+            "|-enditem|p2a: Bastiodon|Chesto Berry|[eat]",
+            "|-curestatus|p2a: Bastiodon|slp|[msg]",
             "|",
             "|upkeep",
             "|turn|9"
@@ -1408,11 +1407,165 @@
           "turn": 11,
           "step_index": 9,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.5215827338129496,
+          "p1_hp_ratio": 0.4172661870503597,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.59,
+          "p2_species": "Donphan",
+          "p2_hp_ratio": 0.31,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8951995372772217,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.298027992248535,
+              "probability": 0.8951995372772217
+            },
+            {
+              "index": 2,
+              "logit": 6.146529674530029,
+              "probability": 0.10412044078111649
+            },
+            {
+              "index": 12,
+              "logit": 0.8005942702293396,
+              "probability": 0.0004963931278325617
+            },
+            {
+              "index": 10,
+              "logit": -0.2732854187488556,
+              "probability": 0.00016960769426077604
+            },
+            {
+              "index": 6,
+              "logit": -2.766343355178833,
+              "probability": 1.4019241461937781e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226257",
+            "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
+            "|-ability|p2a: Vespiquen|Pressure",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
+            "|-resisted|p2a: Vespiquen",
+            "|-damage|p2a: Vespiquen|91/100",
+            "|-damage|p1a: Cacturne|52/100|[from] item: Life Orb",
+            "|",
+            "|upkeep",
+            "|turn|10"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 10,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0.32014388489208634,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
             {
@@ -1511,183 +1664,54 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Sucker Punch",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.8800534605979919,
+          "chosen_action_probability": 0.5215679407119751,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 8.664154052734375,
-              "probability": 0.8800534605979919
+              "logit": 7.164294719696045,
+              "probability": 0.5215679407119751
             },
             {
               "index": 0,
-              "logit": 6.669706344604492,
-              "probability": 0.11976540833711624
+              "logit": 7.075736045837402,
+              "probability": 0.47736480832099915
             },
             {
               "index": 12,
-              "logit": -0.2810823917388916,
-              "probability": 0.00011472085316199809
+              "logit": 0.6195179224014282,
+              "probability": 0.0007498085033148527
             },
             {
-              "index": 6,
-              "logit": -1.0145645141601562,
-              "probability": 5.509282345883548e-05
+              "index": 9,
+              "logit": -0.8833227157592773,
+              "probability": 0.00016683043213561177
             },
             {
               "index": 10,
-              "logit": -2.6028764247894287,
-              "probability": 1.1253814591327682e-05
+              "logit": -0.9858210682868958,
+              "probability": 0.00015057765995152295
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Cacturne|Sucker Punch|p2a: Samurott",
-            "|-damage|p2a: Samurott|17/100",
-            "|-damage|p1a: Cacturne|28/100|[from] item: Life Orb",
-            "|move|p2a: Samurott|Liquidation|p1a: Cacturne",
-            "|-heal|p1a: Cacturne|53/100|[from] ability: Water Absorb|[of] p2a: Samurott",
+            "|t:|1777226257",
+            "|switch|p2a: Donphan|Donphan, L84, F|100/100",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
+            "|-supereffective|p2a: Donphan",
+            "|-damage|p2a: Donphan|25/100",
+            "|-damage|p1a: Cacturne|42/100|[from] item: Life Orb",
             "|",
+            "|-heal|p2a: Donphan|31/100|[from] item: Leftovers",
             "|upkeep",
-            "|turn|10"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 12,
-      "steps": [
-        {
-          "turn": 12,
-          "step_index": 10,
-          "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.4244604316546763,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.4,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Seed Bomb",
-              "choice": "move 1",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Knock Off",
-              "choice": "move 2",
-              "move": "Knock Off"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Swords Dance",
-              "choice": "move 4",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 4,
-              "kind": "move_tera",
-              "label": "move_tera:Seed Bomb",
-              "choice": "move 1 terastallize",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 5,
-              "kind": "move_tera",
-              "label": "move_tera:Knock Off",
-              "choice": "move 2 terastallize",
-              "move": "Knock Off"
-            },
-            {
-              "index": 7,
-              "kind": "move_tera",
-              "label": "move_tera:Swords Dance",
-              "choice": "move 4 terastallize",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Zapdos, L78",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 12,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 11,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Seed Bomb",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9508733749389648,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 4.558846473693848,
-              "probability": 0.9508733749389648
-            },
-            {
-              "index": 10,
-              "logit": 1.0676660537719727,
-              "probability": 0.02896825224161148
-            },
-            {
-              "index": 12,
-              "logit": 0.6355273127555847,
-              "probability": 0.018803853541612625
-            },
-            {
-              "index": 9,
-              "logit": -2.4327611923217773,
-              "probability": 0.0008743917569518089
-            },
-            {
-              "index": 4,
-              "logit": -3.0323660373687744,
-              "probability": 0.00048006619908846915
-            }
-          ],
-          "protocol_log": [
+            "|turn|11",
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|59/100",
-            "|-ability|p2a: Vespiquen|Pressure",
-            "|move|p1a: Cacturne|Sucker Punch||[still]",
-            "|-fail|p1a: Cacturne",
+            "|t:|1777226257",
+            "|move|p1a: Cacturne|Sucker Punch|p2a: Donphan",
+            "|-damage|p2a: Donphan|0 fnt",
+            "|faint|p2a: Donphan",
+            "|-damage|p1a: Cacturne|33/100|[from] item: Life Orb",
             "|",
-            "|upkeep",
-            "|turn|11"
+            "|upkeep"
           ]
         }
       ]
@@ -1699,12 +1723,12 @@
           "turn": 13,
           "step_index": 11,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.3273381294964029,
+          "p1_hp_ratio": 0.22302158273381295,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.2,
-          "p2_status": null,
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": "slp",
           "legal_actions": [
             {
               "index": 0,
@@ -1719,6 +1743,13 @@
               "label": "move:Knock Off",
               "choice": "move 2",
               "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
             },
             {
               "index": 3,
@@ -1740,6 +1771,13 @@
               "label": "move_tera:Knock Off",
               "choice": "move 2 terastallize",
               "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
             },
             {
               "index": 7,
@@ -1784,49 +1822,42 @@
               "move": null
             }
           ],
-          "legal_actions_count": 11,
+          "legal_actions_count": 13,
           "chosen_action_index": 0,
           "chosen_action_label": "move:Seed Bomb",
           "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9707282185554504,
+          "chosen_action_probability": 0.9674908518791199,
           "model_top_k": [
             {
               "index": 0,
-              "logit": 4.907269477844238,
-              "probability": 0.9707282185554504
+              "logit": 8.755041122436523,
+              "probability": 0.9674908518791199
             },
             {
-              "index": 10,
-              "logit": 0.8745694160461426,
-              "probability": 0.017207520082592964
+              "index": 2,
+              "logit": 5.343939304351807,
+              "probability": 0.031931858509778976
             },
             {
               "index": 12,
-              "logit": 0.43357083201408386,
-              "probability": 0.011071208864450455
+              "logit": 1.0977967977523804,
+              "probability": 0.0004572439647745341
             },
             {
-              "index": 9,
-              "logit": -2.331170082092285,
-              "probability": 0.000697402167133987
+              "index": 6,
+              "logit": -0.9300928711891174,
+              "probability": 6.0179234424140304e-05
             },
             {
-              "index": 1,
-              "logit": -3.1897292137145996,
-              "probability": 0.00029553979402408004
+              "index": 10,
+              "logit": -0.9352185726165771,
+              "probability": 5.987154509057291e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-            "|-resisted|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|40/100",
-            "|-damage|p1a: Cacturne|43/100|[from] item: Life Orb",
-            "|move|p2a: Vespiquen|Toxic Spikes|p1a: Cacturne",
-            "|-sidestart|p1: Agent-1|move: Toxic Spikes",
-            "|",
-            "|upkeep",
+            "|t:|1777226257",
+            "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
             "|turn|12"
           ]
         }
@@ -1839,11 +1870,11 @@
           "turn": 14,
           "step_index": 12,
           "p1_species": "Cacturne",
-          "p1_hp_ratio": 0.2302158273381295,
+          "p1_hp_ratio": 0.12589928057553956,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Bastiodon",
-          "p2_hp_ratio": 0.69,
+          "p2_species": "Klefki",
+          "p2_hp_ratio": 0.75,
           "p2_status": null,
           "legal_actions": [
             {
@@ -1859,6 +1890,13 @@
               "label": "move:Knock Off",
               "choice": "move 2",
               "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
             },
             {
               "index": 3,
@@ -1880,6 +1918,13 @@
               "label": "move_tera:Knock Off",
               "choice": "move 2 terastallize",
               "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
             },
             {
               "index": 7,
@@ -1924,183 +1969,50 @@
               "move": null
             }
           ],
-          "legal_actions_count": 11,
+          "legal_actions_count": 13,
           "chosen_action_index": 0,
           "chosen_action_label": "move:Seed Bomb",
           "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9817706942558289,
+          "chosen_action_probability": 0.8410371541976929,
           "model_top_k": [
             {
               "index": 0,
-              "logit": 5.171278476715088,
-              "probability": 0.9817706942558289
+              "logit": 6.7030463218688965,
+              "probability": 0.8410371541976929
             },
             {
-              "index": 10,
-              "logit": 0.5567353963851929,
-              "probability": 0.009726117365062237
+              "index": 2,
+              "logit": 4.981160640716553,
+              "probability": 0.15031754970550537
             },
             {
               "index": 12,
-              "logit": 0.3204214572906494,
-              "probability": 0.007679089903831482
+              "logit": 1.8157802820205688,
+              "probability": 0.006343112792819738
             },
             {
-              "index": 9,
-              "logit": -2.3870224952697754,
-              "probability": 0.0005122495931573212
+              "index": 10,
+              "logit": 0.566161572933197,
+              "probability": 0.001818025833927095
             },
             {
-              "index": 1,
-              "logit": -2.8833494186401367,
-              "probability": 0.00031183825922198594
+              "index": 6,
+              "logit": -0.7569442391395569,
+              "probability": 0.00048415284254588187
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-            "|-resisted|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|20/100",
-            "|-damage|p1a: Cacturne|33/100|[from] item: Life Orb",
-            "|move|p2a: Vespiquen|Toxic Spikes|p1a: Cacturne",
-            "|-sidestart|p1: Agent-1|move: Toxic Spikes",
+            "|t:|1777226257",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|64/100",
+            "|-damage|p1a: Cacturne|23/100|[from] item: Life Orb",
+            "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+            "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+            "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
             "|",
             "|upkeep",
             "|turn|13"
-          ]
-        },
-        {
-          "turn": 14,
-          "step_index": 13,
-          "p1_species": "Cacturne",
-          "p1_hp_ratio": 0,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Bastiodon",
-          "p2_hp_ratio": 0.35,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Seed Bomb",
-              "choice": "move 1",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Knock Off",
-              "choice": "move 2",
-              "move": "Knock Off"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Swords Dance",
-              "choice": "move 4",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 4,
-              "kind": "move_tera",
-              "label": "move_tera:Seed Bomb",
-              "choice": "move 1 terastallize",
-              "move": "Seed Bomb"
-            },
-            {
-              "index": 5,
-              "kind": "move_tera",
-              "label": "move_tera:Knock Off",
-              "choice": "move 2 terastallize",
-              "move": "Knock Off"
-            },
-            {
-              "index": 7,
-              "kind": "move_tera",
-              "label": "move_tera:Swords Dance",
-              "choice": "move 4 terastallize",
-              "move": "Swords Dance"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Zapdos, L78",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 12,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 11,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Seed Bomb",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.8503970503807068,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 5.5802388191223145,
-              "probability": 0.8503970503807068
-            },
-            {
-              "index": 10,
-              "logit": 3.828961133956909,
-              "probability": 0.14758814871311188
-            },
-            {
-              "index": 12,
-              "logit": -0.5421812534332275,
-              "probability": 0.0018650409765541553
-            },
-            {
-              "index": 1,
-              "logit": -3.408552646636963,
-              "probability": 0.00010613026097416878
-            },
-            {
-              "index": 9,
-              "logit": -4.296492099761963,
-              "probability": 4.3672895117197186e-05
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163584",
-            "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
-            "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
-            "|-damage|p2a: Bastiodon|69/100",
-            "|-damage|p1a: Cacturne|24/100|[from] item: Life Orb",
-            "|",
-            "|upkeep",
-            "|turn|14"
           ]
         }
       ]
@@ -2110,14 +2022,466 @@
       "steps": [
         {
           "turn": 15,
+          "step_index": 13,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0.12589928057553956,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": "slp",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Sucker Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.6107938289642334,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 6.244630336761475,
+              "probability": 0.6107938289642334
+            },
+            {
+              "index": 12,
+              "logit": 5.4057793617248535,
+              "probability": 0.26398926973342896
+            },
+            {
+              "index": 0,
+              "logit": 4.606184005737305,
+              "probability": 0.11866603046655655
+            },
+            {
+              "index": 10,
+              "logit": 1.6403074264526367,
+              "probability": 0.006113115698099136
+            },
+            {
+              "index": 9,
+              "logit": -0.9961590766906738,
+              "probability": 0.0004377838340587914
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226257",
+            "|switch|p2a: Klefki|Klefki, L84, F|100/100",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Klefki",
+            "|-resisted|p2a: Klefki",
+            "|-damage|p2a: Klefki|69/100",
+            "|-damage|p1a: Cacturne|13/100|[from] item: Life Orb",
+            "|",
+            "|-heal|p2a: Klefki|75/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
           "step_index": 14,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0.02877697841726619,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 0.7,
+          "p2_status": "slp",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8669113516807556,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 6.830469608306885,
+              "probability": 0.8669113516807556
+            },
+            {
+              "index": 2,
+              "logit": 4.8729424476623535,
+              "probability": 0.12241410464048386
+            },
+            {
+              "index": 12,
+              "logit": 2.1305291652679443,
+              "probability": 0.007885267026722431
+            },
+            {
+              "index": 10,
+              "logit": 0.9219551086425781,
+              "probability": 0.002354721073061228
+            },
+            {
+              "index": 6,
+              "logit": -0.7679906487464905,
+              "probability": 0.00043451559031382203
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226257",
+            "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100 slp",
+            "|move|p1a: Cacturne|Sucker Punch||[still]",
+            "|-fail|p1a: Cacturne",
+            "|",
+            "|upkeep",
+            "|turn|15"
+          ]
+        },
+        {
+          "turn": 16,
+          "step_index": 15,
+          "p1_species": "Cacturne",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 0.35,
+          "p2_status": "slp",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Seed Bomb",
+              "choice": "move 1",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sucker Punch",
+              "choice": "move 3",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Seed Bomb",
+              "choice": "move 1 terastallize",
+              "move": "Seed Bomb"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Sucker Punch",
+              "choice": "move 3 terastallize",
+              "move": "Sucker Punch"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Swords Dance",
+              "choice": "move 4 terastallize",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Zapdos, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Seed Bomb",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8861314654350281,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 6.978638172149658,
+              "probability": 0.8861314654350281
+            },
+            {
+              "index": 2,
+              "logit": 4.852302551269531,
+              "probability": 0.105692058801651
+            },
+            {
+              "index": 12,
+              "logit": 1.9027386903762817,
+              "probability": 0.005534303840249777
+            },
+            {
+              "index": 10,
+              "logit": 1.0869746208190918,
+              "probability": 0.0024478293489664793
+            },
+            {
+              "index": 6,
+              "logit": -1.4462717771530151,
+              "probability": 0.0001943598035722971
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226257",
+            "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|70/100 slp",
+            "|-damage|p1a: Cacturne|3/100|[from] item: Life Orb",
+            "|cant|p2a: Bastiodon|slp",
+            "|",
+            "|upkeep",
+            "|turn|16"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 16,
           "p1_species": "Zapdos",
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
           "p2_species": "Bastiodon",
           "p2_hp_ratio": 0.35,
-          "p2_status": null,
+          "p2_status": "slp",
           "legal_actions": [
             {
               "index": 8,
@@ -2159,44 +2523,42 @@
           "chosen_action_index": 10,
           "chosen_action_label": "switch:Zapdos, L78",
           "chosen_action_choice": "switch 4",
-          "chosen_action_probability": 0.9985382556915283,
+          "chosen_action_probability": 0.8135808110237122,
           "model_top_k": [
             {
               "index": 10,
-              "logit": 1.9702818393707275,
-              "probability": 0.9985382556915283
-            },
-            {
-              "index": 12,
-              "logit": -4.941305160522461,
-              "probability": 0.0009947196813300252
+              "logit": 1.3582720756530762,
+              "probability": 0.8135808110237122
             },
             {
               "index": 9,
-              "logit": -5.821163654327393,
-              "probability": 0.00041265093022957444
+              "logit": -0.2274331897497177,
+              "probability": 0.1666240245103836
+            },
+            {
+              "index": 12,
+              "logit": -2.36281156539917,
+              "probability": 0.019694937393069267
             },
             {
               "index": 11,
-              "logit": -7.848936557769775,
-              "probability": 5.431655881693587e-05
+              "logit": -7.826379299163818,
+              "probability": 8.347516268258914e-05
             },
             {
               "index": 8,
-              "logit": -17.220903396606445,
-              "probability": 4.621031557405786e-09
+              "logit": -9.429749488830566,
+              "probability": 1.6796648196759634e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
+            "|t:|1777226257",
             "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
-            "|-damage|p2a: Bastiodon|35/100",
-            "|-damage|p1a: Cacturne|14/100|[from] item: Life Orb",
-            "|move|p2a: Bastiodon|Body Press|p1a: Cacturne",
-            "|-supereffective|p1a: Cacturne",
-            "|-damage|p1a: Cacturne|0 fnt",
+            "|-damage|p2a: Bastiodon|35/100 slp",
+            "|-damage|p1a: Cacturne|0 fnt|[from] item: Life Orb",
             "|faint|p1a: Cacturne",
+            "|cant|p2a: Bastiodon|slp",
             "|",
             "|upkeep"
           ]
@@ -2204,18 +2566,18 @@
       ]
     },
     {
-      "turn": 16,
+      "turn": 18,
       "steps": [
         {
-          "turn": 16,
-          "step_index": 15,
+          "turn": 18,
+          "step_index": 17,
           "p1_species": "Zapdos",
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.03,
-          "p2_status": null,
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": "slp",
           "legal_actions": [
             {
               "index": 0,
@@ -2303,276 +2665,41 @@
             }
           ],
           "legal_actions_count": 12,
-          "chosen_action_index": 7,
-          "chosen_action_label": "move_tera:Hurricane",
-          "chosen_action_choice": "move 4 terastallize",
-          "chosen_action_probability": 0.9268639087677002,
+          "chosen_action_index": 6,
+          "chosen_action_label": "move_tera:Discharge",
+          "chosen_action_choice": "move 3 terastallize",
+          "chosen_action_probability": 0.8799464702606201,
           "model_top_k": [
-            {
-              "index": 7,
-              "logit": 17.244503021240234,
-              "probability": 0.9268639087677002
-            },
             {
               "index": 6,
-              "logit": 14.703603744506836,
-              "probability": 0.07303271442651749
+              "logit": 11.856964111328125,
+              "probability": 0.8799464702606201
             },
             {
               "index": 2,
-              "logit": 7.9716362953186035,
-              "probability": 8.706847438588738e-05
+              "logit": 9.234559059143066,
+              "probability": 0.06390873342752457
+            },
+            {
+              "index": 7,
+              "logit": 9.10416316986084,
+              "probability": 0.056095752865076065
+            },
+            {
+              "index": 4,
+              "logit": 1.4657001495361328,
+              "probability": 2.701392259041313e-05
             },
             {
               "index": 3,
-              "logit": 6.271012783050537,
-              "probability": 1.58960774570005e-05
-            },
-            {
-              "index": 5,
-              "logit": 2.339479684829712,
-              "probability": 3.1177876280708006e-07
+              "logit": 1.2563358545303345,
+              "probability": 2.1910991563345306e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
+            "|t:|1777226257",
             "|switch|p1a: Zapdos|Zapdos, L78|100/100",
-            "|turn|15"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 17,
-      "steps": [
-        {
-          "turn": 17,
-          "step_index": 16,
-          "p1_species": "Zapdos",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Bastiodon",
-          "p2_hp_ratio": 0.02,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Roost",
-              "choice": "move 1",
-              "move": "Roost"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:U-turn",
-              "choice": "move 2",
-              "move": "U-turn"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Discharge",
-              "choice": "move 3",
-              "move": "Discharge"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Hurricane",
-              "choice": "move 4",
-              "move": "Hurricane"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 8,
-          "chosen_action_index": 2,
-          "chosen_action_label": "move:Discharge",
-          "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9967474937438965,
-          "model_top_k": [
-            {
-              "index": 2,
-              "logit": 8.121526718139648,
-              "probability": 0.9967474937438965
-            },
-            {
-              "index": 3,
-              "logit": 2.388850688934326,
-              "probability": 0.003227866953238845
-            },
-            {
-              "index": 1,
-              "logit": -2.486581563949585,
-              "probability": 2.463440796418581e-05
-            },
-            {
-              "index": 8,
-              "logit": -13.32670783996582,
-              "probability": 4.827643840243923e-10
-            },
-            {
-              "index": 10,
-              "logit": -13.897429466247559,
-              "probability": 2.7281887859942344e-10
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163584",
-            "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|20/100",
-            "|-ability|p2a: Vespiquen|Pressure",
-            "|-terastallize|p1a: Zapdos|Electric",
-            "|move|p1a: Zapdos|Hurricane|p2a: Vespiquen",
-            "|-resisted|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|3/100",
-            "|",
-            "|upkeep",
-            "|turn|16"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 18,
-      "steps": [
-        {
-          "turn": 18,
-          "step_index": 17,
-          "p1_species": "Zapdos",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Klefki",
-          "p2_hp_ratio": 0.53,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Roost",
-              "choice": "move 1",
-              "move": "Roost"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:U-turn",
-              "choice": "move 2",
-              "move": "U-turn"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Discharge",
-              "choice": "move 3",
-              "move": "Discharge"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Hurricane",
-              "choice": "move 4",
-              "move": "Hurricane"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Oranguru, L92, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Moltres, L81",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Hippowdon, L82, M",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Beartic, L91, F",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 8,
-          "chosen_action_index": 2,
-          "chosen_action_label": "move:Discharge",
-          "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9952067732810974,
-          "model_top_k": [
-            {
-              "index": 2,
-              "logit": 10.362104415893555,
-              "probability": 0.9952067732810974
-            },
-            {
-              "index": 3,
-              "logit": 5.026302814483643,
-              "probability": 0.004792964085936546
-            },
-            {
-              "index": 1,
-              "logit": -4.673705101013184,
-              "probability": 2.937272256531287e-07
-            },
-            {
-              "index": 8,
-              "logit": -10.699067115783691,
-              "probability": 7.098430176988302e-10
-            },
-            {
-              "index": 10,
-              "logit": -15.229728698730469,
-              "probability": 7.64753451537592e-12
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163584",
-            "|switch|p2a: Bastiodon|Bastiodon, L89, M|35/100",
-            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
-            "|-damage|p2a: Bastiodon|2/100",
-            "|",
-            "|upkeep",
             "|turn|17"
           ]
         }
@@ -2589,8 +2716,8 @@
           "p1_status": null,
           "p1_boosts": {},
           "p2_species": "Klefki",
-          "p2_hp_ratio": 0.08,
-          "p2_status": "par",
+          "p2_hp_ratio": 0.26,
+          "p2_status": null,
           "legal_actions": [
             {
               "index": 0,
@@ -2653,42 +2780,45 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Discharge",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.8685183525085449,
+          "chosen_action_probability": 0.9998106360435486,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 7.667073726654053,
-              "probability": 0.8685183525085449
+              "logit": 8.104633331298828,
+              "probability": 0.9998106360435486
             },
             {
               "index": 3,
-              "logit": 5.779151916503906,
-              "probability": 0.1314815878868103
+              "logit": -0.4748137593269348,
+              "probability": 0.0001878933107946068
+            },
+            {
+              "index": 8,
+              "logit": -5.39385986328125,
+              "probability": 1.3727664054385968e-06
             },
             {
               "index": 10,
-              "logit": -8.76511001586914,
-              "probability": 6.344129843682822e-08
+              "logit": -8.147818565368652,
+              "probability": 8.741120893773768e-08
             },
             {
               "index": 1,
-              "logit": -10.446980476379395,
-              "probability": 1.1801724042470596e-08
-            },
-            {
-              "index": 0,
-              "logit": -12.032330513000488,
-              "probability": 2.4178903323957e-09
+              "logit": -10.552302360534668,
+              "probability": 7.894289666410259e-09
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Klefki|Klefki, L84, F|100/100",
-            "|move|p1a: Zapdos|Discharge|p2a: Klefki",
-            "|-damage|p2a: Klefki|47/100",
+            "|t:|1777226257",
+            "|-terastallize|p1a: Zapdos|Electric",
+            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|3/100 slp",
+            "|-curestatus|p2a: Bastiodon|slp|[msg]",
+            "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+            "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+            "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
             "|",
-            "|-heal|p2a: Klefki|53/100|[from] item: Leftovers",
             "|upkeep",
             "|turn|18"
           ]
@@ -2705,8 +2835,8 @@
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Bastiodon",
-          "p2_hp_ratio": 0.02,
+          "p2_species": "Vespiquen",
+          "p2_hp_ratio": 0.27,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2770,55 +2900,44 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Discharge",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9992341995239258,
+          "chosen_action_probability": 0.985052764415741,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 9.649731636047363,
-              "probability": 0.9992341995239258
+              "logit": 6.347200870513916,
+              "probability": 0.985052764415741
             },
             {
               "index": 3,
-              "logit": 2.4759891033172607,
-              "probability": 0.0007658621179871261
+              "logit": 2.1561601161956787,
+              "probability": 0.014904365874826908
+            },
+            {
+              "index": 8,
+              "logit": -3.7022578716278076,
+              "probability": 4.256327883922495e-05
             },
             {
               "index": 1,
-              "logit": -7.850740432739258,
-              "probability": 2.5078895404817558e-08
-            },
-            {
-              "index": 10,
-              "logit": -9.883066177368164,
-              "probability": 3.286098504418078e-09
+              "logit": -8.985690116882324,
+              "probability": 2.1600776278773992e-07
             },
             {
               "index": 0,
-              "logit": -11.64928150177002,
-              "probability": 5.618539522522781e-10
+              "logit": -9.662537574768066,
+              "probability": 1.097787318826704e-07
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p2a: Klefki|Thunder Wave|p1a: Zapdos",
-            "|-immune|p1a: Zapdos",
+            "|t:|1777226257",
+            "|switch|p2a: Klefki|Klefki, L84, F|75/100",
             "|move|p1a: Zapdos|Discharge|p2a: Klefki",
-            "|-damage|p2a: Klefki|2/100",
-            "|-status|p2a: Klefki|par",
+            "|-damage|p2a: Klefki|20/100",
             "|",
-            "|-heal|p2a: Klefki|8/100 par|[from] item: Leftovers",
+            "|-heal|p2a: Klefki|26/100|[from] item: Leftovers",
             "|upkeep",
-            "|turn|19",
-            "|",
-            "|t:|1777163584",
-            "|move|p2a: Klefki|Magnet Rise|p2a: Klefki",
-            "|-start|p2a: Klefki|Magnet Rise",
-            "|move|p1a: Zapdos|Discharge|p2a: Klefki",
-            "|-damage|p2a: Klefki|0 fnt",
-            "|faint|p2a: Klefki",
-            "|",
-            "|upkeep"
+            "|turn|19"
           ]
         }
       ]
@@ -2833,9 +2952,9 @@
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Samurott",
-          "p2_hp_ratio": 0.17,
-          "p2_status": null,
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 1,
+          "p2_status": "slp",
           "legal_actions": [
             {
               "index": 0,
@@ -2898,44 +3017,51 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Discharge",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9998652935028076,
+          "chosen_action_probability": 0.9999699592590332,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 8.812655448913574,
-              "probability": 0.9998652935028076
+              "logit": 8.555249214172363,
+              "probability": 0.9999699592590332
             },
             {
               "index": 3,
-              "logit": -0.10937005281448364,
-              "probability": 0.0001333997497567907
-            },
-            {
-              "index": 1,
-              "logit": -4.740880966186523,
-              "probability": 1.2993177733733319e-06
-            },
-            {
-              "index": 10,
-              "logit": -9.491467475891113,
-              "probability": 1.1234710939334036e-08
+              "logit": -1.9418694972991943,
+              "probability": 2.7615067665465176e-05
             },
             {
               "index": 8,
-              "logit": -14.018065452575684,
-              "probability": 1.2153052175722934e-10
+              "logit": -4.432724475860596,
+              "probability": 2.2876070033817086e-06
+            },
+            {
+              "index": 1,
+              "logit": -7.284445285797119,
+              "probability": 1.3209756843934883e-07
+            },
+            {
+              "index": 0,
+              "logit": -9.271925926208496,
+              "probability": 1.8102692678212406e-08
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Bastiodon|Bastiodon, L89, M|2/100",
+            "|t:|1777226257",
+            "|switch|p2a: Vespiquen|Vespiquen, L99, F|91/100",
+            "|-ability|p2a: Vespiquen|Pressure",
+            "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
+            "|-supereffective|p2a: Vespiquen",
+            "|-damage|p2a: Vespiquen|27/100",
+            "|",
+            "|upkeep",
             "|turn|20",
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
-            "|-damage|p2a: Bastiodon|0 fnt",
-            "|faint|p2a: Bastiodon",
+            "|t:|1777226257",
+            "|switch|p2a: Klefki|Klefki, L84, F|26/100",
+            "|move|p1a: Zapdos|Discharge|p2a: Klefki",
+            "|-damage|p2a: Klefki|0 fnt",
+            "|faint|p2a: Klefki",
             "|",
             "|upkeep"
           ]
@@ -2952,9 +3078,9 @@
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Vespiquen",
-          "p2_hp_ratio": 0.03,
-          "p2_status": null,
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 0.66,
+          "p2_status": "slp",
           "legal_actions": [
             {
               "index": 0,
@@ -3017,52 +3143,282 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Discharge",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9997984766960144,
+          "chosen_action_probability": 0.9998288154602051,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 9.301285743713379,
-              "probability": 0.9997984766960144
+              "logit": 8.619437217712402,
+              "probability": 0.9998288154602051
             },
             {
               "index": 3,
-              "logit": 0.791733980178833,
-              "probability": 0.00020149345800746232
+              "logit": -0.05623960867524147,
+              "probability": 0.00017065808060579002
             },
             {
-              "index": 0,
-              "logit": -9.74585247039795,
-              "probability": 5.343741005248148e-09
+              "index": 8,
+              "logit": -6.366086959838867,
+              "probability": 3.1030961622491304e-07
             },
             {
               "index": 10,
-              "logit": -10.889922142028809,
-              "probability": 1.7020892473240679e-09
+              "logit": -7.7661871910095215,
+              "probability": 7.65137713187869e-08
             },
             {
               "index": 1,
-              "logit": -11.53037166595459,
-              "probability": 8.970953424558559e-10
+              "logit": -11.122786521911621,
+              "probability": 2.6667774655209087e-09
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Samurott|Samurott, L88, M|17/100",
-            "|turn|21",
+            "|t:|1777226257",
+            "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100 slp",
+            "|turn|21"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 23,
+      "steps": [
+        {
+          "turn": 23,
+          "step_index": 22,
+          "p1_species": "Zapdos",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 0.66,
+          "p2_status": "slp",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 1",
+              "move": "Roost"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 2",
+              "move": "U-turn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Discharge",
+              "choice": "move 3",
+              "move": "Discharge"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hurricane",
+              "choice": "move 4",
+              "move": "Hurricane"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Discharge",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9998946189880371,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 9.100868225097656,
+              "probability": 0.9998946189880371
+            },
+            {
+              "index": 3,
+              "logit": -0.05811012163758278,
+              "probability": 0.00010525928519200534
+            },
+            {
+              "index": 8,
+              "logit": -6.565868854522705,
+              "probability": 1.5702796929417673e-07
+            },
+            {
+              "index": 10,
+              "logit": -8.685675621032715,
+              "probability": 1.885193690043252e-08
+            },
+            {
+              "index": 1,
+              "logit": -10.36793327331543,
+              "probability": 3.505590262520286e-09
+            }
+          ],
+          "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Zapdos|Discharge|p2a: Samurott",
-            "|-supereffective|p2a: Samurott",
-            "|-damage|p2a: Samurott|0 fnt",
-            "|faint|p2a: Samurott",
+            "|t:|1777226257",
+            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|66/100 slp",
+            "|cant|p2a: Bastiodon|slp",
+            "|",
+            "|upkeep",
+            "|turn|22",
+            "|",
+            "|t:|1777226257",
+            "|switch|p2a: Vespiquen|Vespiquen, L99, F|27/100",
+            "|-ability|p2a: Vespiquen|Pressure",
+            "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
+            "|-supereffective|p2a: Vespiquen",
+            "|-damage|p2a: Vespiquen|0 fnt",
+            "|faint|p2a: Vespiquen",
             "|",
             "|upkeep"
           ]
+        }
+      ]
+    },
+    {
+      "turn": 24,
+      "steps": [
+        {
+          "turn": 24,
+          "step_index": 23,
+          "p1_species": "Zapdos",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bastiodon",
+          "p2_hp_ratio": 0.35,
+          "p2_status": "slp",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 1",
+              "move": "Roost"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 2",
+              "move": "U-turn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Discharge",
+              "choice": "move 3",
+              "move": "Discharge"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hurricane",
+              "choice": "move 4",
+              "move": "Hurricane"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Oranguru, L92, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Moltres, L81",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Beartic, L91, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Discharge",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9998828172683716,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 9.134675025939941,
+              "probability": 0.9998828172683716
+            },
+            {
+              "index": 3,
+              "logit": 0.08074522018432617,
+              "probability": 0.00011691686086123809
+            },
+            {
+              "index": 8,
+              "logit": -6.362977504730225,
+              "probability": 1.859534961567988e-07
+            },
+            {
+              "index": 10,
+              "logit": -8.843844413757324,
+              "probability": 1.5558844879137723e-08
+            },
+            {
+              "index": 1,
+              "logit": -10.655685424804688,
+              "probability": 2.541588273174966e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226257",
+            "|switch|p2a: Bastiodon|Bastiodon, L89, M|66/100 slp",
+            "|turn|23"
+          ]
         },
         {
-          "turn": 22,
-          "step_index": 22,
+          "turn": 24,
+          "step_index": 24,
           "p1_species": "Zapdos",
           "p1_hp_ratio": 1,
           "p1_status": null,
@@ -3132,45 +3488,48 @@
           "chosen_action_index": 2,
           "chosen_action_label": "move:Discharge",
           "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.9999995231628418,
+          "chosen_action_probability": 0.9999457597732544,
           "model_top_k": [
             {
               "index": 2,
-              "logit": 10.883217811584473,
-              "probability": 0.9999995231628418
+              "logit": 9.77263069152832,
+              "probability": 0.9999457597732544
             },
             {
               "index": 3,
-              "logit": -3.7147748470306396,
-              "probability": 4.5726926600764273e-07
+              "logit": -0.05195355787873268,
+              "probability": 5.410205994849093e-05
+            },
+            {
+              "index": 8,
+              "logit": -6.486456871032715,
+              "probability": 8.684499874789253e-08
             },
             {
               "index": 1,
-              "logit": -6.3431243896484375,
-              "probability": 3.30137517323692e-08
+              "logit": -9.876720428466797,
+              "probability": 2.926656028634511e-09
             },
             {
               "index": 10,
-              "logit": -8.448931694030762,
-              "probability": 4.019332866533887e-09
-            },
-            {
-              "index": 11,
-              "logit": -15.13840103149414,
-              "probability": 4.999824339269043e-12
+              "logit": -10.223183631896973,
+              "probability": 2.0696848679335744e-09
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|3/100",
-            "|-ability|p2a: Vespiquen|Pressure",
-            "|turn|22",
+            "|t:|1777226257",
+            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|35/100 slp",
+            "|cant|p2a: Bastiodon|slp",
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
-            "|-damage|p2a: Vespiquen|0 fnt",
-            "|faint|p2a: Vespiquen",
+            "|upkeep",
+            "|turn|24",
+            "|",
+            "|t:|1777226257",
+            "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+            "|-damage|p2a: Bastiodon|0 fnt",
+            "|faint|p2a: Bastiodon",
             "|",
             "|win|Agent-1"
           ]
@@ -3180,7 +3539,7 @@
   ],
   "diagnostics": [],
   "protocol_log": [
-    "|t:|1777163584",
+    "|t:|1777226256",
     "|gametype|singles",
     "|player|p1|Agent-1||",
     "|player|p2|Agent-2||",
@@ -3193,247 +3552,264 @@
     "|rule|Sleep Clause Mod: Limit one foe put to sleep",
     "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
     "|",
-    "|t:|1777163584",
+    "|t:|1777226256",
     "|start",
     "|switch|p1a: Cacturne|Cacturne, L92, F|100/100",
     "|switch|p2a: Donphan|Donphan, L84, F|100/100",
     "|turn|1",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
-    "|-ability|p2a: Vespiquen|Pressure",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-    "|-resisted|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|91/100",
+    "|t:|1777226256",
+    "|switch|p2a: Samurott|Samurott, L88, M|100/100",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Samurott",
+    "|-supereffective|p2a: Samurott",
+    "|-damage|p2a: Samurott|7/100",
     "|-damage|p1a: Cacturne|91/100|[from] item: Life Orb",
     "|",
     "|upkeep",
     "|turn|2",
     "|",
-    "|t:|1777163584",
-    "|-terastallize|p2a: Vespiquen|Steel",
-    "|move|p1a: Cacturne|Sucker Punch|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|59/100",
-    "|-damage|p1a: Cacturne|81/100|[from] item: Life Orb",
-    "|move|p2a: Vespiquen|Hurricane|p1a: Cacturne|[miss]",
-    "|-miss|p2a: Vespiquen|p1a: Cacturne",
+    "|t:|1777226256",
+    "|move|p1a: Cacturne|Sucker Punch||[still]",
+    "|-fail|p1a: Cacturne",
+    "|move|p2a: Samurott|Swords Dance|p2a: Samurott",
+    "|-boost|p2a: Samurott|atk|2",
     "|",
     "|upkeep",
     "|turn|3",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Barraskewda|Barraskewda, L81, F|100/100",
+    "|t:|1777226256",
+    "|-terastallize|p2a: Samurott|Water",
     "|move|p1a: Cacturne|Sucker Punch||[still]",
     "|-fail|p1a: Cacturne",
+    "|move|p2a: Samurott|Swords Dance|p2a: Samurott",
+    "|-boost|p2a: Samurott|atk|2",
     "|",
     "|upkeep",
     "|turn|4",
     "|",
-    "|t:|1777163584",
-    "|move|p2a: Barraskewda|Psychic Fangs|p1a: Cacturne",
-    "|-immune|p1a: Cacturne",
+    "|t:|1777226256",
+    "|switch|p2a: Barraskewda|Barraskewda, L81, F|100/100",
     "|move|p1a: Cacturne|Seed Bomb|p2a: Barraskewda",
     "|-supereffective|p2a: Barraskewda",
     "|-damage|p2a: Barraskewda|0 fnt",
     "|faint|p2a: Barraskewda",
+    "|-damage|p1a: Cacturne|81/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Klefki|Klefki, L84, F|100/100",
+    "|turn|5",
+    "|",
+    "|t:|1777226256",
+    "|move|p2a: Klefki|Thunder Wave|p1a: Cacturne",
+    "|-hint|Since gen 7, Dark is immune to Prankster moves.",
+    "|-immune|p1a: Cacturne",
+    "|move|p1a: Cacturne|Sucker Punch||[still]",
+    "|-fail|p1a: Cacturne",
+    "|",
+    "|upkeep",
+    "|turn|6",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
+    "|-ability|p2a: Vespiquen|Pressure",
+    "|move|p1a: Cacturne|Sucker Punch||[still]",
+    "|-fail|p1a: Cacturne",
+    "|",
+    "|upkeep",
+    "|turn|7",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Samurott|Samurott, L88, M, tera:Water|7/100",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Samurott",
+    "|-supereffective|p2a: Samurott",
+    "|-damage|p2a: Samurott|0 fnt",
+    "|faint|p2a: Samurott",
     "|-damage|p1a: Cacturne|71/100|[from] item: Life Orb",
     "|",
     "|upkeep",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Donphan|Donphan, L84, F|100/100",
-    "|turn|5",
-    "|",
-    "|t:|1777163584",
-    "|move|p2a: Donphan|Ice Shard|p1a: Cacturne",
-    "|-supereffective|p1a: Cacturne",
-    "|-damage|p1a: Cacturne|42/100",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
-    "|-supereffective|p2a: Donphan",
-    "|-damage|p2a: Donphan|16/100",
-    "|-damage|p1a: Cacturne|32/100|[from] item: Life Orb",
-    "|",
-    "|-heal|p2a: Donphan|23/100|[from] item: Leftovers",
-    "|upkeep",
-    "|turn|6",
-    "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
-    "|-supereffective|p2a: Donphan",
-    "|-damage|p2a: Donphan|0 fnt",
-    "|faint|p2a: Donphan",
-    "|-damage|p1a: Cacturne|22/100|[from] item: Life Orb",
-    "|",
-    "|upkeep",
-    "|",
-    "|t:|1777163584",
-    "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|59/100",
-    "|-ability|p2a: Vespiquen|Pressure",
-    "|turn|7",
-    "|",
-    "|t:|1777163584",
-    "|switch|p2a: Samurott|Samurott, L88, M|100/100",
-    "|move|p1a: Cacturne|Sucker Punch||[still]",
-    "|-fail|p1a: Cacturne",
-    "|",
-    "|upkeep",
+    "|t:|1777226256",
+    "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
     "|turn|8",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Sucker Punch|p2a: Samurott",
-    "|-damage|p2a: Samurott|62/100",
-    "|-damage|p1a: Cacturne|13/100|[from] item: Life Orb",
-    "|move|p2a: Samurott|Liquidation|p1a: Cacturne",
-    "|-heal|p1a: Cacturne|38/100|[from] ability: Water Absorb|[of] p2a: Samurott",
+    "|t:|1777226257",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|66/100",
+    "|-damage|p1a: Cacturne|62/100|[from] item: Life Orb",
+    "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+    "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+    "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
+    "|-enditem|p2a: Bastiodon|Chesto Berry|[eat]",
+    "|-curestatus|p2a: Bastiodon|slp|[msg]",
     "|",
     "|upkeep",
     "|turn|9",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Sucker Punch|p2a: Samurott",
-    "|-damage|p2a: Samurott|17/100",
-    "|-damage|p1a: Cacturne|28/100|[from] item: Life Orb",
-    "|move|p2a: Samurott|Liquidation|p1a: Cacturne",
-    "|-heal|p1a: Cacturne|53/100|[from] ability: Water Absorb|[of] p2a: Samurott",
+    "|t:|1777226257",
+    "|switch|p2a: Vespiquen|Vespiquen, L99, F|100/100",
+    "|-ability|p2a: Vespiquen|Pressure",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
+    "|-resisted|p2a: Vespiquen",
+    "|-damage|p2a: Vespiquen|91/100",
+    "|-damage|p1a: Cacturne|52/100|[from] item: Life Orb",
     "|",
     "|upkeep",
     "|turn|10",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|59/100",
-    "|-ability|p2a: Vespiquen|Pressure",
-    "|move|p1a: Cacturne|Sucker Punch||[still]",
-    "|-fail|p1a: Cacturne",
+    "|t:|1777226257",
+    "|switch|p2a: Donphan|Donphan, L84, F|100/100",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Donphan",
+    "|-supereffective|p2a: Donphan",
+    "|-damage|p2a: Donphan|25/100",
+    "|-damage|p1a: Cacturne|42/100|[from] item: Life Orb",
     "|",
+    "|-heal|p2a: Donphan|31/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|11",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-    "|-resisted|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|40/100",
-    "|-damage|p1a: Cacturne|43/100|[from] item: Life Orb",
-    "|move|p2a: Vespiquen|Toxic Spikes|p1a: Cacturne",
-    "|-sidestart|p1: Agent-1|move: Toxic Spikes",
+    "|t:|1777226257",
+    "|move|p1a: Cacturne|Sucker Punch|p2a: Donphan",
+    "|-damage|p2a: Donphan|0 fnt",
+    "|faint|p2a: Donphan",
+    "|-damage|p1a: Cacturne|33/100|[from] item: Life Orb",
     "|",
     "|upkeep",
+    "|",
+    "|t:|1777226257",
+    "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
     "|turn|12",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Vespiquen",
-    "|-resisted|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|20/100",
-    "|-damage|p1a: Cacturne|33/100|[from] item: Life Orb",
-    "|move|p2a: Vespiquen|Toxic Spikes|p1a: Cacturne",
-    "|-sidestart|p1: Agent-1|move: Toxic Spikes",
+    "|t:|1777226257",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|64/100",
+    "|-damage|p1a: Cacturne|23/100|[from] item: Life Orb",
+    "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+    "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+    "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
     "|",
     "|upkeep",
     "|turn|13",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
-    "|-damage|p2a: Bastiodon|69/100",
-    "|-damage|p1a: Cacturne|24/100|[from] item: Life Orb",
+    "|t:|1777226257",
+    "|switch|p2a: Klefki|Klefki, L84, F|100/100",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Klefki",
+    "|-resisted|p2a: Klefki",
+    "|-damage|p2a: Klefki|69/100",
+    "|-damage|p1a: Cacturne|13/100|[from] item: Life Orb",
     "|",
+    "|-heal|p2a: Klefki|75/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|14",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
-    "|-damage|p2a: Bastiodon|35/100",
-    "|-damage|p1a: Cacturne|14/100|[from] item: Life Orb",
-    "|move|p2a: Bastiodon|Body Press|p1a: Cacturne",
-    "|-supereffective|p1a: Cacturne",
-    "|-damage|p1a: Cacturne|0 fnt",
-    "|faint|p1a: Cacturne",
+    "|t:|1777226257",
+    "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100 slp",
+    "|move|p1a: Cacturne|Sucker Punch||[still]",
+    "|-fail|p1a: Cacturne",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163584",
-    "|switch|p1a: Zapdos|Zapdos, L78|100/100",
     "|turn|15",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|20/100",
-    "|-ability|p2a: Vespiquen|Pressure",
-    "|-terastallize|p1a: Zapdos|Electric",
-    "|move|p1a: Zapdos|Hurricane|p2a: Vespiquen",
-    "|-resisted|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|3/100",
+    "|t:|1777226257",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|70/100 slp",
+    "|-damage|p1a: Cacturne|3/100|[from] item: Life Orb",
+    "|cant|p2a: Bastiodon|slp",
     "|",
     "|upkeep",
     "|turn|16",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Bastiodon|Bastiodon, L89, M|35/100",
-    "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
-    "|-damage|p2a: Bastiodon|2/100",
+    "|t:|1777226257",
+    "|move|p1a: Cacturne|Seed Bomb|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|35/100 slp",
+    "|-damage|p1a: Cacturne|0 fnt|[from] item: Life Orb",
+    "|faint|p1a: Cacturne",
+    "|cant|p2a: Bastiodon|slp",
     "|",
     "|upkeep",
+    "|",
+    "|t:|1777226257",
+    "|switch|p1a: Zapdos|Zapdos, L78|100/100",
     "|turn|17",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Klefki|Klefki, L84, F|100/100",
-    "|move|p1a: Zapdos|Discharge|p2a: Klefki",
-    "|-damage|p2a: Klefki|47/100",
+    "|t:|1777226257",
+    "|-terastallize|p1a: Zapdos|Electric",
+    "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|3/100 slp",
+    "|-curestatus|p2a: Bastiodon|slp|[msg]",
+    "|move|p2a: Bastiodon|Rest|p2a: Bastiodon",
+    "|-status|p2a: Bastiodon|slp|[from] move: Rest",
+    "|-heal|p2a: Bastiodon|100/100 slp|[silent]",
     "|",
-    "|-heal|p2a: Klefki|53/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|18",
     "|",
-    "|t:|1777163584",
-    "|move|p2a: Klefki|Thunder Wave|p1a: Zapdos",
-    "|-immune|p1a: Zapdos",
+    "|t:|1777226257",
+    "|switch|p2a: Klefki|Klefki, L84, F|75/100",
     "|move|p1a: Zapdos|Discharge|p2a: Klefki",
-    "|-damage|p2a: Klefki|2/100",
-    "|-status|p2a: Klefki|par",
+    "|-damage|p2a: Klefki|20/100",
     "|",
-    "|-heal|p2a: Klefki|8/100 par|[from] item: Leftovers",
+    "|-heal|p2a: Klefki|26/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|19",
     "|",
-    "|t:|1777163584",
-    "|move|p2a: Klefki|Magnet Rise|p2a: Klefki",
-    "|-start|p2a: Klefki|Magnet Rise",
+    "|t:|1777226257",
+    "|switch|p2a: Vespiquen|Vespiquen, L99, F|91/100",
+    "|-ability|p2a: Vespiquen|Pressure",
+    "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
+    "|-supereffective|p2a: Vespiquen",
+    "|-damage|p2a: Vespiquen|27/100",
+    "|",
+    "|upkeep",
+    "|turn|20",
+    "|",
+    "|t:|1777226257",
+    "|switch|p2a: Klefki|Klefki, L84, F|26/100",
     "|move|p1a: Zapdos|Discharge|p2a: Klefki",
     "|-damage|p2a: Klefki|0 fnt",
     "|faint|p2a: Klefki",
     "|",
     "|upkeep",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Bastiodon|Bastiodon, L89, M|2/100",
-    "|turn|20",
+    "|t:|1777226257",
+    "|switch|p2a: Bastiodon|Bastiodon, L89, M|100/100 slp",
+    "|turn|21",
     "|",
-    "|t:|1777163584",
+    "|t:|1777226257",
+    "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|66/100 slp",
+    "|cant|p2a: Bastiodon|slp",
+    "|",
+    "|upkeep",
+    "|turn|22",
+    "|",
+    "|t:|1777226257",
+    "|switch|p2a: Vespiquen|Vespiquen, L99, F|27/100",
+    "|-ability|p2a: Vespiquen|Pressure",
+    "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
+    "|-supereffective|p2a: Vespiquen",
+    "|-damage|p2a: Vespiquen|0 fnt",
+    "|faint|p2a: Vespiquen",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226257",
+    "|switch|p2a: Bastiodon|Bastiodon, L89, M|66/100 slp",
+    "|turn|23",
+    "|",
+    "|t:|1777226257",
+    "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
+    "|-damage|p2a: Bastiodon|35/100 slp",
+    "|cant|p2a: Bastiodon|slp",
+    "|",
+    "|upkeep",
+    "|turn|24",
+    "|",
+    "|t:|1777226257",
     "|move|p1a: Zapdos|Discharge|p2a: Bastiodon",
     "|-damage|p2a: Bastiodon|0 fnt",
     "|faint|p2a: Bastiodon",
-    "|",
-    "|upkeep",
-    "|",
-    "|t:|1777163584",
-    "|switch|p2a: Samurott|Samurott, L88, M|17/100",
-    "|turn|21",
-    "|",
-    "|t:|1777163584",
-    "|move|p1a: Zapdos|Discharge|p2a: Samurott",
-    "|-supereffective|p2a: Samurott",
-    "|-damage|p2a: Samurott|0 fnt",
-    "|faint|p2a: Samurott",
-    "|",
-    "|upkeep",
-    "|",
-    "|t:|1777163584",
-    "|switch|p2a: Vespiquen|Vespiquen, L99, F, tera:Steel|3/100",
-    "|-ability|p2a: Vespiquen|Pressure",
-    "|turn|22",
-    "|",
-    "|t:|1777163584",
-    "|move|p1a: Zapdos|Discharge|p2a: Vespiquen",
-    "|-damage|p2a: Vespiquen|0 fnt",
-    "|faint|p2a: Vespiquen",
     "|",
     "|win|Agent-1"
   ]

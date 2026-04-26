@@ -69,6 +69,10 @@ class BattleTracer:
             "steps": [
                 {
                     "player": "p1",
+                    "p1_species": p1_state.get("species"),
+                    "p1_hp_ratio": p1_state.get("hp_ratio"),
+                    "p1_status": p1_state.get("status"),
+                    "p1_boosts": p1_state.get("boosts", {}),
                     "active_species": p1_state.get("species"),
                     "hp_ratio": p1_state.get("hp_ratio"),
                     "status": p1_state.get("status"),
@@ -160,7 +164,7 @@ class BattleTracer:
                     # Old-style step
                     player = step["player"]
                     species = step.get("active_species", "Unknown")
-                    hp = step.get("hp_ratio", 0)
+                    hp = step.get("hp_ratio", 0) or 0
                     status = step.get("status", "no status")
                     choice = step.get("chosen_action_label", "?")
                 else:
@@ -203,13 +207,13 @@ class BattleTracer:
         if self.current_battle.get("diagnostics"):
             lines.append("## Diagnostics")
             for diagnostic in self.current_battle["diagnostics"]:
-                lines.append(f"- ⚠️ {diagnostic}")
+                lines.append(f"- WARNING: {diagnostic}")
             lines.append("")
 
         # Protocol log status
         if not has_real_logs:
             lines.append("## Replay Data")
-            lines.append("⚠️ **Showdown protocol logs are not available.** This trace shows decision points but not full battle events.")
+            lines.append("WARNING: **Showdown protocol logs are not available.** This trace shows decision points but not full battle events.")
 
         return lines
 
@@ -263,12 +267,12 @@ class BattleTracer:
         if self.current_battle.get("diagnostics"):
             lines.append("## Diagnostics")
             for diagnostic in self.current_battle["diagnostics"]:
-                lines.append(f"- ⚠️ {diagnostic}")
+                lines.append(f"- WARNING: {diagnostic}")
             lines.append("")
 
         # Protocol log status
         if not has_real_logs:
             lines.append("## Replay Data")
-            lines.append("⚠️ **Showdown protocol logs are not available.** This trace shows decision points but not full battle events.")
+            lines.append("WARNING: **Showdown protocol logs are not available.** This trace shows decision points but not full battle events.")
 
         path.write_text("\n".join(lines))

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -11,7 +11,16 @@ param(
     [string]$NpmCmd = '',
     [string]$DatasetConfig = '',
     [string]$EvalConfig = '',
-    [string]$DatasetPath = ''
+    [string]$DatasetPath = '',
+    [string]$TraceDir = '',
+    [string]$TracePath = '',
+    [int]$StepIndex = 0,
+    [string]$ValueCheckpoint = '',
+    [string]$PolicyCheckpoint = '',
+    [string]$Format = 'gen9randombattle',
+    [int]$MaxReplays = 1000,
+    [string]$ReplayDir = '',
+    [double]$DelaySec = 0.5
 )
 
 Set-StrictMode -Version Latest
@@ -330,6 +339,86 @@ function Invoke-TraceEval {
     Invoke-PythonModule -Module 'neural.eval' -Arguments @('--config', $traceConfig)
 }
 
+function Invoke-BuildValueDataset {
+    $selectedTraceDir = if ([string]::IsNullOrWhiteSpace($TraceDir)) { '.\artifacts\battles\dev' } else { $TraceDir }
+    Write-Host "launcher build-value-dataset | trace_dir=$selectedTraceDir"
+    Invoke-PythonModule -Module 'neural.build_value_dataset' -Arguments @('--trace-dir', $selectedTraceDir)
+}
+
+function Invoke-TrainValue {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { '.\data\value\gen9randombattle_value.npz' } else { $DatasetPath }
+    Write-Host "launcher train-value | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.train_value' -Arguments @('--dataset-path', $selectedDatasetPath)
+}
+
+function Invoke-AnalyzeState {
+    $selectedTracePath = if ([string]::IsNullOrWhiteSpace($TracePath)) { '.\artifacts\battles\dev\battle_0.json' } else { $TracePath }
+    $selectedValueCheckpoint = if ([string]::IsNullOrWhiteSpace($ValueCheckpoint)) { '.\artifacts\checkpoints\gen9randombattle_value.pt' } else { $ValueCheckpoint }
+    $arguments = @('--trace-path', $selectedTracePath, '--step-index', [string]$StepIndex, '--value-checkpoint', $selectedValueCheckpoint)
+    if (-not [string]::IsNullOrWhiteSpace($PolicyCheckpoint)) {
+        $arguments += @('--policy-checkpoint', $PolicyCheckpoint)
+    }
+    Write-Host "launcher analyze-state | trace=$selectedTracePath step=$StepIndex value=$selectedValueCheckpoint"
+    Invoke-PythonModule -Module 'neural.analyze_state' -Arguments $arguments
+}
+
+function Invoke-CollectSelfplay {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher collect-selfplay | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode) config=$DatasetConfig"
+    Invoke-PythonModule -Module 'neural.collect_selfplay' -Arguments @('--config', $DatasetConfig)
+}
+
+function Invoke-CompareCheckpoints {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher compare-checkpoints | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode) config=$DatasetConfig"
+    Invoke-PythonModule -Module 'neural.compare_checkpoints' -Arguments @('--config', $DatasetConfig)
+}
+
+function Resolve-ReplayDir {
+    if ([string]::IsNullOrWhiteSpace($ReplayDir)) {
+        return ".\data\replays\raw\$Format"
+    }
+    return $ReplayDir
+}
+
+function Invoke-FetchReplays {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher fetch-replays | format=$Format max_replays=$MaxReplays out_dir=$selectedReplayDir delay_sec=$DelaySec"
+    Invoke-PythonModule -Module 'neural.replay_fetch' -Arguments @(
+        '--format', $Format,
+        '--max-replays', [string]$MaxReplays,
+        '--out-dir', $selectedReplayDir,
+        '--delay-sec', [string]$DelaySec
+    )
+}
+
+function Invoke-ParseReplays {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher parse-replays | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.parse_replay_logs' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir
+    )
+}
+
+function Invoke-BuildReplayValueDataset {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher build-replay-value-dataset | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.build_replay_value_dataset' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir
+    )
+}
+
+function Invoke-BuildReplayPolicyDataset {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher build-replay-policy-dataset | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.build_replay_policy_dataset' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir
+    )
+}
+
 Push-Location $repoRoot
 try {
     if (-not (Test-Path $PythonExe)) {
@@ -348,6 +437,15 @@ try {
         'server' { Invoke-Server }
         'analyze' { Invoke-Analyze }
         'trace-eval' { Invoke-TraceEval }
+        'build-value-dataset' { Invoke-BuildValueDataset }
+        'train-value' { Invoke-TrainValue }
+        'analyze-state' { Invoke-AnalyzeState }
+        'collect-selfplay' { Invoke-CollectSelfplay }
+        'compare-checkpoints' { Invoke-CompareCheckpoints }
+        'fetch-replays' { Invoke-FetchReplays }
+        'parse-replays' { Invoke-ParseReplays }
+        'build-replay-value-dataset' { Invoke-BuildReplayValueDataset }
+        'build-replay-policy-dataset' { Invoke-BuildReplayPolicyDataset }
         'all' {
             Write-Host "launcher all | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
             Ensure-SimCoreBuilt

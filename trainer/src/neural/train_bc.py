@@ -28,6 +28,33 @@ def load_shard(path: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarr
         return data["states"], data["legal_masks"], data["actions"], data["returns"]
 
 
+def compute_awbc_sample_weights(
+    advantages: np.ndarray,
+    *,
+    beta: float = 1.0,
+    min_weight: float = 0.1,
+    max_weight: float = 2.0,
+) -> np.ndarray:
+    values = np.asarray(advantages, dtype=np.float32)
+    if values.size > 1:
+        values = (values - values.mean()) / (values.std() + 1e-8)
+    weights = np.exp(float(beta) * values)
+    return np.clip(weights, float(min_weight), float(max_weight)).astype(np.float32)
+
+
+def _compute_awbc_sample_weights_torch(
+    advantages: torch.Tensor,
+    *,
+    beta: float,
+    min_weight: float,
+    max_weight: float,
+) -> torch.Tensor:
+    normalized = advantages
+    if advantages.numel() > 1:
+        normalized = (advantages - advantages.mean()) / (advantages.std(unbiased=False) + 1e-8)
+    return torch.exp(float(beta) * normalized).clamp(float(min_weight), float(max_weight))
+
+
 def _build_dataloaders(
     states: np.ndarray,
     legal_masks: np.ndarray,
@@ -84,6 +111,14 @@ def train_behavior_cloning(
     grad_clip_norm = float(training_cfg.get("grad_clip_norm", 1.0))
     early_stopping_patience = int(training_cfg.get("early_stopping_patience", 0))
     save_timestamped = bool(training_cfg.get("save_timestamped", True))
+    objective = str(training_cfg.get("objective", "behavior_cloning"))
+    use_awbc = objective == "advantage_weighted_bc"
+    use_sample_weights = bool(training_cfg.get("use_sample_weights", use_awbc))
+    awbc_beta = float(training_cfg.get("beta", 1.0))
+    min_sample_weight = float(training_cfg.get("min_sample_weight", 0.1))
+    max_sample_weight = float(training_cfg.get("max_sample_weight", 2.0))
+    value_loss_weight = float(training_cfg.get("value_loss_weight", 0.5))
+    entropy_bonus_weight = float(training_cfg.get("entropy_bonus_weight", 0.01 if use_awbc else 0.0))
 
     states, legal_masks, actions, returns = load_shard(dataset_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -131,7 +166,7 @@ def train_behavior_cloning(
     print_line_safe(
         f"train start profile={config.get('profile', 'full')} device={device.type} "
         f"dataset={len(train_dataset) + len(val_dataset)} train={len(train_dataset)} val={len(val_dataset)} "
-        f"batch_size={batch_size} epochs={epochs} resume={resumed} start_epoch={start_epoch}"
+        f"batch_size={batch_size} epochs={epochs} objective={objective} resume={resumed} start_epoch={start_epoch}"
     )
 
     best_without_improvement = 0
@@ -139,6 +174,10 @@ def train_behavior_cloning(
     for local_epoch in range(epochs):
         model.train()
         running_loss = 0.0
+        running_policy_loss = 0.0
+        running_value_loss = 0.0
+        running_entropy = 0.0
+        sample_weight_values = []
         for batch_inputs, batch_masks, batch_actions, batch_returns in train_loader:
             batch_inputs = batch_inputs.to(device, non_blocking=pin_memory)
             batch_masks = batch_masks.to(device, non_blocking=pin_memory)
@@ -147,9 +186,28 @@ def train_behavior_cloning(
 
             logits, values = model(batch_inputs)
             masked = masked_logits(logits, batch_masks)
-            policy_loss = F.cross_entropy(masked, batch_actions)
+            if use_awbc and use_sample_weights:
+                log_probs = F.log_softmax(masked, dim=-1)
+                per_example_policy_loss = F.nll_loss(log_probs, batch_actions, reduction="none")
+                with torch.no_grad():
+                    advantages = batch_returns - values.detach()
+                    sample_weights = _compute_awbc_sample_weights_torch(
+                        advantages,
+                        beta=awbc_beta,
+                        min_weight=min_sample_weight,
+                        max_weight=max_sample_weight,
+                    )
+                policy_loss = (sample_weights * per_example_policy_loss).mean()
+                probabilities = torch.softmax(masked, dim=-1)
+                entropy = -(probabilities * log_probs).sum(dim=-1).mean()
+                sample_weight_values.extend(sample_weights.detach().cpu().tolist())
+            else:
+                policy_loss = F.cross_entropy(masked, batch_actions)
+                probabilities = torch.softmax(masked, dim=-1)
+                log_probs = F.log_softmax(masked, dim=-1)
+                entropy = -(probabilities * log_probs).sum(dim=-1).mean()
             value_loss = F.mse_loss(values, batch_returns)
-            loss = policy_loss + 0.5 * value_loss
+            loss = policy_loss + value_loss_weight * value_loss - entropy_bonus_weight * entropy
 
             optimizer.zero_grad()
             loss.backward()
@@ -158,34 +216,56 @@ def train_behavior_cloning(
             optimizer.step()
             global_step += 1
             running_loss += float(loss.item()) * batch_inputs.size(0)
+            running_policy_loss += float(policy_loss.item()) * batch_inputs.size(0)
+            running_value_loss += float(value_loss.item()) * batch_inputs.size(0)
+            running_entropy += float(entropy.item()) * batch_inputs.size(0)
 
         completed_epoch = start_epoch + local_epoch + 1
         epoch_loss = running_loss / max(1, len(train_dataset))
+        policy_epoch_loss = running_policy_loss / max(1, len(train_dataset))
+        value_epoch_loss = running_value_loss / max(1, len(train_dataset))
+        entropy_epoch = running_entropy / max(1, len(train_dataset))
         epoch_data: Dict[str, Any] = {
             "epoch": completed_epoch,
             "local_epoch": local_epoch + 1,
             "train_loss": epoch_loss,
+            "weighted_policy_loss" if use_awbc else "policy_loss": policy_epoch_loss,
+            "value_loss": value_epoch_loss,
+            "entropy": entropy_epoch,
             "global_step": global_step,
         }
-        print_line_safe(f"epoch={completed_epoch} train_loss={epoch_loss:.4f}")
+        if sample_weight_values:
+            sample_weight_array = np.asarray(sample_weight_values, dtype=np.float32)
+            epoch_data["sample_weight_mean"] = float(sample_weight_array.mean())
+            epoch_data["sample_weight_std"] = float(sample_weight_array.std())
+            epoch_data["sample_weight_min"] = float(sample_weight_array.min())
+            epoch_data["sample_weight_max"] = float(sample_weight_array.max())
+        print_line_safe(
+            f"epoch={completed_epoch} train_loss={epoch_loss:.4f} "
+            f"policy={policy_epoch_loss:.4f} value={value_epoch_loss:.4f} entropy={entropy_epoch:.4f}"
+        )
 
         if val_loader is not None:
             model.eval()
             correct = 0
             total = 0
+            val_value_loss_sum = 0.0
             with torch.inference_mode():
-                for batch_inputs, batch_masks, batch_actions, _ in val_loader:
+                for batch_inputs, batch_masks, batch_actions, batch_returns in val_loader:
                     batch_inputs = batch_inputs.to(device, non_blocking=pin_memory)
                     batch_masks = batch_masks.to(device, non_blocking=pin_memory)
                     batch_actions = batch_actions.to(device, non_blocking=pin_memory)
-                    logits, _ = model(batch_inputs)
+                    batch_returns = batch_returns.to(device, non_blocking=pin_memory)
+                    logits, values = model(batch_inputs)
                     preds = masked_logits(logits, batch_masks).argmax(dim=-1)
                     correct += int((preds == batch_actions).sum().item())
                     total += int(batch_actions.size(0))
+                    val_value_loss_sum += float(F.mse_loss(values, batch_returns, reduction="sum").item())
             if total:
                 val_acc = correct / total
                 epoch_data["val_acc"] = val_acc
-                print_line_safe(f"epoch={completed_epoch} val_acc={val_acc:.3f}")
+                epoch_data["val_value_loss"] = val_value_loss_sum / total
+                print_line_safe(f"epoch={completed_epoch} val_acc={val_acc:.3f} val_value={epoch_data['val_value_loss']:.4f}")
 
         epoch_score = _score_epoch(epoch_data)
         improved = best_score is None or epoch_score > float(best_score)
@@ -209,7 +289,7 @@ def train_behavior_cloning(
             training_history=training_history,
             config_path=str(config_path_str),
             best_score=best_score,
-            extra={"training_kind": "behavior_cloning", "dataset_path": str(dataset_path)},
+            extra={"training_kind": objective, "dataset_path": str(dataset_path)},
         )
         save_checkpoint(checkpoint_path, checkpoint_payload)
         if improved:
@@ -246,6 +326,15 @@ def train_behavior_cloning(
         "batch_size": batch_size,
         "epochs_requested": epochs,
         "epochs_completed": len(run_history),
+        "objective": objective,
+        "use_sample_weights": use_sample_weights,
+        "sample_weight_config": {
+            "beta": awbc_beta,
+            "min_sample_weight": min_sample_weight,
+            "max_sample_weight": max_sample_weight,
+            "value_loss_weight": value_loss_weight,
+            "entropy_bonus_weight": entropy_bonus_weight,
+        },
         "start_epoch": start_epoch,
         "end_epoch": start_epoch + len(run_history),
         "global_step": global_step,

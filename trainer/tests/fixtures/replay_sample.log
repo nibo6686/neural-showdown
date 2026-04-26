@@ -1,0 +1,22 @@
+|player|p1|Alice|
+|player|p2|Bob|
+|teamsize|p1|6
+|teamsize|p2|6
+|switch|p1a: Pikachu|Pikachu, L80|100/100
+|switch|p2a: Squirtle|Squirtle, L80|100/100
+|turn|1
+|move|p1a: Pikachu|Thunderbolt|p2a: Squirtle
+|-damage|p2a: Squirtle|42/100
+|-status|p2a: Squirtle|par
+|move|p2a: Squirtle|Surf|p1a: Pikachu
+|-damage|p1a: Pikachu|55/100
+|-boost|p1a: Pikachu|spa|1
+|turn|2
+|-terastallize|p1a: Pikachu|Electric
+|move|p1a: Pikachu|Thunderbolt|p2a: Squirtle
+|-damage|p2a: Squirtle|0 fnt
+|faint|p2a: Squirtle
+|switch|p2a: Bulbasaur|Bulbasaur, L80|100/100
+|-heal|p1a: Pikachu|75/100
+|-unboost|p1a: Pikachu|spa|1
+|win|Alice

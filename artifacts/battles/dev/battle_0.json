@@ -2,9 +2,9 @@
   "battle_index": 0,
   "env_id": "env-2",
   "format": "gen9randombattle",
-  "winner": "p2",
-  "total_turns": 25,
-  "start_time": "2026-04-26T00:33:04.092186Z",
+  "winner": "p1",
+  "total_turns": 34,
+  "start_time": "2026-04-26T17:57:36.444740Z",
   "turns": [
     {
       "turn": 2,
@@ -16,8 +16,8 @@
           "p1_hp_ratio": 0.9024390243902439,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.78,
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
             {
@@ -145,7 +145,7 @@
             }
           ],
           "protocol_log": [
-            "|t:|1777163583",
+            "|t:|1777226255",
             "|gametype|singles",
             "|player|p1|Agent-1||",
             "|player|p2|Agent-2||",
@@ -158,23 +158,28 @@
             "|rule|Sleep Clause Mod: Limit one foe put to sleep",
             "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
             "|",
-            "|t:|1777163583",
+            "|t:|1777226255",
             "|start",
             "|switch|p1a: Espeon|Espeon, L84, F|100/100",
             "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|100/100",
-            "|turn|1"
+            "|turn|1",
+            "|",
+            "|t:|1777226255",
+            "|-terastallize|p1a: Espeon|Fairy",
+            "|move|p1a: Espeon|Alluring Voice|p2a: Hitmonlee",
+            "|-supereffective|p2a: Hitmonlee",
+            "|-damage|p2a: Hitmonlee|0 fnt",
+            "|faint|p2a: Hitmonlee",
+            "|-damage|p1a: Espeon|91/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
           ]
-        }
-      ]
-    },
-    {
-      "turn": 3,
-      "steps": [
+        },
         {
-          "turn": 3,
+          "turn": 2,
           "step_index": 1,
           "p1_species": "Espeon",
-          "p1_hp_ratio": 0.8048780487804879,
+          "p1_hp_ratio": 0,
           "p1_status": null,
           "p1_boosts": {},
           "p2_species": "Azumarill",
@@ -249,181 +254,55 @@
           "chosen_action_index": 0,
           "chosen_action_label": "move:Shadow Ball",
           "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9160234332084656,
+          "chosen_action_probability": 0.521554708480835,
           "model_top_k": [
             {
               "index": 0,
-              "logit": 4.373100757598877,
-              "probability": 0.9160234332084656
+              "logit": 3.3280866146087646,
+              "probability": 0.521554708480835
             },
             {
               "index": 3,
-              "logit": 1.9037680625915527,
-              "probability": 0.07753343135118484
+              "logit": 3.1632449626922607,
+              "probability": 0.4422930181026459
             },
             {
               "index": 2,
-              "logit": -0.5850106477737427,
-              "probability": 0.006436150521039963
-            },
-            {
-              "index": 12,
-              "logit": -7.853311538696289,
-              "probability": 4.487902515393216e-06
+              "logit": 0.6586111783981323,
+              "probability": 0.03613777458667755
             },
             {
               "index": 11,
-              "logit": -8.412388801574707,
-              "probability": 2.5658944196038647e-06
+              "logit": -7.473547458648682,
+              "probability": 1.0622088666423224e-05
+            },
+            {
+              "index": 12,
+              "logit": -8.485312461853027,
+              "probability": 3.8619418774032965e-06
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|switch|p2a: Copperajah|Copperajah, L86, M|100/100",
-            "|-terastallize|p1a: Espeon|Fairy",
-            "|move|p1a: Espeon|Alluring Voice|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|78/100",
-            "|-damage|p1a: Espeon|91/100|[from] item: Life Orb",
-            "|",
-            "|upkeep",
-            "|turn|2"
-          ]
-        },
-        {
-          "turn": 3,
-          "step_index": 2,
-          "p1_species": "Espeon",
-          "p1_hp_ratio": 0,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Azumarill",
-          "p2_hp_ratio": 0.12,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Shadow Ball",
-              "choice": "move 1",
-              "move": "Shadow Ball"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Calm Mind",
-              "choice": "move 2",
-              "move": "Calm Mind"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Psychic",
-              "choice": "move 3",
-              "move": "Psychic"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Alluring Voice",
-              "choice": "move 4",
-              "move": "Alluring Voice"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Persian-Alola, L86, M",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Yanmega, L82, F",
-              "choice": "switch 5",
-              "move": null
-            },
-            {
-              "index": 12,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 9,
-          "chosen_action_index": 3,
-          "chosen_action_label": "move:Alluring Voice",
-          "chosen_action_choice": "move 4",
-          "chosen_action_probability": 0.9450947642326355,
-          "model_top_k": [
-            {
-              "index": 3,
-              "logit": 4.637763977050781,
-              "probability": 0.9450947642326355
-            },
-            {
-              "index": 0,
-              "logit": 1.7424041032791138,
-              "probability": 0.05224400758743286
-            },
-            {
-              "index": 2,
-              "logit": -1.252891182899475,
-              "probability": 0.0026133425999432802
-            },
-            {
-              "index": 10,
-              "logit": -5.399896144866943,
-              "probability": 4.132137473789044e-05
-            },
-            {
-              "index": 11,
-              "logit": -7.24119758605957,
-              "probability": 6.554022093041567e-06
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
+            "|t:|1777226255",
             "|switch|p2a: Azumarill|Azumarill, L82, M|100/100",
-            "|move|p1a: Espeon|Shadow Ball|p2a: Azumarill",
-            "|-damage|p2a: Azumarill|67/100",
-            "|-damage|p1a: Espeon|81/100|[from] item: Life Orb",
-            "|",
-            "|upkeep",
-            "|turn|3"
+            "|turn|2"
           ]
         }
       ]
     },
     {
-      "turn": 4,
+      "turn": 3,
       "steps": [
         {
-          "turn": 4,
-          "step_index": 3,
+          "turn": 3,
+          "step_index": 2,
           "p1_species": "Yanmega",
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
           "p2_species": "Azumarill",
-          "p2_hp_ratio": 0.12,
+          "p2_hp_ratio": 0.67,
           "p2_status": null,
           "legal_actions": [
             {
@@ -466,62 +345,56 @@
           "chosen_action_index": 11,
           "chosen_action_label": "switch:Yanmega, L82, F",
           "chosen_action_choice": "switch 5",
-          "chosen_action_probability": 0.9344081282615662,
+          "chosen_action_probability": 0.9977815747261047,
           "model_top_k": [
             {
               "index": 11,
-              "logit": -1.1144118309020996,
-              "probability": 0.9344081282615662
+              "logit": 5.208495616912842,
+              "probability": 0.9977815747261047
             },
             {
               "index": 12,
-              "logit": -3.8012609481811523,
-              "probability": 0.0636286735534668
-            },
-            {
-              "index": 9,
-              "logit": -7.348328590393066,
-              "probability": 0.0018330779857933521
-            },
-            {
-              "index": 8,
-              "logit": -10.433833122253418,
-              "probability": 8.378439815714955e-05
+              "logit": -0.9384046196937561,
+              "probability": 0.0021353575866669416
             },
             {
               "index": 10,
-              "logit": -11.025760650634766,
-              "probability": 4.635458390112035e-05
+              "logit": -4.192904949188232,
+              "probability": 8.242502372013405e-05
+            },
+            {
+              "index": 8,
+              "logit": -9.576825141906738,
+              "probability": 3.7831401300536527e-07
+            },
+            {
+              "index": 9,
+              "logit": -9.879833221435547,
+              "probability": 2.794199076561199e-07
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|-terastallize|p2a: Azumarill|Water",
-            "|move|p1a: Espeon|Alluring Voice|p2a: Azumarill",
-            "|-damage|p2a: Azumarill|12/100",
-            "|-damage|p1a: Espeon|71/100|[from] item: Life Orb",
-            "|move|p2a: Azumarill|Liquidation|p1a: Espeon",
+            "|t:|1777226255",
+            "|move|p1a: Espeon|Shadow Ball|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|67/100",
+            "|-damage|p1a: Espeon|81/100|[from] item: Life Orb",
+            "|move|p2a: Azumarill|Play Rough|p1a: Espeon",
             "|-damage|p1a: Espeon|0 fnt",
             "|faint|p1a: Espeon",
             "|",
             "|upkeep"
           ]
-        }
-      ]
-    },
-    {
-      "turn": 5,
-      "steps": [
+        },
         {
-          "turn": 5,
-          "step_index": 4,
+          "turn": 3,
+          "step_index": 3,
           "p1_species": "Yanmega",
           "p1_hp_ratio": 1,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Lanturn",
-          "p2_hp_ratio": 0.62,
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.43,
           "p2_status": null,
           "legal_actions": [
             {
@@ -582,348 +455,58 @@
             }
           ],
           "legal_actions_count": 8,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Air Slash",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9984654188156128,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:U-turn",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.6947202086448669,
           "model_top_k": [
             {
-              "index": 1,
-              "logit": 3.424492359161377,
-              "probability": 0.9984654188156128
+              "index": 2,
+              "logit": 3.9485831260681152,
+              "probability": 0.6947202086448669
             },
             {
-              "index": 3,
-              "logit": -3.7044742107391357,
-              "probability": 0.0008003173861652613
+              "index": 1,
+              "logit": 3.1257503032684326,
+              "probability": 0.30511122941970825
             },
             {
               "index": 0,
-              "logit": -3.96557354927063,
-              "probability": 0.0006164077203720808
+              "logit": -4.427822589874268,
+              "probability": 0.00015994958812370896
             },
             {
-              "index": 2,
-              "logit": -5.628411293029785,
-              "probability": 0.00011687097867252305
+              "index": 3,
+              "logit": -7.453128814697266,
+              "probability": 7.764421752654016e-06
             },
             {
-              "index": 11,
-              "logit": -10.411467552185059,
-              "probability": 9.782544339032029e-07
+              "index": 8,
+              "logit": -9.716485023498535,
+              "probability": 8.075073196778249e-07
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
+            "|t:|1777226255",
             "|switch|p1a: Yanmega|Yanmega, L82, F|100/100",
-            "|turn|4"
+            "|turn|3"
           ]
         }
       ]
     },
     {
-      "turn": 6,
+      "turn": 4,
       "steps": [
         {
-          "turn": 6,
-          "step_index": 5,
-          "p1_species": "Yanmega",
-          "p1_hp_ratio": 1,
+          "turn": 4,
+          "step_index": 4,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6689895470383276,
           "p1_status": null,
           "p1_boosts": {},
           "p2_species": "Azumarill",
-          "p2_hp_ratio": 0.12,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Air Slash",
-              "choice": "move 2",
-              "move": "Air Slash"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Persian-Alola, L86, M",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 5,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Air Slash",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9999970197677612,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 5.813528537750244,
-              "probability": 0.9999970197677612
-            },
-            {
-              "index": 8,
-              "logit": -7.392073631286621,
-              "probability": 1.8402565729047637e-06
-            },
-            {
-              "index": 11,
-              "logit": -7.877954959869385,
-              "probability": 1.132043053075904e-06
-            },
-            {
-              "index": 9,
-              "logit": -10.083065032958984,
-              "probability": 1.2479466704462538e-07
-            },
-            {
-              "index": 10,
-              "logit": -11.38215446472168,
-              "probability": 3.4041498508941004e-08
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
-            "|move|p1a: Yanmega|Air Slash|p2a: Lanturn",
-            "|-resisted|p2a: Lanturn",
-            "|-damage|p2a: Lanturn|62/100",
-            "|",
-            "|upkeep",
-            "|turn|5",
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Ribombee|Ribombee, L82, F|100/100",
-            "|move|p1a: Yanmega|Air Slash|p2a: Ribombee",
-            "|-supereffective|p2a: Ribombee",
-            "|-damage|p2a: Ribombee|0 fnt",
-            "|faint|p2a: Ribombee",
-            "|",
-            "|upkeep"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 7,
-      "steps": [
-        {
-          "turn": 7,
-          "step_index": 6,
-          "p1_species": "Yanmega",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Reshiram",
-          "p2_hp_ratio": 1,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Air Slash",
-              "choice": "move 2",
-              "move": "Air Slash"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Persian-Alola, L86, M",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 5,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Air Slash",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9999995231628418,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 7.279271602630615,
-              "probability": 0.9999995231628418
-            },
-            {
-              "index": 8,
-              "logit": -7.8872480392456055,
-              "probability": 2.5897881528180733e-07
-            },
-            {
-              "index": 11,
-              "logit": -8.046931266784668,
-              "probability": 2.20757101487834e-07
-            },
-            {
-              "index": 9,
-              "logit": -11.764965057373047,
-              "probability": 5.3603441685368125e-09
-            },
-            {
-              "index": 10,
-              "logit": -13.923822402954102,
-              "probability": 6.188891621405901e-10
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Azumarill|Azumarill, L82, M, tera:Water|12/100",
-            "|turn|6",
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Yanmega|Air Slash|p2a: Azumarill",
-            "|-damage|p2a: Azumarill|0 fnt",
-            "|faint|p2a: Azumarill",
-            "|",
-            "|upkeep"
-          ]
-        },
-        {
-          "turn": 7,
-          "step_index": 7,
-          "p1_species": "Yanmega",
-          "p1_hp_ratio": 0,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Reshiram",
-          "p2_hp_ratio": 0.61,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Air Slash",
-              "choice": "move 2",
-              "move": "Air Slash"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Persian-Alola, L86, M",
-              "choice": "switch 3",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 11,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 5,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Air Slash",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9999957084655762,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 8.76968765258789,
-              "probability": 0.9999957084655762
-            },
-            {
-              "index": 9,
-              "logit": -3.624779462814331,
-              "probability": 4.1414209590584505e-06
-            },
-            {
-              "index": 11,
-              "logit": -7.818961143493652,
-              "probability": 6.246533246212493e-08
-            },
-            {
-              "index": 8,
-              "logit": -8.244579315185547,
-              "probability": 4.081275406520035e-08
-            },
-            {
-              "index": 10,
-              "logit": -9.908178329467773,
-              "probability": 7.73221753291864e-09
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Reshiram|Reshiram, L76|100/100",
-            "|-ability|p2a: Reshiram|Turboblaze",
-            "|turn|7"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 8,
-      "steps": [
-        {
-          "turn": 8,
-          "step_index": 8,
-          "p1_species": "Persian",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Reshiram",
-          "p2_hp_ratio": 0.61,
+          "p2_hp_ratio": 0.43,
           "p2_status": null,
           "legal_actions": [
             {
@@ -956,957 +539,59 @@
             }
           ],
           "legal_actions_count": 4,
-          "chosen_action_index": 9,
-          "chosen_action_label": "switch:Persian-Alola, L86, M",
-          "chosen_action_choice": "switch 3",
-          "chosen_action_probability": 0.6989140510559082,
-          "model_top_k": [
-            {
-              "index": 9,
-              "logit": -2.4268105030059814,
-              "probability": 0.6989140510559082
-            },
-            {
-              "index": 8,
-              "logit": -4.130971431732178,
-              "probability": 0.12714990973472595
-            },
-            {
-              "index": 10,
-              "logit": -4.99868106842041,
-              "probability": 0.05339180305600166
-            },
-            {
-              "index": 11,
-              "logit": -5.325471878051758,
-              "probability": 0.038508009165525436
-            },
-            {
-              "index": 0,
-              "logit": -4.56917667388916,
-              "probability": 0.08203627914190292
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Yanmega|Air Slash|p2a: Reshiram",
-            "|-damage|p2a: Reshiram|61/100",
-            "|move|p2a: Reshiram|Blue Flare|p1a: Yanmega",
-            "|-supereffective|p1a: Yanmega",
-            "|-damage|p1a: Yanmega|0 fnt",
-            "|faint|p1a: Yanmega",
-            "|",
-            "|upkeep"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 9,
-      "steps": [
-        {
-          "turn": 9,
-          "step_index": 9,
-          "p1_species": "Persian",
-          "p1_hp_ratio": 0.6547619047619048,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Reshiram",
-          "p2_hp_ratio": 0.22,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Foul Play",
-              "choice": "move 1",
-              "move": "Foul Play"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Taunt",
-              "choice": "move 2",
-              "move": "Taunt"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Thunder Wave",
-              "choice": "move 3",
-              "move": "Thunder Wave"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Parting Shot",
-              "choice": "move 4",
-              "move": "Parting Shot"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 7,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Foul Play",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.99875807762146,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 7.181193828582764,
-              "probability": 0.99875807762146
-            },
-            {
-              "index": 1,
-              "logit": 0.47418665885925293,
-              "probability": 0.0012207984691485763
-            },
-            {
-              "index": 2,
-              "logit": -3.5852954387664795,
-              "probability": 2.1068495698273182e-05
-            },
-            {
-              "index": 9,
-              "logit": -10.746466636657715,
-              "probability": 1.63522120288917e-08
-            },
-            {
-              "index": 8,
-              "logit": -10.914346694946289,
-              "probability": 1.3825049549609503e-08
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p1a: Persian|Persian-Alola, L86, M|100/100",
-            "|turn|8"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 10,
-      "steps": [
-        {
-          "turn": 10,
-          "step_index": 10,
-          "p1_species": "Persian",
-          "p1_hp_ratio": 0.6547619047619048,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Lanturn",
-          "p2_hp_ratio": 0.42,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Foul Play",
-              "choice": "move 1",
-              "move": "Foul Play"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Taunt",
-              "choice": "move 2",
-              "move": "Taunt"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Thunder Wave",
-              "choice": "move 3",
-              "move": "Thunder Wave"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Parting Shot",
-              "choice": "move 4",
-              "move": "Parting Shot"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 7,
-          "chosen_action_index": 0,
-          "chosen_action_label": "move:Foul Play",
-          "chosen_action_choice": "move 1",
-          "chosen_action_probability": 0.9969893097877502,
-          "model_top_k": [
-            {
-              "index": 0,
-              "logit": 7.190810680389404,
-              "probability": 0.9969893097877502
-            },
-            {
-              "index": 1,
-              "logit": 1.3839915990829468,
-              "probability": 0.0029979271348565817
-            },
-            {
-              "index": 2,
-              "logit": -4.069304943084717,
-              "probability": 1.2837615940952674e-05
-            },
-            {
-              "index": 9,
-              "logit": -10.282149314880371,
-              "probability": 2.572057056227095e-08
-            },
-            {
-              "index": 8,
-              "logit": -10.585091590881348,
-              "probability": 1.8998285611360188e-08
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Persian|Foul Play|p2a: Reshiram",
-            "|-damage|p2a: Reshiram|22/100",
-            "|move|p2a: Reshiram|Earth Power|p1a: Persian",
-            "|-damage|p1a: Persian|66/100",
-            "|",
-            "|upkeep",
-            "|turn|9"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 11,
-      "steps": [
-        {
-          "turn": 11,
-          "step_index": 11,
-          "p1_species": "Persian",
-          "p1_hp_ratio": 0.6547619047619048,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.78,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Foul Play",
-              "choice": "move 1",
-              "move": "Foul Play"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Taunt",
-              "choice": "move 2",
-              "move": "Taunt"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Thunder Wave",
-              "choice": "move 3",
-              "move": "Thunder Wave"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Parting Shot",
-              "choice": "move 4",
-              "move": "Parting Shot"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 7,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Taunt",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9731227159500122,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 3.9869747161865234,
-              "probability": 0.9731227159500122
-            },
-            {
-              "index": 0,
-              "logit": 0.38572394847869873,
-              "probability": 0.02655610255897045
-            },
-            {
-              "index": 2,
-              "logit": -4.09344482421875,
-              "probability": 0.0003012215020135045
-            },
-            {
-              "index": 9,
-              "logit": -6.912474155426025,
-              "probability": 1.7972037312574685e-05
-            },
-            {
-              "index": 10,
-              "logit": -9.166958808898926,
-              "probability": 1.885762003439595e-06
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Lanturn|Lanturn, L89, F|62/100",
-            "|move|p1a: Persian|Foul Play|p2a: Lanturn",
-            "|-damage|p2a: Lanturn|42/100",
-            "|",
-            "|upkeep",
-            "|turn|10"
-          ]
-        },
-        {
-          "turn": 11,
-          "step_index": 12,
-          "p1_species": "Persian",
-          "p1_hp_ratio": 0,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.78,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Foul Play",
-              "choice": "move 1",
-              "move": "Foul Play"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Taunt",
-              "choice": "move 2",
-              "move": "Taunt"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Thunder Wave",
-              "choice": "move 3",
-              "move": "Thunder Wave"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Parting Shot",
-              "choice": "move 4",
-              "move": "Parting Shot"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 7,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Taunt",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.8718371987342834,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 3.479017734527588,
-              "probability": 0.8718371987342834
-            },
-            {
-              "index": 0,
-              "logit": 1.547316312789917,
-              "probability": 0.12633047997951508
-            },
-            {
-              "index": 2,
-              "logit": -2.723788022994995,
-              "probability": 0.0017643761821091175
-            },
-            {
-              "index": 9,
-              "logit": -6.3370819091796875,
-              "probability": 4.757268470712006e-05
-            },
-            {
-              "index": 10,
-              "logit": -7.185513019561768,
-              "probability": 2.0365194359328598e-05
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Copperajah|Copperajah, L86, M|78/100",
-            "|move|p1a: Persian|Taunt|p2a: Copperajah",
-            "|-start|p2a: Copperajah|move: Taunt",
-            "|",
-            "|upkeep",
-            "|turn|11"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 12,
-      "steps": [
-        {
-          "turn": 12,
-          "step_index": 13,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.78,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 4",
-              "move": null
-            },
-            {
-              "index": 10,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 3,
-          "chosen_action_index": 9,
-          "chosen_action_label": "switch:Empoleon, L84, M",
-          "chosen_action_choice": "switch 4",
-          "chosen_action_probability": 0.289691299200058,
-          "model_top_k": [
-            {
-              "index": 9,
-              "logit": -2.6547625064849854,
-              "probability": 0.289691299200058
-            },
-            {
-              "index": 10,
-              "logit": -5.047626972198486,
-              "probability": 0.026468399912118912
-            },
-            {
-              "index": 8,
-              "logit": -9.490083694458008,
-              "probability": 0.0003114535065833479
-            },
-            {
-              "index": 0,
-              "logit": -9.592399597167969,
-              "probability": 0.0002811628801282495
-            },
-            {
-              "index": 4,
-              "logit": -1.7967209815979004,
-              "probability": 0.6832477450370789
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Persian|Taunt||[still]",
-            "|-fail|p1a: Persian",
-            "|move|p2a: Copperajah|Superpower|p1a: Persian",
-            "|-supereffective|p1a: Persian",
-            "|-damage|p1a: Persian|0 fnt",
-            "|-unboost|p2a: Copperajah|atk|1",
-            "|-unboost|p2a: Copperajah|def|1",
-            "|faint|p1a: Persian",
-            "|",
-            "|upkeep"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 13,
-      "steps": [
-        {
-          "turn": 13,
-          "step_index": 14,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.23381294964028776,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.66,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Surf",
-              "choice": "move 1",
-              "move": "Surf"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Ice Beam",
-              "choice": "move 2",
-              "move": "Ice Beam"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Flip Turn",
-              "choice": "move 3",
-              "move": "Flip Turn"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Roost",
-              "choice": "move 4",
-              "move": "Roost"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 6,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Ice Beam",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9909159541130066,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 7.231028079986572,
-              "probability": 0.9909159541130066
-            },
-            {
-              "index": 0,
-              "logit": 2.145538568496704,
-              "probability": 0.006129667162895203
-            },
-            {
-              "index": 2,
-              "logit": 1.4156867265701294,
-              "probability": 0.0029543782584369183
-            },
-            {
-              "index": 8,
-              "logit": -10.599143981933594,
-              "probability": 1.7885113834381627e-08
-            },
-            {
-              "index": 9,
-              "logit": -11.395252227783203,
-              "probability": 8.067635448583133e-09
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p1a: Empoleon|Empoleon, L84, M|100/100",
-            "|turn|12"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 14,
-      "steps": [
-        {
-          "turn": 14,
-          "step_index": 15,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.2949640287769784,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Lanturn",
-          "p2_hp_ratio": 0.33,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Surf",
-              "choice": "move 1",
-              "move": "Surf"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Ice Beam",
-              "choice": "move 2",
-              "move": "Ice Beam"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Flip Turn",
-              "choice": "move 3",
-              "move": "Flip Turn"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Roost",
-              "choice": "move 4",
-              "move": "Roost"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 6,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Ice Beam",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9774446487426758,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 6.238897323608398,
-              "probability": 0.9774446487426758
-            },
-            {
-              "index": 2,
-              "logit": 2.385054349899292,
-              "probability": 0.02071998454630375
-            },
-            {
-              "index": 0,
-              "logit": -0.03980039805173874,
-              "probability": 0.0018335318891331553
-            },
-            {
-              "index": 9,
-              "logit": -7.564601421356201,
-              "probability": 9.892559091895237e-07
-            },
-            {
-              "index": 8,
-              "logit": -7.69507360458374,
-              "probability": 8.682509928803483e-07
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Empoleon|Ice Beam|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|66/100",
-            "|move|p2a: Copperajah|Superpower|p1a: Empoleon",
-            "|-supereffective|p1a: Empoleon",
-            "|-damage|p1a: Empoleon|18/100",
-            "|-unboost|p2a: Copperajah|atk|1",
-            "|-unboost|p2a: Copperajah|def|1",
-            "|",
-            "|-heal|p1a: Empoleon|24/100|[from] item: Leftovers",
-            "|-end|p2a: Copperajah|move: Taunt",
-            "|upkeep",
-            "|turn|13"
-          ]
-        },
-        {
-          "turn": 14,
-          "step_index": 16,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.16906474820143885,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Lanturn",
-          "p2_hp_ratio": 0.23,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Surf",
-              "choice": "move 1",
-              "move": "Surf"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Ice Beam",
-              "choice": "move 2",
-              "move": "Ice Beam"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Flip Turn",
-              "choice": "move 3",
-              "move": "Flip Turn"
-            },
-            {
-              "index": 3,
-              "kind": "move",
-              "label": "move:Roost",
-              "choice": "move 4",
-              "move": "Roost"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 6,
-          "chosen_action_index": 2,
-          "chosen_action_label": "move:Flip Turn",
-          "chosen_action_choice": "move 3",
-          "chosen_action_probability": 0.8386288285255432,
-          "model_top_k": [
-            {
-              "index": 2,
-              "logit": 6.621077060699463,
-              "probability": 0.8386288285255432
-            },
-            {
-              "index": 1,
-              "logit": 4.972269535064697,
-              "probability": 0.1612507551908493
-            },
-            {
-              "index": 0,
-              "logit": -2.2400708198547363,
-              "probability": 0.00011891104077221826
-            },
-            {
-              "index": 8,
-              "logit": -6.719886302947998,
-              "probability": 1.3479165090757306e-06
-            },
-            {
-              "index": 9,
-              "logit": -8.64987850189209,
-              "probability": 1.956490791599208e-07
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Lanturn|Lanturn, L89, F|42/100",
-            "|move|p1a: Empoleon|Ice Beam|p2a: Lanturn",
-            "|-resisted|p2a: Lanturn",
-            "|-damage|p2a: Lanturn|33/100",
-            "|",
-            "|-heal|p1a: Empoleon|30/100|[from] item: Leftovers",
-            "|upkeep",
-            "|turn|14"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 15,
-      "steps": [
-        {
-          "turn": 15,
-          "step_index": 17,
-          "p1_species": "Seviper",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Lanturn",
-          "p2_hp_ratio": 0.23,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Seviper, L93, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 2,
           "chosen_action_index": 8,
           "chosen_action_label": "switch:Seviper, L93, M",
           "chosen_action_choice": "switch 2",
-          "chosen_action_probability": 0.0005165227921679616,
+          "chosen_action_probability": 0.00014894908235874027,
           "model_top_k": [
             {
               "index": 8,
-              "logit": -6.685142993927002,
-              "probability": 0.0005165227921679616
+              "logit": -5.905844211578369,
+              "probability": 0.00014894908235874027
+            },
+            {
+              "index": 11,
+              "logit": -9.245782852172852,
+              "probability": 5.278629487293074e-06
             },
             {
               "index": 9,
-              "logit": -7.852949142456055,
-              "probability": 0.00016066375246737152
+              "logit": -9.479229927062988,
+              "probability": 4.1796156438067555e-06
+            },
+            {
+              "index": 10,
+              "logit": -14.342912673950195,
+              "probability": 3.227496492286264e-08
             },
             {
               "index": 0,
-              "logit": -6.314857482910156,
-              "probability": 0.0007480017957277596
-            },
-            {
-              "index": 1,
-              "logit": 0.6532299518585205,
-              "probability": 0.794519305229187
-            },
-            {
-              "index": 4,
-              "logit": -0.7061149477958679,
-              "probability": 0.2040555775165558
+              "logit": 2.9059031009674072,
+              "probability": 0.999841570854187
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|move|p2a: Lanturn|Scald|p1a: Empoleon",
-            "|-resisted|p1a: Empoleon",
-            "|-damage|p1a: Empoleon|17/100",
-            "|move|p1a: Empoleon|Flip Turn|p2a: Lanturn",
-            "|-resisted|p2a: Lanturn",
-            "|-damage|p2a: Lanturn|23/100"
+            "|t:|1777226255",
+            "|move|p1a: Yanmega|U-turn|p2a: Azumarill",
+            "|-resisted|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|43/100"
           ]
         }
       ]
     },
     {
-      "turn": 16,
+      "turn": 5,
       "steps": [
         {
-          "turn": 16,
-          "step_index": 18,
+          "turn": 5,
+          "step_index": 5,
           "p1_species": "Seviper",
-          "p1_hp_ratio": 1,
+          "p1_hp_ratio": 0.7421602787456446,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.66,
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.83,
           "p2_status": null,
           "legal_actions": [
             {
@@ -1940,81 +625,90 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
               "move": null
             },
             {
               "index": 9,
               "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
               "label": "switch:Gyarados, L79, M",
               "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 6,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Giga Drain",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9998012185096741,
+          "chosen_action_probability": 0.7752465605735779,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 10.142812728881836,
-              "probability": 0.9998012185096741
+              "logit": 11.24647331237793,
+              "probability": 0.7752465605735779
             },
             {
               "index": 0,
-              "logit": 1.1267437934875488,
-              "probability": 0.00012141838669776917
+              "logit": 10.008283615112305,
+              "probability": 0.2247506082057953
             },
             {
               "index": 3,
-              "logit": 0.6754658818244934,
-              "probability": 7.732092490186915e-05
+              "logit": -1.254409670829773,
+              "probability": 2.886524725909112e-06
             },
             {
               "index": 9,
-              "logit": -14.225242614746094,
-              "probability": 2.6121714166715826e-11
+              "logit": -14.41808795928955,
+              "probability": 5.5393922955560004e-12
             },
             {
-              "index": 2,
-              "logit": -15.485150337219238,
-              "probability": 7.410206129265795e-12
+              "index": 11,
+              "logit": -14.6444091796875,
+              "probability": 4.4174581527445245e-12
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|switch|p1a: Seviper|Seviper, L93, M|100/100|[from] Flip Turn",
+            "|t:|1777226256",
+            "|switch|p1a: Seviper|Seviper, L93, M|100/100|[from] U-turn",
+            "|move|p2a: Azumarill|Play Rough|p1a: Seviper",
+            "|-resisted|p1a: Seviper",
+            "|-damage|p1a: Seviper|67/100",
             "|",
             "|upkeep",
-            "|turn|15",
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Seviper|Giga Drain|p2a: Lanturn",
-            "|-supereffective|p2a: Lanturn",
-            "|-damage|p2a: Lanturn|0 fnt",
-            "|faint|p2a: Lanturn",
-            "|",
-            "|upkeep"
+            "|turn|4"
           ]
         }
       ]
     },
     {
-      "turn": 17,
+      "turn": 6,
       "steps": [
         {
-          "turn": 17,
-          "step_index": 19,
+          "turn": 6,
+          "step_index": 6,
           "p1_species": "Seviper",
-          "p1_hp_ratio": 0.6550522648083623,
+          "p1_hp_ratio": 0.7177700348432056,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.56,
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 1,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2027,54 +721,1344 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
               "move": null
             },
             {
               "index": 9,
               "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
               "label": "switch:Gyarados, L79, M",
               "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 3,
+          "legal_actions_count": 5,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Giga Drain",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.7980436682701111,
+          "chosen_action_probability": 1.0,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 8.209662437438965,
-              "probability": 0.7980436682701111
+              "logit": 12.428888320922852,
+              "probability": 1.0
             },
             {
-              "index": 9,
-              "logit": -9.299090385437012,
-              "probability": 1.9864238254285738e-08
+              "index": 11,
+              "logit": -12.707395553588867,
+              "probability": 1.2118549219675145e-11
             },
             {
               "index": 8,
-              "logit": -12.232202529907227,
-              "probability": 1.0573965036897448e-09
+              "logit": -14.553793907165527,
+              "probability": 1.9123632798850876e-12
             },
             {
-              "index": 0,
-              "logit": 6.828084945678711,
-              "probability": 0.20045419037342072
+              "index": 10,
+              "logit": -14.897699356079102,
+              "probability": 1.355856616216955e-12
             },
             {
-              "index": 4,
-              "logit": 1.9343868494033813,
-              "probability": 0.0015021351864561439
+              "index": 9,
+              "logit": -14.990944862365723,
+              "probability": 1.2351432810558949e-12
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|switch|p2a: Copperajah|Copperajah, L86, M|66/100",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|100/100",
+            "|move|p1a: Seviper|Giga Drain|p2a: Ribombee",
+            "|-resisted|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|83/100",
+            "|-heal|p1a: Seviper|75/100|[from] drain|[of] p2a: Ribombee",
+            "|",
+            "|upkeep",
+            "|turn|5",
+            "|",
+            "|t:|1777226256",
+            "|move|p1a: Seviper|Giga Drain|p2a: Ribombee",
+            "|-resisted|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|66/100",
+            "|-heal|p1a: Seviper|82/100|[from] drain|[of] p2a: Ribombee",
+            "|move|p2a: Ribombee|U-turn|p1a: Seviper",
+            "|-resisted|p1a: Seviper",
+            "|-damage|p1a: Seviper|72/100"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 7,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.59,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Giga Drain",
+              "choice": "move 2",
+              "move": "Giga Drain"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gyarados, L79, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Giga Drain",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 1.0,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 10.12234115600586,
+              "probability": 1.0
+            },
+            {
+              "index": 9,
+              "logit": -9.69284439086914,
+              "probability": 2.4795578923431094e-09
+            },
+            {
+              "index": 11,
+              "logit": -11.421154022216797,
+              "probability": 4.403306608224966e-10
+            },
+            {
+              "index": 10,
+              "logit": -11.793609619140625,
+              "probability": 3.034055506834221e-10
+            },
+            {
+              "index": 8,
+              "logit": -18.109066009521484,
+              "probability": 5.48599848274739e-13
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Reshiram|Reshiram, L76|100/100|[from] U-turn",
+            "|-ability|p2a: Reshiram|Turboblaze",
+            "|",
+            "|upkeep",
+            "|turn|6"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 8,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.7,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Waterfall",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.5321061611175537,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 5.5793962478637695,
+              "probability": 0.5321061611175537
+            },
+            {
+              "index": 3,
+              "logit": 5.441421985626221,
+              "probability": 0.46352890133857727
+            },
+            {
+              "index": 1,
+              "logit": 0.7760657668113708,
+              "probability": 0.004364538937807083
+            },
+            {
+              "index": 11,
+              "logit": -8.777386665344238,
+              "probability": 3.096896250553982e-07
+            },
+            {
+              "index": 10,
+              "logit": -10.75737476348877,
+              "probability": 4.275911891227224e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|-terastallize|p2a: Reshiram|Ground",
+            "|move|p1a: Seviper|Giga Drain|p2a: Reshiram",
+            "|-supereffective|p2a: Reshiram",
+            "|-damage|p2a: Reshiram|59/100",
+            "|-heal|p1a: Seviper|92/100|[from] drain|[of] p2a: Reshiram",
+            "|move|p2a: Reshiram|Dragon Tail|p1a: Seviper",
+            "|-damage|p1a: Seviper|65/100",
+            "|drag|p1a: Gyarados|Gyarados, L79, M|100/100",
+            "|",
+            "|upkeep",
+            "|turn|7"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 9,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.31,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9828773736953735,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 5.4337029457092285,
+              "probability": 0.9828773736953735
+            },
+            {
+              "index": 2,
+              "logit": 1.3038418292999268,
+              "probability": 0.015809698030352592
+            },
+            {
+              "index": 3,
+              "logit": -1.185600757598877,
+              "probability": 0.0013115119654685259
+            },
+            {
+              "index": 0,
+              "logit": -8.073925018310547,
+              "probability": 1.3372458624871797e-06
+            },
+            {
+              "index": 11,
+              "logit": -10.841092109680176,
+              "probability": 8.403214479812959e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Copperajah|Copperajah, L86, M|100/100",
+            "|move|p1a: Gyarados|Waterfall|p2a: Copperajah",
+            "|-damage|p2a: Copperajah|70/100",
+            "|",
+            "|upkeep",
+            "|turn|8"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 10,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.46,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9601192474365234,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 6.178401470184326,
+              "probability": 0.9601192474365234
+            },
+            {
+              "index": 3,
+              "logit": 2.9852492809295654,
+              "probability": 0.039405498653650284
+            },
+            {
+              "index": 2,
+              "logit": -1.4332972764968872,
+              "probability": 0.00047490469296462834
+            },
+            {
+              "index": 11,
+              "logit": -9.076656341552734,
+              "probability": 2.275818076213909e-07
+            },
+            {
+              "index": 0,
+              "logit": -9.624491691589355,
+              "probability": 1.3158793876755226e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|43/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|31/100",
+            "|",
+            "|upkeep",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 11,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9694035053253174,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 7.273233890533447,
+              "probability": 0.9694035053253174
+            },
+            {
+              "index": 3,
+              "logit": 3.8106672763824463,
+              "probability": 0.030390020459890366
+            },
+            {
+              "index": 2,
+              "logit": -1.1810275316238403,
+              "probability": 0.00020647398196160793
+            },
+            {
+              "index": 11,
+              "logit": -9.993927001953125,
+              "probability": 3.072360144074082e-08
+            },
+            {
+              "index": 0,
+              "logit": -11.966745376586914,
+              "probability": 4.2725583071501205e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|66/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|46/100",
+            "|",
+            "|upkeep",
+            "|turn|10"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 12,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8017042279243469,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 6.8681559562683105,
+              "probability": 0.8017042279243469
+            },
+            {
+              "index": 3,
+              "logit": 5.470423221588135,
+              "probability": 0.19814656674861908
+            },
+            {
+              "index": 2,
+              "logit": -1.721946358680725,
+              "probability": 0.00014906653086654842
+            },
+            {
+              "index": 11,
+              "logit": -8.719677925109863,
+              "probability": 1.362398336368642e-07
+            },
+            {
+              "index": 0,
+              "logit": -10.90483570098877,
+              "probability": 1.5321530710821207e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p2a: Ribombee|Stun Spore|p1a: Gyarados",
+            "|-status|p1a: Gyarados|par",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|28/100",
+            "|",
+            "|upkeep",
+            "|turn|11"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 13,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.64,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8918240070343018,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 3.531721353530884,
+              "probability": 0.8918240070343018
+            },
+            {
+              "index": 2,
+              "logit": 1.2488774061203003,
+              "probability": 0.09096044301986694
+            },
+            {
+              "index": 3,
+              "logit": -0.4299700856208801,
+              "probability": 0.016972212120890617
+            },
+            {
+              "index": 11,
+              "logit": -4.767492294311523,
+              "probability": 0.0002218076551798731
+            },
+            {
+              "index": 10,
+              "logit": -7.096639156341553,
+              "probability": 2.1599355022772215e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
+            "|cant|p1a: Gyarados|par",
+            "|",
+            "|upkeep",
+            "|turn|12"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 14,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.9,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9315258264541626,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 3.924370288848877,
+              "probability": 0.9315258264541626
+            },
+            {
+              "index": 3,
+              "logit": 1.2209841012954712,
+              "probability": 0.06239203363656998
+            },
+            {
+              "index": 2,
+              "logit": -1.110194206237793,
+              "probability": 0.006063331384211779
+            },
+            {
+              "index": 0,
+              "logit": -7.333111763000488,
+              "probability": 1.2026308468193747e-05
+            },
+            {
+              "index": 11,
+              "logit": -7.905871868133545,
+              "probability": 6.782441232644487e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Copperajah|Copperajah, L86, M|70/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
+            "|-resisted|p2a: Copperajah",
+            "|-damage|p2a: Copperajah|64/100",
+            "|",
+            "|upkeep",
+            "|turn|13"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 15,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.81,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9196499586105347,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.088536262512207,
+              "probability": 0.9196499586105347
+            },
+            {
+              "index": 2,
+              "logit": 1.5103071928024292,
+              "probability": 0.06980908662080765
+            },
+            {
+              "index": 3,
+              "logit": -0.38784271478652954,
+              "probability": 0.010460582561790943
+            },
+            {
+              "index": 11,
+              "logit": -5.326608657836914,
+              "probability": 7.493367593269795e-05
+            },
+            {
+              "index": 10,
+              "logit": -7.946346759796143,
+              "probability": 5.456812687043566e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Lanturn",
+            "|-damage|p2a: Lanturn|90/100",
+            "|",
+            "|upkeep",
+            "|turn|14"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 16,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.81,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9252439737319946,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.361411094665527,
+              "probability": 0.9252439737319946
+            },
+            {
+              "index": 2,
+              "logit": 1.7384823560714722,
+              "probability": 0.06716343015432358
+            },
+            {
+              "index": 3,
+              "logit": -0.4480590224266052,
+              "probability": 0.007542753126472235
+            },
+            {
+              "index": 11,
+              "logit": -5.524747371673584,
+              "probability": 4.707088737632148e-05
+            },
+            {
+              "index": 10,
+              "logit": -8.37867546081543,
+              "probability": 2.712107971092337e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p2a: Lanturn|Thunder Wave|p1a: Gyarados",
+            "|-fail|p1a: Gyarados|par",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Lanturn",
+            "|-damage|p2a: Lanturn|81/100",
+            "|",
+            "|upkeep",
+            "|turn|15"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 17,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.58,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9245433211326599,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.361538887023926,
+              "probability": 0.9245433211326599
+            },
+            {
+              "index": 2,
+              "logit": 1.7506455183029175,
+              "probability": 0.06792517006397247
+            },
+            {
+              "index": 3,
+              "logit": -0.4553956389427185,
+              "probability": 0.007480991538614035
+            },
+            {
+              "index": 11,
+              "logit": -5.508247375488281,
+              "probability": 4.781163079314865e-05
+            },
+            {
+              "index": 10,
+              "logit": -8.387654304504395,
+              "probability": 2.6854868337977678e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p2a: Lanturn|Thunder Wave|p1a: Gyarados",
+            "|-fail|p1a: Gyarados|par",
+            "|cant|p1a: Gyarados|par",
+            "|",
+            "|upkeep",
             "|turn|16"
           ]
         }
@@ -2085,80 +2069,111 @@
       "steps": [
         {
           "turn": 18,
-          "step_index": 20,
-          "p1_species": "Seviper",
-          "p1_hp_ratio": 0.6794425087108014,
-          "p1_status": null,
+          "step_index": 18,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 0.5107142857142857,
+          "p1_status": "par",
           "p1_boosts": {},
-          "p2_species": "Reshiram",
-          "p2_hp_ratio": 0.17,
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.58,
           "p2_status": null,
           "legal_actions": [
             {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
               "index": 1,
               "kind": "move",
-              "label": "move:Giga Drain",
+              "label": "move:Tera Blast",
               "choice": "move 2",
-              "move": "Giga Drain"
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
             },
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
               "move": null
             },
             {
               "index": 9,
               "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
               "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 3,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
-          "chosen_action_label": "move:Giga Drain",
+          "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.8609294295310974,
+          "chosen_action_probability": 0.9484721422195435,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 8.137916564941406,
-              "probability": 0.8609294295310974
+              "logit": 4.279026508331299,
+              "probability": 0.9484721422195435
             },
             {
-              "index": 9,
-              "logit": -7.459606170654297,
-              "probability": 1.4489370414594305e-07
+              "index": 3,
+              "logit": 1.2718268632888794,
+              "probability": 0.046882882714271545
             },
             {
-              "index": 8,
-              "logit": -10.509208679199219,
-              "probability": 6.864737223111206e-09
+              "index": 2,
+              "logit": -1.0429757833480835,
+              "probability": 0.00463135726749897
             },
             {
               "index": 0,
-              "logit": 6.310457229614258,
-              "probability": 0.1384560763835907
+              "logit": -7.315362930297852,
+              "probability": 8.742697900743224e-06
             },
             {
-              "index": 4,
-              "logit": 0.8926452994346619,
-              "probability": 0.0006143081118352711
+              "index": 11,
+              "logit": -7.886623382568359,
+              "probability": 4.937989615427796e-06
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163583",
-            "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
+            "|t:|1777226256",
+            "|switch|p2a: Copperajah|Copperajah, L86, M|64/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
             "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|56/100",
-            "|move|p2a: Copperajah|Superpower|p1a: Seviper",
-            "|-resisted|p1a: Seviper",
-            "|-damage|p1a: Seviper|66/100",
-            "|-unboost|p2a: Copperajah|atk|1",
-            "|-unboost|p2a: Copperajah|def|1",
+            "|-damage|p2a: Copperajah|58/100",
             "|",
             "|upkeep",
             "|turn|17"
@@ -2171,252 +2186,13 @@
       "steps": [
         {
           "turn": 19,
-          "step_index": 21,
-          "p1_species": "Seviper",
-          "p1_hp_ratio": 0.7421602787456446,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.46,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Giga Drain",
-              "choice": "move 2",
-              "move": "Giga Drain"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 3,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Giga Drain",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.7222939729690552,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 9.579172134399414,
-              "probability": 0.7222939729690552
-            },
-            {
-              "index": 8,
-              "logit": -7.1646294593811035,
-              "probability": 3.8634347276911285e-08
-            },
-            {
-              "index": 9,
-              "logit": -11.58728313446045,
-              "probability": 4.6370279838114925e-10
-            },
-            {
-              "index": 0,
-              "logit": 8.623236656188965,
-              "probability": 0.27768757939338684
-            },
-            {
-              "index": 4,
-              "logit": -0.9989647269248962,
-              "probability": 1.8394488506601192e-05
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Reshiram|Reshiram, L76|22/100",
-            "|-ability|p2a: Reshiram|Turboblaze",
-            "|move|p1a: Seviper|Giga Drain|p2a: Reshiram",
-            "|-resisted|p2a: Reshiram",
-            "|-damage|p2a: Reshiram|17/100",
-            "|-heal|p1a: Seviper|68/100|[from] drain|[of] p2a: Reshiram",
-            "|",
-            "|upkeep",
-            "|turn|18"
-          ]
-        },
-        {
-          "turn": 19,
-          "step_index": 22,
-          "p1_species": "Seviper",
-          "p1_hp_ratio": 0,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.34,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Giga Drain",
-              "choice": "move 2",
-              "move": "Giga Drain"
-            },
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 3,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Giga Drain",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.8533605933189392,
-          "model_top_k": [
-            {
-              "index": 1,
-              "logit": 8.71096134185791,
-              "probability": 0.8533605933189392
-            },
-            {
-              "index": 9,
-              "logit": -8.071038246154785,
-              "probability": 4.393420383053126e-08
-            },
-            {
-              "index": 8,
-              "logit": -10.89052963256836,
-              "probability": 2.620074379677817e-09
-            },
-            {
-              "index": 0,
-              "logit": 6.947221755981445,
-              "probability": 0.1462683081626892
-            },
-            {
-              "index": 4,
-              "logit": 0.9704408049583435,
-              "probability": 0.000371079717297107
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|switch|p2a: Copperajah|Copperajah, L86, M|56/100",
-            "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|46/100",
-            "|-heal|p1a: Seviper|75/100|[from] drain|[of] p2a: Copperajah",
-            "|",
-            "|upkeep",
-            "|turn|19"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 20,
-      "steps": [
-        {
-          "turn": 20,
-          "step_index": 23,
+          "step_index": 19,
           "p1_species": "Gyarados",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
+          "p1_hp_ratio": 0.5107142857142857,
+          "p1_status": "par",
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.34,
-          "p2_status": null,
-          "legal_actions": [
-            {
-              "index": 8,
-              "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
-              "choice": "switch 2",
-              "move": null
-            },
-            {
-              "index": 9,
-              "kind": "switch",
-              "label": "switch:Gyarados, L79, M",
-              "choice": "switch 6",
-              "move": null
-            }
-          ],
-          "legal_actions_count": 2,
-          "chosen_action_index": 9,
-          "chosen_action_label": "switch:Gyarados, L79, M",
-          "chosen_action_choice": "switch 6",
-          "chosen_action_probability": 0.004604662302881479,
-          "model_top_k": [
-            {
-              "index": 9,
-              "logit": -2.4190869331359863,
-              "probability": 0.004604662302881479
-            },
-            {
-              "index": 8,
-              "logit": -9.593682289123535,
-              "probability": 3.526229647832224e-06
-            },
-            {
-              "index": 0,
-              "logit": -2.015449285507202,
-              "probability": 0.006894380319863558
-            },
-            {
-              "index": 1,
-              "logit": 2.034278154373169,
-              "probability": 0.3956121802330017
-            },
-            {
-              "index": 4,
-              "logit": 2.438844680786133,
-              "probability": 0.5928852558135986
-            }
-          ],
-          "protocol_log": [
-            "|",
-            "|t:|1777163583",
-            "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|34/100",
-            "|-heal|p1a: Seviper|82/100|[from] drain|[of] p2a: Copperajah",
-            "|move|p2a: Copperajah|Heavy Slam|p1a: Seviper",
-            "|-damage|p1a: Seviper|0 fnt",
-            "|faint|p1a: Seviper",
-            "|",
-            "|upkeep"
-          ]
-        }
-      ]
-    },
-    {
-      "turn": 21,
-      "steps": [
-        {
-          "turn": 21,
-          "step_index": 24,
-          "p1_species": "Gyarados",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
-          "p1_boosts": {},
-          "p2_species": "Hitmonlee",
-          "p2_hp_ratio": 0.86,
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.48,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2450,47 +2226,306 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 5,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9308415055274963,
+          "chosen_action_probability": 0.9817521572113037,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 4.753961086273193,
-              "probability": 0.9308415055274963
-            },
-            {
-              "index": 2,
-              "logit": 2.0480446815490723,
-              "probability": 0.062188658863306046
+              "logit": 4.063035488128662,
+              "probability": 0.9817521572113037
             },
             {
               "index": 3,
-              "logit": -0.14056307077407837,
-              "probability": 0.0069696493446826935
+              "logit": -0.08659642934799194,
+              "probability": 0.015482447110116482
             },
             {
-              "index": 0,
-              "logit": -11.365575790405273,
-              "probability": 9.295003877696217e-08
+              "index": 2,
+              "logit": -1.8477826118469238,
+              "probability": 0.0026605180464684963
             },
             {
-              "index": 8,
-              "logit": -11.583747863769531,
-              "probability": 7.473064300711485e-08
+              "index": 11,
+              "logit": -5.269644737243652,
+              "probability": 8.687014633323997e-05
+            },
+            {
+              "index": 10,
+              "logit": -6.840300559997559,
+              "probability": 1.8061067748931237e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p1a: Gyarados|Gyarados, L79, M|100/100",
+            "|t:|1777226256",
+            "|move|p2a: Copperajah|Heavy Slam|p1a: Gyarados",
+            "|-resisted|p1a: Gyarados",
+            "|-damage|p1a: Gyarados|52/100 par",
+            "|cant|p1a: Gyarados|par",
+            "|",
+            "|upkeep",
+            "|turn|18"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 20,
+      "steps": [
+        {
+          "turn": 20,
+          "step_index": 20,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 0.5107142857142857,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.02,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Earthquake",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9215493202209473,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 4.288546562194824,
+              "probability": 0.9215493202209473
+            },
+            {
+              "index": 1,
+              "logit": 1.7635358572006226,
+              "probability": 0.07377690821886063
+            },
+            {
+              "index": 2,
+              "logit": -1.5289061069488525,
+              "probability": 0.002741770353168249
+            },
+            {
+              "index": 11,
+              "logit": -1.9336761236190796,
+              "probability": 0.0018291171872988343
+            },
+            {
+              "index": 10,
+              "logit": -4.812635898590088,
+              "probability": 0.0001027838807203807
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|59/100",
+            "|-ability|p2a: Reshiram|Turboblaze",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Reshiram",
+            "|-damage|p2a: Reshiram|48/100",
+            "|",
+            "|upkeep",
+            "|turn|19"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "steps": [
+        {
+          "turn": 21,
+          "step_index": 21,
+          "p1_species": "Gyarados",
+          "p1_hp_ratio": 0.5107142857142857,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.52,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 2",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Waterfall",
+              "choice": "move 3",
+              "move": "Waterfall"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 4",
+              "move": "Earthquake"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Tera Blast",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.923235297203064,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.221497058868408,
+              "probability": 0.923235297203064
+            },
+            {
+              "index": 3,
+              "logit": 1.6910346746444702,
+              "probability": 0.07351002842187881
+            },
+            {
+              "index": 2,
+              "logit": -1.531135082244873,
+              "probability": 0.0029307310469448566
+            },
+            {
+              "index": 10,
+              "logit": -4.361693382263184,
+              "probability": 0.00017285419744439423
+            },
+            {
+              "index": 11,
+              "logit": -4.496356964111328,
+              "probability": 0.00015107641229406
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|31/100",
+            "|move|p1a: Gyarados|Earthquake|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|2/100",
+            "|",
+            "|upkeep",
             "|turn|20"
           ]
         }
@@ -2501,13 +2536,13 @@
       "steps": [
         {
           "turn": 22,
-          "step_index": 25,
+          "step_index": 22,
           "p1_species": "Gyarados",
-          "p1_hp_ratio": 1,
-          "p1_status": null,
+          "p1_hp_ratio": 0.19285714285714287,
+          "p1_status": "par",
           "p1_boosts": {},
           "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.27,
+          "p2_hp_ratio": 0.46,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2541,49 +2576,71 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 5,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.7724857926368713,
+          "chosen_action_probability": 0.9782410860061646,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 6.8591084480285645,
-              "probability": 0.7724857926368713
-            },
-            {
-              "index": 2,
-              "logit": 5.636674404144287,
-              "probability": 0.22750666737556458
+              "logit": 4.33634614944458,
+              "probability": 0.9782410860061646
             },
             {
               "index": 3,
-              "logit": -4.67704963684082,
-              "probability": 7.547461336798733e-06
+              "logit": 0.41218671202659607,
+              "probability": 0.019328808411955833
             },
             {
-              "index": 8,
-              "logit": -11.414473533630371,
-              "probability": 8.948999763447318e-09
+              "index": 2,
+              "logit": -1.6892205476760864,
+              "probability": 0.0023636086843907833
             },
             {
-              "index": 0,
-              "logit": -15.854265213012695,
-              "probability": 1.0558393742643446e-10
+              "index": 11,
+              "logit": -5.3665313720703125,
+              "probability": 5.9777805290650576e-05
+            },
+            {
+              "index": 10,
+              "logit": -7.543288230895996,
+              "probability": 6.779318027838599e-06
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|100/100",
-            "|move|p1a: Gyarados|Tera Blast|p2a: Hitmonlee",
-            "|-damage|p2a: Hitmonlee|86/100",
+            "|t:|1777226256",
+            "|switch|p2a: Copperajah|Copperajah, L86, M|58/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
+            "|-resisted|p2a: Copperajah",
+            "|-damage|p2a: Copperajah|52/100",
             "|",
             "|upkeep",
             "|turn|21"
@@ -2596,13 +2653,13 @@
       "steps": [
         {
           "turn": 23,
-          "step_index": 26,
+          "step_index": 23,
           "p1_species": "Gyarados",
-          "p1_hp_ratio": 0.6464285714285715,
-          "p1_status": null,
+          "p1_hp_ratio": 0.19285714285714287,
+          "p1_status": "par",
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.21,
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.11,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2636,50 +2693,75 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 5,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.940955638885498,
+          "chosen_action_probability": 0.9757782816886902,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 5.011166572570801,
-              "probability": 0.940955638885498
-            },
-            {
-              "index": 2,
-              "logit": 2.143693208694458,
-              "probability": 0.05348614603281021
+              "logit": 4.1888346672058105,
+              "probability": 0.9757782816886902
             },
             {
               "index": 3,
-              "logit": -0.12045389413833618,
-              "probability": 0.005558206234127283
+              "logit": 0.419341504573822,
+              "probability": 0.022505108267068863
             },
             {
-              "index": 0,
-              "logit": -11.510494232177734,
-              "probability": 6.284973608217115e-08
+              "index": 2,
+              "logit": -2.3697516918182373,
+              "probability": 0.001383545226417482
             },
             {
-              "index": 8,
-              "logit": -11.81313705444336,
-              "probability": 4.643733575449005e-08
+              "index": 11,
+              "logit": -3.9531126022338867,
+              "probability": 0.0002840197994373739
+            },
+            {
+              "index": 10,
+              "logit": -5.710199356079102,
+              "probability": 4.900665953755379e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Copperajah|Copperajah, L86, M|34/100",
+            "|t:|1777226256",
+            "|move|p2a: Copperajah|Superpower|p1a: Gyarados",
+            "|-resisted|p1a: Gyarados",
+            "|-damage|p1a: Gyarados|20/100 par",
+            "|-unboost|p2a: Copperajah|atk|1",
+            "|-unboost|p2a: Copperajah|def|1",
             "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
             "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|27/100",
+            "|-damage|p2a: Copperajah|46/100",
             "|",
             "|upkeep",
             "|turn|22"
@@ -2692,13 +2774,13 @@
       "steps": [
         {
           "turn": 24,
-          "step_index": 27,
+          "step_index": 24,
           "p1_species": "Gyarados",
-          "p1_hp_ratio": 0.3107142857142857,
-          "p1_status": null,
+          "p1_hp_ratio": 0.19285714285714287,
+          "p1_status": "par",
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.15,
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.02,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2732,52 +2814,70 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 5,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9510183930397034,
+          "chosen_action_probability": 0.9104703664779663,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 4.992565631866455,
-              "probability": 0.9510183930397034
-            },
-            {
-              "index": 2,
-              "logit": 1.9220489263534546,
-              "probability": 0.04412456974387169
+              "logit": 5.466009616851807,
+              "probability": 0.9104703664779663
             },
             {
               "index": 3,
-              "logit": -0.2845655679702759,
-              "probability": 0.00485690962523222
+              "logit": 3.14139461517334,
+              "probability": 0.08906321972608566
             },
             {
-              "index": 8,
-              "logit": -11.165142059326172,
-              "probability": 9.14083386760467e-08
+              "index": 11,
+              "logit": -2.5007176399230957,
+              "probability": 0.00031576218316331506
             },
             {
-              "index": 0,
-              "logit": -12.058411598205566,
-              "probability": 3.74147965942484e-08
+              "index": 2,
+              "logit": -3.284644842147827,
+              "probability": 0.0001441799831809476
+            },
+            {
+              "index": 10,
+              "logit": -6.375670433044434,
+              "probability": 6.55374151392607e-06
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|21/100",
-            "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-            "|-resisted|p1a: Gyarados",
-            "|-damage|p1a: Gyarados|65/100",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|28/100",
+            "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|11/100",
             "|",
             "|upkeep",
             "|turn|23"
@@ -2785,13 +2885,13 @@
         },
         {
           "turn": 24,
-          "step_index": 28,
+          "step_index": 25,
           "p1_species": "Gyarados",
           "p1_hp_ratio": 0,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.09,
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.02,
           "p2_status": null,
           "legal_actions": [
             {
@@ -2825,52 +2925,69 @@
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 5,
+          "legal_actions_count": 8,
           "chosen_action_index": 1,
           "chosen_action_label": "move:Tera Blast",
           "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.9465624690055847,
+          "chosen_action_probability": 0.9003868699073792,
           "model_top_k": [
             {
               "index": 1,
-              "logit": 4.771382808685303,
-              "probability": 0.9465624690055847
-            },
-            {
-              "index": 2,
-              "logit": 1.827745795249939,
-              "probability": 0.049859050661325455
+              "logit": 3.705228567123413,
+              "probability": 0.9003868699073792
             },
             {
               "index": 3,
-              "logit": -0.8066156506538391,
-              "probability": 0.00357812293805182
+              "logit": 1.3943759202957153,
+              "probability": 0.08929736912250519
             },
             {
-              "index": 8,
-              "logit": -10.243453025817871,
-              "probability": 2.852916907158942e-07
+              "index": 2,
+              "logit": -1.6320890188217163,
+              "probability": 0.004329737741500139
             },
             {
-              "index": 0,
-              "logit": -12.415583610534668,
-              "probability": 3.2504601676919265e-08
+              "index": 10,
+              "logit": -1.739655613899231,
+              "probability": 0.0038881758227944374
+            },
+            {
+              "index": 11,
+              "logit": -2.356698989868164,
+              "probability": 0.002097815740853548
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|15/100",
-            "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-            "|-resisted|p1a: Gyarados",
-            "|-damage|p1a: Gyarados|32/100",
+            "|t:|1777226256",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|2/100",
+            "|cant|p1a: Gyarados|par",
             "|",
             "|upkeep",
             "|turn|24"
@@ -2883,63 +3000,80 @@
       "steps": [
         {
           "turn": 25,
-          "step_index": 29,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.16906474820143885,
+          "step_index": 26,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6445993031358885,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Copperajah",
-          "p2_hp_ratio": 0.09,
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.02,
           "p2_status": null,
           "legal_actions": [
             {
               "index": 8,
               "kind": "switch",
-              "label": "switch:Empoleon, L84, M",
+              "label": "switch:Yanmega, L82, F",
               "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Seviper, L93, M",
+              "choice": "switch 6",
               "move": null
             }
           ],
-          "legal_actions_count": 1,
-          "chosen_action_index": 8,
-          "chosen_action_label": "switch:Empoleon, L84, M",
-          "chosen_action_choice": "switch 2",
-          "chosen_action_probability": 7.343952006522159e-07,
+          "legal_actions_count": 4,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Seviper, L93, M",
+          "chosen_action_choice": "switch 6",
+          "chosen_action_probability": 0.11348853260278702,
           "model_top_k": [
             {
+              "index": 11,
+              "logit": -2.357440948486328,
+              "probability": 0.11348853260278702
+            },
+            {
+              "index": 10,
+              "logit": -4.4364333152771,
+              "probability": 0.014192442409694195
+            },
+            {
+              "index": 9,
+              "logit": -12.225306510925293,
+              "probability": 5.880202479602303e-06
+            },
+            {
               "index": 8,
-              "logit": -10.111773490905762,
-              "probability": 7.343952006522159e-07
+              "logit": -16.683717727661133,
+              "probability": 6.809720787259721e-08
             },
             {
               "index": 0,
-              "logit": 0.9248252511024475,
-              "probability": 0.04561036452651024
-            },
-            {
-              "index": 2,
-              "logit": -5.090304851531982,
-              "probability": 0.00011135911336168647
-            },
-            {
-              "index": 1,
-              "logit": 2.0597736835479736,
-              "probability": 0.14189445972442627
-            },
-            {
-              "index": 4,
-              "logit": 3.8046622276306152,
-              "probability": 0.8123831152915955
+              "logit": -0.3179944157600403,
+              "probability": 0.8723130226135254
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-            "|-resisted|p2a: Copperajah",
-            "|-damage|p2a: Copperajah|9/100",
-            "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-            "|-resisted|p1a: Gyarados",
+            "|t:|1777226256",
+            "|move|p2a: Azumarill|Ice Spinner|p1a: Gyarados",
             "|-damage|p1a: Gyarados|0 fnt",
             "|faint|p1a: Gyarados",
             "|",
@@ -2953,178 +3087,1225 @@
       "steps": [
         {
           "turn": 26,
-          "step_index": 30,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.2302158273381295,
+          "step_index": 27,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6445993031358885,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Hitmonlee",
-          "p2_hp_ratio": 0.5,
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.11,
           "p2_status": null,
           "legal_actions": [
             {
               "index": 0,
               "kind": "move",
-              "label": "move:Surf",
+              "label": "move:Flamethrower",
               "choice": "move 1",
-              "move": "Surf"
+              "move": "Flamethrower"
             },
             {
               "index": 1,
               "kind": "move",
-              "label": "move:Ice Beam",
+              "label": "move:Giga Drain",
               "choice": "move 2",
-              "move": "Ice Beam"
+              "move": "Giga Drain"
             },
             {
               "index": 2,
               "kind": "move",
-              "label": "move:Flip Turn",
+              "label": "move:Switcheroo",
               "choice": "move 3",
-              "move": "Flip Turn"
+              "move": "Switcheroo"
             },
             {
               "index": 3,
               "kind": "move",
-              "label": "move:Roost",
+              "label": "move:Gunk Shot",
               "choice": "move 4",
-              "move": "Roost"
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
             }
           ],
-          "legal_actions_count": 4,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Ice Beam",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.8375149965286255,
+          "legal_actions_count": 7,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.6178688406944275,
           "model_top_k": [
             {
+              "index": 3,
+              "logit": 9.174561500549316,
+              "probability": 0.6178688406944275
+            },
+            {
               "index": 1,
-              "logit": 6.352657794952393,
-              "probability": 0.8375149965286255
+              "logit": 8.289299011230469,
+              "probability": 0.2549363076686859
             },
             {
               "index": 0,
-              "logit": 0.9852776527404785,
-              "probability": 0.003908129874616861
+              "logit": 7.594005584716797,
+              "probability": 0.1271948516368866
             },
             {
-              "index": 2,
-              "logit": 0.38487276434898376,
-              "probability": 0.00214395928196609
+              "index": 10,
+              "logit": -17.68709945678711,
+              "probability": 1.333599897179738e-12
             },
             {
-              "index": 3,
-              "logit": -13.66099739074707,
-              "probability": 1.7028358723081283e-09
-            },
-            {
-              "index": 4,
-              "logit": 4.674846172332764,
-              "probability": 0.15643295645713806
+              "index": 9,
+              "logit": -19.693395614624023,
+              "probability": 1.7934999731010481e-13
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p1a: Empoleon|Empoleon, L84, M|17/100",
+            "|t:|1777226256",
+            "|switch|p1a: Seviper|Seviper, L93, M|65/100",
             "|turn|25"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "turn": 27,
+      "steps": [
         {
-          "turn": 26,
-          "step_index": 31,
-          "p1_species": "Empoleon",
-          "p1_hp_ratio": 0.2302158273381295,
+          "turn": 27,
+          "step_index": 28,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6445993031358885,
           "p1_status": null,
           "p1_boosts": {},
-          "p2_species": "Hitmonlee",
-          "p2_hp_ratio": 0.5,
+          "p2_species": "Ribombee",
+          "p2_hp_ratio": 0.11,
           "p2_status": null,
           "legal_actions": [
             {
-              "index": 0,
-              "kind": "move",
-              "label": "move:Surf",
-              "choice": "move 1",
-              "move": "Surf"
-            },
-            {
-              "index": 1,
-              "kind": "move",
-              "label": "move:Ice Beam",
-              "choice": "move 2",
-              "move": "Ice Beam"
-            },
-            {
-              "index": 2,
-              "kind": "move",
-              "label": "move:Flip Turn",
-              "choice": "move 3",
-              "move": "Flip Turn"
-            },
-            {
               "index": 3,
               "kind": "move",
-              "label": "move:Roost",
+              "label": "move:Gunk Shot",
               "choice": "move 4",
-              "move": "Roost"
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
             }
           ],
           "legal_actions_count": 4,
-          "chosen_action_index": 1,
-          "chosen_action_label": "move:Ice Beam",
-          "chosen_action_choice": "move 2",
-          "chosen_action_probability": 0.5721294283866882,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.999983549118042,
           "model_top_k": [
             {
-              "index": 1,
-              "logit": 4.628955841064453,
-              "probability": 0.5721294283866882
-            },
-            {
-              "index": 2,
-              "logit": 4.328914642333984,
-              "probability": 0.4238264560699463
-            },
-            {
-              "index": 0,
-              "logit": -1.3927781581878662,
-              "probability": 0.001387676689773798
-            },
-            {
               "index": 3,
-              "logit": -11.928006172180176,
-              "probability": 3.688905181320479e-08
+              "logit": 6.584961891174316,
+              "probability": 0.999983549118042
+            },
+            {
+              "index": 10,
+              "logit": -15.154215812683105,
+              "probability": 3.6206612707978536e-10
+            },
+            {
+              "index": 9,
+              "logit": -19.86981964111328,
+              "probability": 3.242109055182074e-12
+            },
+            {
+              "index": 8,
+              "logit": -21.96112823486328,
+              "probability": 4.004827882080758e-13
             },
             {
               "index": 4,
-              "logit": -0.7434412837028503,
-              "probability": 0.002656390657648444
+              "logit": -4.430085182189941,
+              "probability": 1.645199881750159e-05
             }
           ],
           "protocol_log": [
             "|",
-            "|t:|1777163584",
-            "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|86/100",
-            "|move|p1a: Empoleon|Ice Beam|p2a: Hitmonlee",
-            "|-crit|p2a: Hitmonlee",
-            "|-damage|p2a: Hitmonlee|50/100",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+            "|move|p1a: Seviper|Gunk Shot|p2a: Ribombee|[miss]",
+            "|-miss|p1a: Seviper|p2a: Ribombee",
             "|",
-            "|-heal|p1a: Empoleon|24/100|[from] item: Leftovers",
             "|upkeep",
             "|turn|26",
             "|",
-            "|t:|1777163584",
-            "|move|p2a: Hitmonlee|Close Combat|p1a: Empoleon",
+            "|t:|1777226256",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|2/100",
+            "|move|p1a: Seviper|Gunk Shot|p2a: Azumarill",
+            "|-supereffective|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|0 fnt",
+            "|faint|p2a: Azumarill",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 28,
+      "steps": [
+        {
+          "turn": 28,
+          "step_index": 29,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6445993031358885,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.25,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 4",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999914169311523,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.7897233963012695,
+              "probability": 0.9999914169311523
+            },
+            {
+              "index": 10,
+              "logit": -14.180587768554688,
+              "probability": 7.810992408430195e-10
+            },
+            {
+              "index": 9,
+              "logit": -19.6451358795166,
+              "probability": 3.307366533422673e-12
+            },
+            {
+              "index": 8,
+              "logit": -21.998579025268555,
+              "probability": 3.1433658302139345e-13
+            },
+            {
+              "index": 4,
+              "logit": -4.871756076812744,
+              "probability": 8.619455911684781e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+            "|turn|27"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 29,
+      "steps": [
+        {
+          "turn": 29,
+          "step_index": 30,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0.6445993031358885,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.48,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 4",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 1.0,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 10.147669792175293,
+              "probability": 1.0
+            },
+            {
+              "index": 10,
+              "logit": -15.802972793579102,
+              "probability": 5.367592221389161e-12
+            },
+            {
+              "index": 8,
+              "logit": -16.048175811767578,
+              "probability": 4.200378326407739e-12
+            },
+            {
+              "index": 9,
+              "logit": -18.318939208984375,
+              "probability": 4.336190423653158e-13
+            },
+            {
+              "index": 4,
+              "logit": -8.858041763305664,
+              "probability": 5.570892191997245e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Lanturn|Lanturn, L89, F|81/100",
+            "|move|p1a: Seviper|Gunk Shot|p2a: Lanturn",
+            "|-damage|p2a: Lanturn|25/100",
+            "|",
+            "|upkeep",
+            "|turn|28"
+          ]
+        },
+        {
+          "turn": 29,
+          "step_index": 31,
+          "p1_species": "Seviper",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.19,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 4",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 1.0,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 14.896210670471191,
+              "probability": 1.0
+            },
+            {
+              "index": 10,
+              "logit": -13.203132629394531,
+              "probability": 6.260523783413463e-13
+            },
+            {
+              "index": 9,
+              "logit": -17.14249610900879,
+              "probability": 1.2183330584084225e-14
+            },
+            {
+              "index": 8,
+              "logit": -20.48581314086914,
+              "probability": 4.3031126605090576e-16
+            },
+            {
+              "index": 4,
+              "logit": -8.123239517211914,
+              "probability": 1.0064203637139002e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|48/100",
+            "|-ability|p2a: Reshiram|Turboblaze",
+            "|move|p1a: Seviper|Gunk Shot|p2a: Reshiram|[miss]",
+            "|-miss|p1a: Seviper|p2a: Reshiram",
+            "|",
+            "|upkeep",
+            "|turn|29"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 30,
+      "steps": [
+        {
+          "turn": 30,
+          "step_index": 32,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.19,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Empoleon, L84, M",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 3,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Empoleon, L84, M",
+          "chosen_action_choice": "switch 4",
+          "chosen_action_probability": 0.8084539771080017,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": -3.8175272941589355,
+              "probability": 0.8084539771080017
+            },
+            {
+              "index": 9,
+              "logit": -9.24662971496582,
+              "probability": 0.0035467129200696945
+            },
+            {
+              "index": 8,
+              "logit": -18.450777053833008,
+              "probability": 3.5687477861756634e-07
+            },
+            {
+              "index": 0,
+              "logit": -5.331155776977539,
+              "probability": 0.1779486984014511
+            },
+            {
+              "index": 4,
+              "logit": -8.205044746398926,
+              "probability": 0.010050337761640549
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p1a: Seviper|Gunk Shot|p2a: Reshiram",
+            "|-resisted|p2a: Reshiram",
+            "|-damage|p2a: Reshiram|19/100",
+            "|move|p2a: Reshiram|Draco Meteor|p1a: Seviper",
+            "|-damage|p1a: Seviper|0 fnt",
+            "|-unboost|p2a: Reshiram|spa|2",
+            "|faint|p1a: Seviper",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 31,
+      "steps": [
+        {
+          "turn": 31,
+          "step_index": 33,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Copperajah",
+          "p2_hp_ratio": 0.46,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Surf",
+              "choice": "move 1",
+              "move": "Surf"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 2",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flip Turn",
+              "choice": "move 3",
+              "move": "Flip Turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 4",
+              "move": "Roost"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.7083686590194702,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.364515781402588,
+              "probability": 0.7083686590194702
+            },
+            {
+              "index": 0,
+              "logit": 3.4762651920318604,
+              "probability": 0.29140499234199524
+            },
+            {
+              "index": 2,
+              "logit": -4.255920886993408,
+              "probability": 0.00012777658412232995
+            },
+            {
+              "index": 3,
+              "logit": -4.516030311584473,
+              "probability": 9.851150389295071e-05
+            },
+            {
+              "index": 8,
+              "logit": -16.720386505126953,
+              "probability": 4.934041508697362e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p1a: Empoleon|Empoleon, L84, M|100/100",
+            "|turn|30",
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+            "|move|p1a: Empoleon|Ice Beam|p2a: Ribombee",
+            "|-damage|p2a: Ribombee|0 fnt",
+            "|faint|p2a: Ribombee",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 32,
+      "steps": [
+        {
+          "turn": 32,
+          "step_index": 34,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Reshiram",
+          "p2_hp_ratio": 0.19,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Surf",
+              "choice": "move 1",
+              "move": "Surf"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 2",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flip Turn",
+              "choice": "move 3",
+              "move": "Flip Turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 4",
+              "move": "Roost"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Surf",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999871253967285,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 11.479100227355957,
+              "probability": 0.9999871253967285
+            },
+            {
+              "index": 1,
+              "logit": 0.20576390624046326,
+              "probability": 1.270710436074296e-05
+            },
+            {
+              "index": 2,
+              "logit": -4.336029052734375,
+              "probability": 1.353851502017278e-07
+            },
+            {
+              "index": 3,
+              "logit": -10.446015357971191,
+              "probability": 3.0063374012456734e-10
+            },
+            {
+              "index": 8,
+              "logit": -15.641380310058594,
+              "probability": 1.6661717578553281e-12
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Copperajah|Copperajah, L86, M|46/100",
+            "|turn|31",
+            "|",
+            "|t:|1777226256",
+            "|move|p1a: Empoleon|Surf|p2a: Copperajah",
+            "|-crit|p2a: Copperajah",
+            "|-damage|p2a: Copperajah|0 fnt",
+            "|faint|p2a: Copperajah",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 33,
+      "steps": [
+        {
+          "turn": 33,
+          "step_index": 35,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.25,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Surf",
+              "choice": "move 1",
+              "move": "Surf"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 2",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flip Turn",
+              "choice": "move 3",
+              "move": "Flip Turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 4",
+              "move": "Roost"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9814806580543518,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 5.807458400726318,
+              "probability": 0.9814806580543518
+            },
+            {
+              "index": 0,
+              "logit": 1.8296633958816528,
+              "probability": 0.018380075693130493
+            },
+            {
+              "index": 3,
+              "logit": -3.176351547241211,
+              "probability": 0.00012310124293435365
+            },
+            {
+              "index": 2,
+              "logit": -5.203505516052246,
+              "probability": 1.6213660273933783e-05
+            },
+            {
+              "index": 8,
+              "logit": -17.739837646484375,
+              "probability": 5.826675253395308e-11
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|19/100",
+            "|-ability|p2a: Reshiram|Turboblaze",
+            "|turn|32",
+            "|",
+            "|t:|1777226256",
+            "|move|p1a: Empoleon|Ice Beam|p2a: Reshiram",
+            "|-supereffective|p2a: Reshiram",
+            "|-damage|p2a: Reshiram|0 fnt",
+            "|faint|p2a: Reshiram",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 34,
+      "steps": [
+        {
+          "turn": 34,
+          "step_index": 36,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 0.564748201438849,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.11,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Surf",
+              "choice": "move 1",
+              "move": "Surf"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 2",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flip Turn",
+              "choice": "move 3",
+              "move": "Flip Turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 4",
+              "move": "Roost"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Surf",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9980823993682861,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.82927417755127,
+              "probability": 0.9980823993682861
+            },
+            {
+              "index": 1,
+              "logit": 3.574442148208618,
+              "probability": 0.001917464192956686
+            },
+            {
+              "index": 3,
+              "logit": -6.280543327331543,
+              "probability": 1.0063789090963837e-07
+            },
+            {
+              "index": 2,
+              "logit": -7.731020927429199,
+              "probability": 2.3595388753960833e-08
+            },
+            {
+              "index": 8,
+              "logit": -16.387548446655273,
+              "probability": 4.105297265327712e-12
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p2a: Lanturn|Lanturn, L89, F|25/100",
+            "|turn|33"
+          ]
+        },
+        {
+          "turn": 34,
+          "step_index": 37,
+          "p1_species": "Empoleon",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.11,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Surf",
+              "choice": "move 1",
+              "move": "Surf"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 2",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flip Turn",
+              "choice": "move 3",
+              "move": "Flip Turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Roost",
+              "choice": "move 4",
+              "move": "Roost"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Surf",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9939414262771606,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.909415245056152,
+              "probability": 0.9939414262771606
+            },
+            {
+              "index": 1,
+              "logit": 3.8092033863067627,
+              "probability": 0.0060585238970816135
+            },
+            {
+              "index": 2,
+              "logit": -6.665414810180664,
+              "probability": 1.7111891281729186e-07
+            },
+            {
+              "index": 3,
+              "logit": -8.077589988708496,
+              "probability": 4.168675715732206e-08
+            },
+            {
+              "index": 8,
+              "logit": -15.346569061279297,
+              "probability": 2.904826552907469e-11
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p2a: Lanturn|Volt Switch|p1a: Empoleon",
+            "|-supereffective|p1a: Empoleon",
+            "|-damage|p1a: Empoleon|51/100",
+            "|move|p1a: Empoleon|Surf|p2a: Lanturn",
+            "|-resisted|p2a: Lanturn",
+            "|-damage|p2a: Lanturn|11/100",
+            "|",
+            "|-heal|p1a: Empoleon|57/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|34"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 35,
+      "steps": [
+        {
+          "turn": 35,
+          "step_index": 38,
+          "p1_species": "Yanmega",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Lanturn",
+          "p2_hp_ratio": 0.11,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Yanmega, L82, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 2,
+          "chosen_action_index": 8,
+          "chosen_action_label": "switch:Yanmega, L82, F",
+          "chosen_action_choice": "switch 2",
+          "chosen_action_probability": 3.0948828566579323e-07,
+          "model_top_k": [
+            {
+              "index": 8,
+              "logit": -13.779881477355957,
+              "probability": 3.0948828566579323e-07
+            },
+            {
+              "index": 9,
+              "logit": -16.86690330505371,
+              "probability": 1.4124309721808004e-08
+            },
+            {
+              "index": 0,
+              "logit": 1.0651484727859497,
+              "probability": 0.8664804697036743
+            },
+            {
+              "index": 1,
+              "logit": -1.1411641836166382,
+              "probability": 0.09540461748838425
+            },
+            {
+              "index": 4,
+              "logit": -2.058692216873169,
+              "probability": 0.038114648312330246
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|move|p2a: Lanturn|Thunderbolt|p1a: Empoleon",
             "|-supereffective|p1a: Empoleon",
             "|-damage|p1a: Empoleon|0 fnt",
-            "|-unboost|p2a: Hitmonlee|def|1",
-            "|-unboost|p2a: Hitmonlee|spd|1",
-            "|-enditem|p2a: Hitmonlee|White Herb",
-            "|-clearnegativeboost|p2a: Hitmonlee|[silent]",
             "|faint|p1a: Empoleon",
             "|",
-            "|win|Agent-2"
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 35,
+          "step_index": 39,
+          "p1_species": "Yanmega",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hitmonlee",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Giga Drain",
+              "choice": "move 1",
+              "move": "Giga Drain"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Air Slash",
+              "choice": "move 2",
+              "move": "Air Slash"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 3",
+              "move": "U-turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bug Buzz",
+              "choice": "move 4",
+              "move": "Bug Buzz"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Persian-Alola, L86, M",
+              "choice": "switch 3",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Giga Drain",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9966193437576294,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.388788223266602,
+              "probability": 0.9966193437576294
+            },
+            {
+              "index": 1,
+              "logit": 1.698413372039795,
+              "probability": 0.003366905264556408
+            },
+            {
+              "index": 3,
+              "logit": -3.801997184753418,
+              "probability": 1.3754126484855078e-05
+            },
+            {
+              "index": 2,
+              "logit": -11.103594779968262,
+              "probability": 9.276622137122104e-09
+            },
+            {
+              "index": 8,
+              "logit": -14.091846466064453,
+              "probability": 4.673133546795327e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777226256",
+            "|switch|p1a: Yanmega|Yanmega, L82, F|100/100",
+            "|turn|35",
+            "|",
+            "|t:|1777226256",
+            "|move|p1a: Yanmega|Giga Drain|p2a: Lanturn",
+            "|-supereffective|p2a: Lanturn",
+            "|-damage|p2a: Lanturn|0 fnt",
+            "|faint|p2a: Lanturn",
+            "|",
+            "|win|Agent-1"
           ]
         }
       ]
@@ -3132,7 +4313,7 @@
   ],
   "diagnostics": [],
   "protocol_log": [
-    "|t:|1777163583",
+    "|t:|1777226255",
     "|gametype|singles",
     "|player|p1|Agent-1||",
     "|player|p2|Agent-2||",
@@ -3145,310 +4326,370 @@
     "|rule|Sleep Clause Mod: Limit one foe put to sleep",
     "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
     "|",
-    "|t:|1777163583",
+    "|t:|1777226255",
     "|start",
     "|switch|p1a: Espeon|Espeon, L84, F|100/100",
     "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|100/100",
     "|turn|1",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Copperajah|Copperajah, L86, M|100/100",
+    "|t:|1777226255",
     "|-terastallize|p1a: Espeon|Fairy",
-    "|move|p1a: Espeon|Alluring Voice|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|78/100",
+    "|move|p1a: Espeon|Alluring Voice|p2a: Hitmonlee",
+    "|-supereffective|p2a: Hitmonlee",
+    "|-damage|p2a: Hitmonlee|0 fnt",
+    "|faint|p2a: Hitmonlee",
     "|-damage|p1a: Espeon|91/100|[from] item: Life Orb",
     "|",
     "|upkeep",
+    "|",
+    "|t:|1777226255",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|100/100",
     "|turn|2",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Azumarill|Azumarill, L82, M|100/100",
+    "|t:|1777226255",
     "|move|p1a: Espeon|Shadow Ball|p2a: Azumarill",
     "|-damage|p2a: Azumarill|67/100",
     "|-damage|p1a: Espeon|81/100|[from] item: Life Orb",
-    "|",
-    "|upkeep",
-    "|turn|3",
-    "|",
-    "|t:|1777163583",
-    "|-terastallize|p2a: Azumarill|Water",
-    "|move|p1a: Espeon|Alluring Voice|p2a: Azumarill",
-    "|-damage|p2a: Azumarill|12/100",
-    "|-damage|p1a: Espeon|71/100|[from] item: Life Orb",
-    "|move|p2a: Azumarill|Liquidation|p1a: Espeon",
+    "|move|p2a: Azumarill|Play Rough|p1a: Espeon",
     "|-damage|p1a: Espeon|0 fnt",
     "|faint|p1a: Espeon",
     "|",
     "|upkeep",
     "|",
-    "|t:|1777163583",
+    "|t:|1777226255",
     "|switch|p1a: Yanmega|Yanmega, L82, F|100/100",
+    "|turn|3",
+    "|",
+    "|t:|1777226255",
+    "|move|p1a: Yanmega|U-turn|p2a: Azumarill",
+    "|-resisted|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|43/100",
+    "|",
+    "|t:|1777226256",
+    "|switch|p1a: Seviper|Seviper, L93, M|100/100|[from] U-turn",
+    "|move|p2a: Azumarill|Play Rough|p1a: Seviper",
+    "|-resisted|p1a: Seviper",
+    "|-damage|p1a: Seviper|67/100",
+    "|",
+    "|upkeep",
     "|turn|4",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
-    "|move|p1a: Yanmega|Air Slash|p2a: Lanturn",
-    "|-resisted|p2a: Lanturn",
-    "|-damage|p2a: Lanturn|62/100",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|100/100",
+    "|move|p1a: Seviper|Giga Drain|p2a: Ribombee",
+    "|-resisted|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|83/100",
+    "|-heal|p1a: Seviper|75/100|[from] drain|[of] p2a: Ribombee",
     "|",
     "|upkeep",
     "|turn|5",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Ribombee|Ribombee, L82, F|100/100",
-    "|move|p1a: Yanmega|Air Slash|p2a: Ribombee",
-    "|-supereffective|p2a: Ribombee",
-    "|-damage|p2a: Ribombee|0 fnt",
-    "|faint|p2a: Ribombee",
+    "|t:|1777226256",
+    "|move|p1a: Seviper|Giga Drain|p2a: Ribombee",
+    "|-resisted|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|66/100",
+    "|-heal|p1a: Seviper|82/100|[from] drain|[of] p2a: Ribombee",
+    "|move|p2a: Ribombee|U-turn|p1a: Seviper",
+    "|-resisted|p1a: Seviper",
+    "|-damage|p1a: Seviper|72/100",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Reshiram|Reshiram, L76|100/100|[from] U-turn",
+    "|-ability|p2a: Reshiram|Turboblaze",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163583",
-    "|switch|p2a: Azumarill|Azumarill, L82, M, tera:Water|12/100",
     "|turn|6",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Yanmega|Air Slash|p2a: Azumarill",
-    "|-damage|p2a: Azumarill|0 fnt",
-    "|faint|p2a: Azumarill",
+    "|t:|1777226256",
+    "|-terastallize|p2a: Reshiram|Ground",
+    "|move|p1a: Seviper|Giga Drain|p2a: Reshiram",
+    "|-supereffective|p2a: Reshiram",
+    "|-damage|p2a: Reshiram|59/100",
+    "|-heal|p1a: Seviper|92/100|[from] drain|[of] p2a: Reshiram",
+    "|move|p2a: Reshiram|Dragon Tail|p1a: Seviper",
+    "|-damage|p1a: Seviper|65/100",
+    "|drag|p1a: Gyarados|Gyarados, L79, M|100/100",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163583",
-    "|switch|p2a: Reshiram|Reshiram, L76|100/100",
-    "|-ability|p2a: Reshiram|Turboblaze",
     "|turn|7",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Yanmega|Air Slash|p2a: Reshiram",
-    "|-damage|p2a: Reshiram|61/100",
-    "|move|p2a: Reshiram|Blue Flare|p1a: Yanmega",
-    "|-supereffective|p1a: Yanmega",
-    "|-damage|p1a: Yanmega|0 fnt",
-    "|faint|p1a: Yanmega",
+    "|t:|1777226256",
+    "|switch|p2a: Copperajah|Copperajah, L86, M|100/100",
+    "|move|p1a: Gyarados|Waterfall|p2a: Copperajah",
+    "|-damage|p2a: Copperajah|70/100",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163583",
-    "|switch|p1a: Persian|Persian-Alola, L86, M|100/100",
     "|turn|8",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Persian|Foul Play|p2a: Reshiram",
-    "|-damage|p2a: Reshiram|22/100",
-    "|move|p2a: Reshiram|Earth Power|p1a: Persian",
-    "|-damage|p1a: Persian|66/100",
+    "|t:|1777226256",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|43/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|31/100",
     "|",
     "|upkeep",
     "|turn|9",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Lanturn|Lanturn, L89, F|62/100",
-    "|move|p1a: Persian|Foul Play|p2a: Lanturn",
-    "|-damage|p2a: Lanturn|42/100",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|66/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|46/100",
     "|",
     "|upkeep",
     "|turn|10",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Copperajah|Copperajah, L86, M|78/100",
-    "|move|p1a: Persian|Taunt|p2a: Copperajah",
-    "|-start|p2a: Copperajah|move: Taunt",
+    "|t:|1777226256",
+    "|move|p2a: Ribombee|Stun Spore|p1a: Gyarados",
+    "|-status|p1a: Gyarados|par",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|28/100",
     "|",
     "|upkeep",
     "|turn|11",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Persian|Taunt||[still]",
-    "|-fail|p1a: Persian",
-    "|move|p2a: Copperajah|Superpower|p1a: Persian",
-    "|-supereffective|p1a: Persian",
-    "|-damage|p1a: Persian|0 fnt",
-    "|-unboost|p2a: Copperajah|atk|1",
-    "|-unboost|p2a: Copperajah|def|1",
-    "|faint|p1a: Persian",
+    "|t:|1777226256",
+    "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
+    "|cant|p1a: Gyarados|par",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163583",
-    "|switch|p1a: Empoleon|Empoleon, L84, M|100/100",
     "|turn|12",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Empoleon|Ice Beam|p2a: Copperajah",
+    "|t:|1777226256",
+    "|switch|p2a: Copperajah|Copperajah, L86, M|70/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
     "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|66/100",
-    "|move|p2a: Copperajah|Superpower|p1a: Empoleon",
-    "|-supereffective|p1a: Empoleon",
-    "|-damage|p1a: Empoleon|18/100",
-    "|-unboost|p2a: Copperajah|atk|1",
-    "|-unboost|p2a: Copperajah|def|1",
+    "|-damage|p2a: Copperajah|64/100",
     "|",
-    "|-heal|p1a: Empoleon|24/100|[from] item: Leftovers",
-    "|-end|p2a: Copperajah|move: Taunt",
     "|upkeep",
     "|turn|13",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Lanturn|Lanturn, L89, F|42/100",
-    "|move|p1a: Empoleon|Ice Beam|p2a: Lanturn",
-    "|-resisted|p2a: Lanturn",
-    "|-damage|p2a: Lanturn|33/100",
+    "|t:|1777226256",
+    "|switch|p2a: Lanturn|Lanturn, L89, F|100/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Lanturn",
+    "|-damage|p2a: Lanturn|90/100",
     "|",
-    "|-heal|p1a: Empoleon|30/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|14",
     "|",
-    "|t:|1777163583",
-    "|move|p2a: Lanturn|Scald|p1a: Empoleon",
-    "|-resisted|p1a: Empoleon",
-    "|-damage|p1a: Empoleon|17/100",
-    "|move|p1a: Empoleon|Flip Turn|p2a: Lanturn",
-    "|-resisted|p2a: Lanturn",
-    "|-damage|p2a: Lanturn|23/100",
-    "|",
-    "|t:|1777163583",
-    "|switch|p1a: Seviper|Seviper, L93, M|100/100|[from] Flip Turn",
+    "|t:|1777226256",
+    "|move|p2a: Lanturn|Thunder Wave|p1a: Gyarados",
+    "|-fail|p1a: Gyarados|par",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Lanturn",
+    "|-damage|p2a: Lanturn|81/100",
     "|",
     "|upkeep",
     "|turn|15",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Seviper|Giga Drain|p2a: Lanturn",
-    "|-supereffective|p2a: Lanturn",
-    "|-damage|p2a: Lanturn|0 fnt",
-    "|faint|p2a: Lanturn",
+    "|t:|1777226256",
+    "|move|p2a: Lanturn|Thunder Wave|p1a: Gyarados",
+    "|-fail|p1a: Gyarados|par",
+    "|cant|p1a: Gyarados|par",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163583",
-    "|switch|p2a: Copperajah|Copperajah, L86, M|66/100",
     "|turn|16",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
+    "|t:|1777226256",
+    "|switch|p2a: Copperajah|Copperajah, L86, M|64/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
     "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|56/100",
-    "|move|p2a: Copperajah|Superpower|p1a: Seviper",
-    "|-resisted|p1a: Seviper",
-    "|-damage|p1a: Seviper|66/100",
-    "|-unboost|p2a: Copperajah|atk|1",
-    "|-unboost|p2a: Copperajah|def|1",
+    "|-damage|p2a: Copperajah|58/100",
     "|",
     "|upkeep",
     "|turn|17",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Reshiram|Reshiram, L76|22/100",
-    "|-ability|p2a: Reshiram|Turboblaze",
-    "|move|p1a: Seviper|Giga Drain|p2a: Reshiram",
-    "|-resisted|p2a: Reshiram",
-    "|-damage|p2a: Reshiram|17/100",
-    "|-heal|p1a: Seviper|68/100|[from] drain|[of] p2a: Reshiram",
+    "|t:|1777226256",
+    "|move|p2a: Copperajah|Heavy Slam|p1a: Gyarados",
+    "|-resisted|p1a: Gyarados",
+    "|-damage|p1a: Gyarados|52/100 par",
+    "|cant|p1a: Gyarados|par",
     "|",
     "|upkeep",
     "|turn|18",
     "|",
-    "|t:|1777163583",
-    "|switch|p2a: Copperajah|Copperajah, L86, M|56/100",
-    "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|46/100",
-    "|-heal|p1a: Seviper|75/100|[from] drain|[of] p2a: Copperajah",
+    "|t:|1777226256",
+    "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|59/100",
+    "|-ability|p2a: Reshiram|Turboblaze",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Reshiram",
+    "|-damage|p2a: Reshiram|48/100",
     "|",
     "|upkeep",
     "|turn|19",
     "|",
-    "|t:|1777163583",
-    "|move|p1a: Seviper|Giga Drain|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|34/100",
-    "|-heal|p1a: Seviper|82/100|[from] drain|[of] p2a: Copperajah",
-    "|move|p2a: Copperajah|Heavy Slam|p1a: Seviper",
-    "|-damage|p1a: Seviper|0 fnt",
-    "|faint|p1a: Seviper",
+    "|t:|1777226256",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|31/100",
+    "|move|p1a: Gyarados|Earthquake|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|2/100",
     "|",
     "|upkeep",
-    "|",
-    "|t:|1777163584",
-    "|switch|p1a: Gyarados|Gyarados, L79, M|100/100",
     "|turn|20",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|100/100",
-    "|move|p1a: Gyarados|Tera Blast|p2a: Hitmonlee",
-    "|-damage|p2a: Hitmonlee|86/100",
+    "|t:|1777226256",
+    "|switch|p2a: Copperajah|Copperajah, L86, M|58/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
+    "|-resisted|p2a: Copperajah",
+    "|-damage|p2a: Copperajah|52/100",
     "|",
     "|upkeep",
     "|turn|21",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Copperajah|Copperajah, L86, M|34/100",
+    "|t:|1777226256",
+    "|move|p2a: Copperajah|Superpower|p1a: Gyarados",
+    "|-resisted|p1a: Gyarados",
+    "|-damage|p1a: Gyarados|20/100 par",
+    "|-unboost|p2a: Copperajah|atk|1",
+    "|-unboost|p2a: Copperajah|def|1",
     "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
     "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|27/100",
+    "|-damage|p2a: Copperajah|46/100",
     "|",
     "|upkeep",
     "|turn|22",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|21/100",
-    "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-    "|-resisted|p1a: Gyarados",
-    "|-damage|p1a: Gyarados|65/100",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|28/100",
+    "|move|p1a: Gyarados|Tera Blast|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|11/100",
     "|",
     "|upkeep",
     "|turn|23",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|15/100",
-    "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-    "|-resisted|p1a: Gyarados",
-    "|-damage|p1a: Gyarados|32/100",
+    "|t:|1777226256",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|2/100",
+    "|cant|p1a: Gyarados|par",
     "|",
     "|upkeep",
     "|turn|24",
     "|",
-    "|t:|1777163584",
-    "|move|p1a: Gyarados|Tera Blast|p2a: Copperajah",
-    "|-resisted|p2a: Copperajah",
-    "|-damage|p2a: Copperajah|9/100",
-    "|move|p2a: Copperajah|Heat Crash|p1a: Gyarados",
-    "|-resisted|p1a: Gyarados",
+    "|t:|1777226256",
+    "|move|p2a: Azumarill|Ice Spinner|p1a: Gyarados",
     "|-damage|p1a: Gyarados|0 fnt",
     "|faint|p1a: Gyarados",
     "|",
     "|upkeep",
     "|",
-    "|t:|1777163584",
-    "|switch|p1a: Empoleon|Empoleon, L84, M|17/100",
+    "|t:|1777226256",
+    "|switch|p1a: Seviper|Seviper, L93, M|65/100",
     "|turn|25",
     "|",
-    "|t:|1777163584",
-    "|switch|p2a: Hitmonlee|Hitmonlee, L85, M|86/100",
-    "|move|p1a: Empoleon|Ice Beam|p2a: Hitmonlee",
-    "|-crit|p2a: Hitmonlee",
-    "|-damage|p2a: Hitmonlee|50/100",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+    "|move|p1a: Seviper|Gunk Shot|p2a: Ribombee|[miss]",
+    "|-miss|p1a: Seviper|p2a: Ribombee",
     "|",
-    "|-heal|p1a: Empoleon|24/100|[from] item: Leftovers",
     "|upkeep",
     "|turn|26",
     "|",
-    "|t:|1777163584",
-    "|move|p2a: Hitmonlee|Close Combat|p1a: Empoleon",
+    "|t:|1777226256",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|2/100",
+    "|move|p1a: Seviper|Gunk Shot|p2a: Azumarill",
+    "|-supereffective|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|0 fnt",
+    "|faint|p2a: Azumarill",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+    "|turn|27",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Lanturn|Lanturn, L89, F|81/100",
+    "|move|p1a: Seviper|Gunk Shot|p2a: Lanturn",
+    "|-damage|p2a: Lanturn|25/100",
+    "|",
+    "|upkeep",
+    "|turn|28",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|48/100",
+    "|-ability|p2a: Reshiram|Turboblaze",
+    "|move|p1a: Seviper|Gunk Shot|p2a: Reshiram|[miss]",
+    "|-miss|p1a: Seviper|p2a: Reshiram",
+    "|",
+    "|upkeep",
+    "|turn|29",
+    "|",
+    "|t:|1777226256",
+    "|move|p1a: Seviper|Gunk Shot|p2a: Reshiram",
+    "|-resisted|p2a: Reshiram",
+    "|-damage|p2a: Reshiram|19/100",
+    "|move|p2a: Reshiram|Draco Meteor|p1a: Seviper",
+    "|-damage|p1a: Seviper|0 fnt",
+    "|-unboost|p2a: Reshiram|spa|2",
+    "|faint|p1a: Seviper",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p1a: Empoleon|Empoleon, L84, M|100/100",
+    "|turn|30",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Ribombee|Ribombee, L82, F|11/100",
+    "|move|p1a: Empoleon|Ice Beam|p2a: Ribombee",
+    "|-damage|p2a: Ribombee|0 fnt",
+    "|faint|p2a: Ribombee",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Copperajah|Copperajah, L86, M|46/100",
+    "|turn|31",
+    "|",
+    "|t:|1777226256",
+    "|move|p1a: Empoleon|Surf|p2a: Copperajah",
+    "|-crit|p2a: Copperajah",
+    "|-damage|p2a: Copperajah|0 fnt",
+    "|faint|p2a: Copperajah",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Reshiram|Reshiram, L76, tera:Ground|19/100",
+    "|-ability|p2a: Reshiram|Turboblaze",
+    "|turn|32",
+    "|",
+    "|t:|1777226256",
+    "|move|p1a: Empoleon|Ice Beam|p2a: Reshiram",
+    "|-supereffective|p2a: Reshiram",
+    "|-damage|p2a: Reshiram|0 fnt",
+    "|faint|p2a: Reshiram",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p2a: Lanturn|Lanturn, L89, F|25/100",
+    "|turn|33",
+    "|",
+    "|t:|1777226256",
+    "|move|p2a: Lanturn|Volt Switch|p1a: Empoleon",
+    "|-supereffective|p1a: Empoleon",
+    "|-damage|p1a: Empoleon|51/100",
+    "|move|p1a: Empoleon|Surf|p2a: Lanturn",
+    "|-resisted|p2a: Lanturn",
+    "|-damage|p2a: Lanturn|11/100",
+    "|",
+    "|-heal|p1a: Empoleon|57/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|34",
+    "|",
+    "|t:|1777226256",
+    "|move|p2a: Lanturn|Thunderbolt|p1a: Empoleon",
     "|-supereffective|p1a: Empoleon",
     "|-damage|p1a: Empoleon|0 fnt",
-    "|-unboost|p2a: Hitmonlee|def|1",
-    "|-unboost|p2a: Hitmonlee|spd|1",
-    "|-enditem|p2a: Hitmonlee|White Herb",
-    "|-clearnegativeboost|p2a: Hitmonlee|[silent]",
     "|faint|p1a: Empoleon",
     "|",
-    "|win|Agent-2"
+    "|upkeep",
+    "|",
+    "|t:|1777226256",
+    "|switch|p1a: Yanmega|Yanmega, L82, F|100/100",
+    "|turn|35",
+    "|",
+    "|t:|1777226256",
+    "|move|p1a: Yanmega|Giga Drain|p2a: Lanturn",
+    "|-supereffective|p2a: Lanturn",
+    "|-damage|p2a: Lanturn|0 fnt",
+    "|faint|p2a: Lanturn",
+    "|",
+    "|win|Agent-1"
   ]
 }

@@ -2,7 +2,8 @@
 Decision analyzer for categorizing and analyzing Pokemon battle decisions.
 
 Provides categorization of battle actions into types (attack, setup, recovery, etc.)
-and pattern detection for loop analysis.
+and pattern detection for loop analysis. These categories are diagnostics only; they
+are not action filters or policy rules.
 """
 
 import argparse
@@ -35,6 +36,50 @@ class DecisionCategorizer:
             "reflect", "light screen", "aurora veil", "tailwind", "trick room"
         }
 
+    def categorize(self, record: Dict[str, Any]) -> Tuple[str, str]:
+        """Compatibility wrapper returning (category, subcategory)."""
+        category_info = self.categorize_decision(record, [record], 0)
+        return category_info.get("category", "unknown"), category_info.get("subcategory", "unknown")
+
+    def summarize(self, records: List[Dict[str, Any]]) -> Dict[str, Any]:
+        categorized = []
+        for index, record in enumerate(records):
+            categorized.append({**record, **self.categorize_decision(record, records, index)})
+        return _compute_summary(categorized)
+
+    def generate_csv_rows(self, records: List[Dict[str, Any]]):
+        for index, record in enumerate(records):
+            category_info = self.categorize_decision(record, records, index)
+            yield {
+                "battle_index": record.get("battle_index", ""),
+                "step_index": record.get("step_index", ""),
+                "player": record.get("player", ""),
+                "category": category_info.get("category", "unknown"),
+                "subcategory": category_info.get("subcategory", "unknown"),
+            }
+
+    def analyze_dataset(self, records: List[Dict[str, Any]], output_dir: str) -> Dict[str, Any]:
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        categorized = [{**record, **self.categorize_decision(record, records, index)} for index, record in enumerate(records)]
+        summary = _compute_summary(categorized)
+
+        csv_path = output_path / "decision_categories.csv"
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=["battle_index", "step_index", "player", "category", "subcategory"]
+            )
+            writer.writeheader()
+            for row in self.generate_csv_rows(records):
+                writer.writerow(row)
+
+        json_path = output_path / "decision_summary.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+        _write_markdown_report(output_path / "decision_summary.md", summary, categorized)
+        return summary
+
     def categorize_decision(
         self, record: Dict[str, Any], all_records: List[Dict[str, Any]], record_index: int
     ) -> Dict[str, str]:
@@ -54,7 +99,7 @@ class DecisionCategorizer:
         legal_actions = request.get("legal_actions", {}).get("actions", [])
 
         # Check if forced switch
-        if request.get("force_switch"):
+        if self._truthy_flag(request.get("force_switch")):
             return {"category": "switch", "subcategory": "forced_switch"}
 
         # Check if only switches are legal (no move options)
@@ -281,6 +326,11 @@ class DecisionCategorizer:
                 return effectiveness
 
         return None  # Neutral effectiveness (no match in type chart)
+
+    def _truthy_flag(self, value: Any) -> bool:
+        if isinstance(value, list):
+            return any(bool(item) for item in value)
+        return bool(value)
 
 
 def analyze_dataset(jsonl_path: Path) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
