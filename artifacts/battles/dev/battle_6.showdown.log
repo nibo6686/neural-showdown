@@ -1,0 +1,271 @@
+|t:|1777163584
+|gametype|singles
+|player|p1|Agent-1||
+|player|p2|Agent-2||
+|teamsize|p1|6
+|teamsize|p2|6
+|gen|9
+|tier|[Gen 9] Random Battle
+|rule|Species Clause: Limit one of each Pokémon
+|rule|HP Percentage Mod: HP is shown in percentages
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
+|
+|t:|1777163584
+|start
+|switch|p1a: Avalugg|Avalugg-Hisui, L90, M|100/100
+|switch|p2a: Golurk|Golurk, L87|100/100
+|turn|1
+|
+|t:|1777163584
+|-terastallize|p2a: Golurk|Ground
+|move|p2a: Golurk|Stealth Rock|p1a: Avalugg
+|-sidestart|p1: Agent-1|move: Stealth Rock
+|move|p1a: Avalugg|Avalanche|p2a: Golurk
+|-supereffective|p2a: Golurk
+|-damage|p2a: Golurk|36/100
+|
+|upkeep
+|turn|2
+|
+|t:|1777163584
+|switch|p2a: Suicune|Suicune, L82|100/100
+|-ability|p2a: Suicune|Pressure
+|move|p1a: Avalugg|Avalanche|p2a: Suicune
+|-resisted|p2a: Suicune
+|-damage|p2a: Suicune|87/100
+|
+|-heal|p2a: Suicune|93/100|[from] item: Leftovers
+|upkeep
+|turn|3
+|
+|t:|1777163584
+|-terastallize|p1a: Avalugg|Poison
+|move|p2a: Suicune|Scald|p1a: Avalugg
+|-damage|p1a: Avalugg|61/100
+|-status|p1a: Avalugg|brn
+|move|p1a: Avalugg|Stone Edge|p2a: Suicune
+|-damage|p2a: Suicune|73/100
+|
+|-heal|p2a: Suicune|79/100|[from] item: Leftovers
+|-damage|p1a: Avalugg|55/100 brn|[from] brn
+|upkeep
+|turn|4
+|
+|t:|1777163584
+|move|p2a: Suicune|Substitute|p2a: Suicune
+|-start|p2a: Suicune|Substitute
+|-damage|p2a: Suicune|55/100
+|move|p1a: Avalugg|Body Press|p2a: Suicune
+|-activate|p2a: Suicune|move: Substitute|[damage]
+|
+|-heal|p2a: Suicune|61/100|[from] item: Leftovers
+|-damage|p1a: Avalugg|49/100 brn|[from] brn
+|upkeep
+|turn|5
+|
+|t:|1777163584
+|move|p2a: Suicune|Calm Mind|p2a: Suicune
+|-boost|p2a: Suicune|spa|1
+|-boost|p2a: Suicune|spd|1
+|move|p1a: Avalugg|Body Press|p2a: Suicune
+|-end|p2a: Suicune|Substitute
+|
+|-heal|p2a: Suicune|67/100|[from] item: Leftovers
+|-damage|p1a: Avalugg|43/100 brn|[from] brn
+|upkeep
+|turn|6
+|
+|t:|1777163584
+|switch|p2a: Electivire|Electivire, L84, F|100/100
+|move|p1a: Avalugg|Body Press|p2a: Electivire
+|-crit|p2a: Electivire
+|-damage|p2a: Electivire|61/100
+|
+|-damage|p1a: Avalugg|37/100 brn|[from] brn
+|upkeep
+|turn|7
+|
+|t:|1777163584
+|switch|p2a: Golurk|Golurk, L87, tera:Ground|36/100
+|move|p1a: Avalugg|Body Press|p2a: Golurk
+|-damage|p2a: Golurk|17/100
+|
+|-damage|p1a: Avalugg|31/100 brn|[from] brn
+|upkeep
+|turn|8
+|
+|t:|1777163584
+|switch|p2a: Klawf|Klawf, L90, F|100/100
+|move|p1a: Avalugg|Body Press|p2a: Klawf
+|-supereffective|p2a: Klawf
+|-damage|p2a: Klawf|70/100
+|
+|-damage|p1a: Avalugg|25/100 brn|[from] brn
+|upkeep
+|turn|9
+|
+|t:|1777163584
+|move|p2a: Klawf|Swords Dance|p2a: Klawf
+|-boost|p2a: Klawf|atk|2
+|move|p1a: Avalugg|Body Press|p2a: Klawf
+|-supereffective|p2a: Klawf
+|-damage|p2a: Klawf|39/100
+|-ability|p2a: Klawf|Anger Shell|boost
+|-boost|p2a: Klawf|atk|1
+|-boost|p2a: Klawf|spa|1
+|-boost|p2a: Klawf|spe|1
+|-unboost|p2a: Klawf|def|1
+|-unboost|p2a: Klawf|spd|1
+|
+|-damage|p1a: Avalugg|19/100 brn|[from] brn
+|upkeep
+|turn|10
+|
+|t:|1777163584
+|switch|p2a: Electivire|Electivire, L84, F|61/100
+|move|p1a: Avalugg|Body Press|p2a: Electivire
+|-damage|p2a: Electivire|34/100
+|
+|-damage|p1a: Avalugg|13/100 brn|[from] brn
+|upkeep
+|turn|11
+|
+|t:|1777163584
+|switch|p2a: Golurk|Golurk, L87, tera:Ground|17/100
+|move|p1a: Avalugg|Avalanche|p2a: Golurk
+|-supereffective|p2a: Golurk
+|-damage|p2a: Golurk|0 fnt
+|faint|p2a: Golurk
+|
+|-damage|p1a: Avalugg|7/100 brn|[from] brn
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Electivire|Electivire, L84, F|34/100
+|turn|12
+|
+|t:|1777163584
+|move|p2a: Electivire|Ice Punch|p1a: Avalugg
+|-damage|p1a: Avalugg|0 fnt
+|faint|p1a: Avalugg
+|-damage|p2a: Electivire|24/100|[from] item: Life Orb
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p1a: Toxicroak|Toxicroak, L84, F|100/100
+|-damage|p1a: Toxicroak|94/100|[from] Stealth Rock
+|turn|13
+|
+|t:|1777163584
+|switch|p2a: Suicune|Suicune, L82|67/100
+|-ability|p2a: Suicune|Pressure
+|move|p1a: Toxicroak|Gunk Shot|p2a: Suicune
+|-damage|p2a: Suicune|22/100
+|-damage|p1a: Toxicroak|85/100|[from] item: Life Orb
+|
+|-heal|p2a: Suicune|28/100|[from] item: Leftovers
+|upkeep
+|turn|14
+|
+|t:|1777163584
+|move|p1a: Toxicroak|Earthquake|p2a: Suicune
+|-damage|p2a: Suicune|0 fnt
+|faint|p2a: Suicune
+|-damage|p1a: Toxicroak|75/100|[from] item: Life Orb
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100
+|turn|15
+|
+|t:|1777163584
+|switch|p2a: Breloom|Breloom, L82, F|100/100
+|move|p1a: Toxicroak|Gunk Shot|p2a: Breloom
+|-supereffective|p2a: Breloom
+|-damage|p2a: Breloom|0 fnt
+|faint|p2a: Breloom
+|-damage|p1a: Toxicroak|65/100|[from] item: Life Orb
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100
+|turn|16
+|
+|t:|1777163584
+|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak
+|-resisted|p2a: Toxicroak
+|-damage|p2a: Toxicroak|61/100
+|-damage|p1a: Toxicroak|55/100|[from] item: Life Orb
+|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak
+|-resisted|p1a: Toxicroak
+|-damage|p1a: Toxicroak|32/100
+|-enditem|p1a: Toxicroak|Life Orb|[from] move: Knock Off|[of] p2a: Toxicroak
+|-damage|p2a: Toxicroak|51/100|[from] item: Life Orb
+|
+|upkeep
+|turn|17
+|
+|t:|1777163584
+|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak
+|-resisted|p1a: Toxicroak
+|-damage|p1a: Toxicroak|18/100
+|-damage|p2a: Toxicroak|42/100|[from] item: Life Orb
+|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak
+|-resisted|p2a: Toxicroak
+|-damage|p2a: Toxicroak|13/100
+|
+|upkeep
+|turn|18
+|
+|t:|1777163584
+|move|p2a: Toxicroak|Gunk Shot|p1a: Toxicroak
+|-resisted|p1a: Toxicroak
+|-damage|p1a: Toxicroak|0 fnt
+|faint|p1a: Toxicroak
+|-damage|p2a: Toxicroak|3/100|[from] item: Life Orb
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p1a: Salamence|Salamence, L77, M|100/100
+|-ability|p1a: Salamence|Intimidate|boost
+|-unboost|p2a: Toxicroak|atk|1
+|turn|19
+|
+|t:|1777163584
+|move|p1a: Salamence|Earthquake|p2a: Toxicroak
+|-supereffective|p2a: Toxicroak
+|-damage|p2a: Toxicroak|0 fnt
+|faint|p2a: Toxicroak
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Klawf|Klawf, L90, F|39/100
+|turn|20
+|
+|t:|1777163584
+|move|p1a: Salamence|Outrage|p2a: Klawf
+|-damage|p2a: Klawf|0 fnt
+|faint|p2a: Klawf
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Electivire|Electivire, L84, F|24/100
+|turn|21
+|
+|t:|1777163584
+|move|p2a: Electivire|Bulk Up|p2a: Electivire
+|-boost|p2a: Electivire|atk|1
+|-boost|p2a: Electivire|def|1
+|move|p1a: Salamence|Outrage|p2a: Electivire|[from] lockedmove
+|-damage|p2a: Electivire|0 fnt
+|faint|p2a: Electivire
+|-start|p1a: Salamence|confusion|[fatigue]
+|
+|win|Agent-1

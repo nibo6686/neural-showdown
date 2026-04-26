@@ -1,0 +1,4794 @@
+{
+  "battle_index": 7,
+  "env_id": "env-9",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 28,
+  "start_time": "2026-04-26T00:33:04.575825Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Regieleki",
+          "p2_hp_ratio": 0.42,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9995507597923279,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.491408348083496,
+              "probability": 0.9995507597923279
+            },
+            {
+              "index": 4,
+              "logit": 1.5815361738204956,
+              "probability": 0.00036693664151243865
+            },
+            {
+              "index": 12,
+              "logit": -0.1572626829147339,
+              "probability": 6.448225758504122e-05
+            },
+            {
+              "index": 2,
+              "logit": -1.456023097038269,
+              "probability": 1.759526458045002e-05
+            },
+            {
+              "index": 9,
+              "logit": -5.887226581573486,
+              "probability": 2.0938634293088398e-07
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163584",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163584",
+            "|start",
+            "|switch|p1a: Cryogonal|Cryogonal, L89|100/100",
+            "|switch|p2a: Cresselia|Cresselia, L80, F|100/100",
+            "|turn|1"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.81,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9777790307998657,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.071942329406738,
+              "probability": 0.9777790307998657
+            },
+            {
+              "index": 2,
+              "logit": 3.242936372756958,
+              "probability": 0.021248318254947662
+            },
+            {
+              "index": 4,
+              "logit": 0.08140957355499268,
+              "probability": 0.0009001002763397992
+            },
+            {
+              "index": 12,
+              "logit": -2.4681668281555176,
+              "probability": 7.031107088550925e-05
+            },
+            {
+              "index": 6,
+              "logit": -5.9051594734191895,
+              "probability": 2.2612925931753125e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Regieleki|Regieleki, L79|100/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+            "|-damage|p2a: Regieleki|42/100",
+            "|",
+            "|upkeep",
+            "|turn|2"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.62,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999690055847168,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 11.683286666870117,
+              "probability": 0.9999690055847168
+            },
+            {
+              "index": 2,
+              "logit": 0.5798935890197754,
+              "probability": 1.5060660189192276e-05
+            },
+            {
+              "index": 4,
+              "logit": 0.5794445872306824,
+              "probability": 1.5053909919515718e-05
+            },
+            {
+              "index": 12,
+              "logit": -2.163093090057373,
+              "probability": 9.695719427327276e-07
+            },
+            {
+              "index": 9,
+              "logit": -6.797879695892334,
+              "probability": 9.412777224326874e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Cresselia|Cresselia, L80, F|100/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|75/100",
+            "|",
+            "|-heal|p2a: Cresselia|81/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|3"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.7177700348432056,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.51,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999758005142212,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 12.092124938964844,
+              "probability": 0.9999758005142212
+            },
+            {
+              "index": 4,
+              "logit": 0.8231208920478821,
+              "probability": 1.2762134247168433e-05
+            },
+            {
+              "index": 2,
+              "logit": 0.6892027854919434,
+              "probability": 1.116255225497298e-05
+            },
+            {
+              "index": 12,
+              "logit": -3.1557013988494873,
+              "probability": 2.3874954990787955e-07
+            },
+            {
+              "index": 9,
+              "logit": -7.227928161621094,
+              "probability": 4.0681507051942845e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|56/100",
+            "|move|p2a: Cresselia|Calm Mind|p2a: Cresselia",
+            "|-boost|p2a: Cresselia|spa|1",
+            "|-boost|p2a: Cresselia|spd|1",
+            "|",
+            "|-heal|p2a: Cresselia|62/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|4"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.7177700348432056,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Regieleki",
+          "p2_hp_ratio": 0.02,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9998797178268433,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 10.872906684875488,
+              "probability": 0.9998797178268433
+            },
+            {
+              "index": 2,
+              "logit": 1.823712944984436,
+              "probability": 0.00011747163807740435
+            },
+            {
+              "index": 4,
+              "logit": -2.041774272918701,
+              "probability": 2.4613495952507947e-06
+            },
+            {
+              "index": 6,
+              "logit": -4.578965663909912,
+              "probability": 1.9466374112653284e-07
+            },
+            {
+              "index": 12,
+              "logit": -5.997040271759033,
+              "probability": 4.714359391755352e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-terastallize|p2a: Cresselia|Fairy",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|45/100",
+            "|move|p2a: Cresselia|Moonblast|p1a: Cryogonal",
+            "|-damage|p1a: Cryogonal|72/100",
+            "|-unboost|p1a: Cryogonal|spa|1",
+            "|",
+            "|-heal|p2a: Cresselia|51/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|5"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dugtrio",
+          "p2_hp_ratio": 0.61,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.6676324605941772,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 6.5071282386779785,
+              "probability": 0.6676324605941772
+            },
+            {
+              "index": 2,
+              "logit": 5.80947208404541,
+              "probability": 0.3323144316673279
+            },
+            {
+              "index": 6,
+              "logit": -3.6636486053466797,
+              "probability": 2.555202809162438e-05
+            },
+            {
+              "index": 4,
+              "logit": -3.6790099143981934,
+              "probability": 2.5162502424791455e-05
+            },
+            {
+              "index": 12,
+              "logit": -6.0067033767700195,
+              "probability": 2.4538567231502384e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Regieleki|Regieleki, L79|42/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+            "|-damage|p2a: Regieleki|2/100",
+            "|",
+            "|upkeep",
+            "|turn|6",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Regieleki|Volt Switch|p1a: Cryogonal",
+            "|-damage|p1a: Cryogonal|48/100"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.39,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9760181903839111,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 3.540309190750122,
+              "probability": 0.9760181903839111
+            },
+            {
+              "index": 12,
+              "logit": -0.3838350772857666,
+              "probability": 0.019285181537270546
+            },
+            {
+              "index": 5,
+              "logit": -2.4882586002349854,
+              "probability": 0.00235117063857615
+            },
+            {
+              "index": 2,
+              "logit": -2.6357386112213135,
+              "probability": 0.0020287774968892336
+            },
+            {
+              "index": 4,
+              "logit": -4.493393898010254,
+              "probability": 0.0003165665839333087
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|100/100|[from] Volt Switch",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Dugtrio",
+            "|-damage|p2a: Dugtrio|61/100",
+            "|",
+            "|upkeep",
+            "|turn|7"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Illumise",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9954054355621338,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.483004570007324,
+              "probability": 0.9954054355621338
+            },
+            {
+              "index": 2,
+              "logit": 3.099919557571411,
+              "probability": 0.004572521895170212
+            },
+            {
+              "index": 6,
+              "logit": -2.9792206287384033,
+              "probability": 1.0471741916262545e-05
+            },
+            {
+              "index": 4,
+              "logit": -3.205596685409546,
+              "probability": 8.350353709829506e-06
+            },
+            {
+              "index": 12,
+              "logit": -4.12577486038208,
+              "probability": 3.327181275381008e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|51/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|32/100",
+            "|",
+            "|-heal|p2a: Cresselia|39/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|8",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Regieleki|Regieleki, L79|2/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+            "|-damage|p2a: Regieleki|0 fnt",
+            "|faint|p2a: Regieleki",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 8,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9962618947029114,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.658115386962891,
+              "probability": 0.9962618947029114
+            },
+            {
+              "index": 2,
+              "logit": -0.011937415227293968,
+              "probability": 0.003434794954955578
+            },
+            {
+              "index": 5,
+              "logit": -3.332615613937378,
+              "probability": 0.00012409336341079324
+            },
+            {
+              "index": 8,
+              "logit": -3.446805000305176,
+              "probability": 0.0001107023490476422
+            },
+            {
+              "index": 9,
+              "logit": -3.927189350128174,
+              "probability": 6.84744882164523e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 9,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.76,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.993621289730072,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.643579006195068,
+              "probability": 0.993621289730072
+            },
+            {
+              "index": 2,
+              "logit": 2.5911777019500732,
+              "probability": 0.006353173870593309
+            },
+            {
+              "index": 5,
+              "logit": -3.437376022338867,
+              "probability": 1.5304638509405777e-05
+            },
+            {
+              "index": 4,
+              "logit": -4.294310092926025,
+              "probability": 6.4962318901962135e-06
+            },
+            {
+              "index": 6,
+              "logit": -4.828887462615967,
+              "probability": 3.8062516978243366e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|39/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|22/100",
+            "|",
+            "|-heal|p2a: Cresselia|28/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|10"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 10,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.53,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8661792874336243,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.872206211090088,
+              "probability": 0.8661792874336243
+            },
+            {
+              "index": 5,
+              "logit": 0.3770371675491333,
+              "probability": 0.07144463062286377
+            },
+            {
+              "index": 2,
+              "logit": -0.4494779706001282,
+              "probability": 0.03126214072108269
+            },
+            {
+              "index": 1,
+              "logit": -1.11903715133667,
+              "probability": 0.016004158183932304
+            },
+            {
+              "index": 6,
+              "logit": -1.1765481233596802,
+              "probability": 0.0151097122579813
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Dialga|Dialga-Origin, L73|100/100",
+            "|-ability|p2a: Dialga|Pressure",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Dialga",
+            "|-damage|p2a: Dialga|76/100",
+            "|",
+            "|upkeep",
+            "|turn|11"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 11,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dugtrio",
+          "p2_hp_ratio": 0.19,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9012904167175293,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 3.3758256435394287,
+              "probability": 0.9012904167175293
+            },
+            {
+              "index": 5,
+              "logit": 0.2908143401145935,
+              "probability": 0.04121557995676994
+            },
+            {
+              "index": 2,
+              "logit": 0.08320780843496323,
+              "probability": 0.03348875790834427
+            },
+            {
+              "index": 1,
+              "logit": -0.4412919580936432,
+              "probability": 0.019820362329483032
+            },
+            {
+              "index": 6,
+              "logit": -1.9965263605117798,
+              "probability": 0.00418486911803484
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Dialga",
+            "|-damage|p2a: Dialga|53/100",
+            "|move|p2a: Dialga|Stealth Rock|p1a: Cryogonal",
+            "|-sidestart|p1: Agent-1|move: Stealth Rock",
+            "|",
+            "|upkeep",
+            "|turn|12"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 12,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0.16,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9991233944892883,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.207955360412598,
+              "probability": 0.9991233944892883
+            },
+            {
+              "index": 5,
+              "logit": -2.48358416557312,
+              "probability": 0.00045627413783222437
+            },
+            {
+              "index": 1,
+              "logit": -3.5664494037628174,
+              "probability": 0.00015450541104655713
+            },
+            {
+              "index": 3,
+              "logit": -3.676661968231201,
+              "probability": 0.00013838183076586574
+            },
+            {
+              "index": 2,
+              "logit": -3.7591636180877686,
+              "probability": 0.0001274232636205852
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|61/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Dugtrio",
+            "|-damage|p2a: Dugtrio|19/100",
+            "|",
+            "|upkeep",
+            "|turn|13"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 13,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.4738675958188153,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.53,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 1",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 1 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Ice Beam",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9995404481887817,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.466861724853516,
+              "probability": 0.9995404481887817
+            },
+            {
+              "index": 2,
+              "logit": 0.7402524352073669,
+              "probability": 0.0004407340311445296
+            },
+            {
+              "index": 8,
+              "logit": -2.9049534797668457,
+              "probability": 1.1510228432598524e-05
+            },
+            {
+              "index": 4,
+              "logit": -3.6350815296173096,
+              "probability": 5.546170996240107e-06
+            },
+            {
+              "index": 5,
+              "logit": -4.854588508605957,
+              "probability": 1.6382042531404295e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|28/100",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|10/100",
+            "|",
+            "|-heal|p2a: Cresselia|16/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+            "|-damage|p2a: Cresselia|0 fnt",
+            "|faint|p2a: Cresselia",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 14,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0.10452961672473868,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.48,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 11,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Rapid Spin",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8250521421432495,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 2.1119987964630127,
+              "probability": 0.8250521421432495
+            },
+            {
+              "index": 2,
+              "logit": -0.0625934973359108,
+              "probability": 0.09377087652683258
+            },
+            {
+              "index": 5,
+              "logit": -0.42762964963912964,
+              "probability": 0.06509307026863098
+            },
+            {
+              "index": 8,
+              "logit": -2.0002126693725586,
+              "probability": 0.013507368974387646
+            },
+            {
+              "index": 11,
+              "logit": -3.656982183456421,
+              "probability": 0.002576586790382862
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Dialga|Dialga-Origin, L73|53/100",
+            "|-ability|p2a: Dialga|Pressure",
+            "|turn|15"
+          ]
+        },
+        {
+          "turn": 16,
+          "step_index": 15,
+          "p1_species": "Cryogonal",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.44,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 2",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Tera Blast",
+              "choice": "move 3",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 4",
+              "move": "Recover"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Rapid Spin",
+              "choice": "move 2 terastallize",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Tera Blast",
+              "choice": "move 3 terastallize",
+              "move": "Tera Blast"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 4 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 11,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Rapid Spin",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.606364369392395,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 0.861958384513855,
+              "probability": 0.606364369392395
+            },
+            {
+              "index": 2,
+              "logit": -0.3683951795101166,
+              "probability": 0.17717315256595612
+            },
+            {
+              "index": 8,
+              "logit": -0.7220264077186584,
+              "probability": 0.12439926713705063
+            },
+            {
+              "index": 5,
+              "logit": -1.2277377843856812,
+              "probability": 0.07502226531505585
+            },
+            {
+              "index": 11,
+              "logit": -2.7099032402038574,
+              "probability": 0.017040951177477837
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Cryogonal|Rapid Spin|p2a: Dialga",
+            "|-resisted|p2a: Dialga",
+            "|-damage|p2a: Dialga|48/100",
+            "|-boost|p1a: Cryogonal|spe|1",
+            "|-sideend|p1: Agent-1|Stealth Rock|[from] move: Rapid Spin|[of] p1a: Cryogonal",
+            "|move|p2a: Dialga|Fire Blast|p1a: Cryogonal",
+            "|-supereffective|p1a: Cryogonal",
+            "|-damage|p1a: Cryogonal|11/100",
+            "|",
+            "|upkeep",
+            "|turn|16"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 16,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.44,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Chimecho, L93, F",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Chimecho, L93, F",
+          "chosen_action_choice": "switch 5",
+          "chosen_action_probability": 0.9599152207374573,
+          "model_top_k": [
+            {
+              "index": 11,
+              "logit": -1.5059446096420288,
+              "probability": 0.9599152207374573
+            },
+            {
+              "index": 8,
+              "logit": -4.780247211456299,
+              "probability": 0.036326318979263306
+            },
+            {
+              "index": 12,
+              "logit": -7.543691635131836,
+              "probability": 0.0022912512067705393
+            },
+            {
+              "index": 10,
+              "logit": -8.027185440063477,
+              "probability": 0.001412843237631023
+            },
+            {
+              "index": 9,
+              "logit": -11.285468101501465,
+              "probability": 5.432999023469165e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Cryogonal|Rapid Spin|p2a: Dialga",
+            "|-resisted|p2a: Dialga",
+            "|-damage|p2a: Dialga|44/100",
+            "|-boost|p1a: Cryogonal|spe|1",
+            "|move|p2a: Dialga|Fire Blast|p1a: Cryogonal",
+            "|-supereffective|p1a: Cryogonal",
+            "|-damage|p1a: Cryogonal|0 fnt",
+            "|faint|p1a: Cryogonal",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 18,
+      "steps": [
+        {
+          "turn": 18,
+          "step_index": 17,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0.5241379310344828,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Psychic Noise",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8304131627082825,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.148832321166992,
+              "probability": 0.8304131627082825
+            },
+            {
+              "index": 7,
+              "logit": 4.878074645996094,
+              "probability": 0.08572682738304138
+            },
+            {
+              "index": 3,
+              "logit": 4.846965789794922,
+              "probability": 0.08310101181268692
+            },
+            {
+              "index": 4,
+              "logit": -0.02757164090871811,
+              "probability": 0.0006347775342874229
+            },
+            {
+              "index": 5,
+              "logit": -1.6584166288375854,
+              "probability": 0.0001242666330654174
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Chimecho|Chimecho, L93, F|100/100",
+            "|turn|17"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 19,
+      "steps": [
+        {
+          "turn": 19,
+          "step_index": 18,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0.5862068965517241,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dialga",
+          "p2_hp_ratio": 0.13,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Psychic Noise",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.5697242021560669,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.899209499359131,
+              "probability": 0.5697242021560669
+            },
+            {
+              "index": 7,
+              "logit": 5.0647406578063965,
+              "probability": 0.24732010066509247
+            },
+            {
+              "index": 3,
+              "logit": 4.758171081542969,
+              "probability": 0.18201951682567596
+            },
+            {
+              "index": 4,
+              "logit": -0.5989901423454285,
+              "probability": 0.0008580893045291305
+            },
+            {
+              "index": 5,
+              "logit": -2.994957685470581,
+              "probability": 7.815864228177816e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+            "|-resisted|p2a: Dialga",
+            "|-damage|p2a: Dialga|28/100",
+            "|-start|p2a: Dialga|move: Heal Block",
+            "|move|p2a: Dialga|Draco Meteor|p1a: Chimecho",
+            "|-damage|p1a: Chimecho|47/100",
+            "|-unboost|p2a: Dialga|spa|2",
+            "|",
+            "|-heal|p1a: Chimecho|53/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|18"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 20,
+      "steps": [
+        {
+          "turn": 20,
+          "step_index": 19,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0.6482758620689655,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Psychic Noise",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.6704478859901428,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 6.571398735046387,
+              "probability": 0.6704478859901428
+            },
+            {
+              "index": 3,
+              "logit": 5.257340431213379,
+              "probability": 0.18016763031482697
+            },
+            {
+              "index": 7,
+              "logit": 5.0659685134887695,
+              "probability": 0.1487870067358017
+            },
+            {
+              "index": 4,
+              "logit": -0.5328426957130432,
+              "probability": 0.0005508485483005643
+            },
+            {
+              "index": 5,
+              "logit": -3.0035042762756348,
+              "probability": 4.656261080526747e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+            "|-resisted|p2a: Dialga",
+            "|-damage|p2a: Dialga|13/100",
+            "|move|p2a: Dialga|Stealth Rock|p1a: Chimecho",
+            "|-sidestart|p1: Agent-1|move: Stealth Rock",
+            "|",
+            "|-heal|p1a: Chimecho|59/100|[from] item: Leftovers",
+            "|-end|p2a: Dialga|move: Heal Block",
+            "|upkeep",
+            "|turn|19",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+            "|-resisted|p2a: Dialga",
+            "|-damage|p2a: Dialga|0 fnt",
+            "|faint|p2a: Dialga",
+            "|",
+            "|-heal|p1a: Chimecho|65/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "steps": [
+        {
+          "turn": 21,
+          "step_index": 20,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0.33448275862068966,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Illumise",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Dazzling Gleam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.6104675531387329,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 4.475656986236572,
+              "probability": 0.6104675531387329
+            },
+            {
+              "index": 7,
+              "logit": 3.8410189151763916,
+              "probability": 0.32362550497055054
+            },
+            {
+              "index": 0,
+              "logit": 2.1147007942199707,
+              "probability": 0.057585399597883224
+            },
+            {
+              "index": 5,
+              "logit": -0.02689647488296032,
+              "probability": 0.006764387246221304
+            },
+            {
+              "index": 1,
+              "logit": -1.4956756830215454,
+              "probability": 0.001557204988785088
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Bruxish|Bruxish, L85, M|100/100",
+            "|turn|20",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Bruxish|Flip Turn|p1a: Chimecho",
+            "|-damage|p1a: Chimecho|28/100",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|19/100|[from] Flip Turn",
+            "|move|p1a: Chimecho|Dazzling Gleam|p2a: Dugtrio",
+            "|-resisted|p2a: Dugtrio",
+            "|-damage|p2a: Dugtrio|0 fnt",
+            "|faint|p2a: Dugtrio",
+            "|",
+            "|-heal|p1a: Chimecho|34/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 22,
+      "steps": [
+        {
+          "turn": 22,
+          "step_index": 21,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0.39655172413793105,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.69,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Dazzling Gleam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8619812726974487,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.302899360656738,
+              "probability": 0.8619812726974487
+            },
+            {
+              "index": 7,
+              "logit": 4.360785961151123,
+              "probability": 0.12360861897468567
+            },
+            {
+              "index": 0,
+              "logit": 2.175128936767578,
+              "probability": 0.013894084841012955
+            },
+            {
+              "index": 11,
+              "logit": -1.133649230003357,
+              "probability": 0.0005079790134914219
+            },
+            {
+              "index": 4,
+              "logit": -5.2792816162109375,
+              "probability": 8.043045454542153e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+            "|turn|21"
+          ]
+        },
+        {
+          "turn": 22,
+          "step_index": 22,
+          "p1_species": "Chimecho",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic Noise",
+              "choice": "move 1",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 2",
+              "move": "Recover"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dazzling Gleam",
+              "choice": "move 4",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic Noise",
+              "choice": "move 1 terastallize",
+              "move": "Psychic Noise"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 2 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Dazzling Gleam",
+              "choice": "move 4 terastallize",
+              "move": "Dazzling Gleam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Dazzling Gleam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.6118438839912415,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 4.952451705932617,
+              "probability": 0.6118438839912415
+            },
+            {
+              "index": 7,
+              "logit": 4.412515163421631,
+              "probability": 0.35657358169555664
+            },
+            {
+              "index": 0,
+              "logit": 1.7859516143798828,
+              "probability": 0.02578975073993206
+            },
+            {
+              "index": 5,
+              "logit": 0.060209814459085464,
+              "probability": 0.004591630771756172
+            },
+            {
+              "index": 1,
+              "logit": -1.2807737588882446,
+              "probability": 0.0012011168291792274
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Bruxish|Bruxish, L85, M|100/100",
+            "|move|p1a: Chimecho|Dazzling Gleam|p2a: Bruxish",
+            "|-damage|p2a: Bruxish|69/100",
+            "|",
+            "|-heal|p1a: Chimecho|40/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|22"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 23,
+      "steps": [
+        {
+          "turn": 23,
+          "step_index": 23,
+          "p1_species": "Primarina",
+          "p1_hp_ratio": 0.8768656716417911,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Primarina, L83, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Primarina, L83, F",
+          "chosen_action_choice": "switch 6",
+          "chosen_action_probability": 0.6569285988807678,
+          "model_top_k": [
+            {
+              "index": 11,
+              "logit": -3.8216137886047363,
+              "probability": 0.6569285988807678
+            },
+            {
+              "index": 10,
+              "logit": -4.678754806518555,
+              "probability": 0.2787831425666809
+            },
+            {
+              "index": 8,
+              "logit": -6.877389430999756,
+              "probability": 0.030932260677218437
+            },
+            {
+              "index": 9,
+              "logit": -16.24472999572754,
+              "probability": 2.643791049194988e-06
+            },
+            {
+              "index": 0,
+              "logit": -6.80203104019165,
+              "probability": 0.03335334360599518
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Bruxish|Wave Crash|p1a: Chimecho",
+            "|-damage|p1a: Chimecho|0 fnt",
+            "|faint|p1a: Chimecho",
+            "|-damage|p2a: Bruxish|54/100|[from] Recoil",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 24,
+      "steps": [
+        {
+          "turn": 24,
+          "step_index": 24,
+          "p1_species": "Primarina",
+          "p1_hp_ratio": 0.9365671641791045,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Illumise",
+          "p2_hp_ratio": 0.6,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic",
+              "choice": "move 1",
+              "move": "Psychic"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sparkling Aria",
+              "choice": "move 2",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Draining Kiss",
+              "choice": "move 4",
+              "move": "Draining Kiss"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic",
+              "choice": "move 1 terastallize",
+              "move": "Psychic"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Sparkling Aria",
+              "choice": "move 2 terastallize",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Draining Kiss",
+              "choice": "move 4 terastallize",
+              "move": "Draining Kiss"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 11,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Sparkling Aria",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8087549209594727,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 8.017390251159668,
+              "probability": 0.8087549209594727
+            },
+            {
+              "index": 3,
+              "logit": 6.305140972137451,
+              "probability": 0.1459474414587021
+            },
+            {
+              "index": 5,
+              "logit": 4.216465473175049,
+              "probability": 0.018075745552778244
+            },
+            {
+              "index": 0,
+              "logit": 4.109887599945068,
+              "probability": 0.01624838076531887
+            },
+            {
+              "index": 7,
+              "logit": 3.7173876762390137,
+              "probability": 0.010973610915243626
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Primarina|Primarina, L83, F|100/100",
+            "|-damage|p1a: Primarina|88/100|[from] Stealth Rock",
+            "|turn|23"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 25,
+      "steps": [
+        {
+          "turn": 25,
+          "step_index": 25,
+          "p1_species": "Primarina",
+          "p1_hp_ratio": 0.996268656716418,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Illumise",
+          "p2_hp_ratio": 0.21,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Psychic",
+              "choice": "move 1",
+              "move": "Psychic"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sparkling Aria",
+              "choice": "move 2",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Draining Kiss",
+              "choice": "move 4",
+              "move": "Draining Kiss"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Psychic",
+              "choice": "move 1 terastallize",
+              "move": "Psychic"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Sparkling Aria",
+              "choice": "move 2 terastallize",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Calm Mind",
+              "choice": "move 3 terastallize",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Draining Kiss",
+              "choice": "move 4 terastallize",
+              "move": "Draining Kiss"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 11,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Sparkling Aria",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.710567057132721,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 8.519881248474121,
+              "probability": 0.710567057132721
+            },
+            {
+              "index": 3,
+              "logit": 7.567192554473877,
+              "probability": 0.27406755089759827
+            },
+            {
+              "index": 0,
+              "logit": 4.471929550170898,
+              "probability": 0.012405147776007652
+            },
+            {
+              "index": 7,
+              "logit": 2.485710620880127,
+              "probability": 0.0017021509120240808
+            },
+            {
+              "index": 5,
+              "logit": 2.1833579540252686,
+              "probability": 0.0012580215698108077
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+            "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+            "|-damage|p2a: Illumise|60/100",
+            "|",
+            "|-heal|p1a: Primarina|94/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|24"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 26,
+      "steps": [
+        {
+          "turn": 26,
+          "step_index": 26,
+          "p1_species": "Primarina",
+          "p1_hp_ratio": 0.9216417910447762,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sparkling Aria",
+              "choice": "move 2",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Sparkling Aria",
+              "choice": "move 2 terastallize",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Sparkling Aria",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9999988079071045,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 11.820425987243652,
+              "probability": 0.9999988079071045
+            },
+            {
+              "index": 5,
+              "logit": -1.8359262943267822,
+              "probability": 1.1725223885150626e-06
+            },
+            {
+              "index": 8,
+              "logit": -15.33616828918457,
+              "probability": 1.6070923888542032e-12
+            },
+            {
+              "index": 9,
+              "logit": -16.221988677978516,
+              "probability": 6.627245410437133e-13
+            },
+            {
+              "index": 10,
+              "logit": -16.4847412109375,
+              "probability": 5.095903083188191e-13
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Illumise|Encore|p1a: Primarina",
+            "|-start|p1a: Primarina|Encore",
+            "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+            "|-damage|p2a: Illumise|21/100",
+            "|",
+            "|-heal|p1a: Primarina|99/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|25",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Illumise|Bug Buzz|p1a: Primarina",
+            "|-resisted|p1a: Primarina",
+            "|-damage|p1a: Primarina|87/100",
+            "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+            "|-damage|p2a: Illumise|0 fnt",
+            "|faint|p2a: Illumise",
+            "|",
+            "|-heal|p1a: Primarina|93/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 26,
+          "step_index": 27,
+          "p1_species": "Primarina",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sparkling Aria",
+              "choice": "move 2",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Sparkling Aria",
+              "choice": "move 2 terastallize",
+              "move": "Sparkling Aria"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Sparkling Aria",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9999481439590454,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 9.952984809875488,
+              "probability": 0.9999481439590454
+            },
+            {
+              "index": 5,
+              "logit": 0.0864526629447937,
+              "probability": 5.187964052311145e-05
+            },
+            {
+              "index": 8,
+              "logit": -10.495784759521484,
+              "probability": 1.315800690626645e-09
+            },
+            {
+              "index": 10,
+              "logit": -12.492389678955078,
+              "probability": 1.78679848694685e-10
+            },
+            {
+              "index": 9,
+              "logit": -13.763297080993652,
+              "probability": 5.013339396398031e-11
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Bruxish|Bruxish, L85, M|54/100",
+            "|turn|26"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 27,
+      "steps": [
+        {
+          "turn": 27,
+          "step_index": 28,
+          "p1_species": "Whiscash",
+          "p1_hp_ratio": 0.9376854599406528,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Whiscash, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 3,
+          "chosen_action_index": 8,
+          "chosen_action_label": "switch:Whiscash, L88, F",
+          "chosen_action_choice": "switch 2",
+          "chosen_action_probability": 0.029798610135912895,
+          "model_top_k": [
+            {
+              "index": 8,
+              "logit": -3.2534518241882324,
+              "probability": 0.029798610135912895
+            },
+            {
+              "index": 10,
+              "logit": -4.399937629699707,
+              "probability": 0.00946855265647173
+            },
+            {
+              "index": 9,
+              "logit": -14.86177921295166,
+              "probability": 2.70871623797575e-07
+            },
+            {
+              "index": 0,
+              "logit": 0.2197255641222,
+              "probability": 0.9606779217720032
+            },
+            {
+              "index": 4,
+              "logit": -9.556187629699707,
+              "probability": 5.456983490148559e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Bruxish|Psychic Fangs|p1a: Primarina",
+            "|-damage|p1a: Primarina|0 fnt",
+            "|faint|p1a: Primarina",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 28,
+      "steps": [
+        {
+          "turn": 28,
+          "step_index": 29,
+          "p1_species": "Whiscash",
+          "p1_hp_ratio": 0.18100890207715134,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 3",
+              "move": "Earthquake"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 4",
+              "move": "Liquidation"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Dance",
+              "choice": "move 1 terastallize",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Stone Edge",
+              "choice": "move 2 terastallize",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Earthquake",
+              "choice": "move 3 terastallize",
+              "move": "Earthquake"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Liquidation",
+              "choice": "move 4 terastallize",
+              "move": "Liquidation"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 10,
+          "chosen_action_index": 7,
+          "chosen_action_label": "move_tera:Liquidation",
+          "chosen_action_choice": "move 4 terastallize",
+          "chosen_action_probability": 0.9549958109855652,
+          "model_top_k": [
+            {
+              "index": 7,
+              "logit": 7.63203239440918,
+              "probability": 0.9549958109855652
+            },
+            {
+              "index": 5,
+              "logit": 4.546060085296631,
+              "probability": 0.04362954944372177
+            },
+            {
+              "index": 3,
+              "logit": 0.4251609444618225,
+              "probability": 0.0007081038202159107
+            },
+            {
+              "index": 1,
+              "logit": -0.12002569437026978,
+              "probability": 0.0004105115949641913
+            },
+            {
+              "index": 2,
+              "logit": -0.5921855568885803,
+              "probability": 0.00025601699599064887
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Whiscash|Whiscash, L88, F|100/100",
+            "|-damage|p1a: Whiscash|94/100|[from] Stealth Rock",
+            "|turn|27"
+          ]
+        },
+        {
+          "turn": 28,
+          "step_index": 30,
+          "p1_species": "Whiscash",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 3",
+              "move": "Earthquake"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 4",
+              "move": "Liquidation"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Earthquake",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9720723032951355,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 4.940033435821533,
+              "probability": 0.9720723032951355
+            },
+            {
+              "index": 3,
+              "logit": 1.3483483791351318,
+              "probability": 0.026782406494021416
+            },
+            {
+              "index": 1,
+              "logit": -1.8087564706802368,
+              "probability": 0.001139557920396328
+            },
+            {
+              "index": 8,
+              "logit": -7.434778690338135,
+              "probability": 4.105688731215196e-06
+            },
+            {
+              "index": 0,
+              "logit": -8.375372886657715,
+              "probability": 1.6028427580749849e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-terastallize|p1a: Whiscash|Ground",
+            "|move|p2a: Bruxish|Psychic Fangs|p1a: Whiscash",
+            "|-damage|p1a: Whiscash|28/100",
+            "|move|p1a: Whiscash|Liquidation|p2a: Bruxish",
+            "|-resisted|p2a: Bruxish",
+            "|-damage|p2a: Bruxish|28/100",
+            "|-damage|p1a: Whiscash|19/100|[from] item: Life Orb",
+            "|",
+            "|upkeep",
+            "|turn|28"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 29,
+      "steps": [
+        {
+          "turn": 29,
+          "step_index": 31,
+          "p1_species": "Lilligant",
+          "p1_hp_ratio": 0.9375,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Bruxish",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lilligant-Hisui, L79, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 2,
+          "chosen_action_index": 8,
+          "chosen_action_label": "switch:Lilligant-Hisui, L79, F",
+          "chosen_action_choice": "switch 3",
+          "chosen_action_probability": 0.01117495447397232,
+          "model_top_k": [
+            {
+              "index": 8,
+              "logit": -3.6978087425231934,
+              "probability": 0.01117495447397232
+            },
+            {
+              "index": 9,
+              "logit": -10.793777465820312,
+              "probability": 9.257760211767163e-06
+            },
+            {
+              "index": 0,
+              "logit": 0.7688333988189697,
+              "probability": 0.972935140132904
+            },
+            {
+              "index": 1,
+              "logit": -3.6192235946655273,
+              "probability": 0.012088573537766933
+            },
+            {
+              "index": 4,
+              "logit": -4.778573513031006,
+              "probability": 0.0037920635659247637
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Bruxish|Psychic Fangs|p1a: Whiscash",
+            "|-damage|p1a: Whiscash|0 fnt",
+            "|faint|p1a: Whiscash",
+            "|",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 29,
+          "step_index": 32,
+          "p1_species": "Lilligant",
+          "p1_hp_ratio": 0.8375,
+          "p1_status": null,
+          "p1_boosts": {
+            "def": -1,
+            "spd": -1
+          },
+          "p2_species": "Cresselia",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Victory Dance",
+              "choice": "move 1",
+              "move": "Victory Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sleep Powder",
+              "choice": "move 2",
+              "move": "Sleep Powder"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Leaf Blade",
+              "choice": "move 3",
+              "move": "Leaf Blade"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 4",
+              "move": "Close Combat"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Darkrai, L77",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Close Combat",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9807300567626953,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 8.071136474609375,
+              "probability": 0.9807300567626953
+            },
+            {
+              "index": 2,
+              "logit": 4.114274978637695,
+              "probability": 0.018754536285996437
+            },
+            {
+              "index": 0,
+              "logit": 0.5192333459854126,
+              "probability": 0.0005149909411557019
+            },
+            {
+              "index": 8,
+              "logit": -6.890672206878662,
+              "probability": 3.116867333119444e-07
+            },
+            {
+              "index": 1,
+              "logit": -14.326590538024902,
+              "probability": 1.8379758826014836e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Lilligant|Lilligant-Hisui, L79, F|100/100",
+            "|-damage|p1a: Lilligant|94/100|[from] Stealth Rock",
+            "|turn|29",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Lilligant|Close Combat|p2a: Bruxish",
+            "|-resisted|p2a: Bruxish",
+            "|-damage|p2a: Bruxish|0 fnt",
+            "|-unboost|p1a: Lilligant|def|1",
+            "|-unboost|p1a: Lilligant|spd|1",
+            "|faint|p2a: Bruxish",
+            "|-damage|p1a: Lilligant|84/100|[from] item: Life Orb",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163584",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163584",
+    "|start",
+    "|switch|p1a: Cryogonal|Cryogonal, L89|100/100",
+    "|switch|p2a: Cresselia|Cresselia, L80, F|100/100",
+    "|turn|1",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Regieleki|Regieleki, L79|100/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+    "|-damage|p2a: Regieleki|42/100",
+    "|",
+    "|upkeep",
+    "|turn|2",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Cresselia|Cresselia, L80, F|100/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|75/100",
+    "|",
+    "|-heal|p2a: Cresselia|81/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|3",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|56/100",
+    "|move|p2a: Cresselia|Calm Mind|p2a: Cresselia",
+    "|-boost|p2a: Cresselia|spa|1",
+    "|-boost|p2a: Cresselia|spd|1",
+    "|",
+    "|-heal|p2a: Cresselia|62/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|4",
+    "|",
+    "|t:|1777163584",
+    "|-terastallize|p2a: Cresselia|Fairy",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|45/100",
+    "|move|p2a: Cresselia|Moonblast|p1a: Cryogonal",
+    "|-damage|p1a: Cryogonal|72/100",
+    "|-unboost|p1a: Cryogonal|spa|1",
+    "|",
+    "|-heal|p2a: Cresselia|51/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|5",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Regieleki|Regieleki, L79|42/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+    "|-damage|p2a: Regieleki|2/100",
+    "|",
+    "|upkeep",
+    "|turn|6",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Regieleki|Volt Switch|p1a: Cryogonal",
+    "|-damage|p1a: Cryogonal|48/100",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|100/100|[from] Volt Switch",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Dugtrio",
+    "|-damage|p2a: Dugtrio|61/100",
+    "|",
+    "|upkeep",
+    "|turn|7",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|51/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|32/100",
+    "|",
+    "|-heal|p2a: Cresselia|39/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|8",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Regieleki|Regieleki, L79|2/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Regieleki",
+    "|-damage|p2a: Regieleki|0 fnt",
+    "|faint|p2a: Regieleki",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+    "|turn|9",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|39/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|22/100",
+    "|",
+    "|-heal|p2a: Cresselia|28/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|10",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Dialga|Dialga-Origin, L73|100/100",
+    "|-ability|p2a: Dialga|Pressure",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Dialga",
+    "|-damage|p2a: Dialga|76/100",
+    "|",
+    "|upkeep",
+    "|turn|11",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Dialga",
+    "|-damage|p2a: Dialga|53/100",
+    "|move|p2a: Dialga|Stealth Rock|p1a: Cryogonal",
+    "|-sidestart|p1: Agent-1|move: Stealth Rock",
+    "|",
+    "|upkeep",
+    "|turn|12",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|61/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Dugtrio",
+    "|-damage|p2a: Dugtrio|19/100",
+    "|",
+    "|upkeep",
+    "|turn|13",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Cresselia|Cresselia, L80, F, tera:Fairy|28/100",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|10/100",
+    "|",
+    "|-heal|p2a: Cresselia|16/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|14",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Cryogonal|Ice Beam|p2a: Cresselia",
+    "|-damage|p2a: Cresselia|0 fnt",
+    "|faint|p2a: Cresselia",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Dialga|Dialga-Origin, L73|53/100",
+    "|-ability|p2a: Dialga|Pressure",
+    "|turn|15",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Cryogonal|Rapid Spin|p2a: Dialga",
+    "|-resisted|p2a: Dialga",
+    "|-damage|p2a: Dialga|48/100",
+    "|-boost|p1a: Cryogonal|spe|1",
+    "|-sideend|p1: Agent-1|Stealth Rock|[from] move: Rapid Spin|[of] p1a: Cryogonal",
+    "|move|p2a: Dialga|Fire Blast|p1a: Cryogonal",
+    "|-supereffective|p1a: Cryogonal",
+    "|-damage|p1a: Cryogonal|11/100",
+    "|",
+    "|upkeep",
+    "|turn|16",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Cryogonal|Rapid Spin|p2a: Dialga",
+    "|-resisted|p2a: Dialga",
+    "|-damage|p2a: Dialga|44/100",
+    "|-boost|p1a: Cryogonal|spe|1",
+    "|move|p2a: Dialga|Fire Blast|p1a: Cryogonal",
+    "|-supereffective|p1a: Cryogonal",
+    "|-damage|p1a: Cryogonal|0 fnt",
+    "|faint|p1a: Cryogonal",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Chimecho|Chimecho, L93, F|100/100",
+    "|turn|17",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+    "|-resisted|p2a: Dialga",
+    "|-damage|p2a: Dialga|28/100",
+    "|-start|p2a: Dialga|move: Heal Block",
+    "|move|p2a: Dialga|Draco Meteor|p1a: Chimecho",
+    "|-damage|p1a: Chimecho|47/100",
+    "|-unboost|p2a: Dialga|spa|2",
+    "|",
+    "|-heal|p1a: Chimecho|53/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|18",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+    "|-resisted|p2a: Dialga",
+    "|-damage|p2a: Dialga|13/100",
+    "|move|p2a: Dialga|Stealth Rock|p1a: Chimecho",
+    "|-sidestart|p1: Agent-1|move: Stealth Rock",
+    "|",
+    "|-heal|p1a: Chimecho|59/100|[from] item: Leftovers",
+    "|-end|p2a: Dialga|move: Heal Block",
+    "|upkeep",
+    "|turn|19",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Chimecho|Psychic Noise|p2a: Dialga",
+    "|-resisted|p2a: Dialga",
+    "|-damage|p2a: Dialga|0 fnt",
+    "|faint|p2a: Dialga",
+    "|",
+    "|-heal|p1a: Chimecho|65/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Bruxish|Bruxish, L85, M|100/100",
+    "|turn|20",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Bruxish|Flip Turn|p1a: Chimecho",
+    "|-damage|p1a: Chimecho|28/100",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|19/100|[from] Flip Turn",
+    "|move|p1a: Chimecho|Dazzling Gleam|p2a: Dugtrio",
+    "|-resisted|p2a: Dugtrio",
+    "|-damage|p2a: Dugtrio|0 fnt",
+    "|faint|p2a: Dugtrio",
+    "|",
+    "|-heal|p1a: Chimecho|34/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+    "|turn|21",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Bruxish|Bruxish, L85, M|100/100",
+    "|move|p1a: Chimecho|Dazzling Gleam|p2a: Bruxish",
+    "|-damage|p2a: Bruxish|69/100",
+    "|",
+    "|-heal|p1a: Chimecho|40/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|22",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Bruxish|Wave Crash|p1a: Chimecho",
+    "|-damage|p1a: Chimecho|0 fnt",
+    "|faint|p1a: Chimecho",
+    "|-damage|p2a: Bruxish|54/100|[from] Recoil",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Primarina|Primarina, L83, F|100/100",
+    "|-damage|p1a: Primarina|88/100|[from] Stealth Rock",
+    "|turn|23",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Illumise|Illumise, L91, F|100/100",
+    "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+    "|-damage|p2a: Illumise|60/100",
+    "|",
+    "|-heal|p1a: Primarina|94/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|24",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Illumise|Encore|p1a: Primarina",
+    "|-start|p1a: Primarina|Encore",
+    "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+    "|-damage|p2a: Illumise|21/100",
+    "|",
+    "|-heal|p1a: Primarina|99/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|25",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Illumise|Bug Buzz|p1a: Primarina",
+    "|-resisted|p1a: Primarina",
+    "|-damage|p1a: Primarina|87/100",
+    "|move|p1a: Primarina|Sparkling Aria|p2a: Illumise",
+    "|-damage|p2a: Illumise|0 fnt",
+    "|faint|p2a: Illumise",
+    "|",
+    "|-heal|p1a: Primarina|93/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Bruxish|Bruxish, L85, M|54/100",
+    "|turn|26",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Bruxish|Psychic Fangs|p1a: Primarina",
+    "|-damage|p1a: Primarina|0 fnt",
+    "|faint|p1a: Primarina",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Whiscash|Whiscash, L88, F|100/100",
+    "|-damage|p1a: Whiscash|94/100|[from] Stealth Rock",
+    "|turn|27",
+    "|",
+    "|t:|1777163584",
+    "|-terastallize|p1a: Whiscash|Ground",
+    "|move|p2a: Bruxish|Psychic Fangs|p1a: Whiscash",
+    "|-damage|p1a: Whiscash|28/100",
+    "|move|p1a: Whiscash|Liquidation|p2a: Bruxish",
+    "|-resisted|p2a: Bruxish",
+    "|-damage|p2a: Bruxish|28/100",
+    "|-damage|p1a: Whiscash|19/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|turn|28",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Bruxish|Psychic Fangs|p1a: Whiscash",
+    "|-damage|p1a: Whiscash|0 fnt",
+    "|faint|p1a: Whiscash",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Lilligant|Lilligant-Hisui, L79, F|100/100",
+    "|-damage|p1a: Lilligant|94/100|[from] Stealth Rock",
+    "|turn|29",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Lilligant|Close Combat|p2a: Bruxish",
+    "|-resisted|p2a: Bruxish",
+    "|-damage|p2a: Bruxish|0 fnt",
+    "|-unboost|p1a: Lilligant|def|1",
+    "|-unboost|p1a: Lilligant|spd|1",
+    "|faint|p2a: Bruxish",
+    "|-damage|p1a: Lilligant|84/100|[from] item: Life Orb",
+    "|",
+    "|win|Agent-1"
+  ]
+}

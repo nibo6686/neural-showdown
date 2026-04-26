@@ -1,0 +1,45 @@
+{
+  "profile": "dev",
+  "sim_core": {
+    "command": [
+      "node",
+      "dist/src/server.js"
+    ],
+    "cwd": "../sim-core"
+  },
+  "evaluation": {
+    "num_battles": 20,
+    "format": "gen9randombattle",
+    "checkpoint_path": "../artifacts/checkpoints/gen9randombattle_bc.dev.pt",
+    "opponent": "random",
+    "output_path": "../artifacts/eval/gen9randombattle_eval.dev.json",
+    "latency_output_path": "../artifacts/latency/gen9randombattle_eval_latency.dev.windows.json",
+    "save_battle_traces": true,
+    "trace_max_battles": 10
+  },
+  "tracing": {
+    "enabled": true,
+    "trace_sample_rate": 1.0,
+    "trace_max_battles": 10,
+    "output_dir": null,
+    "include_protocol_log": true,
+    "include_markdown": true
+  },
+  "runtime": {
+    "num_envs": 4,
+    "heartbeat_interval_sec": 15,
+    "retry_attempts_per_battle": 2,
+    "timeouts_sec": {
+      "create_env": 15,
+      "reset": 45,
+      "step": 20,
+      "agent_action": 10,
+      "close_env": 5,
+      "ping": 5,
+      "batch": 45
+    }
+  },
+  "model": {
+    "hidden_sizes": [256, 256]
+  }
+}

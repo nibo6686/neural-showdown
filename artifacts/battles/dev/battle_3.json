@@ -1,0 +1,2589 @@
+{
+  "battle_index": 3,
+  "env_id": "env-5",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 16,
+  "start_time": "2026-04-26T00:33:03.954021Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Cetitan",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Superpower",
+              "choice": "move 1",
+              "move": "Superpower"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 2",
+              "move": "Liquidation"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Icicle Crash",
+              "choice": "move 3",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Shard",
+              "choice": "move 4",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Superpower",
+              "choice": "move 1 terastallize",
+              "move": "Superpower"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Liquidation",
+              "choice": "move 2 terastallize",
+              "move": "Liquidation"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Icicle Crash",
+              "choice": "move 3 terastallize",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Shard",
+              "choice": "move 4 terastallize",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Icicle Crash",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9986370205879211,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 8.12356185913086,
+              "probability": 0.9986370205879211
+            },
+            {
+              "index": 6,
+              "logit": 1.2948113679885864,
+              "probability": 0.0010807343060150743
+            },
+            {
+              "index": 5,
+              "logit": -0.14892643690109253,
+              "probability": 0.00025510063278488815
+            },
+            {
+              "index": 4,
+              "logit": -2.7723629474639893,
+              "probability": 1.8508351786294952e-05
+            },
+            {
+              "index": 1,
+              "logit": -3.5297749042510986,
+              "probability": 8.678165613673627e-06
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163583",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163583",
+            "|start",
+            "|switch|p1a: Cetitan|Cetitan, L82, F|100/100",
+            "|switch|p2a: Enamorus|Enamorus-Therian, L83, F|100/100",
+            "|turn|1",
+            "|",
+            "|t:|1777163583",
+            "|-terastallize|p2a: Enamorus|Ground",
+            "|move|p1a: Cetitan|Icicle Crash|p2a: Enamorus",
+            "|-supereffective|p2a: Enamorus",
+            "|-damage|p2a: Enamorus|0 fnt",
+            "|faint|p2a: Enamorus",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Cetitan",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ampharos",
+          "p2_hp_ratio": 0.51,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Superpower",
+              "choice": "move 1",
+              "move": "Superpower"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 2",
+              "move": "Liquidation"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Icicle Crash",
+              "choice": "move 3",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Shard",
+              "choice": "move 4",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Superpower",
+              "choice": "move 1 terastallize",
+              "move": "Superpower"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Liquidation",
+              "choice": "move 2 terastallize",
+              "move": "Liquidation"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Icicle Crash",
+              "choice": "move 3 terastallize",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Shard",
+              "choice": "move 4 terastallize",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Icicle Crash",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.7198073267936707,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 4.384801864624023,
+              "probability": 0.7198073267936707
+            },
+            {
+              "index": 6,
+              "logit": 3.3198158740997314,
+              "probability": 0.2481411248445511
+            },
+            {
+              "index": 1,
+              "logit": 0.8353820443153381,
+              "probability": 0.02068820595741272
+            },
+            {
+              "index": 5,
+              "logit": 0.2017143964767456,
+              "probability": 0.010978031903505325
+            },
+            {
+              "index": 4,
+              "logit": -3.148301839828491,
+              "probability": 0.0003851507499348372
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Ludicolo|Ludicolo, L90, F|100/100",
+            "|turn|2"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Cetitan",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Torterra",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Superpower",
+              "choice": "move 1",
+              "move": "Superpower"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 2",
+              "move": "Liquidation"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Icicle Crash",
+              "choice": "move 3",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Shard",
+              "choice": "move 4",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Superpower",
+              "choice": "move 1 terastallize",
+              "move": "Superpower"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Liquidation",
+              "choice": "move 2 terastallize",
+              "move": "Liquidation"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Icicle Crash",
+              "choice": "move 3 terastallize",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Shard",
+              "choice": "move 4 terastallize",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Icicle Crash",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.44398513436317444,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 5.033955097198486,
+              "probability": 0.44398513436317444
+            },
+            {
+              "index": 1,
+              "logit": 4.823446750640869,
+              "probability": 0.3597044348716736
+            },
+            {
+              "index": 5,
+              "logit": 4.198924541473389,
+              "probability": 0.1926279217004776
+            },
+            {
+              "index": 6,
+              "logit": 0.23446890711784363,
+              "probability": 0.003655763575807214
+            },
+            {
+              "index": 0,
+              "logit": -4.686356544494629,
+              "probability": 2.6661864467314444e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Ampharos|Ampharos, L88, M|100/100",
+            "|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos",
+            "|-damage|p2a: Ampharos|51/100",
+            "|",
+            "|upkeep",
+            "|turn|3",
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos",
+            "|-damage|p2a: Ampharos|0 fnt",
+            "|faint|p2a: Ampharos",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Cetitan",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Torterra",
+          "p2_hp_ratio": 0.45,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Superpower",
+              "choice": "move 1",
+              "move": "Superpower"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 2",
+              "move": "Liquidation"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Icicle Crash",
+              "choice": "move 3",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Shard",
+              "choice": "move 4",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Superpower",
+              "choice": "move 1 terastallize",
+              "move": "Superpower"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Liquidation",
+              "choice": "move 2 terastallize",
+              "move": "Liquidation"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Icicle Crash",
+              "choice": "move 3 terastallize",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Shard",
+              "choice": "move 4 terastallize",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 5,
+          "chosen_action_label": "move_tera:Liquidation",
+          "chosen_action_choice": "move 2 terastallize",
+          "chosen_action_probability": 0.5472201108932495,
+          "model_top_k": [
+            {
+              "index": 5,
+              "logit": 3.7416765689849854,
+              "probability": 0.5472201108932495
+            },
+            {
+              "index": 1,
+              "logit": 2.6960318088531494,
+              "probability": 0.1923287957906723
+            },
+            {
+              "index": 6,
+              "logit": 2.5035488605499268,
+              "probability": 0.1586536467075348
+            },
+            {
+              "index": 2,
+              "logit": 2.0553104877471924,
+              "probability": 0.1013403832912445
+            },
+            {
+              "index": 4,
+              "logit": -3.346022129058838,
+              "probability": 0.000457102432847023
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Torterra|Torterra, L78, F|100/100",
+            "|turn|4"
+          ]
+        },
+        {
+          "turn": 5,
+          "step_index": 4,
+          "p1_species": "Cetitan",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Torterra",
+          "p2_hp_ratio": 0.45,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Superpower",
+              "choice": "move 1",
+              "move": "Superpower"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Liquidation",
+              "choice": "move 2",
+              "move": "Liquidation"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Icicle Crash",
+              "choice": "move 3",
+              "move": "Icicle Crash"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Shard",
+              "choice": "move 4",
+              "move": "Ice Shard"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Icicle Crash",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.6491053104400635,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 3.9369266033172607,
+              "probability": 0.6491053104400635
+            },
+            {
+              "index": 1,
+              "logit": 3.317426919937134,
+              "probability": 0.3493573069572449
+            },
+            {
+              "index": 0,
+              "logit": -2.1180684566497803,
+              "probability": 0.001522874808870256
+            },
+            {
+              "index": 3,
+              "logit": -6.837653636932373,
+              "probability": 1.3582336578110699e-05
+            },
+            {
+              "index": 8,
+              "logit": -9.582829475402832,
+              "probability": 8.724883286959084e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|-terastallize|p1a: Cetitan|Water",
+            "|move|p1a: Cetitan|Liquidation|p2a: Torterra",
+            "|-damage|p2a: Torterra|45/100",
+            "|move|p2a: Torterra|Shell Smash|p2a: Torterra",
+            "|-unboost|p2a: Torterra|def|1",
+            "|-unboost|p2a: Torterra|spd|1",
+            "|-boost|p2a: Torterra|atk|2",
+            "|-boost|p2a: Torterra|spa|2",
+            "|-boost|p2a: Torterra|spe|2",
+            "|",
+            "|upkeep",
+            "|turn|5"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 5,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Torterra",
+          "p2_hp_ratio": 0.45,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Houndoom, L87, M",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 9,
+          "chosen_action_label": "switch:Houndoom, L87, M",
+          "chosen_action_choice": "switch 3",
+          "chosen_action_probability": 0.9707950353622437,
+          "model_top_k": [
+            {
+              "index": 9,
+              "logit": 2.9862194061279297,
+              "probability": 0.9707950353622437
+            },
+            {
+              "index": 12,
+              "logit": -0.5769768357276917,
+              "probability": 0.02752016857266426
+            },
+            {
+              "index": 10,
+              "logit": -3.4140784740448,
+              "probability": 0.001612550695426762
+            },
+            {
+              "index": 11,
+              "logit": -7.140544891357422,
+              "probability": 3.88266344089061e-05
+            },
+            {
+              "index": 8,
+              "logit": -7.290032386779785,
+              "probability": 3.343552089063451e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Torterra|Bullet Seed|p1a: Cetitan",
+            "|-supereffective|p1a: Cetitan",
+            "|-damage|p1a: Cetitan|67/100",
+            "|-supereffective|p1a: Cetitan",
+            "|-damage|p1a: Cetitan|38/100",
+            "|-supereffective|p1a: Cetitan",
+            "|-damage|p1a: Cetitan|3/100",
+            "|-supereffective|p1a: Cetitan",
+            "|-damage|p1a: Cetitan|0 fnt",
+            "|faint|p1a: Cetitan",
+            "|-hitcount|p1: Cetitan|4",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 6,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mabosstiff",
+          "p2_hp_ratio": 0.51,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Sludge Bomb",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9997479319572449,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 10.28555965423584,
+              "probability": 0.9997479319572449
+            },
+            {
+              "index": 0,
+              "logit": 1.9790589809417725,
+              "probability": 0.00024684437084943056
+            },
+            {
+              "index": 3,
+              "logit": -1.8657301664352417,
+              "probability": 5.280224286252633e-06
+            },
+            {
+              "index": 1,
+              "logit": -10.999062538146973,
+              "probability": 5.70291092127917e-10
+            },
+            {
+              "index": 11,
+              "logit": -12.464232444763184,
+              "probability": 1.3175931179443268e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p1a: Houndoom|Houndoom, L87, M|100/100",
+            "|turn|6"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 7,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.57,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Fire Blast",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7153027653694153,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.280570030212402,
+              "probability": 0.7153027653694153
+            },
+            {
+              "index": 2,
+              "logit": 8.35929012298584,
+              "probability": 0.28469714522361755
+            },
+            {
+              "index": 3,
+              "logit": -7.024979591369629,
+              "probability": 5.930340662985145e-08
+            },
+            {
+              "index": 1,
+              "logit": -7.874323844909668,
+              "probability": 2.536379106743425e-08
+            },
+            {
+              "index": 11,
+              "logit": -12.205018997192383,
+              "probability": 3.337471132791592e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Mabosstiff|Mabosstiff, L86, F|100/100",
+            "|move|p1a: Houndoom|Sludge Bomb|p2a: Mabosstiff",
+            "|-crit|p2a: Mabosstiff",
+            "|-damage|p2a: Mabosstiff|51/100",
+            "|",
+            "|upkeep",
+            "|turn|7"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 8,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mabosstiff",
+          "p2_hp_ratio": 0.51,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Fire Blast",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9993641972541809,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 11.217833518981934,
+              "probability": 0.9993641972541809
+            },
+            {
+              "index": 2,
+              "logit": 3.8568036556243896,
+              "probability": 0.0006351396441459656
+            },
+            {
+              "index": 3,
+              "logit": -2.907773733139038,
+              "probability": 7.329095410568698e-07
+            },
+            {
+              "index": 11,
+              "logit": -10.308679580688477,
+              "probability": 4.475878834231395e-10
+            },
+            {
+              "index": 1,
+              "logit": -10.915088653564453,
+              "probability": 2.4407167953377495e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Ludicolo|Ludicolo, L90, F|100/100",
+            "|move|p1a: Houndoom|Fire Blast|p2a: Ludicolo",
+            "|-damage|p2a: Ludicolo|57/100",
+            "|",
+            "|upkeep",
+            "|turn|8",
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Torterra|Torterra, L78, F|45/100",
+            "|move|p1a: Houndoom|Fire Blast|p2a: Torterra",
+            "|-supereffective|p2a: Torterra",
+            "|-damage|p2a: Torterra|0 fnt",
+            "|faint|p2a: Torterra",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 9,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 0.5845588235294118,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Clodsire",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Fire Blast",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7862892150878906,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 10.390204429626465,
+              "probability": 0.7862892150878906
+            },
+            {
+              "index": 2,
+              "logit": 9.087503433227539,
+              "probability": 0.21371078491210938
+            },
+            {
+              "index": 3,
+              "logit": -7.938363075256348,
+              "probability": 8.621573677203287e-09
+            },
+            {
+              "index": 1,
+              "logit": -8.647065162658691,
+              "probability": 4.2442520609142775e-09
+            },
+            {
+              "index": 11,
+              "logit": -12.460657119750977,
+              "probability": 9.366549202916019e-11
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Mabosstiff|Mabosstiff, L86, F|51/100",
+            "|turn|9",
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Mabosstiff|Wild Charge|p1a: Houndoom",
+            "|-damage|p1a: Houndoom|59/100",
+            "|-damage|p2a: Mabosstiff|41/100|[from] Recoil",
+            "|move|p1a: Houndoom|Fire Blast|p2a: Mabosstiff",
+            "|-damage|p2a: Mabosstiff|0 fnt",
+            "|faint|p2a: Mabosstiff",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 10,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 0.5845588235294118,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Clodsire",
+          "p2_hp_ratio": 0.71,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Fire Blast",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9975729584693909,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.975935459136963,
+              "probability": 0.9975729584693909
+            },
+            {
+              "index": 2,
+              "logit": 1.8910514116287231,
+              "probability": 0.0022715015802532434
+            },
+            {
+              "index": 3,
+              "logit": -0.7955440282821655,
+              "probability": 0.0001547175197629258
+            },
+            {
+              "index": 11,
+              "logit": -6.0356059074401855,
+              "probability": 8.19991896605643e-07
+            },
+            {
+              "index": 10,
+              "logit": -12.467833518981934,
+              "probability": 1.3192539283224392e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Clodsire|Clodsire, L81, F|100/100",
+            "|turn|10"
+          ]
+        },
+        {
+          "turn": 11,
+          "step_index": 11,
+          "p1_species": "Houndoom",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Clodsire",
+          "p2_hp_ratio": 0.4,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Fire Blast",
+              "choice": "move 1",
+              "move": "Fire Blast"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Nasty Plot",
+              "choice": "move 2",
+              "move": "Nasty Plot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Sludge Bomb",
+              "choice": "move 3",
+              "move": "Sludge Bomb"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dark Pulse",
+              "choice": "move 4",
+              "move": "Dark Pulse"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Fire Blast",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9983766078948975,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.971129417419434,
+              "probability": 0.9983766078948975
+            },
+            {
+              "index": 2,
+              "logit": 2.5101735591888428,
+              "probability": 0.0015607631066814065
+            },
+            {
+              "index": 3,
+              "logit": -0.7076267004013062,
+              "probability": 6.249771831789985e-05
+            },
+            {
+              "index": 11,
+              "logit": -6.682243347167969,
+              "probability": 1.588989420042708e-07
+            },
+            {
+              "index": 10,
+              "logit": -13.651945114135742,
+              "probability": 1.4935452874453858e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Houndoom|Fire Blast|p2a: Clodsire",
+            "|-damage|p2a: Clodsire|65/100",
+            "|move|p2a: Clodsire|Gunk Shot|p1a: Houndoom|[miss]",
+            "|-miss|p2a: Clodsire|p1a: Houndoom",
+            "|",
+            "|-heal|p2a: Clodsire|71/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|11"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 12,
+          "p1_species": "Forretress",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Clodsire",
+          "p2_hp_ratio": 0.4,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Forretress, L84, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Forretress, L84, M",
+          "chosen_action_choice": "switch 6",
+          "chosen_action_probability": 0.6198188066482544,
+          "model_top_k": [
+            {
+              "index": 11,
+              "logit": 1.6528843641281128,
+              "probability": 0.6198188066482544
+            },
+            {
+              "index": 10,
+              "logit": -6.454081058502197,
+              "probability": 0.00018683343660086393
+            },
+            {
+              "index": 9,
+              "logit": -8.351106643676758,
+              "probability": 2.8027643566019833e-05
+            },
+            {
+              "index": 8,
+              "logit": -13.509550094604492,
+              "probability": 1.6117701306939125e-07
+            },
+            {
+              "index": 0,
+              "logit": 1.1635392904281616,
+              "probability": 0.3799661695957184
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Houndoom|Fire Blast|p2a: Clodsire",
+            "|-damage|p2a: Clodsire|33/100",
+            "|move|p2a: Clodsire|Earthquake|p1a: Houndoom",
+            "|-supereffective|p1a: Houndoom",
+            "|-damage|p1a: Houndoom|0 fnt",
+            "|faint|p1a: Houndoom",
+            "|",
+            "|-heal|p2a: Clodsire|40/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 13,
+          "p1_species": "Forretress",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.41,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 2",
+              "move": "Iron Head"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 3",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Stealth Rock",
+              "choice": "move 4",
+              "move": "Stealth Rock"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Iron Head",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.6534530520439148,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.179752349853516,
+              "probability": 0.6534530520439148
+            },
+            {
+              "index": 2,
+              "logit": 3.3607003688812256,
+              "probability": 0.2880743443965912
+            },
+            {
+              "index": 0,
+              "logit": 1.7660290002822876,
+              "probability": 0.05847195163369179
+            },
+            {
+              "index": 10,
+              "logit": -9.656942367553711,
+              "probability": 6.397557967829925e-07
+            },
+            {
+              "index": 9,
+              "logit": -11.51154613494873,
+              "probability": 1.00131344993315e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p1a: Forretress|Forretress, L84, M|100/100",
+            "|turn|12"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 14,
+          "p1_species": "Forretress",
+          "p1_hp_ratio": 0.1482889733840304,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.14,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 2",
+              "move": "Iron Head"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 3",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Stealth Rock",
+              "choice": "move 4",
+              "move": "Stealth Rock"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9993476271629333,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.352299690246582,
+              "probability": 0.9993476271629333
+            },
+            {
+              "index": 1,
+              "logit": 1.9452762603759766,
+              "probability": 0.0006065787747502327
+            },
+            {
+              "index": 2,
+              "logit": -0.6388899087905884,
+              "probability": 4.5771794248139486e-05
+            },
+            {
+              "index": 10,
+              "logit": -8.856110572814941,
+              "probability": 1.235675739508224e-08
+            },
+            {
+              "index": 9,
+              "logit": -12.511174201965332,
+              "probability": 3.1954389134725147e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Ludicolo|Ludicolo, L90, F|57/100",
+            "|move|p1a: Forretress|Iron Head|p2a: Ludicolo",
+            "|-resisted|p2a: Ludicolo",
+            "|-damage|p2a: Ludicolo|41/100",
+            "|",
+            "|upkeep",
+            "|turn|13"
+          ]
+        },
+        {
+          "turn": 14,
+          "step_index": 15,
+          "p1_species": "Forretress",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.14,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 2",
+              "move": "Iron Head"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 3",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Stealth Rock",
+              "choice": "move 4",
+              "move": "Stealth Rock"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9886511564254761,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.7286176681518555,
+              "probability": 0.9886511564254761
+            },
+            {
+              "index": 1,
+              "logit": 1.1286416053771973,
+              "probability": 0.009937996976077557
+            },
+            {
+              "index": 2,
+              "logit": -0.8973835706710815,
+              "probability": 0.0013104102108627558
+            },
+            {
+              "index": 10,
+              "logit": -3.484051465988159,
+              "probability": 9.863512241281569e-05
+            },
+            {
+              "index": 9,
+              "logit": -7.4986982345581055,
+              "probability": 1.7802982483772212e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress",
+            "|-damage|p1a: Forretress|9/100",
+            "|move|p1a: Forretress|Body Press|p2a: Ludicolo",
+            "|-damage|p2a: Ludicolo|14/100",
+            "|",
+            "|-heal|p1a: Forretress|15/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 16,
+          "p1_species": "Suicune",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.14,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Suicune, L82",
+              "choice": "switch 5",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 3,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Suicune, L82",
+          "chosen_action_choice": "switch 5",
+          "chosen_action_probability": 5.986027673543504e-08,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": -8.006559371948242,
+              "probability": 5.986027673543504e-08
+            },
+            {
+              "index": 8,
+              "logit": -9.249746322631836,
+              "probability": 1.7267499430317912e-08
+            },
+            {
+              "index": 9,
+              "logit": -9.284852027893066,
+              "probability": 1.6671846125859702e-08
+            },
+            {
+              "index": 0,
+              "logit": 8.6246919631958,
+              "probability": 0.9999995231628418
+            },
+            {
+              "index": 4,
+              "logit": -6.276886940002441,
+              "probability": 3.3754076866898686e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress",
+            "|-damage|p1a: Forretress|0 fnt",
+            "|faint|p1a: Forretress",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 17,
+          "p1_species": "Suicune",
+          "p1_hp_ratio": 0.802013422818792,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Ludicolo",
+          "p2_hp_ratio": 0.03,
+          "p2_status": "brn",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Scald",
+              "choice": "move 1",
+              "move": "Scald"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 2",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rest",
+              "choice": "move 3",
+              "move": "Rest"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Sleep Talk",
+              "choice": "move 4",
+              "move": "Sleep Talk"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Scald",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999998807907104,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 17.519498825073242,
+              "probability": 0.9999998807907104
+            },
+            {
+              "index": 1,
+              "logit": 1.6481423377990723,
+              "probability": 1.2798444970485434e-07
+            },
+            {
+              "index": 3,
+              "logit": -8.627461433410645,
+              "probability": 4.410816330235878e-12
+            },
+            {
+              "index": 9,
+              "logit": -10.63078784942627,
+              "probability": 5.949567010929413e-13
+            },
+            {
+              "index": 2,
+              "logit": -11.867406845092773,
+              "probability": 1.7275433470895218e-13
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p1a: Suicune|Suicune, L82|100/100",
+            "|-ability|p1a: Suicune|Pressure",
+            "|turn|15"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 18,
+          "p1_species": "Suicune",
+          "p1_hp_ratio": 0.8624161073825504,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Clodsire",
+          "p2_hp_ratio": 0.4,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Scald",
+              "choice": "move 1",
+              "move": "Scald"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 2",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rest",
+              "choice": "move 3",
+              "move": "Rest"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Sleep Talk",
+              "choice": "move 4",
+              "move": "Sleep Talk"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Scald",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999996423721313,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 16.064748764038086,
+              "probability": 0.9999996423721313
+            },
+            {
+              "index": 1,
+              "logit": 1.0528780221939087,
+              "probability": 3.0229250569391297e-07
+            },
+            {
+              "index": 3,
+              "logit": -6.990656852722168,
+              "probability": 9.708783776929408e-11
+            },
+            {
+              "index": 2,
+              "logit": -10.796492576599121,
+              "probability": 2.1592918425517027e-12
+            },
+            {
+              "index": 9,
+              "logit": -11.215596199035645,
+              "probability": 1.4200254470561613e-12
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Suicune|Scald|p2a: Ludicolo",
+            "|-resisted|p2a: Ludicolo",
+            "|-damage|p2a: Ludicolo|9/100",
+            "|-status|p2a: Ludicolo|brn",
+            "|move|p2a: Ludicolo|Hydro Pump|p1a: Suicune",
+            "|-resisted|p1a: Suicune",
+            "|-damage|p1a: Suicune|75/100",
+            "|",
+            "|-heal|p1a: Suicune|81/100|[from] item: Leftovers",
+            "|-damage|p2a: Ludicolo|3/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|16",
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Suicune|Scald|p2a: Ludicolo",
+            "|-resisted|p2a: Ludicolo",
+            "|-damage|p2a: Ludicolo|0 fnt",
+            "|faint|p2a: Ludicolo",
+            "|",
+            "|-heal|p1a: Suicune|87/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 17,
+          "step_index": 19,
+          "p1_species": "Suicune",
+          "p1_hp_ratio": 0.8624161073825504,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Enamorus",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Scald",
+              "choice": "move 1",
+              "move": "Scald"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 2",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Rest",
+              "choice": "move 3",
+              "move": "Rest"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Sleep Talk",
+              "choice": "move 4",
+              "move": "Sleep Talk"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ursaluna-Bloodmoon, L79, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Talonflame, L83, F",
+              "choice": "switch 4",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Scald",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9999948740005493,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 11.59056568145752,
+              "probability": 0.9999948740005493
+            },
+            {
+              "index": 1,
+              "logit": -0.6040262579917908,
+              "probability": 5.057710950495675e-06
+            },
+            {
+              "index": 3,
+              "logit": -4.793061256408691,
+              "probability": 7.667945567391143e-08
+            },
+            {
+              "index": 9,
+              "logit": -7.69324254989624,
+              "probability": 4.21838741715419e-09
+            },
+            {
+              "index": 2,
+              "logit": -8.144179344177246,
+              "probability": 2.687242872667639e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Clodsire|Clodsire, L81, F|40/100",
+            "|turn|17",
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Suicune|Scald|p2a: Clodsire",
+            "|-supereffective|p2a: Clodsire",
+            "|-damage|p2a: Clodsire|0 fnt",
+            "|faint|p2a: Clodsire",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163583",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163583",
+    "|start",
+    "|switch|p1a: Cetitan|Cetitan, L82, F|100/100",
+    "|switch|p2a: Enamorus|Enamorus-Therian, L83, F|100/100",
+    "|turn|1",
+    "|",
+    "|t:|1777163583",
+    "|-terastallize|p2a: Enamorus|Ground",
+    "|move|p1a: Cetitan|Icicle Crash|p2a: Enamorus",
+    "|-supereffective|p2a: Enamorus",
+    "|-damage|p2a: Enamorus|0 fnt",
+    "|faint|p2a: Enamorus",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Ludicolo|Ludicolo, L90, F|100/100",
+    "|turn|2",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Ampharos|Ampharos, L88, M|100/100",
+    "|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos",
+    "|-damage|p2a: Ampharos|51/100",
+    "|",
+    "|upkeep",
+    "|turn|3",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Cetitan|Icicle Crash|p2a: Ampharos",
+    "|-damage|p2a: Ampharos|0 fnt",
+    "|faint|p2a: Ampharos",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Torterra|Torterra, L78, F|100/100",
+    "|turn|4",
+    "|",
+    "|t:|1777163583",
+    "|-terastallize|p1a: Cetitan|Water",
+    "|move|p1a: Cetitan|Liquidation|p2a: Torterra",
+    "|-damage|p2a: Torterra|45/100",
+    "|move|p2a: Torterra|Shell Smash|p2a: Torterra",
+    "|-unboost|p2a: Torterra|def|1",
+    "|-unboost|p2a: Torterra|spd|1",
+    "|-boost|p2a: Torterra|atk|2",
+    "|-boost|p2a: Torterra|spa|2",
+    "|-boost|p2a: Torterra|spe|2",
+    "|",
+    "|upkeep",
+    "|turn|5",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Torterra|Bullet Seed|p1a: Cetitan",
+    "|-supereffective|p1a: Cetitan",
+    "|-damage|p1a: Cetitan|67/100",
+    "|-supereffective|p1a: Cetitan",
+    "|-damage|p1a: Cetitan|38/100",
+    "|-supereffective|p1a: Cetitan",
+    "|-damage|p1a: Cetitan|3/100",
+    "|-supereffective|p1a: Cetitan",
+    "|-damage|p1a: Cetitan|0 fnt",
+    "|faint|p1a: Cetitan",
+    "|-hitcount|p1: Cetitan|4",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p1a: Houndoom|Houndoom, L87, M|100/100",
+    "|turn|6",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Mabosstiff|Mabosstiff, L86, F|100/100",
+    "|move|p1a: Houndoom|Sludge Bomb|p2a: Mabosstiff",
+    "|-crit|p2a: Mabosstiff",
+    "|-damage|p2a: Mabosstiff|51/100",
+    "|",
+    "|upkeep",
+    "|turn|7",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Ludicolo|Ludicolo, L90, F|100/100",
+    "|move|p1a: Houndoom|Fire Blast|p2a: Ludicolo",
+    "|-damage|p2a: Ludicolo|57/100",
+    "|",
+    "|upkeep",
+    "|turn|8",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Torterra|Torterra, L78, F|45/100",
+    "|move|p1a: Houndoom|Fire Blast|p2a: Torterra",
+    "|-supereffective|p2a: Torterra",
+    "|-damage|p2a: Torterra|0 fnt",
+    "|faint|p2a: Torterra",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Mabosstiff|Mabosstiff, L86, F|51/100",
+    "|turn|9",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Mabosstiff|Wild Charge|p1a: Houndoom",
+    "|-damage|p1a: Houndoom|59/100",
+    "|-damage|p2a: Mabosstiff|41/100|[from] Recoil",
+    "|move|p1a: Houndoom|Fire Blast|p2a: Mabosstiff",
+    "|-damage|p2a: Mabosstiff|0 fnt",
+    "|faint|p2a: Mabosstiff",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Clodsire|Clodsire, L81, F|100/100",
+    "|turn|10",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Houndoom|Fire Blast|p2a: Clodsire",
+    "|-damage|p2a: Clodsire|65/100",
+    "|move|p2a: Clodsire|Gunk Shot|p1a: Houndoom|[miss]",
+    "|-miss|p2a: Clodsire|p1a: Houndoom",
+    "|",
+    "|-heal|p2a: Clodsire|71/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|11",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Houndoom|Fire Blast|p2a: Clodsire",
+    "|-damage|p2a: Clodsire|33/100",
+    "|move|p2a: Clodsire|Earthquake|p1a: Houndoom",
+    "|-supereffective|p1a: Houndoom",
+    "|-damage|p1a: Houndoom|0 fnt",
+    "|faint|p1a: Houndoom",
+    "|",
+    "|-heal|p2a: Clodsire|40/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p1a: Forretress|Forretress, L84, M|100/100",
+    "|turn|12",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Ludicolo|Ludicolo, L90, F|57/100",
+    "|move|p1a: Forretress|Iron Head|p2a: Ludicolo",
+    "|-resisted|p2a: Ludicolo",
+    "|-damage|p2a: Ludicolo|41/100",
+    "|",
+    "|upkeep",
+    "|turn|13",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress",
+    "|-damage|p1a: Forretress|9/100",
+    "|move|p1a: Forretress|Body Press|p2a: Ludicolo",
+    "|-damage|p2a: Ludicolo|14/100",
+    "|",
+    "|-heal|p1a: Forretress|15/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|14",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Ludicolo|Hydro Pump|p1a: Forretress",
+    "|-damage|p1a: Forretress|0 fnt",
+    "|faint|p1a: Forretress",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p1a: Suicune|Suicune, L82|100/100",
+    "|-ability|p1a: Suicune|Pressure",
+    "|turn|15",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Suicune|Scald|p2a: Ludicolo",
+    "|-resisted|p2a: Ludicolo",
+    "|-damage|p2a: Ludicolo|9/100",
+    "|-status|p2a: Ludicolo|brn",
+    "|move|p2a: Ludicolo|Hydro Pump|p1a: Suicune",
+    "|-resisted|p1a: Suicune",
+    "|-damage|p1a: Suicune|75/100",
+    "|",
+    "|-heal|p1a: Suicune|81/100|[from] item: Leftovers",
+    "|-damage|p2a: Ludicolo|3/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|16",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Suicune|Scald|p2a: Ludicolo",
+    "|-resisted|p2a: Ludicolo",
+    "|-damage|p2a: Ludicolo|0 fnt",
+    "|faint|p2a: Ludicolo",
+    "|",
+    "|-heal|p1a: Suicune|87/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Clodsire|Clodsire, L81, F|40/100",
+    "|turn|17",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Suicune|Scald|p2a: Clodsire",
+    "|-supereffective|p2a: Clodsire",
+    "|-damage|p2a: Clodsire|0 fnt",
+    "|faint|p2a: Clodsire",
+    "|",
+    "|win|Agent-1"
+  ]
+}

@@ -85,6 +85,8 @@ Available actions:
 .\scripts\run_windows.ps1 -Action ppo
 .\scripts\run_windows.ps1 -Action eval
 .\scripts\run_windows.ps1 -Action improve
+.\scripts\run_windows.ps1 -Action analyze
+.\scripts\run_windows.ps1 -Action trace-eval
 .\scripts\run_windows.ps1 -Action server
 .\scripts\run_windows.ps1 -Action all
 ```
@@ -174,6 +176,77 @@ All reports include:
 - `torch_device`: `cuda` or `cpu`
 - `git_commit`: git commit hash if available
 - platform and environment info
+
+### Decision Analysis & Battle Replay
+
+New tools for analyzing and debugging battles:
+
+#### Generate battle traces
+
+Enable tracing in config or use the dedicated trace eval config:
+
+```powershell
+# Small eval run with traces
+.\scripts\run_windows.ps1 -Action trace-eval -Profile dev -SimCoreMode native
+```
+
+This runs a small eval with tracing enabled, writing:
+- JSON traces: `artifacts/battles/dev/battle_*.json` (complete decision logs)
+- Markdown summaries: `artifacts/battles/dev/battle_*.md` (human-readable)
+- Protocol logs: `artifacts/battles/dev/battle_*.showdown.log` (raw Showdown protocol)
+
+Or enable tracing in any config:
+```json
+"tracing": {
+  "enabled": true,
+  "trace_sample_rate": 0.1,
+  "trace_max_battles": 20,
+  "output_dir": null,
+  "include_protocol_log": true,
+  "include_markdown": true
+}
+```
+
+#### Analyze decision categories
+
+Categorize and analyze all decisions in a dataset:
+
+```powershell
+.\scripts\run_windows.ps1 -Action analyze -DatasetPath .\data\raw\gen9randombattle_bc.jsonl.gz
+```
+
+Outputs:
+- `artifacts/analysis/decision_categories.csv` — all decisions with categories
+- `artifacts/analysis/decision_summary.json` — aggregate statistics
+- `artifacts/analysis/decision_summary.md` — human-readable report
+
+Decision categories:
+- **attack**: super_effective, neutral, resisted, no_effect, struggle
+- **setup**: first_boost, repeated_setup_N
+- **recovery**: full_hp_recover, partial_hp_recover
+- **hazard**: first_placement, redundant_hazard
+- **switch**: forced_switch, no_move_options_switch, voluntary_switch
+
+#### Interpreting switch categories
+
+Understanding why a Pokemon switched:
+- **forced_switch**: Pokemon fainted or ability/effect forced a switch
+- **no_move_options_switch**: Active Pokemon is alive but only switches are legal (all moves disabled, out of PP, or choice-locked to illegal move)
+- **voluntary_switch**: Both moves and switches are legal; the agent chose to switch
+
+#### Reviewing suspicious battles
+
+Trace files include diagnostic warnings for suspicious patterns:
+- Repeated setup/recovery/hazard placement
+- Wall loops (low progress vs defensive Pokemon)
+- Repeated Struggle (out of PP)
+- No effect attacks (when better options existed)
+
+To find suspicious battles:
+```powershell
+# Look in the markdown files for ⚠️ warnings
+Get-ChildItem .\artifacts\battles\dev\*.md | Select-String "⚠️" | head -20
+```
 
 ### Archiving results on Windows
 

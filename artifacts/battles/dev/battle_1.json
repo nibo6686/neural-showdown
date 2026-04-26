@@ -1,0 +1,2385 @@
+{
+  "battle_index": 1,
+  "env_id": "env-3",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 15,
+  "start_time": "2026-04-26T00:33:03.903385Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Tinkaton",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Tail",
+              "choice": "move 1 terastallize",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Draco Meteor",
+              "choice": "move 2 terastallize",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Flamethrower",
+              "choice": "move 3 terastallize",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wood Hammer",
+              "choice": "move 4 terastallize",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Draco Meteor",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9808622002601624,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 4.327560901641846,
+              "probability": 0.9808622002601624
+            },
+            {
+              "index": 6,
+              "logit": -0.24182763695716858,
+              "probability": 0.010165947489440441
+            },
+            {
+              "index": 5,
+              "logit": -0.7926564812660217,
+              "probability": 0.005860381294041872
+            },
+            {
+              "index": 0,
+              "logit": -1.8441797494888306,
+              "probability": 0.0020476472564041615
+            },
+            {
+              "index": 2,
+              "logit": -2.4990346431732178,
+              "probability": 0.0010637885425239801
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163583",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163583",
+            "|start",
+            "|switch|p1a: Exeggutor|Exeggutor-Alola, L89, M|100/100",
+            "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+            "|turn|1"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hatterene",
+          "p2_hp_ratio": 0.57,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Tail",
+              "choice": "move 1 terastallize",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Draco Meteor",
+              "choice": "move 2 terastallize",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Flamethrower",
+              "choice": "move 3 terastallize",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wood Hammer",
+              "choice": "move 4 terastallize",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 6,
+          "chosen_action_label": "move_tera:Flamethrower",
+          "chosen_action_choice": "move 3 terastallize",
+          "chosen_action_probability": 0.983601987361908,
+          "model_top_k": [
+            {
+              "index": 6,
+              "logit": 6.037670612335205,
+              "probability": 0.983601987361908
+            },
+            {
+              "index": 2,
+              "logit": 1.8756221532821655,
+              "probability": 0.01532021164894104
+            },
+            {
+              "index": 1,
+              "logit": -1.291757345199585,
+              "probability": 0.0006451926310546696
+            },
+            {
+              "index": 0,
+              "logit": -2.251264810562134,
+              "probability": 0.0002471612533554435
+            },
+            {
+              "index": 3,
+              "logit": -2.5382392406463623,
+              "probability": 0.00018550222739577293
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100",
+            "|-ability|p2a: Tinkaton|Mold Breaker",
+            "|move|p1a: Exeggutor|Draco Meteor|p2a: Tinkaton",
+            "|-immune|p2a: Tinkaton",
+            "|",
+            "|upkeep",
+            "|turn|2"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.7388535031847133,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hatterene",
+          "p2_hp_ratio": 0.08,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Wood Hammer",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9663423299789429,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 4.898538589477539,
+              "probability": 0.9663423299789429
+            },
+            {
+              "index": 2,
+              "logit": 1.4051254987716675,
+              "probability": 0.029373859986662865
+            },
+            {
+              "index": 0,
+              "logit": -0.6022615432739258,
+              "probability": 0.003946061711758375
+            },
+            {
+              "index": 1,
+              "logit": -3.1349802017211914,
+              "probability": 0.0003134859725832939
+            },
+            {
+              "index": 10,
+              "logit": -5.691713333129883,
+              "probability": 2.4313250833074562e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Hatterene|Hatterene, L85, F|100/100",
+            "|-terastallize|p1a: Exeggutor|Fire",
+            "|move|p1a: Exeggutor|Flamethrower|p2a: Hatterene",
+            "|-damage|p2a: Hatterene|51/100",
+            "|",
+            "|-heal|p2a: Hatterene|57/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|3"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.7197452229299363,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Tinkaton",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Wood Hammer",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9678518176078796,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 5.1855998039245605,
+              "probability": 0.9678518176078796
+            },
+            {
+              "index": 2,
+              "logit": 1.6762272119522095,
+              "probability": 0.02895393967628479
+            },
+            {
+              "index": 0,
+              "logit": -0.579585611820221,
+              "probability": 0.003034035675227642
+            },
+            {
+              "index": 1,
+              "logit": -3.595642328262329,
+              "probability": 0.00014864960394334048
+            },
+            {
+              "index": 10,
+              "logit": -6.152500629425049,
+              "probability": 1.1527481547091156e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene",
+            "|-damage|p2a: Hatterene|2/100",
+            "|-damage|p1a: Exeggutor|87/100|[from] Recoil",
+            "|move|p2a: Hatterene|Psyshock|p1a: Exeggutor",
+            "|-damage|p1a: Exeggutor|50/100",
+            "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+            "|-heal|p1a: Exeggutor|74/100|[from] item: Sitrus Berry",
+            "|",
+            "|-heal|p2a: Hatterene|8/100|[from] item: Leftovers",
+            "|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest",
+            "|upkeep",
+            "|turn|4",
+            "|",
+            "|t:|1777163583",
+            "|-terastallize|p2a: Hatterene|Steel",
+            "|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene",
+            "|-resisted|p2a: Hatterene",
+            "|-damage|p2a: Hatterene|0 fnt",
+            "|faint|p2a: Hatterene",
+            "|-damage|p1a: Exeggutor|72/100|[from] Recoil",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.7197452229299363,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Tinkaton",
+          "p2_hp_ratio": 0.26,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Flamethrower",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9862724542617798,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 3.644888162612915,
+              "probability": 0.9862724542617798
+            },
+            {
+              "index": 3,
+              "logit": -1.3552976846694946,
+              "probability": 0.006644215900450945
+            },
+            {
+              "index": 1,
+              "logit": -1.6051236391067505,
+              "probability": 0.005175421014428139
+            },
+            {
+              "index": 0,
+              "logit": -3.0295941829681396,
+              "probability": 0.001245392020791769
+            },
+            {
+              "index": 9,
+              "logit": -3.6606969833374023,
+              "probability": 0.0006625546375289559
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100",
+            "|-ability|p2a: Tinkaton|Mold Breaker",
+            "|turn|5"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.5191082802547771,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Flamethrower",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9507998824119568,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 3.8624563217163086,
+              "probability": 0.9507998824119568
+            },
+            {
+              "index": 1,
+              "logit": 0.6326998472213745,
+              "probability": 0.037620432674884796
+            },
+            {
+              "index": 3,
+              "logit": -0.5971725583076477,
+              "probability": 0.010997571982443333
+            },
+            {
+              "index": 0,
+              "logit": -3.9254310131073,
+              "probability": 0.0003943233750760555
+            },
+            {
+              "index": 9,
+              "logit": -4.667088031768799,
+              "probability": 0.0001878256443887949
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Tinkaton|Thunder Wave|p1a: Exeggutor",
+            "|-status|p1a: Exeggutor|par",
+            "|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton",
+            "|-supereffective|p2a: Tinkaton",
+            "|-damage|p2a: Tinkaton|19/100",
+            "|",
+            "|-heal|p2a: Tinkaton|26/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|6",
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Tinkaton|Gigaton Hammer|p1a: Exeggutor",
+            "|-resisted|p1a: Exeggutor",
+            "|-damage|p1a: Exeggutor|52/100 par",
+            "|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton",
+            "|-supereffective|p2a: Tinkaton",
+            "|-damage|p2a: Tinkaton|0 fnt",
+            "|faint|p2a: Tinkaton",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.5191082802547771,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Hydrapple",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Draco Meteor",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8358741998672485,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 2.9927031993865967,
+              "probability": 0.8358741998672485
+            },
+            {
+              "index": 0,
+              "logit": 1.2056187391281128,
+              "probability": 0.13996517658233643
+            },
+            {
+              "index": 10,
+              "logit": -1.2484254837036133,
+              "probability": 0.012029346078634262
+            },
+            {
+              "index": 3,
+              "logit": -1.2611430883407593,
+              "probability": 0.011877334676682949
+            },
+            {
+              "index": 9,
+              "logit": -5.106436729431152,
+              "probability": 0.00025393880787305534
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Eiscue|Eiscue, L88, M|100/100",
+            "|turn|7",
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Walking Wake|Walking Wake, L79|100/100",
+            "|move|p1a: Exeggutor|Draco Meteor|p2a: Walking Wake",
+            "|-supereffective|p2a: Walking Wake",
+            "|-damage|p2a: Walking Wake|0 fnt",
+            "|-unboost|p1a: Exeggutor|spa|2",
+            "|faint|p2a: Walking Wake",
+            "|-end|p2a: Walking Wake|Protosynthesis|[silent]",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.5191082802547771,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Dragon Tail",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.40414994955062866,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 0.3169539272785187,
+              "probability": 0.40414994955062866
+            },
+            {
+              "index": 1,
+              "logit": 0.2494729608297348,
+              "probability": 0.3777773082256317
+            },
+            {
+              "index": 3,
+              "logit": -0.8642646074295044,
+              "probability": 0.12403544038534164
+            },
+            {
+              "index": 10,
+              "logit": -1.2705199718475342,
+              "probability": 0.08262497931718826
+            },
+            {
+              "index": 9,
+              "logit": -3.2501344680786133,
+              "probability": 0.011412366293370724
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+            "|turn|8"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 8,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.5318471337579618,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Wood Hammer",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9143800735473633,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 2.9128289222717285,
+              "probability": 0.9143800735473633
+            },
+            {
+              "index": 1,
+              "logit": -0.011697622947394848,
+              "probability": 0.04909316822886467
+            },
+            {
+              "index": 10,
+              "logit": -0.6813831925392151,
+              "probability": 0.025129294022917747
+            },
+            {
+              "index": 0,
+              "logit": -1.5633904933929443,
+              "probability": 0.010402302257716656
+            },
+            {
+              "index": 9,
+              "logit": -3.9102041721343994,
+              "probability": 0.0009952244581654668
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Dudunsparce|Dudunsparce, L83, F|100/100",
+            "|move|p1a: Exeggutor|Dragon Tail|p2a: Dudunsparce",
+            "|-damage|p2a: Dudunsparce|76/100",
+            "|drag|p2a: Eiscue|Eiscue, L88, M|100/100",
+            "|",
+            "|upkeep",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 9,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0.40445859872611467,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Wood Hammer",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8934594988822937,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 2.731215000152588,
+              "probability": 0.8934594988822937
+            },
+            {
+              "index": 1,
+              "logit": 0.10632921755313873,
+              "probability": 0.06472937762737274
+            },
+            {
+              "index": 10,
+              "logit": -0.7029367089271545,
+              "probability": 0.02881653606891632
+            },
+            {
+              "index": 0,
+              "logit": -1.5859978199005127,
+              "probability": 0.01191607117652893
+            },
+            {
+              "index": 9,
+              "logit": -3.988295555114746,
+              "probability": 0.001078520785085857
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Eiscue|Zen Headbutt|p1a: Exeggutor",
+            "|-crit|p1a: Exeggutor",
+            "|-damage|p1a: Exeggutor|29/100 par",
+            "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+            "|-heal|p1a: Exeggutor|54/100 par|[from] item: Sitrus Berry",
+            "|cant|p1a: Exeggutor|flinch",
+            "|",
+            "|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest",
+            "|upkeep",
+            "|turn|10"
+          ]
+        },
+        {
+          "turn": 11,
+          "step_index": 10,
+          "p1_species": "Exeggutor",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 0.63,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Tail",
+              "choice": "move 1",
+              "move": "Dragon Tail"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 2",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Flamethrower",
+              "choice": "move 3",
+              "move": "Flamethrower"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wood Hammer",
+              "choice": "move 4",
+              "move": "Wood Hammer"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Wood Hammer",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8221054673194885,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 2.298828601837158,
+              "probability": 0.8221054673194885
+            },
+            {
+              "index": 1,
+              "logit": 0.08943795412778854,
+              "probability": 0.0902404710650444
+            },
+            {
+              "index": 10,
+              "logit": -0.1537436693906784,
+              "probability": 0.07076018303632736
+            },
+            {
+              "index": 0,
+              "logit": -1.71783447265625,
+              "probability": 0.014808563515543938
+            },
+            {
+              "index": 9,
+              "logit": -3.6781320571899414,
+              "probability": 0.0020852903835475445
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Eiscue|Liquidation|p1a: Exeggutor",
+            "|-supereffective|p1a: Exeggutor",
+            "|-damage|p1a: Exeggutor|16/100 par",
+            "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+            "|-heal|p1a: Exeggutor|41/100 par|[from] item: Sitrus Berry",
+            "|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue",
+            "|-activate|p2a: Eiscue|ability: Ice Face",
+            "|-damage|p2a: Eiscue|100/100",
+            "|detailschange|p2a: Eiscue|Eiscue-Noice, L88, M",
+            "|",
+            "|upkeep",
+            "|turn|11"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 11,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Eiscue",
+          "p2_hp_ratio": 0.63,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Sylveon, L85, M",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Sylveon, L85, M",
+          "chosen_action_choice": "switch 4",
+          "chosen_action_probability": 0.9909265041351318,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": 4.022274494171143,
+              "probability": 0.9909265041351318
+            },
+            {
+              "index": 12,
+              "logit": -1.0033750534057617,
+              "probability": 0.0065077305771410465
+            },
+            {
+              "index": 9,
+              "logit": -1.965922236442566,
+              "probability": 0.0024854245129972696
+            },
+            {
+              "index": 11,
+              "logit": -5.67177152633667,
+              "probability": 6.109008972998708e-05
+            },
+            {
+              "index": 8,
+              "logit": -6.823875427246094,
+              "probability": 1.9302722648717463e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Eiscue|Liquidation|p1a: Exeggutor",
+            "|-supereffective|p1a: Exeggutor",
+            "|-damage|p1a: Exeggutor|5/100 par",
+            "|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue",
+            "|-damage|p2a: Eiscue|38/100",
+            "|-enditem|p2a: Eiscue|Sitrus Berry|[eat]",
+            "|-heal|p2a: Eiscue|63/100|[from] item: Sitrus Berry",
+            "|-damage|p1a: Exeggutor|0 fnt|[from] Recoil",
+            "|faint|p1a: Exeggutor",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 12,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 0.8366666666666667,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dudunsparce",
+          "p2_hp_ratio": 0.76,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Wish",
+              "choice": "move 1",
+              "move": "Wish"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 2",
+              "move": "Protect"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hyper Voice",
+              "choice": "move 4",
+              "move": "Hyper Voice"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Hyper Voice",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999737739562988,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 11.509313583374023,
+              "probability": 0.9999737739562988
+            },
+            {
+              "index": 11,
+              "logit": 0.4007912874221802,
+              "probability": 1.4983685105107725e-05
+            },
+            {
+              "index": 10,
+              "logit": -0.08037914335727692,
+              "probability": 9.260807019018102e-06
+            },
+            {
+              "index": 9,
+              "logit": -1.6873701810836792,
+              "probability": 1.856699554991792e-06
+            },
+            {
+              "index": 1,
+              "logit": -5.205691814422607,
+              "probability": 5.5049554248398636e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p1a: Sylveon|Sylveon, L85, M|100/100",
+            "|turn|12",
+            "|",
+            "|t:|1777163583",
+            "|move|p2a: Eiscue|Zen Headbutt|p1a: Sylveon",
+            "|-damage|p1a: Sylveon|78/100",
+            "|move|p1a: Sylveon|Hyper Voice|p2a: Eiscue",
+            "|-damage|p2a: Eiscue|0 fnt",
+            "|faint|p2a: Eiscue",
+            "|",
+            "|-heal|p1a: Sylveon|84/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 13,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 0.5866666666666667,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dudunsparce",
+          "p2_hp_ratio": 0.42,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Wish",
+              "choice": "move 1",
+              "move": "Wish"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 2",
+              "move": "Protect"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hyper Voice",
+              "choice": "move 4",
+              "move": "Hyper Voice"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Hyper Voice",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999871253967285,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 11.230571746826172,
+              "probability": 0.9999871253967285
+            },
+            {
+              "index": 11,
+              "logit": -0.714133083820343,
+              "probability": 6.493441560451174e-06
+            },
+            {
+              "index": 9,
+              "logit": -1.3086878061294556,
+              "probability": 3.5831337754643755e-06
+            },
+            {
+              "index": 10,
+              "logit": -1.6401373147964478,
+              "probability": 2.5722686132212402e-06
+            },
+            {
+              "index": 2,
+              "logit": -4.131174087524414,
+              "probability": 2.1304579433945037e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Dudunsparce|Dudunsparce, L83, F|76/100",
+            "|turn|13"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 14,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 0.6466666666666666,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hydrapple",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Wish",
+              "choice": "move 1",
+              "move": "Wish"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 2",
+              "move": "Protect"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hyper Voice",
+              "choice": "move 4",
+              "move": "Hyper Voice"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Hyper Voice",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999886751174927,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 11.841523170471191,
+              "probability": 0.9999886751174927
+            },
+            {
+              "index": 11,
+              "logit": -0.5257551074028015,
+              "probability": 4.255537533026654e-06
+            },
+            {
+              "index": 9,
+              "logit": -0.6363050937652588,
+              "probability": 3.8101600239315303e-06
+            },
+            {
+              "index": 10,
+              "logit": -0.8315828442573547,
+              "probability": 3.1342597139882855e-06
+            },
+            {
+              "index": 2,
+              "logit": -4.77177619934082,
+              "probability": 6.094393256717012e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce",
+            "|-damage|p2a: Dudunsparce|36/100",
+            "|move|p2a: Dudunsparce|Boomburst|p1a: Sylveon",
+            "|-damage|p1a: Sylveon|53/100",
+            "|",
+            "|-heal|p1a: Sylveon|59/100|[from] item: Leftovers",
+            "|-heal|p2a: Dudunsparce|42/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14",
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce",
+            "|-crit|p2a: Dudunsparce",
+            "|-damage|p2a: Dudunsparce|0 fnt",
+            "|faint|p2a: Dudunsparce",
+            "|",
+            "|-heal|p1a: Sylveon|65/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 15,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 0.53,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hydrapple",
+          "p2_hp_ratio": 0.13,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Wish",
+              "choice": "move 1",
+              "move": "Wish"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 2",
+              "move": "Protect"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hyper Voice",
+              "choice": "move 4",
+              "move": "Hyper Voice"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Hyper Voice",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9997788071632385,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 11.432597160339355,
+              "probability": 0.9997788071632385
+            },
+            {
+              "index": 9,
+              "logit": 2.4799768924713135,
+              "probability": 0.00012936900020577013
+            },
+            {
+              "index": 11,
+              "logit": 1.6799002885818481,
+              "probability": 5.812479503219947e-05
+            },
+            {
+              "index": 10,
+              "logit": 1.1362718343734741,
+              "probability": 3.374943116796203e-05
+            },
+            {
+              "index": 1,
+              "logit": -7.844788074493408,
+              "probability": 4.244647744400254e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+            "|turn|15"
+          ]
+        },
+        {
+          "turn": 16,
+          "step_index": 16,
+          "p1_species": "Sylveon",
+          "p1_hp_ratio": 0.53,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hydrapple",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Wish",
+              "choice": "move 1",
+              "move": "Wish"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 2",
+              "move": "Protect"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Calm Mind",
+              "choice": "move 3",
+              "move": "Calm Mind"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Hyper Voice",
+              "choice": "move 4",
+              "move": "Hyper Voice"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Ariados, L95, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Corviknight, L80, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Solgaleo, L74",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Regirock, L83",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Hyper Voice",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.999985933303833,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 13.874042510986328,
+              "probability": 0.999985933303833
+            },
+            {
+              "index": 9,
+              "logit": 2.427206039428711,
+              "probability": 1.0683067557692993e-05
+            },
+            {
+              "index": 11,
+              "logit": 0.7715666890144348,
+              "probability": 2.0401439542183653e-06
+            },
+            {
+              "index": 10,
+              "logit": 0.34890127182006836,
+              "probability": 1.3369029829846113e-06
+            },
+            {
+              "index": 1,
+              "logit": -7.9891037940979,
+              "probability": 3.198529219261559e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple",
+            "|-supereffective|p2a: Hydrapple",
+            "|-crit|p2a: Hydrapple",
+            "|-damage|p2a: Hydrapple|13/100",
+            "|move|p2a: Hydrapple|Earth Power|p1a: Sylveon",
+            "|-damage|p1a: Sylveon|47/100",
+            "|",
+            "|-heal|p1a: Sylveon|53/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|16",
+            "|",
+            "|t:|1777163583",
+            "|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple",
+            "|-supereffective|p2a: Hydrapple",
+            "|-damage|p2a: Hydrapple|0 fnt",
+            "|faint|p2a: Hydrapple",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163583",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163583",
+    "|start",
+    "|switch|p1a: Exeggutor|Exeggutor-Alola, L89, M|100/100",
+    "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+    "|turn|1",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100",
+    "|-ability|p2a: Tinkaton|Mold Breaker",
+    "|move|p1a: Exeggutor|Draco Meteor|p2a: Tinkaton",
+    "|-immune|p2a: Tinkaton",
+    "|",
+    "|upkeep",
+    "|turn|2",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Hatterene|Hatterene, L85, F|100/100",
+    "|-terastallize|p1a: Exeggutor|Fire",
+    "|move|p1a: Exeggutor|Flamethrower|p2a: Hatterene",
+    "|-damage|p2a: Hatterene|51/100",
+    "|",
+    "|-heal|p2a: Hatterene|57/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|3",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene",
+    "|-damage|p2a: Hatterene|2/100",
+    "|-damage|p1a: Exeggutor|87/100|[from] Recoil",
+    "|move|p2a: Hatterene|Psyshock|p1a: Exeggutor",
+    "|-damage|p1a: Exeggutor|50/100",
+    "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+    "|-heal|p1a: Exeggutor|74/100|[from] item: Sitrus Berry",
+    "|",
+    "|-heal|p2a: Hatterene|8/100|[from] item: Leftovers",
+    "|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest",
+    "|upkeep",
+    "|turn|4",
+    "|",
+    "|t:|1777163583",
+    "|-terastallize|p2a: Hatterene|Steel",
+    "|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene",
+    "|-resisted|p2a: Hatterene",
+    "|-damage|p2a: Hatterene|0 fnt",
+    "|faint|p2a: Hatterene",
+    "|-damage|p1a: Exeggutor|72/100|[from] Recoil",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100",
+    "|-ability|p2a: Tinkaton|Mold Breaker",
+    "|turn|5",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Tinkaton|Thunder Wave|p1a: Exeggutor",
+    "|-status|p1a: Exeggutor|par",
+    "|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton",
+    "|-supereffective|p2a: Tinkaton",
+    "|-damage|p2a: Tinkaton|19/100",
+    "|",
+    "|-heal|p2a: Tinkaton|26/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|6",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Tinkaton|Gigaton Hammer|p1a: Exeggutor",
+    "|-resisted|p1a: Exeggutor",
+    "|-damage|p1a: Exeggutor|52/100 par",
+    "|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton",
+    "|-supereffective|p2a: Tinkaton",
+    "|-damage|p2a: Tinkaton|0 fnt",
+    "|faint|p2a: Tinkaton",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Eiscue|Eiscue, L88, M|100/100",
+    "|turn|7",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Walking Wake|Walking Wake, L79|100/100",
+    "|move|p1a: Exeggutor|Draco Meteor|p2a: Walking Wake",
+    "|-supereffective|p2a: Walking Wake",
+    "|-damage|p2a: Walking Wake|0 fnt",
+    "|-unboost|p1a: Exeggutor|spa|2",
+    "|faint|p2a: Walking Wake",
+    "|-end|p2a: Walking Wake|Protosynthesis|[silent]",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+    "|turn|8",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Dudunsparce|Dudunsparce, L83, F|100/100",
+    "|move|p1a: Exeggutor|Dragon Tail|p2a: Dudunsparce",
+    "|-damage|p2a: Dudunsparce|76/100",
+    "|drag|p2a: Eiscue|Eiscue, L88, M|100/100",
+    "|",
+    "|upkeep",
+    "|turn|9",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Eiscue|Zen Headbutt|p1a: Exeggutor",
+    "|-crit|p1a: Exeggutor",
+    "|-damage|p1a: Exeggutor|29/100 par",
+    "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+    "|-heal|p1a: Exeggutor|54/100 par|[from] item: Sitrus Berry",
+    "|cant|p1a: Exeggutor|flinch",
+    "|",
+    "|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest",
+    "|upkeep",
+    "|turn|10",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Eiscue|Liquidation|p1a: Exeggutor",
+    "|-supereffective|p1a: Exeggutor",
+    "|-damage|p1a: Exeggutor|16/100 par",
+    "|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]",
+    "|-heal|p1a: Exeggutor|41/100 par|[from] item: Sitrus Berry",
+    "|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue",
+    "|-activate|p2a: Eiscue|ability: Ice Face",
+    "|-damage|p2a: Eiscue|100/100",
+    "|detailschange|p2a: Eiscue|Eiscue-Noice, L88, M",
+    "|",
+    "|upkeep",
+    "|turn|11",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Eiscue|Liquidation|p1a: Exeggutor",
+    "|-supereffective|p1a: Exeggutor",
+    "|-damage|p1a: Exeggutor|5/100 par",
+    "|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue",
+    "|-damage|p2a: Eiscue|38/100",
+    "|-enditem|p2a: Eiscue|Sitrus Berry|[eat]",
+    "|-heal|p2a: Eiscue|63/100|[from] item: Sitrus Berry",
+    "|-damage|p1a: Exeggutor|0 fnt|[from] Recoil",
+    "|faint|p1a: Exeggutor",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p1a: Sylveon|Sylveon, L85, M|100/100",
+    "|turn|12",
+    "|",
+    "|t:|1777163583",
+    "|move|p2a: Eiscue|Zen Headbutt|p1a: Sylveon",
+    "|-damage|p1a: Sylveon|78/100",
+    "|move|p1a: Sylveon|Hyper Voice|p2a: Eiscue",
+    "|-damage|p2a: Eiscue|0 fnt",
+    "|faint|p2a: Eiscue",
+    "|",
+    "|-heal|p1a: Sylveon|84/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Dudunsparce|Dudunsparce, L83, F|76/100",
+    "|turn|13",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce",
+    "|-damage|p2a: Dudunsparce|36/100",
+    "|move|p2a: Dudunsparce|Boomburst|p1a: Sylveon",
+    "|-damage|p1a: Sylveon|53/100",
+    "|",
+    "|-heal|p1a: Sylveon|59/100|[from] item: Leftovers",
+    "|-heal|p2a: Dudunsparce|42/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|14",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce",
+    "|-crit|p2a: Dudunsparce",
+    "|-damage|p2a: Dudunsparce|0 fnt",
+    "|faint|p2a: Dudunsparce",
+    "|",
+    "|-heal|p1a: Sylveon|65/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100",
+    "|turn|15",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple",
+    "|-supereffective|p2a: Hydrapple",
+    "|-crit|p2a: Hydrapple",
+    "|-damage|p2a: Hydrapple|13/100",
+    "|move|p2a: Hydrapple|Earth Power|p1a: Sylveon",
+    "|-damage|p1a: Sylveon|47/100",
+    "|",
+    "|-heal|p1a: Sylveon|53/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|16",
+    "|",
+    "|t:|1777163583",
+    "|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple",
+    "|-supereffective|p2a: Hydrapple",
+    "|-damage|p2a: Hydrapple|0 fnt",
+    "|faint|p2a: Hydrapple",
+    "|",
+    "|win|Agent-1"
+  ]
+}

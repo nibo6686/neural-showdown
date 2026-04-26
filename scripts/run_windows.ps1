@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'all', 'server')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -10,7 +10,8 @@ param(
     [string]$NodeExe = '',
     [string]$NpmCmd = '',
     [string]$DatasetConfig = '',
-    [string]$EvalConfig = ''
+    [string]$EvalConfig = '',
+    [string]$DatasetPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -315,6 +316,20 @@ function Invoke-Server {
     Invoke-SimCoreNode -Arguments @('dist/src/server.js')
 }
 
+function Invoke-Analyze {
+    Write-Host "launcher analyze | analyzing dataset"
+    $inputPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { '.\data\raw\gen9randombattle_bc.jsonl.gz' } else { $DatasetPath }
+    $outputDir = '.\artifacts\analysis'
+    Invoke-PythonModule -Module 'neural.analyze_decisions' -Arguments @('--input', $inputPath, '--output', $outputDir)
+}
+
+function Invoke-TraceEval {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher trace-eval | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $traceConfig = '.\configs\gen9randombattle_eval.trace.windows.yaml'
+    Invoke-PythonModule -Module 'neural.eval' -Arguments @('--config', $traceConfig)
+}
+
 Push-Location $repoRoot
 try {
     if (-not (Test-Path $PythonExe)) {
@@ -331,6 +346,8 @@ try {
         'eval' { Invoke-Eval }
         'improve' { Invoke-Improve }
         'server' { Invoke-Server }
+        'analyze' { Invoke-Analyze }
+        'trace-eval' { Invoke-TraceEval }
         'all' {
             Write-Host "launcher all | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
             Ensure-SimCoreBuilt

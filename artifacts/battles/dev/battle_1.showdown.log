@@ -1,0 +1,217 @@
+|t:|1777163583
+|gametype|singles
+|player|p1|Agent-1||
+|player|p2|Agent-2||
+|teamsize|p1|6
+|teamsize|p2|6
+|gen|9
+|tier|[Gen 9] Random Battle
+|rule|Species Clause: Limit one of each Pokémon
+|rule|HP Percentage Mod: HP is shown in percentages
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
+|
+|t:|1777163583
+|start
+|switch|p1a: Exeggutor|Exeggutor-Alola, L89, M|100/100
+|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100
+|turn|1
+|
+|t:|1777163583
+|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100
+|-ability|p2a: Tinkaton|Mold Breaker
+|move|p1a: Exeggutor|Draco Meteor|p2a: Tinkaton
+|-immune|p2a: Tinkaton
+|
+|upkeep
+|turn|2
+|
+|t:|1777163583
+|switch|p2a: Hatterene|Hatterene, L85, F|100/100
+|-terastallize|p1a: Exeggutor|Fire
+|move|p1a: Exeggutor|Flamethrower|p2a: Hatterene
+|-damage|p2a: Hatterene|51/100
+|
+|-heal|p2a: Hatterene|57/100|[from] item: Leftovers
+|upkeep
+|turn|3
+|
+|t:|1777163583
+|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene
+|-damage|p2a: Hatterene|2/100
+|-damage|p1a: Exeggutor|87/100|[from] Recoil
+|move|p2a: Hatterene|Psyshock|p1a: Exeggutor
+|-damage|p1a: Exeggutor|50/100
+|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]
+|-heal|p1a: Exeggutor|74/100|[from] item: Sitrus Berry
+|
+|-heal|p2a: Hatterene|8/100|[from] item: Leftovers
+|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest
+|upkeep
+|turn|4
+|
+|t:|1777163583
+|-terastallize|p2a: Hatterene|Steel
+|move|p1a: Exeggutor|Wood Hammer|p2a: Hatterene
+|-resisted|p2a: Hatterene
+|-damage|p2a: Hatterene|0 fnt
+|faint|p2a: Hatterene
+|-damage|p1a: Exeggutor|72/100|[from] Recoil
+|
+|upkeep
+|
+|t:|1777163583
+|switch|p2a: Tinkaton|Tinkaton, L82, F|100/100
+|-ability|p2a: Tinkaton|Mold Breaker
+|turn|5
+|
+|t:|1777163583
+|move|p2a: Tinkaton|Thunder Wave|p1a: Exeggutor
+|-status|p1a: Exeggutor|par
+|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton
+|-supereffective|p2a: Tinkaton
+|-damage|p2a: Tinkaton|19/100
+|
+|-heal|p2a: Tinkaton|26/100|[from] item: Leftovers
+|upkeep
+|turn|6
+|
+|t:|1777163583
+|move|p2a: Tinkaton|Gigaton Hammer|p1a: Exeggutor
+|-resisted|p1a: Exeggutor
+|-damage|p1a: Exeggutor|52/100 par
+|move|p1a: Exeggutor|Flamethrower|p2a: Tinkaton
+|-supereffective|p2a: Tinkaton
+|-damage|p2a: Tinkaton|0 fnt
+|faint|p2a: Tinkaton
+|
+|upkeep
+|
+|t:|1777163583
+|switch|p2a: Eiscue|Eiscue, L88, M|100/100
+|turn|7
+|
+|t:|1777163583
+|switch|p2a: Walking Wake|Walking Wake, L79|100/100
+|move|p1a: Exeggutor|Draco Meteor|p2a: Walking Wake
+|-supereffective|p2a: Walking Wake
+|-damage|p2a: Walking Wake|0 fnt
+|-unboost|p1a: Exeggutor|spa|2
+|faint|p2a: Walking Wake
+|-end|p2a: Walking Wake|Protosynthesis|[silent]
+|
+|upkeep
+|
+|t:|1777163583
+|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100
+|turn|8
+|
+|t:|1777163583
+|switch|p2a: Dudunsparce|Dudunsparce, L83, F|100/100
+|move|p1a: Exeggutor|Dragon Tail|p2a: Dudunsparce
+|-damage|p2a: Dudunsparce|76/100
+|drag|p2a: Eiscue|Eiscue, L88, M|100/100
+|
+|upkeep
+|turn|9
+|
+|t:|1777163583
+|move|p2a: Eiscue|Zen Headbutt|p1a: Exeggutor
+|-crit|p1a: Exeggutor
+|-damage|p1a: Exeggutor|29/100 par
+|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]
+|-heal|p1a: Exeggutor|54/100 par|[from] item: Sitrus Berry
+|cant|p1a: Exeggutor|flinch
+|
+|-item|p1a: Exeggutor|Sitrus Berry|[from] ability: Harvest
+|upkeep
+|turn|10
+|
+|t:|1777163583
+|move|p2a: Eiscue|Liquidation|p1a: Exeggutor
+|-supereffective|p1a: Exeggutor
+|-damage|p1a: Exeggutor|16/100 par
+|-enditem|p1a: Exeggutor|Sitrus Berry|[eat]
+|-heal|p1a: Exeggutor|41/100 par|[from] item: Sitrus Berry
+|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue
+|-activate|p2a: Eiscue|ability: Ice Face
+|-damage|p2a: Eiscue|100/100
+|detailschange|p2a: Eiscue|Eiscue-Noice, L88, M
+|
+|upkeep
+|turn|11
+|
+|t:|1777163583
+|move|p2a: Eiscue|Liquidation|p1a: Exeggutor
+|-supereffective|p1a: Exeggutor
+|-damage|p1a: Exeggutor|5/100 par
+|move|p1a: Exeggutor|Wood Hammer|p2a: Eiscue
+|-damage|p2a: Eiscue|38/100
+|-enditem|p2a: Eiscue|Sitrus Berry|[eat]
+|-heal|p2a: Eiscue|63/100|[from] item: Sitrus Berry
+|-damage|p1a: Exeggutor|0 fnt|[from] Recoil
+|faint|p1a: Exeggutor
+|
+|upkeep
+|
+|t:|1777163583
+|switch|p1a: Sylveon|Sylveon, L85, M|100/100
+|turn|12
+|
+|t:|1777163583
+|move|p2a: Eiscue|Zen Headbutt|p1a: Sylveon
+|-damage|p1a: Sylveon|78/100
+|move|p1a: Sylveon|Hyper Voice|p2a: Eiscue
+|-damage|p2a: Eiscue|0 fnt
+|faint|p2a: Eiscue
+|
+|-heal|p1a: Sylveon|84/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777163583
+|switch|p2a: Dudunsparce|Dudunsparce, L83, F|76/100
+|turn|13
+|
+|t:|1777163583
+|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce
+|-damage|p2a: Dudunsparce|36/100
+|move|p2a: Dudunsparce|Boomburst|p1a: Sylveon
+|-damage|p1a: Sylveon|53/100
+|
+|-heal|p1a: Sylveon|59/100|[from] item: Leftovers
+|-heal|p2a: Dudunsparce|42/100|[from] item: Leftovers
+|upkeep
+|turn|14
+|
+|t:|1777163583
+|move|p1a: Sylveon|Hyper Voice|p2a: Dudunsparce
+|-crit|p2a: Dudunsparce
+|-damage|p2a: Dudunsparce|0 fnt
+|faint|p2a: Dudunsparce
+|
+|-heal|p1a: Sylveon|65/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777163583
+|switch|p2a: Hydrapple|Hydrapple, L83, M|100/100
+|turn|15
+|
+|t:|1777163583
+|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple
+|-supereffective|p2a: Hydrapple
+|-crit|p2a: Hydrapple
+|-damage|p2a: Hydrapple|13/100
+|move|p2a: Hydrapple|Earth Power|p1a: Sylveon
+|-damage|p1a: Sylveon|47/100
+|
+|-heal|p1a: Sylveon|53/100|[from] item: Leftovers
+|upkeep
+|turn|16
+|
+|t:|1777163583
+|move|p1a: Sylveon|Hyper Voice|p2a: Hydrapple
+|-supereffective|p2a: Hydrapple
+|-damage|p2a: Hydrapple|0 fnt
+|faint|p2a: Hydrapple
+|
+|win|Agent-1

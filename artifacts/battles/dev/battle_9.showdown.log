@@ -1,0 +1,254 @@
+|t:|1777163584
+|gametype|singles
+|player|p1|Agent-1||
+|player|p2|Agent-2||
+|teamsize|p1|6
+|teamsize|p2|6
+|gen|9
+|tier|[Gen 9] Random Battle
+|rule|Species Clause: Limit one of each Pokémon
+|rule|HP Percentage Mod: HP is shown in percentages
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
+|
+|t:|1777163584
+|start
+|switch|p1a: Ambipom|Ambipom, L84, M|100/100
+|switch|p2a: Zangoose|Zangoose, L85, F|100/100
+|turn|1
+|
+|t:|1777163584
+|-terastallize|p2a: Zangoose|Normal
+|move|p1a: Ambipom|Double-Edge|p2a: Zangoose
+|-damage|p2a: Zangoose|13/100
+|-damage|p1a: Ambipom|72/100|[from] Recoil
+|move|p2a: Zangoose|Swords Dance|p2a: Zangoose
+|-boost|p2a: Zangoose|atk|2
+|
+|-status|p2a: Zangoose|tox|[from] item: Toxic Orb
+|upkeep
+|turn|2
+|
+|t:|1777163584
+|switch|p2a: Reuniclus|Reuniclus, L88, M|100/100
+|move|p1a: Ambipom|Double-Edge|p2a: Reuniclus
+|-damage|p2a: Reuniclus|38/100
+|-damage|p1a: Ambipom|45/100|[from] Recoil
+|
+|upkeep
+|turn|3
+|
+|t:|1777163584
+|move|p1a: Ambipom|Double-Edge|p2a: Reuniclus
+|-damage|p2a: Reuniclus|0 fnt
+|faint|p2a: Reuniclus
+|-damage|p1a: Ambipom|29/100|[from] Recoil
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Kricketune|Kricketune, L99, F|100/100
+|turn|4
+|
+|t:|1777163584
+|switch|p1a: Registeel|Registeel, L81|100/100
+|switch|p2a: Roaring Moon|Roaring Moon, L72|100/100
+|
+|upkeep
+|turn|5
+|
+|t:|1777163584
+|-terastallize|p1a: Registeel|Fighting
+|move|p2a: Roaring Moon|Outrage|p1a: Registeel
+|-damage|p1a: Registeel|71/100
+|move|p1a: Registeel|Body Press|p2a: Roaring Moon
+|-supereffective|p2a: Roaring Moon
+|-damage|p2a: Roaring Moon|0 fnt
+|faint|p2a: Roaring Moon
+|-end|p2a: Roaring Moon|Protosynthesis|[silent]
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Zangoose|Zangoose, L85, F, tera:Normal|13/100 tox
+|turn|6
+|
+|t:|1777163584
+|move|p2a: Zangoose|Knock Off|p1a: Registeel
+|-resisted|p1a: Registeel
+|-damage|p1a: Registeel|55/100
+|-enditem|p1a: Registeel|Chesto Berry|[from] move: Knock Off|[of] p2a: Zangoose
+|move|p1a: Registeel|Body Press|p2a: Zangoose
+|-supereffective|p2a: Zangoose
+|-damage|p2a: Zangoose|0 fnt
+|faint|p2a: Zangoose
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Politoed|Politoed, L88, F|100/100
+|-weather|RainDance|[from] ability: Drizzle|[of] p2a: Politoed
+|turn|7
+|
+|t:|1777163584
+|switch|p1a: Victreebel|Victreebel, L90, M|100/100
+|move|p2a: Politoed|Ice Beam|p1a: Victreebel
+|-supereffective|p1a: Victreebel
+|-damage|p1a: Victreebel|47/100
+|
+|-weather|RainDance|[upkeep]
+|upkeep
+|turn|8
+|
+|t:|1777163584
+|move|p1a: Victreebel|Power Whip|p2a: Politoed
+|-supereffective|p2a: Politoed
+|-damage|p2a: Politoed|0 fnt
+|faint|p2a: Politoed
+|-damage|p1a: Victreebel|37/100|[from] item: Life Orb
+|
+|-weather|RainDance|[upkeep]
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Copperajah|Copperajah, L86, M|100/100
+|turn|9
+|
+|t:|1777163584
+|switch|p1a: Registeel|Registeel, L81, tera:Fighting|55/100
+|move|p2a: Copperajah|Supercell Slam|p1a: Registeel
+|-damage|p1a: Registeel|20/100
+|
+|-weather|RainDance|[upkeep]
+|upkeep
+|turn|10
+|
+|t:|1777163584
+|switch|p1a: Victreebel|Victreebel, L90, M|37/100
+|move|p2a: Copperajah|Supercell Slam|p1a: Victreebel
+|-resisted|p1a: Victreebel
+|-damage|p1a: Victreebel|11/100
+|
+|-weather|RainDance|[upkeep]
+|upkeep
+|turn|11
+|
+|t:|1777163584
+|switch|p1a: Registeel|Registeel, L81, tera:Fighting|20/100
+|switch|p2a: Kricketune|Kricketune, L99, F|100/100
+|
+|-weather|none
+|upkeep
+|turn|12
+|
+|t:|1777163584
+|move|p2a: Kricketune|Taunt|p1a: Registeel
+|-start|p1a: Registeel|move: Taunt
+|move|p1a: Registeel|Body Press|p2a: Kricketune
+|-resisted|p2a: Kricketune
+|-damage|p2a: Kricketune|79/100
+|
+|upkeep
+|turn|13
+|
+|t:|1777163584
+|move|p2a: Kricketune|Pounce|p1a: Registeel
+|-resisted|p1a: Registeel
+|-damage|p1a: Registeel|6/100
+|move|p1a: Registeel|Body Press|p2a: Kricketune
+|-resisted|p2a: Kricketune
+|-damage|p2a: Kricketune|57/100
+|
+|upkeep
+|turn|14
+|
+|t:|1777163584
+|switch|p1a: Victreebel|Victreebel, L90, M|11/100
+|move|p2a: Kricketune|Taunt|p1a: Victreebel
+|-start|p1a: Victreebel|move: Taunt
+|
+|upkeep
+|turn|15
+|
+|t:|1777163584
+|switch|p2a: Copperajah|Copperajah, L86, M|100/100
+|switch|p1a: Registeel|Registeel, L81, tera:Fighting|6/100
+|
+|upkeep
+|turn|16
+|
+|t:|1777163584
+|switch|p1a: Victreebel|Victreebel, L90, M|11/100
+|move|p2a: Copperajah|Stone Edge|p1a: Victreebel
+|-crit|p1a: Victreebel
+|-damage|p1a: Victreebel|0 fnt
+|faint|p1a: Victreebel
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p1a: Registeel|Registeel, L81, tera:Fighting|6/100
+|turn|17
+|
+|t:|1777163584
+|move|p1a: Registeel|Body Press|p2a: Copperajah
+|-supereffective|p2a: Copperajah
+|-damage|p2a: Copperajah|26/100
+|move|p2a: Copperajah|Stone Edge|p1a: Registeel
+|-resisted|p1a: Registeel
+|-damage|p1a: Registeel|0 fnt
+|faint|p1a: Registeel
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p1a: Sylveon|Sylveon, L85, M|100/100
+|turn|18
+|
+|t:|1777163584
+|move|p1a: Sylveon|Hyper Voice|p2a: Copperajah
+|-resisted|p2a: Copperajah
+|-damage|p2a: Copperajah|5/100
+|move|p2a: Copperajah|Stone Edge|p1a: Sylveon
+|-damage|p1a: Sylveon|41/100
+|
+|-heal|p1a: Sylveon|47/100|[from] item: Leftovers
+|upkeep
+|turn|19
+|
+|t:|1777163584
+|move|p1a: Sylveon|Hyper Voice|p2a: Copperajah
+|-resisted|p2a: Copperajah
+|-damage|p2a: Copperajah|0 fnt
+|faint|p2a: Copperajah
+|
+|-heal|p1a: Sylveon|53/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Kricketune|Kricketune, L99, F|57/100
+|turn|20
+|
+|t:|1777163584
+|move|p2a: Kricketune|Pounce|p1a: Sylveon
+|-resisted|p1a: Sylveon
+|-damage|p1a: Sylveon|32/100
+|-unboost|p1a: Sylveon|spe|1
+|move|p1a: Sylveon|Hyper Voice|p2a: Kricketune
+|-damage|p2a: Kricketune|9/100
+|
+|-heal|p1a: Sylveon|38/100|[from] item: Leftovers
+|upkeep
+|turn|21
+|
+|t:|1777163584
+|move|p2a: Kricketune|Pounce|p1a: Sylveon
+|-resisted|p1a: Sylveon
+|-crit|p1a: Sylveon
+|-damage|p1a: Sylveon|9/100
+|-unboost|p1a: Sylveon|spe|1
+|move|p1a: Sylveon|Hyper Voice|p2a: Kricketune
+|-damage|p2a: Kricketune|0 fnt
+|faint|p2a: Kricketune
+|
+|win|Agent-1

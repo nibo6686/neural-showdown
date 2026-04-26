@@ -1,9 +1,10 @@
 import argparse
 import gzip
 import json
+import random
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -15,6 +16,7 @@ from .logging_helper import format_summary, print_line_safe, write_json_summary
 from .metadata_helper import create_run_metadata
 from .runner import close_slots, initialize_slots, make_wait_hook, recover_active_slots, unwrap_batch_results, warmup_sim_core
 from .runtime import EnvSlot, MINIMAL_STEP_OPTIONS, ProgressReporter, choose_timeout, load_runtime_options, make_battle_seed
+from .trace import BattleTracer
 
 
 def write_shard(records: List[Dict[str, Any]], shard_path: Path) -> Dict[str, Any]:
@@ -122,6 +124,19 @@ def collect_dataset_run(config: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], D
     next_battle_index = 0
     next_slot_id = 0
     active_slots: List[EnvSlot] = []
+
+    # Initialize battle tracer if enabled
+    tracing_cfg = config.get("tracing", {})
+    trace_enabled = tracing_cfg.get("enabled", False)
+    trace_sample_rate = float(tracing_cfg.get("trace_sample_rate", 0.1))
+    trace_max_battles = int(tracing_cfg.get("trace_max_battles", 20))
+    tracer: Optional[BattleTracer] = None
+    traced_battles = 0
+    if trace_enabled:
+        trace_output_dir = tracing_cfg.get("output_dir")
+        if trace_output_dir is None:
+            trace_output_dir = str(resolve_path(config, "../artifacts/battles"))
+        tracer = BattleTracer(trace_output_dir, run_name=runtime.profile)
 
     client = _create_client(command, cwd)
     try:
@@ -304,6 +319,60 @@ def collect_dataset_run(config: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], D
 
                     battle_events = client.take_latency_events(slot.env_id)
                     all_rpc_events.extend(battle_events)
+
+                    # Decide whether to trace this battle
+                    should_trace_this_battle = (
+                        tracer is not None
+                        and traced_battles < trace_max_battles
+                        and random.random() < trace_sample_rate
+                    )
+
+                    if should_trace_this_battle:
+                        tracer.start_battle(
+                            slot.battle_index,
+                            slot.env_id,
+                            format_name
+                        )
+                        # Add trace data from the episode records and views
+                        for turn_idx, record in enumerate(slot.pending_episode_records, 1):
+                            view = record["view"]
+                            request = record["request"]
+                            active_pokemon = view.get("self_team", [{}])[0] if view.get("self_team") else {}
+                            opponent_pokemon = view.get("opponent_team", [{}])[0] if view.get("opponent_team") else {}
+
+                            p1_state = {
+                                "species": active_pokemon.get("name", "Unknown"),
+                                "hp_ratio": active_pokemon.get("hp_ratio", 0),
+                                "status": active_pokemon.get("status"),
+                                "boosts": active_pokemon.get("boosts", {}),
+                                "legal_action_count": len([a for a in request.get("legal_actions", {}).get("actions", []) if a]),
+                            }
+                            p2_state = {
+                                "species": opponent_pokemon.get("name", "Unknown"),
+                                "hp_ratio": opponent_pokemon.get("hp_ratio", 0),
+                                "status": opponent_pokemon.get("status"),
+                            }
+
+                            p1_action = {
+                                "choice": record.get("choice", "?"),
+                                "label": record.get("choice", "?"),
+                                "index": record.get("action_index", -1),
+                            }
+
+                            tracer.add_turn(
+                                turn_idx,
+                                p1_state,
+                                p2_state,
+                                p1_action,
+                                protocol_lines=slot.last_result.get("log_delta", [])
+                            )
+
+                        tracer.finalize_battle(
+                            slot.last_result["winner"],
+                            diagnostics=[]
+                        )
+                        traced_battles += 1
+
                     battle_profiles.append(
                         {
                             "battle_index": slot.battle_index + 1,

@@ -15,7 +15,7 @@ DEFAULT_TIMEOUTS_SEC = {
 
 MINIMAL_STEP_OPTIONS = {
     "view_players": ["p1"],
-    "include_log_delta": False,
+    "include_log_delta": True,
     "include_possible_roles": False,
 }
 

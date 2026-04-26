@@ -1,0 +1,2267 @@
+{
+  "battle_index": 5,
+  "env_id": "env-7",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 16,
+  "start_time": "2026-04-26T00:33:04.176045Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Wigglytuff",
+          "p2_hp_ratio": 0.19,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 1",
+              "move": "U-turn"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Scald",
+              "choice": "move 3",
+              "move": "Scald"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Ice Beam",
+              "choice": "move 4",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:U-turn",
+              "choice": "move 1 terastallize",
+              "move": "U-turn"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Hydro Pump",
+              "choice": "move 2 terastallize",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Scald",
+              "choice": "move 3 terastallize",
+              "move": "Scald"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Ice Beam",
+              "choice": "move 4 terastallize",
+              "move": "Ice Beam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 5,
+          "chosen_action_label": "move_tera:Hydro Pump",
+          "chosen_action_choice": "move 2 terastallize",
+          "chosen_action_probability": 0.9408647418022156,
+          "model_top_k": [
+            {
+              "index": 5,
+              "logit": 7.505475997924805,
+              "probability": 0.9408647418022156
+            },
+            {
+              "index": 6,
+              "logit": 4.6612772941589355,
+              "probability": 0.05474033206701279
+            },
+            {
+              "index": 7,
+              "logit": 1.966856598854065,
+              "probability": 0.003699434222653508
+            },
+            {
+              "index": 2,
+              "logit": -0.14777490496635437,
+              "probability": 0.00044643954606726766
+            },
+            {
+              "index": 4,
+              "logit": -0.7314677834510803,
+              "probability": 0.00024903923622332513
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163583",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163583",
+            "|start",
+            "|switch|p1a: Inteleon|Inteleon, L81, M|100/100",
+            "|switch|p2a: Diancie|Diancie, L82|100/100",
+            "|turn|1"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Wigglytuff",
+          "p2_hp_ratio": 0.25,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9999997615814209,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 7.473729610443115,
+              "probability": 0.9999997615814209
+            },
+            {
+              "index": 9,
+              "logit": -8.10869026184082,
+              "probability": 1.7086013315292803e-07
+            },
+            {
+              "index": 10,
+              "logit": -8.423556327819824,
+              "probability": 1.2470864874103427e-07
+            },
+            {
+              "index": 12,
+              "logit": -10.524466514587402,
+              "probability": 1.5257480612262952e-08
+            },
+            {
+              "index": 8,
+              "logit": -11.147689819335938,
+              "probability": 8.181255672923271e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Wigglytuff|Wigglytuff, L96, F|100/100",
+            "|-terastallize|p1a: Inteleon|Water",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff",
+            "|-damage|p2a: Wigglytuff|13/100",
+            "|",
+            "|-heal|p2a: Wigglytuff|19/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|2"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 1,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Reuniclus",
+          "p2_hp_ratio": 0.27,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9999996423721313,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 6.5611419677734375,
+              "probability": 0.9999996423721313
+            },
+            {
+              "index": 12,
+              "logit": -9.312638282775879,
+              "probability": 1.2767463886120822e-07
+            },
+            {
+              "index": 9,
+              "logit": -9.710912704467773,
+              "probability": 8.57306829971094e-08
+            },
+            {
+              "index": 11,
+              "logit": -9.979079246520996,
+              "probability": 6.556508225230573e-08
+            },
+            {
+              "index": 10,
+              "logit": -11.344573974609375,
+              "probability": 1.6735791419364432e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|-terastallize|p2a: Wigglytuff|Steel",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff|[miss]",
+            "|-miss|p1a: Inteleon|p2a: Wigglytuff",
+            "|move|p2a: Wigglytuff|Thunder Wave|p1a: Inteleon",
+            "|-status|p1a: Inteleon|par",
+            "|",
+            "|-heal|p2a: Wigglytuff|25/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|3"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 0.2032520325203252,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Reuniclus",
+          "p2_hp_ratio": 0.27,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9999995231628418,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 7.249814987182617,
+              "probability": 0.9999995231628418
+            },
+            {
+              "index": 11,
+              "logit": -7.20943546295166,
+              "probability": 5.253239123703679e-07
+            },
+            {
+              "index": 12,
+              "logit": -11.266634941101074,
+              "probability": 9.086742025488093e-09
+            },
+            {
+              "index": 8,
+              "logit": -16.28948974609375,
+              "probability": 5.984249207280357e-11
+            },
+            {
+              "index": 10,
+              "logit": -16.57391929626465,
+              "probability": 4.5028078488051904e-11
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163583",
+            "|switch|p2a: Reuniclus|Reuniclus, L88, F|100/100",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus",
+            "|-damage|p2a: Reuniclus|27/100",
+            "|",
+            "|upkeep",
+            "|turn|4"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 0.2032520325203252,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Minun",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9998205304145813,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 5.124200820922852,
+              "probability": 0.9998205304145813
+            },
+            {
+              "index": 11,
+              "logit": -3.759342908859253,
+              "probability": 0.00013862703053746372
+            },
+            {
+              "index": 12,
+              "logit": -4.9876627922058105,
+              "probability": 4.058777631144039e-05
+            },
+            {
+              "index": 10,
+              "logit": -10.350146293640137,
+              "probability": 1.9032616194181173e-07
+            },
+            {
+              "index": 8,
+              "logit": -11.826684951782227,
+              "probability": 4.347563020701273e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|cant|p1a: Inteleon|par",
+            "|move|p2a: Reuniclus|Psyshock|p1a: Inteleon",
+            "|-damage|p1a: Inteleon|21/100 par",
+            "|",
+            "|upkeep",
+            "|turn|5",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Wigglytuff|Wigglytuff, L96, F, tera:Steel|25/100",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff",
+            "|-damage|p2a: Wigglytuff|0 fnt",
+            "|faint|p2a: Wigglytuff",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 0.2032520325203252,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Oinkologne",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.999025821685791,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 3.97926664352417,
+              "probability": 0.999025821685791
+            },
+            {
+              "index": 12,
+              "logit": -3.3406167030334473,
+              "probability": 0.0006615943857468665
+            },
+            {
+              "index": 10,
+              "logit": -4.840251445770264,
+              "probability": 0.00014767558604944497
+            },
+            {
+              "index": 11,
+              "logit": -4.882789611816406,
+              "probability": 0.00014152539370115846
+            },
+            {
+              "index": 9,
+              "logit": -6.68043327331543,
+              "probability": 2.3449178115697578e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Minun|Minun, L95, M|100/100",
+            "|turn|6",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Mesprit|Mesprit, L85|100/100",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Mesprit",
+            "|-damage|p2a: Mesprit|0 fnt",
+            "|faint|p2a: Mesprit",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 0.2032520325203252,
+          "p1_status": "par",
+          "p1_boosts": {},
+          "p2_species": "Minun",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9088994264602661,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 0.9176121354103088,
+              "probability": 0.9088994264602661
+            },
+            {
+              "index": 11,
+              "logit": -1.4444154500961304,
+              "probability": 0.08564464747905731
+            },
+            {
+              "index": 8,
+              "logit": -4.637911319732666,
+              "probability": 0.0035138451494276524
+            },
+            {
+              "index": 9,
+              "logit": -5.836886882781982,
+              "probability": 0.0010594347259029746
+            },
+            {
+              "index": 10,
+              "logit": -6.019436836242676,
+              "probability": 0.0008826606790535152
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100",
+            "|turn|7",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Reuniclus|Reuniclus, L88, F|27/100",
+            "|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus",
+            "|-damage|p2a: Reuniclus|0 fnt",
+            "|faint|p2a: Reuniclus",
+            "|",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 8,
+          "step_index": 7,
+          "p1_species": "Inteleon",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Minun",
+          "p2_hp_ratio": 0.91,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Hydro Pump",
+              "choice": "move 2",
+              "move": "Hydro Pump"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Hydro Pump",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9741355180740356,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 1.533570408821106,
+              "probability": 0.9741355180740356
+            },
+            {
+              "index": 10,
+              "logit": -2.942117214202881,
+              "probability": 0.01108799409121275
+            },
+            {
+              "index": 11,
+              "logit": -3.064035415649414,
+              "probability": 0.009815322235226631
+            },
+            {
+              "index": 12,
+              "logit": -3.9925537109375,
+              "probability": 0.0038784141652286053
+            },
+            {
+              "index": 9,
+              "logit": -5.268354415893555,
+              "probability": 0.001082881703041494
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Minun|Minun, L95, M|100/100",
+            "|turn|8"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 8,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Minun",
+          "p2_hp_ratio": 0.91,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Passimian, L83, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Passimian, L83, M",
+          "chosen_action_choice": "switch 5",
+          "chosen_action_probability": 0.4839016795158386,
+          "model_top_k": [
+            {
+              "index": 11,
+              "logit": 0.6256839632987976,
+              "probability": 0.4839016795158386
+            },
+            {
+              "index": 10,
+              "logit": 0.43028390407562256,
+              "probability": 0.39801183342933655
+            },
+            {
+              "index": 12,
+              "logit": -1.1056262254714966,
+              "probability": 0.08567590266466141
+            },
+            {
+              "index": 9,
+              "logit": -2.0779802799224854,
+              "probability": 0.0324019119143486
+            },
+            {
+              "index": 8,
+              "logit": -10.304632186889648,
+              "probability": 8.665252607897855e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Minun|Thunderbolt|p1a: Inteleon",
+            "|-supereffective|p1a: Inteleon",
+            "|-crit|p1a: Inteleon",
+            "|-damage|p1a: Inteleon|0 fnt",
+            "|faint|p1a: Inteleon",
+            "|-damage|p2a: Minun|91/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 9,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.6225165562913907,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Minun",
+          "p2_hp_ratio": 0.37,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9021613001823425,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 4.843272686004639,
+              "probability": 0.9021613001823425
+            },
+            {
+              "index": 1,
+              "logit": 2.477524518966675,
+              "probability": 0.0846940353512764
+            },
+            {
+              "index": 0,
+              "logit": 0.6130859851837158,
+              "probability": 0.01312615629285574
+            },
+            {
+              "index": 9,
+              "logit": -6.142982006072998,
+              "probability": 1.5276167687261477e-05
+            },
+            {
+              "index": 11,
+              "logit": -7.705883979797363,
+              "probability": 3.200773335265694e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Passimian|Passimian, L83, M|100/100",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 10,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.8443708609271523,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Diancie",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9631192684173584,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 5.717090129852295,
+              "probability": 0.9631192684173584
+            },
+            {
+              "index": 0,
+              "logit": 1.8409693241119385,
+              "probability": 0.01996651105582714
+            },
+            {
+              "index": 1,
+              "logit": 1.6748238801956177,
+              "probability": 0.016910096630454063
+            },
+            {
+              "index": 9,
+              "logit": -7.088282585144043,
+              "probability": 2.644706910359673e-06
+            },
+            {
+              "index": 11,
+              "logit": -7.640381813049316,
+              "probability": 1.522663524156087e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Minun|Thunderbolt|p1a: Passimian",
+            "|-damage|p1a: Passimian|37/100",
+            "|-damage|p2a: Minun|81/100|[from] item: Life Orb",
+            "|move|p1a: Passimian|Drain Punch|p2a: Minun",
+            "|-damage|p2a: Minun|37/100",
+            "|-heal|p1a: Passimian|57/100|[from] drain|[of] p2a: Minun",
+            "|",
+            "|-heal|p1a: Passimian|63/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|10",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Minun|Encore|p1a: Passimian",
+            "|-start|p1a: Passimian|Encore",
+            "|move|p1a: Passimian|Drain Punch|p2a: Minun",
+            "|-damage|p2a: Minun|0 fnt",
+            "|-heal|p1a: Passimian|79/100|[from] drain|[of] p2a: Minun",
+            "|faint|p2a: Minun",
+            "|",
+            "|-heal|p1a: Passimian|85/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 11,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.7880794701986755,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Diancie",
+          "p2_hp_ratio": 0.75,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9999997615814209,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 9.21048355102539,
+              "probability": 0.9999997615814209
+            },
+            {
+              "index": 11,
+              "logit": -6.033659934997559,
+              "probability": 2.396362503986893e-07
+            },
+            {
+              "index": 9,
+              "logit": -8.659107208251953,
+              "probability": 1.7351428738265895e-08
+            },
+            {
+              "index": 8,
+              "logit": -9.620134353637695,
+              "probability": 6.636917682101284e-09
+            },
+            {
+              "index": 10,
+              "logit": -11.553444862365723,
+              "probability": 9.601538453196667e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Diancie|Diancie, L82|100/100",
+            "|turn|11"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 12,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.9437086092715232,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Diancie",
+          "p2_hp_ratio": 0.55,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9999998807907104,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 9.281908988952637,
+              "probability": 0.9999998807907104
+            },
+            {
+              "index": 11,
+              "logit": -6.300394058227539,
+              "probability": 1.7088018466893118e-07
+            },
+            {
+              "index": 9,
+              "logit": -8.774946212768555,
+              "probability": 1.4388244373719772e-08
+            },
+            {
+              "index": 8,
+              "logit": -9.410585403442383,
+              "probability": 7.619968656058518e-09
+            },
+            {
+              "index": 10,
+              "logit": -11.996380805969238,
+              "probability": 5.740584674285287e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+            "|-damage|p2a: Diancie|69/100",
+            "|-heal|p1a: Passimian|96/100|[from] drain|[of] p2a: Diancie",
+            "|move|p2a: Diancie|Body Press|p1a: Passimian",
+            "|-damage|p1a: Passimian|73/100",
+            "|",
+            "|-heal|p1a: Passimian|79/100|[from] item: Leftovers",
+            "|-heal|p2a: Diancie|75/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|12"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 13,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.9470198675496688,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Diancie",
+          "p2_hp_ratio": 0.31,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9975005984306335,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 10.492813110351562,
+              "probability": 0.9975005984306335
+            },
+            {
+              "index": 0,
+              "logit": 4.50359582901001,
+              "probability": 0.002499361988157034
+            },
+            {
+              "index": 1,
+              "logit": -6.7847771644592285,
+              "probability": 3.128609193936427e-08
+            },
+            {
+              "index": 11,
+              "logit": -9.639892578125,
+              "probability": 1.8004877588850832e-09
+            },
+            {
+              "index": 3,
+              "logit": -10.821763038635254,
+              "probability": 5.522182711104051e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+            "|-damage|p2a: Diancie|49/100",
+            "|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie",
+            "|move|p2a: Diancie|Rock Polish|p2a: Diancie",
+            "|-boost|p2a: Diancie|spe|2",
+            "|",
+            "|-heal|p2a: Diancie|55/100|[from] item: Leftovers",
+            "|-heal|p1a: Passimian|95/100|[from] item: Leftovers",
+            "|-end|p1a: Passimian|Encore",
+            "|upkeep",
+            "|turn|13"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 14,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.24172185430463577,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Oinkologne",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9968081116676331,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 10.625906944274902,
+              "probability": 0.9968081116676331
+            },
+            {
+              "index": 0,
+              "logit": 4.881970405578613,
+              "probability": 0.0031919174361974
+            },
+            {
+              "index": 1,
+              "logit": -6.525179862976074,
+              "probability": 3.548045413026557e-08
+            },
+            {
+              "index": 11,
+              "logit": -10.24828052520752,
+              "probability": 8.571703347115545e-10
+            },
+            {
+              "index": 3,
+              "logit": -10.944318771362305,
+              "probability": 4.2734829563961796e-10
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Diancie|Diamond Storm|p1a: Passimian",
+            "|-resisted|p1a: Passimian",
+            "|-damage|p1a: Passimian|79/100",
+            "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+            "|-damage|p2a: Diancie|25/100",
+            "|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie",
+            "|",
+            "|-heal|p2a: Diancie|31/100|[from] item: Leftovers",
+            "|-heal|p1a: Passimian|95/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Diancie|Moonblast|p1a: Passimian",
+            "|-supereffective|p1a: Passimian",
+            "|-damage|p1a: Passimian|8/100",
+            "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+            "|-damage|p2a: Diancie|0 fnt",
+            "|-heal|p1a: Passimian|19/100|[from] drain|[of] p2a: Diancie",
+            "|faint|p2a: Diancie",
+            "|",
+            "|-heal|p1a: Passimian|25/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 15,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.32450331125827814,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Oinkologne",
+          "p2_hp_ratio": 0.53,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9989796280860901,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 7.702835559844971,
+              "probability": 0.9989796280860901
+            },
+            {
+              "index": 0,
+              "logit": 0.7097665071487427,
+              "probability": 0.0009172871359623969
+            },
+            {
+              "index": 1,
+              "logit": -2.11686635017395,
+              "probability": 5.431429963209666e-05
+            },
+            {
+              "index": 11,
+              "logit": -2.2341699600219727,
+              "probability": 4.830251418752596e-05
+            },
+            {
+              "index": 9,
+              "logit": -7.012341499328613,
+              "probability": 4.0629007003190054e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100",
+            "|turn|15"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 16,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.6854304635761589,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Oinkologne",
+          "p2_hp_ratio": 0.08,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9966747760772705,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 8.307747840881348,
+              "probability": 0.9966747760772705
+            },
+            {
+              "index": 0,
+              "logit": 2.5937211513519287,
+              "probability": 0.00328839011490345
+            },
+            {
+              "index": 1,
+              "logit": -1.959889531135559,
+              "probability": 3.4623841202119365e-05
+            },
+            {
+              "index": 11,
+              "logit": -4.742254257202148,
+              "probability": 2.142937773896847e-06
+            },
+            {
+              "index": 9,
+              "logit": -7.794247627258301,
+              "probability": 1.0128512428764225e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+            "|-supereffective|p2a: Oinkologne",
+            "|-damage|p2a: Oinkologne|47/100",
+            "|-heal|p1a: Passimian|56/100|[from] drain|[of] p2a: Oinkologne",
+            "|move|p2a: Oinkologne|High Horsepower|p1a: Passimian",
+            "|-damage|p1a: Passimian|27/100",
+            "|",
+            "|-heal|p1a: Passimian|33/100|[from] item: Leftovers",
+            "|-heal|p2a: Oinkologne|53/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|16"
+          ]
+        },
+        {
+          "turn": 17,
+          "step_index": 17,
+          "p1_species": "Passimian",
+          "p1_hp_ratio": 0.6854304635761589,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Diancie",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 1",
+              "move": "Knock Off"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Drain Punch",
+              "choice": "move 3",
+              "move": "Drain Punch"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Bulk Up",
+              "choice": "move 4",
+              "move": "Bulk Up"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Reuniclus, L88, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Iron Boulder, L77",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Volcanion, L79",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gouging Fire, L74",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Drain Punch",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9962525367736816,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 9.149300575256348,
+              "probability": 0.9962525367736816
+            },
+            {
+              "index": 0,
+              "logit": 3.5589630603790283,
+              "probability": 0.003719774540513754
+            },
+            {
+              "index": 1,
+              "logit": -1.3406238555908203,
+              "probability": 2.7711063012247905e-05
+            },
+            {
+              "index": 9,
+              "logit": -8.307991981506348,
+              "probability": 2.6107398909402946e-08
+            },
+            {
+              "index": 11,
+              "logit": -8.809453964233398,
+              "probability": 1.5811789211284122e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+            "|-supereffective|p2a: Oinkologne",
+            "|-damage|p2a: Oinkologne|2/100",
+            "|-heal|p1a: Passimian|63/100|[from] drain|[of] p2a: Oinkologne",
+            "|move|p2a: Oinkologne|Curse|p2a: Oinkologne",
+            "|-unboost|p2a: Oinkologne|spe|1",
+            "|-boost|p2a: Oinkologne|atk|1",
+            "|-boost|p2a: Oinkologne|def|1",
+            "|",
+            "|-heal|p1a: Passimian|69/100|[from] item: Leftovers",
+            "|-heal|p2a: Oinkologne|8/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|17",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+            "|-supereffective|p2a: Oinkologne",
+            "|-damage|p2a: Oinkologne|0 fnt",
+            "|-heal|p1a: Passimian|73/100|[from] drain|[of] p2a: Oinkologne",
+            "|faint|p2a: Oinkologne",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163583",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163583",
+    "|start",
+    "|switch|p1a: Inteleon|Inteleon, L81, M|100/100",
+    "|switch|p2a: Diancie|Diancie, L82|100/100",
+    "|turn|1",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Wigglytuff|Wigglytuff, L96, F|100/100",
+    "|-terastallize|p1a: Inteleon|Water",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff",
+    "|-damage|p2a: Wigglytuff|13/100",
+    "|",
+    "|-heal|p2a: Wigglytuff|19/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|2",
+    "|",
+    "|t:|1777163583",
+    "|-terastallize|p2a: Wigglytuff|Steel",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff|[miss]",
+    "|-miss|p1a: Inteleon|p2a: Wigglytuff",
+    "|move|p2a: Wigglytuff|Thunder Wave|p1a: Inteleon",
+    "|-status|p1a: Inteleon|par",
+    "|",
+    "|-heal|p2a: Wigglytuff|25/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|3",
+    "|",
+    "|t:|1777163583",
+    "|switch|p2a: Reuniclus|Reuniclus, L88, F|100/100",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus",
+    "|-damage|p2a: Reuniclus|27/100",
+    "|",
+    "|upkeep",
+    "|turn|4",
+    "|",
+    "|t:|1777163584",
+    "|cant|p1a: Inteleon|par",
+    "|move|p2a: Reuniclus|Psyshock|p1a: Inteleon",
+    "|-damage|p1a: Inteleon|21/100 par",
+    "|",
+    "|upkeep",
+    "|turn|5",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Wigglytuff|Wigglytuff, L96, F, tera:Steel|25/100",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff",
+    "|-damage|p2a: Wigglytuff|0 fnt",
+    "|faint|p2a: Wigglytuff",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Minun|Minun, L95, M|100/100",
+    "|turn|6",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Mesprit|Mesprit, L85|100/100",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Mesprit",
+    "|-damage|p2a: Mesprit|0 fnt",
+    "|faint|p2a: Mesprit",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100",
+    "|turn|7",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Reuniclus|Reuniclus, L88, F|27/100",
+    "|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus",
+    "|-damage|p2a: Reuniclus|0 fnt",
+    "|faint|p2a: Reuniclus",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Minun|Minun, L95, M|100/100",
+    "|turn|8",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Minun|Thunderbolt|p1a: Inteleon",
+    "|-supereffective|p1a: Inteleon",
+    "|-crit|p1a: Inteleon",
+    "|-damage|p1a: Inteleon|0 fnt",
+    "|faint|p1a: Inteleon",
+    "|-damage|p2a: Minun|91/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Passimian|Passimian, L83, M|100/100",
+    "|turn|9",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Minun|Thunderbolt|p1a: Passimian",
+    "|-damage|p1a: Passimian|37/100",
+    "|-damage|p2a: Minun|81/100|[from] item: Life Orb",
+    "|move|p1a: Passimian|Drain Punch|p2a: Minun",
+    "|-damage|p2a: Minun|37/100",
+    "|-heal|p1a: Passimian|57/100|[from] drain|[of] p2a: Minun",
+    "|",
+    "|-heal|p1a: Passimian|63/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|10",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Minun|Encore|p1a: Passimian",
+    "|-start|p1a: Passimian|Encore",
+    "|move|p1a: Passimian|Drain Punch|p2a: Minun",
+    "|-damage|p2a: Minun|0 fnt",
+    "|-heal|p1a: Passimian|79/100|[from] drain|[of] p2a: Minun",
+    "|faint|p2a: Minun",
+    "|",
+    "|-heal|p1a: Passimian|85/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Diancie|Diancie, L82|100/100",
+    "|turn|11",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+    "|-damage|p2a: Diancie|69/100",
+    "|-heal|p1a: Passimian|96/100|[from] drain|[of] p2a: Diancie",
+    "|move|p2a: Diancie|Body Press|p1a: Passimian",
+    "|-damage|p1a: Passimian|73/100",
+    "|",
+    "|-heal|p1a: Passimian|79/100|[from] item: Leftovers",
+    "|-heal|p2a: Diancie|75/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|12",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+    "|-damage|p2a: Diancie|49/100",
+    "|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie",
+    "|move|p2a: Diancie|Rock Polish|p2a: Diancie",
+    "|-boost|p2a: Diancie|spe|2",
+    "|",
+    "|-heal|p2a: Diancie|55/100|[from] item: Leftovers",
+    "|-heal|p1a: Passimian|95/100|[from] item: Leftovers",
+    "|-end|p1a: Passimian|Encore",
+    "|upkeep",
+    "|turn|13",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Diancie|Diamond Storm|p1a: Passimian",
+    "|-resisted|p1a: Passimian",
+    "|-damage|p1a: Passimian|79/100",
+    "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+    "|-damage|p2a: Diancie|25/100",
+    "|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie",
+    "|",
+    "|-heal|p2a: Diancie|31/100|[from] item: Leftovers",
+    "|-heal|p1a: Passimian|95/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|14",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Diancie|Moonblast|p1a: Passimian",
+    "|-supereffective|p1a: Passimian",
+    "|-damage|p1a: Passimian|8/100",
+    "|move|p1a: Passimian|Drain Punch|p2a: Diancie",
+    "|-damage|p2a: Diancie|0 fnt",
+    "|-heal|p1a: Passimian|19/100|[from] drain|[of] p2a: Diancie",
+    "|faint|p2a: Diancie",
+    "|",
+    "|-heal|p1a: Passimian|25/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100",
+    "|turn|15",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+    "|-supereffective|p2a: Oinkologne",
+    "|-damage|p2a: Oinkologne|47/100",
+    "|-heal|p1a: Passimian|56/100|[from] drain|[of] p2a: Oinkologne",
+    "|move|p2a: Oinkologne|High Horsepower|p1a: Passimian",
+    "|-damage|p1a: Passimian|27/100",
+    "|",
+    "|-heal|p1a: Passimian|33/100|[from] item: Leftovers",
+    "|-heal|p2a: Oinkologne|53/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|16",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+    "|-supereffective|p2a: Oinkologne",
+    "|-damage|p2a: Oinkologne|2/100",
+    "|-heal|p1a: Passimian|63/100|[from] drain|[of] p2a: Oinkologne",
+    "|move|p2a: Oinkologne|Curse|p2a: Oinkologne",
+    "|-unboost|p2a: Oinkologne|spe|1",
+    "|-boost|p2a: Oinkologne|atk|1",
+    "|-boost|p2a: Oinkologne|def|1",
+    "|",
+    "|-heal|p1a: Passimian|69/100|[from] item: Leftovers",
+    "|-heal|p2a: Oinkologne|8/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|17",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Passimian|Drain Punch|p2a: Oinkologne",
+    "|-supereffective|p2a: Oinkologne",
+    "|-damage|p2a: Oinkologne|0 fnt",
+    "|-heal|p1a: Passimian|73/100|[from] drain|[of] p2a: Oinkologne",
+    "|faint|p2a: Oinkologne",
+    "|",
+    "|win|Agent-1"
+  ]
+}

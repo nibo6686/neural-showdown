@@ -1,0 +1,2626 @@
+{
+  "battle_index": 8,
+  "env_id": "env-10",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 14,
+  "start_time": "2026-04-26T00:33:04.585755Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mismagius",
+          "p2_hp_ratio": 0.2,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Knock Off",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9975888729095459,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 7.273538112640381,
+              "probability": 0.9975888729095459
+            },
+            {
+              "index": 3,
+              "logit": 1.2182620763778687,
+              "probability": 0.0023397996556013823
+            },
+            {
+              "index": 5,
+              "logit": -2.8963725566864014,
+              "probability": 3.821339487330988e-05
+            },
+            {
+              "index": 10,
+              "logit": -3.5785763263702393,
+              "probability": 1.9316928955959156e-05
+            },
+            {
+              "index": 11,
+              "logit": -3.9055700302124023,
+              "probability": 1.3929220585850999e-05
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163584",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163584",
+            "|start",
+            "|switch|p1a: Regigigas|Regigigas, L84|100/100",
+            "|switch|p2a: Mismagius|Mismagius, L86, F|100/100",
+            "|-start|p1a: Regigigas|ability: Slow Start",
+            "|turn|1"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.8664596273291926,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Blissey",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Knock Off",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9990978240966797,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 9.53076171875,
+              "probability": 0.9990978240966797
+            },
+            {
+              "index": 3,
+              "logit": 2.519287109375,
+              "probability": 0.0009006649488583207
+            },
+            {
+              "index": 5,
+              "logit": -4.09522819519043,
+              "probability": 1.2075796576027642e-06
+            },
+            {
+              "index": 9,
+              "logit": -5.668765068054199,
+              "probability": 2.50344129426594e-07
+            },
+            {
+              "index": 11,
+              "logit": -6.407011985778809,
+              "probability": 1.196522418922541e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Mismagius|Shadow Ball|p1a: Regigigas",
+            "|-immune|p1a: Regigigas",
+            "|move|p1a: Regigigas|Knock Off|p2a: Mismagius",
+            "|-supereffective|p2a: Mismagius",
+            "|-crit|p2a: Mismagius",
+            "|-damage|p2a: Mismagius|20/100",
+            "|-enditem|p2a: Mismagius|Life Orb|[from] move: Knock Off|[of] p1a: Regigigas",
+            "|",
+            "|upkeep",
+            "|turn|2",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Mismagius|Thunderbolt|p1a: Regigigas",
+            "|-damage|p1a: Regigigas|81/100",
+            "|move|p1a: Regigigas|Knock Off|p2a: Mismagius",
+            "|-supereffective|p2a: Mismagius",
+            "|-damage|p2a: Mismagius|0 fnt",
+            "|faint|p2a: Mismagius",
+            "|",
+            "|-heal|p1a: Regigigas|87/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.9285714285714286,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Blissey",
+          "p2_hp_ratio": 0.69,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9984924793243408,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.585814476013184,
+              "probability": 0.9984924793243408
+            },
+            {
+              "index": 1,
+              "logit": -0.17516076564788818,
+              "probability": 0.0011563531588762999
+            },
+            {
+              "index": 10,
+              "logit": -2.0444626808166504,
+              "probability": 0.00017834577010944486
+            },
+            {
+              "index": 12,
+              "logit": -2.1717875003814697,
+              "probability": 0.0001570242311572656
+            },
+            {
+              "index": 2,
+              "logit": -4.464476108551025,
+              "probability": 1.585858262842521e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Blissey|Blissey, L85, F|100/100",
+            "|turn|3"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.9906832298136646,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.77,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9978950023651123,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 7.195631980895996,
+              "probability": 0.9978950023651123
+            },
+            {
+              "index": 1,
+              "logit": 1.0169531106948853,
+              "probability": 0.00206880085170269
+            },
+            {
+              "index": 12,
+              "logit": -3.839141368865967,
+              "probability": 1.6096961189759895e-05
+            },
+            {
+              "index": 10,
+              "logit": -4.129786491394043,
+              "probability": 1.2036995030939579e-05
+            },
+            {
+              "index": 2,
+              "logit": -4.53160285949707,
+              "probability": 8.0539966802462e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Blissey|Heal Bell||[still]",
+            "|-activate|p2a: Blissey|move: Heal Bell",
+            "|-fail|p2a: Blissey",
+            "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+            "|-damage|p2a: Blissey|63/100",
+            "|",
+            "|-heal|p2a: Blissey|69/100|[from] item: Leftovers",
+            "|-heal|p1a: Regigigas|93/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|4"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Blissey",
+          "p2_hp_ratio": 0.43,
+          "p2_status": "par",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9803189635276794,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 7.630059242248535,
+              "probability": 0.9803189635276794
+            },
+            {
+              "index": 10,
+              "logit": 3.5643107891082764,
+              "probability": 0.01681261882185936
+            },
+            {
+              "index": 1,
+              "logit": 1.7889494895935059,
+              "probability": 0.002848430536687374
+            },
+            {
+              "index": 12,
+              "logit": -3.2155628204345703,
+              "probability": 1.9106169929727912e-05
+            },
+            {
+              "index": 2,
+              "logit": -6.208288669586182,
+              "probability": 9.581843869455042e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|100/100",
+            "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|77/100",
+            "|",
+            "|-heal|p1a: Regigigas|99/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|5"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Haxorus",
+          "p2_hp_ratio": 0.36,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9819260239601135,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 7.699526786804199,
+              "probability": 0.9819260239601135
+            },
+            {
+              "index": 1,
+              "logit": 3.7041823863983154,
+              "probability": 0.018068525940179825
+            },
+            {
+              "index": 0,
+              "logit": -5.356272220611572,
+              "probability": 2.0990225948480656e-06
+            },
+            {
+              "index": 2,
+              "logit": -5.396571159362793,
+              "probability": 2.016116923186928e-06
+            },
+            {
+              "index": 10,
+              "logit": -5.890618324279785,
+              "probability": 1.2301378546908381e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Blissey|Blissey, L85, F|69/100",
+            "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+            "|-damage|p2a: Blissey|37/100",
+            "|-status|p2a: Blissey|par",
+            "|",
+            "|-heal|p1a: Regigigas|100/100|[from] item: Leftovers",
+            "|-heal|p2a: Blissey|43/100 par|[from] item: Leftovers",
+            "|-end|p1a: Regigigas|Slow Start",
+            "|upkeep",
+            "|turn|6"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.8260869565217391,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Haxorus",
+          "p2_hp_ratio": 0.06,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9787978529930115,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 5.840849876403809,
+              "probability": 0.9787978529930115
+            },
+            {
+              "index": 1,
+              "logit": 1.5788315534591675,
+              "probability": 0.013795008882880211
+            },
+            {
+              "index": 10,
+              "logit": 0.9304280877113342,
+              "probability": 0.007213131990283728
+            },
+            {
+              "index": 0,
+              "logit": -2.768953561782837,
+              "probability": 0.00017844441754277796
+            },
+            {
+              "index": 12,
+              "logit": -5.210817337036133,
+              "probability": 1.5524403352173977e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure",
+            "|switch|p2a: Haxorus|Haxorus, L77, M|100/100",
+            "|-ability|p2a: Haxorus|Mold Breaker",
+            "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+            "|-damage|p2a: Haxorus|36/100",
+            "|",
+            "|upkeep",
+            "|turn|7"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.8881987577639752,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.77,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9847285151481628,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.975112438201904,
+              "probability": 0.9847285151481628
+            },
+            {
+              "index": 1,
+              "logit": 2.8002774715423584,
+              "probability": 0.015142885036766529
+            },
+            {
+              "index": 10,
+              "logit": -2.5509743690490723,
+              "probability": 7.18107694410719e-05
+            },
+            {
+              "index": 0,
+              "logit": -2.9182355403900146,
+              "probability": 4.973821705789305e-05
+            },
+            {
+              "index": 11,
+              "logit": -4.889388084411621,
+              "probability": 6.92834737492376e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-terastallize|p2a: Haxorus|Steel",
+            "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+            "|-resisted|p2a: Haxorus",
+            "|-damage|p2a: Haxorus|6/100",
+            "|move|p2a: Haxorus|Earthquake|p1a: Regigigas",
+            "|-damage|p1a: Regigigas|77/100",
+            "|",
+            "|-heal|p1a: Regigigas|83/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|8",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+            "|-resisted|p2a: Haxorus",
+            "|-damage|p2a: Haxorus|0 fnt",
+            "|faint|p2a: Haxorus",
+            "|",
+            "|-heal|p1a: Regigigas|89/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 8,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.531055900621118,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Azumarill",
+          "p2_hp_ratio": 0.09,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9773548245429993,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 7.147957801818848,
+              "probability": 0.9773548245429993
+            },
+            {
+              "index": 1,
+              "logit": 3.3050100803375244,
+              "probability": 0.020945046097040176
+            },
+            {
+              "index": 10,
+              "logit": 0.7405717968940735,
+              "probability": 0.001611981075257063
+            },
+            {
+              "index": 12,
+              "logit": -2.3697926998138428,
+              "probability": 7.18696610420011e-05
+            },
+            {
+              "index": 11,
+              "logit": -3.8630175590515137,
+              "probability": 1.6145320842042565e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|77/100",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 9,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.593167701863354,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hawlucha",
+          "p2_hp_ratio": 0.38,
+          "p2_status": "par",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9907559752464294,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 7.758408546447754,
+              "probability": 0.9907559752464294
+            },
+            {
+              "index": 1,
+              "logit": 3.020428419113159,
+              "probability": 0.008675373159348965
+            },
+            {
+              "index": 10,
+              "logit": 0.11523421108722687,
+              "probability": 0.00047487395931966603
+            },
+            {
+              "index": 12,
+              "logit": -1.60640287399292,
+              "probability": 8.489477477269247e-05
+            },
+            {
+              "index": 11,
+              "logit": -3.8662333488464355,
+              "probability": 8.860312846081797e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+            "|-crit|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|9/100",
+            "|move|p2a: Azumarill|Play Rough|p1a: Regigigas",
+            "|-damage|p1a: Regigigas|47/100",
+            "|",
+            "|-heal|p1a: Regigigas|54/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|10"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 10,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.65527950310559,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hawlucha",
+          "p2_hp_ratio": 0.38,
+          "p2_status": "par",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9942803382873535,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.936338901519775,
+              "probability": 0.9942803382873535
+            },
+            {
+              "index": 1,
+              "logit": 1.7395802736282349,
+              "probability": 0.005502818617969751
+            },
+            {
+              "index": 10,
+              "logit": -1.7365655899047852,
+              "probability": 0.00017018218932207674
+            },
+            {
+              "index": 0,
+              "logit": -3.2642934322357178,
+              "probability": 3.6934365198249e-05
+            },
+            {
+              "index": 12,
+              "logit": -4.611136436462402,
+              "probability": 9.605142622604035e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Hawlucha|Hawlucha, L80, M|100/100",
+            "|move|p1a: Regigigas|Body Slam|p2a: Hawlucha",
+            "|-damage|p2a: Hawlucha|38/100",
+            "|-status|p2a: Hawlucha|par",
+            "|",
+            "|-heal|p1a: Regigigas|60/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|11",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Blissey|Blissey, L85, F|43/100",
+            "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+            "|-damage|p2a: Blissey|0 fnt",
+            "|faint|p2a: Blissey",
+            "|",
+            "|-heal|p1a: Regigigas|66/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 11,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.717391304347826,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Hawlucha",
+          "p2_hp_ratio": 0.38,
+          "p2_status": "par",
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9982699155807495,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 8.447674751281738,
+              "probability": 0.9982699155807495
+            },
+            {
+              "index": 1,
+              "logit": 2.060563564300537,
+              "probability": 0.001680199522525072
+            },
+            {
+              "index": 10,
+              "logit": -1.5109000205993652,
+              "probability": 4.7238285333151e-05
+            },
+            {
+              "index": 0,
+              "logit": -4.948479175567627,
+              "probability": 1.5183505865934421e-06
+            },
+            {
+              "index": 12,
+              "logit": -5.254972457885742,
+              "probability": 1.1175420695508365e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par",
+            "|turn|12",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Azumarill|Azumarill, L82, M|9/100",
+            "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+            "|-crit|p2a: Azumarill",
+            "|-damage|p2a: Azumarill|0 fnt",
+            "|faint|p2a: Azumarill",
+            "|",
+            "|-heal|p1a: Regigigas|72/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 12,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0.7795031055900621,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Weavile",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Body Slam",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9992550015449524,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 9.200932502746582,
+              "probability": 0.9992550015449524
+            },
+            {
+              "index": 1,
+              "logit": 1.9922655820846558,
+              "probability": 0.00073959183646366
+            },
+            {
+              "index": 10,
+              "logit": -3.1588008403778076,
+              "probability": 4.2846195356105454e-06
+            },
+            {
+              "index": 0,
+              "logit": -4.733808994293213,
+              "probability": 8.86941109001782e-07
+            },
+            {
+              "index": 2,
+              "logit": -6.314513206481934,
+              "probability": 1.8255927614063694e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par",
+            "|turn|13",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Regigigas|Body Slam|p2a: Hawlucha",
+            "|-damage|p2a: Hawlucha|0 fnt",
+            "|faint|p2a: Hawlucha",
+            "|",
+            "|-heal|p1a: Regigigas|78/100|[from] item: Leftovers",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 14,
+          "step_index": 13,
+          "p1_species": "Regigigas",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Weavile",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Substitute",
+              "choice": "move 1",
+              "move": "Substitute"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 2",
+              "move": "Knock Off"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Protect",
+              "choice": "move 3",
+              "move": "Protect"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Body Slam",
+              "choice": "move 4",
+              "move": "Body Slam"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Substitute",
+              "choice": "move 1 terastallize",
+              "move": "Substitute"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 2 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Protect",
+              "choice": "move 3 terastallize",
+              "move": "Protect"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Body Slam",
+              "choice": "move 4 terastallize",
+              "move": "Body Slam"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Knock Off",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8962216973304749,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 5.576645851135254,
+              "probability": 0.8962216973304749
+            },
+            {
+              "index": 10,
+              "logit": 3.34037446975708,
+              "probability": 0.0957668349146843
+            },
+            {
+              "index": 3,
+              "logit": 0.6485404968261719,
+              "probability": 0.006488831713795662
+            },
+            {
+              "index": 2,
+              "logit": -0.8686354160308838,
+              "probability": 0.0014231984969228506
+            },
+            {
+              "index": 9,
+              "logit": -3.529975175857544,
+              "probability": 9.94169240584597e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Weavile|Weavile, L79, M|100/100",
+            "|turn|14"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 14,
+          "p1_species": "Tinkaton",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Weavile",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Tinkaton, L82, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Tinkaton, L82, F",
+          "chosen_action_choice": "switch 4",
+          "chosen_action_probability": 0.9997076392173767,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": 6.020267486572266,
+              "probability": 0.9997076392173767
+            },
+            {
+              "index": 9,
+              "logit": -2.2826309204101562,
+              "probability": 0.0002477251400705427
+            },
+            {
+              "index": 12,
+              "logit": -4.023186683654785,
+              "probability": 4.345665001892485e-05
+            },
+            {
+              "index": 11,
+              "logit": -7.712193965911865,
+              "probability": 1.0862770523090148e-06
+            },
+            {
+              "index": 8,
+              "logit": -12.474874496459961,
+              "probability": 9.279720991628437e-09
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Weavile|Low Kick|p1a: Regigigas",
+            "|-supereffective|p1a: Regigigas",
+            "|-crit|p1a: Regigigas",
+            "|-damage|p1a: Regigigas|0 fnt",
+            "|faint|p1a: Regigigas",
+            "|-end|p1a: Regigigas|Slow Start|[silent]",
+            "|",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 15,
+          "step_index": 15,
+          "p1_species": "Tinkaton",
+          "p1_hp_ratio": 0.5656934306569343,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mismagius",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Thunder Wave",
+              "choice": "move 1",
+              "move": "Thunder Wave"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gigaton Hammer",
+              "choice": "move 2",
+              "move": "Gigaton Hammer"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Knock Off",
+              "choice": "move 3",
+              "move": "Knock Off"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Play Rough",
+              "choice": "move 4",
+              "move": "Play Rough"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Thunder Wave",
+              "choice": "move 1 terastallize",
+              "move": "Thunder Wave"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Gigaton Hammer",
+              "choice": "move 2 terastallize",
+              "move": "Gigaton Hammer"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Knock Off",
+              "choice": "move 3 terastallize",
+              "move": "Knock Off"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Play Rough",
+              "choice": "move 4 terastallize",
+              "move": "Play Rough"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Lurantis, L87, F",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gurdurr, L85, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Lunala, L70",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Veluza, L85, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Gigaton Hammer",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9989801049232483,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 9.115717887878418,
+              "probability": 0.9989801049232483
+            },
+            {
+              "index": 2,
+              "logit": 1.9123671054840088,
+              "probability": 0.0007433292921632528
+            },
+            {
+              "index": 3,
+              "logit": 0.5064371824264526,
+              "probability": 0.00018221905338577926
+            },
+            {
+              "index": 5,
+              "logit": -0.2789696455001831,
+              "probability": 8.30798817332834e-05
+            },
+            {
+              "index": 6,
+              "logit": -2.2843880653381348,
+              "probability": 1.1182875823578797e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Tinkaton|Tinkaton, L82, F|100/100",
+            "|-ability|p1a: Tinkaton|Mold Breaker",
+            "|turn|15",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Weavile|Low Kick|p1a: Tinkaton",
+            "|-damage|p1a: Tinkaton|57/100",
+            "|move|p1a: Tinkaton|Gigaton Hammer|p2a: Weavile",
+            "|-supereffective|p2a: Weavile",
+            "|-damage|p2a: Weavile|0 fnt",
+            "|faint|p2a: Weavile",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163584",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163584",
+    "|start",
+    "|switch|p1a: Regigigas|Regigigas, L84|100/100",
+    "|switch|p2a: Mismagius|Mismagius, L86, F|100/100",
+    "|-start|p1a: Regigigas|ability: Slow Start",
+    "|turn|1",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Mismagius|Shadow Ball|p1a: Regigigas",
+    "|-immune|p1a: Regigigas",
+    "|move|p1a: Regigigas|Knock Off|p2a: Mismagius",
+    "|-supereffective|p2a: Mismagius",
+    "|-crit|p2a: Mismagius",
+    "|-damage|p2a: Mismagius|20/100",
+    "|-enditem|p2a: Mismagius|Life Orb|[from] move: Knock Off|[of] p1a: Regigigas",
+    "|",
+    "|upkeep",
+    "|turn|2",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Mismagius|Thunderbolt|p1a: Regigigas",
+    "|-damage|p1a: Regigigas|81/100",
+    "|move|p1a: Regigigas|Knock Off|p2a: Mismagius",
+    "|-supereffective|p2a: Mismagius",
+    "|-damage|p2a: Mismagius|0 fnt",
+    "|faint|p2a: Mismagius",
+    "|",
+    "|-heal|p1a: Regigigas|87/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Blissey|Blissey, L85, F|100/100",
+    "|turn|3",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Blissey|Heal Bell||[still]",
+    "|-activate|p2a: Blissey|move: Heal Bell",
+    "|-fail|p2a: Blissey",
+    "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+    "|-damage|p2a: Blissey|63/100",
+    "|",
+    "|-heal|p2a: Blissey|69/100|[from] item: Leftovers",
+    "|-heal|p1a: Regigigas|93/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|4",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|100/100",
+    "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|77/100",
+    "|",
+    "|-heal|p1a: Regigigas|99/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|5",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Blissey|Blissey, L85, F|69/100",
+    "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+    "|-damage|p2a: Blissey|37/100",
+    "|-status|p2a: Blissey|par",
+    "|",
+    "|-heal|p1a: Regigigas|100/100|[from] item: Leftovers",
+    "|-heal|p2a: Blissey|43/100 par|[from] item: Leftovers",
+    "|-end|p1a: Regigigas|Slow Start",
+    "|upkeep",
+    "|turn|6",
+    "|",
+    "|t:|1777163584",
+    "|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure",
+    "|switch|p2a: Haxorus|Haxorus, L77, M|100/100",
+    "|-ability|p2a: Haxorus|Mold Breaker",
+    "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+    "|-damage|p2a: Haxorus|36/100",
+    "|",
+    "|upkeep",
+    "|turn|7",
+    "|",
+    "|t:|1777163584",
+    "|-terastallize|p2a: Haxorus|Steel",
+    "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+    "|-resisted|p2a: Haxorus",
+    "|-damage|p2a: Haxorus|6/100",
+    "|move|p2a: Haxorus|Earthquake|p1a: Regigigas",
+    "|-damage|p1a: Regigigas|77/100",
+    "|",
+    "|-heal|p1a: Regigigas|83/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|8",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Regigigas|Body Slam|p2a: Haxorus",
+    "|-resisted|p2a: Haxorus",
+    "|-damage|p2a: Haxorus|0 fnt",
+    "|faint|p2a: Haxorus",
+    "|",
+    "|-heal|p1a: Regigigas|89/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|77/100",
+    "|turn|9",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+    "|-crit|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|9/100",
+    "|move|p2a: Azumarill|Play Rough|p1a: Regigigas",
+    "|-damage|p1a: Regigigas|47/100",
+    "|",
+    "|-heal|p1a: Regigigas|54/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|10",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Hawlucha|Hawlucha, L80, M|100/100",
+    "|move|p1a: Regigigas|Body Slam|p2a: Hawlucha",
+    "|-damage|p2a: Hawlucha|38/100",
+    "|-status|p2a: Hawlucha|par",
+    "|",
+    "|-heal|p1a: Regigigas|60/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|11",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Blissey|Blissey, L85, F|43/100",
+    "|move|p1a: Regigigas|Body Slam|p2a: Blissey",
+    "|-damage|p2a: Blissey|0 fnt",
+    "|faint|p2a: Blissey",
+    "|",
+    "|-heal|p1a: Regigigas|66/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par",
+    "|turn|12",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Azumarill|Azumarill, L82, M|9/100",
+    "|move|p1a: Regigigas|Body Slam|p2a: Azumarill",
+    "|-crit|p2a: Azumarill",
+    "|-damage|p2a: Azumarill|0 fnt",
+    "|faint|p2a: Azumarill",
+    "|",
+    "|-heal|p1a: Regigigas|72/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Hawlucha|Hawlucha, L80, M|38/100 par",
+    "|turn|13",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Regigigas|Body Slam|p2a: Hawlucha",
+    "|-damage|p2a: Hawlucha|0 fnt",
+    "|faint|p2a: Hawlucha",
+    "|",
+    "|-heal|p1a: Regigigas|78/100|[from] item: Leftovers",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Weavile|Weavile, L79, M|100/100",
+    "|turn|14",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Weavile|Low Kick|p1a: Regigigas",
+    "|-supereffective|p1a: Regigigas",
+    "|-crit|p1a: Regigigas",
+    "|-damage|p1a: Regigigas|0 fnt",
+    "|faint|p1a: Regigigas",
+    "|-end|p1a: Regigigas|Slow Start|[silent]",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Tinkaton|Tinkaton, L82, F|100/100",
+    "|-ability|p1a: Tinkaton|Mold Breaker",
+    "|turn|15",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Weavile|Low Kick|p1a: Tinkaton",
+    "|-damage|p1a: Tinkaton|57/100",
+    "|move|p1a: Tinkaton|Gigaton Hammer|p2a: Weavile",
+    "|-supereffective|p2a: Weavile",
+    "|-damage|p2a: Weavile|0 fnt",
+    "|faint|p2a: Weavile",
+    "|",
+    "|win|Agent-1"
+  ]
+}

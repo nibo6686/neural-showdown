@@ -1,4 +1,5 @@
 import argparse
+import random
 import time
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -15,6 +16,7 @@ from .metadata_helper import create_run_metadata
 from .models.policy_value_mlp import PolicyValueMLP, masked_logits
 from .runner import close_slots, initialize_slots, make_wait_hook, recover_active_slots, unwrap_batch_results, warmup_sim_core
 from .runtime import EnvSlot, MINIMAL_STEP_OPTIONS, ProgressReporter, choose_timeout, load_runtime_options, make_battle_seed
+from .trace import BattleTracer
 
 
 def load_model(config: Dict[str, Any], device: torch.device) -> PolicyValueMLP:
@@ -136,6 +138,20 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
     active_slots: List[EnvSlot] = []
     use_cuda = device.type == "cuda"
 
+    # Initialize tracing if enabled
+    tracing_cfg = config.get("tracing", {})
+    trace_enabled = tracing_cfg.get("enabled", False)
+    trace_sample_rate = float(tracing_cfg.get("trace_sample_rate", 1.0))
+    trace_max_battles = int(tracing_cfg.get("trace_max_battles", 20))
+    tracer: Optional[BattleTracer] = None
+    traced_battles = 0
+    slot_trace_data: Dict[int, List[Dict[str, Any]]] = {}  # Track trace steps per slot_id
+    if trace_enabled:
+        trace_output_dir = tracing_cfg.get("output_dir")
+        if trace_output_dir is None:
+            trace_output_dir = str(resolve_path(config, "../artifacts/battles"))
+        tracer = BattleTracer(trace_output_dir, run_name=runtime.profile)
+
     players = {"p1": {"controller": "external"}, "p2": {"controller": opponent}}
 
     client = _create_client(command, cwd)
@@ -229,13 +245,19 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
                     with torch.inference_mode():
                         logits, values = model(inputs)
                         chosen = masked_logits(logits, masks).argmax(dim=-1)
+
+                    # Store logits and masks for trace collection later
+                    logits_for_trace = logits.cpu().numpy()
+                    masks_for_trace = masks.cpu().numpy()
+
                     inference_ms = (time.perf_counter() - inference_started) * 1000.0
                     batch_inference_latencies.append(inference_ms)
                     per_decision_ms = inference_ms / max(1, len(ready_slots))
                     inference_latencies.extend([per_decision_ms] * len(ready_slots))
 
                     step_requests = []
-                    for slot, request, action_index in zip(ready_slots, requests, chosen.cpu().tolist()):
+                    slot_to_request_index = {}  # Map slot to index in requests/chosen for later
+                    for req_idx, (slot, request, action_index) in enumerate(zip(ready_slots, requests, chosen.cpu().tolist())):
                         action = _select_eval_action(request, int(action_index), slot)
                         step_requests.append(
                             {
@@ -245,6 +267,7 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
                                 "options": MINIMAL_STEP_OPTIONS,
                             }
                         )
+                        slot_to_request_index[slot.slot_id] = (req_idx, action, action_index)
 
                     step_results = unwrap_batch_results(
                         client.batch_request(
@@ -254,6 +277,74 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
                         )
                     )
                     for slot, result in zip(ready_slots, step_results):
+                        # Collect trace data after step execution
+                        if tracer is not None and slot.slot_id in slot_to_request_index:
+                            if slot.slot_id not in slot_trace_data:
+                                slot_trace_data[slot.slot_id] = []
+
+                            req_idx, action, action_index = slot_to_request_index[slot.slot_id]
+                            request = requests[req_idx]
+
+                            # Get the view AFTER the step (current result)
+                            view_after = result["views"].get("p1", {})
+                            active_idx = view_after.get("active", {}).get("self", 0) or 0
+                            opponent_idx = view_after.get("active", {}).get("opponent", 0) or 0
+                            self_team = view_after.get("self_team", [])
+                            opponent_team = view_after.get("opponent_team", [])
+
+                            p1_pokemon = self_team[active_idx] if active_idx < len(self_team) else {}
+                            p2_pokemon = opponent_team[opponent_idx] if opponent_idx < len(opponent_team) else {}
+
+                            # Capture full legal actions
+                            legal_action_objs = []
+                            if "legal_actions" in request and "actions" in request["legal_actions"]:
+                                for action_obj in request["legal_actions"]["actions"]:
+                                    if action_obj:
+                                        legal_action_objs.append({
+                                            "index": action_obj.get("index"),
+                                            "kind": action_obj.get("kind", "unknown"),
+                                            "label": action_obj.get("label", "?"),
+                                            "choice": action_obj.get("choice", "?"),
+                                            "move": action_obj.get("move"),
+                                        })
+
+                            # Capture model logits (top-5)
+                            logits_np = logits_for_trace[req_idx]  # 1D array of 13 logits
+                            mask_np = masks_for_trace[req_idx]     # 1D array of 13 mask values
+                            masked_logits_vals = np.where(mask_np > 0.5, logits_np, -1e9)
+                            top_k_indices = np.argsort(-masked_logits_vals)[:5]
+                            top_k_logits = logits_np[top_k_indices]
+                            top_k_probs = np.exp(top_k_logits - np.max(top_k_logits))
+                            top_k_probs = top_k_probs / np.sum(top_k_probs)
+
+                            trace_step = {
+                                "turn": view_after.get("turn", 0),
+                                "step_index": slot.step_index,
+                                "p1_species": p1_pokemon.get("name", "Unknown"),
+                                "p1_hp_ratio": p1_pokemon.get("hp_ratio", 0),
+                                "p1_status": p1_pokemon.get("status"),
+                                "p1_boosts": p1_pokemon.get("boosts", {}),
+                                "p2_species": p2_pokemon.get("name", "Unknown"),
+                                "p2_hp_ratio": p2_pokemon.get("hp_ratio", 0),
+                                "p2_status": p2_pokemon.get("status"),
+                                "legal_actions": legal_action_objs,
+                                "legal_actions_count": len(legal_action_objs),
+                                "chosen_action_index": int(action_index),
+                                "chosen_action_label": action.get("label", "?"),
+                                "chosen_action_choice": action.get("choice", "?"),
+                                "chosen_action_probability": float(top_k_probs[0]) if len(top_k_probs) > 0 else 0.0,
+                                "model_top_k": [
+                                    {
+                                        "index": int(idx),
+                                        "logit": float(logits_np[idx]),
+                                        "probability": float(top_k_probs[i]),
+                                    }
+                                    for i, idx in enumerate(top_k_indices)
+                                ],
+                                "protocol_log": result.get("log_delta", []),
+                            }
+                            slot_trace_data[slot.slot_id].append(trace_step)
+
                         slot.last_result = result
                         slot.step_index += 1
                     total_steps += len(ready_slots)
@@ -325,6 +416,38 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
                         losses += 1
                     else:
                         ties += 1
+
+                    # Finalize trace if tracing enabled and should trace this battle
+                    if tracer is not None and traced_battles < trace_max_battles and random.random() < trace_sample_rate:
+                        tracer.start_battle(slot.battle_index, slot.env_id, format_name)
+
+                        # Directly populate the battle trace with all collected steps
+                        trace_steps = slot_trace_data.get(slot.slot_id, [])
+                        if trace_steps:
+                            # Group steps by turn
+                            turns_dict = {}
+                            for step in trace_steps:
+                                turn_num = step.get("turn", 0)
+                                if turn_num not in turns_dict:
+                                    turns_dict[turn_num] = {"turn": turn_num, "steps": []}
+                                turns_dict[turn_num]["steps"].append(step)
+
+                            # Store turns in order
+                            tracer.current_battle["turns"] = [turns_dict[t] for t in sorted(turns_dict.keys())]
+                            tracer.current_battle["total_turns"] = len(turns_dict)
+
+                            # Collect all protocol logs
+                            all_protocol_lines = []
+                            for step in trace_steps:
+                                all_protocol_lines.extend(step.get("protocol_log", []))
+                            tracer.current_battle["protocol_log"] = all_protocol_lines
+
+                        tracer.finalize_battle(winner, diagnostics=[])
+                        traced_battles += 1
+
+                        # Clean up trace data
+                        if slot.slot_id in slot_trace_data:
+                            del slot_trace_data[slot.slot_id]
 
                     battle_events = client.take_latency_events(slot.env_id)
                     all_rpc_events.extend(battle_events)
@@ -422,6 +545,13 @@ def run_evaluation(config: Dict[str, Any]) -> Dict[str, Any]:
         remaining_events = client.take_latency_events()
         if remaining_events:
             all_rpc_events.extend(remaining_events)
+
+        # Add trace info to report if tracing was enabled
+        if tracer is not None:
+            trace_dir = tracer.base_dir
+            report["traces"] = str(trace_dir)
+            report["traces_written"] = traced_battles
+            print_line_safe(f"eval | traces={trace_dir}")
 
         reporter.done(f"latency={latency_output_path}")
         return report

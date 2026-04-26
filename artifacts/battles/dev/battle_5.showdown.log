@@ -1,0 +1,223 @@
+|t:|1777163583
+|gametype|singles
+|player|p1|Agent-1||
+|player|p2|Agent-2||
+|teamsize|p1|6
+|teamsize|p2|6
+|gen|9
+|tier|[Gen 9] Random Battle
+|rule|Species Clause: Limit one of each Pokémon
+|rule|HP Percentage Mod: HP is shown in percentages
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level
+|
+|t:|1777163583
+|start
+|switch|p1a: Inteleon|Inteleon, L81, M|100/100
+|switch|p2a: Diancie|Diancie, L82|100/100
+|turn|1
+|
+|t:|1777163583
+|switch|p2a: Wigglytuff|Wigglytuff, L96, F|100/100
+|-terastallize|p1a: Inteleon|Water
+|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff
+|-damage|p2a: Wigglytuff|13/100
+|
+|-heal|p2a: Wigglytuff|19/100|[from] item: Leftovers
+|upkeep
+|turn|2
+|
+|t:|1777163583
+|-terastallize|p2a: Wigglytuff|Steel
+|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff|[miss]
+|-miss|p1a: Inteleon|p2a: Wigglytuff
+|move|p2a: Wigglytuff|Thunder Wave|p1a: Inteleon
+|-status|p1a: Inteleon|par
+|
+|-heal|p2a: Wigglytuff|25/100|[from] item: Leftovers
+|upkeep
+|turn|3
+|
+|t:|1777163583
+|switch|p2a: Reuniclus|Reuniclus, L88, F|100/100
+|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus
+|-damage|p2a: Reuniclus|27/100
+|
+|upkeep
+|turn|4
+|
+|t:|1777163584
+|cant|p1a: Inteleon|par
+|move|p2a: Reuniclus|Psyshock|p1a: Inteleon
+|-damage|p1a: Inteleon|21/100 par
+|
+|upkeep
+|turn|5
+|
+|t:|1777163584
+|switch|p2a: Wigglytuff|Wigglytuff, L96, F, tera:Steel|25/100
+|move|p1a: Inteleon|Hydro Pump|p2a: Wigglytuff
+|-damage|p2a: Wigglytuff|0 fnt
+|faint|p2a: Wigglytuff
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Minun|Minun, L95, M|100/100
+|turn|6
+|
+|t:|1777163584
+|switch|p2a: Mesprit|Mesprit, L85|100/100
+|move|p1a: Inteleon|Hydro Pump|p2a: Mesprit
+|-damage|p2a: Mesprit|0 fnt
+|faint|p2a: Mesprit
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100
+|turn|7
+|
+|t:|1777163584
+|switch|p2a: Reuniclus|Reuniclus, L88, F|27/100
+|move|p1a: Inteleon|Hydro Pump|p2a: Reuniclus
+|-damage|p2a: Reuniclus|0 fnt
+|faint|p2a: Reuniclus
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Minun|Minun, L95, M|100/100
+|turn|8
+|
+|t:|1777163584
+|move|p2a: Minun|Thunderbolt|p1a: Inteleon
+|-supereffective|p1a: Inteleon
+|-crit|p1a: Inteleon
+|-damage|p1a: Inteleon|0 fnt
+|faint|p1a: Inteleon
+|-damage|p2a: Minun|91/100|[from] item: Life Orb
+|
+|upkeep
+|
+|t:|1777163584
+|switch|p1a: Passimian|Passimian, L83, M|100/100
+|turn|9
+|
+|t:|1777163584
+|move|p2a: Minun|Thunderbolt|p1a: Passimian
+|-damage|p1a: Passimian|37/100
+|-damage|p2a: Minun|81/100|[from] item: Life Orb
+|move|p1a: Passimian|Drain Punch|p2a: Minun
+|-damage|p2a: Minun|37/100
+|-heal|p1a: Passimian|57/100|[from] drain|[of] p2a: Minun
+|
+|-heal|p1a: Passimian|63/100|[from] item: Leftovers
+|upkeep
+|turn|10
+|
+|t:|1777163584
+|move|p2a: Minun|Encore|p1a: Passimian
+|-start|p1a: Passimian|Encore
+|move|p1a: Passimian|Drain Punch|p2a: Minun
+|-damage|p2a: Minun|0 fnt
+|-heal|p1a: Passimian|79/100|[from] drain|[of] p2a: Minun
+|faint|p2a: Minun
+|
+|-heal|p1a: Passimian|85/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Diancie|Diancie, L82|100/100
+|turn|11
+|
+|t:|1777163584
+|move|p1a: Passimian|Drain Punch|p2a: Diancie
+|-damage|p2a: Diancie|69/100
+|-heal|p1a: Passimian|96/100|[from] drain|[of] p2a: Diancie
+|move|p2a: Diancie|Body Press|p1a: Passimian
+|-damage|p1a: Passimian|73/100
+|
+|-heal|p1a: Passimian|79/100|[from] item: Leftovers
+|-heal|p2a: Diancie|75/100|[from] item: Leftovers
+|upkeep
+|turn|12
+|
+|t:|1777163584
+|move|p1a: Passimian|Drain Punch|p2a: Diancie
+|-damage|p2a: Diancie|49/100
+|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie
+|move|p2a: Diancie|Rock Polish|p2a: Diancie
+|-boost|p2a: Diancie|spe|2
+|
+|-heal|p2a: Diancie|55/100|[from] item: Leftovers
+|-heal|p1a: Passimian|95/100|[from] item: Leftovers
+|-end|p1a: Passimian|Encore
+|upkeep
+|turn|13
+|
+|t:|1777163584
+|move|p2a: Diancie|Diamond Storm|p1a: Passimian
+|-resisted|p1a: Passimian
+|-damage|p1a: Passimian|79/100
+|move|p1a: Passimian|Drain Punch|p2a: Diancie
+|-damage|p2a: Diancie|25/100
+|-heal|p1a: Passimian|89/100|[from] drain|[of] p2a: Diancie
+|
+|-heal|p2a: Diancie|31/100|[from] item: Leftovers
+|-heal|p1a: Passimian|95/100|[from] item: Leftovers
+|upkeep
+|turn|14
+|
+|t:|1777163584
+|move|p2a: Diancie|Moonblast|p1a: Passimian
+|-supereffective|p1a: Passimian
+|-damage|p1a: Passimian|8/100
+|move|p1a: Passimian|Drain Punch|p2a: Diancie
+|-damage|p2a: Diancie|0 fnt
+|-heal|p1a: Passimian|19/100|[from] drain|[of] p2a: Diancie
+|faint|p2a: Diancie
+|
+|-heal|p1a: Passimian|25/100|[from] item: Leftovers
+|upkeep
+|
+|t:|1777163584
+|switch|p2a: Oinkologne|Oinkologne, L92, M|100/100
+|turn|15
+|
+|t:|1777163584
+|move|p1a: Passimian|Drain Punch|p2a: Oinkologne
+|-supereffective|p2a: Oinkologne
+|-damage|p2a: Oinkologne|47/100
+|-heal|p1a: Passimian|56/100|[from] drain|[of] p2a: Oinkologne
+|move|p2a: Oinkologne|High Horsepower|p1a: Passimian
+|-damage|p1a: Passimian|27/100
+|
+|-heal|p1a: Passimian|33/100|[from] item: Leftovers
+|-heal|p2a: Oinkologne|53/100|[from] item: Leftovers
+|upkeep
+|turn|16
+|
+|t:|1777163584
+|move|p1a: Passimian|Drain Punch|p2a: Oinkologne
+|-supereffective|p2a: Oinkologne
+|-damage|p2a: Oinkologne|2/100
+|-heal|p1a: Passimian|63/100|[from] drain|[of] p2a: Oinkologne
+|move|p2a: Oinkologne|Curse|p2a: Oinkologne
+|-unboost|p2a: Oinkologne|spe|1
+|-boost|p2a: Oinkologne|atk|1
+|-boost|p2a: Oinkologne|def|1
+|
+|-heal|p1a: Passimian|69/100|[from] item: Leftovers
+|-heal|p2a: Oinkologne|8/100|[from] item: Leftovers
+|upkeep
+|turn|17
+|
+|t:|1777163584
+|move|p1a: Passimian|Drain Punch|p2a: Oinkologne
+|-supereffective|p2a: Oinkologne
+|-damage|p2a: Oinkologne|0 fnt
+|-heal|p1a: Passimian|73/100|[from] drain|[of] p2a: Oinkologne
+|faint|p2a: Oinkologne
+|
+|win|Agent-1

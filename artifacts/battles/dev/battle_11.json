@@ -1,0 +1,2361 @@
+{
+  "battle_index": 11,
+  "env_id": "env-13",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 20,
+  "start_time": "2026-04-26T00:18:59.434406Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mewtwo",
+          "p2_hp_ratio": 0.4,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 1",
+              "move": "Iron Head"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 2",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 3",
+              "move": "Outrage"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wave Crash",
+              "choice": "move 4",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Iron Head",
+              "choice": "move 1 terastallize",
+              "move": "Iron Head"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Dance",
+              "choice": "move 2 terastallize",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Outrage",
+              "choice": "move 3 terastallize",
+              "move": "Outrage"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wave Crash",
+              "choice": "move 4 terastallize",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Outrage",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9226576685905457,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 4.34108829498291,
+              "probability": 0.9226576685905457
+            },
+            {
+              "index": 0,
+              "logit": 1.5159566402435303,
+              "probability": 0.0547143816947937
+            },
+            {
+              "index": 6,
+              "logit": 0.13840988278388977,
+              "probability": 0.013798779807984829
+            },
+            {
+              "index": 11,
+              "logit": -0.7868912220001221,
+              "probability": 0.005470002070069313
+            },
+            {
+              "index": 7,
+              "logit": -1.2745018005371094,
+              "probability": 0.003359083319082856
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dusknoir",
+          "p2_hp_ratio": 0.6,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.9998683929443359,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.548402786254883,
+              "probability": 0.9998683929443359
+            },
+            {
+              "index": 1,
+              "logit": 0.5965077877044678,
+              "probability": 0.00012947453069500625
+            },
+            {
+              "index": 2,
+              "logit": -4.9608235359191895,
+              "probability": 4.996502980247897e-07
+            },
+            {
+              "index": 3,
+              "logit": -4.780976295471191,
+              "probability": 5.98098267801106e-07
+            },
+            {
+              "index": 4,
+              "logit": -4.200395107269287,
+              "probability": 1.0688471547837253e-06
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Scrafty",
+          "p2_hp_ratio": 0.72,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.9989932179450989,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.204353332519531,
+              "probability": 0.9989932179450989
+            },
+            {
+              "index": 1,
+              "logit": 1.2966597080230713,
+              "probability": 0.000999054522253573
+            },
+            {
+              "index": 2,
+              "logit": -6.268238067626953,
+              "probability": 5.178404194339237e-07
+            },
+            {
+              "index": 3,
+              "logit": -4.542056083679199,
+              "probability": 2.909827799157938e-06
+            },
+            {
+              "index": 4,
+              "logit": -4.131783485412598,
+              "probability": 4.385775355331134e-06
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Scrafty",
+          "p2_hp_ratio": 0.43,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 1",
+              "move": "Iron Head"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 2",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 3",
+              "move": "Outrage"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wave Crash",
+              "choice": "move 4",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Iron Head",
+              "choice": "move 1 terastallize",
+              "move": "Iron Head"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Dance",
+              "choice": "move 2 terastallize",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Outrage",
+              "choice": "move 3 terastallize",
+              "move": "Outrage"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wave Crash",
+              "choice": "move 4 terastallize",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Outrage",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.5452655553817749,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 2.5086004734039307,
+              "probability": 0.5452655553817749
+            },
+            {
+              "index": 7,
+              "logit": 1.958032488822937,
+              "probability": 0.3144122064113617
+            },
+            {
+              "index": 0,
+              "logit": 0.5132285952568054,
+              "probability": 0.07413599640130997
+            },
+            {
+              "index": 3,
+              "logit": 0.0629362165927887,
+              "probability": 0.047257378697395325
+            },
+            {
+              "index": 11,
+              "logit": -0.8519896268844604,
+              "probability": 0.01892876997590065
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Scrafty",
+          "p2_hp_ratio": 0.14,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.9998041987419128,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 7.494678497314453,
+              "probability": 0.9998041987419128
+            },
+            {
+              "index": 1,
+              "logit": -1.4380306005477905,
+              "probability": 0.00013197414227761328
+            },
+            {
+              "index": 2,
+              "logit": -5.637640476226807,
+              "probability": 1.979800799745135e-06
+            },
+            {
+              "index": 3,
+              "logit": -2.278602123260498,
+              "probability": 5.694202263839543e-05
+            },
+            {
+              "index": 4,
+              "logit": -4.72650146484375,
+              "probability": 4.924066615785705e-06
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.4524714828897338,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mewtwo",
+          "p2_hp_ratio": 0.4,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.999894380569458,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.523394584655762,
+              "probability": 0.999894380569458
+            },
+            {
+              "index": 1,
+              "logit": -0.8739687204360962,
+              "probability": 8.293368591694161e-05
+            },
+            {
+              "index": 2,
+              "logit": -6.0952935218811035,
+              "probability": 4.478559674225835e-07
+            },
+            {
+              "index": 3,
+              "logit": -2.2707064151763916,
+              "probability": 2.051803494396154e-05
+            },
+            {
+              "index": 4,
+              "logit": -4.786977767944336,
+              "probability": 1.6570395473536337e-06
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.1520912547528517,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Dusknoir",
+          "p2_hp_ratio": 0.6,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 1",
+              "move": "Iron Head"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 2",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 3",
+              "move": "Outrage"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wave Crash",
+              "choice": "move 4",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Iron Head",
+              "choice": "move 1 terastallize",
+              "move": "Iron Head"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Dance",
+              "choice": "move 2 terastallize",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Outrage",
+              "choice": "move 3 terastallize",
+              "move": "Outrage"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wave Crash",
+              "choice": "move 4 terastallize",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Outrage",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9113140106201172,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 4.297024726867676,
+              "probability": 0.9113140106201172
+            },
+            {
+              "index": 0,
+              "logit": 1.543376088142395,
+              "probability": 0.05804616957902908
+            },
+            {
+              "index": 7,
+              "logit": 0.2605142295360565,
+              "probability": 0.016092883422970772
+            },
+            {
+              "index": 6,
+              "logit": -0.2731570899486542,
+              "probability": 0.009437637403607368
+            },
+            {
+              "index": 3,
+              "logit": -0.8867941498756409,
+              "probability": 0.005109332036226988
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0.1520912547528517,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Calyrex",
+          "p2_hp_ratio": 0.55,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.9993708729743958,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.51780891418457,
+              "probability": 0.9993708729743958
+            },
+            {
+              "index": 1,
+              "logit": 1.1360713243484497,
+              "probability": 0.0006221265648491681
+            },
+            {
+              "index": 2,
+              "logit": -8.707670211791992,
+              "probability": 3.302145046291116e-08
+            },
+            {
+              "index": 3,
+              "logit": -3.853858470916748,
+              "probability": 4.234279913362116e-06
+            },
+            {
+              "index": 4,
+              "logit": -4.27074670791626,
+              "probability": 2.790793587337248e-06
+            }
+          ],
+          "protocol_log": []
+        },
+        {
+          "turn": 9,
+          "step_index": 8,
+          "p1_species": "Kingdra",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Calyrex",
+          "p2_hp_ratio": 0.55,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Iron Head",
+              "choice": "move 1",
+              "move": "Iron Head"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 2",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 3",
+              "move": "Outrage"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Wave Crash",
+              "choice": "move 4",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Iron Head",
+              "choice": "move 1 terastallize",
+              "move": "Iron Head"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Dragon Dance",
+              "choice": "move 2 terastallize",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Outrage",
+              "choice": "move 3 terastallize",
+              "move": "Outrage"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Wave Crash",
+              "choice": "move 4 terastallize",
+              "move": "Wave Crash"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Outrage",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.4669168293476105,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 1.6156030893325806,
+              "probability": 0.4669168293476105
+            },
+            {
+              "index": 0,
+              "logit": 1.2185370922088623,
+              "probability": 0.3139033615589142
+            },
+            {
+              "index": 3,
+              "logit": 0.14107412099838257,
+              "probability": 0.10687094926834106
+            },
+            {
+              "index": 7,
+              "logit": -0.3229987919330597,
+              "probability": 0.06719167530536652
+            },
+            {
+              "index": 11,
+              "logit": -0.7212852239608765,
+              "probability": 0.04511716589331627
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 9,
+          "p1_species": "Miraidon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Calyrex",
+          "p2_hp_ratio": 0.55,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 11,
+          "chosen_action_label": "switch:Miraidon, L65",
+          "chosen_action_choice": "switch 5",
+          "chosen_action_probability": 0.6870344281196594,
+          "model_top_k": [
+            {
+              "index": 11,
+              "logit": 1.433663249015808,
+              "probability": 0.6870344281196594
+            },
+            {
+              "index": 10,
+              "logit": 0.13494804501533508,
+              "probability": 0.1874794363975525
+            },
+            {
+              "index": 9,
+              "logit": -0.6198183298110962,
+              "probability": 0.0881379172205925
+            },
+            {
+              "index": 8,
+              "logit": -1.7161431312561035,
+              "probability": 0.029446585103869438
+            },
+            {
+              "index": 12,
+              "logit": -3.031648874282837,
+              "probability": 0.00790165551006794
+            }
+          ],
+          "protocol_log": []
+        },
+        {
+          "turn": 10,
+          "step_index": 10,
+          "p1_species": "Miraidon",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mewtwo",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Electro Drift",
+              "choice": "move 1",
+              "move": "Electro Drift"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Overheat",
+              "choice": "move 2",
+              "move": "Overheat"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 3",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Volt Switch",
+              "choice": "move 4",
+              "move": "Volt Switch"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Electro Drift",
+              "choice": "move 1 terastallize",
+              "move": "Electro Drift"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Overheat",
+              "choice": "move 2 terastallize",
+              "move": "Overheat"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Draco Meteor",
+              "choice": "move 3 terastallize",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Volt Switch",
+              "choice": "move 4 terastallize",
+              "move": "Volt Switch"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 12,
+          "chosen_action_index": 7,
+          "chosen_action_label": "move_tera:Volt Switch",
+          "chosen_action_choice": "move 4 terastallize",
+          "chosen_action_probability": 0.5081622004508972,
+          "model_top_k": [
+            {
+              "index": 7,
+              "logit": 5.763841152191162,
+              "probability": 0.5081622004508972
+            },
+            {
+              "index": 4,
+              "logit": 5.605180263519287,
+              "probability": 0.4336074888706207
+            },
+            {
+              "index": 6,
+              "logit": 3.5068695545196533,
+              "probability": 0.05318779870867729
+            },
+            {
+              "index": 0,
+              "logit": 0.521716833114624,
+              "probability": 0.0026876740157604218
+            },
+            {
+              "index": 5,
+              "logit": 0.38954704999923706,
+              "probability": 0.00235491874627769
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 11,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Cloyster",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Torkoal, L88, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 8,
+          "chosen_action_label": "switch:Torkoal, L88, M",
+          "chosen_action_choice": "switch 2",
+          "chosen_action_probability": 0.008936253376305103,
+          "model_top_k": [
+            {
+              "index": 8,
+              "logit": -1.295621395111084,
+              "probability": 0.008936253376305103
+            },
+            {
+              "index": 9,
+              "logit": -3.470890998840332,
+              "probability": 0.0010149574372917414
+            },
+            {
+              "index": 10,
+              "logit": -4.643912315368652,
+              "probability": 0.00031405879417434335
+            },
+            {
+              "index": 11,
+              "logit": -8.442174911499023,
+              "probability": 7.037961495370837e-06
+            },
+            {
+              "index": 0,
+              "logit": 3.4116921424865723,
+              "probability": 0.9897276759147644
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 12,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 0.5714285714285714,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Lava Plume",
+              "choice": "move 1",
+              "move": "Lava Plume"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Yawn",
+              "choice": "move 2",
+              "move": "Yawn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Solar Beam",
+              "choice": "move 3",
+              "move": "Solar Beam"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 4",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Lava Plume",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7256168127059937,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 3.50028657913208,
+              "probability": 0.7256168127059937
+            },
+            {
+              "index": 2,
+              "logit": 2.282510280609131,
+              "probability": 0.2147008776664734
+            },
+            {
+              "index": 3,
+              "logit": 0.9026238322257996,
+              "probability": 0.054020270705223083
+            },
+            {
+              "index": 9,
+              "logit": -1.609333872795105,
+              "probability": 0.004381545819342136
+            },
+            {
+              "index": 10,
+              "logit": -2.8396058082580566,
+              "probability": 0.001280345139093697
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 13,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 0.5714285714285714,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.92,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Lava Plume",
+              "choice": "move 1",
+              "move": "Lava Plume"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Yawn",
+              "choice": "move 2",
+              "move": "Yawn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Solar Beam",
+              "choice": "move 3",
+              "move": "Solar Beam"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 4",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Lava Plume",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7369668483734131,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.762347459793091,
+              "probability": 0.7369668483734131
+            },
+            {
+              "index": 2,
+              "logit": 1.6024326086044312,
+              "probability": 0.2310486137866974
+            },
+            {
+              "index": 3,
+              "logit": -0.471833735704422,
+              "probability": 0.029030930250883102
+            },
+            {
+              "index": 10,
+              "logit": -3.3241710662841797,
+              "probability": 0.001675354316830635
+            },
+            {
+              "index": 9,
+              "logit": -3.594785451889038,
+              "probability": 0.0012781453551724553
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 14,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 0.05263157894736842,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.83,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Lava Plume",
+              "choice": "move 1",
+              "move": "Lava Plume"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Yawn",
+              "choice": "move 2",
+              "move": "Yawn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Solar Beam",
+              "choice": "move 3",
+              "move": "Solar Beam"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 4",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Lava Plume",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.764124870300293,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.985438585281372,
+              "probability": 0.764124870300293
+            },
+            {
+              "index": 2,
+              "logit": 1.6821402311325073,
+              "probability": 0.20756258070468903
+            },
+            {
+              "index": 3,
+              "logit": -0.38805291056632996,
+              "probability": 0.026186387985944748
+            },
+            {
+              "index": 10,
+              "logit": -3.4229001998901367,
+              "probability": 0.001259094220586121
+            },
+            {
+              "index": 9,
+              "logit": -3.795947790145874,
+              "probability": 0.000867052935063839
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 15,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 0.05263157894736842,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.74,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Lava Plume",
+              "choice": "move 1",
+              "move": "Lava Plume"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Yawn",
+              "choice": "move 2",
+              "move": "Yawn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Solar Beam",
+              "choice": "move 3",
+              "move": "Solar Beam"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 4",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Lava Plume",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7191291451454163,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.52113676071167,
+              "probability": 0.7191291451454163
+            },
+            {
+              "index": 2,
+              "logit": 1.4070593118667603,
+              "probability": 0.23603110015392303
+            },
+            {
+              "index": 3,
+              "logit": -0.415647953748703,
+              "probability": 0.038139719516038895
+            },
+            {
+              "index": 10,
+              "logit": -2.5739026069641113,
+              "probability": 0.004406151361763477
+            },
+            {
+              "index": 9,
+              "logit": -3.2267072200775146,
+              "probability": 0.002293771132826805
+            }
+          ],
+          "protocol_log": []
+        },
+        {
+          "turn": 15,
+          "step_index": 16,
+          "p1_species": "Torkoal",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.74,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Lava Plume",
+              "choice": "move 1",
+              "move": "Lava Plume"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Yawn",
+              "choice": "move 2",
+              "move": "Yawn"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Solar Beam",
+              "choice": "move 3",
+              "move": "Solar Beam"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Rapid Spin",
+              "choice": "move 4",
+              "move": "Rapid Spin"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Lava Plume",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.5986994504928589,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.2158775329589844,
+              "probability": 0.5986994504928589
+            },
+            {
+              "index": 2,
+              "logit": 1.648301124572754,
+              "probability": 0.33940136432647705
+            },
+            {
+              "index": 3,
+              "logit": -0.14629411697387695,
+              "probability": 0.05640670657157898
+            },
+            {
+              "index": 10,
+              "logit": -3.1239640712738037,
+              "probability": 0.0028717394452542067
+            },
+            {
+              "index": 9,
+              "logit": -3.21543550491333,
+              "probability": 0.002620713785290718
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 17,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.74,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Iron Moth, L78",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Iron Moth, L78",
+          "chosen_action_choice": "switch 4",
+          "chosen_action_probability": 0.06064131110906601,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": -1.8009743690490723,
+              "probability": 0.06064131110906601
+            },
+            {
+              "index": 9,
+              "logit": -2.561950445175171,
+              "probability": 0.028332237154245377
+            },
+            {
+              "index": 8,
+              "logit": -3.4200005531311035,
+              "probability": 0.012012526392936707
+            },
+            {
+              "index": 11,
+              "logit": -6.170118808746338,
+              "probability": 0.0007678442634642124
+            },
+            {
+              "index": 0,
+              "logit": 0.8944934010505676,
+              "probability": 0.8982461094856262
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 18,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Calyrex",
+          "p2_hp_ratio": 0.24,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Toxic Spikes",
+              "choice": "move 1",
+              "move": "Toxic Spikes"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sludge Wave",
+              "choice": "move 2",
+              "move": "Sludge Wave"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 3",
+              "move": "U-turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Fiery Dance",
+              "choice": "move 4",
+              "move": "Fiery Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Sludge Wave",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.5078584551811218,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 3.4180264472961426,
+              "probability": 0.5078584551811218
+            },
+            {
+              "index": 3,
+              "logit": 3.383262872695923,
+              "probability": 0.4905068576335907
+            },
+            {
+              "index": 0,
+              "logit": -2.3656084537506104,
+              "probability": 0.0015629383269697428
+            },
+            {
+              "index": 2,
+              "logit": -5.895689010620117,
+              "probability": 4.579812230076641e-05
+            },
+            {
+              "index": 9,
+              "logit": -6.462019920349121,
+              "probability": 2.5995183023042046e-05
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 18,
+      "steps": [
+        {
+          "turn": 18,
+          "step_index": 19,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.74,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Toxic Spikes",
+              "choice": "move 1",
+              "move": "Toxic Spikes"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Sludge Wave",
+              "choice": "move 2",
+              "move": "Sludge Wave"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:U-turn",
+              "choice": "move 3",
+              "move": "U-turn"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Fiery Dance",
+              "choice": "move 4",
+              "move": "Fiery Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Fiery Dance",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8290651440620422,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 5.379591464996338,
+              "probability": 0.8290651440620422
+            },
+            {
+              "index": 1,
+              "logit": 3.7965567111968994,
+              "probability": 0.1702493131160736
+            },
+            {
+              "index": 0,
+              "logit": -1.7315753698349,
+              "probability": 0.0006764692952856421
+            },
+            {
+              "index": 2,
+              "logit": -6.302357196807861,
+              "probability": 7.0013666118029505e-06
+            },
+            {
+              "index": 9,
+              "logit": -7.560574531555176,
+              "probability": 1.9895082914445084e-06
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 19,
+      "steps": [
+        {
+          "turn": 19,
+          "step_index": 20,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 0.841897233201581,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.65,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Fiery Dance",
+              "choice": "move 4",
+              "move": "Fiery Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Fiery Dance",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999594688415527,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.477904319763184,
+              "probability": 0.9999594688415527
+            },
+            {
+              "index": 9,
+              "logit": -4.810659408569336,
+              "probability": 1.2514728950918652e-05
+            },
+            {
+              "index": 8,
+              "logit": -6.15843391418457,
+              "probability": 3.2515497423446504e-06
+            },
+            {
+              "index": 10,
+              "logit": -10.621374130249023,
+              "probability": 3.748526111735373e-08
+            },
+            {
+              "index": 4,
+              "logit": -4.128939628601074,
+              "probability": 2.4745066184550524e-05
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 20,
+      "steps": [
+        {
+          "turn": 20,
+          "step_index": 21,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 0.841897233201581,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.54,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Fiery Dance",
+              "choice": "move 4",
+              "move": "Fiery Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Fiery Dance",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999630451202393,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.508374214172363,
+              "probability": 0.9999630451202393
+            },
+            {
+              "index": 9,
+              "logit": -4.7502760887146,
+              "probability": 1.2894794963358436e-05
+            },
+            {
+              "index": 8,
+              "logit": -5.974270343780518,
+              "probability": 3.7917536701570498e-06
+            },
+            {
+              "index": 10,
+              "logit": -10.546004295349121,
+              "probability": 3.920680313740377e-08
+            },
+            {
+              "index": 4,
+              "logit": -4.299419403076172,
+              "probability": 2.0240388039383106e-05
+            }
+          ],
+          "protocol_log": []
+        },
+        {
+          "turn": 20,
+          "step_index": 22,
+          "p1_species": "Iron Moth",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.44,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Fiery Dance",
+              "choice": "move 4",
+              "move": "Fiery Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Fiery Dance",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9999735355377197,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.6733808517456055,
+              "probability": 0.9999735355377197
+            },
+            {
+              "index": 9,
+              "logit": -4.966489791870117,
+              "probability": 8.807586709735915e-06
+            },
+            {
+              "index": 8,
+              "logit": -6.090513706207275,
+              "probability": 2.862195742636686e-06
+            },
+            {
+              "index": 10,
+              "logit": -10.850470542907715,
+              "probability": 2.4517522234646094e-08
+            },
+            {
+              "index": 4,
+              "logit": -4.447834014892578,
+              "probability": 1.4794703929510433e-05
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "steps": [
+        {
+          "turn": 21,
+          "step_index": 23,
+          "p1_species": "Miraidon",
+          "p1_hp_ratio": 0.8781512605042017,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Coalossal",
+          "p2_hp_ratio": 0.44,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Miraidon, L65",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 3,
+          "chosen_action_index": 8,
+          "chosen_action_label": "switch:Miraidon, L65",
+          "chosen_action_choice": "switch 2",
+          "chosen_action_probability": 0.00015244544192682952,
+          "model_top_k": [
+            {
+              "index": 8,
+              "logit": -3.8561015129089355,
+              "probability": 0.00015244544192682952
+            },
+            {
+              "index": 9,
+              "logit": -7.392524719238281,
+              "probability": 4.4387957132130396e-06
+            },
+            {
+              "index": 10,
+              "logit": -7.7112603187561035,
+              "probability": 3.227303977837437e-06
+            },
+            {
+              "index": 0,
+              "logit": 4.569729804992676,
+              "probability": 0.6956748366355896
+            },
+            {
+              "index": 4,
+              "logit": 3.742417812347412,
+              "probability": 0.3041650056838989
+            }
+          ],
+          "protocol_log": []
+        },
+        {
+          "turn": 21,
+          "step_index": 24,
+          "p1_species": "Miraidon",
+          "p1_hp_ratio": 0.8781512605042017,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Mewtwo",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Electro Drift",
+              "choice": "move 1",
+              "move": "Electro Drift"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Overheat",
+              "choice": "move 2",
+              "move": "Overheat"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Draco Meteor",
+              "choice": "move 3",
+              "move": "Draco Meteor"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Volt Switch",
+              "choice": "move 4",
+              "move": "Volt Switch"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Hippowdon, L82, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Gothitelle, L90, F",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 6,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Electro Drift",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8833138346672058,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 1.9876028299331665,
+              "probability": 0.8833138346672058
+            },
+            {
+              "index": 2,
+              "logit": -0.29503336548805237,
+              "probability": 0.09011119604110718
+            },
+            {
+              "index": 3,
+              "logit": -1.5448131561279297,
+              "probability": 0.025822974741458893
+            },
+            {
+              "index": 9,
+              "logit": -5.643636703491211,
+              "probability": 0.0004284595779608935
+            },
+            {
+              "index": 1,
+              "logit": -5.924442768096924,
+              "probability": 0.00032356189331039786
+            }
+          ],
+          "protocol_log": []
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": []
+}

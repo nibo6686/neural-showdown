@@ -1,0 +1,3080 @@
+{
+  "battle_index": 6,
+  "env_id": "env-8",
+  "format": "gen9randombattle",
+  "winner": "p1",
+  "total_turns": 20,
+  "start_time": "2026-04-26T00:33:04.367080Z",
+  "turns": [
+    {
+      "turn": 2,
+      "steps": [
+        {
+          "turn": 2,
+          "step_index": 0,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Golurk",
+          "p2_hp_ratio": 0.36,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Body Press",
+              "choice": "move 1 terastallize",
+              "move": "Body Press"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Stone Edge",
+              "choice": "move 2 terastallize",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 3 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Avalanche",
+              "choice": "move 4 terastallize",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Avalanche",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9997456669807434,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 12.515111923217773,
+              "probability": 0.9997456669807434
+            },
+            {
+              "index": 0,
+              "logit": 4.208993434906006,
+              "probability": 0.00024693823070265353
+            },
+            {
+              "index": 1,
+              "logit": 0.6069602966308594,
+              "probability": 6.733564077876508e-06
+            },
+            {
+              "index": 9,
+              "logit": -1.9216183423995972,
+              "probability": 5.371520046537626e-07
+            },
+            {
+              "index": 7,
+              "logit": -3.3135952949523926,
+              "probability": 1.33527137791134e-07
+            }
+          ],
+          "protocol_log": [
+            "|t:|1777163584",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|tier|[Gen 9] Random Battle",
+            "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+            "|",
+            "|t:|1777163584",
+            "|start",
+            "|switch|p1a: Avalugg|Avalugg-Hisui, L90, M|100/100",
+            "|switch|p2a: Golurk|Golurk, L87|100/100",
+            "|turn|1"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "steps": [
+        {
+          "turn": 3,
+          "step_index": 1,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Suicune",
+          "p2_hp_ratio": 0.93,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Body Press",
+              "choice": "move 1 terastallize",
+              "move": "Body Press"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Stone Edge",
+              "choice": "move 2 terastallize",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 3 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Avalanche",
+              "choice": "move 4 terastallize",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Avalanche",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.9963855743408203,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 9.644718170166016,
+              "probability": 0.9963855743408203
+            },
+            {
+              "index": 1,
+              "logit": 3.5299127101898193,
+              "probability": 0.0022019187454134226
+            },
+            {
+              "index": 0,
+              "logit": 2.5846376419067383,
+              "probability": 0.0008556051179766655
+            },
+            {
+              "index": 5,
+              "logit": 1.7900328636169434,
+              "probability": 0.0003865280013997108
+            },
+            {
+              "index": 7,
+              "logit": 0.9712712168693542,
+              "probability": 0.0001704501628410071
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-terastallize|p2a: Golurk|Ground",
+            "|move|p2a: Golurk|Stealth Rock|p1a: Avalugg",
+            "|-sidestart|p1: Agent-1|move: Stealth Rock",
+            "|move|p1a: Avalugg|Avalanche|p2a: Golurk",
+            "|-supereffective|p2a: Golurk",
+            "|-damage|p2a: Golurk|36/100",
+            "|",
+            "|upkeep",
+            "|turn|2"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "steps": [
+        {
+          "turn": 4,
+          "step_index": 2,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.5425867507886435,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Suicune",
+          "p2_hp_ratio": 0.79,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 4,
+              "kind": "move_tera",
+              "label": "move_tera:Body Press",
+              "choice": "move 1 terastallize",
+              "move": "Body Press"
+            },
+            {
+              "index": 5,
+              "kind": "move_tera",
+              "label": "move_tera:Stone Edge",
+              "choice": "move 2 terastallize",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 6,
+              "kind": "move_tera",
+              "label": "move_tera:Recover",
+              "choice": "move 3 terastallize",
+              "move": "Recover"
+            },
+            {
+              "index": 7,
+              "kind": "move_tera",
+              "label": "move_tera:Avalanche",
+              "choice": "move 4 terastallize",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 13,
+          "chosen_action_index": 5,
+          "chosen_action_label": "move_tera:Stone Edge",
+          "chosen_action_choice": "move 2 terastallize",
+          "chosen_action_probability": 0.8447615504264832,
+          "model_top_k": [
+            {
+              "index": 5,
+              "logit": 5.066707134246826,
+              "probability": 0.8447615504264832
+            },
+            {
+              "index": 4,
+              "logit": 2.6631507873535156,
+              "probability": 0.0763629823923111
+            },
+            {
+              "index": 1,
+              "logit": 2.108525037765503,
+              "probability": 0.043854281306266785
+            },
+            {
+              "index": 0,
+              "logit": 1.332308053970337,
+              "probability": 0.02017926052212715
+            },
+            {
+              "index": 7,
+              "logit": 1.0251039266586304,
+              "probability": 0.014841856434941292
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Suicune|Suicune, L82|100/100",
+            "|-ability|p2a: Suicune|Pressure",
+            "|move|p1a: Avalugg|Avalanche|p2a: Suicune",
+            "|-resisted|p2a: Suicune",
+            "|-damage|p2a: Suicune|87/100",
+            "|",
+            "|-heal|p2a: Suicune|93/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|3"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "steps": [
+        {
+          "turn": 5,
+          "step_index": 3,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.48264984227129337,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Suicune",
+          "p2_hp_ratio": 0.61,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8734747767448425,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.454455852508545,
+              "probability": 0.8734747767448425
+            },
+            {
+              "index": 1,
+              "logit": 3.5092618465423584,
+              "probability": 0.12487150728702545
+            },
+            {
+              "index": 9,
+              "logit": -1.257703423500061,
+              "probability": 0.0010621765395626426
+            },
+            {
+              "index": 3,
+              "logit": -2.0056328773498535,
+              "probability": 0.000502776529174298
+            },
+            {
+              "index": 12,
+              "logit": -3.7400922775268555,
+              "probability": 8.873787737684324e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|-terastallize|p1a: Avalugg|Poison",
+            "|move|p2a: Suicune|Scald|p1a: Avalugg",
+            "|-damage|p1a: Avalugg|61/100",
+            "|-status|p1a: Avalugg|brn",
+            "|move|p1a: Avalugg|Stone Edge|p2a: Suicune",
+            "|-damage|p2a: Suicune|73/100",
+            "|",
+            "|-heal|p2a: Suicune|79/100|[from] item: Leftovers",
+            "|-damage|p1a: Avalugg|55/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|4"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "steps": [
+        {
+          "turn": 6,
+          "step_index": 4,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.4227129337539432,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Suicune",
+          "p2_hp_ratio": 0.67,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8885114192962646,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.766941547393799,
+              "probability": 0.8885114192962646
+            },
+            {
+              "index": 1,
+              "logit": 3.6776177883148193,
+              "probability": 0.1099717766046524
+            },
+            {
+              "index": 9,
+              "logit": -1.145367980003357,
+              "probability": 0.0008844740805216134
+            },
+            {
+              "index": 3,
+              "logit": -1.5713367462158203,
+              "probability": 0.0005776825710199773
+            },
+            {
+              "index": 12,
+              "logit": -3.9297702312469482,
+              "probability": 5.463044362841174e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Suicune|Substitute|p2a: Suicune",
+            "|-start|p2a: Suicune|Substitute",
+            "|-damage|p2a: Suicune|55/100",
+            "|move|p1a: Avalugg|Body Press|p2a: Suicune",
+            "|-activate|p2a: Suicune|move: Substitute|[damage]",
+            "|",
+            "|-heal|p2a: Suicune|61/100|[from] item: Leftovers",
+            "|-damage|p1a: Avalugg|49/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|5"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "steps": [
+        {
+          "turn": 7,
+          "step_index": 5,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.3627760252365931,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.61,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8687857985496521,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.163865089416504,
+              "probability": 0.8687857985496521
+            },
+            {
+              "index": 1,
+              "logit": 3.251695394515991,
+              "probability": 0.12837131321430206
+            },
+            {
+              "index": 9,
+              "logit": -0.7852650880813599,
+              "probability": 0.0022658873349428177
+            },
+            {
+              "index": 3,
+              "logit": -2.4082648754119873,
+              "probability": 0.00044707287452183664
+            },
+            {
+              "index": 12,
+              "logit": -3.6439309120178223,
+              "probability": 0.0001299377327086404
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Suicune|Calm Mind|p2a: Suicune",
+            "|-boost|p2a: Suicune|spa|1",
+            "|-boost|p2a: Suicune|spd|1",
+            "|move|p1a: Avalugg|Body Press|p2a: Suicune",
+            "|-end|p2a: Suicune|Substitute",
+            "|",
+            "|-heal|p2a: Suicune|67/100|[from] item: Leftovers",
+            "|-damage|p1a: Avalugg|43/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|6"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 8,
+      "steps": [
+        {
+          "turn": 8,
+          "step_index": 6,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.3028391167192429,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Golurk",
+          "p2_hp_ratio": 0.17,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.7910430431365967,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 5.607045650482178,
+              "probability": 0.7910430431365967
+            },
+            {
+              "index": 1,
+              "logit": 3.6593902111053467,
+              "probability": 0.11280909925699234
+            },
+            {
+              "index": 3,
+              "logit": 3.499239444732666,
+              "probability": 0.09611507505178452
+            },
+            {
+              "index": 9,
+              "logit": -4.798903942108154,
+              "probability": 2.3930600946187042e-05
+            },
+            {
+              "index": 10,
+              "logit": -5.791483402252197,
+              "probability": 8.869145858625416e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Electivire|Electivire, L84, F|100/100",
+            "|move|p1a: Avalugg|Body Press|p2a: Electivire",
+            "|-crit|p2a: Electivire",
+            "|-damage|p2a: Electivire|61/100",
+            "|",
+            "|-damage|p1a: Avalugg|37/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|7"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 9,
+      "steps": [
+        {
+          "turn": 9,
+          "step_index": 7,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.24290220820189273,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Klawf",
+          "p2_hp_ratio": 0.7,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9231749176979065,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 6.697324275970459,
+              "probability": 0.9231749176979065
+            },
+            {
+              "index": 3,
+              "logit": 3.875931978225708,
+              "probability": 0.05495014786720276
+            },
+            {
+              "index": 1,
+              "logit": 2.9537737369537354,
+              "probability": 0.021851468831300735
+            },
+            {
+              "index": 9,
+              "logit": -4.319551944732666,
+              "probability": 1.5160566363192629e-05
+            },
+            {
+              "index": 8,
+              "logit": -4.927867412567139,
+              "probability": 8.251394319813699e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Golurk|Golurk, L87, tera:Ground|36/100",
+            "|move|p1a: Avalugg|Body Press|p2a: Golurk",
+            "|-damage|p2a: Golurk|17/100",
+            "|",
+            "|-damage|p1a: Avalugg|31/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|8"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 10,
+      "steps": [
+        {
+          "turn": 10,
+          "step_index": 8,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.1829652996845426,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Klawf",
+          "p2_hp_ratio": 0.39,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.96968674659729,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 9.572365760803223,
+              "probability": 0.96968674659729
+            },
+            {
+              "index": 1,
+              "logit": 6.105710029602051,
+              "probability": 0.030274851247668266
+            },
+            {
+              "index": 3,
+              "logit": -0.6936814785003662,
+              "probability": 3.3739892387529835e-05
+            },
+            {
+              "index": 9,
+              "logit": -2.7868576049804688,
+              "probability": 4.159958280069986e-06
+            },
+            {
+              "index": 10,
+              "logit": -5.093413352966309,
+              "probability": 4.1434731201661634e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Klawf|Klawf, L90, F|100/100",
+            "|move|p1a: Avalugg|Body Press|p2a: Klawf",
+            "|-supereffective|p2a: Klawf",
+            "|-damage|p2a: Klawf|70/100",
+            "|",
+            "|-damage|p1a: Avalugg|25/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|9"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 11,
+      "steps": [
+        {
+          "turn": 11,
+          "step_index": 9,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.12302839116719243,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.34,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Body Press",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.8260964751243591,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 8.386993408203125,
+              "probability": 0.8260964751243591
+            },
+            {
+              "index": 1,
+              "logit": 6.827541828155518,
+              "probability": 0.1736878901720047
+            },
+            {
+              "index": 3,
+              "logit": -0.0256046075373888,
+              "probability": 0.00018343661213293672
+            },
+            {
+              "index": 9,
+              "logit": -1.781680703163147,
+              "probability": 3.168338298564777e-05
+            },
+            {
+              "index": 10,
+              "logit": -6.013807773590088,
+              "probability": 4.6008966592125944e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Klawf|Swords Dance|p2a: Klawf",
+            "|-boost|p2a: Klawf|atk|2",
+            "|move|p1a: Avalugg|Body Press|p2a: Klawf",
+            "|-supereffective|p2a: Klawf",
+            "|-damage|p2a: Klawf|39/100",
+            "|-ability|p2a: Klawf|Anger Shell|boost",
+            "|-boost|p2a: Klawf|atk|1",
+            "|-boost|p2a: Klawf|spa|1",
+            "|-boost|p2a: Klawf|spe|1",
+            "|-unboost|p2a: Klawf|def|1",
+            "|-unboost|p2a: Klawf|spd|1",
+            "|",
+            "|-damage|p1a: Avalugg|19/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|10"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 12,
+      "steps": [
+        {
+          "turn": 12,
+          "step_index": 10,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0.06309148264984227,
+          "p1_status": "brn",
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.34,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Avalanche",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8443940877914429,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.325717926025391,
+              "probability": 0.8443940877914429
+            },
+            {
+              "index": 0,
+              "logit": 4.388516426086426,
+              "probability": 0.12168282270431519
+            },
+            {
+              "index": 1,
+              "logit": 3.1081132888793945,
+              "probability": 0.03381872549653053
+            },
+            {
+              "index": 9,
+              "logit": -2.703284502029419,
+              "probability": 0.00010122769162990153
+            },
+            {
+              "index": 10,
+              "logit": -6.179648399353027,
+              "probability": 3.1299227885028813e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Electivire|Electivire, L84, F|61/100",
+            "|move|p1a: Avalugg|Body Press|p2a: Electivire",
+            "|-damage|p2a: Electivire|34/100",
+            "|",
+            "|-damage|p1a: Avalugg|13/100 brn|[from] brn",
+            "|upkeep",
+            "|turn|11",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Golurk|Golurk, L87, tera:Ground|17/100",
+            "|move|p1a: Avalugg|Avalanche|p2a: Golurk",
+            "|-supereffective|p2a: Golurk",
+            "|-damage|p2a: Golurk|0 fnt",
+            "|faint|p2a: Golurk",
+            "|",
+            "|-damage|p1a: Avalugg|7/100 brn|[from] brn",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 12,
+          "step_index": 11,
+          "p1_species": "Avalugg",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.24,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Body Press",
+              "choice": "move 1",
+              "move": "Body Press"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Stone Edge",
+              "choice": "move 2",
+              "move": "Stone Edge"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Recover",
+              "choice": "move 3",
+              "move": "Recover"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Avalanche",
+              "choice": "move 4",
+              "move": "Avalanche"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 9,
+          "chosen_action_index": 3,
+          "chosen_action_label": "move:Avalanche",
+          "chosen_action_choice": "move 4",
+          "chosen_action_probability": 0.8128315806388855,
+          "model_top_k": [
+            {
+              "index": 3,
+              "logit": 6.054837226867676,
+              "probability": 0.8128315806388855
+            },
+            {
+              "index": 0,
+              "logit": 4.20635986328125,
+              "probability": 0.1280020773410797
+            },
+            {
+              "index": 1,
+              "logit": 3.432546854019165,
+              "probability": 0.059041090309619904
+            },
+            {
+              "index": 9,
+              "logit": -2.7953944206237793,
+              "probability": 0.00011651826207526028
+            },
+            {
+              "index": 10,
+              "logit": -5.385683536529541,
+              "probability": 8.73866883921437e-06
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Electivire|Electivire, L84, F|34/100",
+            "|turn|12"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 13,
+      "steps": [
+        {
+          "turn": 13,
+          "step_index": 12,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.9386281588447654,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.24,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Toxicroak, L84, F",
+              "choice": "switch 3",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 12,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 5,
+          "chosen_action_index": 9,
+          "chosen_action_label": "switch:Toxicroak, L84, F",
+          "chosen_action_choice": "switch 3",
+          "chosen_action_probability": 0.8152000904083252,
+          "model_top_k": [
+            {
+              "index": 9,
+              "logit": 4.099754333496094,
+              "probability": 0.8152000904083252
+            },
+            {
+              "index": 10,
+              "logit": 2.615582227706909,
+              "probability": 0.18479767441749573
+            },
+            {
+              "index": 12,
+              "logit": -8.884867668151855,
+              "probability": 1.8711756410993985e-06
+            },
+            {
+              "index": 11,
+              "logit": -10.428861618041992,
+              "probability": 3.995457404926128e-07
+            },
+            {
+              "index": 8,
+              "logit": -14.088573455810547,
+              "probability": 1.028427920601871e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Electivire|Ice Punch|p1a: Avalugg",
+            "|-damage|p1a: Avalugg|0 fnt",
+            "|faint|p1a: Avalugg",
+            "|-damage|p2a: Electivire|24/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 14,
+      "steps": [
+        {
+          "turn": 14,
+          "step_index": 13,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.8411552346570397,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Suicune",
+          "p2_hp_ratio": 0.28,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8712084889411926,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 5.58439826965332,
+              "probability": 0.8712084889411926
+            },
+            {
+              "index": 0,
+              "logit": 3.6479101181030273,
+              "probability": 0.12563654780387878
+            },
+            {
+              "index": 2,
+              "logit": -0.0365358367562294,
+              "probability": 0.0031548701226711273
+            },
+            {
+              "index": 10,
+              "logit": -10.041515350341797,
+              "probability": 1.4251942559440067e-07
+            },
+            {
+              "index": 9,
+              "logit": -11.114745140075684,
+              "probability": 4.872778802678113e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Toxicroak|Toxicroak, L84, F|100/100",
+            "|-damage|p1a: Toxicroak|94/100|[from] Stealth Rock",
+            "|turn|13"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 15,
+      "steps": [
+        {
+          "turn": 15,
+          "step_index": 14,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.7436823104693141,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Earthquake",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.9451688528060913,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 4.478173732757568,
+              "probability": 0.9451688528060913
+            },
+            {
+              "index": 1,
+              "logit": 1.4128493070602417,
+              "probability": 0.04408145695924759
+            },
+            {
+              "index": 2,
+              "logit": -7.978640496730804e-05,
+              "probability": 0.010730714537203312
+            },
+            {
+              "index": 10,
+              "logit": -6.3754777908325195,
+              "probability": 1.8273789464728907e-05
+            },
+            {
+              "index": 9,
+              "logit": -9.601249694824219,
+              "probability": 7.259275776050345e-07
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Suicune|Suicune, L82|67/100",
+            "|-ability|p2a: Suicune|Pressure",
+            "|move|p1a: Toxicroak|Gunk Shot|p2a: Suicune",
+            "|-damage|p2a: Suicune|22/100",
+            "|-damage|p1a: Toxicroak|85/100|[from] item: Life Orb",
+            "|",
+            "|-heal|p2a: Suicune|28/100|[from] item: Leftovers",
+            "|upkeep",
+            "|turn|14",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Toxicroak|Earthquake|p2a: Suicune",
+            "|-damage|p2a: Suicune|0 fnt",
+            "|faint|p2a: Suicune",
+            "|-damage|p1a: Toxicroak|75/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 16,
+      "steps": [
+        {
+          "turn": 16,
+          "step_index": 15,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.6462093862815884,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 1,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.5828953385353088,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 2.4428484439849854,
+              "probability": 0.5828953385353088
+            },
+            {
+              "index": 0,
+              "logit": 2.031240224838257,
+              "probability": 0.38621699810028076
+            },
+            {
+              "index": 2,
+              "logit": -0.5258013606071472,
+              "probability": 0.02994486130774021
+            },
+            {
+              "index": 10,
+              "logit": -4.004983425140381,
+              "probability": 0.0009232783922925591
+            },
+            {
+              "index": 11,
+              "logit": -7.8609161376953125,
+              "probability": 1.953091486939229e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100",
+            "|turn|15",
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Breloom|Breloom, L82, F|100/100",
+            "|move|p1a: Toxicroak|Gunk Shot|p2a: Breloom",
+            "|-supereffective|p2a: Breloom",
+            "|-damage|p2a: Breloom|0 fnt",
+            "|faint|p2a: Breloom",
+            "|-damage|p1a: Toxicroak|65/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 17,
+      "steps": [
+        {
+          "turn": 17,
+          "step_index": 16,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.3176895306859206,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 0.51,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.8496412038803101,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 2.4516918659210205,
+              "probability": 0.8496412038803101
+            },
+            {
+              "index": 0,
+              "logit": 0.376213401556015,
+              "probability": 0.10662687569856644
+            },
+            {
+              "index": 2,
+              "logit": -0.5564745664596558,
+              "probability": 0.041957106441259384
+            },
+            {
+              "index": 10,
+              "logit": -3.9031684398651123,
+              "probability": 0.0014769126428291202
+            },
+            {
+              "index": 9,
+              "logit": -5.504309177398682,
+              "probability": 0.0002978435077238828
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100",
+            "|turn|16"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 18,
+      "steps": [
+        {
+          "turn": 18,
+          "step_index": 17,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0.17689530685920576,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 0.13,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Gunk Shot",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.454712837934494,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 1.4538387060165405,
+              "probability": 0.454712837934494
+            },
+            {
+              "index": 0,
+              "logit": 1.384123682975769,
+              "probability": 0.42409226298332214
+            },
+            {
+              "index": 2,
+              "logit": 0.12280996888875961,
+              "probability": 0.12013755738735199
+            },
+            {
+              "index": 10,
+              "logit": -5.164856910705566,
+              "probability": 0.0006071195239201188
+            },
+            {
+              "index": 9,
+              "logit": -5.463927268981934,
+              "probability": 0.00045018355012871325
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak",
+            "|-resisted|p2a: Toxicroak",
+            "|-damage|p2a: Toxicroak|61/100",
+            "|-damage|p1a: Toxicroak|55/100|[from] item: Life Orb",
+            "|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak",
+            "|-resisted|p1a: Toxicroak",
+            "|-damage|p1a: Toxicroak|32/100",
+            "|-enditem|p1a: Toxicroak|Life Orb|[from] move: Knock Off|[of] p2a: Toxicroak",
+            "|-damage|p2a: Toxicroak|51/100|[from] item: Life Orb",
+            "|",
+            "|upkeep",
+            "|turn|17"
+          ]
+        },
+        {
+          "turn": 18,
+          "step_index": 18,
+          "p1_species": "Toxicroak",
+          "p1_hp_ratio": 0,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 0.03,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 1",
+              "move": "Earthquake"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Gunk Shot",
+              "choice": "move 2",
+              "move": "Gunk Shot"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Close Combat",
+              "choice": "move 3",
+              "move": "Close Combat"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Swords Dance",
+              "choice": "move 4",
+              "move": "Swords Dance"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 8,
+          "chosen_action_index": 0,
+          "chosen_action_label": "move:Earthquake",
+          "chosen_action_choice": "move 1",
+          "chosen_action_probability": 0.6911234855651855,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 2.4240121841430664,
+              "probability": 0.6911234855651855
+            },
+            {
+              "index": 1,
+              "logit": 1.038204312324524,
+              "probability": 0.17286494374275208
+            },
+            {
+              "index": 2,
+              "logit": 0.7968343496322632,
+              "probability": 0.13579420745372772
+            },
+            {
+              "index": 9,
+              "logit": -6.21384859085083,
+              "probability": 0.00012251242878846824
+            },
+            {
+              "index": 10,
+              "logit": -6.469136714935303,
+              "probability": 9.490965021541342e-05
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak",
+            "|-resisted|p1a: Toxicroak",
+            "|-damage|p1a: Toxicroak|18/100",
+            "|-damage|p2a: Toxicroak|42/100|[from] item: Life Orb",
+            "|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak",
+            "|-resisted|p2a: Toxicroak",
+            "|-damage|p2a: Toxicroak|13/100",
+            "|",
+            "|upkeep",
+            "|turn|18"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 19,
+      "steps": [
+        {
+          "turn": 19,
+          "step_index": 19,
+          "p1_species": "Salamence",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Toxicroak",
+          "p2_hp_ratio": 0.03,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Salamence, L77, M",
+              "choice": "switch 5",
+              "move": null
+            },
+            {
+              "index": 11,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 4,
+          "chosen_action_index": 10,
+          "chosen_action_label": "switch:Salamence, L77, M",
+          "chosen_action_choice": "switch 5",
+          "chosen_action_probability": 0.013617676682770252,
+          "model_top_k": [
+            {
+              "index": 10,
+              "logit": -3.961829662322998,
+              "probability": 0.013617676682770252
+            },
+            {
+              "index": 11,
+              "logit": -4.77956485748291,
+              "probability": 0.006011255085468292
+            },
+            {
+              "index": 9,
+              "logit": -6.298913955688477,
+              "probability": 0.001315588946454227
+            },
+            {
+              "index": 8,
+              "logit": -12.13760757446289,
+              "probability": 3.831843514490174e-06
+            },
+            {
+              "index": 0,
+              "logit": 0.31338590383529663,
+              "probability": 0.9790515899658203
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Toxicroak|Gunk Shot|p1a: Toxicroak",
+            "|-resisted|p1a: Toxicroak",
+            "|-damage|p1a: Toxicroak|0 fnt",
+            "|faint|p1a: Toxicroak",
+            "|-damage|p2a: Toxicroak|3/100|[from] item: Life Orb",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 20,
+      "steps": [
+        {
+          "turn": 20,
+          "step_index": 20,
+          "p1_species": "Salamence",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Klawf",
+          "p2_hp_ratio": 0.39,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 2",
+              "move": "Outrage"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 3",
+              "move": "Earthquake"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dual Wingbeat",
+              "choice": "move 4",
+              "move": "Dual Wingbeat"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 2,
+          "chosen_action_label": "move:Earthquake",
+          "chosen_action_choice": "move 3",
+          "chosen_action_probability": 0.9374014735221863,
+          "model_top_k": [
+            {
+              "index": 2,
+              "logit": 6.465121746063232,
+              "probability": 0.9374014735221863
+            },
+            {
+              "index": 1,
+              "logit": 3.7365710735321045,
+              "probability": 0.06122532859444618
+            },
+            {
+              "index": 3,
+              "logit": -0.06103164330124855,
+              "probability": 0.0013729450292885303
+            },
+            {
+              "index": 8,
+              "logit": -8.835811614990234,
+              "probability": 2.1223378610102372e-07
+            },
+            {
+              "index": 9,
+              "logit": -11.686902046203613,
+              "probability": 1.2263150495073205e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p1a: Salamence|Salamence, L77, M|100/100",
+            "|-ability|p1a: Salamence|Intimidate|boost",
+            "|-unboost|p2a: Toxicroak|atk|1",
+            "|turn|19",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Salamence|Earthquake|p2a: Toxicroak",
+            "|-supereffective|p2a: Toxicroak",
+            "|-damage|p2a: Toxicroak|0 fnt",
+            "|faint|p2a: Toxicroak",
+            "|",
+            "|upkeep"
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "steps": [
+        {
+          "turn": 21,
+          "step_index": 21,
+          "p1_species": "Salamence",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Electivire",
+          "p2_hp_ratio": 0.24,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "move:Dragon Dance",
+              "choice": "move 1",
+              "move": "Dragon Dance"
+            },
+            {
+              "index": 1,
+              "kind": "move",
+              "label": "move:Outrage",
+              "choice": "move 2",
+              "move": "Outrage"
+            },
+            {
+              "index": 2,
+              "kind": "move",
+              "label": "move:Earthquake",
+              "choice": "move 3",
+              "move": "Earthquake"
+            },
+            {
+              "index": 3,
+              "kind": "move",
+              "label": "move:Dual Wingbeat",
+              "choice": "move 4",
+              "move": "Dual Wingbeat"
+            },
+            {
+              "index": 8,
+              "kind": "switch",
+              "label": "switch:Latios, L78, M",
+              "choice": "switch 2",
+              "move": null
+            },
+            {
+              "index": 9,
+              "kind": "switch",
+              "label": "switch:Perrserker, L89, F",
+              "choice": "switch 4",
+              "move": null
+            },
+            {
+              "index": 10,
+              "kind": "switch",
+              "label": "switch:Drifblim, L86, M",
+              "choice": "switch 6",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 7,
+          "chosen_action_index": 1,
+          "chosen_action_label": "move:Outrage",
+          "chosen_action_choice": "move 2",
+          "chosen_action_probability": 0.9813404679298401,
+          "model_top_k": [
+            {
+              "index": 1,
+              "logit": 6.250306606292725,
+              "probability": 0.9813404679298401
+            },
+            {
+              "index": 2,
+              "logit": 1.999148964881897,
+              "probability": 0.013981872238218784
+            },
+            {
+              "index": 3,
+              "logit": 0.9041348099708557,
+              "probability": 0.00467742420732975
+            },
+            {
+              "index": 8,
+              "logit": -9.191816329956055,
+              "probability": 1.9292596675768436e-07
+            },
+            {
+              "index": 10,
+              "logit": -10.879830360412598,
+              "probability": 3.566941231269993e-08
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Klawf|Klawf, L90, F|39/100",
+            "|turn|20",
+            "|",
+            "|t:|1777163584",
+            "|move|p1a: Salamence|Outrage|p2a: Klawf",
+            "|-damage|p2a: Klawf|0 fnt",
+            "|faint|p2a: Klawf",
+            "|",
+            "|upkeep"
+          ]
+        },
+        {
+          "turn": 21,
+          "step_index": 22,
+          "p1_species": "Salamence",
+          "p1_hp_ratio": 1,
+          "p1_status": null,
+          "p1_boosts": {},
+          "p2_species": "Golurk",
+          "p2_hp_ratio": 0,
+          "p2_status": null,
+          "legal_actions": [
+            {
+              "index": 0,
+              "kind": "move",
+              "label": "default",
+              "choice": "default",
+              "move": null
+            }
+          ],
+          "legal_actions_count": 1,
+          "chosen_action_index": 0,
+          "chosen_action_label": "default",
+          "chosen_action_choice": "default",
+          "chosen_action_probability": 0.9996902942657471,
+          "model_top_k": [
+            {
+              "index": 0,
+              "logit": 10.141904830932617,
+              "probability": 0.9996902942657471
+            },
+            {
+              "index": 1,
+              "logit": 1.4202799797058105,
+              "probability": 0.0001629716862225905
+            },
+            {
+              "index": 2,
+              "logit": -16.11530303955078,
+              "probability": 3.9491621778298125e-12
+            },
+            {
+              "index": 3,
+              "logit": -1.4387919902801514,
+              "probability": 9.341844815935474e-06
+            },
+            {
+              "index": 4,
+              "logit": 1.2498196363449097,
+              "probability": 0.00013743013550993055
+            }
+          ],
+          "protocol_log": [
+            "|",
+            "|t:|1777163584",
+            "|switch|p2a: Electivire|Electivire, L84, F|24/100",
+            "|turn|21",
+            "|",
+            "|t:|1777163584",
+            "|move|p2a: Electivire|Bulk Up|p2a: Electivire",
+            "|-boost|p2a: Electivire|atk|1",
+            "|-boost|p2a: Electivire|def|1",
+            "|move|p1a: Salamence|Outrage|p2a: Electivire|[from] lockedmove",
+            "|-damage|p2a: Electivire|0 fnt",
+            "|faint|p2a: Electivire",
+            "|-start|p1a: Salamence|confusion|[fatigue]",
+            "|",
+            "|win|Agent-1"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "protocol_log": [
+    "|t:|1777163584",
+    "|gametype|singles",
+    "|player|p1|Agent-1||",
+    "|player|p2|Agent-2||",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1777163584",
+    "|start",
+    "|switch|p1a: Avalugg|Avalugg-Hisui, L90, M|100/100",
+    "|switch|p2a: Golurk|Golurk, L87|100/100",
+    "|turn|1",
+    "|",
+    "|t:|1777163584",
+    "|-terastallize|p2a: Golurk|Ground",
+    "|move|p2a: Golurk|Stealth Rock|p1a: Avalugg",
+    "|-sidestart|p1: Agent-1|move: Stealth Rock",
+    "|move|p1a: Avalugg|Avalanche|p2a: Golurk",
+    "|-supereffective|p2a: Golurk",
+    "|-damage|p2a: Golurk|36/100",
+    "|",
+    "|upkeep",
+    "|turn|2",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Suicune|Suicune, L82|100/100",
+    "|-ability|p2a: Suicune|Pressure",
+    "|move|p1a: Avalugg|Avalanche|p2a: Suicune",
+    "|-resisted|p2a: Suicune",
+    "|-damage|p2a: Suicune|87/100",
+    "|",
+    "|-heal|p2a: Suicune|93/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|3",
+    "|",
+    "|t:|1777163584",
+    "|-terastallize|p1a: Avalugg|Poison",
+    "|move|p2a: Suicune|Scald|p1a: Avalugg",
+    "|-damage|p1a: Avalugg|61/100",
+    "|-status|p1a: Avalugg|brn",
+    "|move|p1a: Avalugg|Stone Edge|p2a: Suicune",
+    "|-damage|p2a: Suicune|73/100",
+    "|",
+    "|-heal|p2a: Suicune|79/100|[from] item: Leftovers",
+    "|-damage|p1a: Avalugg|55/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|4",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Suicune|Substitute|p2a: Suicune",
+    "|-start|p2a: Suicune|Substitute",
+    "|-damage|p2a: Suicune|55/100",
+    "|move|p1a: Avalugg|Body Press|p2a: Suicune",
+    "|-activate|p2a: Suicune|move: Substitute|[damage]",
+    "|",
+    "|-heal|p2a: Suicune|61/100|[from] item: Leftovers",
+    "|-damage|p1a: Avalugg|49/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|5",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Suicune|Calm Mind|p2a: Suicune",
+    "|-boost|p2a: Suicune|spa|1",
+    "|-boost|p2a: Suicune|spd|1",
+    "|move|p1a: Avalugg|Body Press|p2a: Suicune",
+    "|-end|p2a: Suicune|Substitute",
+    "|",
+    "|-heal|p2a: Suicune|67/100|[from] item: Leftovers",
+    "|-damage|p1a: Avalugg|43/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|6",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Electivire|Electivire, L84, F|100/100",
+    "|move|p1a: Avalugg|Body Press|p2a: Electivire",
+    "|-crit|p2a: Electivire",
+    "|-damage|p2a: Electivire|61/100",
+    "|",
+    "|-damage|p1a: Avalugg|37/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|7",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Golurk|Golurk, L87, tera:Ground|36/100",
+    "|move|p1a: Avalugg|Body Press|p2a: Golurk",
+    "|-damage|p2a: Golurk|17/100",
+    "|",
+    "|-damage|p1a: Avalugg|31/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|8",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Klawf|Klawf, L90, F|100/100",
+    "|move|p1a: Avalugg|Body Press|p2a: Klawf",
+    "|-supereffective|p2a: Klawf",
+    "|-damage|p2a: Klawf|70/100",
+    "|",
+    "|-damage|p1a: Avalugg|25/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|9",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Klawf|Swords Dance|p2a: Klawf",
+    "|-boost|p2a: Klawf|atk|2",
+    "|move|p1a: Avalugg|Body Press|p2a: Klawf",
+    "|-supereffective|p2a: Klawf",
+    "|-damage|p2a: Klawf|39/100",
+    "|-ability|p2a: Klawf|Anger Shell|boost",
+    "|-boost|p2a: Klawf|atk|1",
+    "|-boost|p2a: Klawf|spa|1",
+    "|-boost|p2a: Klawf|spe|1",
+    "|-unboost|p2a: Klawf|def|1",
+    "|-unboost|p2a: Klawf|spd|1",
+    "|",
+    "|-damage|p1a: Avalugg|19/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|10",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Electivire|Electivire, L84, F|61/100",
+    "|move|p1a: Avalugg|Body Press|p2a: Electivire",
+    "|-damage|p2a: Electivire|34/100",
+    "|",
+    "|-damage|p1a: Avalugg|13/100 brn|[from] brn",
+    "|upkeep",
+    "|turn|11",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Golurk|Golurk, L87, tera:Ground|17/100",
+    "|move|p1a: Avalugg|Avalanche|p2a: Golurk",
+    "|-supereffective|p2a: Golurk",
+    "|-damage|p2a: Golurk|0 fnt",
+    "|faint|p2a: Golurk",
+    "|",
+    "|-damage|p1a: Avalugg|7/100 brn|[from] brn",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Electivire|Electivire, L84, F|34/100",
+    "|turn|12",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Electivire|Ice Punch|p1a: Avalugg",
+    "|-damage|p1a: Avalugg|0 fnt",
+    "|faint|p1a: Avalugg",
+    "|-damage|p2a: Electivire|24/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Toxicroak|Toxicroak, L84, F|100/100",
+    "|-damage|p1a: Toxicroak|94/100|[from] Stealth Rock",
+    "|turn|13",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Suicune|Suicune, L82|67/100",
+    "|-ability|p2a: Suicune|Pressure",
+    "|move|p1a: Toxicroak|Gunk Shot|p2a: Suicune",
+    "|-damage|p2a: Suicune|22/100",
+    "|-damage|p1a: Toxicroak|85/100|[from] item: Life Orb",
+    "|",
+    "|-heal|p2a: Suicune|28/100|[from] item: Leftovers",
+    "|upkeep",
+    "|turn|14",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Toxicroak|Earthquake|p2a: Suicune",
+    "|-damage|p2a: Suicune|0 fnt",
+    "|faint|p2a: Suicune",
+    "|-damage|p1a: Toxicroak|75/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100",
+    "|turn|15",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Breloom|Breloom, L82, F|100/100",
+    "|move|p1a: Toxicroak|Gunk Shot|p2a: Breloom",
+    "|-supereffective|p2a: Breloom",
+    "|-damage|p2a: Breloom|0 fnt",
+    "|faint|p2a: Breloom",
+    "|-damage|p1a: Toxicroak|65/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Toxicroak|Toxicroak, L84, M|100/100",
+    "|turn|16",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak",
+    "|-resisted|p2a: Toxicroak",
+    "|-damage|p2a: Toxicroak|61/100",
+    "|-damage|p1a: Toxicroak|55/100|[from] item: Life Orb",
+    "|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak",
+    "|-resisted|p1a: Toxicroak",
+    "|-damage|p1a: Toxicroak|32/100",
+    "|-enditem|p1a: Toxicroak|Life Orb|[from] move: Knock Off|[of] p2a: Toxicroak",
+    "|-damage|p2a: Toxicroak|51/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|turn|17",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Toxicroak|Knock Off|p1a: Toxicroak",
+    "|-resisted|p1a: Toxicroak",
+    "|-damage|p1a: Toxicroak|18/100",
+    "|-damage|p2a: Toxicroak|42/100|[from] item: Life Orb",
+    "|move|p1a: Toxicroak|Gunk Shot|p2a: Toxicroak",
+    "|-resisted|p2a: Toxicroak",
+    "|-damage|p2a: Toxicroak|13/100",
+    "|",
+    "|upkeep",
+    "|turn|18",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Toxicroak|Gunk Shot|p1a: Toxicroak",
+    "|-resisted|p1a: Toxicroak",
+    "|-damage|p1a: Toxicroak|0 fnt",
+    "|faint|p1a: Toxicroak",
+    "|-damage|p2a: Toxicroak|3/100|[from] item: Life Orb",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p1a: Salamence|Salamence, L77, M|100/100",
+    "|-ability|p1a: Salamence|Intimidate|boost",
+    "|-unboost|p2a: Toxicroak|atk|1",
+    "|turn|19",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Salamence|Earthquake|p2a: Toxicroak",
+    "|-supereffective|p2a: Toxicroak",
+    "|-damage|p2a: Toxicroak|0 fnt",
+    "|faint|p2a: Toxicroak",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Klawf|Klawf, L90, F|39/100",
+    "|turn|20",
+    "|",
+    "|t:|1777163584",
+    "|move|p1a: Salamence|Outrage|p2a: Klawf",
+    "|-damage|p2a: Klawf|0 fnt",
+    "|faint|p2a: Klawf",
+    "|",
+    "|upkeep",
+    "|",
+    "|t:|1777163584",
+    "|switch|p2a: Electivire|Electivire, L84, F|24/100",
+    "|turn|21",
+    "|",
+    "|t:|1777163584",
+    "|move|p2a: Electivire|Bulk Up|p2a: Electivire",
+    "|-boost|p2a: Electivire|atk|1",
+    "|-boost|p2a: Electivire|def|1",
+    "|move|p1a: Salamence|Outrage|p2a: Electivire|[from] lockedmove",
+    "|-damage|p2a: Electivire|0 fnt",
+    "|faint|p2a: Electivire",
+    "|-start|p1a: Salamence|confusion|[fatigue]",
+    "|",
+    "|win|Agent-1"
+  ]
+}

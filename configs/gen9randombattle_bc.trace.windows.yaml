@@ -1,0 +1,73 @@
+{
+  "profile": "dev",
+  "sim_core": {
+    "command": [
+      "node",
+      "dist/src/server.js"
+    ],
+    "cwd": "../sim-core"
+  },
+  "dataset": {
+    "num_battles": 1000,
+    "output_path": "../data/raw/gen9randombattle_bc.dev.jsonl.gz",
+    "shard_path": "../data/shards/gen9randombattle_bc.dev.npz",
+    "latency_output_path": "../artifacts/latency/gen9randombattle_bc_dataset_latency.dev.windows.json",
+    "controller_matchup": {
+      "p1": "heuristic",
+      "p2": "random"
+    }
+  },
+  "tracing": {
+    "enabled": true,
+    "trace_sample_rate": 0.1,
+    "trace_max_battles": 10,
+    "output_dir": null,
+    "include_protocol_log": true,
+    "include_markdown": true
+  },
+  "runtime": {
+    "num_envs": 4,
+    "heartbeat_interval_sec": 15,
+    "retry_attempts_per_battle": 2,
+    "timeouts_sec": {
+      "create_env": 15,
+      "reset": 45,
+      "step": 20,
+      "agent_action": 10,
+      "close_env": 5,
+      "ping": 5,
+      "batch": 45
+    }
+  },
+  "training": {
+    "batch_size": 128,
+    "epochs": 20,
+    "hidden_sizes": [256, 256],
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "train_split": 0.9,
+    "resume": true,
+    "best_checkpoint_path": "../artifacts/checkpoints/gen9randombattle_bc.dev.best.pt",
+    "checkpoint_path": "../artifacts/checkpoints/gen9randombattle_bc.dev.pt"
+  },
+  "ppo": {
+    "episodes": 2,
+    "epochs": 1,
+    "opponent": "random",
+    "learning_rate": 0.0003,
+    "gamma": 0.99
+  },
+  "improvement": {
+    "cycles": 2,
+    "collect_battles_per_cycle": 4,
+    "bc_epochs_per_cycle": 1,
+    "ppo_episodes_per_cycle": 1,
+    "ppo_epochs_per_cycle": 1,
+    "eval_battles_per_cycle": 2,
+    "eval_opponents": ["random", "heuristic"],
+    "keep_last_checkpoints": 2,
+    "state_path": "../artifacts/improve/dev_state.json",
+    "work_dir": "../artifacts/improve/dev",
+    "cumulative_shard_path": "../data/shards/improve/dev_cumulative.npz"
+  }
+}
