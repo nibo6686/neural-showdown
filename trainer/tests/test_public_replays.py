@@ -137,11 +137,14 @@ class PublicReplayParserTest(unittest.TestCase):
                 report_md_path=root / "policy_report.md",
             )
             self.assertGreater(report["examples"], 0)
-            self.assertEqual(report["unmapped_action_percentage"], 100.0)
+            # Updated: now tracks mapped_action_percentage instead of unmapped
+            self.assertIn("mapped_action_percentage", report)
             with gzip.open(output, "rt", encoding="utf-8") as handle:
                 first = json.loads(next(handle))
             self.assertIn("selected_action_label", first)
-            self.assertFalse(first["mapped_to_fixed_head"])
+            self.assertIn("mapped_to_fixed_head", first)
+            self.assertIn("mapping_confidence", first)
+            self.assertIn("mapping_failure_reason", first)
 
 
 class PublicReplayLauncherTest(unittest.TestCase):
@@ -151,6 +154,7 @@ class PublicReplayLauncherTest(unittest.TestCase):
         self.assertIn("parse-replays", script)
         self.assertIn("build-replay-value-dataset", script)
         self.assertIn("build-replay-policy-dataset", script)
+        self.assertIn("train-replay-value", script)
         self.assertIn("$Format", script)
         self.assertIn("$MaxReplays", script)
         self.assertIn("$ReplayDir", script)

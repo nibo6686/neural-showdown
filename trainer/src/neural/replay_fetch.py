@@ -373,6 +373,8 @@ def fetch_public_replays(
     replay_base_url: str = REPLAY_BASE_URL,
     retries: int = 3,
     timeout_sec: float = 30.0,
+    progress_interval: int = 50,
+    checkpoint_interval: int = 100,
 ) -> Dict[str, Any]:
     selected_out_dir = out_dir or Path("data/replays/raw") / format_name
     selected_out_dir.mkdir(parents=True, exist_ok=True)
@@ -390,6 +392,7 @@ def fetch_public_replays(
     before: Optional[Any] = None
     seen_cursors: Set[str] = set()
     started_at = time.perf_counter()
+    last_progress_at = started_at
 
     while fetched < max(0, int(max_replays)):
         cursor_key = "" if before in (None, "") else str(before)
@@ -477,6 +480,30 @@ def fetch_public_replays(
                 _append_jsonl(failures_path, failure)
                 reason_counts["exception"] = reason_counts.get("exception", 0) + 1
 
+            # Progress reporting: print every progress_interval replays
+            if fetched % progress_interval == 0:
+                elapsed = time.perf_counter() - started_at
+                avg_per_sec = downloaded / elapsed if elapsed > 0 else 0
+                remaining_target = max(0, int(max_replays) - fetched)
+                eta_sec = remaining_target / avg_per_sec if avg_per_sec > 0 else 0
+                print_line_safe(
+                    f"fetch-replays | format={format_name} fetched={fetched}/{max_replays} "
+                    f"downloaded={downloaded} skipped={skipped} failed={len(failures)} "
+                    f"rate={avg_per_sec:.1f}/sec eta={int(eta_sec)}s"
+                )
+                last_progress_at = time.perf_counter()
+
+            # Batch checkpoint: write intermediate metadata every checkpoint_interval replays
+            if downloaded > 0 and downloaded % checkpoint_interval == 0:
+                checkpoint_metadata = {
+                    "format": format_name,
+                    "checkpoint_at_downloaded": downloaded,
+                    "checkpoint_at_fetched": fetched,
+                    "checkpoint_timestamp": utc_now_iso(),
+                }
+                _append_jsonl(metadata_path.parent / "checkpoint.jsonl", checkpoint_metadata)
+
+        # Page-level progress
         print_line_safe(
             f"fetch-replays | format={format_name} fetched={fetched} downloaded={downloaded} "
             f"skipped={skipped} failed={len(failures)}"
@@ -489,6 +516,7 @@ def fetch_public_replays(
             break
         before = next_before
 
+    wall_time = time.perf_counter() - started_at
     report = {
         "format": format_name,
         "max_replays": int(max_replays),
@@ -503,14 +531,14 @@ def fetch_public_replays(
         "skipped": int(skipped),
         "failed": int(len(failures)),
         "failure_reasons": reason_counts,
-        "wall_time_sec": time.perf_counter() - started_at,
+        "wall_time_sec": wall_time,
         "timestamp": utc_now_iso(),
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print_line_safe(
         f"fetch-replays done | format={format_name} fetched={fetched} downloaded={downloaded} "
-        f"skipped={skipped} failed={len(failures)} report={report_path}"
+        f"skipped={skipped} failed={len(failures)} wall_time={int(wall_time)}s report={report_path}"
     )
     return report
 

@@ -330,6 +330,8 @@ def build_public_replay_value_dataset(
     examples: List[Dict[str, Any]] = []
     skipped: List[Dict[str, Any]] = []
     p1_outcomes: Counter[str] = Counter()
+    skip_reasons: Counter[str] = Counter()
+    turn_counts: List[int] = []
     for trajectory in trajectories:
         winner_side = trajectory.get("winner_side")
         p1_result = result_from_winner_side(winner_side, perspective="p1")
@@ -344,8 +346,11 @@ def build_public_replay_value_dataset(
 
         source_examples, skip_reason = examples_from_trajectory(trajectory)
         if skip_reason:
+            skip_reasons[skip_reason] += 1
             skipped.append({"replay_id": trajectory.get("replay_id"), "reason": skip_reason})
             continue
+        turn_count = len(trajectory.get("turns", []))
+        turn_counts.append(turn_count)
         examples.extend(source_examples)
 
     arrays = _stack_examples(examples)
@@ -359,6 +364,18 @@ def build_public_replay_value_dataset(
     )
 
     targets = arrays["value_targets"]
+
+    # Calculate turn statistics
+    turn_stats = {}
+    if turn_counts:
+        sorted_turns = sorted(turn_counts)
+        turn_stats = {
+            "min": int(min(turn_counts)),
+            "max": int(max(turn_counts)),
+            "median": int(sorted_turns[len(sorted_turns) // 2]),
+            "mean": float(np.mean(turn_counts)),
+        }
+
     report = {
         "format": format_name,
         "feature_format": FEATURE_FORMAT_NOTE,
@@ -369,6 +386,7 @@ def build_public_replay_value_dataset(
         "parsed_battles": int(len(trajectories)),
         "examples": int(arrays["states"].shape[0]),
         "p1_outcomes": dict(p1_outcomes),
+        "turn_statistics": turn_stats,
         "target_distribution": {
             "mean": float(targets.mean()),
             "std": float(targets.std()),
@@ -378,6 +396,7 @@ def build_public_replay_value_dataset(
             "negative": int((targets < 0).sum()),
             "zero": int((targets == 0).sum()),
         },
+        "skip_reasons": dict(skip_reasons),
         "skipped_failed_replays": skipped,
         "skipped_failed_count": int(len(skipped)),
         "replay_dir": str(selected_replay_dir),
@@ -412,6 +431,22 @@ def _format_markdown_report(report: Dict[str, Any]) -> str:
     ]
     for key in ("win", "loss", "tie", "unknown"):
         lines.append(f"- {key}: {report.get('p1_outcomes', {}).get(key, 0)}")
+
+    # Turn statistics
+    if report.get("turn_statistics"):
+        turn_stats = report["turn_statistics"]
+        lines.extend(
+            [
+                "",
+                "## Turn Statistics",
+                "",
+                f"- Min: {turn_stats.get('min', 'N/A')}",
+                f"- Max: {turn_stats.get('max', 'N/A')}",
+                f"- Median: {turn_stats.get('median', 'N/A')}",
+                f"- Mean: {turn_stats.get('mean', 'N/A'):.1f}",
+            ]
+        )
+
     dist = report["target_distribution"]
     lines.extend(
         [
@@ -420,10 +455,19 @@ def _format_markdown_report(report: Dict[str, Any]) -> str:
             "",
             f"- Mean/std: {dist['mean']:.4f} / {dist['std']:.4f}",
             f"- Positive/negative/zero examples: {dist['positive']} / {dist['negative']} / {dist['zero']}",
-            "",
-            "## Skips",
-            "",
-            f"- Skipped/failed replays: {report['skipped_failed_count']}",
+        ]
+    )
+
+    # Skip reasons
+    if report.get("skip_reasons"):
+        lines.append("")
+        lines.append("## Skip Reasons")
+        lines.append("")
+        for reason, count in sorted(report["skip_reasons"].items(), key=lambda x: -x[1]):
+            lines.append(f"- {reason}: {count}")
+
+    lines.extend(
+        [
             "",
             f"Output: `{report['output_path']}`",
             "",

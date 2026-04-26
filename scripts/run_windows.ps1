@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -419,6 +419,12 @@ function Invoke-BuildReplayPolicyDataset {
     )
 }
 
+function Invoke-TrainReplayValue {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\value\${Format}_public_replay_value.npz" } else { $DatasetPath }
+    Write-Host "launcher train-replay-value | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.train_replay_value' -Arguments @('--dataset-path', $selectedDatasetPath)
+}
+
 Push-Location $repoRoot
 try {
     if (-not (Test-Path $PythonExe)) {
@@ -439,6 +445,7 @@ try {
         'trace-eval' { Invoke-TraceEval }
         'build-value-dataset' { Invoke-BuildValueDataset }
         'train-value' { Invoke-TrainValue }
+        'train-replay-value' { Invoke-TrainReplayValue }
         'analyze-state' { Invoke-AnalyzeState }
         'collect-selfplay' { Invoke-CollectSelfplay }
         'compare-checkpoints' { Invoke-CompareCheckpoints }
