@@ -1,0 +1,693 @@
+import argparse
+import json
+import time
+from collections import Counter
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence
+
+import numpy as np
+
+from .build_replay_value_dataset import (
+    DEFAULT_FORMAT,
+    _ensure_trajectories,
+    _load_trajectories,
+    _safe_float,
+    result_from_winner_side,
+)
+from .live_opponent_beliefs import build_opponent_beliefs
+from .live_private_features import (
+    FEATURE_DIM,
+    FEATURE_NAMES,
+    FEATURE_VERSION,
+    build_live_private_feature_vector,
+    public_feature_vector_from_trajectory,
+    trajectory_prefix,
+)
+from .logging_helper import format_summary, print_line_safe
+from .value_features import (
+    discounted_terminal_return,
+    final_result_from_winner,
+    flatten_trace_steps,
+    load_trace,
+    view_request_from_step,
+)
+
+
+DEFAULT_OUTPUT_PATH = Path("data/value/gen9randombattle_live_private_value.npz")
+DEFAULT_REPORT_JSON_PATH = Path("artifacts/analysis/live_private_value_dataset_report.json")
+DEFAULT_REPORT_MD_PATH = Path("artifacts/analysis/live_private_value_dataset_report.md")
+DEFAULT_TRACE_DIR = Path("artifacts/battles/dev")
+
+
+def _metadata_json(payload: Dict[str, Any]) -> str:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
+def _species_from_text(value: Any) -> Optional[str]:
+    if not value:
+        return None
+    text = str(value)
+    if ": " in text:
+        text = text.split(": ", 1)[1]
+    return text.split(",", 1)[0].strip() or None
+
+
+def _species_from_event(event: Dict[str, Any]) -> Optional[str]:
+    if event.get("type") == "switch":
+        return _species_from_text(event.get("details") or event.get("actor"))
+    return _species_from_text(event.get("actor") or event.get("target"))
+
+
+def _protocol_prefix_until_turn(protocol_log: Sequence[str], through_turn: int) -> List[str]:
+    result: List[str] = []
+    current_turn = 0
+    for line in protocol_log:
+        text = str(line)
+        if text.startswith("|turn|"):
+            parts = text.split("|")
+            try:
+                current_turn = int(parts[2])
+            except (IndexError, ValueError):
+                current_turn = through_turn
+            if current_turn > through_turn:
+                break
+        if current_turn <= through_turn:
+            result.append(text)
+    return result
+
+
+def _trajectory_prefix_for_training(trajectory: Dict[str, Any], through_turn: int) -> Dict[str, Any]:
+    prefix = trajectory_prefix(trajectory, through_turn)
+    protocol_log = trajectory.get("protocol_log") if isinstance(trajectory.get("protocol_log"), list) else []
+    prefix["protocol_log"] = _protocol_prefix_until_turn(protocol_log, through_turn)
+    return prefix
+
+
+def _reconstructed_completed_private_teams(trajectory: Dict[str, Any]) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    teams: Dict[str, Dict[str, Dict[str, Any]]] = {"p1": {}, "p2": {}}
+    turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    for turn in turns:
+        events = turn.get("events") if isinstance(turn, dict) and isinstance(turn.get("events"), list) else []
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            side = event.get("side")
+            if side not in ("p1", "p2"):
+                continue
+            species = _species_from_event(event)
+            if not species:
+                continue
+            slot = teams[side].setdefault(
+                species,
+                {
+                    "species": species,
+                    "moves": set(),
+                    "item": None,
+                    "ability": None,
+                    "tera_type": None,
+                },
+            )
+            if event.get("type") == "move" and event.get("move"):
+                slot["moves"].add(str(event["move"]))
+            if event.get("type") == "tera" and event.get("tera_type"):
+                slot["tera_type"] = str(event["tera_type"])
+
+    protocol_log = trajectory.get("protocol_log") if isinstance(trajectory.get("protocol_log"), list) else []
+    for line in protocol_log:
+        if not isinstance(line, str) or not line.startswith("|-"):
+            continue
+        parts = line.split("|")
+        if len(parts) < 4:
+            continue
+        tag = parts[1]
+        if tag not in ("-ability", "-item", "-enditem", "-terastallize"):
+            continue
+        side = parts[2][:2]
+        if side not in ("p1", "p2"):
+            continue
+        species = _species_from_text(parts[2])
+        if not species:
+            continue
+        slot = teams[side].setdefault(
+            species,
+            {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None},
+        )
+        if tag == "-ability":
+            slot["ability"] = parts[3]
+        elif tag in ("-item", "-enditem"):
+            slot["item"] = parts[3]
+        elif tag == "-terastallize":
+            slot["tera_type"] = parts[3]
+    return teams
+
+
+def _side_public_state_at_turn(trajectory: Dict[str, Any], side: str, through_turn: int) -> Dict[str, Dict[str, Any]]:
+    state: Dict[str, Dict[str, Any]] = {}
+    active_species: Optional[str] = None
+    turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    for turn in sorted(turns, key=lambda item: int(item.get("turn", 0) or 0)):
+        turn_number = int(turn.get("turn", 0) or 0)
+        if turn_number > through_turn:
+            break
+        events = turn.get("events") if isinstance(turn.get("events"), list) else []
+        for event in events:
+            if not isinstance(event, dict) or event.get("side") != side:
+                continue
+            species = _species_from_event(event)
+            if not species:
+                continue
+            slot = state.setdefault(species, {"hp_fraction": 1.0, "fainted": False, "active": False})
+            if event.get("type") == "switch":
+                for existing in state.values():
+                    existing["active"] = False
+                active_species = species
+                slot["active"] = True
+                if event.get("hp_fraction") is not None:
+                    slot["hp_fraction"] = max(0.0, min(1.0, _safe_float(event.get("hp_fraction"), 1.0)))
+                slot["fainted"] = False
+            elif event.get("type") in ("damage", "heal") and event.get("hp_fraction") is not None:
+                slot["hp_fraction"] = max(0.0, min(1.0, _safe_float(event.get("hp_fraction"), 1.0)))
+            elif event.get("type") == "faint":
+                slot["hp_fraction"] = 0.0
+                slot["fainted"] = True
+                if active_species == species:
+                    slot["active"] = True
+    return state
+
+
+def _reconstructed_private_state_for_side(
+    trajectory: Dict[str, Any],
+    *,
+    side: str,
+    through_turn: int,
+    completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
+) -> Dict[str, Any]:
+    completed_team = completed_teams.get(side, {})
+    current_state = _side_public_state_at_turn(trajectory, side, through_turn)
+    species_order = list(completed_team.keys())
+    for species in current_state:
+        if species not in completed_team:
+            completed_team[species] = {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None}
+            species_order.append(species)
+
+    team: List[Dict[str, Any]] = []
+    active_species = None
+    for species in species_order[:6]:
+        complete = completed_team.get(species, {})
+        current = current_state.get(species, {})
+        active = bool(current.get("active", False))
+        if active:
+            active_species = species
+        team.append(
+            {
+                "ident": f"{side}: {species}",
+                "species": species,
+                "details": species,
+                "active": active,
+                "hp_fraction": float(current.get("hp_fraction", 1.0)),
+                "fainted": bool(current.get("fainted", False)),
+                "moves": sorted(list(complete.get("moves", set()))),
+                "item": complete.get("item"),
+                "ability": complete.get("ability"),
+                "base_ability": complete.get("ability"),
+                "tera_type": complete.get("tera_type"),
+            }
+        )
+
+    active_moves = []
+    if active_species and active_species in completed_team:
+        for move in sorted(list(completed_team[active_species].get("moves", set())))[:4]:
+            active_moves.append(
+                {
+                    "id": move.lower().replace(" ", ""),
+                    "name": move,
+                    "pp": 1,
+                    "maxpp": 1,
+                    "disabled": False,
+                    "can_tera": False,
+                }
+            )
+
+    legal_actions = [{"kind": "move", "label": move["name"], "disabled": False} for move in active_moves]
+    legal_actions.extend(
+        {
+            "kind": "switch",
+            "label": str(mon["species"]),
+            "disabled": False,
+        }
+        for mon in team
+        if not mon.get("active") and not mon.get("fainted")
+    )
+    return {
+        "player_side": side,
+        "active_species": active_species,
+        "team": team,
+        "active_moves": active_moves,
+        "force_switch": False,
+        "wait": False,
+        "trapped": False,
+        "legal_actions": legal_actions[:13],
+        "can_tera": False,
+    }
+
+
+def _legal_actions_from_step(step: Dict[str, Any], request: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if isinstance(request, dict):
+        legal = request.get("legal_actions")
+        if isinstance(legal, dict) and isinstance(legal.get("actions"), list):
+            return [action for action in legal["actions"] if isinstance(action, dict)]
+        if isinstance(legal, list):
+            return [action for action in legal if isinstance(action, dict)]
+    raw = step.get("legal_actions")
+    return [action for action in raw if isinstance(action, dict)] if isinstance(raw, list) else []
+
+
+def _moves_from_request_or_actions(request: Optional[Dict[str, Any]], legal_actions: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if isinstance(request, dict):
+        active = request.get("active")
+        active_block = active if isinstance(active, dict) else (active[0] if isinstance(active, list) and active else {})
+        moves = active_block.get("moves") if isinstance(active_block, dict) else None
+        if isinstance(moves, list):
+            result = []
+            for move in moves:
+                if not isinstance(move, dict):
+                    continue
+                result.append(
+                    {
+                        "id": move.get("id"),
+                        "name": move.get("move") or move.get("name") or move.get("id"),
+                        "pp": move.get("pp", 1),
+                        "maxpp": move.get("maxpp", 1),
+                        "disabled": bool(move.get("disabled", False)),
+                        "can_tera": bool(move.get("can_tera") or move.get("canTerastallize")),
+                    }
+                )
+            if result:
+                return result
+
+    moves = []
+    seen = set()
+    for action in legal_actions:
+        kind = str(action.get("kind") or "")
+        if not kind.startswith("move"):
+            continue
+        name = str(action.get("move") or action.get("label") or "")
+        if name.startswith("move:"):
+            name = name.split(":", 1)[1]
+        if name.startswith("move_tera:"):
+            name = name.split(":", 1)[1]
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        moves.append(
+            {
+                "id": name.lower().replace(" ", ""),
+                "name": name,
+                "pp": 1,
+                "maxpp": 1,
+                "disabled": bool(action.get("disabled", False)),
+                "can_tera": "tera" in kind,
+            }
+        )
+    return moves[:4]
+
+
+def _trace_private_state(trace: Dict[str, Any], step: Dict[str, Any]) -> Dict[str, Any]:
+    view, request = view_request_from_step(trace, step)
+    legal_actions = _legal_actions_from_step(step, request)
+    own_team = view.get("self_team") if isinstance(view, dict) and isinstance(view.get("self_team"), list) else []
+    active_index = 0
+    if isinstance(view, dict) and isinstance(view.get("active"), dict):
+        try:
+            active_index = int(view["active"].get("self", 0) or 0)
+        except (TypeError, ValueError):
+            active_index = 0
+
+    team = []
+    for index, mon in enumerate(own_team[:6]):
+        if not isinstance(mon, dict):
+            continue
+        hp_fraction = mon.get("hp_fraction", mon.get("hp_ratio"))
+        team.append(
+            {
+                "ident": mon.get("ident") or mon.get("species"),
+                "species": mon.get("species") or mon.get("name") or mon.get("ident"),
+                "active": bool(mon.get("active", index == active_index)),
+                "hp_fraction": float(hp_fraction if hp_fraction is not None else 1.0),
+                "fainted": bool(mon.get("fainted", False)),
+                "moves": list(mon.get("moves", [])) if isinstance(mon.get("moves"), list) else [],
+                "item": mon.get("item"),
+                "ability": mon.get("ability"),
+                "base_ability": mon.get("base_ability") or mon.get("baseAbility"),
+                "tera_type": mon.get("tera_type") or mon.get("teraType"),
+            }
+        )
+
+    request_dict = request if isinstance(request, dict) else {}
+    active_request = request_dict.get("active") if isinstance(request_dict.get("active"), dict) else {}
+    return {
+        "player_side": request_dict.get("player") if request_dict.get("player") in ("p1", "p2") else "p1",
+        "active_species": team[active_index].get("species") if 0 <= active_index < len(team) else None,
+        "team": team,
+        "active_moves": _moves_from_request_or_actions(request, legal_actions),
+        "force_switch": bool(request_dict.get("force_switch") or request_dict.get("forceSwitch")),
+        "wait": bool(request_dict.get("wait", False)),
+        "trapped": bool(request_dict.get("trapped") or active_request.get("trapped")),
+        "legal_actions": legal_actions,
+        "can_tera": bool(active_request.get("can_terastallize") or active_request.get("canTerastallize")),
+    }
+
+
+def _protocol_history_from_steps(steps: Sequence[Dict[str, Any]], end_index: int) -> List[str]:
+    lines: List[str] = []
+    for step in steps[: end_index + 1]:
+        raw = step.get("protocol_log")
+        if isinstance(raw, list):
+            lines.extend(str(line) for line in raw)
+    return lines
+
+
+def _examples_from_public_trajectory(trajectory: Dict[str, Any], *, sets_path: Optional[str]) -> List[Dict[str, Any]]:
+    if result_from_winner_side(trajectory.get("winner_side"), perspective="p1") is None:
+        return []
+    turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    completed_teams = _reconstructed_completed_private_teams(trajectory)
+    examples: List[Dict[str, Any]] = []
+    for turn_record in sorted(turns, key=lambda item: int(item.get("turn", 0) or 0)):
+        turn_number = int(turn_record.get("turn", 0) or 0)
+        prefix = _trajectory_prefix_for_training(trajectory, turn_number)
+        for side in ("p1", "p2"):
+            result = result_from_winner_side(trajectory.get("winner_side"), perspective=side)
+            if result is None:
+                continue
+            public_features, _ = public_feature_vector_from_trajectory(prefix, perspective_side=side)
+            private_state = _reconstructed_private_state_for_side(
+                trajectory,
+                side=side,
+                through_turn=turn_number,
+                completed_teams=completed_teams,
+            )
+            belief = build_opponent_beliefs(
+                protocol_log=prefix.get("protocol_log", []),
+                trajectory=prefix,
+                player_side=side,
+                sets_path=sets_path,
+            )
+            features, _ = build_live_private_feature_vector(
+                public_features=public_features,
+                private_state=private_state,
+                opponent_belief=belief,
+                trajectory=prefix,
+                player_side=side,
+            )
+            examples.append(
+                {
+                    "state": features,
+                    "value_target": float(result),
+                    "final_result": float(result),
+                    "turn": turn_number,
+                    "source_kind": "public_replay_private_reconstructed",
+                    "source_id": str(trajectory.get("replay_id") or ""),
+                    "missing_private_state": 0.0,
+                    "metadata_json": _metadata_json(
+                        {
+                            "source_kind": "public_replay_private_reconstructed",
+                            "replay_id": trajectory.get("replay_id"),
+                            "perspective": side,
+                            "turn": turn_number,
+                            "feature_version": FEATURE_VERSION,
+                            "own_team_reconstructed_count": len(private_state.get("team", [])),
+                        }
+                    ),
+                }
+            )
+    return examples
+
+
+def _examples_from_trace_path(path: Path, *, gamma: float, sets_path: Optional[str]) -> List[Dict[str, Any]]:
+    trace = load_trace(path)
+    steps = flatten_trace_steps(trace)
+    final_result = final_result_from_winner(trace.get("winner"))
+    examples: List[Dict[str, Any]] = []
+    for ordinal, step in enumerate(steps):
+        protocol_history = _protocol_history_from_steps(steps, ordinal)
+        trajectory = {
+            "replay_id": path.stem,
+            "format": trace.get("format", DEFAULT_FORMAT),
+            "teamsize": {"p1": 6, "p2": 6},
+            "turns": [],
+            "protocol_log": protocol_history,
+        }
+        if protocol_history:
+            from .parse_replay_logs import parse_protocol_log
+
+            trajectory = parse_protocol_log(
+                protocol_history,
+                replay_id=path.stem,
+                format_name=str(trace.get("format") or DEFAULT_FORMAT),
+                source_path=str(path),
+                metadata={"source": "local_trace"},
+            )
+        public_features, _ = public_feature_vector_from_trajectory(trajectory)
+        private_state = _trace_private_state(trace, step)
+        belief = build_opponent_beliefs(
+            protocol_log=protocol_history,
+            trajectory=trajectory,
+            player_side="p1",
+            sets_path=sets_path,
+        )
+        features, _ = build_live_private_feature_vector(
+            public_features=public_features,
+            private_state=private_state,
+            opponent_belief=belief,
+            trajectory=trajectory,
+            player_side="p1",
+        )
+        steps_to_terminal = max(0, len(steps) - ordinal - 1)
+        examples.append(
+            {
+                "state": features,
+                "value_target": discounted_terminal_return(final_result, steps_to_terminal, gamma),
+                "final_result": float(final_result),
+                "turn": int(step.get("turn", 0) or 0),
+                "source_kind": "local_trace_private",
+                "source_id": str(path),
+                "missing_private_state": 0.0,
+                "metadata_json": _metadata_json(
+                    {
+                        "source_kind": "local_trace_private",
+                        "trace": str(path),
+                        "step_index": int(step.get("step_index", ordinal) or 0),
+                        "turn": int(step.get("turn", 0) or 0),
+                        "feature_version": FEATURE_VERSION,
+                    }
+                ),
+            }
+        )
+    return examples
+
+
+def _iter_trace_paths(trace_dirs: Sequence[Path], trace_paths: Sequence[Path]) -> List[Path]:
+    paths: List[Path] = []
+    for trace_dir in trace_dirs:
+        if trace_dir.exists():
+            paths.extend(sorted(trace_dir.glob("battle_*.json")))
+    for trace_path in trace_paths:
+        if trace_path.exists():
+            paths.append(trace_path)
+    seen = set()
+    result = []
+    for path in paths:
+        resolved = str(path.resolve())
+        if resolved not in seen:
+            result.append(path)
+            seen.add(resolved)
+    return result
+
+
+def _stack_examples(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]:
+    if not examples:
+        raise ValueError("No live-private value examples were produced.")
+    return {
+        "states": np.asarray([example["state"] for example in examples], dtype=np.float32),
+        "legal_masks": np.zeros((len(examples), 13), dtype=np.float32),
+        "value_targets": np.asarray([example["value_target"] for example in examples], dtype=np.float32),
+        "final_results": np.asarray([example["final_result"] for example in examples], dtype=np.float32),
+        "turns": np.asarray([example["turn"] for example in examples], dtype=np.int64),
+        "source_kinds": np.asarray([example["source_kind"] for example in examples]),
+        "source_ids": np.asarray([example["source_id"] for example in examples]),
+        "missing_private_state": np.asarray([example["missing_private_state"] for example in examples], dtype=np.float32),
+        "metadata_json": np.asarray([example["metadata_json"] for example in examples]),
+    }
+
+
+def build_live_private_value_dataset(
+    *,
+    format_name: str = DEFAULT_FORMAT,
+    replay_dir: Optional[Path] = None,
+    trajectories_path: Optional[Path] = None,
+    trace_dirs: Sequence[Path] = (DEFAULT_TRACE_DIR,),
+    trace_paths: Sequence[Path] = (),
+    output_path: Path = DEFAULT_OUTPUT_PATH,
+    report_json_path: Path = DEFAULT_REPORT_JSON_PATH,
+    report_md_path: Path = DEFAULT_REPORT_MD_PATH,
+    gamma: float = 1.0,
+    sets_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    started_at = time.perf_counter()
+    selected_replay_dir = replay_dir or Path("data/replays/raw") / format_name
+    selected_trajectories = trajectories_path or Path("data/replays/processed") / f"{format_name}_trajectories.jsonl.gz"
+    _ensure_trajectories(format_name, selected_replay_dir, selected_trajectories)
+
+    examples: List[Dict[str, Any]] = []
+    source_counts: Counter[str] = Counter()
+    trajectories = _load_trajectories(selected_trajectories)
+    for trajectory in trajectories:
+        source_examples = _examples_from_public_trajectory(trajectory, sets_path=sets_path)
+        examples.extend(source_examples)
+        source_counts["public_replay_private_reconstructed"] += len(source_examples)
+
+    trace_files = _iter_trace_paths(trace_dirs, trace_paths)
+    trace_failures: List[Dict[str, str]] = []
+    for path in trace_files:
+        try:
+            source_examples = _examples_from_trace_path(path, gamma=gamma, sets_path=sets_path)
+            examples.extend(source_examples)
+            source_counts["local_trace_private"] += len(source_examples)
+        except Exception as exc:
+            trace_failures.append({"path": str(path), "reason": str(exc)})
+
+    arrays = _stack_examples(examples)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(
+        output_path,
+        **arrays,
+        feature_version=np.asarray(FEATURE_VERSION),
+        feature_names=np.asarray(FEATURE_NAMES),
+        gamma=np.asarray(float(gamma), dtype=np.float32),
+    )
+
+    final_results = arrays["final_results"]
+    targets = arrays["value_targets"]
+    missing_private = arrays["missing_private_state"]
+    report = {
+        "output_path": str(output_path),
+        "feature_version": FEATURE_VERSION,
+        "feature_dim": FEATURE_DIM,
+        "feature_names": FEATURE_NAMES,
+        "examples": int(arrays["states"].shape[0]),
+        "examples_from_public_replays": int(
+            source_counts.get("public_replay_private_reconstructed", 0)
+            + source_counts.get("public_replay_augmented", 0)
+        ),
+        "examples_from_local_traces": int(source_counts.get("local_trace_private", 0)),
+        "source_breakdown": dict(source_counts),
+        "missing_private_state_percentage": float(100.0 * missing_private.mean()) if len(missing_private) else 0.0,
+        "outcome_distribution": {
+            "wins": int((final_results > 0).sum()),
+            "losses": int((final_results < 0).sum()),
+            "ties": int((final_results == 0).sum()),
+        },
+        "target_distribution": {
+            "mean": float(targets.mean()),
+            "std": float(targets.std()),
+            "min": float(targets.min()),
+            "max": float(targets.max()),
+        },
+        "format": format_name,
+        "replay_dir": str(selected_replay_dir),
+        "trajectories_path": str(selected_trajectories),
+        "raw_replay_logs": int(len(list(selected_replay_dir.glob("*.log"))) if selected_replay_dir.exists() else 0),
+        "parsed_replays": int(len(trajectories)),
+        "trace_dirs": [str(path) for path in trace_dirs],
+        "trace_files": [str(path) for path in trace_files],
+        "trace_failures": trace_failures,
+        "gamma": float(gamma),
+        "wall_time_sec": time.perf_counter() - started_at,
+    }
+    report_json_path.parent.mkdir(parents=True, exist_ok=True)
+    report_json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    report_md_path.parent.mkdir(parents=True, exist_ok=True)
+    report_md_path.write_text(_format_markdown_report(report), encoding="utf-8")
+    print_line_safe(
+        f"build-live-private-value-dataset done | examples={report['examples']} "
+        f"public={report['examples_from_public_replays']} private={report['examples_from_local_traces']} "
+        f"feature_dim={FEATURE_DIM} output={output_path}"
+    )
+    return report
+
+
+def _format_markdown_report(report: Dict[str, Any]) -> str:
+    lines = [
+        "# Live Private Value Dataset Report",
+        "",
+        f"- Examples: {report['examples']}",
+        f"- Public replay augmented examples: {report['examples_from_public_replays']}",
+        f"- Local trace/private examples: {report['examples_from_local_traces']}",
+        f"- Feature version: {report['feature_version']}",
+        f"- Feature dimension: {report['feature_dim']}",
+        f"- Missing private state: {report['missing_private_state_percentage']:.1f}%",
+        f"- Target mean/std: {report['target_distribution']['mean']:.4f} / {report['target_distribution']['std']:.4f}",
+        "",
+        "## Outcomes",
+        "",
+    ]
+    for key, value in report.get("outcome_distribution", {}).items():
+        lines.append(f"- {key}: {value}")
+    lines.extend(["", "## Sources", ""])
+    for key, value in report.get("source_breakdown", {}).items():
+        lines.append(f"- {key}: {value}")
+    if report.get("trace_failures"):
+        lines.extend(["", "## Trace Failures", ""])
+        for failure in report["trace_failures"][:10]:
+            lines.append(f"- `{failure['path']}`: {failure['reason']}")
+    lines.extend(["", f"Output: `{report['output_path']}`", ""])
+    return "\n".join(lines)
+
+
+def _parse_paths(values: Optional[Sequence[str]]) -> List[Path]:
+    return [Path(value) for value in values or [] if value]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Build live-private-belief value features from public replays and traces.")
+    parser.add_argument("--format", default=DEFAULT_FORMAT)
+    parser.add_argument("--replay-dir", default=None)
+    parser.add_argument("--trajectories", default=None)
+    parser.add_argument("--trace-dir", action="append", default=[])
+    parser.add_argument("--trace-path", action="append", default=[])
+    parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH))
+    parser.add_argument("--report-json", default=str(DEFAULT_REPORT_JSON_PATH))
+    parser.add_argument("--report-md", default=str(DEFAULT_REPORT_MD_PATH))
+    parser.add_argument("--gamma", type=float, default=1.0)
+    parser.add_argument("--sets-path", default=None)
+    args = parser.parse_args()
+
+    trace_dirs = _parse_paths(args.trace_dir) or [DEFAULT_TRACE_DIR]
+    report = build_live_private_value_dataset(
+        format_name=args.format,
+        replay_dir=Path(args.replay_dir) if args.replay_dir else None,
+        trajectories_path=Path(args.trajectories) if args.trajectories else None,
+        trace_dirs=trace_dirs,
+        trace_paths=_parse_paths(args.trace_path),
+        output_path=Path(args.output),
+        report_json_path=Path(args.report_json),
+        report_md_path=Path(args.report_md),
+        gamma=args.gamma,
+        sets_path=args.sets_path,
+    )
+    print_line_safe(
+        format_summary(
+            "live-private-value-dataset",
+            {
+                "examples": report["examples"],
+                "feature_dim": report["feature_dim"],
+                "missing_private_pct": f"{report['missing_private_state_percentage']:.1f}",
+                "output": report["output_path"],
+            },
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

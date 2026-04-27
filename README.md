@@ -96,6 +96,11 @@ Available actions:
 .\scripts\run_windows.ps1 -Action parse-replays
 .\scripts\run_windows.ps1 -Action build-replay-value-dataset
 .\scripts\run_windows.ps1 -Action build-replay-policy-dataset
+.\scripts\run_windows.ps1 -Action test-live-eval
+.\scripts\run_windows.ps1 -Action compare-replay-evals -ReplayId gen9randombattle-2594788118 -Side p1
+.\scripts\run_windows.ps1 -Action build-action-rank-dataset
+.\scripts\run_windows.ps1 -Action train-action-ranker
+.\scripts\run_windows.ps1 -Action analyze-action-bias
 .\scripts\run_windows.ps1 -Action server
 .\scripts\run_windows.ps1 -Action all
 ```
@@ -352,6 +357,71 @@ Outputs:
 - Reports: `artifacts/replays/fetch_report.json`, `parse_report.json`, and `value_dataset_report.json`
 
 The current public replay value dataset uses a temporary event-derived feature vector from public protocol events such as HP percentages, faints, switches, status, boosts, tera usage, and final outcome. It is not yet the same 1179D sim-core trace feature vector; that needs deterministic replay-to-state reconstruction before the formats can be unified.
+
+#### Live private-belief evaluation
+
+There are now two replay-derived value models:
+
+- Old public replay value model: 31D public protocol features, `artifacts/checkpoints/gen9randombattle_replay_value.pt`
+- New live private-belief value model: 78D public + own private request + opponent randbats belief features, `artifacts/checkpoints/gen9randombattle_live_private_value.pt`
+
+The live eval server defaults to the 78D checkpoint when it exists. You can verify this without HTTP:
+
+```powershell
+.\scripts\run_windows.ps1 -Action test-live-eval -SimCoreMode native
+```
+
+Expected smoke output includes `model_type=live-private-belief-value`, `feature_version=live-private-belief-v1`, and request-derived legal action labels. To compare the old 31D and new 78D behavior on one saved replay:
+
+```powershell
+.\scripts\run_windows.ps1 -Action compare-replay-evals `
+  -ReplayId gen9randombattle-2594788118 `
+  -Side p1 `
+  -SimCoreMode native
+```
+
+Reports are written to `artifacts/replays/<replay_id>_model_comparison.json` and `.md`.
+
+Live server model selection can be overridden:
+
+```powershell
+$env:NEURAL_LIVE_MODEL = 'live-private'      # default
+$env:NEURAL_LIVE_MODEL = 'public-replay'     # force old 31D fallback
+$env:NEURAL_LIVE_VALUE_CHECKPOINT = '.\artifacts\checkpoints\gen9randombattle_live_private_value.pt'
+```
+
+Start the live eval server:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+D:\Anaconda\envs\neuralgpu\python.exe -m neural.live_eval_server
+```
+
+`/evaluate` responses include `model_type`, `checkpoint_path`, `feature_version`, `feature_dim`, `used_private_state`, `used_opponent_belief`, and `fallback_reason` when a fallback happens.
+
+Action recommendations are a first action-value layer, not a rule bot. The preferred path is an action-conditioned ranker:
+
+```text
+(live-private-belief state features, legal action features) -> scalar action score
+```
+
+Build and train it with:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-action-rank-dataset -SimCoreMode native
+.\scripts\run_windows.ps1 -Action train-action-ranker `
+  -DatasetPath .\data\policy\gen9randombattle_action_rank.npz `
+  -SimCoreMode native
+.\scripts\run_windows.ps1 -Action analyze-action-bias -SimCoreMode native
+```
+
+When `artifacts/checkpoints/gen9randombattle_action_ranker.pt` exists, live recommendations use `method=action_ranker` and still include the old fixed-head replay-policy probability as a diagnostic. If no action-ranker checkpoint exists, the server falls back to the replay-policy prior plus the lightweight switch proxy. It does not ban resisted moves, immunities, switches, or setup by hardcoded matchup rules.
+
+Limitations:
+
+- This is not full search yet.
+- The one-step switch proxy is not true battle simulation and does not estimate damage.
+- Real “Showdown Stockfish” search still needs sim-core branch cloning and rollout support.
 
 #### Interpreting switch categories
 

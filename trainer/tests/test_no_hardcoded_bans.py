@@ -21,6 +21,22 @@ class NoHardcodedBansTest(unittest.TestCase):
         self.assertNotIn("resisted", source)
         self.assertNotIn("super_effective", source)
 
+    def test_live_eval_has_no_hardcoded_action_bans(self):
+        import inspect
+        import neural.live_eval_server as live_eval_server
+
+        source = inspect.getsource(live_eval_server)
+        forbidden = [
+            "never use",
+            "always switch",
+            "resisted move",
+            "hardcoded ban",
+            "type matchup",
+            "super_effective",
+        ]
+        for token in forbidden:
+            self.assertNotIn(token, source.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

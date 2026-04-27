@@ -32,3 +32,15 @@ data/value/*
 !artifacts/latency/.gitkeep
 !data/raw/.gitkeep
 !data/shards/.gitkeep
+
+# Large generated ML artifacts
+data/policy/*.npz
+data/value/*.npz
+data/replays/
+data/private/
+artifacts/checkpoints/*.pt
+artifacts/checkpoints/*.pth
+artifacts/**/*.pt
+artifacts/**/*.pth
+*.npz
+*.jsonl.gz

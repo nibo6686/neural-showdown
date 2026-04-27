@@ -15,6 +15,7 @@ Use train_value.py for local sim-core trace data instead.
 
 import argparse
 import json
+import shutil
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence, Tuple
@@ -32,6 +33,14 @@ from .models.policy_value_mlp import PolicyValueMLP
 
 DEFAULT_DATASET_PATH = Path("data/value/gen9randombattle_public_replay_value.npz")
 DEFAULT_CHECKPOINT_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_value.pt")
+
+
+def _timestamp_copy(path: Path) -> Optional[str]:
+    if not path.exists():
+        return None
+    stamped = path.with_name(f"{path.stem}.{time.strftime('%Y%m%d-%H%M%S')}{path.suffix}")
+    shutil.copy2(path, stamped)
+    return str(stamped)
 
 
 def load_replay_value_dataset(path: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -244,9 +253,11 @@ def train_replay_value_model(
         },
     )
     save_checkpoint(checkpoint_path, checkpoint_payload)
+    timestamped_checkpoint = _timestamp_copy(checkpoint_path)
 
     report = {
         "checkpoint": str(checkpoint_path),
+        "timestamped_checkpoint": timestamped_checkpoint,
         "dataset_path": str(dataset_path),
         "num_examples": int(len(states)),
         "feature_dim": int(states.shape[1]),
@@ -275,6 +286,10 @@ def train_replay_value_model(
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     md_path.write_text(_format_markdown_report(report), encoding="utf-8")
+    timestamped_json = _timestamp_copy(json_path)
+    timestamped_md = _timestamp_copy(md_path)
+    report["timestamped_reports"] = [path for path in (timestamped_json, timestamped_md) if path]
+    json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     print_line_safe(f"train-replay-value | checkpoint={checkpoint_path}")
     print_line_safe(f"train-replay-value | report={json_path}")

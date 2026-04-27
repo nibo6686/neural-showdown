@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'train-live-private-value', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'train-action-ranker', 'analyze-action-bias', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -20,6 +20,14 @@ param(
     [string]$Format = 'gen9randombattle',
     [int]$MaxReplays = 1000,
     [string]$ReplayDir = '',
+    [string]$ReplayId = 'gen9randombattle-2594788118',
+    [ValidateSet('p1', 'p2')]
+    [string]$Side = 'p1',
+    [int]$Epochs = 0,
+    [int]$MaxTrainGroups = 0,
+    [int]$MaxValGroups = 0,
+    [switch]$Resume,
+    [switch]$TrainForever,
     [double]$DelaySec = 0.5
 )
 
@@ -425,6 +433,83 @@ function Invoke-TrainReplayValue {
     Invoke-PythonModule -Module 'neural.train_replay_value' -Arguments @('--dataset-path', $selectedDatasetPath)
 }
 
+function Invoke-BuildLivePrivateValueDataset {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher build-live-private-value-dataset | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.build_live_private_value_dataset' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir
+    )
+}
+
+function Invoke-TrainLivePrivateValue {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\value\${Format}_live_private_value.npz" } else { $DatasetPath }
+    Write-Host "launcher train-live-private-value | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.train_live_private_value' -Arguments @('--dataset-path', $selectedDatasetPath)
+}
+
+function Invoke-CompareValueModels {
+    Write-Host "launcher compare-value-models"
+    Invoke-PythonModule -Module 'neural.compare_value_models'
+}
+
+function Invoke-TestLiveEval {
+    Write-Host "launcher test-live-eval"
+    Invoke-PythonModule -Module 'neural.test_live_eval_payload'
+}
+
+function Invoke-CompareReplayEvals {
+    Write-Host "launcher compare-replay-evals | replay=$ReplayId side=$Side"
+    Invoke-PythonModule -Module 'neural.compare_replay_evals' -Arguments @(
+        '--replay-id', $ReplayId,
+        '--side', $Side
+    )
+}
+
+function Invoke-LiveEval {
+    Write-Host "launcher live-eval"
+    Invoke-PythonModule -Module 'neural.live_eval_server'
+}
+
+function Invoke-BuildActionRankDataset {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher build-action-rank-dataset | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.build_action_rank_dataset' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir
+    )
+}
+
+function Invoke-TrainActionRanker {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\policy\${Format}_action_rank.npz" } else { $DatasetPath }
+    $selectedCheckpointPath = ".\artifacts\checkpoints\${Format}_action_ranker.pt"
+    $arguments = @('--dataset-path', $selectedDatasetPath, '--checkpoint-path', $selectedCheckpointPath)
+    if ($Epochs -gt 0) {
+        $arguments += @('--epochs', [string]$Epochs)
+    }
+    if ($MaxTrainGroups -gt 0) {
+        $arguments += @('--max-train-groups', [string]$MaxTrainGroups)
+    }
+    if ($MaxValGroups -gt 0) {
+        $arguments += @('--max-val-groups', [string]$MaxValGroups)
+    }
+    if ($Resume) {
+        $arguments += @('--resume-checkpoint', $selectedCheckpointPath)
+    }
+    if ($TrainForever) {
+        $arguments += @('--train-forever')
+    }
+    $arguments += @('--save-every-epochs', '1')
+    Write-Host "launcher train-action-ranker | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.train_action_ranker' -Arguments $arguments
+}
+
+function Invoke-AnalyzeActionBias {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\policy\${Format}_action_rank.npz" } else { $DatasetPath }
+    Write-Host "launcher analyze-action-bias | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.analyze_action_bias' -Arguments @('--dataset-path', $selectedDatasetPath)
+}
+
 Push-Location $repoRoot
 try {
     if (-not (Test-Path $PythonExe)) {
@@ -446,6 +531,15 @@ try {
         'build-value-dataset' { Invoke-BuildValueDataset }
         'train-value' { Invoke-TrainValue }
         'train-replay-value' { Invoke-TrainReplayValue }
+        'build-live-private-value-dataset' { Invoke-BuildLivePrivateValueDataset }
+        'train-live-private-value' { Invoke-TrainLivePrivateValue }
+        'compare-value-models' { Invoke-CompareValueModels }
+        'compare-replay-evals' { Invoke-CompareReplayEvals }
+        'test-live-eval' { Invoke-TestLiveEval }
+        'live-eval' { Invoke-LiveEval }
+        'build-action-rank-dataset' { Invoke-BuildActionRankDataset }
+        'train-action-ranker' { Invoke-TrainActionRanker }
+        'analyze-action-bias' { Invoke-AnalyzeActionBias }
         'analyze-state' { Invoke-AnalyzeState }
         'collect-selfplay' { Invoke-CollectSelfplay }
         'compare-checkpoints' { Invoke-CompareCheckpoints }

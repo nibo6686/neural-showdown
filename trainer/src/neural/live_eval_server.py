@@ -1,31 +1,65 @@
-from typing import Any, Optional, List, Dict
+import os
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
+import numpy as np
+import torch
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import uvicorn
+
 try:
     from neural.build_replay_value_dataset import (
-        _initial_state,
-        _new_recent,
+        FEATURE_NAMES,
+        FEATURE_VERSION,
         _apply_event,
         _feature_vector,
-        FEATURE_VERSION,
-        FEATURE_NAMES,
+        _initial_state,
+        _new_recent,
     )
+    from neural.checkpoints import torch_load
+    from neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
+    from neural.live_action_recommender import recommend_actions
+    from neural.live_action_recommender import reset_action_ranker_cache
+    from neural.live_opponent_beliefs import build_opponent_beliefs
+    from neural.live_private_features import (
+        FEATURE_DIM as LIVE_PRIVATE_FEATURE_DIM,
+        FEATURE_VERSION as LIVE_PRIVATE_FEATURE_VERSION,
+        build_features_from_live_payload,
+    )
+    from neural.live_private_state import extract_private_side_state
+    from neural.models.policy_value_mlp import PolicyValueMLP
+    from neural.parse_replay_logs import parse_protocol_log
 except ImportError:
     from trainer.src.neural.build_replay_value_dataset import (
-        _initial_state,
-        _new_recent,
+        FEATURE_NAMES,
+        FEATURE_VERSION,
         _apply_event,
         _feature_vector,
-        FEATURE_VERSION,
-        FEATURE_NAMES,
+        _initial_state,
+        _new_recent,
     )
+    from trainer.src.neural.checkpoints import torch_load
+    from trainer.src.neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
+    from trainer.src.neural.live_action_recommender import recommend_actions
+    from trainer.src.neural.live_action_recommender import reset_action_ranker_cache
+    from trainer.src.neural.live_opponent_beliefs import build_opponent_beliefs
+    from trainer.src.neural.live_private_features import (
+        FEATURE_DIM as LIVE_PRIVATE_FEATURE_DIM,
+        FEATURE_VERSION as LIVE_PRIVATE_FEATURE_VERSION,
+        build_features_from_live_payload,
+    )
+    from trainer.src.neural.live_private_state import extract_private_side_state
+    from trainer.src.neural.models.policy_value_mlp import PolicyValueMLP
+    from trainer.src.neural.parse_replay_logs import parse_protocol_log
+
 
 class LegalAction(BaseModel):
     kind: str
     label: str
     slot: Optional[int] = None
+    index: Optional[int] = None
     disabled: bool = False
 
 
@@ -49,355 +83,444 @@ app.add_middleware(
 )
 
 
-from typing import Dict, Any, List
-import torch
-import numpy as np
-
-# Adjust this import if your model path is different
-try:
-    from neural.models.policy_value_mlp import PolicyValueMLP
-except ImportError:
-    from trainer.src.neural.models.policy_value_mlp import PolicyValueMLP
-
-
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-from pathlib import Path
-
-MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_value.pt")
+OLD_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_value.pt")
+LIVE_PRIVATE_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value.pt")
+REPLAY_POLICY_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_policy.pt")
 INPUT_SIZE = 31
 HIDDEN_SIZES = [128, 128]
-ACTION_SIZE = 13                       # your model seemed to use 13 actions earlier
+ACTION_SIZE = 13
+DEBUG_FEATURE_PREVIEW = 8
 
-_model = None
+_value_model = None
+_value_model_metadata: Optional[Dict[str, Any]] = None
+_policy_model = None
+_policy_model_metadata: Optional[Dict[str, Any]] = None
 
 
-def load_model_once():
-    global _model
+def _env_model_mode() -> str:
+    mode = os.environ.get("NEURAL_LIVE_MODEL", "live-private").strip().lower()
+    if mode in ("live-private", "live_private", "private", "live-private-belief"):
+        return "live-private"
+    if mode in ("public-replay", "public_replay", "public", "replay"):
+        return "public-replay"
+    raise ValueError("NEURAL_LIVE_MODEL must be 'live-private' or 'public-replay'.")
 
-    if _model is not None:
-        return _model
 
-    checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
+def _env_value_checkpoint(default_path: Path) -> Path:
+    override = os.environ.get("NEURAL_LIVE_VALUE_CHECKPOINT", "").strip()
+    return Path(override) if override else default_path
 
+
+def _checkpoint_state_dict(checkpoint: Any) -> Dict[str, Any]:
     if isinstance(checkpoint, dict):
-        state_dict = (
+        return (
             checkpoint.get("model_state_dict")
             or checkpoint.get("state_dict")
             or checkpoint.get("model")
             or checkpoint
         )
+    return checkpoint
+
+
+def _load_policy_value_model(path: Path, *, default_input_size: int) -> Tuple[PolicyValueMLP, Dict[str, Any]]:
+    checkpoint = torch_load(path, DEVICE)
+    if isinstance(checkpoint, dict):
+        state_dict = _checkpoint_state_dict(checkpoint)
+        input_size = int(checkpoint.get("input_size") or default_input_size)
         hidden_sizes = (
             checkpoint.get("hidden_sizes")
             or checkpoint.get("model_config", {}).get("hidden_sizes")
             or checkpoint.get("config", {}).get("hidden_sizes")
             or HIDDEN_SIZES
         )
+        action_size = int(checkpoint.get("action_size", ACTION_SIZE))
+        metadata = dict(checkpoint)
     else:
         state_dict = checkpoint
+        input_size = default_input_size
         hidden_sizes = HIDDEN_SIZES
+        action_size = ACTION_SIZE
+        metadata = {}
 
-    model = PolicyValueMLP(
-        input_size=INPUT_SIZE,
-        hidden_sizes=hidden_sizes,
-        action_size=ACTION_SIZE,
-    )
-
+    model = PolicyValueMLP(input_size=input_size, hidden_sizes=hidden_sizes, action_size=action_size)
     model.load_state_dict(state_dict, strict=False)
     model.to(DEVICE)
     model.eval()
+    metadata.update({"input_size": input_size, "hidden_sizes": list(hidden_sizes), "action_size": action_size})
+    return model, metadata
 
-    _model = model
-    return _model
 
-def _side_from_actor(actor: str) -> Optional[str]:
-    if not actor or len(actor) < 2:
-        return None
-    if actor.startswith("p1"):
-        return "p1"
-    if actor.startswith("p2"):
-        return "p2"
-    return None
+def _validate_live_private_checkpoint(metadata: Dict[str, Any], path: Path) -> None:
+    input_size = int(metadata.get("input_size", 0) or 0)
+    if input_size != LIVE_PRIVATE_FEATURE_DIM:
+        raise ValueError(
+            f"Live-private checkpoint {path} has input_size={input_size}; "
+            f"expected {LIVE_PRIVATE_FEATURE_DIM} for {LIVE_PRIVATE_FEATURE_VERSION}."
+        )
+    feature_version = metadata.get("feature_version")
+    if feature_version is not None and str(feature_version) != LIVE_PRIVATE_FEATURE_VERSION:
+        raise ValueError(
+            f"Live-private checkpoint {path} has feature_version={feature_version!r}; "
+            f"expected {LIVE_PRIVATE_FEATURE_VERSION!r}."
+        )
 
-def _event_from_protocol_line(line: str) -> Optional[Dict[str, Any]]:
-    """
-    Convert a Showdown protocol line into the same approximate event schema used by
-    parse_replay_logs.py / build_replay_value_dataset.py.
 
-    This is intentionally descriptive only; it does not hardcode battle rules.
-    """
-    if not line or not line.startswith("|"):
-        return None
+def _checkpoint_is_policy(metadata: Dict[str, Any], path: Path) -> bool:
+    text = " ".join(
+        str(metadata.get(key, ""))
+        for key in ("task", "source", "model_type", "checkpoint_type", "training_objective")
+    ).lower()
+    return "policy" in text or "replay_policy" in path.name.lower() or "public_policy" in path.name.lower()
 
-    parts = line.split("|")
-    if len(parts) < 2:
-        return None
 
-    tag = parts[1]
-    raw = line
+def reset_model_caches() -> None:
+    global _value_model, _value_model_metadata, _policy_model, _policy_model_metadata
+    _value_model = None
+    _value_model_metadata = None
+    _policy_model = None
+    _policy_model_metadata = None
+    reset_action_ranker_cache()
 
-    if tag == "turn" and len(parts) >= 3:
-        try:
-            return {"type": "turn", "turn": int(parts[2]), "raw": raw}
-        except Exception:
-            return {"type": "turn", "turn": 0, "raw": raw}
 
-    if tag == "player" and len(parts) >= 4:
-        return {
-            "type": "player",
-            "side": parts[2],
-            "player": parts[3],
-            "raw": raw,
-        }
+def load_value_model_once() -> Tuple[PolicyValueMLP, Dict[str, Any]]:
+    global _value_model, _value_model_metadata
+    if _value_model is not None and _value_model_metadata is not None:
+        return _value_model, _value_model_metadata
 
-    if tag == "switch" and len(parts) >= 5:
-        actor = parts[2]
-        return {
-            "type": "switch",
-            "side": _side_from_actor(actor),
-            "actor": actor,
-            "details": parts[3],
-            "hp": parts[4],
-            "raw": raw,
-        }
+    mode = _env_model_mode()
+    fallback_reason = None
 
-    if tag == "drag" and len(parts) >= 5:
-        actor = parts[2]
-        return {
-            "type": "switch",
-            "side": _side_from_actor(actor),
-            "actor": actor,
-            "details": parts[3],
-            "hp": parts[4],
-            "raw": raw,
-        }
-
-    if tag == "replace" and len(parts) >= 5:
-        actor = parts[2]
-        return {
-            "type": "replace",
-            "side": _side_from_actor(actor),
-            "actor": actor,
-            "details": parts[3],
-            "hp": parts[4],
-            "raw": raw,
-        }
-
-    if tag == "move" and len(parts) >= 5:
-        actor = parts[2]
-        return {
-            "type": "move",
-            "side": _side_from_actor(actor),
-            "actor": actor,
-            "move": parts[3],
-            "target": parts[4],
-            "raw": raw,
-        }
-
-    if tag == "faint" and len(parts) >= 3:
-        target = parts[2]
-        return {
-            "type": "faint",
-            "side": _side_from_actor(target),
-            "target": target,
-            "raw": raw,
-        }
-
-    # Minor events start with tags like |-damage|, |-heal|, |-status|
-    if tag.startswith("-"):
-        event_type = tag[1:]
-
-        if event_type in ("damage", "heal") and len(parts) >= 4:
-            target = parts[2]
-            return {
-                "type": event_type,
-                "side": _side_from_actor(target),
-                "target": target,
-                "hp": parts[3],
-                "raw": raw,
+    if mode == "public-replay":
+        path = _env_value_checkpoint(OLD_VALUE_MODEL_PATH)
+        model, metadata = _load_policy_value_model(path, default_input_size=INPUT_SIZE)
+        fallback_reason = "NEURAL_LIVE_MODEL=public-replay"
+        metadata.update(
+            {
+                "path": str(path),
+                "model_type": "public-replay-value",
+                "feature_version": FEATURE_VERSION,
+                "uses_live_private_features": False,
+                "fallback_reason": fallback_reason,
             }
+        )
+    else:
+        live_path = _env_value_checkpoint(LIVE_PRIVATE_VALUE_MODEL_PATH)
+        if live_path.exists():
+            model, metadata = _load_policy_value_model(live_path, default_input_size=LIVE_PRIVATE_FEATURE_DIM)
+            _validate_live_private_checkpoint(metadata, live_path)
+            metadata.update(
+                {
+                    "path": str(live_path),
+                    "model_type": "live-private-belief-value",
+                    "feature_version": metadata.get("feature_version") or LIVE_PRIVATE_FEATURE_VERSION,
+                    "uses_live_private_features": True,
+                    "fallback_reason": None,
+                }
+            )
+        else:
+            fallback_reason = f"Live-private checkpoint missing: {live_path}"
+            model, metadata = _load_policy_value_model(OLD_VALUE_MODEL_PATH, default_input_size=INPUT_SIZE)
+            metadata.update(
+                {
+                    "path": str(OLD_VALUE_MODEL_PATH),
+                    "model_type": "public-replay-value",
+                    "feature_version": FEATURE_VERSION,
+                    "uses_live_private_features": False,
+                    "fallback_reason": fallback_reason,
+                }
+            )
 
-        if event_type == "status" and len(parts) >= 4:
-            target = parts[2]
-            return {
-                "type": "status",
-                "side": _side_from_actor(target),
-                "target": target,
-                "status": parts[3],
-                "raw": raw,
-            }
+    _value_model = model
+    _value_model_metadata = metadata
+    return model, metadata
 
-        if event_type in ("boost", "unboost") and len(parts) >= 5:
-            target = parts[2]
-            return {
-                "type": event_type,
-                "side": _side_from_actor(target),
-                "target": target,
-                "stat": parts[3],
-                "amount": parts[4],
-                "raw": raw,
-            }
 
-        if event_type in ("supereffective", "resisted", "immune") and len(parts) >= 3:
-            target = parts[2]
-            return {
-                "type": event_type,
-                "side": _side_from_actor(target),
-                "target": target,
-                "raw": raw,
-            }
-
-        if event_type == "terastallize" and len(parts) >= 4:
-            target = parts[2]
-            return {
-                "type": "terastallize",
-                "side": _side_from_actor(target),
-                "target": target,
-                "tera_type": parts[3],
-                "raw": raw,
-            }
-
-        if event_type in ("sidestart", "sideend") and len(parts) >= 4:
-            # Example: |-sidestart|p1: name|move: Stealth Rock
-            side_field = parts[2]
-            side = "p1" if side_field.startswith("p1") else "p2" if side_field.startswith("p2") else None
-            return {
-                "type": event_type,
-                "side": side,
-                "condition": parts[3],
-                "raw": raw,
-            }
-
-        return {"type": event_type, "raw": raw}
-
-    if tag == "win" and len(parts) >= 3:
-        return {"type": "win", "winner": parts[2], "raw": raw}
-
-    return None
+def load_policy_model_once() -> Tuple[Optional[PolicyValueMLP], Optional[Dict[str, Any]]]:
+    global _policy_model, _policy_model_metadata
+    if _policy_model is not None or _policy_model_metadata is not None:
+        return _policy_model, _policy_model_metadata
+    if not REPLAY_POLICY_MODEL_PATH.exists():
+        _policy_model_metadata = {"warning": f"Policy checkpoint missing: {REPLAY_POLICY_MODEL_PATH}"}
+        return None, _policy_model_metadata
+    model, metadata = _load_policy_value_model(REPLAY_POLICY_MODEL_PATH, default_input_size=INPUT_SIZE)
+    if not _checkpoint_is_policy(metadata, REPLAY_POLICY_MODEL_PATH):
+        _policy_model_metadata = {
+            "path": str(REPLAY_POLICY_MODEL_PATH),
+            "warning": f"Checkpoint is not marked as a policy model: {REPLAY_POLICY_MODEL_PATH}",
+        }
+        return None, _policy_model_metadata
+    metadata.update({"path": str(REPLAY_POLICY_MODEL_PATH), "model_type": "replay-policy"})
+    _policy_model = model
+    _policy_model_metadata = metadata
+    return _policy_model, _policy_model_metadata
 
 
 def _trajectory_from_live_payload(payload: EvalRequest) -> Dict[str, Any]:
-    players: Dict[str, str] = {}
+    return parse_protocol_log(
+        payload.log,
+        replay_id=payload.room_id,
+        format_name="gen9randombattle",
+        source_path=payload.url,
+        metadata={"source": "live_eval", "player": payload.player or ""},
+    )
 
-    for line in payload.log:
-        event = _event_from_protocol_line(line)
-        if event and event.get("type") == "player":
-            side = event.get("side")
-            player = event.get("player")
-            if side in ("p1", "p2") and player:
-                players[side] = player
 
-    return {
-        "replay_id": payload.room_id,
-        "format": "gen9randombattle",
-        "players": players,
-        "winner_side": None,
-        "turns": [],
-    }
+def _latest_turn_from_trajectory(trajectory: Dict[str, Any]) -> int:
+    turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    if not turns:
+        return 0
+    return max(int(record.get("turn", 0) or 0) for record in turns if isinstance(record, dict))
 
-def build_features_from_payload(payload: EvalRequest) -> np.ndarray:
-    """
-    Build the exact 31D public replay event feature vector used by
-    build_replay_value_dataset.py.
 
-    This replaces the old placeholder feature vector.
-    """
+def build_features_from_payload(payload: EvalRequest) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Build the unchanged 31D public replay-event feature vector."""
     trajectory = _trajectory_from_live_payload(payload)
     state = _initial_state(trajectory)
     recent = _new_recent()
-    turn = 0
+    latest_turn = 0
 
-    for line in payload.log:
-        event = _event_from_protocol_line(line)
-        if not event:
-            continue
+    turn_records = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    for turn_record in sorted(turn_records, key=lambda item: int(item.get("turn", 0) or 0)):
+        latest_turn = int(turn_record.get("turn", 0) or 0)
+        recent = _new_recent()
+        events = turn_record.get("events") if isinstance(turn_record.get("events"), list) else []
+        for event in events:
+            if isinstance(event, dict):
+                _apply_event(state, recent, event)
 
-        if event.get("type") == "turn":
-            turn = int(event.get("turn", turn) or turn)
-            recent = _new_recent()
-            continue
-
-        _apply_event(state, recent, event)
-
-    features = _feature_vector(state, recent, turn)
-
-    if features.shape[0] != INPUT_SIZE:
+    features = _feature_vector(state, recent, latest_turn)
+    if features.ndim != 1 or features.shape[0] != INPUT_SIZE:
         raise ValueError(
             f"Feature size mismatch: got {features.shape[0]}, expected {INPUT_SIZE}. "
             f"Feature version={FEATURE_VERSION}"
         )
 
-    return features.astype(np.float32)
+    debug = {
+        "room_id": payload.room_id,
+        "player": payload.player,
+        "log_length": len(payload.log),
+        "latest_turn": _latest_turn_from_trajectory(trajectory),
+        "feature_version": FEATURE_VERSION,
+        "feature_names_preview": FEATURE_NAMES[:DEBUG_FEATURE_PREVIEW],
+        "feature_values_preview": [float(v) for v in features[:DEBUG_FEATURE_PREVIEW].tolist()],
+    }
+    return features.astype(np.float32), debug
 
-def action_index_to_label(index: int, legal_actions: List[LegalAction]) -> str:
-    """
-    Maps model action index back to the actual Showdown action label.
-    This assumes index 0-3 are moves and later indexes are switches.
-    Adjust this if your training used a different action mapping.
-    """
 
-    if index < len(legal_actions):
-        return legal_actions[index].label
+def _legal_action_to_dict(action: LegalAction) -> Dict[str, Any]:
+    if isinstance(action, dict):
+        return dict(action)
+    if hasattr(action, "model_dump"):
+        return action.model_dump()
+    return action.dict()
 
-    return "Unknown action {}".format(index)
+
+def _player_side_from_private_state(private_state: Dict[str, Any]) -> Optional[str]:
+    side = private_state.get("player_side")
+    if side in ("p1", "p2"):
+        return str(side)
+    return None
+
+
+def _request_active_moves(request_payload: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if not isinstance(request_payload, dict):
+        return []
+    active = request_payload.get("active")
+    active_block = active[0] if isinstance(active, list) and active else active if isinstance(active, dict) else {}
+    moves = active_block.get("moves") if isinstance(active_block, dict) else None
+    if not isinstance(moves, list):
+        return []
+    result = []
+    for index, move in enumerate(moves):
+        if not isinstance(move, dict):
+            continue
+        name = move.get("move") or move.get("name") or move.get("id") or f"move {index + 1}"
+        result.append(
+            {
+                "index": index,
+                "kind": "move",
+                "label": f"move: {name}",
+                "prob": None,
+                "disabled": bool(move.get("disabled", False)),
+            }
+        )
+    return result
+
+
+def _request_switches(request_payload: Optional[Dict[str, Any]], existing_labels: Sequence[str]) -> List[Dict[str, Any]]:
+    if not isinstance(request_payload, dict):
+        return []
+    side = request_payload.get("side") if isinstance(request_payload.get("side"), dict) else {}
+    team = side.get("pokemon") if isinstance(side.get("pokemon"), list) else []
+    existing = {label.lower() for label in existing_labels}
+    switches = []
+    for slot, mon in enumerate(team):
+        if not isinstance(mon, dict):
+            continue
+        if mon.get("active") or mon.get("fainted") or "fnt" in str(mon.get("condition", "")):
+            continue
+        details = str(mon.get("details") or mon.get("ident") or f"slot {slot + 1}")
+        species = details.split(",", 1)[0].split(": ", 1)[-1].strip()
+        label = f"switch: {species}"
+        if label.lower() in existing:
+            continue
+        switches.append({"index": 8 + max(0, slot - 1), "kind": "switch", "label": label, "prob": None, "disabled": False})
+    return switches
+
+
+def legal_action_candidates(payload: EvalRequest) -> List[Dict[str, Any]]:
+    return _recommend_action_candidates(payload)
+
+
+def _policy_features_for_model(
+    *,
+    policy_metadata: Dict[str, Any],
+    public_features: np.ndarray,
+    live_features: np.ndarray,
+) -> np.ndarray:
+    input_size = int(policy_metadata.get("input_size", INPUT_SIZE))
+    if input_size == live_features.shape[0]:
+        return live_features.astype(np.float32)
+    if input_size == public_features.shape[0]:
+        return public_features.astype(np.float32)
+    selected = live_features if live_features.shape[0] < input_size else live_features[:input_size]
+    if selected.shape[0] == input_size:
+        return selected.astype(np.float32)
+    padded = np.zeros(input_size, dtype=np.float32)
+    padded[: selected.shape[0]] = selected
+    return padded
+
+
+def build_top_actions(
+    payload: EvalRequest,
+    *,
+    public_features: np.ndarray,
+    live_features: np.ndarray,
+) -> Tuple[List[Dict[str, Any]], List[str]]:
+    candidates = legal_action_candidates(payload)
+    warnings: List[str] = []
+    policy_model, policy_metadata = load_policy_model_once()
+    if not candidates:
+        return [], warnings
+    if policy_model is None or not policy_metadata or policy_metadata.get("warning"):
+        warnings.append(str((policy_metadata or {}).get("warning") or "Policy checkpoint missing."))
+        legal_candidates = [candidate for candidate in candidates if not candidate.get("disabled")]
+        probability = 1.0 / float(len(legal_candidates) or len(candidates))
+        for candidate in candidates:
+            candidate["prob"] = 0.0 if candidate.get("disabled") else probability
+        return sorted(candidates, key=lambda item: item["prob"], reverse=True)[:5], warnings
+
+    features = _policy_features_for_model(
+        policy_metadata=policy_metadata,
+        public_features=public_features,
+        live_features=live_features,
+    )
+    x = torch.tensor(features, dtype=torch.float32, device=DEVICE).unsqueeze(0)
+    with torch.no_grad():
+        policy_logits, _ = policy_model(x)
+        probs = torch.softmax(policy_logits.squeeze(0), dim=0).detach().cpu().numpy()
+
+    for candidate in candidates:
+        index = int(candidate.get("index", 0) or 0)
+        candidate["prob"] = float(probs[index]) if 0 <= index < len(probs) and not candidate.get("disabled") else 0.0
+    return sorted(candidates, key=lambda item: item["prob"], reverse=True)[:5], warnings
 
 
 def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
-    model = load_model_once()
+    model, model_metadata = load_value_model_once()
 
-    features = build_features_from_payload(payload)
+    public_features, public_feature_debug = build_features_from_payload(payload)
+    legal_action_payload = [_legal_action_to_dict(action) for action in payload.legal_actions]
+    private_state = extract_private_side_state(
+        request_payload=payload.request,
+        legal_actions=legal_action_payload,
+        player_hint=payload.player,
+    )
+    player_side = _player_side_from_private_state(private_state)
+    trajectory = _trajectory_from_live_payload(payload)
+    opponent_beliefs = build_opponent_beliefs(
+        protocol_log=payload.log,
+        trajectory=trajectory,
+        player_side=player_side,
+    )
+    live_features, live_feature_debug, private_state, opponent_beliefs, trajectory = build_features_from_live_payload(
+        log=payload.log,
+        room_id=payload.room_id,
+        url=payload.url,
+        player=payload.player,
+        request_payload=payload.request,
+        legal_actions=legal_action_payload,
+    )
+    player_side = _player_side_from_private_state(private_state)
+
+    if model_metadata.get("uses_live_private_features"):
+        features = live_features
+        feature_debug = live_feature_debug
+    else:
+        features = public_features
+        feature_debug = public_feature_debug
+
     x = torch.tensor(features, dtype=torch.float32, device=DEVICE).unsqueeze(0)
-
     with torch.no_grad():
         output = model(x)
 
-    # Adjust this depending on your model's forward() return format.
-    # Common possibilities:
-    # 1. output = (policy_logits, value)
-    # 2. output = {"policy": ..., "value": ...}
-    # 3. output = just value
     if isinstance(output, tuple):
-        policy_logits, value_tensor = output
+        _, value_tensor = output
     elif isinstance(output, dict):
-        policy_logits = output.get("policy")
         value_tensor = output.get("value")
     else:
-        policy_logits = None
         value_tensor = output
 
     value = float(value_tensor.squeeze().cpu().item())
-
-    # Convert value from [-1, 1] to win probability.
     p1_win_prob = max(0.0, min(1.0, (value + 1.0) / 2.0))
     p2_win_prob = 1.0 - p1_win_prob
+    action_report = recommend_actions(
+        payload=payload,
+        private_state=private_state,
+        opponent_belief=opponent_beliefs,
+        trajectory=trajectory,
+        public_features=public_features,
+        live_features=live_features,
+        current_value=value,
+        value_model=model,
+        value_metadata=model_metadata,
+        policy_loader=load_policy_model_once,
+        device=DEVICE,
+    )
 
-    top_actions = []
-    policy_logits = None
-
-    if policy_logits is not None and len(payload.legal_actions) > 0:
-        probs = torch.softmax(policy_logits.squeeze(), dim=0).cpu().numpy()
-
-        legal_count = min(len(payload.legal_actions), len(probs))
-        legal_probs = probs[:legal_count]
-
-        ranked = sorted(
-            range(legal_count),
-            key=lambda i: legal_probs[i],
-            reverse=True,
-        )
-
-        for i in ranked[:4]:
-            top_actions.append({
-                "label": action_index_to_label(i, payload.legal_actions),
-                "prob": float(legal_probs[i]),
-            })
-
+    used_live = bool(model_metadata.get("uses_live_private_features"))
+    policy_warnings = list(action_report.get("warnings", []))
     return {
         "p1_win_prob": p1_win_prob,
         "p2_win_prob": p2_win_prob,
         "value": value,
-        "top_actions": top_actions,
-        "warning": "Using 31D public-replay value model; policy/top_actions are not reliable unless a replay-policy checkpoint is loaded.",
+        "top_actions": action_report.get("top_actions", []),
+        "action_recommendation_method": action_report.get("action_recommendation_method"),
+        "policy_checkpoint_loaded": bool(action_report.get("policy_checkpoint_loaded")),
+        "policy_checkpoint_path": action_report.get("policy_checkpoint_path"),
+        "action_ranker_loaded": bool(action_report.get("action_ranker_loaded")),
+        "action_ranker_path": action_report.get("action_ranker_path"),
+        "model_type": model_metadata.get("model_type"),
+        "checkpoint_path": model_metadata.get("path"),
+        "feature_version": model_metadata.get("feature_version"),
+        "feature_dim": int(model_metadata.get("input_size", len(features))),
+        "used_private_state": bool(used_live and private_state.get("team")),
+        "used_opponent_belief": bool(used_live and opponent_beliefs.get("opponents")),
+        "fallback_reason": model_metadata.get("fallback_reason"),
+        "warning": "; ".join(policy_warnings) if policy_warnings else None,
+        "debug": {
+            **feature_debug,
+            "model_path": model_metadata.get("path"),
+            "player_side": player_side,
+            "known": {"private_state": private_state},
+            "inferred": {"opponent_beliefs": opponent_beliefs.get("opponents", [])},
+            "unknown": {"opponent_unknowns": opponent_beliefs.get("unknowns", [])},
+            "belief_source": opponent_beliefs.get("source"),
+            "belief_warnings": opponent_beliefs.get("warnings", []),
+            "all_action_estimates": action_report.get("all_action_estimates", []),
+        },
     }
 
 
