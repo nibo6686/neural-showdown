@@ -8,15 +8,15 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from .action_features import ACTION_FEATURE_DIM, ACTION_FEATURE_VERSION
+from .action_features import ACTION_FEATURE_DIM, ACTION_FEATURE_NAMES, ACTION_FEATURE_VERSION
 from .checkpoints import save_checkpoint, torch_load
 from .logging_helper import format_summary, print_line_safe
 from .models.action_ranker import ActionRankerMLP
 from .models.policy_value_mlp import PolicyValueMLP
 
 
-DEFAULT_DATASET_PATH = Path("data/policy/gen9randombattle_action_rank.npz")
-DEFAULT_CHECKPOINT_PATH = Path("artifacts/checkpoints/gen9randombattle_action_ranker.pt")
+DEFAULT_DATASET_PATH = Path("data/policy/gen9randombattle_action_rank_v2.npz")
+DEFAULT_CHECKPOINT_PATH = Path("artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt")
 DEFAULT_POLICY_CHECKPOINT = Path("artifacts/checkpoints/gen9randombattle_replay_policy.pt")
 DEFAULT_BIAS_REPORT = Path("artifacts/analysis/action_bias_report.md")
 
@@ -136,6 +136,43 @@ def _score_groups(
     }
 
 
+def _tactical_ranker_slices(
+    model: ActionRankerMLP,
+    features: np.ndarray,
+    labels: np.ndarray,
+    group_slices: Sequence[Tuple[int, int]],
+    selected_groups: Sequence[int],
+    actions: np.ndarray,
+    device: torch.device,
+) -> Dict[str, Dict[str, Any]]:
+    name_to_index = {name: idx for idx, name in enumerate(ACTION_FEATURE_NAMES)}
+    slice_defs = {
+        "repeated_failed_move_examples": ["move_failed_recently", "move_failed_last_time_used"],
+        "already_seeded_target_examples": ["target_already_seeded"],
+        "move_healed_target_examples": ["move_healed_target_recently", "target_known_or_possible_ability_absorbs_move_type"],
+        "status_setup_protect_redundant_examples": [
+            "screen_already_active",
+            "side_already_has_stealth_rock",
+            "side_already_has_spikes",
+            "move_id_flag_protect",
+        ],
+    }
+    report: Dict[str, Dict[str, Any]] = {}
+    for name, feature_names in slice_defs.items():
+        columns = [name_to_index[item] for item in feature_names if item in name_to_index and name_to_index[item] < actions.shape[1]]
+        groups = []
+        for group_index in selected_groups:
+            start, end = group_slices[int(group_index)]
+            if columns and bool((actions[start:end, columns] > 0.5).any()):
+                groups.append(int(group_index))
+        if not groups:
+            report[name] = {"count": 0}
+            continue
+        scored = _score_groups(model, features, labels, np.zeros(len(labels)), np.asarray(["slice"] * len(labels)), np.zeros(len(labels)), group_slices, groups, device)
+        report[name] = {"count": int(len(groups)), **scored}
+    return report
+
+
 def _slot1_baseline(labels: np.ndarray, action_indices: np.ndarray, group_slices: Sequence[Tuple[int, int]], selected_groups: Sequence[int]) -> float:
     correct = 0
     total = 0
@@ -205,7 +242,8 @@ def _load_resume_checkpoint(
     if path is None:
         return None
     if not path.exists():
-        raise FileNotFoundError(f"Resume checkpoint not found: {path}")
+        print_line_safe(f"train-action-ranker resume skipped | checkpoint not found: {path}")
+        return None
     checkpoint = torch_load(path, device)
     checkpoint_input = int(checkpoint.get("input_size", expected_input_size))
     if checkpoint_input != int(expected_input_size):
@@ -278,6 +316,8 @@ def train_action_ranker(
         action_indices = data["action_indices"].astype(np.int64)
         action_kinds = data["action_kinds"].astype(str)
         turns = data["turns"].astype(np.int64)
+        state_feature_version = str(data["state_feature_version"]) if "state_feature_version" in data else "unknown"
+        action_feature_version = str(data["action_feature_version"]) if "action_feature_version" in data else ACTION_FEATURE_VERSION
 
     inputs = np.concatenate([states, actions], axis=1).astype(np.float32)
     group_slices = _group_slices(group_ids)
@@ -358,6 +398,8 @@ def train_action_ranker(
             "action_dim": int(actions.shape[1]),
             "input_dim": int(inputs.shape[1]),
             "action_feature_version": ACTION_FEATURE_VERSION,
+            "dataset_state_feature_version": state_feature_version,
+            "dataset_action_feature_version": action_feature_version,
             "device": device.type,
             "epochs_requested": int(epochs),
             "epochs_this_run": int(completed_this_run),
@@ -382,6 +424,15 @@ def train_action_ranker(
             "recommendation_distribution_by_slot": final_metrics["recommendation_distribution_by_slot"],
             "recommendation_move_slot_1_rate": final_metrics["recommendation_move_slot_1_rate"],
             "latest_validation_metrics": final_metrics,
+            "tactical_slice_metrics": _tactical_ranker_slices(
+                model,
+                inputs,
+                labels,
+                group_slices,
+                val_groups,
+                actions,
+                device,
+            ),
             "best_validation_metrics": best_validation_metrics or _best_metrics_from_history(history),
             "training_history": history,
             "global_step": int(global_step),
@@ -491,9 +542,18 @@ def _format_markdown(report: Dict[str, Any]) -> str:
         f"- Move-slot-1 baseline: {report['move_slot_1_baseline_accuracy']:.3f}",
         f"- Old policy top-1: {report['old_policy_top1_accuracy'] if report['old_policy_top1_accuracy'] is not None else 'n/a'}",
         "",
-        f"Checkpoint: `{report['checkpoint']}`",
+        "## Tactical Validation Slices",
         "",
     ]
+    for name, details in report.get("tactical_slice_metrics", {}).items():
+        if not details.get("count"):
+            lines.append(f"- {name}: 0 groups")
+            continue
+        lines.append(
+            f"- {name}: n={details['count']} top1={details['top1_accuracy']:.3f} "
+            f"top3={details['top3_accuracy']:.3f} mrr={details['mean_reciprocal_rank']:.3f}"
+        )
+    lines.extend(["", f"Checkpoint: `{report['checkpoint']}`", ""])
     return "\n".join(lines)
 
 

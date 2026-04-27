@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -13,9 +14,17 @@ from .models.action_ranker import ActionRankerMLP
 
 
 PolicyLoader = Callable[[], Tuple[Optional[torch.nn.Module], Optional[Dict[str, Any]]]]
-DEFAULT_ACTION_RANKER_PATH = Path("artifacts/checkpoints/gen9randombattle_action_ranker.pt")
+_CANONICAL_ACTION_RANKER_PATH = Path("artifacts/checkpoints/gen9randombattle_action_ranker.pt")
+DEFAULT_ACTION_RANKER_V2_PATH = Path("artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt")
+DEFAULT_ACTION_VALUE_RANKER_V2_PATH = Path("artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt")
+DEFAULT_ACTION_RANKER_PATH = _CANONICAL_ACTION_RANKER_PATH
 _action_ranker_model: Optional[ActionRankerMLP] = None
 _action_ranker_metadata: Optional[Dict[str, Any]] = None
+
+
+def _env_action_ranker_path() -> Optional[Path]:
+    override = os.environ.get("NEURAL_ACTION_RANKER_CHECKPOINT", "").strip()
+    return Path(override) if override else None
 
 
 def reset_action_ranker_cache() -> None:
@@ -30,7 +39,19 @@ def load_action_ranker_once(
     device: torch.device,
 ) -> Tuple[Optional[ActionRankerMLP], Optional[Dict[str, Any]]]:
     global _action_ranker_model, _action_ranker_metadata
-    selected_path = path or DEFAULT_ACTION_RANKER_PATH
+    env_path = _env_action_ranker_path()
+    if path is not None:
+        selected_path = path
+    elif env_path is not None:
+        selected_path = env_path
+    elif DEFAULT_ACTION_VALUE_RANKER_V2_PATH.exists():
+        selected_path = DEFAULT_ACTION_VALUE_RANKER_V2_PATH
+    elif DEFAULT_ACTION_RANKER_PATH != _CANONICAL_ACTION_RANKER_PATH:
+        selected_path = DEFAULT_ACTION_RANKER_PATH
+    elif DEFAULT_ACTION_RANKER_V2_PATH.exists():
+        selected_path = DEFAULT_ACTION_RANKER_V2_PATH
+    else:
+        selected_path = DEFAULT_ACTION_RANKER_PATH
     if _action_ranker_model is not None or _action_ranker_metadata is not None:
         return _action_ranker_model, _action_ranker_metadata
     if not selected_path.exists():
@@ -49,7 +70,8 @@ def load_action_ranker_once(
         "path": str(selected_path),
         "input_size": input_size,
         "action_dim": action_dim,
-        "model_type": "action-ranker",
+        "model_type": str(checkpoint.get("model_type") or "action-ranker"),
+        "response_method": str(checkpoint.get("response_method") or ("action_value_ranker" if checkpoint.get("model_type") == "action-value-ranker" else "action_ranker")),
     }
     return _action_ranker_model, _action_ranker_metadata
 
@@ -342,7 +364,9 @@ class ActionValueEstimator:
             state_part = live_features.astype(np.float32)
             if state_part.shape[0] != state_dim:
                 state_part = state_part[:state_dim] if state_part.shape[0] > state_dim else np.pad(state_part, (0, state_dim - state_part.shape[0]))
-            action_features = build_action_feature_vector(legal_action, private_state).astype(np.float32)
+            private_context = dict(private_state)
+            private_context["opponent_belief"] = opponent_belief
+            action_features = build_action_feature_vector(legal_action, private_context).astype(np.float32)
             if action_features.shape[0] != action_dim:
                 action_features = action_features[:action_dim] if action_features.shape[0] > action_dim else np.pad(action_features, (0, action_dim - action_features.shape[0]))
             ranker_input = np.concatenate([state_part, action_features]).astype(np.float32)
@@ -351,7 +375,7 @@ class ActionValueEstimator:
                 ranker_score = float(self.action_ranker_model(x_ranker).squeeze().detach().cpu().item())
 
         if ranker_score is not None:
-            method = "action_ranker"
+            method = str(self.action_ranker_metadata.get("response_method") or "action_ranker")
         elif proxy_method and policy_probs is not None:
             method = "policy_prior+switch_proxy"
         else:
@@ -448,7 +472,9 @@ def recommend_actions(
         warnings.append("No replay-policy checkpoint found; action recommendations limited.")
 
     methods = {row["method"] for row in ranked}
-    if "action_ranker" in methods:
+    if "action_value_ranker" in methods:
+        recommendation_method = "action_value_ranker"
+    elif "action_ranker" in methods:
         recommendation_method = "action_ranker"
     elif "policy_prior+switch_proxy" in methods or "switch_proxy" in methods:
         recommendation_method = "policy_prior+switch_proxy"
@@ -465,5 +491,10 @@ def recommend_actions(
         "policy_checkpoint_path": policy_metadata.get("path"),
         "action_ranker_loaded": action_ranker_model is not None,
         "action_ranker_path": (action_ranker_metadata or {}).get("path"),
+        "action_value_ranker_loaded": action_ranker_model is not None
+        and (action_ranker_metadata or {}).get("response_method") == "action_value_ranker",
+        "action_value_ranker_path": (action_ranker_metadata or {}).get("path")
+        if (action_ranker_metadata or {}).get("response_method") == "action_value_ranker"
+        else None,
         "warnings": sorted(set(warnings)),
     }

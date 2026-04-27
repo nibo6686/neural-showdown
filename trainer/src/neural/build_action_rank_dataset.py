@@ -17,9 +17,14 @@ from .build_replay_value_dataset import DEFAULT_FORMAT, _ensure_trajectories, _l
 from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_features import FEATURE_DIM, FEATURE_NAMES, FEATURE_VERSION, build_live_private_feature_vector, public_feature_vector_from_trajectory
 from .logging_helper import format_summary, print_line_safe
+from .tactical_state import (
+    TACTICAL_ACTION_FEATURE_NAMES,
+    build_tactical_state,
+    tactical_report_from_state,
+)
 
 
-DEFAULT_OUTPUT_PATH = Path("data/policy/gen9randombattle_action_rank.npz")
+DEFAULT_OUTPUT_PATH = Path("data/policy/gen9randombattle_action_rank_v2.npz")
 DEFAULT_REPORT_JSON = Path("artifacts/analysis/action_rank_dataset_report.json")
 DEFAULT_REPORT_MD = Path("artifacts/analysis/action_rank_dataset_report.md")
 DEFAULT_REPLAY_DIR = Path("data/replays/raw/gen9randombattle")
@@ -127,18 +132,22 @@ def _decision_rows(
         player_side=side,
         sets_path=sets_path,
     )
+    private_state["opponent_belief"] = opponent_belief
+    tactical_state = build_tactical_state(prefix.get("protocol_log", []), perspective_side=side)
+    private_state["tactical_state"] = tactical_state
     state_features, _ = build_live_private_feature_vector(
         public_features=public_features,
         private_state=private_state,
         opponent_belief=opponent_belief,
         trajectory=prefix,
         player_side=side,
+        tactical_state=tactical_state,
     )
     actions = _legal_actions_from_private_state(private_state, chosen_label)
     chosen_ordinal = _chosen_index(actions, chosen_label)
     if chosen_ordinal is None or not actions:
         return None
-    action_features = [build_action_feature_vector(action, private_state) for action in actions]
+    action_features = [build_action_feature_vector(action, private_state, tactical_state=tactical_state) for action in actions]
     return {
         "decision_id": decision_id,
         "state_features": state_features,
@@ -150,6 +159,7 @@ def _decision_rows(
         "side": side,
         "replay_id": str(trajectory.get("replay_id") or ""),
         "inferred_own_info": bool(private_state.get("inferred_from_randbats")),
+        "tactical": tactical_report_from_state(tactical_state),
     }
 
 
@@ -163,6 +173,8 @@ def build_action_rank_dataset(
     report_md_path: Path = DEFAULT_REPORT_MD,
     sets_path: Optional[str] = None,
     max_decisions: Optional[int] = None,
+    include_debug_fields: bool = False,
+    compressed: bool = True,
 ) -> Dict[str, Any]:
     started = time.perf_counter()
     _ensure_trajectories(format_name, replay_dir, trajectories_path)
@@ -181,6 +193,7 @@ def build_action_rank_dataset(
     chosen_slot_counts: Counter[int] = Counter()
     candidates_per_decision: List[int] = []
     inferred_count = 0
+    tactical_counts: Counter[str] = Counter()
     skipped = Counter()
     decision_id = 0
 
@@ -213,6 +226,9 @@ def build_action_rank_dataset(
                     continue
 
                 candidates_per_decision.append(len(decision["actions"]))
+                for key, value in (decision.get("tactical") or {}).items():
+                    if isinstance(value, bool) and value:
+                        tactical_counts[key] += 1
                 chosen_kind = decision["chosen_label"].split(":", 1)[0].strip().lower()
                 chosen_kind_counts[chosen_kind] += 1
                 if decision["inferred_own_info"]:
@@ -226,8 +242,9 @@ def build_action_rank_dataset(
                     action_indices.append(int(action.get("index", 0) or 0))
                     kind = str(action.get("kind") or "")
                     action_kinds.append(kind)
-                    action_labels.append(str(action.get("label") or ""))
-                    source_ids.append(decision["replay_id"])
+                    if include_debug_fields:
+                        action_labels.append(str(action.get("label") or ""))
+                        source_ids.append(decision["replay_id"])
                     if label:
                         chosen_slot_counts[int(action.get("index", 0) or 0)] += 1
                 decision_id += 1
@@ -242,22 +259,25 @@ def build_action_rank_dataset(
         raise ValueError("No action-ranking examples were produced.")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(
-        output_path,
-        state_features=np.asarray(state_rows, dtype=np.float16),
-        action_features=np.asarray(action_rows, dtype=np.float16),
-        labels=np.asarray(labels, dtype=np.int8),
-        group_ids=np.asarray(group_ids, dtype=np.int64),
-        turns=np.asarray(turns, dtype=np.int16),
-        action_indices=np.asarray(action_indices, dtype=np.int16),
-        action_kinds=np.asarray(action_kinds),
-        action_labels=np.asarray(action_labels),
-        source_ids=np.asarray(source_ids),
-        state_feature_version=np.asarray(FEATURE_VERSION),
-        state_feature_names=np.asarray(FEATURE_NAMES),
-        action_feature_version=np.asarray(ACTION_FEATURE_VERSION),
-        action_feature_names=np.asarray(ACTION_FEATURE_NAMES),
-    )
+    arrays = {
+        "state_features": np.asarray(state_rows, dtype=np.float16),
+        "action_features": np.asarray(action_rows, dtype=np.float16),
+        "labels": np.asarray(labels, dtype=np.int8),
+        "group_ids": np.asarray(group_ids, dtype=np.int64),
+        "turns": np.asarray(turns, dtype=np.int16),
+        "action_indices": np.asarray(action_indices, dtype=np.int16),
+        "action_kinds": np.asarray(action_kinds),
+        "state_feature_version": np.asarray(FEATURE_VERSION),
+        "state_feature_names": np.asarray(FEATURE_NAMES),
+        "action_feature_version": np.asarray(ACTION_FEATURE_VERSION),
+        "action_feature_names": np.asarray(ACTION_FEATURE_NAMES),
+        "tactical_action_feature_names": np.asarray(TACTICAL_ACTION_FEATURE_NAMES),
+    }
+    if include_debug_fields:
+        arrays["action_labels"] = np.asarray(action_labels)
+        arrays["source_ids"] = np.asarray(source_ids)
+    save_npz = np.savez_compressed if compressed else np.savez
+    save_npz(output_path, **arrays)
 
     decisions = int(decision_id)
     total_candidates = int(len(labels))
@@ -272,6 +292,12 @@ def build_action_rank_dataset(
         "state_dim": FEATURE_DIM,
         "action_feature_version": ACTION_FEATURE_VERSION,
         "action_dim": ACTION_FEATURE_DIM,
+        "tactical_feature_count": int(len(TACTICAL_ACTION_FEATURE_NAMES)),
+        "percent_examples_with_repeated_failed_moves": float(100.0 * tactical_counts.get("has_repeated_failed_move", 0) / max(1, decisions)),
+        "percent_examples_with_target_already_seeded": float(100.0 * tactical_counts.get("target_already_seeded", 0) / max(1, decisions)),
+        "percent_examples_with_move_healed_target": float(100.0 * tactical_counts.get("move_healed_target", 0) / max(1, decisions)),
+        "percent_examples_with_active_seeded": float(100.0 * (tactical_counts.get("own_active_seeded", 0) + tactical_counts.get("opp_active_seeded", 0)) / max(1, decisions)),
+        "percent_examples_with_active_substitute": float(100.0 * (tactical_counts.get("own_active_substitute", 0) + tactical_counts.get("opp_active_substitute", 0)) / max(1, decisions)),
         "chosen_action_distribution_by_kind": dict(chosen_kind_counts),
         "chosen_move_slot_distribution": {str(key): int(value) for key, value in sorted(chosen_slot_counts.items())},
         "chosen_move_slot_1_count": chosen_slot1,
@@ -283,6 +309,9 @@ def build_action_rank_dataset(
             "inferred_rate": float(inferred_count / max(1, decisions)),
         },
         "skipped": dict(skipped),
+        "compressed": bool(compressed),
+        "include_debug_fields": bool(include_debug_fields),
+        "output_size_mb": float(output_path.stat().st_size / (1024 * 1024)) if output_path.exists() else None,
         "wall_time_sec": time.perf_counter() - started,
     }
     report_json_path.parent.mkdir(parents=True, exist_ok=True)
@@ -311,7 +340,11 @@ def _format_markdown(report: Dict[str, Any]) -> str:
         f"- Legal action candidates: {report['legal_action_candidates']}",
         f"- Average candidates per decision: {report['average_candidates_per_decision']:.2f}",
         f"- State/action dims: {report['state_dim']} / {report['action_dim']}",
+        f"- Tactical action feature count: {report.get('tactical_feature_count', 0)}",
         f"- Chosen move slot 1 rate: {report['chosen_move_slot_1_rate']:.1%}",
+        f"- Repeated failed move decisions: {report.get('percent_examples_with_repeated_failed_moves', 0.0):.1f}%",
+        f"- Target already seeded decisions: {report.get('percent_examples_with_target_already_seeded', 0.0):.1f}%",
+        f"- Move healed target decisions: {report.get('percent_examples_with_move_healed_target', 0.0):.1f}%",
         "",
         "## Chosen Action Kinds",
         "",
@@ -335,6 +368,8 @@ def main() -> None:
     parser.add_argument("--report-md", default=str(DEFAULT_REPORT_MD))
     parser.add_argument("--sets-path", default=None)
     parser.add_argument("--max-decisions", type=int, default=None)
+    parser.add_argument("--include-debug-fields", action="store_true")
+    parser.add_argument("--uncompressed", action="store_true")
     args = parser.parse_args()
     build_action_rank_dataset(
         format_name=args.format,
@@ -345,6 +380,8 @@ def main() -> None:
         report_md_path=Path(args.report_md),
         sets_path=args.sets_path,
         max_decisions=args.max_decisions,
+        include_debug_fields=args.include_debug_fields,
+        compressed=not args.uncompressed,
     )
 
 

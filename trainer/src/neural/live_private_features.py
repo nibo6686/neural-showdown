@@ -15,9 +15,16 @@ from .build_replay_value_dataset import (
 from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_state import extract_private_side_state
 from .parse_replay_logs import parse_protocol_log
+from .tactical_state import (
+    TACTICAL_STATE_FEATURE_NAMES,
+    TACTICAL_FEATURE_VERSION,
+    build_tactical_state,
+    tactical_state_feature_vector,
+)
 
 
-FEATURE_VERSION = "live-private-belief-v1"
+FEATURE_VERSION_V1 = "live-private-belief-v1"
+FEATURE_VERSION = "live-private-belief-v2"
 
 PRIVATE_FEATURE_NAMES = [
     "missing_private_state",
@@ -72,7 +79,9 @@ OPPONENT_BELIEF_FEATURE_NAMES = [
     "opponent_known_count_norm",
 ]
 
-FEATURE_NAMES = list(PUBLIC_FEATURE_NAMES) + PRIVATE_FEATURE_NAMES + OPPONENT_BELIEF_FEATURE_NAMES
+FEATURE_NAMES_V1 = list(PUBLIC_FEATURE_NAMES) + PRIVATE_FEATURE_NAMES + OPPONENT_BELIEF_FEATURE_NAMES
+FEATURE_DIM_V1 = len(FEATURE_NAMES_V1)
+FEATURE_NAMES = FEATURE_NAMES_V1 + TACTICAL_STATE_FEATURE_NAMES
 FEATURE_DIM = len(FEATURE_NAMES)
 
 
@@ -376,21 +385,35 @@ def build_live_private_feature_vector(
     opponent_belief: Optional[Dict[str, Any]] = None,
     trajectory: Optional[Dict[str, Any]] = None,
     player_side: Optional[str] = None,
+    tactical_state: Optional[Dict[str, Any]] = None,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     public = np.asarray(public_features, dtype=np.float32).reshape(-1)
     if public.shape[0] != len(PUBLIC_FEATURE_NAMES):
         raise ValueError(f"Expected {len(PUBLIC_FEATURE_NAMES)} public features, got {public.shape[0]}.")
     private = private_state_feature_vector(private_state)
     opponent = opponent_belief_feature_vector(opponent_belief, trajectory=trajectory, player_side=player_side)
-    features = np.concatenate([public, private, opponent]).astype(np.float32)
+    if tactical_state is None:
+        protocol_log = (trajectory or {}).get("protocol_log") if isinstance(trajectory, dict) else []
+        if isinstance(protocol_log, list):
+            tactical_state = build_tactical_state(
+                protocol_log,
+                perspective_side=player_side if player_side in ("p1", "p2") else "p1",
+            )
+        else:
+            tactical_state = {}
+    tactical = tactical_state_feature_vector(tactical_state)
+    features = np.concatenate([public, private, opponent, tactical]).astype(np.float32)
     if features.shape[0] != FEATURE_DIM:
         raise ValueError(f"Live-private feature size mismatch: got {features.shape[0]}, expected {FEATURE_DIM}.")
     debug = {
         "feature_version": FEATURE_VERSION,
         "feature_dim": FEATURE_DIM,
+        "v1_feature_dim": FEATURE_DIM_V1,
         "public_feature_version": PUBLIC_FEATURE_VERSION,
+        "tactical_feature_version": TACTICAL_FEATURE_VERSION,
         "used_private_state": bool(isinstance(private_state, dict) and private_state.get("team")),
         "used_opponent_belief": bool(isinstance(opponent_belief, dict) and opponent_belief.get("opponents")),
+        "used_tactical_state": bool(tactical_state),
     }
     return features, debug
 
@@ -442,6 +465,10 @@ def build_features_from_live_payload(
         opponent_belief=opponent_belief,
         trajectory=trajectory,
         player_side=player_side if player_side in ("p1", "p2") else None,
+        tactical_state=build_tactical_state(
+            list(log),
+            perspective_side=player_side if player_side in ("p1", "p2") else "p1",
+        ),
     )
     debug.update(public_debug)
     debug["feature_names_preview"] = FEATURE_NAMES[:8]
@@ -454,6 +481,12 @@ def feature_schema() -> Dict[str, Any]:
         "feature_version": FEATURE_VERSION,
         "feature_dim": FEATURE_DIM,
         "feature_names": FEATURE_NAMES,
+        "v1_feature_version": FEATURE_VERSION_V1,
+        "v1_feature_dim": FEATURE_DIM_V1,
+        "v1_feature_names": FEATURE_NAMES_V1,
         "public_feature_version": PUBLIC_FEATURE_VERSION,
         "public_feature_dim": len(PUBLIC_FEATURE_NAMES),
+        "tactical_feature_version": TACTICAL_FEATURE_VERSION,
+        "tactical_feature_dim": len(TACTICAL_STATE_FEATURE_NAMES),
+        "tactical_feature_names": TACTICAL_STATE_FEATURE_NAMES,
     }

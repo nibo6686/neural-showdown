@@ -24,6 +24,11 @@ from .live_private_features import (
     trajectory_prefix,
 )
 from .logging_helper import format_summary, print_line_safe
+from .tactical_state import (
+    TACTICAL_STATE_FEATURE_NAMES,
+    build_tactical_state,
+    tactical_report_from_state,
+)
 from .value_features import (
     discounted_terminal_return,
     final_result_from_winner,
@@ -33,7 +38,7 @@ from .value_features import (
 )
 
 
-DEFAULT_OUTPUT_PATH = Path("data/value/gen9randombattle_live_private_value.npz")
+DEFAULT_OUTPUT_PATH = Path("data/value/gen9randombattle_live_private_value_v2.npz")
 DEFAULT_REPORT_JSON_PATH = Path("artifacts/analysis/live_private_value_dataset_report.json")
 DEFAULT_REPORT_MD_PATH = Path("artifacts/analysis/live_private_value_dataset_report.md")
 DEFAULT_TRACE_DIR = Path("artifacts/battles/dev")
@@ -367,7 +372,12 @@ def _protocol_history_from_steps(steps: Sequence[Dict[str, Any]], end_index: int
     return lines
 
 
-def _examples_from_public_trajectory(trajectory: Dict[str, Any], *, sets_path: Optional[str]) -> List[Dict[str, Any]]:
+def _examples_from_public_trajectory(
+    trajectory: Dict[str, Any],
+    *,
+    sets_path: Optional[str],
+    include_debug_fields: bool = False,
+) -> List[Dict[str, Any]]:
     if result_from_winner_side(trajectory.get("winner_side"), perspective="p1") is None:
         return []
     turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
@@ -393,23 +403,29 @@ def _examples_from_public_trajectory(trajectory: Dict[str, Any], *, sets_path: O
                 player_side=side,
                 sets_path=sets_path,
             )
+            tactical_state = build_tactical_state(prefix.get("protocol_log", []), perspective_side=side)
+            private_state["tactical_state"] = tactical_state
             features, _ = build_live_private_feature_vector(
                 public_features=public_features,
                 private_state=private_state,
                 opponent_belief=belief,
                 trajectory=prefix,
                 player_side=side,
+                tactical_state=tactical_state,
             )
-            examples.append(
-                {
-                    "state": features,
-                    "value_target": float(result),
-                    "final_result": float(result),
-                    "turn": turn_number,
-                    "source_kind": "public_replay_private_reconstructed",
-                    "source_id": str(trajectory.get("replay_id") or ""),
-                    "missing_private_state": 0.0,
-                    "metadata_json": _metadata_json(
+            tactical_report = tactical_report_from_state(tactical_state)
+            example = {
+                "state": features,
+                "value_target": float(result),
+                "final_result": float(result),
+                "turn": turn_number,
+                "source_kind": "public_replay_private_reconstructed",
+                "source_id": str(trajectory.get("replay_id") or ""),
+                "missing_private_state": 0.0,
+                "tactical": tactical_report,
+            }
+            if include_debug_fields:
+                example["metadata_json"] = _metadata_json(
                         {
                             "source_kind": "public_replay_private_reconstructed",
                             "replay_id": trajectory.get("replay_id"),
@@ -417,14 +433,20 @@ def _examples_from_public_trajectory(trajectory: Dict[str, Any], *, sets_path: O
                             "turn": turn_number,
                             "feature_version": FEATURE_VERSION,
                             "own_team_reconstructed_count": len(private_state.get("team", [])),
+                            "tactical": tactical_report,
                         }
-                    ),
-                }
-            )
+                    )
+            examples.append(example)
     return examples
 
 
-def _examples_from_trace_path(path: Path, *, gamma: float, sets_path: Optional[str]) -> List[Dict[str, Any]]:
+def _examples_from_trace_path(
+    path: Path,
+    *,
+    gamma: float,
+    sets_path: Optional[str],
+    include_debug_fields: bool = False,
+) -> List[Dict[str, Any]]:
     trace = load_trace(path)
     steps = flatten_trace_steps(trace)
     final_result = final_result_from_winner(trace.get("winner"))
@@ -456,34 +478,40 @@ def _examples_from_trace_path(path: Path, *, gamma: float, sets_path: Optional[s
             player_side="p1",
             sets_path=sets_path,
         )
+        tactical_state = build_tactical_state(protocol_history, perspective_side="p1")
+        private_state["tactical_state"] = tactical_state
         features, _ = build_live_private_feature_vector(
             public_features=public_features,
             private_state=private_state,
             opponent_belief=belief,
             trajectory=trajectory,
             player_side="p1",
+            tactical_state=tactical_state,
         )
+        tactical_report = tactical_report_from_state(tactical_state)
         steps_to_terminal = max(0, len(steps) - ordinal - 1)
-        examples.append(
-            {
-                "state": features,
-                "value_target": discounted_terminal_return(final_result, steps_to_terminal, gamma),
-                "final_result": float(final_result),
-                "turn": int(step.get("turn", 0) or 0),
-                "source_kind": "local_trace_private",
-                "source_id": str(path),
-                "missing_private_state": 0.0,
-                "metadata_json": _metadata_json(
+        example = {
+            "state": features,
+            "value_target": discounted_terminal_return(final_result, steps_to_terminal, gamma),
+            "final_result": float(final_result),
+            "turn": int(step.get("turn", 0) or 0),
+            "source_kind": "local_trace_private",
+            "source_id": str(path),
+            "missing_private_state": 0.0,
+            "tactical": tactical_report,
+        }
+        if include_debug_fields:
+            example["metadata_json"] = _metadata_json(
                     {
                         "source_kind": "local_trace_private",
                         "trace": str(path),
                         "step_index": int(step.get("step_index", ordinal) or 0),
                         "turn": int(step.get("turn", 0) or 0),
                         "feature_version": FEATURE_VERSION,
+                        "tactical": tactical_report,
                     }
-                ),
-            }
-        )
+                )
+        examples.append(example)
     return examples
 
 
@@ -505,19 +533,68 @@ def _iter_trace_paths(trace_dirs: Sequence[Path], trace_paths: Sequence[Path]) -
     return result
 
 
-def _stack_examples(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]:
+def _source_kind_encoding(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]:
+    names = sorted({str(example["source_kind"]) for example in examples})
+    name_to_code = {name: index for index, name in enumerate(names)}
+    return {
+        "source_kind_names": np.asarray(names),
+        "source_kind_codes": np.asarray([name_to_code[str(example["source_kind"])] for example in examples], dtype=np.int8),
+    }
+
+
+def _tactical_flag_arrays(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]:
+    names = list(TACTICAL_STATE_FEATURE_NAMES)
+    flags = np.zeros((len(examples), len(names)), dtype=np.uint8)
+    for row, example in enumerate(examples):
+        tactical = example.get("tactical") or {}
+        for column, name in enumerate(names):
+            flags[row, column] = 1 if bool(tactical.get(name)) else 0
+    return {
+        "tactical_flag_names": np.asarray(names),
+        "tactical_flags": flags,
+    }
+
+
+def _stack_examples(examples: Sequence[Dict[str, Any]], *, include_debug_fields: bool = False) -> Dict[str, np.ndarray]:
     if not examples:
         raise ValueError("No live-private value examples were produced.")
-    return {
+    arrays = {
         "states": np.asarray([example["state"] for example in examples], dtype=np.float32),
-        "legal_masks": np.zeros((len(examples), 13), dtype=np.float32),
         "value_targets": np.asarray([example["value_target"] for example in examples], dtype=np.float32),
         "final_results": np.asarray([example["final_result"] for example in examples], dtype=np.float32),
-        "turns": np.asarray([example["turn"] for example in examples], dtype=np.int64),
-        "source_kinds": np.asarray([example["source_kind"] for example in examples]),
-        "source_ids": np.asarray([example["source_id"] for example in examples]),
+        "turns": np.asarray([example["turn"] for example in examples], dtype=np.int16),
         "missing_private_state": np.asarray([example["missing_private_state"] for example in examples], dtype=np.float32),
-        "metadata_json": np.asarray([example["metadata_json"] for example in examples]),
+    }
+    arrays.update(_source_kind_encoding(examples))
+    arrays.update(_tactical_flag_arrays(examples))
+    if include_debug_fields:
+        arrays.update(
+            {
+                "legal_masks": np.zeros((len(examples), 13), dtype=np.float32),
+                "source_kinds": np.asarray([example["source_kind"] for example in examples]),
+                "source_ids": np.asarray([example["source_id"] for example in examples]),
+                "metadata_json": np.asarray([example.get("metadata_json", "") for example in examples]),
+                "tactical_json": np.asarray([_metadata_json(example.get("tactical", {})) for example in examples]),
+            }
+        )
+    return arrays
+
+
+def _tactical_dataset_metrics(examples: Sequence[Dict[str, Any]]) -> Dict[str, float]:
+    total = max(1, len(examples))
+
+    def rate(key: str) -> float:
+        return 100.0 * sum(1 for example in examples if bool((example.get("tactical") or {}).get(key))) / total
+
+    return {
+        "tactical_feature_count": int(len(TACTICAL_STATE_FEATURE_NAMES)),
+        "percent_examples_with_repeated_failed_moves": rate("has_repeated_failed_move"),
+        "percent_examples_with_target_already_seeded": rate("target_already_seeded"),
+        "percent_examples_with_move_healed_target": rate("move_healed_target"),
+        "percent_examples_with_own_active_seeded": rate("own_active_seeded"),
+        "percent_examples_with_opp_active_seeded": rate("opp_active_seeded"),
+        "percent_examples_with_own_active_substitute": rate("own_active_substitute"),
+        "percent_examples_with_opp_active_substitute": rate("opp_active_substitute"),
     }
 
 
@@ -533,6 +610,8 @@ def build_live_private_value_dataset(
     report_md_path: Path = DEFAULT_REPORT_MD_PATH,
     gamma: float = 1.0,
     sets_path: Optional[str] = None,
+    include_debug_fields: bool = False,
+    compressed: bool = True,
 ) -> Dict[str, Any]:
     started_at = time.perf_counter()
     selected_replay_dir = replay_dir or Path("data/replays/raw") / format_name
@@ -543,7 +622,11 @@ def build_live_private_value_dataset(
     source_counts: Counter[str] = Counter()
     trajectories = _load_trajectories(selected_trajectories)
     for trajectory in trajectories:
-        source_examples = _examples_from_public_trajectory(trajectory, sets_path=sets_path)
+        source_examples = _examples_from_public_trajectory(
+            trajectory,
+            sets_path=sets_path,
+            include_debug_fields=include_debug_fields,
+        )
         examples.extend(source_examples)
         source_counts["public_replay_private_reconstructed"] += len(source_examples)
 
@@ -551,15 +634,21 @@ def build_live_private_value_dataset(
     trace_failures: List[Dict[str, str]] = []
     for path in trace_files:
         try:
-            source_examples = _examples_from_trace_path(path, gamma=gamma, sets_path=sets_path)
+            source_examples = _examples_from_trace_path(
+                path,
+                gamma=gamma,
+                sets_path=sets_path,
+                include_debug_fields=include_debug_fields,
+            )
             examples.extend(source_examples)
             source_counts["local_trace_private"] += len(source_examples)
         except Exception as exc:
             trace_failures.append({"path": str(path), "reason": str(exc)})
 
-    arrays = _stack_examples(examples)
+    arrays = _stack_examples(examples, include_debug_fields=include_debug_fields)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez(
+    save_npz = np.savez_compressed if compressed else np.savez
+    save_npz(
         output_path,
         **arrays,
         feature_version=np.asarray(FEATURE_VERSION),
@@ -575,6 +664,7 @@ def build_live_private_value_dataset(
         "feature_version": FEATURE_VERSION,
         "feature_dim": FEATURE_DIM,
         "feature_names": FEATURE_NAMES,
+        **_tactical_dataset_metrics(examples),
         "examples": int(arrays["states"].shape[0]),
         "examples_from_public_replays": int(
             source_counts.get("public_replay_private_reconstructed", 0)
@@ -603,6 +693,9 @@ def build_live_private_value_dataset(
         "trace_files": [str(path) for path in trace_files],
         "trace_failures": trace_failures,
         "gamma": float(gamma),
+        "compressed": bool(compressed),
+        "include_debug_fields": bool(include_debug_fields),
+        "output_size_mb": float(output_path.stat().st_size / (1024 * 1024)) if output_path.exists() else None,
         "wall_time_sec": time.perf_counter() - started_at,
     }
     report_json_path.parent.mkdir(parents=True, exist_ok=True)
@@ -626,8 +719,12 @@ def _format_markdown_report(report: Dict[str, Any]) -> str:
         f"- Local trace/private examples: {report['examples_from_local_traces']}",
         f"- Feature version: {report['feature_version']}",
         f"- Feature dimension: {report['feature_dim']}",
+        f"- Tactical feature count: {report.get('tactical_feature_count', 0)}",
         f"- Missing private state: {report['missing_private_state_percentage']:.1f}%",
         f"- Target mean/std: {report['target_distribution']['mean']:.4f} / {report['target_distribution']['std']:.4f}",
+        f"- Repeated failed move examples: {report.get('percent_examples_with_repeated_failed_moves', 0.0):.1f}%",
+        f"- Target already seeded examples: {report.get('percent_examples_with_target_already_seeded', 0.0):.1f}%",
+        f"- Move healed target examples: {report.get('percent_examples_with_move_healed_target', 0.0):.1f}%",
         "",
         "## Outcomes",
         "",
@@ -661,6 +758,8 @@ def main() -> None:
     parser.add_argument("--report-md", default=str(DEFAULT_REPORT_MD_PATH))
     parser.add_argument("--gamma", type=float, default=1.0)
     parser.add_argument("--sets-path", default=None)
+    parser.add_argument("--include-debug-fields", action="store_true")
+    parser.add_argument("--uncompressed", action="store_true")
     args = parser.parse_args()
 
     trace_dirs = _parse_paths(args.trace_dir) or [DEFAULT_TRACE_DIR]
@@ -675,6 +774,8 @@ def main() -> None:
         report_md_path=Path(args.report_md),
         gamma=args.gamma,
         sets_path=args.sets_path,
+        include_debug_fields=args.include_debug_fields,
+        compressed=not args.uncompressed,
     )
     print_line_safe(
         format_summary(

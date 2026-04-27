@@ -1,6 +1,8 @@
 import argparse
 import gzip
 import json
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -28,7 +30,7 @@ from .parse_replay_logs import parse_protocol_log
 
 
 DEFAULT_OLD_CHECKPOINT = Path("artifacts/checkpoints/gen9randombattle_replay_value.pt")
-DEFAULT_NEW_CHECKPOINT = Path("artifacts/checkpoints/gen9randombattle_live_private_value.pt")
+DEFAULT_NEW_CHECKPOINT = Path("artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt")
 DEFAULT_REPLAY_DIR = Path("data/replays/raw/gen9randombattle")
 DEFAULT_TRAJECTORIES = Path("data/replays/processed/gen9randombattle_trajectories.jsonl.gz")
 DEFAULT_OUTPUT_DIR = Path("artifacts/replays")
@@ -108,6 +110,17 @@ def load_replay_trajectory(
         for trajectory in _iter_trajectories(trajectories_path):
             if str(trajectory.get("replay_id")) == replay_id:
                 return trajectory
+    if replay_id.startswith("gen") and "/" not in replay_id and "\\" not in replay_id:
+        url = f"https://replay.pokemonshowdown.com/{replay_id}.log"
+        try:
+            request = urllib.request.Request(url, headers={"User-Agent": "neural-showdown-analysis/1.0"})
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = response.read().decode("utf-8", errors="replace")
+            replay_dir.mkdir(parents=True, exist_ok=True)
+            raw_log.write_text(payload, encoding="utf-8")
+            return parse_protocol_log(payload.splitlines(), replay_id=replay_id, format_name=format_name, source_path=url)
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            raise FileNotFoundError(f"Could not find replay id/path: {replay}; remote fetch failed: {exc}") from exc
     raise FileNotFoundError(f"Could not find replay id/path: {replay}")
 
 

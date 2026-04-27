@@ -82,11 +82,12 @@ def save_checkpoint(path: Path, input_size: int) -> None:
 
 class LivePrivateFeatureTest(unittest.TestCase):
     def test_feature_schema_is_stable_shape(self):
-        self.assertEqual(FEATURE_VERSION, "live-private-belief-v1")
+        self.assertEqual(FEATURE_VERSION, "live-private-belief-v2")
         self.assertEqual(len(FEATURE_NAMES), FEATURE_DIM)
         self.assertEqual(len(set(FEATURE_NAMES)), len(FEATURE_NAMES))
         self.assertIn("missing_private_state", FEATURE_NAMES)
         self.assertIn("opponent_candidate_entropy_norm", FEATURE_NAMES)
+        self.assertIn("opp_active_seeded", FEATURE_NAMES)
 
     def test_missing_private_state_is_safe(self):
         vector = private_state_feature_vector(None)
@@ -165,6 +166,7 @@ class LivePrivateDatasetTrainTest(unittest.TestCase):
                 report_json_path=root / "report.json",
                 report_md_path=root / "report.md",
                 sets_path=str(sets_path),
+                include_debug_fields=True,
             )
             self.assertTrue(output.exists())
             self.assertGreater(report["examples_from_public_replays"], 0)
@@ -260,18 +262,37 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
             root = Path(tmpdir)
             old_path = root / "old.pt"
             new_path = root / "new.pt"
+            v2_path = root / "missing_v2.pt"
             policy_path = root / "missing_policy.pt"
             save_checkpoint(old_path, 31)
             save_checkpoint(new_path, FEATURE_DIM)
             with patch("neural.live_eval_server.OLD_VALUE_MODEL_PATH", old_path), patch(
-                "neural.live_eval_server.LIVE_PRIVATE_VALUE_MODEL_PATH", new_path
-            ), patch("neural.live_eval_server.REPLAY_POLICY_MODEL_PATH", policy_path):
+                "neural.live_eval_server.LIVE_PRIVATE_VALUE_MODEL_V2_PATH", v2_path
+            ), patch("neural.live_eval_server.LIVE_PRIVATE_VALUE_MODEL_PATH", new_path), patch("neural.live_eval_server.REPLAY_POLICY_MODEL_PATH", policy_path):
                 reset_model_caches()
                 response = evaluate_with_model(self._payload())
         self.assertEqual(response["model_type"], "live-private-belief-value")
         self.assertEqual(response["feature_version"], FEATURE_VERSION)
         self.assertTrue(response["used_private_state"])
         self.assertIn("opponent_beliefs", response["debug"]["inferred"])
+
+    def test_live_eval_prefers_v2_checkpoint_when_present(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            old_path = root / "old.pt"
+            v1_path = root / "v1.pt"
+            v2_path = root / "v2.pt"
+            policy_path = root / "missing_policy.pt"
+            save_checkpoint(old_path, 31)
+            save_checkpoint(v1_path, FEATURE_DIM)
+            save_checkpoint(v2_path, FEATURE_DIM)
+            with patch("neural.live_eval_server.OLD_VALUE_MODEL_PATH", old_path), patch(
+                "neural.live_eval_server.LIVE_PRIVATE_VALUE_MODEL_V2_PATH", v2_path
+            ), patch("neural.live_eval_server.LIVE_PRIVATE_VALUE_MODEL_PATH", v1_path), patch("neural.live_eval_server.REPLAY_POLICY_MODEL_PATH", policy_path):
+                reset_model_caches()
+                response = evaluate_with_model(self._payload())
+        self.assertEqual(response["checkpoint_path"], str(v2_path))
+        self.assertEqual(response["feature_version"], FEATURE_VERSION)
 
     def test_top_actions_use_request_move_labels(self):
         payload = self._payload()

@@ -16,19 +16,35 @@ from .logging_helper import format_summary, print_line_safe
 from .models.policy_value_mlp import PolicyValueMLP
 
 
-DEFAULT_DATASET_PATH = Path("data/value/gen9randombattle_live_private_value.npz")
-DEFAULT_CHECKPOINT_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value.pt")
+DEFAULT_DATASET_PATH = Path("data/value/gen9randombattle_live_private_value_v2.npz")
+DEFAULT_CHECKPOINT_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt")
 
 
-def load_live_private_value_dataset(path: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def _decode_source_kinds(data: Any, n: int) -> np.ndarray:
+    if "source_kinds" in data:
+        return data["source_kinds"].astype(str)
+    if "source_kind_codes" in data and "source_kind_names" in data:
+        names = data["source_kind_names"].astype(str)
+        codes = data["source_kind_codes"].astype(np.int64)
+        return np.asarray([names[int(code)] if 0 <= int(code) < len(names) else "unknown" for code in codes])
+    return np.asarray(["unknown"] * n)
+
+
+def load_live_private_value_dataset(path: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str, Any, np.ndarray]:
     with np.load(path, allow_pickle=True) as data:
         states = data["states"].astype(np.float32)
         targets = data["value_targets"].astype(np.float32)
         final_results = data["final_results"].astype(np.float32) if "final_results" in data else targets
-        source_kinds = data["source_kinds"] if "source_kinds" in data else np.asarray(["unknown"] * len(states))
+        source_kinds = _decode_source_kinds(data, len(states))
         missing_private = data["missing_private_state"].astype(np.float32) if "missing_private_state" in data else np.zeros(len(states), dtype=np.float32)
         feature_version = str(data["feature_version"]) if "feature_version" in data else FEATURE_VERSION
-    return states, targets, final_results, source_kinds.astype(str), missing_private, feature_version
+        if "tactical_flags" in data and "tactical_flag_names" in data:
+            tactical_data = data["tactical_flags"].astype(np.uint8)
+            tactical_names = data["tactical_flag_names"].astype(str)
+        else:
+            tactical_data = data["tactical_json"].astype(str) if "tactical_json" in data else np.asarray(["{}"] * len(states))
+            tactical_names = np.asarray([], dtype=str)
+    return states, targets, final_results, source_kinds.astype(str), missing_private, feature_version, tactical_data, tactical_names
 
 
 def _split_indices(n: int, train_split: float) -> Tuple[np.ndarray, np.ndarray]:
@@ -161,6 +177,51 @@ def _source_metrics(
     return report
 
 
+def _tactical_slice_metrics(
+    targets: np.ndarray,
+    predictions: np.ndarray,
+    tactical_data: Any,
+    tactical_names: np.ndarray,
+    indices: np.ndarray,
+) -> Dict[str, Dict[str, Any]]:
+    import json
+
+    slices = {
+        "repeated_failed_move_examples": "has_repeated_failed_move",
+        "already_seeded_target_examples": "target_already_seeded",
+        "move_healed_target_examples": "move_healed_target",
+        "own_seeded_examples": "own_active_seeded",
+        "opponent_substitute_examples": "opp_active_substitute",
+    }
+    flag_columns = {str(name): idx for idx, name in enumerate(tactical_names.tolist())} if len(tactical_names) else {}
+    parsed = None
+    if not flag_columns:
+        parsed = []
+        for raw in tactical_data:
+            try:
+                parsed.append(json.loads(str(raw)))
+            except json.JSONDecodeError:
+                parsed.append({})
+    report: Dict[str, Dict[str, Any]] = {}
+    for name, key in slices.items():
+        if key in flag_columns:
+            column = flag_columns[key]
+            selected = np.asarray([idx for idx in indices if bool(tactical_data[int(idx), column])], dtype=np.int64)
+        else:
+            selected = np.asarray([idx for idx in indices if bool((parsed or [])[int(idx)].get(key))], dtype=np.int64)
+        if len(selected) == 0:
+            report[name] = {"count": 0}
+            continue
+        diff = predictions[selected] - targets[selected]
+        report[name] = {
+            "count": int(len(selected)),
+            "mse": float(np.mean(diff ** 2)),
+            "target_mean": float(targets[selected].mean()),
+            "prediction_mean": float(predictions[selected].mean()),
+        }
+    return report
+
+
 def _timestamp_copy(path: Path) -> Optional[str]:
     if not path.exists():
         return None
@@ -181,7 +242,7 @@ def train_live_private_value_model(
     train_split: float = 0.9,
     grad_clip_norm: float = 1.0,
 ) -> Dict[str, Any]:
-    states, targets, final_results, source_kinds, missing_private, feature_version = load_live_private_value_dataset(dataset_path)
+    states, targets, final_results, source_kinds, missing_private, feature_version, tactical_data, tactical_names = load_live_private_value_dataset(dataset_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     pin_memory = device.type == "cuda"
     train_indices, val_indices = _split_indices(len(states), train_split)
@@ -278,6 +339,13 @@ def train_live_private_value_model(
         "outcome_metrics": _outcome_metrics(val_targets, val_results, val_predictions),
         "calibration_table": _calibration_table(val_targets, val_predictions),
         "source_specific_validation": _source_metrics(targets, final_results, predictions, source_kinds, val_indices if len(val_indices) else np.arange(len(states))),
+        "tactical_slice_metrics": _tactical_slice_metrics(
+            targets,
+            predictions,
+            tactical_data,
+            tactical_names,
+            val_indices if len(val_indices) else np.arange(len(states)),
+        ),
         "training_history": history,
     }
     json_path = checkpoint_path.with_suffix(".train.json")
@@ -334,6 +402,15 @@ def _format_markdown_report(report: Dict[str, Any]) -> str:
         lines.append(
             f"- {source}: n={details['count']} val_loss={details['validation_loss']:.6f} "
             f"baseline={details['constant_baseline_loss']:.6f} improvement={improvement_text} sign_acc={sign_text}"
+        )
+    lines.extend(["", "## Tactical Validation Slices", ""])
+    for name, details in report.get("tactical_slice_metrics", {}).items():
+        if not details.get("count"):
+            lines.append(f"- {name}: 0 examples")
+            continue
+        lines.append(
+            f"- {name}: n={details['count']} mse={details['mse']:.6f} "
+            f"target={details['target_mean']:.4f} pred={details['prediction_mean']:.4f}"
         )
     lines.extend(["", "## Outcomes", ""])
     for bucket, details in report.get("outcome_metrics", {}).items():

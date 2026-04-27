@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
+from .tactical_state import TACTICAL_ACTION_FEATURE_NAMES, tactical_action_feature_vector
+
 
 MOVE_TYPES = [
     "Normal",
@@ -29,7 +31,8 @@ MOVE_TYPES = [
     "Fairy",
 ]
 CATEGORIES = ["Physical", "Special", "Status"]
-ACTION_FEATURE_VERSION = "legal-action-v1"
+ACTION_FEATURE_VERSION_V1 = "legal-action-v1"
+ACTION_FEATURE_VERSION = "legal-action-v2"
 
 BASE_FEATURE_NAMES = [
     "kind_move",
@@ -74,9 +77,11 @@ SWITCH_FEATURE_NAMES = [
     "current_active_hp_fraction",
     "current_active_low_hp",
 ]
-ACTION_FEATURE_NAMES = (
+ACTION_FEATURE_NAMES_V1 = (
     BASE_FEATURE_NAMES + MOVE_TYPE_FEATURE_NAMES + CATEGORY_FEATURE_NAMES + MOVE_NUMERIC_FEATURE_NAMES + SWITCH_FEATURE_NAMES
 )
+ACTION_FEATURE_DIM_V1 = len(ACTION_FEATURE_NAMES_V1)
+ACTION_FEATURE_NAMES = ACTION_FEATURE_NAMES_V1 + TACTICAL_ACTION_FEATURE_NAMES
 ACTION_FEATURE_DIM = len(ACTION_FEATURE_NAMES)
 
 
@@ -266,8 +271,13 @@ def _target_features(target: Optional[str]) -> List[float]:
     ]
 
 
-def build_action_feature_vector(action: Dict[str, Any], private_state: Optional[Dict[str, Any]] = None) -> np.ndarray:
+def build_action_feature_vector(
+    action: Dict[str, Any],
+    private_state: Optional[Dict[str, Any]] = None,
+    tactical_state: Optional[Dict[str, Any]] = None,
+) -> np.ndarray:
     private = private_state if isinstance(private_state, dict) else {}
+    tactical = tactical_state if isinstance(tactical_state, dict) else private.get("tactical_state", {})
     kind = str(action.get("kind") or "").lower()
     action_index = int(action.get("index", 0) or 0)
     name = _action_name(action)
@@ -346,7 +356,17 @@ def build_action_feature_vector(action: Dict[str, Any], private_state: Optional[
             float(_hp_fraction(active) <= 0.33) if active else 0.0,
         ]
     )
-    features = np.asarray(values, dtype=np.float32)
+    base_features = np.asarray(values, dtype=np.float32)
+    if base_features.shape[0] != ACTION_FEATURE_DIM_V1:
+        raise ValueError(f"Action v1 feature size mismatch: got {base_features.shape[0]}, expected {ACTION_FEATURE_DIM_V1}.")
+    tactical_features = tactical_action_feature_vector(
+        action,
+        private_state=private,
+        tactical_state=tactical,
+        move_id=move_id,
+        move_type=str(meta.get("type") or "") if meta else None,
+    )
+    features = np.concatenate([base_features, tactical_features]).astype(np.float32)
     if features.shape[0] != ACTION_FEATURE_DIM:
         raise ValueError(f"Action feature size mismatch: got {features.shape[0]}, expected {ACTION_FEATURE_DIM}.")
     return features
@@ -358,5 +378,10 @@ def feature_schema() -> Dict[str, Any]:
         "feature_version": ACTION_FEATURE_VERSION,
         "feature_dim": ACTION_FEATURE_DIM,
         "feature_names": ACTION_FEATURE_NAMES,
+        "v1_feature_version": ACTION_FEATURE_VERSION_V1,
+        "v1_feature_dim": ACTION_FEATURE_DIM_V1,
+        "v1_feature_names": ACTION_FEATURE_NAMES_V1,
+        "tactical_feature_dim": len(TACTICAL_ACTION_FEATURE_NAMES),
+        "tactical_feature_names": TACTICAL_ACTION_FEATURE_NAMES,
         "move_metadata_source": source,
     }

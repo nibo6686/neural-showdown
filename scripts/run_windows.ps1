@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'train-live-private-value', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'train-action-ranker', 'analyze-action-bias', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -21,6 +21,7 @@ param(
     [int]$MaxReplays = 1000,
     [string]$ReplayDir = '',
     [string]$ReplayId = 'gen9randombattle-2594788118',
+    [string]$ReplayPath = '',
     [ValidateSet('p1', 'p2')]
     [string]$Side = 'p1',
     [int]$Epochs = 0,
@@ -438,14 +439,15 @@ function Invoke-BuildLivePrivateValueDataset {
     Write-Host "launcher build-live-private-value-dataset | format=$Format replay_dir=$selectedReplayDir"
     Invoke-PythonModule -Module 'neural.build_live_private_value_dataset' -Arguments @(
         '--format', $Format,
-        '--replay-dir', $selectedReplayDir
+        '--replay-dir', $selectedReplayDir,
+        '--output', ".\data\value\${Format}_live_private_value_v2.npz"
     )
 }
 
 function Invoke-TrainLivePrivateValue {
-    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\value\${Format}_live_private_value.npz" } else { $DatasetPath }
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\value\${Format}_live_private_value_v2.npz" } else { $DatasetPath }
     Write-Host "launcher train-live-private-value | dataset=$selectedDatasetPath"
-    Invoke-PythonModule -Module 'neural.train_live_private_value' -Arguments @('--dataset-path', $selectedDatasetPath)
+    Invoke-PythonModule -Module 'neural.train_live_private_value' -Arguments @('--dataset-path', $selectedDatasetPath, '--checkpoint-path', ".\artifacts\checkpoints\${Format}_live_private_value_v2.pt")
 }
 
 function Invoke-CompareValueModels {
@@ -476,13 +478,14 @@ function Invoke-BuildActionRankDataset {
     Write-Host "launcher build-action-rank-dataset | format=$Format replay_dir=$selectedReplayDir"
     Invoke-PythonModule -Module 'neural.build_action_rank_dataset' -Arguments @(
         '--format', $Format,
-        '--replay-dir', $selectedReplayDir
+        '--replay-dir', $selectedReplayDir,
+        '--output', ".\data\policy\${Format}_action_rank_v2.npz"
     )
 }
 
 function Invoke-TrainActionRanker {
-    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\policy\${Format}_action_rank.npz" } else { $DatasetPath }
-    $selectedCheckpointPath = ".\artifacts\checkpoints\${Format}_action_ranker.pt"
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\policy\${Format}_action_rank_v2.npz" } else { $DatasetPath }
+    $selectedCheckpointPath = ".\artifacts\checkpoints\${Format}_action_ranker_v2.pt"
     $arguments = @('--dataset-path', $selectedDatasetPath, '--checkpoint-path', $selectedCheckpointPath)
     if ($Epochs -gt 0) {
         $arguments += @('--epochs', [string]$Epochs)
@@ -494,7 +497,12 @@ function Invoke-TrainActionRanker {
         $arguments += @('--max-val-groups', [string]$MaxValGroups)
     }
     if ($Resume) {
-        $arguments += @('--resume-checkpoint', $selectedCheckpointPath)
+        if (Test-Path $selectedCheckpointPath) {
+            $arguments += @('--resume-checkpoint', $selectedCheckpointPath)
+        }
+        else {
+            Write-Host "launcher train-action-ranker | resume requested but checkpoint is missing; starting fresh checkpoint=$selectedCheckpointPath"
+        }
     }
     if ($TrainForever) {
         $arguments += @('--train-forever')
@@ -502,6 +510,62 @@ function Invoke-TrainActionRanker {
     $arguments += @('--save-every-epochs', '1')
     Write-Host "launcher train-action-ranker | dataset=$selectedDatasetPath"
     Invoke-PythonModule -Module 'neural.train_action_ranker' -Arguments $arguments
+}
+
+function Invoke-BuildActionValueDataset {
+    $selectedReplayDir = Resolve-ReplayDir
+    Write-Host "launcher build-action-value-dataset | format=$Format replay_dir=$selectedReplayDir"
+    Invoke-PythonModule -Module 'neural.build_action_value_dataset' -Arguments @(
+        '--format', $Format,
+        '--replay-dir', $selectedReplayDir,
+        '--output', ".\data\policy\${Format}_action_value_rank_v2.npz",
+        '--value-checkpoint', ".\artifacts\checkpoints\${Format}_live_private_value_v2.pt"
+    )
+}
+
+function Invoke-TrainActionValueRanker {
+    $selectedDatasetPath = if ([string]::IsNullOrWhiteSpace($DatasetPath)) { ".\data\policy\${Format}_action_value_rank_v2.npz" } else { $DatasetPath }
+    $selectedCheckpointPath = ".\artifacts\checkpoints\${Format}_action_value_ranker_v2.pt"
+    $arguments = @(
+        '--dataset-path', $selectedDatasetPath,
+        '--checkpoint-path', $selectedCheckpointPath,
+        '--init-checkpoint', ".\artifacts\checkpoints\${Format}_action_ranker_v2.pt"
+    )
+    if ($Epochs -gt 0) {
+        $arguments += @('--epochs', [string]$Epochs)
+    }
+    if ($MaxTrainGroups -gt 0) {
+        $arguments += @('--max-train-groups', [string]$MaxTrainGroups)
+    }
+    if ($MaxValGroups -gt 0) {
+        $arguments += @('--max-val-groups', [string]$MaxValGroups)
+    }
+    $arguments += @('--save-every-epochs', '1')
+    Write-Host "launcher train-action-value-ranker | dataset=$selectedDatasetPath"
+    Invoke-PythonModule -Module 'neural.train_action_value_ranker' -Arguments $arguments
+}
+
+function Invoke-CompareActionRankers {
+    $selectedReplay = if ([string]::IsNullOrWhiteSpace($ReplayPath)) { $ReplayId } else { $ReplayPath }
+    Write-Host "launcher compare-action-rankers | replay=$selectedReplay side=$Side"
+    Invoke-PythonModule -Module 'neural.compare_action_rankers' -Arguments @(
+        '--replay-path', $selectedReplay,
+        '--side', $Side,
+        '--replay-dir', (Resolve-ReplayDir),
+        '--v1-ranker', ".\artifacts\checkpoints\${Format}_action_ranker.pt",
+        '--v2-ranker', ".\artifacts\checkpoints\${Format}_action_ranker_v2.pt",
+        '--value-ranker', ".\artifacts\checkpoints\${Format}_action_value_ranker_v2.pt"
+    )
+}
+
+function Invoke-AnalyzeTacticalFailures {
+    Write-Host "launcher analyze-tactical-failures | replay=$ReplayId side=$Side"
+    Invoke-PythonModule -Module 'neural.analyze_tactical_failures' -Arguments @(
+        '--replay-id', $ReplayId,
+        '--side', $Side,
+        '--replay-dir', (Resolve-ReplayDir),
+        '--ranker-checkpoint', ".\artifacts\checkpoints\${Format}_action_ranker_v2.pt"
+    )
 }
 
 function Invoke-AnalyzeActionBias {
@@ -532,14 +596,22 @@ try {
         'train-value' { Invoke-TrainValue }
         'train-replay-value' { Invoke-TrainReplayValue }
         'build-live-private-value-dataset' { Invoke-BuildLivePrivateValueDataset }
+        'build-live-private-value-dataset-v2' { Invoke-BuildLivePrivateValueDataset }
         'train-live-private-value' { Invoke-TrainLivePrivateValue }
+        'train-live-private-value-v2' { Invoke-TrainLivePrivateValue }
         'compare-value-models' { Invoke-CompareValueModels }
         'compare-replay-evals' { Invoke-CompareReplayEvals }
         'test-live-eval' { Invoke-TestLiveEval }
         'live-eval' { Invoke-LiveEval }
         'build-action-rank-dataset' { Invoke-BuildActionRankDataset }
+        'build-action-rank-dataset-v2' { Invoke-BuildActionRankDataset }
         'train-action-ranker' { Invoke-TrainActionRanker }
+        'train-action-ranker-v2' { Invoke-TrainActionRanker }
+        'build-action-value-dataset' { Invoke-BuildActionValueDataset }
+        'train-action-value-ranker' { Invoke-TrainActionValueRanker }
+        'compare-action-rankers' { Invoke-CompareActionRankers }
         'analyze-action-bias' { Invoke-AnalyzeActionBias }
+        'analyze-tactical-failures' { Invoke-AnalyzeTacticalFailures }
         'analyze-state' { Invoke-AnalyzeState }
         'collect-selfplay' { Invoke-CollectSelfplay }
         'compare-checkpoints' { Invoke-CompareCheckpoints }

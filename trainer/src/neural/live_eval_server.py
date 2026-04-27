@@ -25,7 +25,9 @@ try:
     from neural.live_opponent_beliefs import build_opponent_beliefs
     from neural.live_private_features import (
         FEATURE_DIM as LIVE_PRIVATE_FEATURE_DIM,
+        FEATURE_DIM_V1 as LIVE_PRIVATE_FEATURE_DIM_V1,
         FEATURE_VERSION as LIVE_PRIVATE_FEATURE_VERSION,
+        FEATURE_VERSION_V1 as LIVE_PRIVATE_FEATURE_VERSION_V1,
         build_features_from_live_payload,
     )
     from neural.live_private_state import extract_private_side_state
@@ -47,7 +49,9 @@ except ImportError:
     from trainer.src.neural.live_opponent_beliefs import build_opponent_beliefs
     from trainer.src.neural.live_private_features import (
         FEATURE_DIM as LIVE_PRIVATE_FEATURE_DIM,
+        FEATURE_DIM_V1 as LIVE_PRIVATE_FEATURE_DIM_V1,
         FEATURE_VERSION as LIVE_PRIVATE_FEATURE_VERSION,
+        FEATURE_VERSION_V1 as LIVE_PRIVATE_FEATURE_VERSION_V1,
         build_features_from_live_payload,
     )
     from trainer.src.neural.live_private_state import extract_private_side_state
@@ -86,7 +90,10 @@ app.add_middleware(
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 OLD_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_value.pt")
-LIVE_PRIVATE_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value.pt")
+_CANONICAL_LIVE_PRIVATE_VALUE_MODEL_V2_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt")
+LIVE_PRIVATE_VALUE_MODEL_V2_PATH = _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_V2_PATH
+_CANONICAL_LIVE_PRIVATE_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_live_private_value.pt")
+LIVE_PRIVATE_VALUE_MODEL_PATH = _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_PATH
 REPLAY_POLICY_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_replay_policy.pt")
 INPUT_SIZE = 31
 HIDDEN_SIZES = [128, 128]
@@ -154,16 +161,18 @@ def _load_policy_value_model(path: Path, *, default_input_size: int) -> Tuple[Po
 
 def _validate_live_private_checkpoint(metadata: Dict[str, Any], path: Path) -> None:
     input_size = int(metadata.get("input_size", 0) or 0)
-    if input_size != LIVE_PRIVATE_FEATURE_DIM:
+    allowed_dims = {LIVE_PRIVATE_FEATURE_DIM, LIVE_PRIVATE_FEATURE_DIM_V1}
+    if input_size not in allowed_dims:
         raise ValueError(
             f"Live-private checkpoint {path} has input_size={input_size}; "
-            f"expected {LIVE_PRIVATE_FEATURE_DIM} for {LIVE_PRIVATE_FEATURE_VERSION}."
+            f"expected one of {sorted(allowed_dims)} for live-private features."
         )
     feature_version = metadata.get("feature_version")
-    if feature_version is not None and str(feature_version) != LIVE_PRIVATE_FEATURE_VERSION:
+    allowed_versions = {LIVE_PRIVATE_FEATURE_VERSION, LIVE_PRIVATE_FEATURE_VERSION_V1}
+    if feature_version is not None and str(feature_version) not in allowed_versions:
         raise ValueError(
             f"Live-private checkpoint {path} has feature_version={feature_version!r}; "
-            f"expected {LIVE_PRIVATE_FEATURE_VERSION!r}."
+            f"expected one of {sorted(allowed_versions)!r}."
         )
 
 
@@ -206,7 +215,15 @@ def load_value_model_once() -> Tuple[PolicyValueMLP, Dict[str, Any]]:
             }
         )
     else:
-        live_path = _env_value_checkpoint(LIVE_PRIVATE_VALUE_MODEL_PATH)
+        env_override = os.environ.get("NEURAL_LIVE_VALUE_CHECKPOINT", "").strip()
+        if env_override:
+            live_path = Path(env_override)
+        elif LIVE_PRIVATE_VALUE_MODEL_V2_PATH != _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_V2_PATH and LIVE_PRIVATE_VALUE_MODEL_V2_PATH.exists():
+            live_path = LIVE_PRIVATE_VALUE_MODEL_V2_PATH
+        elif LIVE_PRIVATE_VALUE_MODEL_PATH != _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_PATH:
+            live_path = LIVE_PRIVATE_VALUE_MODEL_PATH
+        else:
+            live_path = LIVE_PRIVATE_VALUE_MODEL_V2_PATH if LIVE_PRIVATE_VALUE_MODEL_V2_PATH.exists() else LIVE_PRIVATE_VALUE_MODEL_PATH
         if live_path.exists():
             model, metadata = _load_policy_value_model(live_path, default_input_size=LIVE_PRIVATE_FEATURE_DIM)
             _validate_live_private_checkpoint(metadata, live_path)
@@ -214,7 +231,8 @@ def load_value_model_once() -> Tuple[PolicyValueMLP, Dict[str, Any]]:
                 {
                     "path": str(live_path),
                     "model_type": "live-private-belief-value",
-                    "feature_version": metadata.get("feature_version") or LIVE_PRIVATE_FEATURE_VERSION,
+                    "feature_version": metadata.get("feature_version")
+                    or (LIVE_PRIVATE_FEATURE_VERSION if int(metadata.get("input_size", 0) or 0) == LIVE_PRIVATE_FEATURE_DIM else LIVE_PRIVATE_FEATURE_VERSION_V1),
                     "uses_live_private_features": True,
                     "fallback_reason": None,
                 }
@@ -393,6 +411,20 @@ def _policy_features_for_model(
     return padded
 
 
+def _value_features_for_model(*, model_metadata: Dict[str, Any], public_features: np.ndarray, live_features: np.ndarray) -> np.ndarray:
+    input_size = int(model_metadata.get("input_size", len(live_features)))
+    if input_size == live_features.shape[0]:
+        return live_features.astype(np.float32)
+    if input_size == public_features.shape[0]:
+        return public_features.astype(np.float32)
+    selected = live_features if live_features.shape[0] < input_size else live_features[:input_size]
+    if selected.shape[0] == input_size:
+        return selected.astype(np.float32)
+    padded = np.zeros(input_size, dtype=np.float32)
+    padded[: selected.shape[0]] = selected
+    return padded
+
+
 def build_top_actions(
     payload: EvalRequest,
     *,
@@ -456,7 +488,11 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
     player_side = _player_side_from_private_state(private_state)
 
     if model_metadata.get("uses_live_private_features"):
-        features = live_features
+        features = _value_features_for_model(
+            model_metadata=model_metadata,
+            public_features=public_features,
+            live_features=live_features,
+        )
         feature_debug = live_feature_debug
     else:
         features = public_features
