@@ -350,9 +350,9 @@ class TacticalStateTracker:
             volatiles.add(effect)
 
     def _handle_side_condition(self, parts: Sequence[str]) -> None:
-        side = parts[2] if parts[2] in self.sides else None
-        effect = _effect_id(parts[3])
-        if side not in self.sides or effect not in TRACKED_SIDE_CONDITIONS:
+        side = _side_from_ident(parts[2]) if len(parts) > 2 else None
+        effect = _effect_id(parts[3]) if len(parts) > 3 else None
+        if side not in self.sides or not effect or effect not in TRACKED_SIDE_CONDITIONS:
             return
         conditions = self.sides[side]["side_conditions"]
         if parts[1] == "-sideend":
