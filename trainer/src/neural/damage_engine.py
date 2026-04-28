@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import subprocess
+from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
 from .action_features import load_move_metadata, to_id
@@ -59,17 +62,27 @@ def _default_estimate(method: str = "heuristic_fallback") -> Dict[str, Any]:
     }
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
 def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
     private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
     attacker = dict(_active_private_mon(private_state))
     defender = dict(_opponent_view_mon(approx_state))
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    tactical_own = tactical_state.get("own") if isinstance(tactical_state.get("own"), dict) else {}
+    tactical_opp = tactical_state.get("opponent") if isinstance(tactical_state.get("opponent"), dict) else {}
+    if not attacker.get("status"):
+        attacker["status"] = tactical_own.get("active_status")
+    if not defender.get("status"):
+        defender["status"] = tactical_opp.get("active_status")
     move = str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip()
     if action.get("tera_type") and not attacker.get("tera_type"):
         attacker["tera_type"] = action.get("tera_type")
     use_tera = str(action.get("kind") or "") == "move_tera" or bool(action.get("is_tera_action"))
     if force_tera_active is not None:
         use_tera = bool(force_tera_active)
-    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
     return {
         "attacker": attacker,
         "defender": defender,
@@ -83,6 +96,47 @@ def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_
             "aurora_veil": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("auroraveil")),
         },
     }
+
+
+def _estimate_with_node(payload: Dict[str, Any]) -> Dict[str, Any]:
+    sim_core = _repo_root() / "sim-core"
+    module_path = sim_core / "dist" / "src" / "damage_calc.js"
+    if not module_path.exists():
+        build = subprocess.run(
+            ["npm", "run", "build"],
+            cwd=str(sim_core),
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            timeout=60,
+            check=False,
+        )
+        if build.returncode != 0 or not module_path.exists():
+            raise FileNotFoundError(
+                f"sim-core damage calculator is not built: {module_path}; build output: {(build.stderr or build.stdout).strip()}"
+            )
+    script = (
+        "const {estimateDamage}=require('./dist/src/damage_calc.js');"
+        "const fs=require('fs');"
+        "const payload=JSON.parse(fs.readFileSync(0,'utf8'));"
+        "process.stdout.write(JSON.stringify(estimateDamage(payload)));"
+    )
+    proc = subprocess.run(
+        ["node", "-e", script],
+        cwd=str(sim_core),
+        input=json.dumps(payload),
+        text=True,
+        encoding="utf-8",
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError((proc.stderr or proc.stdout or f"node exited {proc.returncode}").strip())
+    result = json.loads(proc.stdout or "{}")
+    if not isinstance(result, dict):
+        raise RuntimeError("smogon damage calculator returned a non-object result")
+    return result
 
 
 def _heuristic_estimate(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
@@ -154,4 +208,37 @@ def estimate_action_damage(
             fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
             fallback.setdefault("warnings", []).append(f"damage_rpc_failed:{type(exc).__name__}")
             return fallback
-    return _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
+
+    payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
+    try:
+        result = _estimate_with_node(payload)
+        merged = _default_estimate("smogon_calc")
+        merged.update(result)
+        merged.setdefault("warnings", [])
+        return merged
+    except Exception as exc:
+        fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
+        fallback.setdefault("warnings", []).append(f"smogon_calc_failed:{type(exc).__name__}:{exc}")
+        return fallback
+
+
+def estimate_damage(
+    *,
+    attacker: Dict[str, Any],
+    defender: Dict[str, Any],
+    move: str,
+    use_tera: bool = False,
+    field: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    approx_state = {
+        "private_state": {"team": [{**dict(attacker), "active": True}]},
+        "view": {"opponent_team": [dict(defender)]},
+        "tactical_state": {"weather": (field or {}).get("weather"), "terrain": (field or {}).get("terrain")},
+    }
+    action = {
+        "kind": "move_tera" if use_tera else "move",
+        "move": move,
+        "label": f"move: {move}",
+        "tera_type": attacker.get("tera_type") or attacker.get("teraType"),
+    }
+    return estimate_action_damage(action=action, approx_state=approx_state, force_tera_active=use_tera)

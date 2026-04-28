@@ -11,6 +11,60 @@ from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_state import extract_private_side_state
 
 
+def _species_types(species: Any) -> list[str]:
+    try:
+        from .tactical_state import _species_types as tactical_species_types
+
+        return tactical_species_types(species)
+    except Exception:
+        return []
+
+
+def _side_condition(side_state: Dict[str, Any]) -> str:
+    hp = side_state.get("active_hp")
+    max_hp = side_state.get("active_max_hp")
+    status = side_state.get("active_status")
+    if hp is not None and max_hp:
+        condition = f"{int(float(hp))}/{int(float(max_hp))}"
+    else:
+        condition = "100/100"
+    if status:
+        condition = f"{condition} {status}"
+    return condition
+
+
+def _pokemon_for_view(species: str, side_state: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "slot": 0,
+        "ident": side_state.get("active_ident") or species,
+        "name": species,
+        "species": species,
+        "details": f"{species}, L80",
+        "active": True,
+        "fainted": bool(side_state.get("active_fainted")),
+        "hp_text": _side_condition(side_state).split(" ", 1)[0],
+        "hp_ratio": side_state.get("active_hp_fraction") if side_state.get("active_hp_fraction") is not None else 1.0,
+        "hp_fraction": side_state.get("active_hp_fraction") if side_state.get("active_hp_fraction") is not None else 1.0,
+        "status": side_state.get("active_status"),
+        "level": 80,
+        "item": None,
+        "ability": None,
+        "base_ability": None,
+        "moves": [],
+        "revealed_moves": [],
+        "types": _species_types(species),
+        "tera_type": side_state.get("active_tera_type"),
+        "terastallized": bool(side_state.get("tera_used")),
+        "stats": {},
+        "boosts": dict(side_state.get("boosts") or {}),
+        "volatiles": list(side_state.get("volatiles") or []),
+        "possible_roles": [],
+        "possible_moves": [],
+        "possible_abilities": [],
+        "possible_tera_types": [],
+    }
+
+
 def load_trace(path: Path) -> Dict[str, Any]:
     text = path.read_text(encoding="utf-8", errors="replace")
     if path.suffix.lower() in (".json", ".jsonl"):
@@ -213,6 +267,62 @@ def main() -> None:
                 "opponent_status": p2_status if args.side == "p1" else p1_status,
             }
             trace_copy = dict(trace)
+            own_state = side_p1 if args.side == "p1" else side_p2
+            opp_state = side_p2 if args.side == "p1" else side_p1
+            own_species = active_p1 if args.side == "p1" else active_p2
+            opp_species = active_p2 if args.side == "p1" else active_p1
+            request_moves = [
+                {
+                    "move": str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip(),
+                    "id": str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip().replace(" ", "").lower(),
+                    "pp": 1,
+                    "maxpp": 1,
+                    "disabled": False,
+                }
+                for action in legal_actions
+                if str(action.get("kind") or "").startswith("move")
+            ]
+            pseudo_step["view"] = {
+                "format": str(trace.get("format") or "gen9randombattle"),
+                "gen": 9,
+                "turn": requested_turn,
+                "player": args.side,
+                "opponent": "p1" if args.side == "p2" else "p2",
+                "active": {"self": 0, "opponent": 0},
+                "self_team": [_pokemon_for_view(own_species or "Unknown", own_state)],
+                "opponent_team": [_pokemon_for_view(opp_species or "Unknown", opp_state)],
+                "field": {"weather": None, "terrain": None, "pseudo_weather": [], "side_conditions": {"self": {}, "opponent": {}}},
+            }
+            pseudo_step["request"] = {
+                "player": args.side,
+                "side": {
+                    "id": args.side,
+                    "pokemon": [
+                        {
+                            "ident": own_state.get("active_ident") or f"{args.side}: {own_species}",
+                            "details": f"{own_species or 'Unknown'}, L80",
+                            "condition": _side_condition(own_state),
+                            "active": True,
+                            "stats": {},
+                            "moves": [move["move"] for move in request_moves],
+                        }
+                    ],
+                },
+                "active": [{"moves": request_moves, "canTerastallize": False, "trapped": False}],
+                "legal_actions": {
+                    "actions": [
+                        {
+                            "index": int(action.get("index", index)),
+                            "kind": action.get("kind"),
+                            "label": action.get("label"),
+                            "choice": action.get("choice"),
+                            "move": action.get("move"),
+                            "slot": action.get("slot"),
+                        }
+                        for index, action in enumerate(legal_actions)
+                    ]
+                },
+            }
             trace_copy["turns"] = [{"turn": requested_turn, "steps": [pseudo_step]}]
             trace_copy["protocol_log"] = list(prefix_lines)
 

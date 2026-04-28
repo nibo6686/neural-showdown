@@ -228,10 +228,11 @@ def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) ->
             "estimated_ko_chance": float(estimate.get("ko_chance") or 0.0),
             "ko_chance": float(estimate.get("ko_chance") or 0.0),
             "immune": bool(estimate.get("immune")),
-            "type_effectiveness": float(estimate.get("type_effectiveness") or 1.0),
+            "type_effectiveness": float(estimate.get("type_effectiveness") if estimate.get("type_effectiveness") is not None else 1.0),
             "item_modifier": float(estimate.get("item_modifier") or 1.0),
             "burn_attack_penalty": bool(estimate.get("burn_attack_penalty")),
             "tera_damage_bonus": float(estimate.get("tera_damage_bonus") or 0.0),
+            "warnings": list(estimate.get("warnings") or []),
         }
     except Exception:
         pass
@@ -353,6 +354,7 @@ def _approximate_action_value(action: Dict[str, Any], approx_state: Dict[str, An
     score = 0.0
     if kind in {"move", "move_tera"}:
         damage_diag = _damage_diagnostics(action, approx_state)
+        warnings.extend([str(value) for value in damage_diag.get("warnings", []) if str(value)])
         score += base_power / 120.0
         score += (accuracy - 80.0) / 200.0
         score += _type_effectiveness(move_type, target_types)
