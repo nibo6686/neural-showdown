@@ -35,6 +35,21 @@ def _load_init_checkpoint(path: Optional[Path], device: torch.device, input_size
     return checkpoint
 
 
+def _load_resume_checkpoint(path: Optional[Path], device: torch.device, input_size: int) -> Optional[Dict[str, Any]]:
+    if path is None:
+        return None
+    if not path.exists():
+        print_line_safe(f"train-action-value-ranker resume skipped | checkpoint not found: {path}")
+        return None
+    checkpoint = torch_load(path, device)
+    checkpoint_input = int(checkpoint.get("input_size", input_size))
+    if checkpoint_input != int(input_size):
+        raise ValueError(
+            f"Resume checkpoint input_size={checkpoint_input} does not match current input_size={input_size}."
+        )
+    return checkpoint
+
+
 def _batch_advantage_loss(
     model: ActionRankerMLP,
     inputs: torch.Tensor,
@@ -266,6 +281,7 @@ def train_action_value_ranker(
     max_train_groups: Optional[int] = 100000,
     max_val_groups: Optional[int] = 25000,
     regression_weight: float = 0.25,
+    resume_checkpoint_path: Optional[Path] = None,
     save_every_epochs: int = 1,
 ) -> Dict[str, Any]:
     with np.load(dataset_path, allow_pickle=True) as data:
@@ -292,27 +308,51 @@ def train_action_value_ranker(
         val_groups = val_groups[:max_val_groups]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    init_checkpoint = _load_init_checkpoint(init_checkpoint_path, device, int(inputs.shape[1]))
+    resume_checkpoint = _load_resume_checkpoint(resume_checkpoint_path, device, int(inputs.shape[1]))
+    init_checkpoint = None if resume_checkpoint is not None else _load_init_checkpoint(init_checkpoint_path, device, int(inputs.shape[1]))
+    if resume_checkpoint is not None:
+        hidden_sizes = list(resume_checkpoint.get("hidden_sizes", hidden_sizes))
     if init_checkpoint is not None:
         hidden_sizes = list(init_checkpoint.get("hidden_sizes", hidden_sizes))
     model = ActionRankerMLP(input_size=int(inputs.shape[1]), hidden_sizes=hidden_sizes).to(device)
-    if init_checkpoint is not None:
+    if resume_checkpoint is not None:
+        model.load_state_dict(resume_checkpoint["model_state_dict"], strict=False)
+    elif init_checkpoint is not None:
         model.load_state_dict(init_checkpoint["model_state_dict"], strict=False)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    if resume_checkpoint is not None:
+        optimizer_state = resume_checkpoint.get("optimizer_state_dict")
+        if optimizer_state:
+            try:
+                optimizer.load_state_dict(optimizer_state)
+            except ValueError as exc:
+                print_line_safe(f"train-action-value-ranker resume warning | optimizer_state_ignored={exc}")
 
     rng = np.random.RandomState(333)
-    history: List[Dict[str, Any]] = []
-    best_validation_metrics: Dict[str, Any] = {}
-    latest_metrics: Dict[str, Any] = {}
-    global_step = 0
+    history: List[Dict[str, Any]] = (
+        [dict(item) for item in resume_checkpoint.get("training_history", []) if isinstance(item, dict)]
+        if resume_checkpoint is not None
+        else []
+    )
+    start_epoch = int(resume_checkpoint.get("epoch", len(history)) or len(history)) if resume_checkpoint is not None else 0
+    best_validation_metrics: Dict[str, Any] = (
+        dict(resume_checkpoint.get("best_validation_metrics") or {}) if resume_checkpoint is not None else {}
+    )
+    latest_metrics: Dict[str, Any] = (
+        dict(resume_checkpoint.get("latest_validation_metrics") or {}) if resume_checkpoint is not None else {}
+    )
+    global_step = int(resume_checkpoint.get("global_step", 0) or 0) if resume_checkpoint is not None else 0
+    completed_this_run = 0
+    interrupted = False
 
     print_line_safe(
         f"train-action-value-ranker start device={device.type} rows={len(inputs)} decisions={len(group_slices)} "
         f"train_groups={len(train_groups)} val_groups={len(val_groups)} input_dim={inputs.shape[1]} epochs={epochs} "
-        f"init={init_checkpoint_path if init_checkpoint is not None else 'none'}"
+        f"start_epoch={start_epoch} init={init_checkpoint_path if init_checkpoint is not None else 'none'} "
+        f"resume={resume_checkpoint_path if resume_checkpoint is not None else 'none'}"
     )
 
-    def make_report(completed_epochs: int) -> Dict[str, Any]:
+    def make_report() -> Dict[str, Any]:
         final_metrics = latest_metrics or _score_groups(
             model,
             inputs,
@@ -340,10 +380,16 @@ def train_action_value_ranker(
             "dataset_state_feature_version": dataset_state_feature_version,
             "dataset_action_feature_version": dataset_action_feature_version,
             "device": device.type,
-            "cumulative_epochs": int(completed_epochs),
+            "epochs_requested": int(epochs),
+            "epochs_this_run": int(completed_this_run),
+            "cumulative_epochs": int(start_epoch + completed_this_run),
+            "start_epoch": int(start_epoch),
+            "interrupted": bool(interrupted),
             "hidden_sizes": list(hidden_sizes),
             "train_groups_used": int(len(train_groups)),
             "val_groups_used": int(len(val_groups)),
+            "max_train_groups": max_train_groups,
+            "max_val_groups": max_val_groups,
             "regression_weight": float(regression_weight),
             "percent_chosen_actions_with_negative_delta": float(100.0 * (chosen_advantages < -0.03).mean()) if len(chosen_advantages) else 0.0,
             **final_metrics,
@@ -365,93 +411,101 @@ def train_action_value_ranker(
             "best_validation_metrics": best_validation_metrics,
             "training_history": history,
             "global_step": int(global_step),
+            "resume_checkpoint": str(resume_checkpoint_path) if resume_checkpoint_path else None,
             "timestamp": _timestamp(),
         }
 
-    for epoch in range(epochs):
-        model.train()
-        order = train_groups.copy()
-        rng.shuffle(order)
-        losses = []
-        for batch_start in range(0, len(order), groups_per_batch):
-            batch_groups = order[batch_start : batch_start + groups_per_batch]
-            starts_ends = [group_slices[int(group)] for group in batch_groups]
-            row_parts = [np.arange(start, end, dtype=np.int64) for start, end in starts_ends]
-            row_indices = np.concatenate(row_parts) if row_parts else np.asarray([], dtype=np.int64)
-            local_ranges = []
-            cursor = 0
-            for part in row_parts:
-                local_ranges.append((cursor, cursor + len(part)))
-                cursor += len(part)
-            batch_x = torch.from_numpy(inputs[row_indices]).to(device)
-            batch_labels = torch.from_numpy(labels[row_indices]).to(device)
-            batch_targets = torch.from_numpy(target_scores[row_indices]).to(device)
-            batch_weights = torch.from_numpy(sample_weights[row_indices]).to(device)
-            batch_directions = torch.from_numpy(rank_directions[row_indices]).to(device)
-            loss = _batch_advantage_loss(
+    try:
+        for epoch in range(epochs):
+            cumulative_epoch = start_epoch + completed_this_run + 1
+            model.train()
+            order = train_groups.copy()
+            rng.shuffle(order)
+            losses = []
+            for batch_start in range(0, len(order), groups_per_batch):
+                batch_groups = order[batch_start : batch_start + groups_per_batch]
+                starts_ends = [group_slices[int(group)] for group in batch_groups]
+                row_parts = [np.arange(start, end, dtype=np.int64) for start, end in starts_ends]
+                row_indices = np.concatenate(row_parts) if row_parts else np.asarray([], dtype=np.int64)
+                local_ranges = []
+                cursor = 0
+                for part in row_parts:
+                    local_ranges.append((cursor, cursor + len(part)))
+                    cursor += len(part)
+                batch_x = torch.from_numpy(inputs[row_indices]).to(device)
+                batch_labels = torch.from_numpy(labels[row_indices]).to(device)
+                batch_targets = torch.from_numpy(target_scores[row_indices]).to(device)
+                batch_weights = torch.from_numpy(sample_weights[row_indices]).to(device)
+                batch_directions = torch.from_numpy(rank_directions[row_indices]).to(device)
+                loss = _batch_advantage_loss(
+                    model,
+                    batch_x,
+                    batch_labels,
+                    batch_targets,
+                    batch_weights,
+                    batch_directions,
+                    local_ranges,
+                    regression_weight,
+                )
+                optimizer.zero_grad()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                losses.append(float(loss.item()))
+                global_step += 1
+            latest_metrics = _score_groups(
                 model,
-                batch_x,
-                batch_labels,
-                batch_targets,
-                batch_weights,
-                batch_directions,
-                local_ranges,
-                regression_weight,
+                inputs,
+                labels,
+                advantages,
+                target_scores,
+                action_indices,
+                action_kinds,
+                turns,
+                group_slices,
+                val_groups,
+                device,
             )
-            optimizer.zero_grad()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            losses.append(float(loss.item()))
-            global_step += 1
-        latest_metrics = _score_groups(
-            model,
-            inputs,
-            labels,
-            advantages,
-            target_scores,
-            action_indices,
-            action_kinds,
-            turns,
-            group_slices,
-            val_groups,
-            device,
-        )
-        epoch_report = {
-            "epoch": epoch + 1,
-            "train_loss": float(np.mean(losses)) if losses else 0.0,
-            **latest_metrics,
-        }
-        history.append(epoch_report)
-        if not best_validation_metrics:
-            best_validation_metrics = dict(epoch_report)
-        else:
-            best_gap = float(best_validation_metrics.get("average_predicted_score_positive_delta") or 0.0) - float(
-                best_validation_metrics.get("average_predicted_score_negative_delta") or 0.0
-            )
-            gap = float((latest_metrics.get("average_predicted_score_positive_delta") or 0.0) - (latest_metrics.get("average_predicted_score_negative_delta") or 0.0))
-            if gap > best_gap:
+            epoch_report = {
+                "epoch": cumulative_epoch,
+                "run_epoch": completed_this_run + 1,
+                "train_loss": float(np.mean(losses)) if losses else 0.0,
+                **latest_metrics,
+            }
+            history.append(epoch_report)
+            if not best_validation_metrics:
                 best_validation_metrics = dict(epoch_report)
-        print_line_safe(
-            f"train-action-value-ranker epoch={epoch + 1} loss={epoch_report['train_loss']:.4f} "
-            f"top1={latest_metrics['top1_accuracy']:.3f} top3={latest_metrics['top3_accuracy']:.3f} "
-            f"pos_score={latest_metrics.get('average_predicted_score_positive_delta')} "
-            f"neg_score={latest_metrics.get('average_predicted_score_negative_delta')}"
-        )
-        if save_every_epochs > 0 and (epoch + 1) % int(save_every_epochs) == 0:
-            _save_artifacts(
-                model=model,
-                optimizer=optimizer,
-                checkpoint_path=checkpoint_path,
-                report=make_report(epoch + 1),
-                input_size=int(inputs.shape[1]),
-                state_dim=int(states.shape[1]),
-                action_dim=int(actions.shape[1]),
-                hidden_sizes=hidden_sizes,
-                global_step=global_step,
+            else:
+                best_gap = float(best_validation_metrics.get("average_predicted_score_positive_delta") or 0.0) - float(
+                    best_validation_metrics.get("average_predicted_score_negative_delta") or 0.0
+                )
+                gap = float((latest_metrics.get("average_predicted_score_positive_delta") or 0.0) - (latest_metrics.get("average_predicted_score_negative_delta") or 0.0))
+                if gap > best_gap:
+                    best_validation_metrics = dict(epoch_report)
+            completed_this_run += 1
+            print_line_safe(
+                f"train-action-value-ranker epoch={cumulative_epoch} loss={epoch_report['train_loss']:.4f} "
+                f"top1={latest_metrics['top1_accuracy']:.3f} top3={latest_metrics['top3_accuracy']:.3f} "
+                f"pos_score={latest_metrics.get('average_predicted_score_positive_delta')} "
+                f"neg_score={latest_metrics.get('average_predicted_score_negative_delta')}"
             )
+            if save_every_epochs > 0 and completed_this_run % int(save_every_epochs) == 0:
+                _save_artifacts(
+                    model=model,
+                    optimizer=optimizer,
+                    checkpoint_path=checkpoint_path,
+                    report=make_report(),
+                    input_size=int(inputs.shape[1]),
+                    state_dim=int(states.shape[1]),
+                    action_dim=int(actions.shape[1]),
+                    hidden_sizes=hidden_sizes,
+                    global_step=global_step,
+                )
+    except KeyboardInterrupt:
+        interrupted = True
+        print_line_safe("train-action-value-ranker interrupted | saving latest checkpoint")
 
-    report = make_report(int(epochs))
+    report = make_report()
     _save_artifacts(
         model=model,
         optimizer=optimizer,
@@ -520,6 +574,7 @@ def main() -> None:
     parser.add_argument("--max-train-groups", type=int, default=100000)
     parser.add_argument("--max-val-groups", type=int, default=25000)
     parser.add_argument("--regression-weight", type=float, default=0.25)
+    parser.add_argument("--resume-checkpoint", default=None)
     parser.add_argument("--save-every-epochs", type=int, default=1)
     args = parser.parse_args()
     train_action_value_ranker(
@@ -532,6 +587,7 @@ def main() -> None:
         max_train_groups=None if args.max_train_groups <= 0 else args.max_train_groups,
         max_val_groups=None if args.max_val_groups <= 0 else args.max_val_groups,
         regression_weight=args.regression_weight,
+        resume_checkpoint_path=Path(args.resume_checkpoint) if args.resume_checkpoint else None,
         save_every_epochs=args.save_every_epochs,
     )
 

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server')]
+    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server', 'analyze-rollout-actions', 'test-sim-rollout')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -24,6 +24,8 @@ param(
     [string]$ReplayPath = '',
     [ValidateSet('p1', 'p2')]
     [string]$Side = 'p1',
+    [ValidateSet('auto', 'exact', 'approximate')]
+    [string]$RolloutMode = 'auto',
     [int]$Epochs = 0,
     [int]$MaxTrainGroups = 0,
     [int]$MaxValGroups = 0,
@@ -341,6 +343,19 @@ function Invoke-Analyze {
     Invoke-PythonModule -Module 'neural.analyze_decisions' -Arguments @('--input', $inputPath, '--output', $outputDir)
 }
 
+function Invoke-AnalyzeRolloutActions {
+    Write-Host "launcher analyze-rollout-actions | replay=$ReplayPath side=$Side"
+    $args = @('--replay-path', $ReplayPath, '--side', $Side, '--rollout-mode', $RolloutMode)
+    if ($StepIndex -gt 0) { $args += @('--step-index', [string]$StepIndex) }
+    if (-not [string]::IsNullOrWhiteSpace($ValueCheckpoint)) { $args += @('--value-checkpoint', $ValueCheckpoint) }
+    Invoke-PythonModule -Module 'neural.analyze_rollout_actions' -Arguments $args
+}
+
+function Invoke-TestSimRollout {
+    Write-Host "launcher test-sim-rollout"
+    Invoke-PythonModule -Module 'neural.test_sim_rollout'
+}
+
 function Invoke-TraceEval {
     Ensure-SimCoreBuilt
     Write-Host "launcher trace-eval | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
@@ -539,6 +554,14 @@ function Invoke-TrainActionValueRanker {
     }
     if ($MaxValGroups -gt 0) {
         $arguments += @('--max-val-groups', [string]$MaxValGroups)
+    }
+    if ($Resume) {
+        if (Test-Path $selectedCheckpointPath) {
+            $arguments += @('--resume-checkpoint', $selectedCheckpointPath)
+        }
+        else {
+            Write-Host "launcher train-action-value-ranker | resume requested but checkpoint is missing; starting fresh checkpoint=$selectedCheckpointPath"
+        }
     }
     $arguments += @('--save-every-epochs', '1')
     Write-Host "launcher train-action-value-ranker | dataset=$selectedDatasetPath"

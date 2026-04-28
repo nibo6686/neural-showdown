@@ -82,6 +82,31 @@ class SimCoreClient:
                 self._process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 self._process.kill()
+        # Close stdio pipes to avoid resource warnings
+        try:
+            if self._process.stdin:
+                try:
+                    self._process.stdin.close()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        try:
+            if self._process.stdout:
+                try:
+                    self._process.stdout.close()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        try:
+            if self._process.stderr:
+                try:
+                    self._process.stderr.close()
+                except Exception:
+                    pass
+        except Exception:
+            pass
         self._notify_process_exit("sim-core client closed.")
 
     def __enter__(self) -> "SimCoreClient":

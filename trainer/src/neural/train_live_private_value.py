@@ -187,11 +187,11 @@ def _tactical_slice_metrics(
     import json
 
     slices = {
-        "repeated_failed_move_examples": "has_repeated_failed_move",
-        "already_seeded_target_examples": "target_already_seeded",
-        "move_healed_target_examples": "move_healed_target",
-        "own_seeded_examples": "own_active_seeded",
-        "opponent_substitute_examples": "opp_active_substitute",
+        "repeated_failed_move_examples": ("has_repeated_failed_move", "same_move_failed_chain_norm", "last_move_failed"),
+        "already_seeded_target_examples": ("target_already_seeded", "opp_active_seeded"),
+        "move_healed_target_examples": ("move_healed_target", "recent_healed_target_count_norm", "last_move_healed_target"),
+        "own_seeded_examples": ("own_active_seeded",),
+        "opponent_substitute_examples": ("opp_active_substitute",),
     }
     flag_columns = {str(name): idx for idx, name in enumerate(tactical_names.tolist())} if len(tactical_names) else {}
     parsed = None
@@ -203,12 +203,27 @@ def _tactical_slice_metrics(
             except json.JSONDecodeError:
                 parsed.append({})
     report: Dict[str, Dict[str, Any]] = {}
-    for name, key in slices.items():
-        if key in flag_columns:
-            column = flag_columns[key]
-            selected = np.asarray([idx for idx in indices if bool(tactical_data[int(idx), column])], dtype=np.int64)
+    for name, keys in slices.items():
+        columns = [flag_columns[key] for key in keys if key in flag_columns]
+        if columns:
+            selected = np.asarray(
+                [
+                    idx
+                    for idx in indices
+                    if any(bool(tactical_data[int(idx), column]) for column in columns)
+                ],
+                dtype=np.int64,
+            )
         else:
-            selected = np.asarray([idx for idx in indices if bool((parsed or [])[int(idx)].get(key))], dtype=np.int64)
+            parsed_rows = parsed or []
+            selected = np.asarray(
+                [
+                    idx
+                    for idx in indices
+                    if 0 <= int(idx) < len(parsed_rows) and any(bool(parsed_rows[int(idx)].get(key)) for key in keys)
+                ],
+                dtype=np.int64,
+            )
         if len(selected) == 0:
             report[name] = {"count": 0}
             continue

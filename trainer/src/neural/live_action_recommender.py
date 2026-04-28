@@ -11,6 +11,7 @@ from .build_replay_value_dataset import FEATURE_NAMES as PUBLIC_FEATURE_NAMES
 from .checkpoints import torch_load
 from .live_private_features import build_live_private_feature_vector
 from .models.action_ranker import ActionRankerMLP
+from .sim_branch_evaluator import evaluate_actions as evaluate_branch_actions
 
 
 PolicyLoader = Callable[[], Tuple[Optional[torch.nn.Module], Optional[Dict[str, Any]]]]
@@ -463,16 +464,81 @@ def recommend_actions(
         for candidate in candidates
     ]
 
+    # Attempt to evaluate actions via simulator branching (best-effort fallback to trace continuation).
+    try:
+        player_side = private_state.get("player_side") if private_state.get("player_side") in ("p1", "p2") else "p1"
+        rollout_cfg = {
+            "rollouts_per_action": int(os.environ.get("NEURAL_ROLLOUTS_PER_ACTION", "8")),
+            "value_checkpoint": None,
+            "rollout_mode": os.environ.get("NEURAL_ROLLOUT_MODE", "auto"),
+        }
+        opponent_policy = os.environ.get("NEURAL_OPPONENT_POLICY", "uniform")
+        sim_results = evaluate_branch_actions(payload, player_side, candidates, opponent_policy, rollout_cfg) or []
+    except Exception as exc:  # pragma: no cover - best-effort
+        sim_results = []
+
+    # Merge sim rollout expected values into rows when available and compute final_score
+    label_to_sim = {str(r.get("label")): r for r in sim_results}
+    # Normalize ranker_score if present
+    ranker_scores = [r.get("ranker_score") for r in all_rows if r.get("ranker_score") is not None]
+    rank_min = min(ranker_scores) if ranker_scores else None
+    rank_max = max(ranker_scores) if ranker_scores else None
+    def normalize_rank(s: Optional[float]) -> float:
+        if s is None or rank_min is None or rank_max is None or rank_max == rank_min:
+            return 0.0
+        return float((s - rank_min) / (rank_max - rank_min))
+
+    rollout_weight = float(os.environ.get("NEURAL_ROLLOUT_WEIGHT", "0.75"))
+    ranker_weight = float(os.environ.get("NEURAL_RANKER_WEIGHT", "0.20"))
+    policy_weight = float(os.environ.get("NEURAL_POLICY_WEIGHT", "0.05"))
+
+    for row in all_rows:
+        sim = label_to_sim.get(row.get("label"))
+        expected_value = sim.get("expected_value") if sim else None
+        row["expected_value"] = expected_value
+        if sim:
+            for key in (
+                "method",
+                "rollout_mode",
+                "approximate_state",
+                "rollout_count",
+                "opponent_actions_considered",
+                "top_resulting_states",
+                "approximation_warnings",
+                "rollout_unavailable_reason",
+                "rollout_unavailable_details",
+            ):
+                if key in sim:
+                    row[key] = sim.get(key)
+        # compute normalized ranker score
+        row_norm_rank = normalize_rank(row.get("ranker_score"))
+        policy_prob = float(row.get("policy_prob") or 0.0)
+        if expected_value is not None:
+            # Compose final score using weights; keep numeric fields safe
+            row["final_score"] = (
+                rollout_weight * float(expected_value)
+                + ranker_weight * float(row_norm_rank)
+                + policy_weight * float(policy_prob)
+            )
+            row["method"] = sim.get("method") if sim and sim.get("method") else row.get("method")
+        else:
+            # Fallback to previous score
+            row["final_score"] = float(row.get("score") or 0.0)
+
     enabled = [row for row in all_rows if not row.get("disabled")]
     rows = enabled if enabled else all_rows
-    ranked = sorted(rows, key=lambda item: item["score"], reverse=True)
+    ranked = sorted(rows, key=lambda item: item.get("final_score", item.get("score", 0.0)), reverse=True)
     if not enabled:
         warnings.append("All legal actions are marked disabled or forced; returning disabled actions.")
     if policy_probs is None:
         warnings.append("No replay-policy checkpoint found; action recommendations limited.")
 
     methods = {row["method"] for row in ranked}
-    if "action_value_ranker" in methods:
+    if "exact_sim_rollout" in methods:
+        recommendation_method = "exact_sim_rollout"
+    elif "approx_sim_rollout" in methods:
+        recommendation_method = "approx_sim_rollout"
+    elif "action_value_ranker" in methods:
         recommendation_method = "action_value_ranker"
     elif "action_ranker" in methods:
         recommendation_method = "action_ranker"

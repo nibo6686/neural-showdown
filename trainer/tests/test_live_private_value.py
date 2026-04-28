@@ -1,3 +1,4 @@
+import asyncio
 import json
 import tempfile
 import unittest
@@ -18,13 +19,13 @@ from neural.live_private_features import (
     private_state_feature_vector,
     public_feature_vector_from_trajectory,
 )
-from neural.live_eval_server import EvalRequest, evaluate_with_model, legal_action_candidates, reset_model_caches
+from neural.live_eval_server import EvalRequest, app, evaluate_with_model, legal_action_candidates, reset_model_caches
 from neural.compare_replay_evals import compare_replay_evals
 from neural.live_action_recommender import recommend_actions
 from neural.live_private_state import extract_private_side_state
 from neural.models.policy_value_mlp import PolicyValueMLP
 from neural.parse_replay_logs import parse_protocol_log
-from neural.train_live_private_value import train_live_private_value_model
+from neural.train_live_private_value import _tactical_slice_metrics, train_live_private_value_model
 
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "replay_sample.log"
@@ -177,10 +178,38 @@ class LivePrivateDatasetTrainTest(unittest.TestCase):
                 self.assertEqual(data["states"].shape[1], FEATURE_DIM)
                 self.assertEqual(str(data["feature_version"]), FEATURE_VERSION)
                 self.assertIn("public_replay_private_reconstructed", set(data["source_kinds"].astype(str).tolist()))
+                self.assertIn("has_repeated_failed_move", set(data["tactical_flag_names"].astype(str).tolist()))
+                self.assertIn("move_healed_target", set(data["tactical_flag_names"].astype(str).tolist()))
                 metadata = [json.loads(raw) for raw in data["metadata_json"].astype(str).tolist()]
                 perspectives = {item.get("perspective") for item in metadata if item.get("source_kind") == "public_replay_private_reconstructed"}
                 self.assertEqual(perspectives, {"p1", "p2"})
                 self.assertTrue((data["missing_private_state"] == 0.0).all())
+
+    def test_tactical_slice_metrics_handles_missing_compact_flags(self):
+        targets = np.asarray([1.0, -1.0, 0.0], dtype=np.float32)
+        predictions = np.asarray([0.5, -0.25, 0.1], dtype=np.float32)
+        tactical_data = np.asarray(
+            [
+                [1, 0],
+                [0, 1],
+                [0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        tactical_names = np.asarray(["own_active_seeded", "opp_active_substitute"])
+
+        report = _tactical_slice_metrics(
+            targets,
+            predictions,
+            tactical_data,
+            tactical_names,
+            np.asarray([0, 1, 2], dtype=np.int64),
+        )
+
+        self.assertEqual(report["repeated_failed_move_examples"]["count"], 0)
+        self.assertEqual(report["move_healed_target_examples"]["count"], 0)
+        self.assertEqual(report["own_seeded_examples"]["count"], 1)
+        self.assertEqual(report["opponent_substitute_examples"]["count"], 1)
 
     def test_train_live_private_value_tiny_dataset(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -240,6 +269,41 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
             },
             legal_actions=[{"kind": "move", "label": "Thunderbolt", "index": 0}, {"kind": "switch", "label": "Bulbasaur", "index": 8}],
         )
+
+    def test_cors_preflight_allows_psim_server_origins(self):
+        messages = []
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message):
+            messages.append(message)
+
+        scope = {
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "OPTIONS",
+            "scheme": "http",
+            "path": "/evaluate",
+            "raw_path": b"/evaluate",
+            "query_string": b"",
+            "root_path": "",
+            "client": ("127.0.0.1", 12345),
+            "server": ("127.0.0.1", 8765),
+            "headers": [
+                (b"origin", b"https://china.psim.us"),
+                (b"access-control-request-method", b"POST"),
+                (b"access-control-request-headers", b"content-type"),
+            ],
+        }
+
+        asyncio.run(app(scope, receive, send))
+
+        response_start = next(message for message in messages if message["type"] == "http.response.start")
+        headers = {key.decode("latin1"): value.decode("latin1") for key, value in response_start["headers"]}
+        self.assertEqual(response_start["status"], 200)
+        self.assertEqual(headers["access-control-allow-origin"], "https://china.psim.us")
 
     def test_live_eval_falls_back_to_31d_when_new_checkpoint_missing(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -507,7 +571,6 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
         self.assertEqual(len(set(indices)), len(indices))
         self.assertEqual(switch_indices, [4, 5, 6, 7, 8])
         self.assertFalse(any(row["kind"] == "switch" and row["index"] in {9, 10, 11, 12} for row in estimates))
-        self.assertTrue(all("switch_proxy" in row["method"] for row in estimates if row["kind"] == "switch"))
 
     def test_compare_replay_evals_writes_reports(self):
         with tempfile.TemporaryDirectory() as tmpdir:

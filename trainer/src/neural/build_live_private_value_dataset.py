@@ -543,7 +543,18 @@ def _source_kind_encoding(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.nd
 
 
 def _tactical_flag_arrays(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]:
-    names = list(TACTICAL_STATE_FEATURE_NAMES)
+    names = list(
+        dict.fromkeys(
+            [
+                *TACTICAL_STATE_FEATURE_NAMES,
+                "has_repeated_failed_move",
+                "target_already_seeded",
+                "move_healed_target",
+                "recent_failed_count",
+                "recent_healed_target_count",
+            ]
+        )
+    )
     flags = np.zeros((len(examples), len(names)), dtype=np.uint8)
     for row, example in enumerate(examples):
         tactical = example.get("tactical") or {}

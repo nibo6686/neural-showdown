@@ -76,11 +76,27 @@ class EvalRequest(BaseModel):
     legal_actions: List[LegalAction] = Field(default_factory=list)
 
 
+DEFAULT_CORS_ORIGINS = ("https://play.pokemonshowdown.com", "https://pokemonshowdown.com")
+DEFAULT_CORS_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)?psim\.us(:\d+)?"
+
+
+def _env_csv(name: str, default: Sequence[str]) -> List[str]:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return list(default)
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _env_cors_origin_regex() -> str:
+    return os.environ.get("NEURAL_LIVE_CORS_ORIGIN_REGEX", DEFAULT_CORS_ORIGIN_REGEX).strip()
+
+
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://play.pokemonshowdown.com"],
+    allow_origins=_env_csv("NEURAL_LIVE_CORS_ORIGINS", DEFAULT_CORS_ORIGINS),
+    allow_origin_regex=_env_cors_origin_regex() or None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

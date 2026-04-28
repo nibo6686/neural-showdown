@@ -227,7 +227,11 @@ class ActionRankDatasetTrainTest(unittest.TestCase):
                 },
             )()
             reset_action_ranker_cache()
-            with patch("neural.live_action_recommender.DEFAULT_ACTION_RANKER_PATH", checkpoint):
+            missing = root / "missing.pt"
+            reset_action_ranker_cache()
+            with patch("neural.live_action_recommender.DEFAULT_ACTION_RANKER_PATH", checkpoint), patch(
+                "neural.live_action_recommender.DEFAULT_ACTION_VALUE_RANKER_V2_PATH", missing
+            ), patch("neural.live_action_recommender.DEFAULT_ACTION_RANKER_V2_PATH", missing):
                 report = recommend_actions(
                     payload=payload,
                     private_state={
