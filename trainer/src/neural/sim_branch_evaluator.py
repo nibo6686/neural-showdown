@@ -6,6 +6,7 @@ import numpy as np
 from .approx_battle_state import build_approx_battle_state
 from . import action_value_search
 from .action_features import load_move_metadata, to_id
+from .damage_engine import estimate_action_damage
 from .env_client import SimCoreClient, SimCoreError
 from .live_private_features import build_live_private_feature_vector
 from .value_features import select_trace_step, view_request_from_step
@@ -132,6 +133,197 @@ def _type_effectiveness(move_type: Optional[str], target_types: Sequence[str]) -
     return best
 
 
+def _type_multiplier(move_type: Optional[str], target_types: Sequence[str]) -> float:
+    if not move_type:
+        return 1.0
+    chart = {
+        ("Electric", "Flying"): 2.0,
+        ("Electric", "Water"): 2.0,
+        ("Electric", "Ground"): 0.0,
+        ("Fire", "Grass"): 2.0,
+        ("Fire", "Water"): 0.5,
+        ("Water", "Fire"): 2.0,
+        ("Water", "Water"): 0.5,
+        ("Grass", "Water"): 2.0,
+        ("Grass", "Fire"): 0.5,
+        ("Dragon", "Fairy"): 0.0,
+        ("Poison", "Steel"): 0.0,
+        ("Normal", "Ghost"): 0.0,
+        ("Fighting", "Ghost"): 0.0,
+        ("Psychic", "Dark"): 0.0,
+        ("Ground", "Flying"): 0.0,
+    }
+    multiplier = 1.0
+    for target_type in target_types:
+        multiplier *= chart.get((str(move_type), str(target_type)), 1.0)
+    return float(multiplier)
+
+
+def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
+    team = private_state.get("team") if isinstance(private_state.get("team"), list) else []
+    for mon in team:
+        if isinstance(mon, dict) and mon.get("active"):
+            return mon
+    return team[0] if team and isinstance(team[0], dict) else {}
+
+
+def _opponent_view_mon(approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    view = approx_state.get("view") if isinstance(approx_state.get("view"), dict) else {}
+    team = view.get("opponent_team") if isinstance(view.get("opponent_team"), list) else []
+    return team[0] if team and isinstance(team[0], dict) else {}
+
+
+def _switch_target_private_mon(action: Dict[str, Any], private_state: Dict[str, Any]) -> Dict[str, Any]:
+    label = str(action.get("label") or "").split(":", 1)[-1].strip().lower()
+    for mon in private_state.get("team", []) if isinstance(private_state.get("team"), list) else []:
+        if isinstance(mon, dict) and label and label == str(mon.get("species") or "").lower():
+            return mon
+    return {}
+
+
+def _hazard_switch_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    hazards = (tactical_state.get("own") or {}).get("side_conditions") if isinstance(tactical_state.get("own"), dict) else {}
+    target = _switch_target_private_mon(action, private_state)
+    item_id = to_id(target.get("item"))
+    boots = item_id == "heavydutyboots"
+    hp = float(target.get("hp_fraction") if target.get("hp_fraction") is not None else 1.0)
+    damage = 0.0
+    poison_risk = False
+    grounded = True
+    types = {str(t).lower() for t in target.get("types", [])} if isinstance(target.get("types"), list) else set()
+    if "flying" in types or to_id(target.get("ability") or target.get("base_ability")) == "levitate":
+        grounded = False
+    if not boots and isinstance(hazards, dict):
+        if int(hazards.get("stealthrock", 0) or 0):
+            damage += 0.125
+        damage += 0.125 * int(hazards.get("spikes", 0) or 0)
+        if grounded and int(hazards.get("toxicspikes", 0) or 0):
+            poison_risk = True
+    if boots:
+        damage = 0.0
+        poison_risk = False
+    return {
+        "boots_prevent_hazards": bool(boots and any(int(v or 0) > 0 for v in (hazards or {}).values())),
+        "grounded": grounded,
+        "switch_hazard_damage": float(min(1.0, damage)),
+        "toxic_spikes_poison_risk": poison_risk,
+        "faint_on_entry_risk": bool(damage >= hp and hp > 0.0),
+    }
+
+
+def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        estimate = estimate_action_damage(action=action, approx_state=approx_state)
+        min_percent = float(estimate.get("min_percent") or 0.0)
+        max_percent = float(estimate.get("max_percent") or 0.0)
+        return {
+            "damage_method": estimate.get("damage_method"),
+            "damage_rolls": list(estimate.get("damage_rolls") or []),
+            "estimated_damage_range": [min_percent / 100.0, max_percent / 100.0],
+            "average_percent": float(estimate.get("average_percent") or 0.0),
+            "min_percent": min_percent,
+            "max_percent": max_percent,
+            "estimated_ko_chance": float(estimate.get("ko_chance") or 0.0),
+            "ko_chance": float(estimate.get("ko_chance") or 0.0),
+            "immune": bool(estimate.get("immune")),
+            "type_effectiveness": float(estimate.get("type_effectiveness") or 1.0),
+            "item_modifier": float(estimate.get("item_modifier") or 1.0),
+            "burn_attack_penalty": bool(estimate.get("burn_attack_penalty")),
+            "tera_damage_bonus": float(estimate.get("tera_damage_bonus") or 0.0),
+        }
+    except Exception:
+        pass
+
+    kind = str(action.get("kind") or "")
+    action_name = str(action.get("move") or action.get("label") or "")
+    move_meta = _move_metadata(action_name)
+    move_type = str(move_meta.get("type") or "") or None
+    category = str(move_meta.get("category") or "")
+    base_power = float(move_meta.get("base_power", 0.0) or 0.0)
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    own = _active_private_mon(private_state)
+    opp = _opponent_view_mon(approx_state)
+    target_types = [str(value) for value in opp.get("types", [])] if isinstance(opp.get("types"), list) else []
+    if not target_types:
+        target_types = []
+    type_eff = _type_multiplier(move_type, target_types)
+    item_modifier = 1.3 if to_id(own.get("item")) == "lifeorb" and base_power > 0 else 1.0
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    tactical_own = tactical_state.get("own") if isinstance(tactical_state.get("own"), dict) else {}
+    burned = str(own.get("status") or tactical_own.get("active_status") or "").lower() == "brn"
+    burn_penalty = bool(burned and str(category).lower() == "physical" and base_power > 0)
+    burn_modifier = 0.5 if burn_penalty else 1.0
+    tera_bonus = 1.0
+    if kind == "move_tera" and str(action.get("tera_type") or private_state.get("active_tera_type") or "").lower() == str(move_type or "").lower():
+        tera_bonus = 1.5
+    raw_damage = (base_power / 100.0) * type_eff * item_modifier * burn_modifier * tera_bonus
+    if str(category).lower() == "status" or base_power <= 0:
+        raw_damage = 0.0
+    min_damage = max(0.0, raw_damage * 0.85)
+    max_damage = max(0.0, raw_damage)
+    if to_id(opp.get("item")) == "focussash" and float(opp.get("hp_fraction") or 1.0) >= 1.0 and max_damage >= 1.0:
+        max_damage = 0.99
+        min_damage = min(min_damage, max_damage)
+    target_hp = float(opp.get("hp_fraction") if opp.get("hp_fraction") is not None else 1.0)
+    return {
+        "damage_method": "heuristic_fallback",
+        "estimated_damage_range": [float(min_damage), float(max_damage)],
+        "average_percent": float((min_damage + max_damage) * 50.0),
+        "min_percent": float(min_damage * 100.0),
+        "max_percent": float(max_damage * 100.0),
+        "estimated_ko_chance": 1.0 if max_damage >= target_hp and target_hp > 0.0 else 0.0,
+        "ko_chance": 1.0 if max_damage >= target_hp and target_hp > 0.0 else 0.0,
+        "immune": bool(type_eff == 0.0),
+        "type_effectiveness": type_eff,
+        "item_modifier": item_modifier,
+        "burn_attack_penalty": burn_penalty,
+        "tera_damage_bonus": float(max(0.0, raw_damage - raw_damage / tera_bonus) * 100.0) if tera_bonus > 1.0 else 0.0,
+    }
+
+
+def _speed_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    move_meta = _move_metadata(str(action.get("move") or action.get("label") or ""))
+    priority = int(move_meta.get("priority", 0) or 0)
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    own_speed = float((_active_private_mon(private_state).get("stats") or {}).get("spe", 0) or 0)
+    opp_speed = float((_opponent_view_mon(approx_state).get("stats") or {}).get("spe", 0) or 0)
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    trick_room = "trickroom" in set(tactical_state.get("field_effects") or [])
+    if priority > 0:
+        likely = True
+    elif trick_room:
+        likely = own_speed <= opp_speed if opp_speed else True
+    else:
+        likely = own_speed >= opp_speed if opp_speed else False
+    return {
+        "move_priority": priority,
+        "own_speed": own_speed,
+        "opponent_speed": opp_speed,
+        "trick_room_active": bool(trick_room),
+        "likely_moves_first": bool(likely),
+    }
+
+
+def _action_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "damage": _damage_diagnostics(action, approx_state),
+        "speed_order": _speed_diagnostics(action, approx_state),
+        "switch_hazards": _hazard_switch_diagnostics(action, approx_state) if str(action.get("kind")) == "switch" else {},
+        "restrictions": {},
+    }
+
+
+def _empty_diagnostics() -> Dict[str, Any]:
+    return {
+        "damage": {},
+        "speed_order": {},
+        "switch_hazards": {},
+        "restrictions": {},
+    }
+
+
 def _approximate_action_value(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Tuple[float, List[str]]:
     warnings: List[str] = []
     if bool(action.get("disabled")):
@@ -159,10 +351,17 @@ def _approximate_action_value(action: Dict[str, Any], approx_state: Dict[str, An
         target_types = [str(value) for value in trace_step.get("opponent_types") if str(value)]
 
     score = 0.0
-    if kind == "move":
+    if kind in {"move", "move_tera"}:
+        damage_diag = _damage_diagnostics(action, approx_state)
         score += base_power / 120.0
         score += (accuracy - 80.0) / 200.0
         score += _type_effectiveness(move_type, target_types)
+        score += float(damage_diag.get("average_percent") or 0.0) / 35.0
+        score += float(damage_diag.get("estimated_ko_chance") or 0.0) * 1.2
+        if damage_diag.get("immune"):
+            score -= 2.5
+        if kind == "move_tera":
+            score += 0.75 + float(damage_diag.get("tera_damage_bonus") or 0.0) / 50.0
         if category.lower() == "status":
             score -= 0.05
         if bool(move_meta.get("has_boosts")) or to_id(action_name) in {"swordsdance", "nastypot", "calmmind", "bulkup", "dragondance", "quiverdance"}:
@@ -213,6 +412,15 @@ def _approximate_action_value(action: Dict[str, Any], approx_state: Dict[str, An
             score += 0.1
         if move_type in {"Fire", "Water", "Grass", "Electric", "Psychic", "Dark", "Dragon", "Steel", "Ground"} and not target_types:
             warnings.append("target_type_unknown")
+        own_volatiles = set((tactical_state.get("own") or {}).get("volatiles") or []) if isinstance(tactical_state.get("own"), dict) else set()
+        if category.lower() == "status" and "taunt" in own_volatiles:
+            score -= 1.0
+            warnings.append("taunt_blocks_status")
+        if "encore" in own_volatiles:
+            warnings.append("encore_active")
+        locked = own_volatiles & {"outrage", "rollout", "iceball", "thrash", "petaldance"}
+        if locked:
+            warnings.append("locked_move_active")
     elif kind == "switch":
         hp_ratio = float(trace_step.get("p1_hp_ratio") or 1.0)
         score -= 0.1
@@ -286,6 +494,7 @@ def _approximate_decision_rollout(
 
     for action in legal_actions:
         base_score, approx_warnings = _approximate_action_value(action, approx_state)
+        diagnostics = _action_diagnostics(action, approx_state)
         samples: List[float] = []
         top_resulting_states: List[Dict[str, Any]] = []
         for rollout_index in range(sampled_seed_count):
@@ -312,6 +521,7 @@ def _approximate_decision_rollout(
         std_value = float(np.std(samples)) if samples else None
         min_value = float(np.min(samples)) if samples else None
         max_value = float(np.max(samples)) if samples else None
+        damage_info = diagnostics.get("damage") if isinstance(diagnostics.get("damage"), dict) else {}
         results.append(
             {
                 "label": label,
@@ -334,6 +544,16 @@ def _approximate_decision_rollout(
                 "rollout_unavailable_reason": None,
                 "rollout_unavailable_details": None,
                 "current_value": current_value,
+                "diagnostics": diagnostics,
+                "damage_method": damage_info.get("damage_method"),
+                "damage_rolls": damage_info.get("damage_rolls", []),
+                "average_percent": damage_info.get("average_percent"),
+                "min_percent": damage_info.get("min_percent"),
+                "max_percent": damage_info.get("max_percent"),
+                "ko_chance": damage_info.get("ko_chance"),
+                "immune": damage_info.get("immune"),
+                "type_effectiveness": damage_info.get("type_effectiveness"),
+                "tera_damage_bonus": damage_info.get("tera_damage_bonus"),
             }
         )
 
@@ -496,7 +716,24 @@ def evaluate_actions(
         player_choice = _action_index_to_choice(player_req, action_index) or "default"
 
         values: List[float] = []
-        details: Dict[str, Any] = {"label": label, "method": "exact_sim_rollout", "rollout_mode": "exact", "approximate_state": False, "rollout_count": 0, "opponent_actions_considered": [a.get("label") for a in selected_opps]}
+        details: Dict[str, Any] = {
+            "label": label,
+            "method": "exact_sim_rollout",
+            "rollout_mode": "exact",
+            "approximate_state": False,
+            "rollout_count": 0,
+            "opponent_actions_considered": [a.get("label") for a in selected_opps],
+            "diagnostics": _empty_diagnostics(),
+            "damage_method": None,
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
+        }
 
         rollout_delta = 1
         for opp in selected_opps:
@@ -611,6 +848,16 @@ def _trace_fallback(
                     "policy_prob": None,
                     "final_score": None,
                     "note": None,
+                    "diagnostics": _empty_diagnostics(),
+                    "damage_method": None,
+                    "damage_rolls": [],
+                    "average_percent": None,
+                    "min_percent": None,
+                    "max_percent": None,
+                    "ko_chance": None,
+                    "immune": None,
+                    "type_effectiveness": None,
+                    "tera_damage_bonus": None,
                     "rollout_unavailable_reason": reason or "trace_evaluation_failed",
                     "rollout_unavailable_details": {**(details or {}), "exception": exc_info},
                 }
@@ -632,6 +879,16 @@ def _trace_fallback(
             "policy_prob": None,
             "final_score": None,
             "note": None,
+            "diagnostics": _empty_diagnostics(),
+            "damage_method": None,
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
             "rollout_unavailable_reason": reason or "trace_evaluation_failed",
             "rollout_unavailable_details": {**(details or {}), "exception": exc_info},
         }
@@ -658,6 +915,16 @@ def _trace_fallback(
                     "policy_prob": None,
                     "final_score": None,
                     "note": None,
+                    "diagnostics": _empty_diagnostics(),
+                    "damage_method": None,
+                    "damage_rolls": [],
+                    "average_percent": None,
+                    "min_percent": None,
+                    "max_percent": None,
+                    "ko_chance": None,
+                    "immune": None,
+                    "type_effectiveness": None,
+                    "tera_damage_bonus": None,
                     "rollout_unavailable_reason": reason or "no_trace_estimates",
                     "rollout_unavailable_details": {**(details or {}), "exception": exc_info},
                 }
@@ -688,6 +955,16 @@ def _trace_fallback(
             "policy_prob": est.policy_prior,
             "final_score": est.combined_score,
             "note": est.note,
+            "diagnostics": _empty_diagnostics(),
+            "damage_method": None,
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
         }
         if reason:
             item["rollout_unavailable_reason"] = reason

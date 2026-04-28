@@ -207,6 +207,22 @@ class SimCoreClient:
             on_wait=on_wait,
         )
 
+    def damage_estimate(
+        self,
+        request: Dict[str, Any],
+        timeout_sec: Optional[float] = None,
+        on_wait: Optional[WaitHook] = None,
+    ) -> Dict[str, Any]:
+        return self._request(
+            {
+                "id": self._next_id("damage"),
+                "type": "damage_estimate",
+                "request": request,
+            },
+            timeout_sec=timeout_sec,
+            on_wait=on_wait,
+        )
+
     def batch_request(
         self,
         requests: Sequence[Dict[str, Any]],

@@ -1,0 +1,157 @@
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, Sequence
+
+from .action_features import load_move_metadata, to_id
+
+
+def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
+    team = private_state.get("team") if isinstance(private_state.get("team"), list) else []
+    for mon in team:
+        if isinstance(mon, dict) and mon.get("active"):
+            return mon
+    return team[0] if team and isinstance(team[0], dict) else {}
+
+
+def _opponent_view_mon(approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    view = approx_state.get("view") if isinstance(approx_state.get("view"), dict) else {}
+    team = view.get("opponent_team") if isinstance(view.get("opponent_team"), list) else []
+    return team[0] if team and isinstance(team[0], dict) else {}
+
+
+def _type_multiplier(move_type: Optional[str], target_types: Sequence[str]) -> float:
+    if not move_type:
+        return 1.0
+    chart = {
+        ("Electric", "Flying"): 2.0,
+        ("Electric", "Water"): 2.0,
+        ("Electric", "Ground"): 0.0,
+        ("Dragon", "Fairy"): 0.0,
+        ("Poison", "Steel"): 0.0,
+        ("Normal", "Ghost"): 0.0,
+        ("Fighting", "Ghost"): 0.0,
+        ("Ground", "Flying"): 0.0,
+        ("Rock", "Grass"): 0.5,
+        ("Rock", "Ground"): 0.5,
+        ("Water", "Fire"): 2.0,
+        ("Fire", "Grass"): 2.0,
+    }
+    multiplier = 1.0
+    for target_type in target_types:
+        multiplier *= chart.get((str(move_type), str(target_type)), 1.0)
+    return float(multiplier)
+
+
+def _default_estimate(method: str = "heuristic_fallback") -> Dict[str, Any]:
+    return {
+        "damage_method": method,
+        "damage_rolls": [],
+        "average_percent": 0.0,
+        "min_percent": 0.0,
+        "max_percent": 0.0,
+        "ko_chance": 0.0,
+        "immune": False,
+        "type_effectiveness": 1.0,
+        "item_modifier": 1.0,
+        "burn_attack_penalty": False,
+        "tera_damage_bonus": 0.0,
+        "warnings": [],
+    }
+
+
+def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    attacker = dict(_active_private_mon(private_state))
+    defender = dict(_opponent_view_mon(approx_state))
+    move = str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip()
+    if action.get("tera_type") and not attacker.get("tera_type"):
+        attacker["tera_type"] = action.get("tera_type")
+    use_tera = str(action.get("kind") or "") == "move_tera" or bool(action.get("is_tera_action"))
+    if force_tera_active is not None:
+        use_tera = bool(force_tera_active)
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    return {
+        "attacker": attacker,
+        "defender": defender,
+        "move": move,
+        "use_tera": use_tera,
+        "field": {
+            "weather": tactical_state.get("weather"),
+            "terrain": tactical_state.get("terrain"),
+            "reflect": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("reflect")),
+            "light_screen": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("lightscreen")),
+            "aurora_veil": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("auroraveil")),
+        },
+    }
+
+
+def _heuristic_estimate(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
+    estimate = _default_estimate()
+    move_name = str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip()
+    metadata, _ = load_move_metadata()
+    move_meta = metadata.get(to_id(move_name), {})
+    base_power = float(move_meta.get("base_power", 0.0) or 0.0)
+    if str(move_meta.get("category") or "").lower() == "status" or base_power <= 0:
+        estimate["damage_method"] = "heuristic_fallback"
+        return estimate
+    move_type = str(move_meta.get("type") or "") or None
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    attacker = _active_private_mon(private_state)
+    defender = _opponent_view_mon(approx_state)
+    target_types = [str(value) for value in defender.get("types", [])] if isinstance(defender.get("types"), list) else []
+    type_eff = _type_multiplier(move_type, target_types)
+    item_modifier = 1.3 if to_id(attacker.get("item")) == "lifeorb" else 1.0
+    tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
+    tactical_own = tactical_state.get("own") if isinstance(tactical_state.get("own"), dict) else {}
+    burned = str(attacker.get("status") or tactical_own.get("active_status") or "").lower() == "brn"
+    burn_penalty = bool(burned and str(move_meta.get("category") or "").lower() == "physical")
+    tera_active = str(action.get("kind") or "") == "move_tera" or bool(action.get("is_tera_action"))
+    if force_tera_active is not None:
+        tera_active = bool(force_tera_active)
+    tera_type = str(action.get("tera_type") or private_state.get("active_tera_type") or attacker.get("tera_type") or "")
+    tera_modifier = 1.5 if tera_active and move_type and tera_type.lower() == move_type.lower() else 1.0
+    average = base_power * type_eff * item_modifier * (0.5 if burn_penalty else 1.0) * tera_modifier / 2.4
+    if type_eff == 0.0:
+        average = 0.0
+    target_hp = float(defender.get("hp_fraction") if defender.get("hp_fraction") is not None else 1.0) * 100.0
+    min_percent = float(average * 0.85)
+    max_percent = float(average)
+    if to_id(defender.get("item")) == "focussash" and float(defender.get("hp_fraction") or 1.0) >= 1.0 and max_percent >= 100.0:
+        max_percent = 99.0
+        min_percent = min(min_percent, max_percent)
+    estimate.update(
+        {
+            "average_percent": float(average),
+            "min_percent": min_percent,
+            "max_percent": max_percent,
+            "ko_chance": 1.0 if max_percent >= target_hp and target_hp > 0 else 0.0,
+            "immune": bool(type_eff == 0.0),
+            "type_effectiveness": float(type_eff),
+            "item_modifier": item_modifier,
+            "burn_attack_penalty": burn_penalty,
+            "tera_damage_bonus": float(max(0.0, average - average / tera_modifier)) if tera_modifier > 1.0 else 0.0,
+        }
+    )
+    return estimate
+
+
+def estimate_action_damage(
+    *,
+    action: Dict[str, Any],
+    approx_state: Dict[str, Any],
+    client: Any = None,
+    force_tera_active: Optional[bool] = None,
+) -> Dict[str, Any]:
+    if client is not None:
+        try:
+            result = client.damage_estimate(_rpc_payload(action, approx_state, force_tera_active=force_tera_active))
+            if isinstance(result, dict):
+                merged = _default_estimate("smogon_calc")
+                merged.update(result)
+                merged.setdefault("warnings", [])
+                return merged
+        except Exception as exc:
+            fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
+            fallback.setdefault("warnings", []).append(f"damage_rpc_failed:{type(exc).__name__}")
+            return fallback
+    return _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)

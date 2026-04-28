@@ -1,5 +1,6 @@
 import readline from 'node:readline';
 import { performance } from 'node:perf_hooks';
+import { estimateDamage, type DamageEstimateRequest } from './damage_calc';
 import { EnvironmentManager } from './env_manager';
 import type { ControllerSpec, ControllerType, PlayerID, StepResultOptions } from './types';
 
@@ -39,6 +40,11 @@ type SingleRPCRequest =
   | {
       id: string;
       type: 'ping';
+    }
+  | {
+      id: string;
+      type: 'damage_estimate';
+      request: DamageEstimateRequest;
     };
 
 type RPCRequest =
@@ -218,6 +224,8 @@ async function handleSingleRequest(request: SingleRPCRequest): Promise<unknown> 
       return manager.getAgentAction(request.env_id, request.player, request.agent);
     case 'ping':
       return { pong: true };
+    case 'damage_estimate':
+      return estimateDamage(request.request);
     default:
       throw new Error(`Unknown RPC type ${(request as { type?: string }).type || 'unknown'}.`);
   }

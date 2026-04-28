@@ -110,13 +110,20 @@ def _request_active_moves(request_payload: Optional[Dict[str, Any]]) -> List[Dic
         if not isinstance(move, dict):
             continue
         name = move.get("move") or move.get("name") or move.get("id") or f"move {index + 1}"
+        try:
+            pp_empty = move.get("pp") is not None and int(move.get("pp") or 0) <= 0
+        except (TypeError, ValueError):
+            pp_empty = False
         result.append(
             {
                 "index": int(move.get("index", index) if move.get("index") is not None else index),
                 "kind": "move",
                 "label": f"move: {name}",
+                "move": name,
                 "slot": int(move.get("slot", index + 1) if move.get("slot") is not None else index + 1),
-                "disabled": bool(move.get("disabled", False)),
+                "disabled": bool(move.get("disabled", False) or pp_empty),
+                "pp": move.get("pp"),
+                "maxpp": move.get("maxpp"),
                 "source": "request.active.moves",
             }
         )
@@ -184,12 +191,20 @@ def _normalize_payload_legal_actions(raw_legal_actions: Sequence[Any]) -> List[D
 def legal_action_candidates(payload: Any) -> List[Dict[str, Any]]:
     request_payload = getattr(payload, "request", None)
     raw_legal_actions = getattr(payload, "legal_actions", []) or []
+    active = request_payload.get("active") if isinstance(request_payload, dict) else None
+    active_block = active[0] if isinstance(active, list) and active else active if isinstance(active, dict) else {}
+    force_switch_raw = request_payload.get("forceSwitch") if isinstance(request_payload, dict) else None
+    force_switch = any(bool(v) for v in force_switch_raw) if isinstance(force_switch_raw, list) else bool(force_switch_raw)
+    trapped = bool(active_block.get("trapped") or active_block.get("maybeTrapped"))
     if raw_legal_actions:
         candidates = _normalize_payload_legal_actions(raw_legal_actions)
     else:
         candidates = _request_active_moves(request_payload)
         labels = [str(candidate["label"]) for candidate in candidates]
-        candidates.extend(_request_switches(request_payload, labels))
+        if force_switch:
+            candidates = _request_switches(request_payload, [])
+        elif not trapped:
+            candidates.extend(_request_switches(request_payload, labels))
 
     seen = set()
     deduped = []
@@ -404,6 +419,21 @@ class ActionValueEstimator:
             "depth": 0,
             "mean_value": estimated_value,
             "std_value": None,
+            "diagnostics": {
+                "damage": {},
+                "speed_order": {},
+                "switch_hazards": {},
+                "restrictions": {},
+            },
+            "damage_method": None,
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
         }
 
 
@@ -507,6 +537,16 @@ def recommend_actions(
                 "approximation_warnings",
                 "rollout_unavailable_reason",
                 "rollout_unavailable_details",
+                "diagnostics",
+                "damage_method",
+                "damage_rolls",
+                "average_percent",
+                "min_percent",
+                "max_percent",
+                "ko_chance",
+                "immune",
+                "type_effectiveness",
+                "tera_damage_bonus",
             ):
                 if key in sim:
                     row[key] = sim.get(key)
