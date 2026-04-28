@@ -32,7 +32,53 @@ test('regression cases for immunities and resistance', () => {
     move: 'Accelerock',
   });
   assert.equal(accelerock.immune, false);
-  assert.ok(accelerock.type_effectiveness < 1);
+  assert.ok(Number(accelerock.type_effectiveness) < 1);
+});
+
+test('live Vivillon-Ocean and Quagsire regressions use Smogon safely', () => {
+  const hurricane = estimateDamage({
+    attacker: { species: 'Vivillon-Ocean', level: 80, stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    defender: { species: 'Quagsire', level: 80, hp_fraction: 1, stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    move: 'Hurricane',
+  });
+  assert.equal(hurricane.damage_method, 'smogon_calc');
+  assert.equal(hurricane.warnings.length, 0);
+  assert.ok(hurricane.damage_rolls.length > 0);
+
+  const earthquake = estimateDamage({
+    attacker: { species: 'Quagsire', level: 80, stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    defender: { species: 'Vivillon-Ocean', level: 80, hp_fraction: 1, stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    move: 'Earthquake',
+  });
+  assert.equal(earthquake.damage_method, 'smogon_calc');
+  assert.equal(earthquake.immune, true);
+  assert.equal(earthquake.type_effectiveness, 0);
+  assert.equal(earthquake.average_percent, 0);
+
+  const teraBlast = estimateDamage({
+    attacker: { species: 'Vivillon-Ocean', level: 80, tera_type: 'Flying', stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    defender: { species: 'Quagsire', level: 80, hp_fraction: 1, stats: { atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } },
+    move: 'Tera Blast',
+    use_tera: true,
+  });
+  assert.equal(teraBlast.damage_method, 'smogon_calc');
+  assert.equal(teraBlast.warnings.length, 0);
+});
+
+test('non-damaging moves bypass Smogon damage calculation', () => {
+  for (const move of ['Sleep Powder', 'Quiver Dance', 'Toxic', 'Spikes']) {
+    const result = estimateDamage({
+      attacker: { species: 'Vivillon-Ocean', level: 80 },
+      defender: { species: 'Quagsire', level: 80, hp_fraction: 1 },
+      move,
+    });
+    assert.equal(result.damage_method, 'non_damaging_move');
+    assert.deepEqual(result.damage_rolls, []);
+    assert.equal(result.average_percent, 0);
+    assert.equal(result.immune, false);
+    assert.equal(result.type_effectiveness, null);
+    assert.deepEqual(result.warnings, []);
+  }
 });
 
 test('tera boosting can increase damage', () => {

@@ -24,6 +24,55 @@ class DamageEngineTest(unittest.TestCase):
         for key in ("average_percent", "min_percent", "max_percent", "ko_chance", "tera_damage_bonus"):
             self.assertIn(key, result)
 
+    def test_direct_live_vivillon_quagsire_regressions(self):
+        hurricane = estimate_damage(
+            attacker={"species": "Vivillon-Ocean", "level": 80, "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            defender={"species": "Quagsire", "level": 80, "hp_fraction": 1.0, "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            move="Hurricane",
+        )
+        self.assertEqual(hurricane["damage_method"], "smogon_calc")
+        self.assertFalse(any("smogon_calc_failed" in warning for warning in hurricane.get("warnings", [])))
+
+        earthquake = estimate_damage(
+            attacker={"species": "Quagsire", "level": 80, "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            defender={"species": "Vivillon-Ocean", "level": 80, "hp_fraction": 1.0, "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            move="Earthquake",
+        )
+        self.assertEqual(earthquake["damage_method"], "smogon_calc")
+        self.assertTrue(earthquake["immune"])
+        self.assertEqual(earthquake["type_effectiveness"], 0)
+        self.assertEqual(earthquake["average_percent"], 0)
+
+        tera_blast = estimate_damage(
+            attacker={"species": "Vivillon-Ocean", "level": 80, "tera_type": "Flying", "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            defender={"species": "Quagsire", "level": 80, "hp_fraction": 1.0, "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
+            move="Tera Blast",
+            use_tera=True,
+        )
+        self.assertEqual(tera_blast["damage_method"], "smogon_calc")
+        self.assertFalse(any("smogon_calc_failed" in warning for warning in tera_blast.get("warnings", [])))
+
+    def test_direct_status_moves_bypass_smogon_calc(self):
+        cases = [
+            ("Vivillon-Ocean", "Quagsire", "Sleep Powder"),
+            ("Vivillon-Ocean", "Quagsire", "Quiver Dance"),
+            ("Quagsire", "Vivillon-Ocean", "Toxic"),
+            ("Quagsire", "Vivillon-Ocean", "Spikes"),
+        ]
+        for attacker, defender, move in cases:
+            with self.subTest(move=move):
+                result = estimate_damage(
+                    attacker={"species": attacker, "level": 80},
+                    defender={"species": defender, "level": 80, "hp_fraction": 1.0},
+                    move=move,
+                )
+                self.assertEqual(result["damage_method"], "non_damaging_move")
+                self.assertEqual(result["damage_rolls"], [])
+                self.assertEqual(result["average_percent"], 0)
+                self.assertFalse(result["immune"])
+                self.assertIsNone(result["type_effectiveness"])
+                self.assertFalse(any("smogon_calc_failed" in warning for warning in result.get("warnings", [])))
+
     def test_rpc_result_is_used_when_available(self):
         class FakeClient:
             def damage_estimate(self, request):

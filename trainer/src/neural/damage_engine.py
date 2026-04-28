@@ -66,6 +66,50 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def _compact_damage_payload_summary(payload: Dict[str, Any]) -> Dict[str, Any]:
+    attacker = payload.get("attacker") if isinstance(payload.get("attacker"), dict) else {}
+    defender = payload.get("defender") if isinstance(payload.get("defender"), dict) else {}
+
+    def mon_summary(mon: Dict[str, Any]) -> Dict[str, Any]:
+        return {
+            "species": mon.get("species"),
+            "level": mon.get("level"),
+            "item": mon.get("item"),
+            "ability": mon.get("ability"),
+            "status": mon.get("status"),
+            "tera_type": mon.get("tera_type") or mon.get("teraType"),
+            "terastallized": mon.get("terastallized"),
+            "hp_fraction": mon.get("hp_fraction"),
+            "cur_hp": mon.get("cur_hp"),
+            "max_hp": mon.get("max_hp"),
+            "stats_keys": sorted((mon.get("stats") or {}).keys()) if isinstance(mon.get("stats"), dict) else [],
+            "evs_keys": sorted((mon.get("evs") or {}).keys()) if isinstance(mon.get("evs"), dict) else [],
+            "ivs_keys": sorted((mon.get("ivs") or {}).keys()) if isinstance(mon.get("ivs"), dict) else [],
+            "boosts": mon.get("boosts") if isinstance(mon.get("boosts"), dict) else {},
+        }
+
+    return {
+        "attacker": mon_summary(attacker),
+        "defender": mon_summary(defender),
+        "move": payload.get("move"),
+        "use_tera": payload.get("use_tera"),
+        "field": payload.get("field") if isinstance(payload.get("field"), dict) else {},
+    }
+
+
+def _damage_failure_warning(prefix: str, exc: Exception, payload: Dict[str, Any]) -> str:
+    attacker = payload.get("attacker") if isinstance(payload.get("attacker"), dict) else {}
+    defender = payload.get("defender") if isinstance(payload.get("defender"), dict) else {}
+    summary = _compact_damage_payload_summary(payload)
+    return (
+        f"{prefix}:{type(exc).__name__}:{exc}; "
+        f"attacker_species={attacker.get('species')!r}; "
+        f"defender_species={defender.get('species')!r}; "
+        f"move={payload.get('move')!r}; "
+        f"input_summary={json.dumps(summary, sort_keys=True, default=str)}"
+    )
+
+
 def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
     private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
     attacker = dict(_active_private_mon(private_state))
@@ -101,7 +145,11 @@ def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_
 def _estimate_with_node(payload: Dict[str, Any]) -> Dict[str, Any]:
     sim_core = _repo_root() / "sim-core"
     module_path = sim_core / "dist" / "src" / "damage_calc.js"
-    if not module_path.exists():
+    src_path = sim_core / "src" / "damage_calc.ts"
+    needs_build = not module_path.exists()
+    if not needs_build and src_path.exists():
+        needs_build = src_path.stat().st_mtime > module_path.stat().st_mtime
+    if needs_build:
         build = subprocess.run(
             ["npm", "run", "build"],
             cwd=str(sim_core),
@@ -206,7 +254,7 @@ def estimate_action_damage(
                 return merged
         except Exception as exc:
             fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
-            fallback.setdefault("warnings", []).append(f"damage_rpc_failed:{type(exc).__name__}")
+            fallback.setdefault("warnings", []).append(_damage_failure_warning("damage_rpc_failed", exc, _rpc_payload(action, approx_state, force_tera_active=force_tera_active)))
             return fallback
 
     payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
@@ -218,7 +266,7 @@ def estimate_action_damage(
         return merged
     except Exception as exc:
         fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
-        fallback.setdefault("warnings", []).append(f"smogon_calc_failed:{type(exc).__name__}:{exc}")
+        fallback.setdefault("warnings", []).append(_damage_failure_warning("smogon_calc_failed", exc, payload))
         return fallback
 
 
