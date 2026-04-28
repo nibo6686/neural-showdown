@@ -1,7 +1,14 @@
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from neural.damage_engine import estimate_action_damage, estimate_damage
+from neural.live_action_recommender import recommend_actions
+from neural.live_private_features import FEATURE_DIM
 from neural.sim_branch_evaluator import evaluate_actions
+
+import numpy as np
+import torch
 
 
 class DamageEngineTest(unittest.TestCase):
@@ -119,6 +126,76 @@ class DamageEngineTest(unittest.TestCase):
         self.assertTrue(gunk["immune"])
         self.assertEqual(gunk["type_effectiveness"], 0.0)
         self.assertLess(gunk["final_score"], by_label["move:Shadow Sneak"]["final_score"])
+
+    def test_live_recommender_public_step_uses_smogon_damage(self):
+        request = {
+            "side": {
+                "id": "p2",
+                "pokemon": [
+                    {
+                        "ident": "p2a: Banette",
+                        "details": "Banette, L80",
+                        "condition": "100/100",
+                        "active": True,
+                        "moves": ["Gunk Shot", "Poltergeist", "Shadow Sneak"],
+                    }
+                ],
+            },
+            "active": [
+                {
+                    "moves": [
+                        {"move": "Gunk Shot", "id": "gunkshot", "pp": 1, "maxpp": 1, "disabled": False},
+                        {"move": "Poltergeist", "id": "poltergeist", "pp": 1, "maxpp": 1, "disabled": False},
+                        {"move": "Shadow Sneak", "id": "shadowsneak", "pp": 1, "maxpp": 1, "disabled": False},
+                    ]
+                }
+            ],
+        }
+        payload = type("Payload", (), {"request": request, "legal_actions": []})()
+        private_state = {
+            "player_side": "p2",
+            "active_species": "Banette",
+            "team": [{"species": "Banette", "level": 80, "active": True, "hp_fraction": 1.0}],
+            "active_moves": [{"name": "Gunk Shot"}, {"name": "Poltergeist"}, {"name": "Shadow Sneak"}],
+        }
+        trajectory = {
+            "replay_id": "live-public-regression",
+            "format": "gen9randombattle",
+            "protocol_log": [
+                "|turn|10",
+                "|switch|p1a: Kingambit|Kingambit, L80|100/100",
+                "|switch|p2a: Banette|Banette, L80|100/100",
+            ],
+            "turns": [{"turn": 10, "events": []}],
+        }
+        with patch("neural.live_action_recommender.DEFAULT_ACTION_RANKER_PATH", Path("missing-action-ranker.pt")), patch(
+            "neural.live_action_recommender.DEFAULT_ACTION_VALUE_RANKER_V2_PATH", Path("missing-action-value-ranker.pt")
+        ):
+            report = recommend_actions(
+                payload=payload,
+                private_state=private_state,
+                opponent_belief={"opponents": []},
+                trajectory=trajectory,
+                public_features=np.zeros(31, dtype=np.float32),
+                live_features=np.zeros(FEATURE_DIM, dtype=np.float32),
+                current_value=0.0,
+                value_model=None,
+                value_metadata={},
+                policy_loader=lambda: (None, {"warning": "missing"}),
+                device=torch.device("cpu"),
+                limit=3,
+            )
+        by_label = {row["label"]: row for row in report["all_action_estimates"]}
+        gunk = by_label["move: Gunk Shot"]
+        self.assertEqual(gunk["damage_method"], "smogon_calc")
+        self.assertTrue(gunk["immune"])
+        self.assertEqual(gunk["type_effectiveness"], 0.0)
+        self.assertTrue(
+            any(
+                gunk["final_score"] < by_label[label]["final_score"]
+                for label in ("move: Poltergeist", "move: Shadow Sneak")
+            )
+        )
 
 
 if __name__ == "__main__":

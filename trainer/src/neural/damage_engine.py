@@ -242,3 +242,35 @@ def estimate_damage(
         "tera_type": attacker.get("tera_type") or attacker.get("teraType"),
     }
     return estimate_action_damage(action=action, approx_state=approx_state, force_tera_active=use_tera)
+
+
+def main() -> None:
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Check Smogon-backed damage engine health.")
+    parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON only.")
+    args = parser.parse_args()
+
+    result = estimate_damage(
+        attacker={"species": "Banette", "level": 80},
+        defender={"species": "Kingambit", "level": 80, "hp_fraction": 1.0},
+        move="Gunk Shot",
+    )
+    payload = {
+        "python_executable": sys.executable,
+        "damage_engine_file": __file__,
+        "repo_root": str(_repo_root()),
+        "sim_core_dist_damage_calc": str(_repo_root() / "sim-core" / "dist" / "src" / "damage_calc.js"),
+        "sample": result,
+        "ok": result.get("damage_method") == "smogon_calc" and bool(result.get("immune")) and result.get("type_effectiveness") == 0,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, default=str))
+    else:
+        print("DAMAGE_ENGINE_HEALTHCHECK:")
+        print(json.dumps(payload, indent=2, default=str))
+
+
+if __name__ == "__main__":
+    main()

@@ -12,6 +12,7 @@ from .checkpoints import torch_load
 from .live_private_features import build_live_private_feature_vector
 from .models.action_ranker import ActionRankerMLP
 from .sim_branch_evaluator import evaluate_actions as evaluate_branch_actions
+from .tactical_state import _species_types, build_tactical_state
 
 
 PolicyLoader = Callable[[], Tuple[Optional[torch.nn.Module], Optional[Dict[str, Any]]]]
@@ -215,6 +216,159 @@ def legal_action_candidates(payload: Any) -> List[Dict[str, Any]]:
         seen.add(key)
         deduped.append(candidate)
     return deduped
+
+
+def _latest_turn(trajectory: Dict[str, Any]) -> int:
+    turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+    latest = 0
+    for turn in turns:
+        if not isinstance(turn, dict):
+            continue
+        try:
+            latest = max(latest, int(turn.get("turn", 0) or 0))
+        except (TypeError, ValueError):
+            continue
+    protocol = trajectory.get("protocol_log") if isinstance(trajectory.get("protocol_log"), list) else []
+    for line in protocol:
+        parts = str(line).split("|")
+        if len(parts) >= 3 and parts[1] == "turn":
+            try:
+                latest = max(latest, int(parts[2]))
+            except ValueError:
+                continue
+    return latest
+
+
+def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
+    team = private_state.get("team") if isinstance(private_state.get("team"), list) else []
+    for mon in team:
+        if isinstance(mon, dict) and mon.get("active"):
+            return mon
+    return team[0] if team and isinstance(team[0], dict) else {}
+
+
+def _mon_view_from_state(side_state: Dict[str, Any], *, fallback: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    fallback = fallback or {}
+    species = str(side_state.get("active_species") or fallback.get("species") or fallback.get("name") or "Unknown")
+    ident = str(side_state.get("active_ident") or fallback.get("ident") or species)
+    hp_fraction = side_state.get("active_hp_fraction")
+    if hp_fraction is None:
+        hp_fraction = fallback.get("hp_fraction", fallback.get("hp_ratio", 1.0))
+    try:
+        hp_ratio = max(0.0, min(1.0, float(hp_fraction if hp_fraction is not None else 1.0)))
+    except (TypeError, ValueError):
+        hp_ratio = 1.0
+    level = fallback.get("level")
+    if level is None:
+        details = str(fallback.get("details") or "")
+        if ", L" in details:
+            try:
+                level = int(details.rsplit(", L", 1)[1].split(",", 1)[0].strip())
+            except (TypeError, ValueError):
+                level = None
+    level = int(level or 80)
+    status = side_state.get("active_status")
+    if status is None:
+        status = fallback.get("status")
+    types = fallback.get("types") if isinstance(fallback.get("types"), list) else []
+    if not types:
+        types = _species_types(species)
+    return {
+        "slot": int(fallback.get("slot", 0) or 0),
+        "ident": ident,
+        "name": species,
+        "species": species,
+        "details": str(fallback.get("details") or f"{species}, L{level}"),
+        "active": True,
+        "fainted": bool(side_state.get("active_fainted") or fallback.get("fainted") or hp_ratio <= 0.0),
+        "hp_text": fallback.get("condition"),
+        "hp_ratio": hp_ratio,
+        "hp_fraction": hp_ratio,
+        "status": status,
+        "level": level,
+        "item": fallback.get("item"),
+        "ability": fallback.get("ability") or fallback.get("base_ability"),
+        "base_ability": fallback.get("base_ability"),
+        "moves": list(fallback.get("moves") or []),
+        "revealed_moves": list(fallback.get("revealed_moves") or []),
+        "types": list(types),
+        "tera_type": fallback.get("tera_type") or fallback.get("teraType") or side_state.get("active_tera_type"),
+        "terastallized": bool(side_state.get("tera_used") or fallback.get("terastallized")),
+        "stats": dict(fallback.get("stats") or {}),
+        "boosts": dict(side_state.get("boosts") or fallback.get("boosts") or {}),
+        "volatiles": list(side_state.get("volatiles") or fallback.get("volatiles") or []),
+    }
+
+
+def _trace_payload_for_branch_evaluation(
+    *,
+    payload: Any,
+    trajectory: Dict[str, Any],
+    private_state: Dict[str, Any],
+    player_side: str,
+    candidates: Sequence[Dict[str, Any]],
+) -> Dict[str, Any]:
+    if not isinstance(trajectory, dict):
+        return payload
+
+    protocol = trajectory.get("protocol_log") if isinstance(trajectory.get("protocol_log"), list) else []
+    if not protocol and not trajectory.get("turns"):
+        return payload
+    tactical_state = private_state.get("tactical_state") if isinstance(private_state.get("tactical_state"), dict) else None
+    if tactical_state is None:
+        tactical_state = build_tactical_state(protocol, perspective_side=player_side)
+    own_state = tactical_state.get("own") if isinstance(tactical_state.get("own"), dict) else {}
+    opp_state = tactical_state.get("opponent") if isinstance(tactical_state.get("opponent"), dict) else {}
+    request_payload = getattr(payload, "request", None)
+    if not isinstance(request_payload, dict):
+        request_payload = None
+
+    active_private = _active_private_mon(private_state)
+    own_view = _mon_view_from_state(own_state, fallback=active_private)
+    opp_view = _mon_view_from_state(opp_state)
+    turn = _latest_turn(trajectory)
+    current_step = {
+        "step_index": 0,
+        "turn": turn,
+        "view": {
+            "env_id": str(trajectory.get("env_id") or ""),
+            "format": str(trajectory.get("format") or "gen9randombattle"),
+            "gen": 9,
+            "turn": turn,
+            "player": player_side,
+            "opponent": "p2" if player_side == "p1" else "p1",
+            "terminated": False,
+            "winner": trajectory.get("winner"),
+            "names": dict(trajectory.get("players") or {}),
+            "team_size": {"p1": 6, "p2": 6},
+            "active": {"self": 0, "opponent": 0},
+            "field": {
+                "weather": tactical_state.get("weather"),
+                "terrain": tactical_state.get("terrain"),
+                "pseudo_weather": list(tactical_state.get("field_effects") or []),
+                "side_conditions": {
+                    "self": dict(own_state.get("side_conditions") or {}),
+                    "opponent": dict(opp_state.get("side_conditions") or {}),
+                },
+            },
+            "self_team": [own_view],
+            "opponent_team": [opp_view],
+        },
+        "request": request_payload,
+        "legal_actions": [dict(candidate) for candidate in candidates],
+        "p1_species" if player_side == "p1" else "p2_species": own_view.get("species"),
+        "p2_species" if player_side == "p1" else "p1_species": opp_view.get("species"),
+        "p1_hp_ratio" if player_side == "p1" else "p2_hp_ratio": own_view.get("hp_ratio"),
+        "p2_hp_ratio" if player_side == "p1" else "p1_hp_ratio": opp_view.get("hp_ratio"),
+        "p1_status" if player_side == "p1" else "p2_status": own_view.get("status"),
+        "p2_status" if player_side == "p1" else "p1_status": opp_view.get("status"),
+        "p1_boosts" if player_side == "p1" else "p2_boosts": own_view.get("boosts"),
+        "p2_boosts" if player_side == "p1" else "p1_boosts": opp_view.get("boosts"),
+    }
+    trace = dict(trajectory)
+    trace["turns"] = [{"turn": turn, "steps": [current_step]}]
+    trace["protocol_log"] = list(protocol)
+    return {"trace": trace}
 
 
 def _policy_features_for_model(
@@ -503,7 +657,14 @@ def recommend_actions(
             "rollout_mode": os.environ.get("NEURAL_ROLLOUT_MODE", "auto"),
         }
         opponent_policy = os.environ.get("NEURAL_OPPONENT_POLICY", "uniform")
-        sim_results = evaluate_branch_actions(payload, player_side, candidates, opponent_policy, rollout_cfg) or []
+        sim_payload = _trace_payload_for_branch_evaluation(
+            payload=payload,
+            trajectory=trajectory,
+            private_state=private_state,
+            player_side=player_side,
+            candidates=candidates,
+        )
+        sim_results = evaluate_branch_actions(sim_payload, player_side, candidates, opponent_policy, rollout_cfg) or []
     except Exception as exc:  # pragma: no cover - best-effort
         sim_results = []
 
