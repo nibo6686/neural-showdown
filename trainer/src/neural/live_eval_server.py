@@ -569,6 +569,14 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
             "known": {"private_state": private_state},
             "inferred": {"opponent_beliefs": opponent_beliefs.get("opponents", [])},
             "unknown": {"opponent_unknowns": opponent_beliefs.get("unknowns", [])},
+            "tera": {
+                "can_tera": bool(private_state.get("can_tera")),
+                "tera_used": bool(private_state.get("tera_used")),
+                "active_tera_type": private_state.get("active_tera_type"),
+                "legal_tera_actions": [
+                    action for action in action_report.get("all_action_estimates", []) if str(action.get("kind")) == "move_tera"
+                ],
+            },
             "belief_source": opponent_beliefs.get("source"),
             "belief_warnings": opponent_beliefs.get("warnings", []),
             "all_action_estimates": action_report.get("all_action_estimates", []),

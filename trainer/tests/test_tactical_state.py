@@ -4,7 +4,7 @@ import numpy as np
 
 from neural.action_features import ACTION_FEATURE_NAMES, build_action_feature_vector
 from neural.live_private_features import FEATURE_DIM, FEATURE_NAMES, FEATURE_VERSION, build_live_private_feature_vector
-from neural.tactical_state import build_tactical_state, tactical_state_feature_vector
+from neural.tactical_state import build_tactical_state, snapshot_with_private_state, tactical_action_flags, tactical_state_feature_vector
 
 
 class TacticalStateTest(unittest.TestCase):
@@ -62,6 +62,190 @@ class TacticalStateTest(unittest.TestCase):
         self.assertEqual(state["opponent"]["side_conditions"]["stealthrock"], 1)
         self.assertEqual(state["opponent"]["side_conditions"]["spikes"], 2)
 
+    def test_status_boosts_and_snapshot_are_persistent(self):
+        tracker_state = build_tactical_state(
+            [
+                "|turn|1",
+                "|switch|p2a: Gouging Fire|Gouging Fire, L80|239/239 par",
+                "|-boost|p2a: Gouging Fire|atk|2",
+                "|-boost|p2a: Gouging Fire|atk|4",
+                "|-boost|p2a: Gouging Fire|atk|0",
+                "|turn|2",
+            ],
+            perspective_side="p1",
+        )
+        self.assertEqual(tracker_state["opponent"]["status"], "par")
+        self.assertEqual(tracker_state["opponent"]["boosts"]["atk"], 6)
+        self.assertIn("boost_capped:p2:atk", tracker_state["warnings"])
+
+    def test_status_move_into_existing_status_flag(self):
+        state = build_tactical_state(
+            [
+                "|turn|5",
+                "|switch|p2a: Gouging Fire|Gouging Fire, L80|56/100 par",
+            ],
+            perspective_side="p1",
+        )
+        flags = tactical_action_flags({"kind": "move", "label": "move: Thunder Wave"}, tactical_state=state)
+        self.assertIn("status_into_existing_status", flags)
+
+    def test_hazard_max_layer_flag_uses_target_side(self):
+        state = build_tactical_state(
+            [
+                "|turn|4",
+                "|-sidestart|p2: johnding|move: Toxic Spikes",
+                "|turn|5",
+                "|-sidestart|p2: johnding|move: Toxic Spikes",
+                "|turn|6",
+            ],
+            perspective_side="p1",
+        )
+        self.assertEqual(state["opponent"]["side_conditions"]["toxicspikes"], 2)
+        flags = tactical_action_flags({"kind": "move", "label": "move: Toxic Spikes"}, tactical_state=state)
+        self.assertIn("redundant_hazard_max_layers", flags)
+
+    def test_setup_at_cap_flag(self):
+        state = build_tactical_state(
+            [
+                "|turn|9",
+                "|switch|p2a: Gogoat|Gogoat, L84|100/100",
+                "|-boost|p2a: Gogoat|atk|6",
+                "|-boost|p2a: Gogoat|def|6",
+                "|turn|10",
+            ],
+            perspective_side="p2",
+        )
+        flags = tactical_action_flags({"kind": "move", "label": "move: Bulk Up"}, tactical_state=state)
+        self.assertIn("setup_at_cap", flags)
+
+    def test_known_and_repeated_immunity_flags(self):
+        state = build_tactical_state(
+            [
+                "|turn|10",
+                "|switch|p1a: Kingambit|Kingambit, L80|100/100",
+                "|switch|p2a: Banette|Banette, L80|100/100",
+                "|move|p2a: Banette|Gunk Shot|p1a: Kingambit",
+                "|-immune|p1a: Kingambit",
+                "|turn|11",
+            ],
+            perspective_side="p2",
+        )
+        flags = tactical_action_flags({"kind": "move", "label": "move: Gunk Shot"}, tactical_state=state)
+        self.assertIn("known_immunity", flags)
+        self.assertIn("repeated_immune_move", flags)
+
+    def test_dragon_into_fairy_immunity_flag(self):
+        state = build_tactical_state(
+            [
+                "|turn|3",
+                "|switch|p1a: Gouging Fire|Gouging Fire, L80|100/100",
+                "|switch|p2a: Wigglytuff|Wigglytuff, L80|100/100",
+            ],
+            perspective_side="p1",
+        )
+        flags = tactical_action_flags({"kind": "move", "label": "move: Outrage"}, tactical_state=state)
+        self.assertIn("known_immunity", flags)
+
+    def test_hp_faint_team_and_active_switch_tracking(self):
+        state = build_tactical_state(
+            [
+                "|teamsize|p2|6",
+                "|turn|1",
+                "|switch|p2a: Veluza|Veluza, L80|277/277",
+                "|-damage|p2a: Veluza|56/100",
+                "|turn|3",
+                "|move|p1a: Wigglytuff|Alluring Voice|p2a: Veluza",
+                "|faint|p2a: Veluza",
+                "|switch|p2a: Gouging Fire|Gouging Fire, L80|239/239",
+                "|turn|5",
+                "|-status|p2a: Gouging Fire|par",
+                "|-damage|p2a: Gouging Fire|180/239 par",
+            ],
+            perspective_side="p1",
+        )
+        opponent = state["opponent"]
+        self.assertEqual(opponent["active_species"], "Gouging Fire")
+        self.assertEqual(opponent["active_status"], "par")
+        self.assertAlmostEqual(opponent["active_hp_fraction"], 180 / 239)
+        self.assertIn("Veluza", [mon["species"] for mon in opponent["known_team"]])
+        self.assertIn("Gouging Fire", [mon["species"] for mon in opponent["known_team"]])
+        self.assertIn("Veluza", opponent["fainted_species"])
+        self.assertEqual(opponent["remaining_known_count"], 1)
+        self.assertEqual(opponent["total_team_size"], 6)
+        self.assertEqual(opponent["unknown_unrevealed_count"], 4)
+
+    def test_public_revealed_moves_usage_and_inferred_pp(self):
+        state = build_tactical_state(
+            [
+                "|turn|1",
+                "|switch|p2a: Banette|Banette, L80|100/100",
+                "|move|p2a: Banette|Gunk Shot|p1a: Kingambit",
+                "|turn|2",
+                "|move|p2a: Banette|Gunk Shot|p1a: Kingambit",
+            ],
+            perspective_side="p1",
+        )
+        opponent = state["opponent"]
+        self.assertIn("Gunk Shot", opponent["revealed_moves_by_species"]["Banette"])
+        self.assertEqual(opponent["move_use_counts_by_species"]["Banette"]["gunkshot"], 2)
+        pp = opponent["inferred_pp_by_species_move"]["Banette"]["gunkshot"]
+        self.assertEqual(pp["provenance"], "inferred_from_public_usage")
+        self.assertEqual(pp["observed_uses"], 2)
+        self.assertEqual(opponent["exact_pp_by_species_move"]["Banette"], {})
+
+    def test_live_private_snapshot_marks_exact_pp(self):
+        state = build_tactical_state(
+            ["|turn|1", "|switch|p1a: Pikachu|Pikachu, L80|100/100"],
+            perspective_side="p1",
+        )
+        private_state = {
+            "player_side": "p1",
+            "active_species": "Pikachu",
+            "team": [
+                {
+                    "ident": "p1: Pikachu",
+                    "species": "Pikachu",
+                    "condition": "80/100 par",
+                    "hp_fraction": 0.8,
+                    "status": "par",
+                    "active": True,
+                    "moves": ["Thunderbolt"],
+                    "item": "Light Ball",
+                    "ability": "Static",
+                    "tera_type": "Electric",
+                }
+            ],
+            "active_moves": [{"id": "thunderbolt", "name": "Thunderbolt", "pp": 10, "maxpp": 15}],
+        }
+        merged = snapshot_with_private_state(state, private_state)
+        own = merged["own"]
+        self.assertEqual(own["active_status"], "par")
+        self.assertEqual(own["active_hp_fraction"], 0.8)
+        self.assertTrue(own["item_known"])
+        self.assertTrue(own["ability_known"])
+        self.assertTrue(own["tera_type_known"])
+        pp = own["exact_pp_by_species_move"]["Pikachu"]["thunderbolt"]
+        self.assertEqual(pp["pp"], 10)
+        self.assertEqual(pp["maxpp"], 15)
+        self.assertEqual(pp["provenance"], "exact_private_request")
+
+    def test_terastallize_protocol_marks_side_and_active_species(self):
+        state = build_tactical_state(
+            [
+                "|turn|1",
+                "|switch|p1a: Typhlosion|Typhlosion, L84, M|267/267",
+                "|-terastallize|p1a: Typhlosion|Fire",
+            ],
+            perspective_side="p1",
+        )
+        own = state["own"]
+        self.assertTrue(own["tera_used"])
+        self.assertEqual(own["active_tera_type"], "Fire")
+        self.assertTrue(own["tera_type_known"])
+        typhlosion = next(mon for mon in own["known_team"] if mon["species"] == "Typhlosion")
+        self.assertTrue(typhlosion["terastallized"])
+        self.assertEqual(typhlosion["tera_type"], "Fire")
+
 
 class TacticalFeatureIntegrationTest(unittest.TestCase):
     def test_action_features_differ_before_and_after_target_is_seeded(self):
@@ -104,4 +288,3 @@ class TacticalFeatureIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

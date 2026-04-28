@@ -253,8 +253,9 @@ def _distribution_from_candidates(candidates: List[Dict[str, Any]], field: str) 
 def _filter_candidates_for_reveal(
     all_candidates: List[Dict[str, Any]],
     reveal: Dict[str, Any],
-) -> Tuple[List[Dict[str, Any]], bool]:
+) -> Tuple[List[Dict[str, Any]], bool, List[str]]:
     filtered = list(all_candidates)
+    relaxed_reasons: List[str] = []
 
     revealed_moves = {str(m).lower() for m in reveal.get("moves", set())}
     if revealed_moves:
@@ -265,6 +266,8 @@ def _filter_candidates_for_reveal(
                 move_filtered.append(candidate)
         if move_filtered:
             filtered = move_filtered
+        else:
+            relaxed_reasons.append("revealed_moves")
 
     ability = reveal.get("ability")
     if ability:
@@ -277,6 +280,8 @@ def _filter_candidates_for_reveal(
         ]
         if ability_filtered:
             filtered = ability_filtered
+        else:
+            relaxed_reasons.append("revealed_ability")
 
     item = reveal.get("item")
     if item:
@@ -289,6 +294,8 @@ def _filter_candidates_for_reveal(
         ]
         if item_filtered:
             filtered = item_filtered
+        else:
+            relaxed_reasons.append("revealed_item")
 
     tera_type = reveal.get("tera_type")
     if tera_type:
@@ -301,9 +308,11 @@ def _filter_candidates_for_reveal(
         ]
         if tera_filtered:
             filtered = tera_filtered
+        else:
+            relaxed_reasons.append("revealed_tera_type")
 
-    filter_relaxed = len(filtered) == len(all_candidates)
-    return filtered, filter_relaxed
+    filter_relaxed = bool(relaxed_reasons)
+    return filtered, filter_relaxed, relaxed_reasons
 
 
 def build_opponent_beliefs(
@@ -371,7 +380,9 @@ def build_opponent_beliefs(
             )
             continue
 
-        filtered, filter_relaxed = _filter_candidates_for_reveal(all_candidates, reveal)
+        filtered, filter_relaxed, relaxed_reasons = _filter_candidates_for_reveal(all_candidates, reveal)
+        if relaxed_reasons:
+            warnings.append(f"relaxed_opponent_set_filters:{species}:{','.join(relaxed_reasons)}")
         total_weight = sum(float(c.get("weight", 1.0)) for c in filtered) or 1.0
 
         ranked = sorted(filtered, key=lambda item: float(item.get("weight", 1.0)), reverse=True)
@@ -402,6 +413,7 @@ def build_opponent_beliefs(
                 },
                 "candidate_count": len(filtered),
                 "filter_relaxed": filter_relaxed,
+                "relaxed_reasons": relaxed_reasons,
                 "top_candidates": top_candidates,
                 "inferred": {
                     "abilities": _distribution_from_candidates(filtered, "abilities"),

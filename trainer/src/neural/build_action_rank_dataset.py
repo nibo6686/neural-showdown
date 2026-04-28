@@ -57,6 +57,8 @@ def _legal_actions_from_private_state(private_state: Dict[str, Any], chosen_labe
     actions: List[Dict[str, Any]] = []
     seen = set()
     active_moves = private_state.get("active_moves") if isinstance(private_state.get("active_moves"), list) else []
+    can_tera = bool(private_state.get("can_tera") and not private_state.get("tera_used") and not private_state.get("force_switch"))
+    tera_type = private_state.get("active_tera_type")
     for index, move in enumerate(active_moves[:4]):
         if not isinstance(move, dict):
             continue
@@ -66,15 +68,36 @@ def _legal_actions_from_private_state(private_state: Dict[str, Any], chosen_labe
         if key in seen:
             continue
         seen.add(key)
-        actions.append({"index": index, "kind": "move", "label": label, "disabled": bool(move.get("disabled", False))})
+        disabled = bool(move.get("disabled", False))
+        slot = int(move.get("slot", index + 1) or index + 1)
+        actions.append({"index": index, "kind": "move", "label": label, "choice": f"move {slot}", "move": name, "slot": slot, "disabled": disabled})
+        if can_tera and not disabled and 1 <= slot <= 4:
+            tera_label = f"move_tera: {name}"
+            tera_key = ("move_tera", _normalize_label(tera_label))
+            if tera_key not in seen:
+                seen.add(tera_key)
+                actions.append(
+                    {
+                        "index": slot - 1 + 4,
+                        "kind": "move_tera",
+                        "label": tera_label,
+                        "choice": f"move {slot} terastallize",
+                        "move": name,
+                        "slot": slot,
+                        "disabled": False,
+                        "is_tera_action": True,
+                        "can_tera": True,
+                        "tera_type": tera_type,
+                    }
+                )
 
     chosen_kind = chosen_label.split(":", 1)[0].strip().lower()
-    if chosen_kind == "move" and ("move", _normalize_label(chosen_label)) not in seen:
-        actions.append({"index": min(3, len(actions)), "kind": "move", "label": chosen_label, "disabled": False})
-        seen.add(("move", _normalize_label(chosen_label)))
+    if chosen_kind in {"move", "move_tera"} and (chosen_kind, _normalize_label(chosen_label)) not in seen:
+        actions.append({"index": min(7 if chosen_kind == "move_tera" else 3, len(actions)), "kind": chosen_kind, "label": chosen_label, "disabled": False})
+        seen.add((chosen_kind, _normalize_label(chosen_label)))
 
     team = private_state.get("team") if isinstance(private_state.get("team"), list) else []
-    switch_index = 4
+    switch_index = 8
     for mon in team:
         if not isinstance(mon, dict):
             continue

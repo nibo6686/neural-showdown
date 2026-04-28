@@ -271,6 +271,7 @@ def _moves_from_request_or_actions(request: Optional[Dict[str, Any]], legal_acti
     if isinstance(request, dict):
         active = request.get("active")
         active_block = active if isinstance(active, dict) else (active[0] if isinstance(active, list) and active else {})
+        active_can_tera = bool(active_block.get("can_terastallize") or active_block.get("canTerastallize")) if isinstance(active_block, dict) else False
         moves = active_block.get("moves") if isinstance(active_block, dict) else None
         if isinstance(moves, list):
             result = []
@@ -284,7 +285,7 @@ def _moves_from_request_or_actions(request: Optional[Dict[str, Any]], legal_acti
                         "pp": move.get("pp", 1),
                         "maxpp": move.get("maxpp", 1),
                         "disabled": bool(move.get("disabled", False)),
-                        "can_tera": bool(move.get("can_tera") or move.get("canTerastallize")),
+                        "can_tera": active_can_tera or bool(move.get("can_tera") or move.get("canTerastallize")),
                     }
                 )
             if result:
@@ -345,21 +346,31 @@ def _trace_private_state(trace: Dict[str, Any], step: Dict[str, Any]) -> Dict[st
                 "ability": mon.get("ability"),
                 "base_ability": mon.get("base_ability") or mon.get("baseAbility"),
                 "tera_type": mon.get("tera_type") or mon.get("teraType"),
+                "terastallized": bool(mon.get("terastallized", False)),
             }
         )
 
     request_dict = request if isinstance(request, dict) else {}
-    active_request = request_dict.get("active") if isinstance(request_dict.get("active"), dict) else {}
+    raw_active = request_dict.get("active")
+    active_request = raw_active if isinstance(raw_active, dict) else (raw_active[0] if isinstance(raw_active, list) and raw_active and isinstance(raw_active[0], dict) else {})
+    force_switch = bool(request_dict.get("force_switch") or request_dict.get("forceSwitch"))
+    tera_used = any(bool(mon.get("terastallized")) for mon in team)
+    raw_can_tera = active_request.get("can_terastallize") or active_request.get("canTerastallize")
+    active_tera_type = raw_can_tera if isinstance(raw_can_tera, str) else None
+    if not active_tera_type and 0 <= active_index < len(team):
+        active_tera_type = team[active_index].get("tera_type")
     return {
         "player_side": request_dict.get("player") if request_dict.get("player") in ("p1", "p2") else "p1",
         "active_species": team[active_index].get("species") if 0 <= active_index < len(team) else None,
         "team": team,
         "active_moves": _moves_from_request_or_actions(request, legal_actions),
-        "force_switch": bool(request_dict.get("force_switch") or request_dict.get("forceSwitch")),
+        "force_switch": force_switch,
         "wait": bool(request_dict.get("wait", False)),
         "trapped": bool(request_dict.get("trapped") or active_request.get("trapped")),
         "legal_actions": legal_actions,
-        "can_tera": bool(active_request.get("can_terastallize") or active_request.get("canTerastallize")),
+        "can_tera": bool(raw_can_tera and not tera_used and not force_switch),
+        "active_tera_type": active_tera_type,
+        "tera_used": tera_used,
     }
 
 

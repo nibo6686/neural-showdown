@@ -32,7 +32,7 @@ MOVE_TYPES = [
 ]
 CATEGORIES = ["Physical", "Special", "Status"]
 ACTION_FEATURE_VERSION_V1 = "legal-action-v1"
-ACTION_FEATURE_VERSION = "legal-action-v2"
+ACTION_FEATURE_VERSION = "legal-action-v3"
 
 BASE_FEATURE_NAMES = [
     "kind_move",
@@ -77,8 +77,20 @@ SWITCH_FEATURE_NAMES = [
     "current_active_hp_fraction",
     "current_active_low_hp",
 ]
+TERA_FEATURE_NAMES = [
+    "is_tera_action",
+    "can_tera",
+    "tera_already_used",
+    *[f"tera_type_{name.lower()}" for name in MOVE_TYPES],
+    *[f"move_type_before_tera_{name.lower()}" for name in MOVE_TYPES],
+    *[f"move_type_after_tera_{name.lower()}" for name in MOVE_TYPES],
+    "tera_stab_bonus",
+    "tera_defensive_type_change",
+    "tera_matches_move_type",
+    "tera_blast_type_change",
+]
 ACTION_FEATURE_NAMES_V1 = (
-    BASE_FEATURE_NAMES + MOVE_TYPE_FEATURE_NAMES + CATEGORY_FEATURE_NAMES + MOVE_NUMERIC_FEATURE_NAMES + SWITCH_FEATURE_NAMES
+    BASE_FEATURE_NAMES + MOVE_TYPE_FEATURE_NAMES + CATEGORY_FEATURE_NAMES + MOVE_NUMERIC_FEATURE_NAMES + SWITCH_FEATURE_NAMES + TERA_FEATURE_NAMES
 )
 ACTION_FEATURE_DIM_V1 = len(ACTION_FEATURE_NAMES_V1)
 ACTION_FEATURE_NAMES = ACTION_FEATURE_NAMES_V1 + TACTICAL_ACTION_FEATURE_NAMES
@@ -213,7 +225,10 @@ def _active_moves(private_state: Dict[str, Any]) -> List[Dict[str, Any]]:
 def _find_move_record(action: Dict[str, Any], private_state: Dict[str, Any]) -> Dict[str, Any]:
     action_index = int(action.get("index", -1) if action.get("index") is not None else -1)
     action_name = to_id(_action_name(action))
+    action_slot = int(action.get("slot", 0) or 0)
     moves = _active_moves(private_state)
+    if action_slot > 0 and 0 <= action_slot - 1 < len(moves):
+        return moves[action_slot - 1]
     if 0 <= action_index < len(moves):
         return moves[action_index]
     for move in moves:
@@ -261,6 +276,73 @@ def _move_flag_features(meta: Dict[str, Any], move_name: str) -> Dict[str, float
     }
 
 
+def _active_species_types(active: Dict[str, Any]) -> List[str]:
+    types = active.get("types") if isinstance(active.get("types"), list) else []
+    if types:
+        return [str(value) for value in types if str(value)]
+    try:
+        from .tactical_state import _species_types
+
+        return _species_types(active.get("species") or active.get("details") or "")
+    except Exception:
+        return []
+
+
+def _private_can_tera(private_state: Dict[str, Any], active: Dict[str, Any], moves: Sequence[Dict[str, Any]]) -> bool:
+    if private_state.get("tera_used"):
+        return False
+    if private_state.get("force_switch"):
+        return False
+    if private_state.get("can_tera"):
+        return True
+    if active.get("can_tera") or active.get("canTerastallize"):
+        return True
+    return any(bool(move.get("can_tera") or move.get("canTerastallize")) for move in moves if isinstance(move, dict))
+
+
+def _tera_type(private_state: Dict[str, Any], active: Dict[str, Any], action: Dict[str, Any]) -> Optional[str]:
+    return (
+        action.get("tera_type")
+        or private_state.get("active_tera_type")
+        or active.get("tera_type")
+        or active.get("teraType")
+    )
+
+
+def _tera_feature_values(
+    *,
+    action: Dict[str, Any],
+    private_state: Dict[str, Any],
+    active: Dict[str, Any],
+    move_id: str,
+    move_type: str,
+) -> List[float]:
+    kind = str(action.get("kind") or "").lower()
+    is_tera = kind == "move_tera" or bool(action.get("is_tera_action")) or "terastallize" in str(action.get("choice") or "").lower()
+    active_moves = _active_moves(private_state)
+    can_tera = _private_can_tera(private_state, active, active_moves)
+    tera_type = str(_tera_type(private_state, active, action) or "")
+    before_type = str(move_type or "")
+    after_type = tera_type if move_id == "terablast" and tera_type else before_type
+    own_types = _active_species_types(active)
+    defensive_change = bool(is_tera and tera_type and set(own_types or []) != {tera_type})
+    tera_matches_move = bool(is_tera and tera_type and before_type and tera_type.lower() == before_type.lower())
+    tera_stab_bonus = bool(is_tera and before_type and (tera_matches_move or before_type in own_types))
+    tera_blast_change = bool(is_tera and move_id == "terablast" and tera_type and after_type.lower() != before_type.lower())
+    return [
+        float(is_tera),
+        float(can_tera),
+        float(bool(private_state.get("tera_used"))),
+        *(float(tera_type.lower() == type_name.lower()) for type_name in MOVE_TYPES),
+        *(float(before_type.lower() == type_name.lower()) for type_name in MOVE_TYPES),
+        *(float(after_type.lower() == type_name.lower()) for type_name in MOVE_TYPES),
+        float(tera_stab_bonus),
+        float(defensive_change),
+        float(tera_matches_move),
+        float(tera_blast_change),
+    ]
+
+
 def _target_features(target: Optional[str]) -> List[float]:
     text = str(target or "").lower()
     return [
@@ -283,19 +365,19 @@ def build_action_feature_vector(
     name = _action_name(action)
     name_sin, name_cos = _hash_pair(name)
     values: List[float] = [
-        float(kind == "move"),
+        float(kind.startswith("move")),
         float(kind == "switch"),
         _clip(action_index / 12.0),
-        _clip(action_index / 3.0) if kind == "move" else 0.0,
-        _clip((action_index - 4) / 5.0) if kind == "switch" else 0.0,
+        _clip((int(action.get("slot", 0) or 0) - 1) / 3.0) if kind.startswith("move") and int(action.get("slot", 0) or 0) > 0 else _clip(action_index / 3.0) if kind.startswith("move") else 0.0,
+        _clip((action_index - 8) / 4.0) if kind == "switch" else 0.0,
         name_sin,
         name_cos,
     ]
 
     meta_index, _ = load_move_metadata()
-    move_record = _find_move_record(action, private) if kind == "move" else {}
+    move_record = _find_move_record(action, private) if kind.startswith("move") else {}
     move_id = to_id(move_record.get("id") or move_record.get("name") or name)
-    meta = meta_index.get(move_id, {}) if kind == "move" else {}
+    meta = meta_index.get(move_id, {}) if kind.startswith("move") else {}
     move_type = str(meta.get("type") or "").lower()
     category = str(meta.get("category") or "").lower()
     values.extend(float(move_type == type_name.lower()) for type_name in MOVE_TYPES)
@@ -324,7 +406,7 @@ def build_action_feature_vector(
             _clip(float(meta.get("base_power", 0.0) or 0.0) / 250.0),
             _clip(float(meta.get("accuracy", 100.0) or 100.0) / 100.0),
             _clip((float(meta.get("priority", 0.0) or 0.0) + 7.0) / 14.0),
-            pp_fraction if kind == "move" else 0.0,
+            pp_fraction if kind.startswith("move") else 0.0,
             float(bool(action.get("disabled"))),
             *_target_features(meta.get("target")),
             flags["flag_status"],
@@ -333,8 +415,8 @@ def build_action_feature_vector(
             flags["flag_pivot"],
             flags["flag_hazard"],
             flags["flag_protect_like"],
-            float(kind == "move" and known_from_request),
-            float(kind == "move" and inferred and not known_from_request),
+            float(kind.startswith("move") and known_from_request),
+            float(kind.startswith("move") and inferred and not known_from_request),
         ]
     )
 
@@ -355,6 +437,15 @@ def build_action_feature_vector(
             _hp_fraction(active),
             float(_hp_fraction(active) <= 0.33) if active else 0.0,
         ]
+    )
+    values.extend(
+        _tera_feature_values(
+            action=action,
+            private_state=private,
+            active=active,
+            move_id=move_id,
+            move_type=str(meta.get("type") or "") if meta else "",
+        )
     )
     base_features = np.asarray(values, dtype=np.float32)
     if base_features.shape[0] != ACTION_FEATURE_DIM_V1:

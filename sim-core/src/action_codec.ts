@@ -120,7 +120,8 @@ export function buildLegalActionSet(rawRequest: any): LegalActionSet {
     ? active.moves.map((move: any, index: number) => normalizeMove(move, index + 1))
     : [];
 
-  const canTerastallize = !!active.canTerastallize;
+  const teraAlreadyUsed = sidePokemon.some((pokemon: RequestSidePokemonView) => pokemon.terastallized);
+  const canTerastallize = !!active.canTerastallize && !teraAlreadyUsed;
 
   for (const move of moves.slice(0, 4)) {
     if (move.disabled || move.pp <= 0) {
@@ -167,11 +168,12 @@ export function normalizeRequest(player: PlayerID, rawRequest: any): ChoiceReque
     : [];
 
   const rawActive = rawRequest?.active?.[0];
+  const teraAlreadyUsed = side.some((pokemon: RequestSidePokemonView) => pokemon.terastallized);
   const active: RequestActiveView | null = rawActive ? {
     moves: Array.isArray(rawActive.moves)
       ? rawActive.moves.map((move: any, index: number) => normalizeMove(move, index + 1))
       : [],
-    can_terastallize: !!rawActive.canTerastallize,
+    can_terastallize: !!rawActive.canTerastallize && !teraAlreadyUsed,
     tera_type: typeof rawActive.canTerastallize === 'string' ? rawActive.canTerastallize : null,
     trapped: !!rawActive.trapped,
     can_switch: !rawActive.trapped && side.some((pokemon: RequestSidePokemonView) => !pokemon.active && !isFainted(pokemon.condition)),

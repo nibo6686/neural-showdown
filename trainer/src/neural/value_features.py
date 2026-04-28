@@ -197,7 +197,7 @@ def _move_slots_from_actions(actions: Sequence[Optional[Dict[str, Any]]]) -> Lis
     moves: List[Dict[str, Any]] = []
     seen_slots = set()
     for action_index, action in enumerate(actions):
-        if not action or action.get("kind") != "move":
+        if not action or not str(action.get("kind") or "").startswith("move"):
             continue
         slot = int(action.get("slot") or ((action_index % 4) + 1))
         if slot in seen_slots or not 1 <= slot <= 4:
@@ -385,7 +385,7 @@ def value_extra_features(
     opp_team = view.get("opponent_team", [])
     legal_actions = request.get("legal_actions", {}).get("actions", []) if request else []
     legal_action_items = [action for action in legal_actions if action]
-    legal_move_count = sum(1 for action in legal_action_items if action.get("kind") == "move")
+    legal_move_count = sum(1 for action in legal_action_items if str(action.get("kind") or "").startswith("move"))
     legal_switch_count = sum(1 for action in legal_action_items if action.get("kind") == "switch")
     active = request.get("active") if request else None
 

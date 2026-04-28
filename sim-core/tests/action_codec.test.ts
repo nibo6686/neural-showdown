@@ -35,6 +35,9 @@ test('buildLegalActionSet masks moves, tera moves, and switches', () => {
   assert.equal(legal.mask[4], true);
   assert.equal(legal.mask[5], true);
   assert.equal(legal.mask[7], true);
+  assert.equal(legal.actions[4]?.kind, 'move_tera');
+  assert.equal(legal.actions[4]?.choice, 'move 1 terastallize');
+  assert.equal(legal.actions[4]?.label, 'move_tera:Fire Blast');
   assert.equal(legal.mask[8], true);
   assert.equal(legal.mask[9], true);
   assert.equal(legal.mask[10], false);
@@ -65,6 +68,31 @@ test('buildLegalActionSet does not offer zero-PP moves', () => {
   assert.equal(legal.actions[0], null);
   assert.equal(legal.mask[1], true);
   assert.equal(legal.actions[1]?.choice, 'move 2');
+});
+
+test('buildLegalActionSet does not offer tera moves after tera has been used', () => {
+  const request = {
+    active: [
+      {
+        canTerastallize: 'Fire',
+        trapped: false,
+        moves: [
+          { move: 'Fire Blast', id: 'fireblast', pp: 8, maxpp: 8, target: 'normal', disabled: false },
+        ],
+      },
+    ],
+    side: {
+      pokemon: [
+        { active: true, terastallized: true, condition: '100/100' },
+        { active: false, condition: '100/100' },
+      ],
+    },
+  };
+
+  const legal = buildLegalActionSet(request);
+  assert.equal(legal.mask[0], true);
+  assert.equal(legal.mask[4], false);
+  assert.equal(legal.actions[4], null);
 });
 
 test('buildLegalActionSet falls back to default when no concrete action is available', () => {

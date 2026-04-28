@@ -19,6 +19,7 @@ from .tactical_state import (
     TACTICAL_STATE_FEATURE_NAMES,
     TACTICAL_FEATURE_VERSION,
     build_tactical_state,
+    snapshot_with_private_state,
     tactical_state_feature_vector,
 )
 
@@ -374,7 +375,20 @@ def trajectory_prefix(trajectory: Dict[str, Any], through_turn: int) -> Dict[str
     ]
     prefixed["total_turns"] = int(through_turn)
     protocol_log = trajectory.get("protocol_log") if isinstance(trajectory.get("protocol_log"), list) else []
-    prefixed["protocol_log"] = list(protocol_log)
+    prefix_log = []
+    current_turn = 0
+    for line in protocol_log:
+        text = str(line)
+        parts = text.strip().split("|") if text.strip().startswith("|") else []
+        if len(parts) >= 3 and parts[1] == "turn":
+            try:
+                current_turn = int(parts[2])
+            except ValueError:
+                current_turn = through_turn
+        if current_turn > int(through_turn):
+            break
+        prefix_log.append(text)
+    prefixed["protocol_log"] = prefix_log
     return prefixed
 
 
@@ -401,6 +415,7 @@ def build_live_private_feature_vector(
             )
         else:
             tactical_state = {}
+    tactical_state = snapshot_with_private_state(tactical_state, private_state)
     tactical = tactical_state_feature_vector(tactical_state)
     features = np.concatenate([public, private, opponent, tactical]).astype(np.float32)
     if features.shape[0] != FEATURE_DIM:
@@ -459,17 +474,21 @@ def build_features_from_live_payload(
         player_side=player_side if player_side in ("p1", "p2") else None,
         sets_path=sets_path,
     )
+    tactical_state = build_tactical_state(
+        list(log),
+        perspective_side=player_side if player_side in ("p1", "p2") else "p1",
+    )
+    tactical_state = snapshot_with_private_state(tactical_state, private_state)
+    private_state["tactical_state"] = tactical_state
     features, debug = build_live_private_feature_vector(
         public_features=public_features,
         private_state=private_state,
         opponent_belief=opponent_belief,
         trajectory=trajectory,
         player_side=player_side if player_side in ("p1", "p2") else None,
-        tactical_state=build_tactical_state(
-            list(log),
-            perspective_side=player_side if player_side in ("p1", "p2") else "p1",
-        ),
+        tactical_state=tactical_state,
     )
+    debug["tactical_snapshot"] = tactical_state
     debug.update(public_debug)
     debug["feature_names_preview"] = FEATURE_NAMES[:8]
     debug["feature_values_preview"] = [float(v) for v in features[:8].tolist()]

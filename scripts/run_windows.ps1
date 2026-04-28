@@ -555,14 +555,6 @@ function Invoke-TrainActionValueRanker {
     if ($MaxValGroups -gt 0) {
         $arguments += @('--max-val-groups', [string]$MaxValGroups)
     }
-    if ($Resume) {
-        if (Test-Path $selectedCheckpointPath) {
-            $arguments += @('--resume-checkpoint', $selectedCheckpointPath)
-        }
-        else {
-            Write-Host "launcher train-action-value-ranker | resume requested but checkpoint is missing; starting fresh checkpoint=$selectedCheckpointPath"
-        }
-    }
     $arguments += @('--save-every-epochs', '1')
     Write-Host "launcher train-action-value-ranker | dataset=$selectedDatasetPath"
     Invoke-PythonModule -Module 'neural.train_action_value_ranker' -Arguments $arguments

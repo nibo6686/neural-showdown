@@ -67,6 +67,7 @@ def _extract_active_moves(active_block: Dict[str, Any]) -> List[Dict[str, Any]]:
         return []
 
     result: List[Dict[str, Any]] = []
+    active_can_tera = bool(active_block.get("canTerastallize") or active_block.get("can_terastallize"))
     for entry in moves:
         if not isinstance(entry, dict):
             continue
@@ -80,9 +81,9 @@ def _extract_active_moves(active_block: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "target": entry.get("target"),
                 "disabled": disabled,
                 "selectable": not disabled,
-                "can_tera": bool(entry.get("canTerastallize") or entry.get("can_terastallize") or False),
                 "can_zmove": bool(entry.get("canZMove") or entry.get("can_zmove") or False),
                 "can_maxmove": bool(entry.get("canMaxMove") or entry.get("can_maxmove") or False),
+                "can_tera": active_can_tera,
                 "source": "request",
                 "known_from_request": True,
                 "inferred": False,
@@ -114,10 +115,13 @@ def _extract_team(side_block: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "fainted": bool(mon.get("fainted", hp_fraction == 0.0 if hp_fraction is not None else False)),
                 "status": _status_from_condition(condition),
                 "moves": list(mon.get("moves")) if isinstance(mon.get("moves"), list) else [],
+                "stats": dict(mon.get("stats")) if isinstance(mon.get("stats"), dict) else {},
+                "types": list(mon.get("types")) if isinstance(mon.get("types"), list) else [],
                 "item": mon.get("item"),
                 "ability": mon.get("ability"),
                 "base_ability": mon.get("baseAbility") or mon.get("base_ability"),
                 "tera_type": mon.get("teraType") or mon.get("tera_type"),
+                "terastallized": bool(mon.get("terastallized", False)),
                 "source": "request",
                 "known_from_request": True,
                 "inferred": False,
@@ -135,8 +139,13 @@ def _normalize_legal_actions(legal_actions: List[Dict[str, Any]]) -> List[Dict[s
             {
                 "kind": action.get("kind"),
                 "label": action.get("label"),
+                "index": action.get("index"),
+                "choice": action.get("choice"),
+                "move": action.get("move"),
                 "slot": action.get("slot"),
                 "disabled": bool(action.get("disabled", False)),
+                "is_tera_action": bool(action.get("is_tera_action") or str(action.get("kind") or "").lower() == "move_tera"),
+                "tera_type": action.get("tera_type"),
             }
         )
     return normalized
@@ -241,6 +250,7 @@ def _apply_randbats_fallback(
                 "ability": None,
                 "base_ability": None,
                 "tera_type": None,
+                "terastallized": False,
                 "source": "randbats",
                 "known_from_request": False,
                 "inferred": True,
@@ -297,11 +307,17 @@ def extract_private_side_state(
 
     team = _extract_team(side_block)
     active_moves = _extract_active_moves(active_block)
+    active_can_tera = bool(active_block.get("canTerastallize") or active_block.get("can_terastallize"))
+    active_tera_type = None
+    raw_can_tera = active_block.get("canTerastallize") or active_block.get("can_terastallize")
+    if isinstance(raw_can_tera, str):
+        active_tera_type = raw_can_tera
 
     active_species = None
     for mon in team:
         if mon.get("active"):
             active_species = mon.get("species")
+            active_tera_type = active_tera_type or mon.get("tera_type")
             break
     if not active_species:
         active_species = active_species_hint
@@ -322,6 +338,7 @@ def extract_private_side_state(
         force_switch = bool(force_switch_raw)
 
     known_from_request = bool(team or active_moves)
+    tera_used = any(bool(mon.get("terastallized")) for mon in team if isinstance(mon, dict))
     inferred_from_randbats = bool(randbats_fallback.get("used"))
     unknown = []
     if not team:
@@ -332,6 +349,9 @@ def extract_private_side_state(
     return {
         "player_side": _infer_player_side(side_block, player_hint),
         "active_species": active_species,
+        "can_tera": bool(active_can_tera and not tera_used and not force_switch),
+        "active_tera_type": active_tera_type,
+        "tera_used": bool(tera_used),
         "team": team,
         "active_moves": active_moves,
         "force_switch": force_switch,
