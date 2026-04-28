@@ -1,594 +1,804 @@
 # Neural Showdown
 
-Headless Gen 9 Random Battles training harness built around a local Pokemon Showdown simulator.
+Neural Showdown is a local Gen 9 Random Battles research harness. It pairs a
+TypeScript Pokemon Showdown simulator service with Python tooling for data
+collection, replay ingestion, featurization, model training, evaluation, action
+ranking, and live battle evaluation.
 
-## Layout
+The current repository is centered on three related loops:
 
-- `sim-core/`: Node/TypeScript simulator RPC server and local baseline agents
-- `trainer/`: Python client, featurization, dataset, training, and evaluation code
-- `configs/`: experiment configs stored as JSON-compatible YAML
-- `docs/`: architecture and interface docs
-- `data/`: generated raw episodes and training shards
-- `artifacts/`: checkpoints and evaluation reports
+- Local simulator experiments: collect self-play or baseline-vs-baseline games,
+  train policy/value models, and evaluate checkpoints.
+- Public replay learning: fetch saved Pokemon Showdown replays, parse protocol
+  logs, build public and live-private datasets, and train replay-derived models.
+- Live evaluation: serve a local `/evaluate` endpoint that scores the current
+  battle state and ranks legal actions using live request data, opponent beliefs,
+  damage diagnostics, rollout estimates, and action rankers.
 
-## Runtime options
+This is a research codebase, not a packaged application. Most commands assume
+you run them from the repository root.
 
-This project does not fundamentally require WSL. The Windows launcher now prefers native Windows `node`/`npm` for `sim-core` and only falls back to WSL when native Node is not available.
+## Repository Layout
 
-Two supported workflows today:
+- `sim-core/`: TypeScript RPC server around Pokemon Showdown, baseline agents,
+  legal action encoding, state extraction, and Smogon damage calculation.
+- `trainer/src/neural/`: Python package for configs, simulator clients,
+  datasets, featurizers, models, training, evaluation, replay tools, live eval,
+  and analysis.
+- `trainer/tests/`: Python regression and smoke tests.
+- `configs/`: JSON-compatible YAML configs for dataset collection, training,
+  evaluation, smoke runs, trace runs, and larger evals.
+- `data/`: generated datasets, replay caches, randbats set data, and self-play
+  outputs.
+- `artifacts/`: checkpoints, reports, latency traces, analysis outputs, battle
+  traces, and live-eval logs.
+- `docs/`: concise interface notes for architecture, action space, and state
+  schema.
+- `scripts/run_windows.ps1`: Windows launcher that sets `PYTHONPATH`, resolves
+  native Node/WSL sim-core mode, injects sim-core process environment variables,
+  and runs the common workflows.
 
-- full WSL workflow: run both `sim-core` and Python inside WSL
-- Windows Python workflow: run Python in the Windows conda env and let the launcher start `sim-core` natively when possible
+## Prerequisites
 
-If you want the full WSL workflow, run:
+Runtime pieces:
 
-```bash
-cd /mnt/c/Users/cloud/Downloads/neural/final
-cd sim-core && npm install && npm run build
-cd ../trainer && python3 -m unittest discover -s tests
-```
-
-Key commands:
-
-```bash
-cd sim-core && npm run test
-cd sim-core && npm run start
-cd trainer && PYTHONPATH=src python3 -m neural.eval --config ../configs/gen9randombattle_eval.yaml
-cd trainer && PYTHONPATH=src python3 -m neural.build_dataset --config ../configs/gen9randombattle_bc.yaml
-cd trainer && PYTHONPATH=src python3 -m neural.train_bc --config ../configs/gen9randombattle_bc.yaml
-```
-
-## Notes
-
-- v1 is CPU-first. The Python code will use CUDA if available, but does not require it.
-- Team preview is auto-resolved with `default`.
-- The fixed policy head is length `13`:
-  - `0-3`: moves 1-4
-  - `4-7`: moves 1-4 with terastallization
-  - `8-12`: bench switches 1-5
-
-## Windows workflow
-
-If you want to use the Windows conda environment at `D:\Anaconda\envs\neuralgpu`, run from PowerShell. The launcher picks `sim-core` mode automatically:
-
-- `native`: use Windows `node`/`npm`
-- `wsl`: fallback when Windows Node is not available
-- `auto`: default, prefer native and fall back to WSL
-
-### Full end-to-end run with native Windows sim-core
+- Node.js and npm for `sim-core`.
+- Python 3.8+ with PyTorch, NumPy, FastAPI/Uvicorn, pytest, and the other
+  scientific/runtime packages used by the trainer.
+- On this Windows setup, the launcher defaults to:
 
 ```powershell
-.\scripts\run_windows.ps1 -Action all -Profile full -SimCoreMode native
+D:\Anaconda\envs\neuralgpu\python.exe
 ```
 
-This will:
-1. Build sim-core if needed (native Windows `node`/`npm`)
-2. Collect 128 battles of dataset using native Windows sim-core
-3. Train behavior cloning model on collected data
-4. Evaluate trained model against 100 baseline battles
-5. Print final summary with `sim_core=native` confirmation and artifact paths
+The code can run on CPU. PyTorch will use CUDA when available.
 
-Use the launcher:
+Install and build the simulator:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run_windows.ps1 -Action all
-```
-
-Available actions:
-
-```powershell
-.\scripts\run_windows.ps1 -Action setup
-.\scripts\run_windows.ps1 -Action build
-.\scripts\run_windows.ps1 -Action test
-.\scripts\run_windows.ps1 -Action dataset
-.\scripts\run_windows.ps1 -Action train
-.\scripts\run_windows.ps1 -Action ppo
-.\scripts\run_windows.ps1 -Action eval
-.\scripts\run_windows.ps1 -Action improve
-.\scripts\run_windows.ps1 -Action analyze
-.\scripts\run_windows.ps1 -Action trace-eval
-.\scripts\run_windows.ps1 -Action build-value-dataset
-.\scripts\run_windows.ps1 -Action train-value
-.\scripts\run_windows.ps1 -Action analyze-state
-.\scripts\run_windows.ps1 -Action collect-selfplay
-.\scripts\run_windows.ps1 -Action compare-checkpoints
-.\scripts\run_windows.ps1 -Action fetch-replays
-.\scripts\run_windows.ps1 -Action parse-replays
-.\scripts\run_windows.ps1 -Action build-replay-value-dataset
-.\scripts\run_windows.ps1 -Action build-replay-policy-dataset
-.\scripts\run_windows.ps1 -Action test-live-eval
-.\scripts\run_windows.ps1 -Action compare-replay-evals -ReplayId gen9randombattle-2594788118 -Side p1
-.\scripts\run_windows.ps1 -Action build-action-rank-dataset
-.\scripts\run_windows.ps1 -Action train-action-ranker
-.\scripts\run_windows.ps1 -Action analyze-action-bias
-.\scripts\run_windows.ps1 -Action server
-.\scripts\run_windows.ps1 -Action all
-```
-
-Mode overrides:
-
-```powershell
-.\scripts\run_windows.ps1 -Action all -SimCoreMode auto
-.\scripts\run_windows.ps1 -Action all -SimCoreMode native
-.\scripts\run_windows.ps1 -Action all -SimCoreMode wsl
-```
-
-Profiles:
-
-```powershell
-.\scripts\run_windows.ps1 -Action all -Profile dev
-.\scripts\run_windows.ps1 -Action all -Profile full
-```
-
-### Larger evaluation runs
-
-To evaluate with more battles (500 or 1000 instead of 100) for more robust metrics:
-
-**Quick runs (8 parallel environments, fast but may see timeout bursts):**
-
-```powershell
-# 500 battles - throughput optimized
-.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval500.yaml -SimCoreMode native
-
-# 1000 battles - throughput optimized
-.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval1000.yaml -SimCoreMode native
-```
-
-**Stable runs (4 parallel environments, slower but no timeout cascades):**
-
-```powershell
-# 500 battles - stability optimized (~20 min)
-.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval500-stable.yaml -SimCoreMode native
-
-# 1000 battles - stability optimized (~40 min)
-.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval1000-stable.yaml -SimCoreMode native
-```
-
-**Stability vs. throughput tradeoff:**
-- `-stable` configs use 4 parallel environments instead of 8 and timeout=30/60s instead of 20/45s
-- This prevents sim-core event loop congestion that can cause cascading timeouts
-- Recommended for production validation runs where reliability matters more than speed
-- Use the non-stable (8-env) variants for development iteration
-
-### Continuous improvement
-
-The `improve` action runs a bounded curriculum loop that can be left unattended:
-
-```powershell
-.\scripts\run_windows.ps1 -Action improve -Profile full -SimCoreMode native
-```
-
-Each cycle collects fresh heuristic-labeled data, appends it into a cumulative shard, resumes behavior-cloning training from the latest checkpoint, optionally runs PPO fine-tuning, evaluates against configured baselines, and promotes the checkpoint to `*.best.pt` only when eval win rate improves.
-
-Fast smoke configs are available for checking the plumbing without a long run:
-
-```powershell
-.\scripts\run_windows.ps1 -Action dataset -DatasetConfig .\configs\gen9randombattle_bc.smoke.windows.yaml -SimCoreMode native
-.\scripts\run_windows.ps1 -Action train -DatasetConfig .\configs\gen9randombattle_bc.smoke.windows.yaml -SimCoreMode native
-.\scripts\run_windows.ps1 -Action ppo -DatasetConfig .\configs\gen9randombattle_bc.smoke.windows.yaml -SimCoreMode native
-.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.smoke.windows.yaml -SimCoreMode native
-.\scripts\run_windows.ps1 -Action improve -DatasetConfig .\configs\gen9randombattle_bc.smoke.windows.yaml -SimCoreMode native
-```
-
-Behavior cloning now supports resumeable checkpoints when `training.resume=true`. Checkpoints include model weights, optimizer state, total epoch, global step, training history, and best score metadata. Pure behavior cloning from the heuristic is still imitation: it can smooth or generalize from the heuristic, but reliably surpassing the heuristic requires outcome-based fine-tuning, stronger labels, search, or external data.
-
-### Reviewing run results
-
-After a full run (`-Action all`), results and metadata are written to:
-
-- **Dataset report**: `artifacts/latency/gen9randombattle_bc_dataset_latency.windows.json` (with battles/labels/retries/timeouts)
-- **Training report**: `artifacts/checkpoints/gen9randombattle_bc.train.json` (with training history by epoch)
-- **Eval report**: `artifacts/eval/gen9randombattle_eval.json` (with wins/losses/ties/latency)
-- **Latency details**: `artifacts/latency/gen9randombattle_eval_latency.windows.json`
-- **Improvement state**: `artifacts/improve/state.json` or the configured improvement state path
-
-All reports include:
-- `timestamp`: when the run occurred
-- `profile`: which config profile was used
-- `sim_core_mode`: `native` or `wsl` (proves which runtime was used)
-- `python_executable`: path to Python interpreter
-- `torch_device`: `cuda` or `cpu`
-- `git_commit`: git commit hash if available
-- platform and environment info
-
-### Decision Analysis & Battle Replay
-
-New tools for analyzing and debugging battles:
-
-#### Generate battle traces
-
-Enable tracing in config or use the dedicated trace eval config:
-
-```powershell
-# Small eval run with traces
-.\scripts\run_windows.ps1 -Action trace-eval -Profile dev -SimCoreMode native
-```
-
-This runs a small eval with tracing enabled, writing:
-- JSON traces: `artifacts/battles/dev/battle_*.json` (complete decision logs)
-- Markdown summaries: `artifacts/battles/dev/battle_*.md` (human-readable)
-- Protocol logs: `artifacts/battles/dev/battle_*.showdown.log` (raw Showdown protocol)
-
-Or enable tracing in any config:
-```json
-"tracing": {
-  "enabled": true,
-  "trace_sample_rate": 0.1,
-  "trace_max_battles": 20,
-  "output_dir": null,
-  "include_protocol_log": true,
-  "include_markdown": true
-}
-```
-
-#### Analyze decision categories
-
-Categorize and analyze all decisions in a dataset:
-
-```powershell
-.\scripts\run_windows.ps1 -Action analyze -DatasetPath .\data\raw\gen9randombattle_bc.jsonl.gz
-```
-
-Outputs:
-- `artifacts/analysis/decision_categories.csv` — all decisions with categories
-- `artifacts/analysis/decision_summary.json` — aggregate statistics
-- `artifacts/analysis/decision_summary.md` — human-readable report
-
-Decision categories:
-- **attack**: super_effective, neutral, resisted, no_effect, struggle
-- **setup**: first_boost, repeated_setup_N
-- **recovery**: full_hp_recover, partial_hp_recover
-- **hazard**: first_placement, redundant_hazard
-- **switch**: forced_switch, no_move_options_switch, voluntary_switch
-
-Diagnostics explain behavior; they are not policy rules. The training and value/search paths should learn from returns, rollouts, and outcome targets, not hardcoded bans such as forbidding resisted moves, immunities, switches, or early terastallization.
-
-#### Value model and state analysis
-
-Build an outcome-labeled battle-state dataset from traced battles:
-
-```powershell
-.\scripts\run_windows.ps1 -Action build-value-dataset -TraceDir .\artifacts\battles\dev
-```
-
-This writes:
-- `data/value/gen9randombattle_value.npz`
-- `artifacts/analysis/value_dataset_report.json`
-- `artifacts/analysis/value_dataset_report.md`
-
-Train the first value model:
-
-```powershell
-.\scripts\run_windows.ps1 -Action train-value -DatasetPath .\data\value\gen9randombattle_value.npz
-```
-
-This writes:
-- `artifacts/checkpoints/gen9randombattle_value.pt`
-- `artifacts/checkpoints/gen9randombattle_value.train.json`
-- `artifacts/checkpoints/gen9randombattle_value.train.md`
-
-Inspect one traced position like an engine board evaluation:
-
-```powershell
-.\scripts\run_windows.ps1 -Action analyze-state `
-  -TracePath .\artifacts\battles\dev\battle_0.json `
-  -StepIndex 10 `
-  -ValueCheckpoint .\artifacts\checkpoints\gen9randombattle_value.pt
-```
-
-The current rollout action evaluator lives behind `neural.action_value_search`. Exact simulator branching is not exposed by `sim-core` yet, so this pass provides a trace-continuation/value-prior interface and documents the missing clone/replay-to-state hook rather than adding rule-based action filters.
-
-Feature status for value/search:
-- Available in `BattleView`/`ChoiceRequestView`: HP fractions, status, active boosts, revealed move counts, legal action mask, move PP/disabled flags, tera availability/type, weather, terrain, hazards/side conditions, volatiles, and remaining unfainted counts.
-- Available from traces/protocol logs: recent moves, damage, switches, faints, and repeated-action summaries.
-- Missing for exact search: a `sim-core` RPC to clone a battle state or replay deterministically to an arbitrary decision point. That should be exposed in `sim-core/src/env_manager.ts` and `sim-core/src/server.ts` before full rollout branching can be implemented.
-
-#### Outcome-weighted policy improvement
-
-Advantage-weighted BC is opt-in:
-
-```powershell
-.\scripts\run_windows.ps1 -Action train -DatasetConfig .\configs\gen9randombattle_bc.awbc.dev.windows.yaml
-```
-
-It still learns from chosen legal actions, but weights examples by return/value advantage with clipping. It does not drop examples based on type matchup diagnostics.
-
-#### Self-play data
-
-Collect model-vs-pool episodes for future value and policy improvement:
-
-```powershell
-.\scripts\run_windows.ps1 -Action collect-selfplay -Profile dev -SimCoreMode native
-```
-
-This writes:
-- `data/selfplay/gen9randombattle_selfplay.jsonl.gz`
-- `artifacts/selfplay/selfplay_report.json`
-- `artifacts/selfplay/selfplay_report.md`
-
-Opponent pools support `random`, `heuristic`, and `checkpoint` entries. Checkpoint opponents can be configured as previous best, current, or current best models when those checkpoints exist.
-
-#### Public replay ingestion
-
-The replay pipeline ingests only public saved replays from `https://replay.pokemonshowdown.com`. It does not collect private replays, does not join live battle rooms, and does not inspect live server traffic. Downloads are rate-limited, raw files are cached, and replay ids/source metadata are preserved for reproducibility. Public replay data can be biased toward games players chose to save or upload, so reports keep source counts and skip/failure reasons visible.
-
-Fetch a small public sample:
-
-```powershell
-.\scripts\run_windows.ps1 -Action fetch-replays `
-  -Format gen9randombattle `
-  -MaxReplays 10 `
-  -DelaySec 0.5 `
-  -SimCoreMode native
-```
-
-Parse public protocol logs:
-
-```powershell
-.\scripts\run_windows.ps1 -Action parse-replays `
-  -Format gen9randombattle `
-  -ReplayDir .\data\replays\raw\gen9randombattle `
-  -SimCoreMode native
-```
-
-Build the first public replay value dataset:
-
-```powershell
-.\scripts\run_windows.ps1 -Action build-replay-value-dataset `
-  -Format gen9randombattle `
-  -ReplayDir .\data\replays\raw\gen9randombattle `
-  -SimCoreMode native
-```
-
-Optional policy/action labels:
-
-```powershell
-.\scripts\run_windows.ps1 -Action build-replay-policy-dataset `
-  -Format gen9randombattle `
-  -ReplayDir .\data\replays\raw\gen9randombattle `
-  -SimCoreMode native
-```
-
-Outputs:
-- Raw replay cache: `data/replays/raw/<format>/<replay_id>.json` and `.log`
-- Raw metadata: `data/replays/raw/<format>/metadata.jsonl`
-- Parsed trajectories: `data/replays/processed/<format>_trajectories.jsonl.gz`
-- Value dataset: `data/value/<format>_public_replay_value.npz`
-- Reports: `artifacts/replays/fetch_report.json`, `parse_report.json`, and `value_dataset_report.json`
-
-The current public replay value dataset uses a temporary event-derived feature vector from public protocol events such as HP percentages, faints, switches, status, boosts, tera usage, and final outcome. It is not yet the same 1179D sim-core trace feature vector; that needs deterministic replay-to-state reconstruction before the formats can be unified.
-
-#### Live private-belief evaluation
-
-There are now two replay-derived value models:
-
-- Old public replay value model: 31D public protocol features, `artifacts/checkpoints/gen9randombattle_replay_value.pt`
-- New live private-belief value model: 78D public + own private request + opponent randbats belief features, `artifacts/checkpoints/gen9randombattle_live_private_value.pt`
-
-The live eval server defaults to the 78D checkpoint when it exists. You can verify this without HTTP:
-
-```powershell
-.\scripts\run_windows.ps1 -Action test-live-eval -SimCoreMode native
-```
-
-Expected smoke output includes `model_type=live-private-belief-value`, `feature_version=live-private-belief-v1`, and request-derived legal action labels. To compare the old 31D and new 78D behavior on one saved replay:
-
-```powershell
-.\scripts\run_windows.ps1 -Action compare-replay-evals `
-  -ReplayId gen9randombattle-2594788118 `
-  -Side p1 `
-  -SimCoreMode native
-```
-
-Reports are written to `artifacts/replays/<replay_id>_model_comparison.json` and `.md`.
-
-Live server model selection can be overridden:
-
-```powershell
-$env:NEURAL_LIVE_MODEL = 'live-private'      # default
-$env:NEURAL_LIVE_MODEL = 'public-replay'     # force old 31D fallback
-$env:NEURAL_LIVE_VALUE_CHECKPOINT = '.\artifacts\checkpoints\gen9randombattle_live_private_value.pt'
-```
-
-Start the live eval server:
-
-```powershell
-$env:PYTHONPATH = (Resolve-Path .\trainer\src)
-D:\Anaconda\envs\neuralgpu\python.exe -m neural.live_eval_server
-```
-
-`/evaluate` responses include `model_type`, `checkpoint_path`, `feature_version`, `feature_dim`, `used_private_state`, `used_opponent_belief`, and `fallback_reason` when a fallback happens.
-
-Action recommendations are a first action-value layer, not a rule bot. The preferred path is an action-conditioned ranker:
-
-```text
-(live-private-belief state features, legal action features) -> scalar action score
-```
-
-Build and train it with:
-
-```powershell
-.\scripts\run_windows.ps1 -Action build-action-rank-dataset -SimCoreMode native
-.\scripts\run_windows.ps1 -Action train-action-ranker `
-  -DatasetPath .\data\policy\gen9randombattle_action_rank.npz `
-  -SimCoreMode native
-.\scripts\run_windows.ps1 -Action analyze-action-bias -SimCoreMode native
-```
-
-When `artifacts/checkpoints/gen9randombattle_action_ranker.pt` exists, live recommendations use `method=action_ranker` and still include the old fixed-head replay-policy probability as a diagnostic. If no action-ranker checkpoint exists, the server falls back to the replay-policy prior plus the lightweight switch proxy. It does not ban resisted moves, immunities, switches, or setup by hardcoded matchup rules.
-
-Limitations:
-
-- This is not full search yet.
-- The one-step switch proxy is not true battle simulation and does not estimate damage.
-- Real “Showdown Stockfish” search still needs sim-core branch cloning and rollout support.
-
-#### Interpreting switch categories
-
-Understanding why a Pokemon switched:
-- **forced_switch**: Pokemon fainted or ability/effect forced a switch
-- **no_move_options_switch**: Active Pokemon is alive but only switches are legal (all moves disabled, out of PP, or choice-locked to illegal move)
-- **voluntary_switch**: Both moves and switches are legal; the agent chose to switch
-
-#### Reviewing suspicious battles
-
-Trace files include diagnostic warnings for suspicious patterns:
-- Repeated setup/recovery/hazard placement
-- Wall loops (low progress vs defensive Pokemon)
-- Repeated Struggle (out of PP)
-- No effect attacks (when better options existed)
-
-To find suspicious battles:
-```powershell
-# Look in the markdown files for ⚠️ warnings
-Get-ChildItem .\artifacts\battles\dev\*.md | Select-String "⚠️" | head -20
-```
-
-### Archiving results on Windows
-
-To archive all artifacts after a run, use PowerShell's `Compress-Archive`:
-
-```powershell
-Compress-Archive -Path .\artifacts\* -DestinationPath .\artifacts.zip -Force
-```
-
-This is the recommended approach on Windows (do not use Unix `zip` command).
-
-Defaults:
-
-- `-Profile dev` is the default.
-- `-SimCoreMode auto` is the default.
-- `setup` is the only action that runs `npm install`.
-- `build` only runs `npm run build`.
-- `all` uses `Ensure-SimCoreBuilt` and does not reinstall dependencies on each run.
-- dataset and eval use launcher-provided `sim_core` overrides, so the same config can run either natively or through WSL
-
-If you want to keep running the modules manually, the commands below assume native Windows `node`/`npm` are available. If they are not, use the launcher in `auto` mode or force `-SimCoreMode wsl`.
-
-One-time setup:
-
-```powershell
+cd C:\Users\cloud\Downloads\neural\final
 cd .\sim-core
 npm install
 npm run build
 cd ..
 ```
 
-Node tests:
+Set Python imports for manual module runs:
+
+```powershell
+$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+```
+
+For workflows that call sim-core from Python, also provide the simulator command:
+
+```powershell
+$env:NEURAL_SIM_CORE_CWD = (Resolve-Path .\sim-core)
+$serverJs = (Resolve-Path .\sim-core\dist\src\server.js).Path
+$env:NEURAL_SIM_CORE_COMMAND_JSON = ConvertTo-Json @('node', $serverJs) -Compress
+```
+
+The Windows launcher does this environment setup for you.
+
+## Quickstart
+
+Run tests:
+
+```powershell
+.\scripts\run_windows.ps1 -Action test -SimCoreMode native
+```
+
+Run a dev end-to-end simulator loop:
+
+```powershell
+.\scripts\run_windows.ps1 -Action all -Profile dev -SimCoreMode native
+```
+
+That builds sim-core if needed, collects a dev behavior-cloning dataset, trains
+the BC model, and evaluates it.
+
+Run individual steps:
+
+```powershell
+.\scripts\run_windows.ps1 -Action dataset -Profile dev -SimCoreMode native
+.\scripts\run_windows.ps1 -Action train   -Profile dev -SimCoreMode native
+.\scripts\run_windows.ps1 -Action eval    -Profile dev -SimCoreMode native
+```
+
+Start the live eval server:
+
+```powershell
+.\scripts\run_windows.ps1 -Action live-eval -SimCoreMode native
+```
+
+Or start it manually:
+
+```powershell
+$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+$env:NEURAL_SIM_CORE_CWD = (Resolve-Path .\sim-core)
+$serverJs = (Resolve-Path .\sim-core\dist\src\server.js).Path
+$env:NEURAL_SIM_CORE_COMMAND_JSON = ConvertTo-Json @('node', $serverJs) -Compress
+& $py -m neural.live_eval_server
+```
+
+By default the HTTP server binds to `127.0.0.1:8765`.
+
+## Launcher Actions
+
+The main launcher is `scripts/run_windows.ps1`. It supports native Windows
+Node/npm, WSL, or automatic selection:
+
+```powershell
+.\scripts\run_windows.ps1 -Action test -SimCoreMode auto
+.\scripts\run_windows.ps1 -Action test -SimCoreMode native
+.\scripts\run_windows.ps1 -Action test -SimCoreMode wsl
+```
+
+Common actions:
+
+```powershell
+setup
+build
+test
+dataset
+train
+ppo
+eval
+improve
+trace-eval
+collect-selfplay
+compare-checkpoints
+fetch-replays
+parse-replays
+build-replay-value-dataset
+build-replay-policy-dataset
+train-replay-value
+build-live-private-value-dataset
+train-live-private-value
+build-action-rank-dataset
+train-action-ranker
+build-action-value-dataset
+train-action-value-ranker
+compare-action-rankers
+analyze
+analyze-state
+analyze-rollout-actions
+analyze-action-bias
+analyze-tactical-failures
+test-live-eval
+live-eval
+test-sim-rollout
+server
+all
+```
+
+Profiles:
+
+- `dev`: smaller/default runs for iteration.
+- `full`: larger configured runs.
+
+Default dev configs:
+
+- Dataset/training: `configs/gen9randombattle_bc.dev.windows.yaml`
+- Evaluation: `configs/gen9randombattle_eval.dev.windows.yaml`
+
+Smoke configs are useful when checking plumbing:
+
+```powershell
+.\scripts\run_windows.ps1 -Action dataset -DatasetConfig .\configs\gen9randombattle_bc.smoke.windows.yaml -SimCoreMode native
+.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.smoke.windows.yaml -SimCoreMode native
+```
+
+Large eval configs:
+
+```powershell
+.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval500.yaml -SimCoreMode native
+.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval500-stable.yaml -SimCoreMode native
+.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval1000.yaml -SimCoreMode native
+.\scripts\run_windows.ps1 -Action eval -EvalConfig .\configs\gen9randombattle_eval.windows.eval1000-stable.yaml -SimCoreMode native
+```
+
+The stable variants use fewer parallel environments and longer timeouts.
+
+## Architecture
+
+The system has two runtimes:
+
+- Python is the parent process. It owns training, evaluation, replay parsing,
+  model loading, live eval, and analysis.
+- Node/TypeScript owns the local Pokemon Showdown simulation and damage RPC.
+
+Python talks to sim-core over newline-delimited JSON on stdio using
+`neural.env_client.SimCoreClient`. sim-core supports:
+
+- `create_env`
+- `reset`
+- `step`
+- `close_env`
+- `agent_action` for `random` and `heuristic`
+- `damage_estimate`
+- `batch`
+- `ping`
+
+The simulator exposes player-legal views. Opponent hidden information is not
+included in `views.p1` or `views.p2`; live-private features only use the user's
+own request payload plus public battle log and randbats beliefs.
+
+## Action Space
+
+The fixed policy head has 13 indices:
+
+- `0-3`: moves 1-4
+- `4-7`: moves 1-4 with terastallization
+- `8-12`: up to five bench switches
+
+The concrete Showdown command changes with the current request. sim-core stores
+the command in `legal_actions.actions[index].choice` and legality in
+`legal_actions.mask[index]`. Illegal actions must be masked before sampling or
+argmax.
+
+Live action rankers are action-conditioned models. They score each legal action
+from a concatenation of live state features and action features, rather than
+only choosing from the fixed policy head.
+
+Current action feature schema:
+
+- Feature version: `legal-action-v3`
+- Feature dimension: `165`
+
+## Model and Feature Families
+
+Several model families coexist. They are intentionally separate because they use
+different feature domains.
+
+### Behavior Cloning Policy
+
+Default checkpoint examples:
+
+- `artifacts/checkpoints/gen9randombattle_bc.dev.pt`
+- `artifacts/checkpoints/gen9randombattle_bc.pt`
+
+Purpose:
+
+- Train from local simulator decisions, usually heuristic-vs-random or related
+  generated datasets.
+- Produce a fixed 13-action policy/value MLP.
+
+Primary modules:
+
+- `neural.build_dataset`
+- `neural.train_bc`
+- `neural.eval`
+- `neural.train_ppo`
+
+### Local Trace Value Model
+
+Default checkpoint:
+
+- `artifacts/checkpoints/gen9randombattle_value.pt`
+
+Purpose:
+
+- Train value predictions from local traced simulator positions.
+
+Primary modules:
+
+- `neural.build_value_dataset`
+- `neural.train_value`
+- `neural.analyze_state`
+
+### Public Replay Value and Policy Models
+
+Default checkpoints:
+
+- `artifacts/checkpoints/gen9randombattle_replay_value.pt`
+- `artifacts/checkpoints/gen9randombattle_replay_policy.pt`
+
+Feature domain:
+
+- `public-replay-events-v1`
+- 31D public event features from protocol logs.
+
+Purpose:
+
+- Learn from saved public Pokemon Showdown replays.
+- Provide a replay-policy prior for live action recommendations.
+- Provide an old public-value fallback path.
+
+Primary modules:
+
+- `neural.replay_fetch`
+- `neural.parse_replay_logs`
+- `neural.build_replay_value_dataset`
+- `neural.build_replay_policy_dataset`
+- `neural.train_replay_value`
+
+### Live Private-Belief Value Model
+
+Current default checkpoint:
+
+- `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
+
+Current feature domain:
+
+- Feature version: `live-private-belief-v2`
+- Feature dimension: `115`
+
+Inputs combine:
+
+- 31D public replay-event features.
+- Own private request/team/move/PP/item/ability/tera/legal-action features.
+- Opponent belief features inferred from public reveals and randbats sets.
+- Tactical state features from public protocol and the private snapshot.
+
+Purpose:
+
+- Score live battle positions from the perspective of the current player.
+- Power `/evaluate` win probability and help action recommendation.
+
+Primary modules:
+
+- `neural.build_live_private_value_dataset`
+- `neural.train_live_private_value`
+- `neural.live_eval_server`
+
+Build and train:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-live-private-value-dataset -SimCoreMode native
+.\scripts\run_windows.ps1 -Action train-live-private-value -SimCoreMode native
+```
+
+### Action Rankers
+
+Current action-rank dataset:
+
+- `data/policy/gen9randombattle_action_rank_v2.npz`
+
+Current action-ranker checkpoint:
+
+- `artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt`
+
+Current action-value dataset:
+
+- `data/policy/gen9randombattle_action_value_rank_v2.npz`
+
+Current action-value ranker checkpoint:
+
+- `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt`
+
+Current action-value ranker metadata:
+
+- `model_type=action-value-ranker`
+- `state_dim=115`
+- `action_dim=165`
+- `input_size=280`
+- `response_method=action_value_ranker`
+
+Purpose:
+
+- Score legal actions with a scalar, action-conditioned model.
+- Prefer the value-delta ranker when available.
+- Fall back to action ranker, policy prior, switch proxy, or rollout diagnostics
+  depending on available checkpoints and request context.
+
+Build and train:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-action-rank-dataset -SimCoreMode native
+.\scripts\run_windows.ps1 -Action train-action-ranker -SimCoreMode native
+.\scripts\run_windows.ps1 -Action build-action-value-dataset -SimCoreMode native
+.\scripts\run_windows.ps1 -Action train-action-value-ranker -SimCoreMode native
+```
+
+Compare rankers:
+
+```powershell
+.\scripts\run_windows.ps1 -Action compare-action-rankers -ReplayId gen9randombattle-2594788118 -Side p1 -SimCoreMode native
+```
+
+## Live Evaluation Server
+
+The live server is `neural.live_eval_server`. It exposes:
+
+- `POST /evaluate`
+
+The request contains:
+
+- `room_id`
+- `url`
+- `player`
+- protocol `log`
+- latest Showdown `request`
+- optional `legal_actions`
+
+The response includes:
+
+- `p1_win_prob`
+- `p2_win_prob`
+- raw scalar `value`
+- ranked `top_actions`
+- selected model/checkpoint metadata
+- feature version/dimension
+- whether private state and opponent beliefs were used
+- action recommendation method
+- damage/rollout diagnostics under `debug`
+
+Smoke-test the live evaluator without HTTP:
+
+```powershell
+.\scripts\run_windows.ps1 -Action test-live-eval -SimCoreMode native
+```
+
+Model selection defaults:
+
+- Value model: `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
+- Replay policy prior: `artifacts/checkpoints/gen9randombattle_replay_policy.pt`
+- Action ranker: `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt` when present, otherwise the available action-ranker fallback.
+
+Useful overrides:
+
+```powershell
+$env:NEURAL_LIVE_MODEL = 'live-private'      # default
+$env:NEURAL_LIVE_MODEL = 'public-replay'     # force old 31D public replay value
+$env:NEURAL_LIVE_VALUE_CHECKPOINT = '.\artifacts\checkpoints\gen9randombattle_live_private_value_v2.pt'
+$env:NEURAL_ACTION_RANKER_CHECKPOINT = '.\artifacts\checkpoints\gen9randombattle_action_value_ranker_v2.pt'
+$env:NEURAL_LIVE_EVAL_PORT = '8765'
+```
+
+Action recommendation weights:
+
+```powershell
+$env:NEURAL_ROLLOUTS_PER_ACTION = '8'
+$env:NEURAL_ROLLOUT_MODE = 'auto'       # auto, exact, approximate
+$env:NEURAL_OPPONENT_POLICY = 'uniform'
+$env:NEURAL_ROLLOUT_WEIGHT = '0.75'
+$env:NEURAL_RANKER_WEIGHT = '0.20'
+$env:NEURAL_POLICY_WEIGHT = '0.05'
+```
+
+`NEURAL_ROLLOUT_MODE=auto` uses exact sim rollouts only when enough replay seed
+information is available. Otherwise it uses approximate rollout/action
+diagnostics.
+
+### Strict Live Eval Startup
+
+Set strict mode when you want startup to fail instead of silently using stale or
+fallback pieces:
+
+```powershell
+$env:NEURAL_STRICT_LIVE_EVAL = '1'
+.\scripts\run_windows.ps1 -Action live-eval -SimCoreMode native
+```
+
+Strict mode refuses to start unless:
+
+- The selected live-private value checkpoint exists.
+- Its `feature_version` is exactly `live-private-belief-v2`.
+- The selected action-value ranker exists.
+- The ranker's `input_size` equals `state_dim + action_dim`.
+- The ranker's `action_dim` equals the current `ACTION_FEATURE_DIM`.
+- The ranker's `state_dim` equals the current `LIVE_PRIVATE_FEATURE_DIM`.
+- sim-core is reachable through `NEURAL_SIM_CORE_COMMAND_JSON` and
+  `NEURAL_SIM_CORE_CWD`.
+- The Smogon damage smoke test returns `damage_method=smogon_calc`.
+- No `heuristic_fallback` appears during startup smoke diagnostics.
+
+Startup diagnostics print selected checkpoint paths, mtimes, sizes, feature
+versions, dimensions, and healthcheck results.
+
+Run diagnostics without keeping the HTTP server open:
+
+```powershell
+$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+$env:NEURAL_SIM_CORE_CWD = (Resolve-Path .\sim-core)
+$serverJs = (Resolve-Path .\sim-core\dist\src\server.js).Path
+$env:NEURAL_SIM_CORE_COMMAND_JSON = ConvertTo-Json @('node', $serverJs) -Compress
+& $py -m neural.live_eval_healthcheck
+```
+
+## Replay Pipeline
+
+The replay tooling targets public saved replays from
+`https://replay.pokemonshowdown.com`. It does not collect private replays or join
+live rooms.
+
+Fetch replays:
+
+```powershell
+.\scripts\run_windows.ps1 -Action fetch-replays -Format gen9randombattle -MaxReplays 1000 -DelaySec 0.5 -SimCoreMode native
+```
+
+Parse protocol logs:
+
+```powershell
+.\scripts\run_windows.ps1 -Action parse-replays -Format gen9randombattle -SimCoreMode native
+```
+
+Build public replay value/policy datasets:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-replay-value-dataset -Format gen9randombattle -SimCoreMode native
+.\scripts\run_windows.ps1 -Action build-replay-policy-dataset -Format gen9randombattle -SimCoreMode native
+```
+
+Train replay value model:
+
+```powershell
+.\scripts\run_windows.ps1 -Action train-replay-value -Format gen9randombattle -SimCoreMode native
+```
+
+Compare the public replay value path with the live-private path on one replay:
+
+```powershell
+.\scripts\run_windows.ps1 -Action compare-replay-evals -ReplayId gen9randombattle-2594788118 -Side p1 -SimCoreMode native
+```
+
+Common outputs:
+
+- `data/replays/raw/<format>/`
+- `data/replays/raw/<format>/metadata.jsonl`
+- `data/replays/processed/<format>_trajectories.jsonl.gz`
+- `data/replays/processed/<format>_public_policy.jsonl.gz`
+- `data/value/<format>_public_replay_value.npz`
+- `artifacts/replays/fetch_report.json`
+- `artifacts/replays/parse_report.json`
+- `artifacts/analysis/*_dataset_report.json`
+
+## Simulator Dataset, Training, and Evaluation
+
+Collect local simulator data:
+
+```powershell
+.\scripts\run_windows.ps1 -Action dataset -Profile dev -SimCoreMode native
+```
+
+Train behavior cloning:
+
+```powershell
+.\scripts\run_windows.ps1 -Action train -Profile dev -SimCoreMode native
+```
+
+Evaluate:
+
+```powershell
+.\scripts\run_windows.ps1 -Action eval -Profile dev -SimCoreMode native
+```
+
+Fine-tune with PPO:
+
+```powershell
+.\scripts\run_windows.ps1 -Action ppo -Profile dev -SimCoreMode native
+```
+
+Run the bounded improvement loop:
+
+```powershell
+.\scripts\run_windows.ps1 -Action improve -Profile dev -SimCoreMode native
+```
+
+Collect self-play:
+
+```powershell
+.\scripts\run_windows.ps1 -Action collect-selfplay -Profile dev -SimCoreMode native
+```
+
+The improvement loop appends data, resumes BC when configured, optionally runs
+PPO, evaluates, and promotes a best checkpoint only when metrics improve.
+
+## Traces and Analysis
+
+Generate traced eval battles:
+
+```powershell
+.\scripts\run_windows.ps1 -Action trace-eval -Profile dev -SimCoreMode native
+```
+
+Typical outputs:
+
+- `artifacts/battles/dev/battle_*.json`
+- `artifacts/battles/dev/battle_*.md`
+- `artifacts/battles/dev/battle_*.showdown.log`
+
+Analyze decision categories:
+
+```powershell
+.\scripts\run_windows.ps1 -Action analyze -DatasetPath .\data\raw\gen9randombattle_bc.dev.jsonl.gz
+```
+
+Train and inspect a local trace value model:
+
+```powershell
+.\scripts\run_windows.ps1 -Action build-value-dataset -TraceDir .\artifacts\battles\dev
+.\scripts\run_windows.ps1 -Action train-value -DatasetPath .\data\value\gen9randombattle_value.npz
+.\scripts\run_windows.ps1 -Action analyze-state -TracePath .\artifacts\battles\dev\battle_0.json -StepIndex 10 -ValueCheckpoint .\artifacts\checkpoints\gen9randombattle_value.pt
+```
+
+Analyze rollout/action estimates for a replay:
+
+```powershell
+.\scripts\run_windows.ps1 -Action analyze-rollout-actions -ReplayPath .\data\replays\raw\gen9randombattle\gen9randombattle-2594788118.log -Side p1 -RolloutMode approximate
+```
+
+Useful analysis modules:
+
+- `neural.analyze_decisions`
+- `neural.analyze_state`
+- `neural.analyze_rollout_actions`
+- `neural.analyze_action_bias`
+- `neural.analyze_tactical_failures`
+- `neural.compare_checkpoints`
+- `neural.compare_replay_evals`
+- `neural.compare_value_models`
+- `neural.compare_action_rankers`
+
+## Damage Engine
+
+Damage estimates are backed by `@smogon/calc` through sim-core when possible.
+The Python `damage_engine` can also spawn the built Node damage module directly.
+
+Healthcheck:
+
+```powershell
+$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+& $py -m neural.damage_engine --json
+```
+
+Strict live eval requires the startup smoke test to return
+`damage_method=smogon_calc`; heuristic fallback is treated as a startup failure
+when `NEURAL_STRICT_LIVE_EVAL=1`.
+
+## Testing
+
+Run all tests through the launcher:
+
+```powershell
+.\scripts\run_windows.ps1 -Action test -SimCoreMode native
+```
+
+Manual test commands:
 
 ```powershell
 cd .\sim-core
 npm test
 cd ..
-```
 
-Python tests:
-
-```powershell
 $py = 'D:\Anaconda\envs\neuralgpu\python.exe'
 $env:PYTHONPATH = (Resolve-Path .\trainer\src)
-& $py -m unittest discover -s .\trainer\tests
+& $py -m pytest .\trainer\tests -q
 ```
 
-Dataset build:
+Useful focused tests:
 
 ```powershell
-$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
-$env:PYTHONPATH = (Resolve-Path .\trainer\src)
-& $py -m neural.build_dataset --config .\configs\gen9randombattle_bc.dev.windows.yaml
+& $py -m pytest .\trainer\tests\test_live_private_value.py -q
+& $py -m pytest .\trainer\tests\test_action_ranker.py -q
+& $py -m pytest .\trainer\tests\test_sim_rollout.py -q
 ```
 
-Behavior cloning train:
+## Important Artifacts
+
+Frequently used checkpoints:
+
+- `artifacts/checkpoints/gen9randombattle_bc.dev.pt`
+- `artifacts/checkpoints/gen9randombattle_bc.pt`
+- `artifacts/checkpoints/gen9randombattle_replay_policy.pt`
+- `artifacts/checkpoints/gen9randombattle_replay_value.pt`
+- `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
+- `artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt`
+- `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt`
+
+Frequently used datasets:
+
+- `data/raw/gen9randombattle_bc.dev.jsonl.gz`
+- `data/shards/gen9randombattle_bc.dev.npz`
+- `data/replays/processed/gen9randombattle_trajectories.jsonl.gz`
+- `data/value/gen9randombattle_live_private_value_v2.npz`
+- `data/policy/gen9randombattle_action_rank_v2.npz`
+- `data/policy/gen9randombattle_action_value_rank_v2.npz`
+
+Reports and diagnostics:
+
+- `artifacts/eval/*.json`
+- `artifacts/latency/*.json`
+- `artifacts/analysis/*.json`
+- `artifacts/analysis/*.md`
+- `artifacts/replays/*.json`
+- `artifacts/improve/**`
+- `artifacts/live_eval_server.log`
+- `artifacts/live_eval_server.err.log`
+
+## Environment Variables
+
+Core runtime:
+
+- `PYTHONPATH`: should include `trainer/src`.
+- `NEURAL_SIM_CORE_CWD`: working directory for the sim-core subprocess.
+- `NEURAL_SIM_CORE_COMMAND_JSON`: JSON argv list used to start sim-core.
+
+Live eval:
+
+- `NEURAL_LIVE_EVAL_PORT`: defaults to `8765`.
+- `NEURAL_LIVE_MODEL`: `live-private` or `public-replay`.
+- `NEURAL_LIVE_VALUE_CHECKPOINT`: override selected value checkpoint.
+- `NEURAL_ACTION_RANKER_CHECKPOINT`: override selected action ranker.
+- `NEURAL_STRICT_LIVE_EVAL`: set to `1` for strict startup validation.
+- `NEURAL_LIVE_CORS_ORIGINS`: comma-separated CORS origins.
+- `NEURAL_LIVE_CORS_ORIGIN_REGEX`: CORS regex override.
+
+Action recommendation:
+
+- `NEURAL_ROLLOUTS_PER_ACTION`
+- `NEURAL_ROLLOUT_MODE`
+- `NEURAL_OPPONENT_POLICY`
+- `NEURAL_ROLLOUT_WEIGHT`
+- `NEURAL_RANKER_WEIGHT`
+- `NEURAL_POLICY_WEIGHT`
+
+sim-core tracing:
+
+- `SIM_CORE_TRACE_RPC`
+- `SIM_CORE_TRACE_SLOW_MS`
+
+## Troubleshooting
+
+Port already in use:
 
 ```powershell
-$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
-$env:PYTHONPATH = (Resolve-Path .\trainer\src)
-& $py -m neural.train_bc --config .\configs\gen9randombattle_bc.dev.windows.yaml
+netstat -ano | findstr :8765
+Stop-Process -Id <PID> -Force
 ```
 
-Evaluation:
+sim-core is not reachable:
 
-```powershell
-$py = 'D:\Anaconda\envs\neuralgpu\python.exe'
-$env:PYTHONPATH = (Resolve-Path .\trainer\src)
-& $py -m neural.eval --config .\configs\gen9randombattle_eval.dev.windows.yaml
-```
+- Make sure `sim-core/dist/src/server.js` exists.
+- Run `npm run build` in `sim-core`.
+- Confirm `NEURAL_SIM_CORE_CWD` points to `.\sim-core`.
+- Confirm `NEURAL_SIM_CORE_COMMAND_JSON` contains a valid JSON argv list.
 
-Latency reports are written to `artifacts/latency/`. Each report includes:
+Strict live eval fails:
 
-- overall model inference latency
-- batch model inference latency
-- RPC round-trip latency
-- server queue wait inside the Node process
-- server execution time inside the simulator
-- transport overhead across the Python <-> `sim-core` boundary
-- slowest battles and per-battle timing breakdowns
-- timeout diagnostics, retry counts, and heartbeat counts
+- Read the startup diagnostics JSON first; it prints selected paths, mtimes,
+  dimensions, feature versions, and smoke-test results.
+- Confirm the value checkpoint is v2:
+  `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
+- Confirm the action-value ranker is current:
+  `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt`
+- Rebuild/retrain stale datasets or rankers if feature dimensions changed.
 
-Runtime behavior:
+Damage falls back to heuristic:
 
-- dataset and eval log one start line, periodic completion lines, timeout/retry lines, and one done line
-- all output to stdout is single-line (no pretty-printed JSON) to prevent PowerShell continuation prompt corruption
-- final summaries print in compact format: `phase done | metric1=value1 metric2=value2 ...`
-- full JSON data is written to artifact files only
-- a heartbeat is printed if no battle completes for `15s`
-- when a simulator timeout occurs, eval prints one `eval timeout detail` line and writes compact per-timeout diagnostics to the eval and latency reports
-- dataset and eval use compact `p1`-only simulator responses for faster JSON transport
-- `improve` writes one cycle report per cycle under `artifacts/improve/.../reports/`
-- dev profile uses smaller runs and multi-env collection/evaluation by default
-- the Windows launcher prefers native `sim-core` and falls back to WSL only when needed
+- Rebuild sim-core.
+- Check that `@smogon/calc` is installed under `sim-core/node_modules`.
+- Run `& $py -m neural.damage_engine --json` after setting `PYTHONPATH`.
+- In strict live eval, any startup `heuristic_fallback` is a hard failure.
 
-Timeout diagnostics include the timed-out RPC id/type, active battle numbers, env ids, step/retry counts, recent successful RPC timings, recent `sim-core` trace lines, and compact battle state summaries. The `sim-core` trace is captured on stderr by the Python client and only surfaced in timeout diagnostics, so normal stdout stays compact.
+High-parallel eval timeouts:
 
-## Performance tuning and known issues
+- Prefer `*-stable.yaml` eval configs for long runs.
+- Reduce `runtime.num_envs`.
+- Increase `runtime.timeouts_sec.step` and `runtime.timeouts_sec.batch`.
+- Inspect `artifacts/latency/*.json` for queue wait, server time, transport
+  overhead, retries, and timeout diagnostics.
 
-### Timeout cascades with high parallelism
+PowerShell output looks strange:
 
-When running large evals (500+) with 8 parallel environments, sim-core may experience event loop congestion around 40-50 battles, causing simultaneous timeouts across the entire batch. This is due to:
-- Accumulation of state in Node.js process memory
-- Event loop backpressure when handling 8 concurrent battle streams
-- RPC batch queue saturation
+- Most Python modules intentionally print compact single-line progress and write
+  full JSON/Markdown reports to artifacts. Prefer the report files for detailed
+  inspection.
 
-**Root cause identified and fixed:**
-- Memory leak in latency event accumulation in Python client (now drained after each close_slots)
-- Events were not being cleared when environments closed, causing unbounded growth in `_latency_events` list
-- This caused Python process memory bloat which eventually slowed down RPC handling
+## Current Limitations
 
-**Fix applied:**
-- `close_slots()` now drains latency events immediately after closing environments
-- `eval.py` and `build_dataset.py` drain remaining events before exiting
-- This prevents memory accumulation from growing unbounded
-
-**Mitigation strategies:**
-1. **Use `-stable` eval configs** (4 envs, timeout=30/60s) for production runs - memory-safe and proven stable up to 1000 battles
-2. **Reduce `num_envs`** in config from 8 to 4 or 2 for better stability at the cost of throughput
-3. **Increase timeouts** in config `runtime.timeouts_sec`: raise `step` from 20s to 25-30s, `batch` from 45s to 60s
-4. **Diagnostic tool** available: run `python diagnose_memory.py` to test memory accumulation (requires 100 cycles, ~5-10 min)
-
-### Recommended tuning parameters
-
-For your hardware configuration, tuning parameters in JSON/YAML configs:
-
-```json
-"runtime": {
-  "num_envs": 4,                    // Reduce from 8 if timeouts occur
-  "heartbeat_interval_sec": 15,     // Print progress every 15s of inactivity
-  "retry_attempts_per_battle": 2,   // Retry individual battles up to 2 times
-  "timeouts_sec": {
-    "step": 25,                     // Increase from 20 for large evals
-    "batch": 60,                    // Increase from 45 for large evals
-    "reset": 45,
-    "create_env": 15,
-    "close_env": 5
-  }
-}
-```
-
-### Future improvements
-
-To address timeout cascades at the source, consider:
-1. **Sim-core memory management**: Implement periodic garbage collection or environment pool refresh
-2. **Adaptive batching**: Reduce batch size if timeouts detected, increase if time permits
-3. **Request queue management**: Add backpressure handling in env_client.py
-4. **Process lifecycle**: Restart sim-core process every N battles to reset accumulated state
-5. **Profiling**: Enable Node.js heap snapshots to identify memory leaks in sim-core
+- Exact branch search is limited by whether a trace has enough deterministic
+  replay seed/state information. Without that, live recommendations use
+  approximate rollouts and diagnostics.
+- Public replay data is biased toward battles that players saved or uploaded.
+- Replay-derived public features and live-private features are separate feature
+  domains. Do not swap checkpoints across them unless the input dimensions and
+  feature versions match.
+- Action recommendations are model/search diagnostics, not hardcoded bans. The
+  code should not forbid resisted attacks, immunities, setup, switches, or
+  terastallization by rule; those should be learned or scored by models/search.
