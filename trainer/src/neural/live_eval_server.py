@@ -3,6 +3,7 @@ import os
 import socket
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -103,6 +104,11 @@ def _env_cors_origin_regex() -> str:
     return os.environ.get("NEURAL_LIVE_CORS_ORIGIN_REGEX", DEFAULT_CORS_ORIGIN_REGEX).strip()
 
 
+def _env_flag(name: str) -> bool:
+    value = os.environ.get(name, "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -188,6 +194,64 @@ def _selected_action_ranker_path() -> Optional[str]:
         return f"unavailable:{type(exc).__name__}:{exc}"
 
 
+def _checkpoint_summary(path: Optional[Path]) -> Dict[str, Any]:
+    summary: Dict[str, Any] = {
+        "path": str(path) if path is not None else None,
+        "exists": bool(path is not None and path.exists()),
+    }
+    if path is None or not path.exists():
+        return summary
+
+    try:
+        stat = path.stat()
+        summary.update(
+            {
+                "size_bytes": stat.st_size,
+                "mtime_epoch": stat.st_mtime,
+                "mtime_iso": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
+            }
+        )
+    except OSError as exc:
+        summary["stat_error"] = f"{type(exc).__name__}: {exc}"
+
+    try:
+        checkpoint = torch_load(path, torch.device("cpu"))
+    except Exception as exc:
+        summary["load_error"] = f"{type(exc).__name__}: {exc}"
+        return summary
+
+    if isinstance(checkpoint, dict):
+        metadata_keys = (
+            "model_type",
+            "source",
+            "checkpoint_type",
+            "training_objective",
+            "input_size",
+            "hidden_sizes",
+            "action_size",
+            "feature_version",
+            "state_dim",
+            "action_dim",
+            "action_feature_version",
+            "state_feature_version",
+            "response_method",
+            "saved_at",
+            "epoch",
+            "global_step",
+        )
+        summary["metadata"] = {key: checkpoint.get(key) for key in metadata_keys if key in checkpoint}
+    else:
+        summary["metadata"] = {"checkpoint_type": type(checkpoint).__name__}
+    return summary
+
+
+def _selected_action_ranker_checkpoint_path() -> Optional[Path]:
+    selected = _selected_action_ranker_path()
+    if not selected or selected.startswith("unavailable:"):
+        return None
+    return Path(selected)
+
+
 def _port_owner_lines(port: int) -> List[str]:
     try:
         proc = subprocess.run(
@@ -264,6 +328,7 @@ def _sim_core_damage_rpc_status() -> Dict[str, Any]:
 
 def live_eval_diagnostics(*, check_rpc: bool = True, check_damage: bool = True, check_port: bool = False, port: int = 8765) -> Dict[str, Any]:
     value_checkpoint = _selected_value_checkpoint_path()
+    action_ranker_checkpoint = _selected_action_ranker_checkpoint_path()
     diagnostics: Dict[str, Any] = {
         "python_executable": sys.executable,
         "sys_path_first_entries": sys.path[:8],
@@ -279,6 +344,11 @@ def live_eval_diagnostics(*, check_rpc: bool = True, check_damage: bool = True, 
             "policy_checkpoint_exists": REPLAY_POLICY_MODEL_PATH.exists(),
             "action_ranker_checkpoint": _selected_action_ranker_path(),
         },
+        "selected_checkpoints": {
+            "value": _checkpoint_summary(value_checkpoint),
+            "policy": _checkpoint_summary(REPLAY_POLICY_MODEL_PATH),
+            "action_ranker": _checkpoint_summary(action_ranker_checkpoint),
+        },
         "features": {
             "action_feature_dim": ACTION_FEATURE_DIM,
             "live_private_feature_version": LIVE_PRIVATE_FEATURE_VERSION,
@@ -290,7 +360,9 @@ def live_eval_diagnostics(*, check_rpc: bool = True, check_damage: bool = True, 
             "NEURAL_SIM_CORE_CWD": os.environ.get("NEURAL_SIM_CORE_CWD"),
             "NEURAL_SIM_CORE_COMMAND_JSON": os.environ.get("NEURAL_SIM_CORE_COMMAND_JSON"),
             "PYTHONPATH": os.environ.get("PYTHONPATH"),
+            "NEURAL_STRICT_LIVE_EVAL": os.environ.get("NEURAL_STRICT_LIVE_EVAL"),
         },
+        "strict_live_eval": {"enabled": _env_flag("NEURAL_STRICT_LIVE_EVAL")},
     }
     if check_rpc:
         diagnostics["sim_core_damage_rpc"] = _sim_core_damage_rpc_status()
@@ -302,10 +374,105 @@ def live_eval_diagnostics(*, check_rpc: bool = True, check_damage: bool = True, 
     return diagnostics
 
 
+def _metadata(summary: Dict[str, Any]) -> Dict[str, Any]:
+    metadata = summary.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def _contains_heuristic_fallback(value: Any) -> bool:
+    if isinstance(value, dict):
+        if value.get("damage_method") == "heuristic_fallback":
+            return True
+        return any(_contains_heuristic_fallback(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_heuristic_fallback(item) for item in value)
+    if isinstance(value, str):
+        return "heuristic_fallback" in value
+    return False
+
+
+def _strict_live_eval_errors(diagnostics: Dict[str, Any]) -> List[str]:
+    checkpoints = diagnostics.get("selected_checkpoints") if isinstance(diagnostics.get("selected_checkpoints"), dict) else {}
+    value_summary = checkpoints.get("value") if isinstance(checkpoints.get("value"), dict) else {}
+    action_summary = checkpoints.get("action_ranker") if isinstance(checkpoints.get("action_ranker"), dict) else {}
+    value_metadata = _metadata(value_summary)
+    action_metadata = _metadata(action_summary)
+    errors: List[str] = []
+
+    if _env_model_mode() != "live-private":
+        errors.append("NEURAL_LIVE_MODEL must select live-private mode when NEURAL_STRICT_LIVE_EVAL=1.")
+    if not value_summary.get("exists"):
+        errors.append(f"Live-private value checkpoint is missing: {value_summary.get('path')}")
+    if value_summary.get("load_error"):
+        errors.append(f"Live-private value checkpoint could not be loaded: {value_summary.get('load_error')}")
+    if value_metadata.get("feature_version") != LIVE_PRIVATE_FEATURE_VERSION:
+        errors.append(
+            f"Live-private value checkpoint feature_version={value_metadata.get('feature_version')!r}; "
+            f"expected {LIVE_PRIVATE_FEATURE_VERSION!r}."
+        )
+
+    if not action_summary.get("exists"):
+        errors.append(f"Action-value ranker checkpoint is missing: {action_summary.get('path')}")
+    if action_summary.get("load_error"):
+        errors.append(f"Action-value ranker checkpoint could not be loaded: {action_summary.get('load_error')}")
+    model_type = str(action_metadata.get("model_type") or "").lower()
+    response_method = str(action_metadata.get("response_method") or "").lower()
+    if model_type != "action-value-ranker" and response_method != "action_value_ranker":
+        errors.append(
+            "Selected action ranker must be an action-value ranker "
+            f"(model_type={action_metadata.get('model_type')!r}, response_method={action_metadata.get('response_method')!r})."
+        )
+    try:
+        input_size = int(action_metadata.get("input_size"))
+        state_dim = int(action_metadata.get("state_dim"))
+        action_dim = int(action_metadata.get("action_dim"))
+        if input_size != state_dim + action_dim:
+            errors.append(f"Action-value ranker input_size={input_size}; expected state_dim + action_dim = {state_dim + action_dim}.")
+        if action_dim != ACTION_FEATURE_DIM:
+            errors.append(f"Action-value ranker action_dim={action_dim}; expected current ACTION_FEATURE_DIM={ACTION_FEATURE_DIM}.")
+        if state_dim != LIVE_PRIVATE_FEATURE_DIM:
+            errors.append(f"Action-value ranker state_dim={state_dim}; expected current LIVE_PRIVATE_FEATURE_DIM={LIVE_PRIVATE_FEATURE_DIM}.")
+    except (TypeError, ValueError):
+        errors.append(
+            "Action-value ranker metadata must include integer input_size, state_dim, and action_dim "
+            f"(metadata={action_metadata})."
+        )
+
+    rpc_status = diagnostics.get("sim_core_damage_rpc") if isinstance(diagnostics.get("sim_core_damage_rpc"), dict) else {}
+    if not rpc_status.get("reachable"):
+        reason = rpc_status.get("reason") or rpc_status.get("exception")
+        errors.append(f"sim-core is not reachable: {reason}")
+    rpc_sample = rpc_status.get("sample") if isinstance(rpc_status.get("sample"), dict) else {}
+    if rpc_sample and rpc_sample.get("damage_method") != "smogon_calc":
+        errors.append(f"sim-core damage RPC returned damage_method={rpc_sample.get('damage_method')!r}; expected 'smogon_calc'.")
+
+    smoke = diagnostics.get("damage_engine_smoke") if isinstance(diagnostics.get("damage_engine_smoke"), dict) else {}
+    smoke_result = smoke.get("result") if isinstance(smoke.get("result"), dict) else {}
+    if smoke_result.get("damage_method") != "smogon_calc":
+        errors.append(f"Smogon damage healthcheck returned damage_method={smoke_result.get('damage_method')!r}; expected 'smogon_calc'.")
+    if _contains_heuristic_fallback(smoke) or _contains_heuristic_fallback(rpc_status):
+        errors.append("Startup smoke test used heuristic_fallback; strict live eval requires Smogon/sim-core damage paths only.")
+
+    return errors
+
+
+def enforce_strict_live_eval_startup(diagnostics: Dict[str, Any]) -> None:
+    if not _env_flag("NEURAL_STRICT_LIVE_EVAL"):
+        return
+    errors = _strict_live_eval_errors(diagnostics)
+    if errors:
+        print("ERROR: NEURAL_STRICT_LIVE_EVAL startup validation failed:", flush=True)
+        for error in errors:
+            print(f"  - {error}", flush=True)
+        raise SystemExit(1)
+    print("NEURAL_STRICT_LIVE_EVAL startup validation passed.", flush=True)
+
+
 def print_startup_diagnostics(*, port: int = 8765) -> Dict[str, Any]:
     diagnostics = live_eval_diagnostics(check_rpc=True, check_damage=True, check_port=True, port=port)
     print("=== neural.live_eval_server startup diagnostics ===", flush=True)
     print(json.dumps(diagnostics, indent=2, default=str), flush=True)
+    enforce_strict_live_eval_startup(diagnostics)
     smoke = diagnostics.get("damage_engine_smoke", {})
     result = smoke.get("result", {}) if isinstance(smoke, dict) else {}
     if not smoke.get("ok"):

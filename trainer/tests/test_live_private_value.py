@@ -8,6 +8,8 @@ import numpy as np
 import torch
 
 from neural.build_live_private_value_dataset import build_live_private_value_dataset
+from neural.action_features import ACTION_FEATURE_DIM
+from neural import live_eval_server
 from neural.live_private_features import (
     FEATURE_DIM,
     FEATURE_NAMES,
@@ -334,6 +336,70 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
                 response = evaluate_with_model(self._payload())
         self.assertEqual(response["model_type"], "public-replay-value")
         self.assertEqual(response["fallback_reason"], "NEURAL_LIVE_MODEL=public-replay")
+
+    def test_strict_live_eval_accepts_current_checkpoint_metadata(self):
+        diagnostics = {
+            "selected_checkpoints": {
+                "value": {
+                    "exists": True,
+                    "path": "value.pt",
+                    "metadata": {"feature_version": FEATURE_VERSION},
+                },
+                "action_ranker": {
+                    "exists": True,
+                    "path": "ranker.pt",
+                    "metadata": {
+                        "model_type": "action-value-ranker",
+                        "response_method": "action_value_ranker",
+                        "input_size": FEATURE_DIM + ACTION_FEATURE_DIM,
+                        "state_dim": FEATURE_DIM,
+                        "action_dim": ACTION_FEATURE_DIM,
+                    },
+                },
+            },
+            "sim_core_damage_rpc": {
+                "reachable": True,
+                "sample": {"damage_method": "smogon_calc"},
+            },
+            "damage_engine_smoke": {
+                "result": {"damage_method": "smogon_calc", "warnings": []},
+            },
+        }
+        with patch.dict("os.environ", {"NEURAL_LIVE_MODEL": "live-private"}, clear=False):
+            self.assertEqual(live_eval_server._strict_live_eval_errors(diagnostics), [])
+
+    def test_strict_live_eval_rejects_stale_action_ranker_dimensions(self):
+        diagnostics = {
+            "selected_checkpoints": {
+                "value": {
+                    "exists": True,
+                    "path": "value.pt",
+                    "metadata": {"feature_version": FEATURE_VERSION},
+                },
+                "action_ranker": {
+                    "exists": True,
+                    "path": "ranker.pt",
+                    "metadata": {
+                        "model_type": "action-value-ranker",
+                        "response_method": "action_value_ranker",
+                        "input_size": FEATURE_DIM + ACTION_FEATURE_DIM,
+                        "state_dim": FEATURE_DIM - 1,
+                        "action_dim": ACTION_FEATURE_DIM,
+                    },
+                },
+            },
+            "sim_core_damage_rpc": {
+                "reachable": True,
+                "sample": {"damage_method": "smogon_calc"},
+            },
+            "damage_engine_smoke": {
+                "result": {"damage_method": "smogon_calc", "warnings": []},
+            },
+        }
+        with patch.dict("os.environ", {"NEURAL_LIVE_MODEL": "live-private"}, clear=False):
+            errors = live_eval_server._strict_live_eval_errors(diagnostics)
+        self.assertTrue(any("state_dim" in error for error in errors))
+        self.assertTrue(any("input_size" in error for error in errors))
 
     def test_no_stale_move_labels_from_previous_active(self):
         payload = self._payload()
