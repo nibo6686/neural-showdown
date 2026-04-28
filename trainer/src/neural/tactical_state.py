@@ -19,6 +19,11 @@ TRACKED_VOLATILES = [
     "protect",
     "trapped",
     "partiallytrapped",
+    "outrage",
+    "rollout",
+    "iceball",
+    "thrash",
+    "petaldance",
 ]
 
 TRACKED_SIDE_CONDITIONS = [
@@ -181,6 +186,57 @@ def _clip(value: Any, low: float = 0.0, high: float = 1.0) -> float:
     return max(low, min(high, number))
 
 
+def _parse_condition(condition: Any) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[str], bool]:
+    text = str(condition or "")
+    fainted = "fnt" in text.lower()
+    status = None
+    for token in ("brn", "par", "psn", "tox", "slp", "frz"):
+        if re.search(rf"(^|\s){token}($|\s)", text):
+            status = token
+            break
+    match = re.search(r"(\d+(?:\.\d+)?)\s*/\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        hp = float(match.group(1))
+        max_hp = float(match.group(2))
+        fraction = hp / max_hp if max_hp > 0 else None
+        return hp, max_hp, _clip(fraction) if fraction is not None else None, status, fainted or hp <= 0
+    percent = re.search(r"(\d+(?:\.\d+)?)%", text)
+    if percent:
+        hp = float(percent.group(1))
+        return hp, 100.0, _clip(hp / 100.0), status, fainted or hp <= 0
+    return None, None, 0.0 if fainted else None, status, fainted
+
+
+def _species_types(species: Any) -> List[str]:
+    by_species = {
+        "kingambit": ["Dark", "Steel"],
+        "wigglytuff": ["Normal", "Fairy"],
+        "charizard": ["Fire", "Flying"],
+        "raichu": ["Electric"],
+        "pikachu": ["Electric"],
+        "kommoo": ["Dragon", "Fighting"],
+        "grimmsnarl": ["Dark", "Fairy"],
+        "banette": ["Ghost"],
+        "toedscruel": ["Ground", "Grass"],
+    }
+    return list(by_species.get(to_id(species), []))
+
+
+def _team_entry(species: str, *, ident: Optional[str] = None, active: bool = False) -> Dict[str, Any]:
+    return {
+        "species": species,
+        "ident": ident,
+        "active": active,
+        "hp_fraction": None,
+        "status": None,
+        "fainted": False,
+        "item": None,
+        "ability": None,
+        "tera_type": None,
+        "terastallized": False,
+    }
+
+
 def _move_type(move_id: str) -> Optional[str]:
     try:
         from .action_features import load_move_metadata
@@ -226,10 +282,32 @@ def _is_pivot_move(move_id: str) -> bool:
 def _empty_side_state() -> Dict[str, Any]:
     return {
         "active": None,
+        "active_ident": None,
         "active_species": None,
+        "active_hp": None,
+        "active_max_hp": None,
+        "active_hp_fraction": None,
+        "active_status": None,
+        "active_fainted": False,
+        "boosts": defaultdict(int),
         "volatiles_by_ident": defaultdict(set),
         "side_conditions": defaultdict(int),
+        "side_condition_started": {},
         "known_abilities": {},
+        "known_team_by_species": {},
+        "fainted_species": set(),
+        "total_team_size": 0,
+        "revealed_moves_by_species": defaultdict(list),
+        "last_move_by_species": {},
+        "move_use_counts_by_species": defaultdict(lambda: defaultdict(int)),
+        "inferred_pp_by_species_move": defaultdict(dict),
+        "exact_pp_by_species_move": defaultdict(dict),
+        "item_known": False,
+        "ability_known": False,
+        "tera_type_known": False,
+        "tera_used": False,
+        "active_tera_type": None,
+        "can_tera": False,
         "damage_events_recent": 0,
     }
 
@@ -259,6 +337,8 @@ class TacticalStateTracker:
         self.move_results: Dict[Tuple[str, str], Dict[str, int]] = defaultdict(_new_move_result)
         self.failed_pairs: set[Tuple[str, str, str]] = set()
         self.recent_events: Deque[Dict[str, Any]] = deque(maxlen=recent_window)
+        self.field_started: Dict[str, int] = {}
+        self.weather_started: Optional[int] = None
         self.same_move_chain: Dict[str, Dict[str, Any]] = {
             "p1": {"move": None, "count": 0, "failed_count": 0},
             "p2": {"move": None, "count": 0, "failed_count": 0},
@@ -282,6 +362,14 @@ class TacticalStateTracker:
                 pass
             self.last_result_by_side = {"p1": _new_move_result(), "p2": _new_move_result()}
             return
+        if command == "teamsize" and len(parts) >= 4:
+            side = parts[2]
+            if side in self.sides:
+                try:
+                    self.sides[side]["total_team_size"] = int(parts[3])
+                except ValueError:
+                    pass
+            return
         if command in ("switch", "drag") and len(parts) >= 4:
             self._handle_switch(parts)
             return
@@ -295,7 +383,18 @@ class TacticalStateTracker:
             self._handle_side_condition(parts)
             return
         if command == "-weather" and len(parts) >= 3:
-            self.weather = _effect_id(parts[2]) or None
+            effect = _effect_id(parts[2])
+            self.weather = effect or None
+            self.weather_started = self.turn if effect else None
+            return
+        if command in ("-status", "-curestatus") and len(parts) >= 4:
+            self._handle_status(parts)
+            return
+        if command in ("-boost", "-unboost", "-setboost", "-clearboost") and len(parts) >= 3:
+            self._handle_boost(command, parts)
+            return
+        if command == "-terastallize" and len(parts) >= 4:
+            self._handle_tera(parts)
             return
         if command in ("-fieldstart", "-fieldend") and len(parts) >= 3:
             self._handle_field(parts)
@@ -310,19 +409,60 @@ class TacticalStateTracker:
         side = _side_from_ident(parts[2])
         if side not in self.sides:
             return
-        self.sides[side]["active"] = parts[2]
-        self.sides[side]["active_species"] = _species_from_ident(parts[3] if len(parts) > 3 else parts[2])
-        self.sides[side]["volatiles_by_ident"][parts[2]].clear()
+        state = self.sides[side]
+        ident = str(parts[2])
+        species = _species_from_ident(parts[3] if len(parts) > 3 else parts[2])
+        hp, max_hp, hp_fraction, status, fainted = _parse_condition(parts[4] if len(parts) > 4 else None)
+        state["active"] = ident
+        state["active_ident"] = ident
+        state["active_species"] = species
+        state["active_hp"] = hp
+        state["active_max_hp"] = max_hp
+        state["active_hp_fraction"] = hp_fraction
+        state["active_status"] = status
+        state["active_fainted"] = fainted
+        state["boosts"] = defaultdict(int)
+        state["volatiles_by_ident"][ident].clear()
+        if species:
+            entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=ident))
+            entry.update(
+                {
+                    "ident": ident,
+                    "active": True,
+                    "hp_fraction": hp_fraction,
+                    "status": status,
+                    "fainted": fainted,
+                }
+            )
+            for other_species, other in state["known_team_by_species"].items():
+                if other_species != species:
+                    other["active"] = False
+            if fainted:
+                state["fainted_species"].add(species)
+            state["total_team_size"] = max(int(state.get("total_team_size", 0) or 0), len(state["known_team_by_species"]))
 
     def _handle_move(self, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2])
         if side not in self.sides:
             return
         move_id = to_id(parts[3])
+        move_name = str(parts[3])
         target = parts[4] if len(parts) > 4 else None
         record = {"side": side, "move": move_id, "target": target, "turn": self.turn}
         self.last_move_by_side[side] = record
         self.last_move_any = record
+        species = self.sides[side].get("active_species") or _species_from_ident(parts[2])
+        if species:
+            revealed = self.sides[side]["revealed_moves_by_species"][species]
+            if move_name not in revealed:
+                revealed.append(move_name)
+            self.sides[side]["last_move_by_species"][species] = move_name
+            self.sides[side]["move_use_counts_by_species"][species][move_id] += 1
+            uses = int(self.sides[side]["move_use_counts_by_species"][species][move_id])
+            self.sides[side]["inferred_pp_by_species_move"][species][move_id] = {
+                "observed_uses": uses,
+                "provenance": "inferred_from_public_usage",
+            }
         chain = self.same_move_chain[side]
         if chain.get("move") == move_id:
             chain["count"] = int(chain.get("count", 0)) + 1
@@ -357,11 +497,14 @@ class TacticalStateTracker:
         conditions = self.sides[side]["side_conditions"]
         if parts[1] == "-sideend":
             conditions.pop(effect, None)
+            self.sides[side]["side_condition_started"].pop(effect, None)
         elif effect in {"spikes", "toxicspikes"}:
             max_layers = 3 if effect == "spikes" else 2
             conditions[effect] = min(max_layers, int(conditions.get(effect, 0)) + 1)
+            self.sides[side]["side_condition_started"].setdefault(effect, self.turn)
         else:
             conditions[effect] = 1
+            self.sides[side]["side_condition_started"].setdefault(effect, self.turn)
 
     def _handle_field(self, parts: Sequence[str]) -> None:
         effect = _effect_id(parts[2])
@@ -372,13 +515,71 @@ class TacticalStateTracker:
         if effect in TRACKED_FIELD_EFFECTS:
             if parts[1] == "-fieldend":
                 self.field_effects.discard(effect)
+                self.field_started.pop(effect, None)
             else:
                 self.field_effects.add(effect)
+                self.field_started.setdefault(effect, self.turn)
+
+    def _handle_status(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        status = None if parts[1] == "-curestatus" else str(parts[3]).lower()
+        state = self.sides[side]
+        state["active_status"] = status
+        species = state.get("active_species") or _species_from_ident(parts[2])
+        if species:
+            entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(parts[2])))
+            entry["status"] = status
+
+    def _handle_boost(self, command: str, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        if command == "-clearboost":
+            self.sides[side]["boosts"] = defaultdict(int)
+            return
+        if len(parts) < 5:
+            return
+        stat = to_id(parts[3])
+        try:
+            amount = int(float(parts[4]))
+        except ValueError:
+            amount = 0
+        boosts = self.sides[side]["boosts"]
+        if command == "-setboost":
+            boosts[stat] = max(-6, min(6, amount))
+        elif command == "-unboost":
+            boosts[stat] = max(-6, int(boosts.get(stat, 0) or 0) - amount)
+        else:
+            before = int(boosts.get(stat, 0) or 0)
+            boosts[stat] = max(-6, min(6, before + amount))
+
+    def _handle_tera(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        tera_type = str(parts[3])
+        state = self.sides[side]
+        state["tera_used"] = True
+        state["active_tera_type"] = tera_type
+        state["tera_type_known"] = True
+        species = state.get("active_species") or _species_from_ident(parts[2])
+        if species:
+            entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(parts[2])))
+            entry["tera_type"] = tera_type
+            entry["terastallized"] = True
 
     def _remember_ability(self, ident: Any, ability: Any) -> None:
         side = _side_from_ident(ident)
         if side in self.sides:
-            self.sides[side]["known_abilities"][str(ident)] = to_id(ability)
+            ability_id = to_id(ability)
+            self.sides[side]["known_abilities"][str(ident)] = ability_id
+            species = self.sides[side].get("active_species") or _species_from_ident(ident)
+            if species:
+                entry = self.sides[side]["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(ident)))
+                entry["ability"] = ability
+                self.sides[side]["ability_known"] = True
 
     def _matching_last_move(self, target: Any, move_hint: Optional[str] = None) -> Optional[Dict[str, Any]]:
         target_text = str(target or "")
@@ -432,6 +633,17 @@ class TacticalStateTracker:
             self._mark_result(record, "super_effective", target)
         elif command == "faint":
             self._mark_result(record, "target_fainted", target)
+            side = _side_from_ident(target)
+            if side in self.sides:
+                species = self.sides[side].get("active_species") or _species_from_ident(target)
+                self.sides[side]["active_fainted"] = True
+                self.sides[side]["active_hp"] = 0.0
+                self.sides[side]["active_hp_fraction"] = 0.0
+                if species:
+                    self.sides[side]["fainted_species"].add(species)
+                    entry = self.sides[side]["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(target)))
+                    entry["fainted"] = True
+                    entry["hp_fraction"] = 0.0
         elif command == "-activate":
             text = "|".join(str(part).lower() for part in parts)
             if "protect" in text:
@@ -449,6 +661,27 @@ class TacticalStateTracker:
             side = _side_from_ident(target)
             if side in self.sides:
                 self.sides[side]["damage_events_recent"] += 1
+                hp, max_hp, hp_fraction, status, fainted = _parse_condition(parts[3] if len(parts) > 3 else None)
+                state = self.sides[side]
+                if hp is not None:
+                    state["active_hp"] = hp
+                if max_hp is not None:
+                    state["active_max_hp"] = max_hp
+                if hp_fraction is not None:
+                    state["active_hp_fraction"] = hp_fraction
+                if status:
+                    state["active_status"] = status
+                state["active_fainted"] = bool(fainted)
+                species = state.get("active_species") or _species_from_ident(target)
+                if species:
+                    entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(target)))
+                    if hp_fraction is not None:
+                        entry["hp_fraction"] = hp_fraction
+                    if status:
+                        entry["status"] = status
+                    entry["fainted"] = bool(fainted)
+                    if fainted:
+                        state["fainted_species"].add(species)
 
     def snapshot(self, perspective_side: str = "p1") -> Dict[str, Any]:
         own = perspective_side if perspective_side in ("p1", "p2") else "p1"
@@ -462,6 +695,10 @@ class TacticalStateTracker:
             "weather": self.weather,
             "terrain": self.terrain,
             "field_effects": sorted(self.field_effects),
+            "field": {"weather": self.weather, "terrain": self.terrain, "effects": sorted(self.field_effects)},
+            "field_durations": self._field_durations(),
+            "recent": list(self.recent_events),
+            "warnings": self._warnings(),
             "recent_events": list(self.recent_events),
             "move_results": {f"{side}:{move}": dict(results) for (side, move), results in self.move_results.items()},
             "same_move_chain": {side: dict(value) for side, value in self.same_move_chain.items()},
@@ -469,17 +706,92 @@ class TacticalStateTracker:
             "failed_pairs": [list(item) for item in sorted(self.failed_pairs)],
         }
 
+    def snapshot_for_side(self, side: str) -> Dict[str, Any]:
+        return self.snapshot(perspective_side=side)
+
+    def _field_durations(self) -> Dict[str, Any]:
+        durations = {}
+        for effect in sorted(self.field_effects):
+            started = int(self.field_started.get(effect, self.turn) or 0)
+            durations[effect] = {
+                "effect": effect,
+                "started_turn": started,
+                "turns_since_started": max(0, int(self.turn) - started),
+            }
+        if self.weather:
+            started = int(self.weather_started if self.weather_started is not None else self.turn)
+            durations["weather"] = {
+                "effect": self.weather,
+                "started_turn": started,
+                "turns_since_started": max(0, int(self.turn) - started),
+            }
+        return durations
+
+    def _warnings(self) -> List[str]:
+        warnings = []
+        for side, state in self.sides.items():
+            for stat, value in (state.get("boosts") or {}).items():
+                if int(value or 0) >= 6:
+                    warnings.append(f"boost_capped:{side}:{stat}")
+        return warnings
+
     def _side_snapshot(self, side: str) -> Dict[str, Any]:
         state = self.sides[side]
         active = state.get("active")
         volatiles = sorted(state["volatiles_by_ident"].get(active, set())) if active else []
+        known_team = [dict(value) for value in state["known_team_by_species"].values()]
+        total_team_size = max(int(state.get("total_team_size", 0) or 0), len(known_team))
+        remaining = sum(1 for mon in known_team if not mon.get("fainted"))
+        side_durations = {}
+        for effect, started in (state.get("side_condition_started") or {}).items():
+            side_durations[effect] = {
+                "effect": effect,
+                "started_turn": int(started),
+                "turns_since_started": max(0, int(self.turn) - int(started)),
+            }
+        revealed = {species: list(moves) for species, moves in state["revealed_moves_by_species"].items()}
+        move_counts = {species: dict(counts) for species, counts in state["move_use_counts_by_species"].items()}
+        inferred_pp = {species: dict(moves) for species, moves in state["inferred_pp_by_species_move"].items()}
+        exact_pp = {species: dict(moves) for species, moves in state["exact_pp_by_species_move"].items()}
+        for mon in known_team:
+            species = mon.get("species")
+            if species:
+                revealed.setdefault(species, [])
+                move_counts.setdefault(species, {})
+                inferred_pp.setdefault(species, {})
+                exact_pp.setdefault(species, {})
         return {
             "side": side,
             "active": active,
+            "active_ident": state.get("active_ident") or active,
             "active_species": state.get("active_species"),
+            "active_hp": state.get("active_hp"),
+            "active_max_hp": state.get("active_max_hp"),
+            "active_hp_fraction": state.get("active_hp_fraction"),
+            "active_status": state.get("active_status"),
+            "status": state.get("active_status"),
+            "active_fainted": bool(state.get("active_fainted")),
+            "boosts": dict(state.get("boosts") or {}),
             "volatiles": volatiles,
             "side_conditions": dict(state["side_conditions"]),
+            "side_condition_durations": side_durations,
             "known_abilities": dict(state["known_abilities"]),
+            "known_team": known_team,
+            "fainted_species": sorted(state.get("fainted_species") or []),
+            "remaining_known_count": remaining,
+            "total_team_size": total_team_size,
+            "unknown_unrevealed_count": max(0, total_team_size - len(known_team)),
+            "revealed_moves_by_species": revealed,
+            "last_move_by_species": dict(state["last_move_by_species"]),
+            "move_use_counts_by_species": move_counts,
+            "inferred_pp_by_species_move": inferred_pp,
+            "exact_pp_by_species_move": exact_pp,
+            "item_known": bool(state.get("item_known")),
+            "ability_known": bool(state.get("ability_known") or state.get("known_abilities")),
+            "tera_type_known": bool(state.get("tera_type_known")),
+            "tera_used": bool(state.get("tera_used")),
+            "active_tera_type": state.get("active_tera_type"),
+            "can_tera": bool(state.get("can_tera")),
             "same_move_chain": dict(self.same_move_chain[side]),
             "last_result": dict(self.last_result_by_side[side]),
             "damage_events_recent": int(state.get("damage_events_recent", 0)),
@@ -780,3 +1092,329 @@ def tactical_report_from_state(tactical_state: Optional[Dict[str, Any]]) -> Dict
         "recent_healed_target_count": sum(1 for event in recent if event.get("result") == "healed_target"),
         "recent_events": recent,
     }
+
+
+def _private_move_key(move):
+    return str(move.get("id") or move.get("name") or "").replace(" ", "").lower()
+
+def snapshot_with_private_state(snapshot, private_state):
+    """Overlay exact live request/private-side data onto a tactical snapshot.
+
+    This keeps live_private_features importing from tactical_state while preserving
+    public/replay snapshot fields.
+    """
+    import copy
+
+    merged = copy.deepcopy(snapshot) if isinstance(snapshot, dict) else {}
+    ps = private_state or {}
+    if isinstance(ps, dict) and isinstance(ps.get("private_state"), dict):
+        ps = ps["private_state"]
+
+    own = merged.setdefault("own", {})
+    team = ps.get("team") or []
+    active = next((m for m in team if m.get("active")), None)
+
+    if ps.get("active_species"):
+        own["active_species"] = ps.get("active_species")
+    elif active:
+        own["active_species"] = active.get("species")
+
+    if active:
+        own["active_ident"] = active.get("ident", own.get("active_ident"))
+        own["active_hp_fraction"] = active.get("hp_fraction", own.get("active_hp_fraction"))
+        own["active_status"] = active.get("status", own.get("active_status"))
+        own["status"] = own.get("active_status")
+        own["active_fainted"] = bool(active.get("fainted", own.get("active_fainted", False)))
+        own["active_tera_type"] = active.get("tera_type", own.get("active_tera_type"))
+        own["item_known"] = bool(active.get("item") or own.get("item_known"))
+        own["ability_known"] = bool(active.get("ability") or active.get("base_ability") or own.get("ability_known"))
+        own["tera_type_known"] = bool(active.get("tera_type") or own.get("tera_type_known"))
+
+    known_team = []
+    for mon in team:
+        species = mon.get("species")
+        if not species:
+            continue
+        known_team.append(
+            {
+                "species": species,
+                "ident": mon.get("ident"),
+                "active": bool(mon.get("active")),
+                "hp_fraction": mon.get("hp_fraction"),
+                "status": mon.get("status"),
+                "fainted": bool(mon.get("fainted")),
+                "item": mon.get("item"),
+                "ability": mon.get("ability") or mon.get("base_ability"),
+                "tera_type": mon.get("tera_type"),
+                "terastallized": bool(mon.get("terastallized")),
+            }
+        )
+    if known_team:
+        own["known_team"] = known_team
+    else:
+        own.setdefault("known_team", [])
+    own["fainted_species"] = [m["species"] for m in own.get("known_team", []) if m.get("fainted")]
+    own["remaining_known_count"] = len([m for m in own.get("known_team", []) if m.get("species") and not m.get("fainted")])
+    own["total_team_size"] = max(int(own.get("total_team_size") or 0), len(own.get("known_team") or []))
+    own["unknown_unrevealed_count"] = max(0, int(own.get("total_team_size") or 0) - len(own.get("known_team") or []))
+
+    revealed = own.setdefault("revealed_moves_by_species", {})
+    exact_pp = own.setdefault("exact_pp_by_species_move", {})
+
+    for mon in team:
+        sp = mon.get("species")
+        if not sp:
+            continue
+        moves = mon.get("moves") or []
+        if moves:
+            revealed[sp] = list(moves)
+
+    active_species = own.get("active_species")
+    if active_species:
+        exact_pp.setdefault(active_species, {})
+        for mv in ps.get("active_moves") or []:
+            key = _private_move_key(mv)
+            if not key:
+                continue
+            exact_pp[active_species][key] = {
+                "pp": mv.get("pp"),
+                "maxpp": mv.get("maxpp"),
+                "provenance": "exact_private_request",
+            }
+
+    own["pp_provenance"] = "exact_private_request" if exact_pp else own.get("pp_provenance", "unknown")
+    own.setdefault("inferred_pp_by_species_move", {})
+    own.setdefault("move_use_counts_by_species", {})
+    own.setdefault("last_move_by_species", {})
+    own.setdefault("item_known", False)
+    own.setdefault("ability_known", False)
+    own.setdefault("tera_type_known", False)
+    own["tera_used"] = bool(ps.get("tera_used", own.get("tera_used", False)))
+    own["can_tera"] = bool(ps.get("can_tera", ps.get("canTerastallize", own.get("can_tera", False))))
+
+    for side_name in ("own", "opponent"):
+        side = merged.setdefault(side_name, {})
+        for key, default in {
+            "active_status": None,
+            "status": None,
+            "known_team": [],
+            "fainted_species": [],
+            "revealed_moves_by_species": {},
+            "last_move_by_species": {},
+            "move_use_counts_by_species": {},
+            "inferred_pp_by_species_move": {},
+            "exact_pp_by_species_move": {},
+            "item_known": False,
+            "ability_known": False,
+            "tera_type_known": False,
+            "tera_used": False,
+            "active_tera_type": None,
+            "can_tera": False,
+        }.items():
+            side.setdefault(key, default)
+        side["status"] = side.get("active_status")
+    merged.setdefault("field_durations", {})
+    merged.setdefault("recent", merged.get("recent_events", []))
+    merged.setdefault("warnings", [])
+
+    return merged
+
+
+def _norm_action_name(action):
+    if not isinstance(action, dict):
+        return ""
+    raw = (
+        action.get("move")
+        or action.get("move_name")
+        or action.get("name")
+        or action.get("label")
+        or action.get("choice")
+        or ""
+    )
+    raw = str(raw)
+    if raw.lower().startswith("move:"):
+        raw = raw.split(":", 1)[1]
+    return raw.strip()
+
+def _norm_id(value):
+    return str(value or "").replace(" ", "").replace("-", "").replace("'", "").lower()
+
+def _snapshot_sides(snapshot, actor_side=None):
+    if not isinstance(snapshot, dict):
+        return {}, {}
+
+    if "own" in snapshot or "opponent" in snapshot:
+        return snapshot.get("own", {}) or {}, snapshot.get("opponent", {}) or {}
+
+    side = actor_side or snapshot.get("side") or "p1"
+    opp = "p2" if side == "p1" else "p1"
+    return snapshot.get(side, {}) or {}, snapshot.get(opp, {}) or {}
+
+def _boost_value(side_state, stat):
+    boosts = side_state.get("boosts") or side_state.get("active_boosts") or {}
+    try:
+        return int(boosts.get(stat, 0))
+    except Exception:
+        return 0
+
+def tactical_action_flags(*args, **kwargs):
+    """Return symbolic tactical flags for an action in a tactical snapshot.
+
+    This compatibility API is used by tests, analyzers, and action scoring. It is
+    intentionally conservative: it flags clear no-op / blocked cases without
+    banning actions globally.
+    """
+    action = kwargs.get("action")
+    snapshot = kwargs.get("snapshot") or kwargs.get("state") or kwargs.get("tactical_state")
+    actor_side = kwargs.get("side") or kwargs.get("actor_side") or kwargs.get("player_side")
+
+    # Accept common positional orders:
+    #   tactical_action_flags(action, snapshot, side)
+    #   tactical_action_flags(snapshot, action, side)
+    if args:
+        if isinstance(args[0], dict) and (
+            "label" in args[0] or "kind" in args[0] or "move" in args[0] or "choice" in args[0]
+        ):
+            action = action or args[0]
+            if len(args) > 1:
+                snapshot = snapshot or args[1]
+        else:
+            snapshot = snapshot or args[0]
+            if len(args) > 1:
+                action = action or args[1]
+        if len(args) > 2 and actor_side is None:
+            actor_side = args[2]
+
+    action = action or {}
+    own, opp = _snapshot_sides(snapshot or {}, actor_side=actor_side)
+
+    flags = []
+    move_name = _norm_action_name(action)
+    move_id = _norm_id(move_name)
+    label = str(action.get("label", ""))
+    private = kwargs.get("private_state") if isinstance(kwargs.get("private_state"), dict) else {}
+
+    kind = str(action.get("kind") or "").lower()
+    if not kind:
+        kind = "move" if label.lower().startswith("move:") or move_name else "unknown"
+
+    warnings = action.get("warnings") or action.get("approximation_warnings") or []
+    for w in warnings:
+        if isinstance(w, str) and w not in flags:
+            flags.append(w)
+
+    if action.get("disabled"):
+        flags.append("disabled_action")
+
+    try:
+        if action.get("pp") is not None and int(action.get("pp")) <= 0:
+            flags.append("exhausted_pp")
+    except Exception:
+        pass
+
+    if kind != "move":
+        return list(dict.fromkeys(flags))
+
+    # Status into already-statused target.
+    status_moves = {
+        "thunderwave": "par",
+        "willowisp": "brn",
+        "toxic": "tox",
+        "spore": "slp",
+        "sleeppowder": "slp",
+        "hypnosis": "slp",
+        "stunspore": "par",
+        "glare": "par",
+    }
+    target_status = (
+        opp.get("active_status")
+        or opp.get("status")
+        or opp.get("condition_status")
+        or ""
+    )
+    if move_id in status_moves and target_status:
+        flags.append("status_into_existing_status")
+
+    # Redundant hazards at max / already active.
+    opp_side_conditions = opp.get("side_conditions") or {}
+    if move_id == "toxicspikes" and int(opp_side_conditions.get("toxicspikes", 0) or 0) >= 2:
+        flags.append("redundant_hazard_max_layers")
+    if move_id == "spikes" and int(opp_side_conditions.get("spikes", 0) or 0) >= 3:
+        flags.append("redundant_hazard_max_layers")
+    if move_id == "stealthrock" and int(opp_side_conditions.get("stealthrock", 0) or 0) >= 1:
+        flags.append("redundant_hazard_max_layers")
+    if move_id == "stickyweb" and int(opp_side_conditions.get("stickyweb", 0) or 0) >= 1:
+        flags.append("redundant_hazard_max_layers")
+
+    # Setup at cap.
+    setup_stats = {
+        "swordsdance": ["atk"],
+        "bulkup": ["atk", "def"],
+        "dragondance": ["atk", "spe"],
+        "calmmind": ["spa", "spd"],
+        "irondefense": ["def"],
+        "nastyplot": ["spa"],
+        "agility": ["spe"],
+        "amnesia": ["spd"],
+        "coil": ["atk", "def", "accuracy"],
+        "curse": ["atk", "def"],
+    }
+    if move_id in setup_stats and all(_boost_value(own, stat) >= 6 for stat in setup_stats[move_id]):
+        flags.append("setup_at_cap")
+
+    # Common known type immunities if action/test supplies type info.
+    move_type = _norm_id(action.get("type") or action.get("move_type") or kwargs.get("move_type") or _move_type(move_id))
+    target_types = [
+        _norm_id(t) for t in (
+            opp.get("active_types")
+            or opp.get("types")
+            or opp.get("target_types")
+            or action.get("target_types")
+            or _species_types(opp.get("active_species"))
+            or []
+        )
+    ]
+    if move_type == "dragon" and "fairy" in target_types:
+        flags.append("known_immunity")
+    if move_type == "poison" and "steel" in target_types:
+        flags.append("known_immunity")
+    if move_type == "psychic" and "dark" in target_types:
+        flags.append("known_immunity")
+    if move_type == "ground" and "flying" in target_types:
+        flags.append("known_immunity")
+    if move_type == "electric" and "ground" in target_types:
+        flags.append("known_immunity")
+    if move_type == "normal" and "ghost" in target_types:
+        flags.append("known_immunity")
+    if move_type == "fighting" and "ghost" in target_types:
+        flags.append("known_immunity")
+
+    move_results = snapshot.get("move_results") if isinstance(snapshot, dict) and isinstance(snapshot.get("move_results"), dict) else {}
+    perspective_side = str((snapshot or {}).get("perspective_side") or actor_side or private.get("player_side") or "p1")
+    result_counts = move_results.get(f"{perspective_side}:{move_id}") if isinstance(move_results.get(f"{perspective_side}:{move_id}"), dict) else {}
+    if int(result_counts.get("immune", 0) or 0) > 0:
+        flags.append("known_immunity")
+        flags.append("repeated_immune_move")
+
+    ability_ids = {to_id(value) for value in (opp.get("known_abilities") or {}).values()} if isinstance(opp.get("known_abilities"), dict) else set()
+    blocked = False
+    if kwargs.get("move_type") and any(ability in ABSORB_ABILITIES_BY_TYPE.get(str(kwargs.get("move_type")), set()) for ability in ability_ids):
+        blocked = True
+    if "goodasgold" in ability_ids and move_id in {"thunderwave", "toxic", "willowisp", "spore", "sleeppowder", "stunspore", "taunt", "encore"}:
+        blocked = True
+    if "soundproof" in ability_ids and move_id in {"hypervoice", "boomburst", "clangingscales", "clangoroussoul", "torchsong"}:
+        blocked = True
+    if "bulletproof" in ability_ids and move_id in {"shadowball", "aurasphere", "sludgebomb", "focusblast", "energyball"}:
+        blocked = True
+    if blocked:
+        flags.append("known_immunity_or_blocked")
+
+    own_abilities = set()
+    for mon in private.get("team", []) if isinstance(private.get("team"), list) else []:
+        if isinstance(mon, dict) and mon.get("active"):
+            own_abilities.add(to_id(mon.get("ability") or mon.get("base_ability")))
+    if "prankster" in own_abilities and move_id in {"thunderwave", "toxic", "willowisp", "stunspore", "taunt", "encore", "spore", "sleeppowder"}:
+        if "dark" in target_types:
+            flags.append("prankster_status_blocked_by_dark")
+
+    return list(dict.fromkeys(flags))

@@ -1,4 +1,8 @@
+import json
 import os
+import socket
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -19,6 +23,10 @@ try:
         _new_recent,
     )
     from neural.checkpoints import torch_load
+    from neural import damage_engine
+    from neural import live_action_recommender as live_action_recommender_module
+    from neural.action_features import ACTION_FEATURE_DIM
+    from neural.env_client import SimCoreClient
     from neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
     from neural.live_action_recommender import recommend_actions
     from neural.live_action_recommender import reset_action_ranker_cache
@@ -43,6 +51,10 @@ except ImportError:
         _new_recent,
     )
     from trainer.src.neural.checkpoints import torch_load
+    from trainer.src.neural import damage_engine
+    from trainer.src.neural import live_action_recommender as live_action_recommender_module
+    from trainer.src.neural.action_features import ACTION_FEATURE_DIM
+    from trainer.src.neural.env_client import SimCoreClient
     from trainer.src.neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
     from trainer.src.neural.live_action_recommender import recommend_actions
     from trainer.src.neural.live_action_recommender import reset_action_ranker_cache
@@ -120,6 +132,201 @@ _value_model = None
 _value_model_metadata: Optional[Dict[str, Any]] = None
 _policy_model = None
 _policy_model_metadata: Optional[Dict[str, Any]] = None
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
+def _git_branch() -> Optional[str]:
+    try:
+        proc = subprocess.run(
+            ["git", "branch", "--show-current"],
+            cwd=str(_repo_root()),
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+        branch = proc.stdout.strip()
+        return branch or None
+    except Exception:
+        return None
+
+
+def _neural_package_path() -> Optional[str]:
+    package = sys.modules.get("neural")
+    return str(getattr(package, "__file__", None) or getattr(package, "__path__", [""])[0] or "") if package else None
+
+
+def _selected_value_checkpoint_path() -> Path:
+    mode = _env_model_mode()
+    if mode == "public-replay":
+        return _env_value_checkpoint(OLD_VALUE_MODEL_PATH)
+    env_override = os.environ.get("NEURAL_LIVE_VALUE_CHECKPOINT", "").strip()
+    if env_override:
+        return Path(env_override)
+    if LIVE_PRIVATE_VALUE_MODEL_V2_PATH != _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_V2_PATH and LIVE_PRIVATE_VALUE_MODEL_V2_PATH.exists():
+        return LIVE_PRIVATE_VALUE_MODEL_V2_PATH
+    if LIVE_PRIVATE_VALUE_MODEL_PATH != _CANONICAL_LIVE_PRIVATE_VALUE_MODEL_PATH:
+        return LIVE_PRIVATE_VALUE_MODEL_PATH
+    return LIVE_PRIVATE_VALUE_MODEL_V2_PATH if LIVE_PRIVATE_VALUE_MODEL_V2_PATH.exists() else LIVE_PRIVATE_VALUE_MODEL_PATH
+
+
+def _selected_action_ranker_path() -> Optional[str]:
+    try:
+        env_path = os.environ.get("NEURAL_ACTION_RANKER_CHECKPOINT", "").strip()
+        if env_path:
+            return env_path
+        value_ranker = getattr(live_action_recommender_module, "DEFAULT_ACTION_VALUE_RANKER_V2_PATH", None)
+        if value_ranker is not None and Path(value_ranker).exists():
+            return str(value_ranker)
+        ranker = getattr(live_action_recommender_module, "DEFAULT_ACTION_RANKER_PATH", None)
+        return str(ranker) if ranker is not None else None
+    except Exception as exc:
+        return f"unavailable:{type(exc).__name__}:{exc}"
+
+
+def _port_owner_lines(port: int) -> List[str]:
+    try:
+        proc = subprocess.run(
+            ["netstat", "-ano"],
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+        needle = f":{port}"
+        return [line.strip() for line in proc.stdout.splitlines() if needle in line]
+    except Exception as exc:
+        return [f"netstat failed: {type(exc).__name__}: {exc}"]
+
+
+def _check_port_available(host: str, port: int) -> Tuple[bool, List[str]]:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind((host, port))
+            return True, []
+        except OSError:
+            return False, _port_owner_lines(port)
+
+
+def _sample_damage_result() -> Dict[str, Any]:
+    try:
+        result = damage_engine.estimate_damage(
+            attacker={"species": "Banette", "level": 80},
+            defender={"species": "Kingambit", "level": 80, "hp_fraction": 1.0},
+            move="Gunk Shot",
+        )
+        return {"ok": result.get("damage_method") == "smogon_calc" and bool(result.get("immune")) and result.get("type_effectiveness") == 0, "result": result}
+    except Exception as exc:
+        return {"ok": False, "exception": {"type": type(exc).__name__, "message": str(exc)}}
+
+
+def _sim_core_damage_rpc_status() -> Dict[str, Any]:
+    cwd = os.environ.get("NEURAL_SIM_CORE_CWD", "").strip()
+    command_json = os.environ.get("NEURAL_SIM_CORE_COMMAND_JSON", "").strip()
+    status: Dict[str, Any] = {
+        "configured": bool(cwd and command_json),
+        "cwd": cwd or None,
+        "command_json": command_json or None,
+    }
+    if not cwd or not command_json:
+        status["reachable"] = False
+        status["reason"] = "NEURAL_SIM_CORE_CWD or NEURAL_SIM_CORE_COMMAND_JSON is not set."
+        return status
+    try:
+        command = json.loads(command_json)
+        if not isinstance(command, list) or not all(isinstance(item, str) for item in command):
+            raise ValueError("NEURAL_SIM_CORE_COMMAND_JSON must decode to a list of strings.")
+        with SimCoreClient(command, cwd) as client:
+            result = client.damage_estimate(
+                {
+                    "attacker": {"species": "Banette", "level": 80},
+                    "defender": {"species": "Kingambit", "level": 80, "hp_fraction": 1.0},
+                    "move": "Gunk Shot",
+                    "use_tera": False,
+                },
+                timeout_sec=15,
+            )
+        status["reachable"] = True
+        status["sample"] = result
+        status["ok"] = result.get("damage_method") == "smogon_calc" and bool(result.get("immune")) and result.get("type_effectiveness") == 0
+    except Exception as exc:
+        status["reachable"] = False
+        status["exception"] = {"type": type(exc).__name__, "message": str(exc)}
+    return status
+
+
+def live_eval_diagnostics(*, check_rpc: bool = True, check_damage: bool = True, check_port: bool = False, port: int = 8765) -> Dict[str, Any]:
+    value_checkpoint = _selected_value_checkpoint_path()
+    diagnostics: Dict[str, Any] = {
+        "python_executable": sys.executable,
+        "sys_path_first_entries": sys.path[:8],
+        "neural_package_path": _neural_package_path(),
+        "live_eval_server_file": __file__,
+        "damage_engine_file": getattr(damage_engine, "__file__", None),
+        "git_branch": _git_branch(),
+        "model": {
+            "mode": os.environ.get("NEURAL_LIVE_MODEL", "live-private"),
+            "value_checkpoint": str(value_checkpoint),
+            "value_checkpoint_exists": value_checkpoint.exists(),
+            "policy_checkpoint": str(REPLAY_POLICY_MODEL_PATH),
+            "policy_checkpoint_exists": REPLAY_POLICY_MODEL_PATH.exists(),
+            "action_ranker_checkpoint": _selected_action_ranker_path(),
+        },
+        "features": {
+            "action_feature_dim": ACTION_FEATURE_DIM,
+            "live_private_feature_version": LIVE_PRIVATE_FEATURE_VERSION,
+            "live_private_feature_dim": LIVE_PRIVATE_FEATURE_DIM,
+            "public_feature_version": FEATURE_VERSION,
+            "public_feature_dim": INPUT_SIZE,
+        },
+        "environment": {
+            "NEURAL_SIM_CORE_CWD": os.environ.get("NEURAL_SIM_CORE_CWD"),
+            "NEURAL_SIM_CORE_COMMAND_JSON": os.environ.get("NEURAL_SIM_CORE_COMMAND_JSON"),
+            "PYTHONPATH": os.environ.get("PYTHONPATH"),
+        },
+    }
+    if check_rpc:
+        diagnostics["sim_core_damage_rpc"] = _sim_core_damage_rpc_status()
+    if check_damage:
+        diagnostics["damage_engine_smoke"] = _sample_damage_result()
+    if check_port:
+        available, owners = _check_port_available("127.0.0.1", port)
+        diagnostics["port"] = {"host": "127.0.0.1", "port": port, "available": available, "owners": owners}
+    return diagnostics
+
+
+def print_startup_diagnostics(*, port: int = 8765) -> Dict[str, Any]:
+    diagnostics = live_eval_diagnostics(check_rpc=True, check_damage=True, check_port=True, port=port)
+    print("=== neural.live_eval_server startup diagnostics ===", flush=True)
+    print(json.dumps(diagnostics, indent=2, default=str), flush=True)
+    smoke = diagnostics.get("damage_engine_smoke", {})
+    result = smoke.get("result", {}) if isinstance(smoke, dict) else {}
+    if not smoke.get("ok"):
+        print(
+            "WARNING: damage_engine startup smoke did not return smogon_calc immune=true type_effectiveness=0.",
+            flush=True,
+        )
+        print(
+            json.dumps(
+                {
+                    "damage_method": result.get("damage_method"),
+                    "warnings": result.get("warnings"),
+                    "exception": smoke.get("exception"),
+                    "sim_core_config": diagnostics.get("environment"),
+                },
+                indent=2,
+                default=str,
+            ),
+            flush=True,
+        )
+    return diagnostics
 
 
 def _env_model_mode() -> str:
@@ -590,4 +797,17 @@ def evaluate(payload: EvalRequest):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8765)
+    port = int(os.environ.get("NEURAL_LIVE_EVAL_PORT", "8765"))
+    diagnostics = print_startup_diagnostics(port=port)
+    port_info = diagnostics.get("port", {}) if isinstance(diagnostics.get("port"), dict) else {}
+    if port_info and not port_info.get("available", True):
+        print(f"ERROR: 127.0.0.1:{port} is already in use.", flush=True)
+        owners = port_info.get("owners") or []
+        if owners:
+            print("Existing process line(s) from netstat:", flush=True)
+            for line in owners:
+                print(f"  {line}", flush=True)
+        print("To inspect on Windows: netstat -ano | findstr :8765", flush=True)
+        print("To stop a conflicting process: Stop-Process -Id <PID> -Force", flush=True)
+        raise SystemExit(1)
+    uvicorn.run(app, host="127.0.0.1", port=port)
