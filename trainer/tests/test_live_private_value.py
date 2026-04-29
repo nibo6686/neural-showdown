@@ -318,6 +318,12 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
         self.assertEqual(response["model_type"], "live-private-belief-value")
         self.assertEqual(response["feature_dim"], FEATURE_DIM)
         self.assertEqual(response["feature_version"], FEATURE_VERSION)
+        self.assertIn("debug_summary", response)
+        summary = response["debug_summary"]
+        for key in ("top_action_by_ranker", "top_action_by_rollout", "top_action_by_final_score", "action_category_counts"):
+            self.assertIn(key, summary)
+        self.assertEqual(summary["feature_dim"], FEATURE_DIM)
+        self.assertEqual(summary["action_feature_dim"], ACTION_FEATURE_DIM)
 
     def test_live_eval_can_be_forced_to_public_replay(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -495,6 +501,20 @@ class LiveEvalServerModelSelectionTest(unittest.TestCase):
         self.assertTrue(report["top_actions"])
         self.assertFalse(report["top_actions"][0]["disabled"])
         self.assertTrue(all(action["label"] in {"switch: Bulbasaur"} for action in report["top_actions"]))
+        switch_row = report["top_actions"][0]
+        self.assertEqual(switch_row["action_category"], "switch")
+        self.assertEqual(switch_row["damage_method"], "not_applicable_switch")
+        self.assertIsNone(switch_row["type_effectiveness"])
+        for row in report["all_action_estimates"]:
+            self.assertIn("score_components", row)
+            for key in ("current_value", "ranker_score", "policy_prob", "rollout_expected_value", "rollout_weight", "ranker_weight", "policy_weight", "final_score"):
+                self.assertIn(key, row["score_components"])
+            self.assertIn("ranker_only_rank", row)
+            self.assertIn("rollout_only_rank", row)
+            self.assertIn("final_rank", row)
+        self.assertIn("top_action_by_ranker", report)
+        self.assertIn("top_action_by_rollout", report)
+        self.assertIn("top_action_by_final_score", report)
 
     def test_action_recommender_does_not_synthesize_old_switch_indices(self):
         policy_model = PolicyValueMLP(input_size=31, hidden_sizes=[4], action_size=13)

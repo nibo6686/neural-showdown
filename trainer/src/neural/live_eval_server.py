@@ -280,15 +280,57 @@ def _check_port_available(host: str, port: int) -> Tuple[bool, List[str]]:
 
 
 def _sample_damage_result() -> Dict[str, Any]:
+    cases: Dict[str, Any] = {}
     try:
         result = damage_engine.estimate_damage(
             attacker={"species": "Banette", "level": 80},
             defender={"species": "Kingambit", "level": 80, "hp_fraction": 1.0},
             move="Gunk Shot",
         )
-        return {"ok": result.get("damage_method") == "smogon_calc" and bool(result.get("immune")) and result.get("type_effectiveness") == 0, "result": result}
+        cases["banette_gunk_shot_into_kingambit"] = {
+            "ok": result.get("damage_method") == "smogon_calc" and bool(result.get("immune")) and result.get("type_effectiveness") == 0,
+            "result": result,
+        }
+        earthquake = damage_engine.estimate_damage(
+            attacker={"species": "Quagsire", "level": 80},
+            defender={"species": "Vivillon-Ocean", "level": 80, "hp_fraction": 1.0},
+            move="Earthquake",
+        )
+        cases["quagsire_earthquake_into_vivillon_ocean"] = {
+            "ok": earthquake.get("damage_method") == "smogon_calc" and bool(earthquake.get("immune")) and earthquake.get("type_effectiveness") == 0,
+            "result": earthquake,
+        }
+        hurricane = damage_engine.estimate_damage(
+            attacker={"species": "Vivillon-Ocean", "level": 80},
+            defender={"species": "Quagsire", "level": 80, "hp_fraction": 1.0},
+            move="Hurricane",
+        )
+        cases["vivillon_ocean_hurricane_into_quagsire"] = {
+            "ok": hurricane.get("damage_method") == "smogon_calc" and float(hurricane.get("average_percent") or 0.0) > 0.0,
+            "result": hurricane,
+        }
+        sleep_powder = damage_engine.estimate_damage(
+            attacker={"species": "Vivillon-Ocean", "level": 80},
+            defender={"species": "Quagsire", "level": 80, "hp_fraction": 1.0},
+            move="Sleep Powder",
+        )
+        cases["sleep_powder_non_damaging"] = {
+            "ok": sleep_powder.get("damage_method") == "non_damaging_move" and sleep_powder.get("type_effectiveness") is None,
+            "result": sleep_powder,
+        }
+        try:
+            from neural.sim_branch_evaluator import _damage_diagnostics
+        except ImportError:
+            from trainer.src.neural.sim_branch_evaluator import _damage_diagnostics
+        switch_diag = _damage_diagnostics({"kind": "switch", "label": "switch: Pikachu"}, {})
+        cases["switch_diagnostic"] = {
+            "ok": switch_diag.get("damage_method") == "not_applicable_switch" and switch_diag.get("type_effectiveness") is None,
+            "result": switch_diag,
+        }
+        ok = all(bool(case.get("ok")) for case in cases.values())
+        return {"ok": ok, "result": result, "cases": cases}
     except Exception as exc:
-        return {"ok": False, "exception": {"type": type(exc).__name__, "message": str(exc)}}
+        return {"ok": False, "cases": cases, "exception": {"type": type(exc).__name__, "message": str(exc)}}
 
 
 def _sim_core_damage_rpc_status() -> Dict[str, Any]:
@@ -918,6 +960,33 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
 
     used_live = bool(model_metadata.get("uses_live_private_features"))
     policy_warnings = list(action_report.get("warnings", []))
+    action_estimates = action_report.get("all_action_estimates", [])
+    damage_methods = {
+        str(action.get("damage_method"))
+        for action in action_estimates
+        if isinstance(action, dict) and action.get("damage_method") is not None
+    }
+    damage_engine_status = "fallback_present" if "heuristic_fallback" in damage_methods else "ok"
+    debug_summary = {
+        "selected_value_model_path": model_metadata.get("path"),
+        "selected_action_ranker_path": action_report.get("action_ranker_path"),
+        "selected_policy_path": action_report.get("policy_checkpoint_path") or str(REPLAY_POLICY_MODEL_PATH),
+        "feature_version": model_metadata.get("feature_version"),
+        "feature_dim": int(model_metadata.get("input_size", len(features))),
+        "action_feature_dim": ACTION_FEATURE_DIM,
+        "action_ranker_input_size": action_report.get("action_ranker_input_size"),
+        "damage_engine_status": damage_engine_status,
+        "smogon_calc_available": "smogon_calc" in damage_methods,
+        "rollout_mode": action_report.get("rollout_mode"),
+        "rollouts_per_action": action_report.get("rollouts_per_action"),
+        "rollout_weight": action_report.get("rollout_weight"),
+        "ranker_weight": action_report.get("ranker_weight"),
+        "policy_weight": action_report.get("policy_weight"),
+        "top_action_by_ranker": action_report.get("top_action_by_ranker"),
+        "top_action_by_rollout": action_report.get("top_action_by_rollout"),
+        "top_action_by_final_score": action_report.get("top_action_by_final_score"),
+        "action_category_counts": action_report.get("action_category_counts", {}),
+    }
     return {
         "p1_win_prob": p1_win_prob,
         "p2_win_prob": p2_win_prob,
@@ -936,6 +1005,7 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
         "used_opponent_belief": bool(used_live and opponent_beliefs.get("opponents")),
         "fallback_reason": model_metadata.get("fallback_reason"),
         "warning": "; ".join(policy_warnings) if policy_warnings else None,
+        "debug_summary": debug_summary,
         "debug": {
             **feature_debug,
             "model_path": model_metadata.get("path"),
@@ -953,7 +1023,7 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
             },
             "belief_source": opponent_beliefs.get("source"),
             "belief_warnings": opponent_beliefs.get("warnings", []),
-            "all_action_estimates": action_report.get("all_action_estimates", []),
+            "all_action_estimates": action_estimates,
         },
     }
 

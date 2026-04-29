@@ -31,6 +31,8 @@ class DamageEngineTest(unittest.TestCase):
             move="Hurricane",
         )
         self.assertEqual(hurricane["damage_method"], "smogon_calc")
+        self.assertGreater(hurricane["average_percent"], 0)
+        self.assertIsNotNone(hurricane["type_effectiveness"])
         self.assertFalse(any("smogon_calc_failed" in warning for warning in hurricane.get("warnings", [])))
 
         earthquake = estimate_damage(
@@ -40,8 +42,8 @@ class DamageEngineTest(unittest.TestCase):
         )
         self.assertEqual(earthquake["damage_method"], "smogon_calc")
         self.assertTrue(earthquake["immune"])
-        self.assertEqual(earthquake["type_effectiveness"], 0)
-        self.assertEqual(earthquake["average_percent"], 0)
+        self.assertEqual(earthquake["type_effectiveness"], 0.0)
+        self.assertEqual(earthquake["average_percent"], 0.0)
 
         tera_blast = estimate_damage(
             attacker={"species": "Vivillon-Ocean", "level": 80, "tera_type": "Flying", "stats": {"atk": 100, "def": 100, "spa": 100, "spd": 100, "spe": 100}},
@@ -72,6 +74,43 @@ class DamageEngineTest(unittest.TestCase):
                 self.assertFalse(result["immune"])
                 self.assertIsNone(result["type_effectiveness"])
                 self.assertFalse(any("smogon_calc_failed" in warning for warning in result.get("warnings", [])))
+
+    def test_switch_action_damage_is_not_applicable_and_does_not_call_smogon(self):
+        legal = [{"index": 8, "kind": "switch", "label": "switch: Quagsire", "choice": "switch 2"}]
+        trace = {
+            "replay_id": "switch-diagnostics",
+            "format": "gen9randombattle",
+            "protocol_log": ["|turn|1", "|switch|p1a: Vivillon|Vivillon-Ocean, L80|100/100", "|switch|p2a: Quagsire|Quagsire, L80|100/100"],
+            "turns": [
+                {
+                    "turn": 1,
+                    "steps": [
+                        {
+                            "step_index": 0,
+                            "turn": 1,
+                            "player_side": "p1",
+                            "view": {
+                                "format": "gen9randombattle",
+                                "gen": 9,
+                                "turn": 1,
+                                "player": "p1",
+                                "opponent": "p2",
+                                "self_team": [{"species": "Vivillon-Ocean", "active": True, "hp_fraction": 1.0}],
+                                "opponent_team": [{"species": "Quagsire", "active": True, "hp_fraction": 1.0}],
+                            },
+                            "request": {"legal_actions": {"actions": legal}},
+                            "legal_actions": legal,
+                        }
+                    ],
+                }
+            ],
+        }
+        with patch("neural.sim_branch_evaluator.estimate_action_damage") as estimate_mock:
+            results = evaluate_actions({"trace": trace}, "p1", legal, rollout_config={"rollout_mode": "approximate", "rollouts_per_action": 2})
+        estimate_mock.assert_not_called()
+        self.assertEqual(results[0]["action_category"], "switch")
+        self.assertEqual(results[0]["damage_method"], "not_applicable_switch")
+        self.assertIsNone(results[0]["type_effectiveness"])
 
     def test_rpc_result_is_used_when_available(self):
         class FakeClient:

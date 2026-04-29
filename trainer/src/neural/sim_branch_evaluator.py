@@ -5,7 +5,8 @@ import numpy as np
 
 from .approx_battle_state import build_approx_battle_state
 from . import action_value_search
-from .action_features import load_move_metadata, to_id
+from .action_features import action_name as normalized_action_name
+from .action_features import classify_action_category, load_move_metadata, to_id
 from .damage_engine import estimate_action_damage
 from .env_client import SimCoreClient, SimCoreError
 from .live_private_features import build_live_private_feature_vector
@@ -83,6 +84,51 @@ def _selected_rollout_mode(cfg: Dict[str, Any], has_seed: bool) -> str:
 def _move_metadata(move_name: str) -> Dict[str, Any]:
     metadata, _ = load_move_metadata()
     return metadata.get(to_id(move_name), {}) if move_name else {}
+
+
+def _not_applicable_switch_damage() -> Dict[str, Any]:
+    return {
+        "damage_method": "not_applicable_switch",
+        "damage_rolls": [],
+        "estimated_damage_range": [None, None],
+        "average_percent": None,
+        "min_percent": None,
+        "max_percent": None,
+        "estimated_ko_chance": None,
+        "ko_chance": None,
+        "immune": None,
+        "type_effectiveness": None,
+        "item_modifier": None,
+        "burn_attack_penalty": None,
+        "tera_damage_bonus": None,
+        "warnings": [],
+    }
+
+
+def _flat_damage_defaults_for_action(action: Dict[str, Any]) -> Dict[str, Any]:
+    if classify_action_category(action) == "switch":
+        return {
+            "damage_method": "not_applicable_switch",
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
+        }
+    return {
+        "damage_method": None,
+        "damage_rolls": [],
+        "average_percent": None,
+        "min_percent": None,
+        "max_percent": None,
+        "ko_chance": None,
+        "immune": None,
+        "type_effectiveness": None,
+        "tera_damage_bonus": None,
+    }
 
 
 def _type_effectiveness(move_type: Optional[str], target_types: Sequence[str]) -> float:
@@ -214,10 +260,16 @@ def _hazard_switch_diagnostics(action: Dict[str, Any], approx_state: Dict[str, A
 
 
 def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
+    action_category = classify_action_category(action)
+    if action_category == "switch":
+        return _not_applicable_switch_damage()
+
+    calc_exception: Optional[Exception] = None
     try:
         estimate = estimate_action_damage(action=action, approx_state=approx_state)
         min_percent = float(estimate.get("min_percent") or 0.0)
         max_percent = float(estimate.get("max_percent") or 0.0)
+        type_effectiveness = estimate.get("type_effectiveness")
         return {
             "damage_method": estimate.get("damage_method"),
             "damage_rolls": list(estimate.get("damage_rolls") or []),
@@ -228,17 +280,17 @@ def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) ->
             "estimated_ko_chance": float(estimate.get("ko_chance") or 0.0),
             "ko_chance": float(estimate.get("ko_chance") or 0.0),
             "immune": bool(estimate.get("immune")),
-            "type_effectiveness": float(estimate.get("type_effectiveness") if estimate.get("type_effectiveness") is not None else 1.0),
+            "type_effectiveness": float(type_effectiveness) if type_effectiveness is not None else None,
             "item_modifier": float(estimate.get("item_modifier") or 1.0),
             "burn_attack_penalty": bool(estimate.get("burn_attack_penalty")),
             "tera_damage_bonus": float(estimate.get("tera_damage_bonus") or 0.0),
             "warnings": list(estimate.get("warnings") or []),
         }
-    except Exception:
-        pass
+    except Exception as exc:
+        calc_exception = exc
 
     kind = str(action.get("kind") or "")
-    action_name = str(action.get("move") or action.get("label") or "")
+    action_name = normalized_action_name(action)
     move_meta = _move_metadata(action_name)
     move_type = str(move_meta.get("type") or "") or None
     category = str(move_meta.get("category") or "")
@@ -269,23 +321,28 @@ def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) ->
         min_damage = min(min_damage, max_damage)
     target_hp = float(opp.get("hp_fraction") if opp.get("hp_fraction") is not None else 1.0)
     return {
-        "damage_method": "heuristic_fallback",
+        "damage_method": "non_damaging_move" if str(category).lower() == "status" or base_power <= 0 else "heuristic_fallback",
         "estimated_damage_range": [float(min_damage), float(max_damage)],
         "average_percent": float((min_damage + max_damage) * 50.0),
         "min_percent": float(min_damage * 100.0),
         "max_percent": float(max_damage * 100.0),
         "estimated_ko_chance": 1.0 if max_damage >= target_hp and target_hp > 0.0 else 0.0,
         "ko_chance": 1.0 if max_damage >= target_hp and target_hp > 0.0 else 0.0,
-        "immune": bool(type_eff == 0.0),
-        "type_effectiveness": type_eff,
+        "immune": False if str(category).lower() == "status" or base_power <= 0 else bool(type_eff == 0.0),
+        "type_effectiveness": None if str(category).lower() == "status" or base_power <= 0 else type_eff,
         "item_modifier": item_modifier,
         "burn_attack_penalty": burn_penalty,
-        "tera_damage_bonus": float(max(0.0, raw_damage - raw_damage / tera_bonus) * 100.0) if tera_bonus > 1.0 else 0.0,
+        "tera_damage_bonus": float(max(0.0, raw_damage - raw_damage / tera_bonus) * 100.0) if tera_bonus > 1.0 and base_power > 0 else 0.0,
+        "warnings": [
+            "smogon_calc_failed:"
+            f"{type(calc_exception).__name__}:{calc_exception}; "
+            f"input_summary={json.dumps({'action': action, 'approx_state_keys': sorted(approx_state.keys())}, sort_keys=True, default=str)}"
+        ] if calc_exception is not None else [],
     }
 
 
 def _speed_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
-    move_meta = _move_metadata(str(action.get("move") or action.get("label") or ""))
+    move_meta = _move_metadata(normalized_action_name(action))
     priority = int(move_meta.get("priority", 0) or 0)
     private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
     own_speed = float((_active_private_mon(private_state).get("stats") or {}).get("spe", 0) or 0)
@@ -336,7 +393,7 @@ def _approximate_action_value(action: Dict[str, Any], approx_state: Dict[str, An
     view = approx_state.get("view") if isinstance(approx_state.get("view"), dict) else {}
     request = approx_state.get("request") if isinstance(approx_state.get("request"), dict) else None
 
-    action_name = str(action.get("move") or action.get("label") or "")
+    action_name = normalized_action_name(action)
     kind = str(action.get("kind") or "")
     move_meta = _move_metadata(action_name)
     move_type = str(move_meta.get("type") or "") or None
@@ -503,7 +560,7 @@ def _approximate_decision_rollout(
             sampled_opp = rng.choice(opponent_choices, p=opponent_weights)
             noise_scale = 0.12
             if str(action.get("kind")) == "move":
-                move_name = str(action.get("move") or action.get("label") or "")
+                move_name = normalized_action_name(action)
                 move_meta = _move_metadata(move_name)
                 accuracy = float(move_meta.get("accuracy", 100.0) or 100.0)
                 noise_scale = max(0.05, 0.35 * (1.0 - min(1.0, accuracy / 100.0)))
@@ -512,7 +569,7 @@ def _approximate_decision_rollout(
                 sample_value -= 0.2
             elif sampled_opp == "switch" and str(action.get("kind")) == "move":
                 sample_value += 0.05
-            elif sampled_opp == "protect" and to_id(str(action.get("move") or action.get("label") or "")) in {"swordsdance", "nastyplot", "calmmind"}:
+            elif sampled_opp == "protect" and to_id(normalized_action_name(action)) in {"swordsdance", "nastyplot", "calmmind"}:
                 sample_value -= 0.1
             samples.append(sample_value)
             if len(top_resulting_states) < 3:
@@ -527,6 +584,7 @@ def _approximate_decision_rollout(
         results.append(
             {
                 "label": label,
+                "action_category": classify_action_category(action),
                 "method": "approx_sim_rollout",
                 "rollout_mode": "approximate",
                 "approximate_state": True,
@@ -720,21 +778,14 @@ def evaluate_actions(
         values: List[float] = []
         details: Dict[str, Any] = {
             "label": label,
+            "action_category": classify_action_category(action),
             "method": "exact_sim_rollout",
             "rollout_mode": "exact",
             "approximate_state": False,
             "rollout_count": 0,
             "opponent_actions_considered": [a.get("label") for a in selected_opps],
             "diagnostics": _empty_diagnostics(),
-            "damage_method": None,
-            "damage_rolls": [],
-            "average_percent": None,
-            "min_percent": None,
-            "max_percent": None,
-            "ko_chance": None,
-            "immune": None,
-            "type_effectiveness": None,
-            "tera_damage_bonus": None,
+            **_flat_damage_defaults_for_action(action),
         }
 
         rollout_delta = 1
@@ -837,6 +888,7 @@ def _trace_fallback(
                 label = str(a.get("label") or a.get("choice") or f"action:{a.get('index',0)}")
                 item: Dict[str, Any] = {
                     "label": label,
+                    "action_category": classify_action_category(a),
                     "method": "rollout_unavailable",
                     "expected_value": None,
                     "std_value": None,
@@ -851,15 +903,7 @@ def _trace_fallback(
                     "final_score": None,
                     "note": None,
                     "diagnostics": _empty_diagnostics(),
-                    "damage_method": None,
-                    "damage_rolls": [],
-                    "average_percent": None,
-                    "min_percent": None,
-                    "max_percent": None,
-                    "ko_chance": None,
-                    "immune": None,
-                    "type_effectiveness": None,
-                    "tera_damage_bonus": None,
+                    **_flat_damage_defaults_for_action(a),
                     "rollout_unavailable_reason": reason or "trace_evaluation_failed",
                     "rollout_unavailable_details": {**(details or {}), "exception": exc_info},
                 }
@@ -868,6 +912,7 @@ def _trace_fallback(
         # If no legal actions provided, produce a single generic item
         item: Dict[str, Any] = {
             "label": "unknown",
+            "action_category": "unknown",
             "method": "rollout_unavailable",
             "expected_value": None,
             "std_value": None,
@@ -904,6 +949,7 @@ def _trace_fallback(
                 label = str(a.get("label") or a.get("choice") or f"action:{a.get('index',0)}")
                 item: Dict[str, Any] = {
                     "label": label,
+                    "action_category": classify_action_category(a),
                     "method": "rollout_unavailable",
                     "expected_value": None,
                     "std_value": None,
@@ -918,15 +964,7 @@ def _trace_fallback(
                     "final_score": None,
                     "note": None,
                     "diagnostics": _empty_diagnostics(),
-                    "damage_method": None,
-                    "damage_rolls": [],
-                    "average_percent": None,
-                    "min_percent": None,
-                    "max_percent": None,
-                    "ko_chance": None,
-                    "immune": None,
-                    "type_effectiveness": None,
-                    "tera_damage_bonus": None,
+                    **_flat_damage_defaults_for_action(a),
                     "rollout_unavailable_reason": reason or "no_trace_estimates",
                     "rollout_unavailable_details": {**(details or {}), "exception": exc_info},
                 }
@@ -944,6 +982,7 @@ def _trace_fallback(
             method = src or "trace_continuation"
         item: Dict[str, Any] = {
             "label": est.action_label,
+            "action_category": classify_action_category({"label": est.action_label}),
             "method": method,
             "expected_value": est.mean_value,
             "std_value": est.std_value,
@@ -958,15 +997,7 @@ def _trace_fallback(
             "final_score": est.combined_score,
             "note": est.note,
             "diagnostics": _empty_diagnostics(),
-            "damage_method": None,
-            "damage_rolls": [],
-            "average_percent": None,
-            "min_percent": None,
-            "max_percent": None,
-            "ko_chance": None,
-            "immune": None,
-            "type_effectiveness": None,
-            "tera_damage_bonus": None,
+            **_flat_damage_defaults_for_action({"label": est.action_label}),
         }
         if reason:
             item["rollout_unavailable_reason"] = reason

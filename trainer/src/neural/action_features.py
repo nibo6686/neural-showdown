@@ -217,6 +217,50 @@ def _action_name(action: Dict[str, Any]) -> str:
     return label.strip()
 
 
+def action_name(action: Dict[str, Any]) -> str:
+    return _action_name(action)
+
+
+def classify_action_category(action: Dict[str, Any]) -> str:
+    kind = str(action.get("kind") or "").lower()
+    label = str(action.get("label") or "")
+    if not kind and label.lower().startswith("switch:"):
+        kind = "switch"
+    elif not kind and label.lower().startswith(("move:", "move_tera:")):
+        kind = "move_tera" if label.lower().startswith("move_tera:") else "move"
+    if kind == "switch":
+        return "switch"
+
+    name = _action_name(action)
+    move_id = to_id(name)
+    metadata, _ = load_move_metadata()
+    meta = metadata.get(move_id, {}) if move_id else {}
+    category = str(meta.get("category") or "").lower()
+    base_power = float(meta.get("base_power", 0.0) or 0.0)
+    flags = set(meta.get("flags", []))
+    is_tera = kind == "move_tera"
+
+    if kind not in {"move", "move_tera"}:
+        return "unknown"
+    if not move_id:
+        return "unknown"
+    if category == "status":
+        if is_tera:
+            return "tera_status"
+        if move_id in {"protect", "detect", "spikyshield", "kingsshield", "banefulbunker", "silktrap", "burningbulwark"}:
+            return "protect"
+        if bool(meta.get("has_heal") or meta.get("has_drain") or "heal" in flags) or move_id in {"recover", "roost", "synthesis", "slackoff", "softboiled", "rest", "milkdrink", "shoreup", "wish"}:
+            return "recovery"
+        if bool(meta.get("has_side_condition")) or move_id in {"spikes", "toxicspikes", "stealthrock", "stickyweb"}:
+            return "hazard"
+        if bool(meta.get("has_boosts")) or move_id in {"swordsdance", "nastyplot", "calmmind", "bulkup", "dragondance", "quiverdance", "shellsmash", "irondefense", "amnesia", "agility"}:
+            return "setup"
+        return "status"
+    if base_power > 0:
+        return "tera_damage" if is_tera else "damage"
+    return "unknown"
+
+
 def _active_moves(private_state: Dict[str, Any]) -> List[Dict[str, Any]]:
     moves = private_state.get("active_moves") if isinstance(private_state.get("active_moves"), list) else []
     return [move for move in moves if isinstance(move, dict)]

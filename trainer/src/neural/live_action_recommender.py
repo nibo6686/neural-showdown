@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import torch
 
-from .action_features import ACTION_FEATURE_DIM, build_action_feature_vector
+from .action_features import ACTION_FEATURE_DIM, build_action_feature_vector, classify_action_category
 from .build_replay_value_dataset import FEATURE_NAMES as PUBLIC_FEATURE_NAMES
 from .checkpoints import torch_load
 from .live_private_features import build_live_private_feature_vector
@@ -477,6 +477,43 @@ def _estimate_switch_value(
     return estimated_value, "switch_proxy", {"proxy_feature_dim": int(features.shape[0])}
 
 
+def _switch_damage_fields() -> Dict[str, Any]:
+    return {
+        "damage_method": "not_applicable_switch",
+        "damage_rolls": [],
+        "average_percent": None,
+        "min_percent": None,
+        "max_percent": None,
+        "ko_chance": None,
+        "immune": None,
+        "type_effectiveness": None,
+        "tera_damage_bonus": None,
+    }
+
+
+def _empty_score_components(
+    *,
+    current_value: float,
+    ranker_score: Optional[float],
+    policy_prob: Optional[float],
+    rollout_expected_value: Optional[float],
+    rollout_weight: float,
+    ranker_weight: float,
+    policy_weight: float,
+    final_score: Optional[float],
+) -> Dict[str, Any]:
+    return {
+        "current_value": float(current_value),
+        "ranker_score": ranker_score,
+        "policy_prob": policy_prob,
+        "rollout_expected_value": rollout_expected_value,
+        "rollout_weight": float(rollout_weight),
+        "ranker_weight": float(ranker_weight),
+        "policy_weight": float(policy_weight),
+        "final_score": final_score,
+    }
+
+
 class ActionValueEstimator:
     def __init__(
         self,
@@ -552,10 +589,23 @@ class ActionValueEstimator:
             method = proxy_method or ("policy_prior" if policy_probs is not None else "rollout_unavailable")
         value_component = 0.0 if estimated_value is None else 0.05 * float(estimated_value)
         score = 0.0 if disabled else float(ranker_score if ranker_score is not None else policy_prob + value_component)
+        action_category = classify_action_category(legal_action)
+        damage_fields = _switch_damage_fields() if action_category == "switch" else {
+            "damage_method": None,
+            "damage_rolls": [],
+            "average_percent": None,
+            "min_percent": None,
+            "max_percent": None,
+            "ko_chance": None,
+            "immune": None,
+            "type_effectiveness": None,
+            "tera_damage_bonus": None,
+        }
         return {
             "index": action_index,
             "label": str(legal_action.get("label") or f"action:{action_index}"),
             "kind": str(legal_action.get("kind") or "unknown"),
+            "action_category": action_category,
             "disabled": disabled,
             "policy_prob": policy_prob if policy_probs is not None else None,
             "ranker_score": ranker_score,
@@ -574,20 +624,12 @@ class ActionValueEstimator:
             "mean_value": estimated_value,
             "std_value": None,
             "diagnostics": {
-                "damage": {},
+                "damage": _switch_damage_fields() if action_category == "switch" else {},
                 "speed_order": {},
                 "switch_hazards": {},
                 "restrictions": {},
             },
-            "damage_method": None,
-            "damage_rolls": [],
-            "average_percent": None,
-            "min_percent": None,
-            "max_percent": None,
-            "ko_chance": None,
-            "immune": None,
-            "type_effectiveness": None,
-            "tera_damage_bonus": None,
+            **damage_fields,
         }
 
 
@@ -648,14 +690,15 @@ def recommend_actions(
         for candidate in candidates
     ]
 
+    rollout_cfg = {
+        "rollouts_per_action": int(os.environ.get("NEURAL_ROLLOUTS_PER_ACTION", "8")),
+        "value_checkpoint": None,
+        "rollout_mode": os.environ.get("NEURAL_ROLLOUT_MODE", "auto"),
+    }
+
     # Attempt to evaluate actions via simulator branching (best-effort fallback to trace continuation).
     try:
         player_side = private_state.get("player_side") if private_state.get("player_side") in ("p1", "p2") else "p1"
-        rollout_cfg = {
-            "rollouts_per_action": int(os.environ.get("NEURAL_ROLLOUTS_PER_ACTION", "8")),
-            "value_checkpoint": None,
-            "rollout_mode": os.environ.get("NEURAL_ROLLOUT_MODE", "auto"),
-        }
         opponent_policy = os.environ.get("NEURAL_OPPONENT_POLICY", "uniform")
         sim_payload = _trace_payload_for_branch_evaluation(
             payload=payload,
@@ -689,6 +732,7 @@ def recommend_actions(
         row["expected_value"] = expected_value
         if sim:
             for key in (
+                "action_category",
                 "method",
                 "rollout_mode",
                 "approximate_state",
@@ -711,6 +755,12 @@ def recommend_actions(
             ):
                 if key in sim:
                     row[key] = sim.get(key)
+        row["action_category"] = row.get("action_category") or classify_action_category(row)
+        if row["action_category"] == "switch":
+            row.update(_switch_damage_fields())
+            diagnostics = row.get("diagnostics") if isinstance(row.get("diagnostics"), dict) else {}
+            diagnostics["damage"] = _switch_damage_fields()
+            row["diagnostics"] = diagnostics
         # compute normalized ranker score
         row_norm_rank = normalize_rank(row.get("ranker_score"))
         policy_prob = float(row.get("policy_prob") or 0.0)
@@ -725,6 +775,28 @@ def recommend_actions(
         else:
             # Fallback to previous score
             row["final_score"] = float(row.get("score") or 0.0)
+        row["score_components"] = _empty_score_components(
+            current_value=current_value,
+            ranker_score=row.get("ranker_score"),
+            policy_prob=row.get("policy_prob"),
+            rollout_expected_value=expected_value,
+            rollout_weight=rollout_weight,
+            ranker_weight=ranker_weight,
+            policy_weight=policy_weight,
+            final_score=row.get("final_score"),
+        )
+
+    def assign_rank(field: str, rank_field: str) -> None:
+        rankable = [row for row in all_rows if not row.get("disabled") and row.get(field) is not None]
+        ranked_for_field = sorted(rankable, key=lambda item: float(item.get(field) or 0.0), reverse=True)
+        for rank, row in enumerate(ranked_for_field, start=1):
+            row[rank_field] = rank
+        for row in all_rows:
+            row.setdefault(rank_field, None)
+
+    assign_rank("ranker_score", "ranker_only_rank")
+    assign_rank("expected_value", "rollout_only_rank")
+    assign_rank("final_score", "final_rank")
 
     enabled = [row for row in all_rows if not row.get("disabled")]
     rows = enabled if enabled else all_rows
@@ -750,14 +822,35 @@ def recommend_actions(
     else:
         recommendation_method = "rollout_unavailable"
 
+    def top_label(field: str) -> Optional[str]:
+        candidates_for_field = [row for row in rows if not row.get("disabled") and row.get(field) is not None]
+        if not candidates_for_field:
+            return None
+        return str(max(candidates_for_field, key=lambda item: float(item.get(field) or 0.0)).get("label"))
+
+    action_category_counts: Dict[str, int] = {}
+    for row in rows:
+        category = str(row.get("action_category") or "unknown")
+        action_category_counts[category] = action_category_counts.get(category, 0) + 1
+
     return {
         "top_actions": ranked[:limit],
         "all_action_estimates": rows,
         "action_recommendation_method": recommendation_method,
+        "rollout_mode": rollout_cfg.get("rollout_mode"),
+        "rollouts_per_action": rollout_cfg.get("rollouts_per_action"),
+        "rollout_weight": rollout_weight,
+        "ranker_weight": ranker_weight,
+        "policy_weight": policy_weight,
+        "top_action_by_ranker": top_label("ranker_score"),
+        "top_action_by_rollout": top_label("expected_value"),
+        "top_action_by_final_score": str(ranked[0].get("label")) if ranked else None,
+        "action_category_counts": action_category_counts,
         "policy_checkpoint_loaded": policy_probs is not None,
         "policy_checkpoint_path": policy_metadata.get("path"),
         "action_ranker_loaded": action_ranker_model is not None,
         "action_ranker_path": (action_ranker_metadata or {}).get("path"),
+        "action_ranker_input_size": (action_ranker_metadata or {}).get("input_size"),
         "action_value_ranker_loaded": action_ranker_model is not None
         and (action_ranker_metadata or {}).get("response_method") == "action_value_ranker",
         "action_value_ranker_path": (action_ranker_metadata or {}).get("path")
