@@ -33,6 +33,9 @@ MOVE_TYPES = [
 CATEGORIES = ["Physical", "Special", "Status"]
 ACTION_FEATURE_VERSION_V1 = "legal-action-v1"
 ACTION_FEATURE_VERSION = "legal-action-v3"
+ACTION_FEATURE_VERSION_V4 = "legal-action-v4"
+
+ACTION_STATS = ["atk", "def", "spa", "spd", "spe", "accuracy", "evasion"]
 
 BASE_FEATURE_NAMES = [
     "kind_move",
@@ -95,6 +98,102 @@ ACTION_FEATURE_NAMES_V1 = (
 ACTION_FEATURE_DIM_V1 = len(ACTION_FEATURE_NAMES_V1)
 ACTION_FEATURE_NAMES = ACTION_FEATURE_NAMES_V1 + TACTICAL_ACTION_FEATURE_NAMES
 ACTION_FEATURE_DIM = len(ACTION_FEATURE_NAMES)
+
+# --- legal-action-v4: explicit move side-effects / stat deltas (diagnostic) ---
+SLICE5_ACTION_FEATURE_NAMES = (
+    [f"self_stat_delta_{stat}" for stat in ACTION_STATS]
+    + [f"opponent_stat_delta_{stat}" for stat in ACTION_STATS]
+    + ["self_has_stat_drop", "self_has_stat_boost", "opponent_has_stat_drop"]
+    + [
+        "effect_recoil",
+        "effect_drain_or_heal",
+        "effect_recharge",
+        "effect_locks_user",
+        "effect_switch_move",
+        "effect_has_drawback",
+        "effect_priority_norm",
+    ]
+    + [
+        "class_damage",
+        "class_status",
+        "class_setup",
+        "class_recovery",
+        "class_hazard",
+        "class_pivot",
+        "class_protect",
+    ]
+    + ["cmd_move", "cmd_switch", "cmd_tera_move", "cmd_forced_switch"]
+    + ["lock_disabled", "lock_encore_compatible", "lock_choice_compatible"]
+    + ["switch_target_known", "switch_target_slot_norm"]
+    + [
+        f"switch_target_species_hash_{family}_bucket_{bucket:02d}"
+        for family in ("a", "b")
+        for bucket in range(32)
+    ]
+)
+ACTION_FEATURE_NAMES_V4 = ACTION_FEATURE_NAMES + SLICE5_ACTION_FEATURE_NAMES
+ACTION_FEATURE_DIM_V4 = len(ACTION_FEATURE_NAMES_V4)
+
+# --- legal-action-v5: resolved immediate impact / next-state diagnostics ---
+ACTION_FEATURE_VERSION_V5 = "legal-action-v5"
+IMPACT_METHODS = ["unavailable", "non_damaging", "approximate", "belief_fallback", "smogon_calc"]
+NEXT_STATE_SOURCES = ["unavailable", "immediate_estimate", "branch"]
+# Structural hazard-removal move ids (representation only, mirrors existing id sets).
+REMOVAL_MOVE_IDS = {"rapidspin", "defog", "mortalspin", "tidyup", "courtchange"}
+
+SLICE6_ACTION_FEATURE_NAMES = (
+    [
+        "impact_expected_damage_fraction",
+        "impact_min_damage_fraction",
+        "impact_max_damage_fraction",
+        "impact_damage_uncertainty",
+        "impact_ko_chance",
+        "impact_two_hko_proxy",
+        "impact_hit_chance",
+        "impact_accuracy_known",
+        "impact_immune",
+        "impact_resisted",
+        "impact_super_effective",
+        "impact_type_effectiveness_norm",
+        "impact_stab",
+        "impact_stab_known",
+        "impact_damage_includes_crit",
+    ]
+    + [f"impact_method_{method}" for method in IMPACT_METHODS]
+    + [
+        "impact_vs_current_type",
+        "impact_used_tera",
+        "impact_used_stat_stages",
+        "impact_used_item_ability",
+        "impact_used_field",
+        "impact_used_exact_attacker_stats",
+        "impact_used_exact_defender_stats",
+        "impact_target_known",
+        "impact_target_inferred",
+        "action_non_damaging",
+        "action_is_removal",
+        "impact_unknown",
+    ]
+    + ["next_state_delta_available"]
+    + [f"next_state_source_{source}" for source in NEXT_STATE_SOURCES]
+    + [
+        "next_opp_hp_delta",
+        "next_own_hp_delta",
+        "next_own_hp_delta_known",
+        "next_own_stat_change",
+        "next_opp_stat_change",
+        "next_own_status_change",
+        "next_opp_status_change",
+        "next_field_or_side_change",
+        "next_forced_switch_or_pivot",
+        "terminal_flags_from_branch",
+        "terminal_ko_applied",
+        "terminal_win",
+        "terminal_loss",
+    ]
+)
+ACTION_FEATURE_NAMES_V5 = ACTION_FEATURE_NAMES_V4 + SLICE6_ACTION_FEATURE_NAMES
+ACTION_FEATURE_DIM_V5 = len(ACTION_FEATURE_NAMES_V5)
 
 
 def to_id(value: Any) -> str:
@@ -507,6 +606,267 @@ def build_action_feature_vector(
     return features
 
 
+def _species_hash_buckets(name: Any) -> List[float]:
+    """64-dim two-family bucket hash for a switch-target species (diagnostic)."""
+    identity = to_id(name)
+    values = [0.0] * 64
+    if not identity:
+        return values
+    digest = hashlib.sha256(identity.encode("utf-8")).digest()
+    values[int.from_bytes(digest[0:4], "little") % 32] = 1.0
+    values[32 + (int.from_bytes(digest[4:8], "little") % 32)] = 1.0
+    return values
+
+
+def _signed_stat(value: Any) -> float:
+    try:
+        return max(-1.0, min(1.0, float(value) / 2.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def slice5_action_feature_vector(
+    action: Dict[str, Any],
+    private_state: Optional[Dict[str, Any]] = None,
+) -> np.ndarray:
+    """legal-action-v4 add-on: explicit move side-effects, per-stat deltas, command
+    identity, lock compatibility, and switch-target identity. Diagnostic only."""
+    from .action_side_effects import move_side_effects, move_stat_deltas
+
+    private = private_state if isinstance(private_state, dict) else {}
+    kind = str(action.get("kind") or "").lower()
+    is_switch = kind == "switch"
+    is_tera = kind == "move_tera" or bool(action.get("is_tera_action"))
+    is_move = kind.startswith("move")
+    name = _action_name(action)
+
+    se = move_side_effects(name) if is_move else {}
+    deltas = move_stat_deltas(name) if is_move else {"self": {}, "target": {}}
+    self_delta = deltas.get("self", {})
+    target_delta = deltas.get("target", {})
+    category = classify_action_category(action)
+    disabled = bool(action.get("disabled"))
+
+    values: List[float] = []
+    values.extend(_signed_stat(self_delta.get(stat, 0)) for stat in ACTION_STATS)
+    values.extend(_signed_stat(target_delta.get(stat, 0)) for stat in ACTION_STATS)
+    values.extend(
+        [
+            float(any(v < 0 for v in self_delta.values())),
+            float(any(v > 0 for v in self_delta.values())),
+            float(any(v < 0 for v in target_delta.values())),
+        ]
+    )
+    values.extend(
+        [
+            float(bool(se.get("recoil"))),
+            float(bool(se.get("heals_user"))),
+            float(bool(se.get("recharge"))),
+            float(bool(se.get("locks_user"))),
+            float(bool(se.get("switch_move"))),
+            float(bool(se.get("has_drawback"))),
+            _clip((float(se.get("priority", 0) or 0) + 7.0) / 14.0) if is_move else 0.0,
+        ]
+    )
+    values.extend(
+        [
+            float(category in {"damage", "tera_damage"}),
+            float(category in {"status", "tera_status"}),
+            float(category == "setup"),
+            float(category == "recovery"),
+            float(category == "hazard"),
+            float(bool(se.get("switch_move")) and not is_switch),
+            float(category == "protect"),
+        ]
+    )
+    forced_switch = bool(private.get("force_switch"))
+    values.extend(
+        [
+            float(is_move and not is_tera),
+            float(is_switch and not forced_switch),
+            float(is_tera),
+            float(is_switch and forced_switch),
+        ]
+    )
+    values.extend(
+        [
+            float(disabled),
+            float(is_move and not disabled),
+            float(is_move and not disabled),
+        ]
+    )
+    target_mon = _find_switch_target(action, private) if is_switch else {}
+    values.extend(
+        [
+            float(is_switch and bool(target_mon.get("species"))),
+            _clip((int(action.get("index", 0) or 0) - 8) / 4.0) if is_switch else 0.0,
+        ]
+    )
+    values.extend(_species_hash_buckets(target_mon.get("species")) if is_switch else [0.0] * 64)
+
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(SLICE5_ACTION_FEATURE_NAMES):
+        raise ValueError(
+            f"Action v4 slice-5 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(SLICE5_ACTION_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def build_action_feature_vector_v4(
+    action: Dict[str, Any],
+    private_state: Optional[Dict[str, Any]] = None,
+    tactical_state: Optional[Dict[str, Any]] = None,
+) -> np.ndarray:
+    """legal-action-v4 = legal-action-v3 (unchanged prefix) + Slice-5 side-effects."""
+    base = build_action_feature_vector(action, private_state, tactical_state)
+    slice5 = slice5_action_feature_vector(action, private_state)
+    features = np.concatenate([base, slice5]).astype(np.float32)
+    if features.shape[0] != ACTION_FEATURE_DIM_V4:
+        raise ValueError(f"Action v4 feature size mismatch: got {features.shape[0]}, expected {ACTION_FEATURE_DIM_V4}.")
+    return features
+
+
+def _impact_get(impact: Optional[Dict[str, Any]], key: str, default: Any = 0.0) -> Any:
+    if isinstance(impact, dict) and key in impact and impact[key] is not None:
+        return impact[key]
+    return default
+
+
+def slice6_resolved_impact_feature_vector(
+    action: Dict[str, Any],
+    private_state: Optional[Dict[str, Any]] = None,
+    impact: Optional[Dict[str, Any]] = None,
+) -> np.ndarray:
+    """legal-action-v5 add-on: resolved immediate impact + next-state diagnostics.
+
+    ``impact`` is the optional normalized dict from
+    ``resolved_action_impact.resolve_action_impact``. When it is missing for a
+    damaging move, the resolved fields are present but flagged unavailable
+    (``impact_unknown=1``, ``impact_method_unavailable=1``). Action-intrinsic
+    classification (non-damaging, removal, stat/field change) is derived from the
+    move itself and stays valid even without a resolved impact.
+    """
+    from .action_side_effects import move_side_effects, move_stat_deltas
+
+    kind = str(action.get("kind") or "").lower()
+    is_switch = kind == "switch"
+    is_move = kind.startswith("move")
+    name = _action_name(action)
+    category = classify_action_category(action)
+    meta_index, _ = load_move_metadata()
+    meta = meta_index.get(to_id(name), {}) if is_move else {}
+    se = move_side_effects(name) if is_move else {}
+    deltas = move_stat_deltas(name) if is_move else {"self": {}, "target": {}}
+
+    damaging = is_move and category in {"damage", "tera_damage"}
+    non_damaging = not damaging
+    removal = bool(is_move and to_id(name) in REMOVAL_MOVE_IDS)
+
+    imp = impact if isinstance(impact, dict) else None
+    available = bool(imp and imp.get("available"))
+    if imp and imp.get("method"):
+        method = str(imp.get("method"))
+    elif is_switch:
+        method = "unavailable"
+    elif non_damaging:
+        method = "non_damaging"
+    else:
+        method = "unavailable"
+    if method not in IMPACT_METHODS:
+        method = "unavailable"
+    impact_unknown = float(damaging and not available)
+
+    type_eff = float(_impact_get(imp, "type_effectiveness", 1.0))
+    values: List[float] = [
+        _clip(_impact_get(imp, "expected_fraction")),
+        _clip(_impact_get(imp, "min_fraction")),
+        _clip(_impact_get(imp, "max_fraction")),
+        _clip(_impact_get(imp, "max_fraction") - _impact_get(imp, "min_fraction")),
+        _clip(_impact_get(imp, "ko_chance")),
+        float(bool(_impact_get(imp, "two_hko_proxy"))),
+        _clip(_impact_get(imp, "hit_chance")),
+        float(bool(_impact_get(imp, "accuracy_known"))),
+        float(bool(_impact_get(imp, "immune"))),
+        float(bool(_impact_get(imp, "resisted"))),
+        float(bool(_impact_get(imp, "super_effective"))),
+        _clip(type_eff / 4.0),
+        float(bool(_impact_get(imp, "stab"))),
+        float(bool(_impact_get(imp, "stab_known"))),
+        float(bool(_impact_get(imp, "crit_included"))),
+    ]
+    values.extend(float(method == candidate) for candidate in IMPACT_METHODS)
+    values.extend(
+        [
+            float(bool(_impact_get(imp, "vs_current_type"))),
+            float(bool(_impact_get(imp, "used_tera"))),
+            float(bool(_impact_get(imp, "used_stat_stages"))),
+            float(bool(_impact_get(imp, "used_item_ability"))),
+            float(bool(_impact_get(imp, "used_field"))),
+            float(bool(_impact_get(imp, "used_exact_attacker_stats"))),
+            float(bool(_impact_get(imp, "used_exact_defender_stats"))),
+            float(bool(_impact_get(imp, "target_known"))),
+            float(bool(_impact_get(imp, "target_inferred"))),
+            float(non_damaging),
+            float(removal),
+            impact_unknown,
+        ]
+    )
+
+    source = str(_impact_get(imp, "next_state_source", "unavailable"))
+    if source not in NEXT_STATE_SOURCES:
+        source = "unavailable"
+    values.append(float(source != "unavailable"))
+    values.extend(float(source == candidate) for candidate in NEXT_STATE_SOURCES)
+    field_change = bool(
+        is_move and (category == "hazard" or removal or meta.get("has_side_condition"))
+    )
+    values.extend(
+        [
+            max(-1.0, min(1.0, float(_impact_get(imp, "next_opp_hp_delta")))),
+            max(-1.0, min(1.0, float(_impact_get(imp, "next_own_hp_delta")))),
+            float(bool(_impact_get(imp, "next_own_hp_delta_known"))),
+            float(bool(deltas.get("self"))),
+            float(bool(deltas.get("target"))),
+            float(bool(_impact_get(imp, "next_own_status_change"))),
+            float(bool(_impact_get(imp, "next_opp_status_change"))),
+            float(field_change),
+            float(bool(se.get("switch_move")) or is_switch),
+            float(bool(_impact_get(imp, "terminal_from_branch"))),
+            float(bool(_impact_get(imp, "terminal_ko"))),
+            float(bool(_impact_get(imp, "terminal_win"))),
+            float(bool(_impact_get(imp, "terminal_loss"))),
+        ]
+    )
+
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(SLICE6_ACTION_FEATURE_NAMES):
+        raise ValueError(
+            f"Action v5 slice-6 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(SLICE6_ACTION_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def build_action_feature_vector_v5(
+    action: Dict[str, Any],
+    private_state: Optional[Dict[str, Any]] = None,
+    tactical_state: Optional[Dict[str, Any]] = None,
+    impact: Optional[Dict[str, Any]] = None,
+) -> np.ndarray:
+    """legal-action-v5 = legal-action-v4 (unchanged prefix) + Slice-6 resolved impact.
+
+    ``impact`` is optional and diagnostic-only; when omitted, resolved fields carry
+    explicit unavailable flags. Damage estimation is never triggered here.
+    """
+    base = build_action_feature_vector_v4(action, private_state, tactical_state)
+    slice6 = slice6_resolved_impact_feature_vector(action, private_state, impact)
+    features = np.concatenate([base, slice6]).astype(np.float32)
+    if features.shape[0] != ACTION_FEATURE_DIM_V5:
+        raise ValueError(f"Action v5 feature size mismatch: got {features.shape[0]}, expected {ACTION_FEATURE_DIM_V5}.")
+    return features
+
+
 def feature_schema() -> Dict[str, Any]:
     _, source = load_move_metadata()
     return {
@@ -516,6 +876,14 @@ def feature_schema() -> Dict[str, Any]:
         "v1_feature_version": ACTION_FEATURE_VERSION_V1,
         "v1_feature_dim": ACTION_FEATURE_DIM_V1,
         "v1_feature_names": ACTION_FEATURE_NAMES_V1,
+        "v4_feature_version": ACTION_FEATURE_VERSION_V4,
+        "v4_feature_dim": ACTION_FEATURE_DIM_V4,
+        "v4_feature_names": ACTION_FEATURE_NAMES_V4,
+        "v4_slice5_feature_names": SLICE5_ACTION_FEATURE_NAMES,
+        "v5_feature_version": ACTION_FEATURE_VERSION_V5,
+        "v5_feature_dim": ACTION_FEATURE_DIM_V5,
+        "v5_feature_names": ACTION_FEATURE_NAMES_V5,
+        "v5_slice6_feature_names": SLICE6_ACTION_FEATURE_NAMES,
         "tactical_feature_dim": len(TACTICAL_ACTION_FEATURE_NAMES),
         "tactical_feature_names": TACTICAL_ACTION_FEATURE_NAMES,
         "move_metadata_source": source,

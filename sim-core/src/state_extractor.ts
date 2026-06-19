@@ -28,17 +28,32 @@ function createPokemonView(slot: number, ident = '', details = ''): PokemonView 
     ident,
     name: parseIdent(ident).name || parsedDetails.species,
     species: parsedDetails.species,
+    base_species: parsedDetails.species || null,
+    current_species: parsedDetails.species || null,
+    displayed_species: parsedDetails.species || null,
+    species_source: parsedDetails.species ? 'protocol' : 'unknown',
+    transformed: false,
+    displayed_species_uncertain: false,
+    illusion_revealed: false,
     details,
     active: false,
     fainted: parsedCondition.fainted,
     hp_text: parsedCondition.hpText,
     hp_ratio: parsedCondition.hpRatio,
     status: parsedCondition.status,
+    status_source: 'unknown',
+    status_started_turn: null,
+    status_turns_public: null,
     gender: parsedDetails.gender,
     level: parsedDetails.level,
     item: null,
+    last_item: null,
+    item_state: 'unknown',
+    item_suppressed: false,
     ability: null,
     base_ability: null,
+    ability_state: 'unknown',
+    ability_suppressed: false,
     moves: [],
     revealed_moves: [],
     types: resolveTypes(parsedDetails.species, parsedDetails.teraType, false),
@@ -97,8 +112,8 @@ export class PlayerStateExtractor {
           opponent: { ...this.view.field.side_conditions.opponent },
         },
       },
-      self_team: this.view.self_team.map((pokemon) => clonePokemon(pokemon)),
-      opponent_team: this.view.opponent_team.map((pokemon) => clonePokemon(pokemon)),
+      self_team: this.view.self_team.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
+      opponent_team: this.view.opponent_team.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
     };
   }
 
@@ -150,8 +165,16 @@ export class PlayerStateExtractor {
         this.handleSwitch(parts);
         break;
       case 'replace':
+        this.handleReplace(parts);
+        break;
       case 'detailschange':
         this.handleDetailsChange(parts);
+        break;
+      case '-formechange':
+        this.handleFormeChange(parts);
+        break;
+      case '-transform':
+        this.handleTransform(parts);
         break;
       case 'move':
         this.handleMove(parts);
@@ -206,6 +229,9 @@ export class PlayerStateExtractor {
       case '-ability':
         this.handleAbility(parts);
         break;
+      case '-endability':
+        this.handleEndAbility(parts);
+        break;
       case '-terastallize':
         this.handleTerastallize(parts);
         break;
@@ -243,17 +269,40 @@ export class PlayerStateExtractor {
         ident: pokemon?.ident || previous?.ident || '',
         name: parseIdent(pokemon?.ident || previous?.ident || '').name || parsedDetails.species,
         species: parsedDetails.species || previous?.species || 'Unknown',
+        base_species: parsedDetails.species || previous?.base_species || previous?.species || null,
+        current_species: previous?.transformed
+          ? previous.current_species
+          : parsedDetails.species || previous?.current_species || previous?.species || null,
+        displayed_species: previous?.transformed
+          ? previous.displayed_species
+          : parsedDetails.species || previous?.displayed_species || previous?.species || null,
+        species_source: 'request',
+        transformed: previous?.transformed || false,
+        displayed_species_uncertain: false,
+        illusion_revealed: previous?.illusion_revealed || false,
         details: pokemon?.details || previous?.details || '',
         active: !!pokemon?.active,
         fainted: parsedCondition.fainted,
         hp_text: parsedCondition.hpText,
         hp_ratio: parsedCondition.hpRatio,
         status: parsedCondition.status,
+        status_source: 'request',
+        status_started_turn: parsedCondition.status
+          ? previous?.status === parsedCondition.status ? previous.status_started_turn : this.view.turn
+          : null,
+        status_turns_public: null,
         gender: parsedDetails.gender,
         level: parsedDetails.level,
         item: pokemon?.item || previous?.item || null,
+        last_item: previous?.last_item || null,
+        item_state: pokemon?.item ? 'held' : previous?.item_state || 'none',
+        item_suppressed: this.view.field.pseudo_weather.includes('magicroom'),
         ability: pokemon?.ability || previous?.ability || null,
         base_ability: pokemon?.baseAbility || previous?.base_ability || null,
+        ability_state: previous?.ability_suppressed
+          ? 'suppressed'
+          : pokemon?.ability || pokemon?.baseAbility ? 'known' : previous?.ability_state || 'none',
+        ability_suppressed: previous?.ability_suppressed || false,
         moves: Array.isArray(pokemon?.moves) ? [...pokemon.moves] : previous?.moves || [],
         revealed_moves: Array.isArray(pokemon?.moves)
           ? [...pokemon.moves]
@@ -329,16 +378,26 @@ export class PlayerStateExtractor {
     pokemon.ident = ident;
     pokemon.name = parsedIdent.name || parsedDetails.species;
     pokemon.species = parsedDetails.species;
+    pokemon.base_species = parsedDetails.species || pokemon.base_species;
+    pokemon.current_species = parsedDetails.species || pokemon.current_species;
+    pokemon.displayed_species = parsedDetails.species || pokemon.displayed_species;
+    pokemon.species_source = 'protocol';
+    pokemon.transformed = false;
+    pokemon.displayed_species_uncertain = parsedIdent.player !== this.player;
+    pokemon.illusion_revealed = false;
     pokemon.details = details;
     pokemon.active = true;
     pokemon.fainted = parsedCondition.fainted;
     pokemon.hp_text = parsedCondition.hpText;
     pokemon.hp_ratio = parsedCondition.hpRatio;
     pokemon.status = parsedCondition.status;
+    pokemon.status_source = 'protocol';
+    pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
     pokemon.gender = parsedDetails.gender;
     pokemon.level = parsedDetails.level;
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    pokemon.item_suppressed = this.view.field.pseudo_weather.includes('magicroom');
     this.updateActiveIndices();
   }
 
@@ -354,6 +413,10 @@ export class PlayerStateExtractor {
     pokemon.ident = ident || pokemon.ident;
     pokemon.name = parseIdent(ident).name || pokemon.name;
     pokemon.species = parsedDetails.species || pokemon.species;
+    pokemon.base_species = parsedDetails.species || pokemon.base_species;
+    pokemon.current_species = parsedDetails.species || pokemon.current_species;
+    pokemon.displayed_species = parsedDetails.species || pokemon.displayed_species;
+    pokemon.species_source = 'protocol';
     pokemon.details = details || pokemon.details;
     pokemon.level = parsedDetails.level ?? pokemon.level;
     pokemon.gender = parsedDetails.gender ?? pokemon.gender;
@@ -363,6 +426,71 @@ export class PlayerStateExtractor {
     pokemon.fainted = parsedCondition.fainted;
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+  }
+
+  private handleReplace(parts: string[]): void {
+    const ident = parts[2] || '';
+    const details = parts[3] || '';
+    const team = parseIdent(ident).player === this.player ? this.view.self_team : this.view.opponent_team;
+    const pokemon = team.find((entry) => entry.active) || this.findOrCreatePokemon(team, ident, details);
+    const displayed = pokemon.displayed_species || pokemon.current_species || pokemon.species;
+    const parsedDetails = parseDetails(details);
+    const parsedCondition = parseCondition(parts[4] || '');
+    pokemon.ident = ident || pokemon.ident;
+    pokemon.name = parseIdent(ident).name || pokemon.name;
+    pokemon.species = parsedDetails.species || pokemon.species;
+    pokemon.details = details || pokemon.details;
+    pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
+    pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
+    pokemon.status = parsedCondition.status ?? pokemon.status;
+    pokemon.base_species = pokemon.species;
+    pokemon.current_species = pokemon.species;
+    pokemon.displayed_species = displayed;
+    pokemon.species_source = 'protocol';
+    pokemon.transformed = false;
+    pokemon.displayed_species_uncertain = false;
+    pokemon.illusion_revealed = true;
+    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+  }
+
+  private handleFormeChange(parts: string[]): void {
+    const ident = parts[2] || '';
+    const species = parts[3] || '';
+    const parsedIdent = parseIdent(ident);
+    if (!parsedIdent.player || !species) {
+      return;
+    }
+    const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const pokemon = this.findOrCreatePokemon(team, ident, species);
+    pokemon.species = species;
+    pokemon.current_species = species;
+    pokemon.displayed_species = species;
+    pokemon.species_source = 'protocol';
+    pokemon.types = resolveTypes(species, pokemon.tera_type, pokemon.terastallized);
+  }
+
+  private handleTransform(parts: string[]): void {
+    const ident = parts[2] || '';
+    const targetIdent = parts[3] || '';
+    const parsedIdent = parseIdent(ident);
+    if (!parsedIdent.player) {
+      return;
+    }
+    const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const targetParsed = parseIdent(targetIdent);
+    const targetTeam = targetParsed.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const pokemon = this.findOrCreatePokemon(team, ident, '');
+    const target = targetTeam.find((entry) => entry.active) || targetTeam.find((entry) => entry.ident === targetIdent);
+    const currentSpecies = target?.current_species || target?.species || targetParsed.name || null;
+    if (!currentSpecies) {
+      return;
+    }
+    pokemon.current_species = currentSpecies;
+    pokemon.displayed_species = currentSpecies;
+    pokemon.species = currentSpecies;
+    pokemon.species_source = 'protocol';
+    pokemon.transformed = true;
+    pokemon.types = target?.types ? [...target.types] : resolveTypes(currentSpecies, null, false);
   }
 
   private handleMove(parts: string[]): void {
@@ -423,9 +551,12 @@ export class PlayerStateExtractor {
     const pokemon = this.findOrCreatePokemon(team, ident, '');
     if (parts[1] === '-curestatus') {
       pokemon.status = null;
+      pokemon.status_started_turn = null;
     } else {
       pokemon.status = status || null;
+      pokemon.status_started_turn = status ? this.view.turn : null;
     }
+    pokemon.status_source = 'protocol';
   }
 
   private handleBoost(parts: string[]): void {
@@ -477,6 +608,20 @@ export class PlayerStateExtractor {
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
 
+    if (effect === 'typechange' || effect === 'typeadd') {
+      if (parts[1] === '-end') {
+        pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+        return;
+      }
+      const changedTypes = (parts[4] || '').split('/').map((value) => value.trim()).filter(Boolean);
+      if (effect === 'typechange') {
+        pokemon.types = changedTypes.slice(0, 2);
+      } else {
+        pokemon.types = [...new Set([...pokemon.types, ...changedTypes])].slice(0, 2);
+      }
+      return;
+    }
+
     if (parts[1] === '-end') {
       pokemon.volatiles = pokemon.volatiles.filter((volatile) => volatile !== effect);
     } else {
@@ -507,10 +652,18 @@ export class PlayerStateExtractor {
     if (parts[1] === '-fieldend' && this.view.field.terrain === effect) {
       this.view.field.terrain = null;
     }
+    if (effect === 'magicroom') {
+      const suppressed = parts[1] !== '-fieldend';
+      for (const team of [this.view.self_team, this.view.opponent_team]) {
+        for (const pokemon of team) {
+          pokemon.item_suppressed = suppressed;
+        }
+      }
+    }
   }
 
   private handleSideCondition(parts: string[]): void {
-    const side = parts[2];
+    const side = (parts[2] || '').split(':', 1)[0];
     const effect = normalizeEffectId(parts[3] || '');
     if ((side !== 'p1' && side !== 'p2') || !effect) {
       return;
@@ -539,7 +692,16 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
-    pokemon.item = parts[1] === '-enditem' ? null : item || pokemon.item;
+    if (parts[1] === '-enditem') {
+      const tags = parts.slice(4).map((value) => value.toLowerCase());
+      const consumed = tags.some((value) => value.includes('[eat]') || value.includes('[from] gem')) || tags.length === 0;
+      pokemon.last_item = item || pokemon.item;
+      pokemon.item = null;
+      pokemon.item_state = consumed ? 'consumed' : 'removed';
+    } else {
+      pokemon.item = item || pokemon.item;
+      pokemon.item_state = 'held';
+    }
   }
 
   private handleAbility(parts: string[]): void {
@@ -551,8 +713,26 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
+    const changed = parts.slice(4).some((value) => value.toLowerCase().startsWith('[from]'));
+    if (!pokemon.base_ability && !changed) {
+      pokemon.base_ability = ability || pokemon.base_ability;
+    }
     pokemon.ability = ability || pokemon.ability;
+    pokemon.ability_state = changed ? 'changed' : 'known';
+    pokemon.ability_suppressed = false;
     pokemon.possible_abilities = upsertUnique(pokemon.possible_abilities, ability);
+  }
+
+  private handleEndAbility(parts: string[]): void {
+    const ident = parts[2] || '';
+    const parsedIdent = parseIdent(ident);
+    if (!parsedIdent.player) {
+      return;
+    }
+    const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const pokemon = this.findOrCreatePokemon(team, ident, '');
+    pokemon.ability_state = 'suppressed';
+    pokemon.ability_suppressed = true;
   }
 
   private handleTerastallize(parts: string[]): void {
@@ -597,6 +777,19 @@ export class PlayerStateExtractor {
       return found;
     }
 
+    found = team.find((pokemon) => {
+      const existing = parseIdent(pokemon.ident);
+      return (
+        parsedIdent.player !== null &&
+        existing.player === parsedIdent.player &&
+        parsedIdent.name !== '' &&
+        existing.name === parsedIdent.name
+      );
+    });
+    if (found) {
+      return found;
+    }
+
     found = team.find((pokemon) => (
       parsedDetails.species &&
       pokemon.species === parsedDetails.species &&
@@ -620,5 +813,15 @@ export class PlayerStateExtractor {
     const opponentIndex = this.view.opponent_team.findIndex((pokemon) => pokemon.active);
     this.view.active.self = selfIndex >= 0 ? selfIndex : null;
     this.view.active.opponent = opponentIndex >= 0 ? opponentIndex : null;
+  }
+
+  private cloneWithStatusEvidence(pokemon: PokemonView): PokemonView {
+    const cloned = clonePokemon(pokemon);
+    cloned.status_turns_public = (
+      cloned.status && cloned.status_started_turn !== null
+        ? Math.max(0, this.view.turn - cloned.status_started_turn)
+        : null
+    );
+    return cloned;
   }
 }

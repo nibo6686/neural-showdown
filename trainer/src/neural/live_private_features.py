@@ -1,4 +1,6 @@
+import hashlib
 import math
+import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -26,6 +28,57 @@ from .tactical_state import (
 
 FEATURE_VERSION_V1 = "live-private-belief-v1"
 FEATURE_VERSION = "live-private-belief-v2"
+FEATURE_VERSION_V3 = "live-private-belief-v3"
+FEATURE_VERSION_V4 = "live-private-belief-v4"
+FEATURE_VERSION_V5 = "live-private-belief-v5"
+FEATURE_VERSION_V6 = "live-private-belief-v6"
+FEATURE_VERSION_V7 = "live-private-belief-v7"
+
+V3_TYPES = [
+    "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting",
+    "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost",
+    "Dragon", "Dark", "Steel", "Fairy",
+]
+V3_STAGE_STATS = ["atk", "def", "spa", "spd", "spe", "accuracy", "evasion"]
+V3_CURRENT_TYPE_SOURCES = ["unknown", "species", "request", "protocol_typechange", "protocol_tera"]
+V3_BASE_TYPE_SOURCES = ["unknown", "species", "request"]
+V4_IDENTITY_BUCKETS = 32
+V4_ITEM_STATES = ["unknown", "held", "none", "removed", "consumed"]
+V4_ABILITY_STATES = ["unknown", "known", "changed", "none", "suppressed"]
+V4_STATE_SOURCES = ["unknown", "request", "protocol"]
+V4_IDENTITY_FIELDS = [
+    "own_active_current_item",
+    "own_active_last_item",
+    "opponent_active_current_item",
+    "opponent_active_last_item",
+    "own_active_base_ability",
+    "own_active_current_ability",
+    "opponent_active_base_ability",
+    "opponent_active_current_ability",
+]
+V5_SPECIES_SOURCES = ["unknown", "request", "protocol", "sim_core", "species_fallback"]
+V5_STATUS_SOURCES = ["unknown", "request", "protocol", "sim_core", "inferred"]
+V5_STATUS_STATES = ["unknown", "none", "brn", "par", "slp", "psn", "tox", "frz", "fainted"]
+V5_SPECIES_STATES = ["unknown", "known"]
+V5_ROSTER_PLACEMENTS = ["unknown", "active", "bench"]
+V5_ROSTER_LIFE_STATES = ["unknown", "alive", "fainted"]
+V5_ACTIVE_SPECIES_FIELDS = [
+    "own_active_base_species",
+    "own_active_current_species",
+    "own_active_displayed_species",
+    "opponent_active_base_species",
+    "opponent_active_current_species",
+    "opponent_active_displayed_species",
+]
+V6_TERA_SOURCES = ["unknown", "request", "protocol", "sim_core", "fallback"]
+V6_TERA_AVAILABILITY_STATES = ["unknown", "available", "unavailable", "used"]
+V6_TERA_ACTIVE_STATES = ["unknown", "inactive", "active"]
+V6_WEATHER_STATES = ["unknown", "none", "rain", "sun", "sand", "snow", "hail", "other"]
+V6_TERRAIN_STATES = ["unknown", "none", "electric", "grassy", "misty", "psychic"]
+V6_ACTIVITY_STATES = ["unknown", "inactive", "active"]
+V6_FIELD_SOURCES = ["unknown", "protocol", "sim_core", "fallback"]
+V6_PSEUDO_WEATHER = ["trickroom", "gravity", "magicroom", "wonderroom"]
+V6_SIDE_CONDITIONS = ["reflect", "lightscreen", "auroraveil", "tailwind", "safeguard", "mist"]
 
 PRIVATE_FEATURE_NAMES = [
     "missing_private_state",
@@ -84,6 +137,259 @@ FEATURE_NAMES_V1 = list(PUBLIC_FEATURE_NAMES) + PRIVATE_FEATURE_NAMES + OPPONENT
 FEATURE_DIM_V1 = len(FEATURE_NAMES_V1)
 FEATURE_NAMES = FEATURE_NAMES_V1 + TACTICAL_STATE_FEATURE_NAMES
 FEATURE_DIM = len(FEATURE_NAMES)
+V3_SLICE1_FEATURE_NAMES = (
+    [f"own_active_{stat}_stage_norm" for stat in V3_STAGE_STATS]
+    + [f"opponent_active_{stat}_stage_norm" for stat in V3_STAGE_STATS]
+    + [f"own_active_base_type_{type_name.lower()}" for type_name in V3_TYPES]
+    + [f"opponent_active_base_type_{type_name.lower()}" for type_name in V3_TYPES]
+    + [f"own_active_current_type_{type_name.lower()}" for type_name in V3_TYPES]
+    + [f"opponent_active_current_type_{type_name.lower()}" for type_name in V3_TYPES]
+    + [f"own_active_base_type_source_{source}" for source in V3_BASE_TYPE_SOURCES]
+    + [f"opponent_active_base_type_source_{source}" for source in V3_BASE_TYPE_SOURCES]
+    + [f"own_active_current_type_source_{source}" for source in V3_CURRENT_TYPE_SOURCES]
+    + [f"opponent_active_current_type_source_{source}" for source in V3_CURRENT_TYPE_SOURCES]
+)
+FEATURE_NAMES_V3 = FEATURE_NAMES + V3_SLICE1_FEATURE_NAMES
+FEATURE_DIM_V3 = len(FEATURE_NAMES_V3)
+V4_SLICE2_FEATURE_NAMES = (
+    [
+        f"{field}_hash_{family}_bucket_{bucket:02d}"
+        for field in V4_IDENTITY_FIELDS
+        for family in ("a", "b")
+        for bucket in range(V4_IDENTITY_BUCKETS)
+    ]
+    + [f"own_active_item_state_{state}" for state in V4_ITEM_STATES]
+    + [f"opponent_active_item_state_{state}" for state in V4_ITEM_STATES]
+    + [f"own_active_item_source_{source}" for source in V4_STATE_SOURCES]
+    + [f"opponent_active_item_source_{source}" for source in V4_STATE_SOURCES]
+    + ["own_active_item_suppressed", "opponent_active_item_suppressed"]
+    + [f"own_active_ability_state_{state}" for state in V4_ABILITY_STATES]
+    + [f"opponent_active_ability_state_{state}" for state in V4_ABILITY_STATES]
+    + [f"own_active_ability_source_{source}" for source in V4_STATE_SOURCES]
+    + [f"opponent_active_ability_source_{source}" for source in V4_STATE_SOURCES]
+    + ["own_active_ability_suppressed", "opponent_active_ability_suppressed"]
+)
+FEATURE_NAMES_V4 = FEATURE_NAMES_V3 + V4_SLICE2_FEATURE_NAMES
+FEATURE_DIM_V4 = len(FEATURE_NAMES_V4)
+V5_SLICE3_FEATURE_NAMES = (
+    [
+        f"{field}_hash_{family}_bucket_{bucket:02d}"
+        for field in V5_ACTIVE_SPECIES_FIELDS
+        for family in ("a", "b")
+        for bucket in range(V4_IDENTITY_BUCKETS)
+    ]
+    + [
+        f"{side}_roster_slot_{slot}_species_hash_{family}_bucket_{bucket:02d}"
+        for side in ("own", "opponent")
+        for slot in range(1, 7)
+        for family in ("a", "b")
+        for bucket in range(V4_IDENTITY_BUCKETS)
+    ]
+    + [
+        f"{side}_active_{flag}"
+        for side in ("own", "opponent")
+        for flag in ("transformed", "displayed_species_uncertain", "illusion_revealed")
+    ]
+    + [
+        f"{side}_active_species_source_{source}"
+        for side in ("own", "opponent")
+        for source in V5_SPECIES_SOURCES
+    ]
+    + [
+        f"{side}_active_status_{status}"
+        for side in ("own", "opponent")
+        for status in V5_STATUS_STATES
+    ]
+    + [
+        f"{side}_active_status_source_{source}"
+        for side in ("own", "opponent")
+        for source in V5_STATUS_SOURCES
+    ]
+    + [
+        f"{side}_active_{status}_turns_public_{field}"
+        for side in ("own", "opponent")
+        for status in ("sleep", "toxic")
+        for field in ("known", "norm")
+    ]
+    + [
+        name
+        for side in ("own", "opponent")
+        for slot in range(1, 7)
+        for name in (
+            *[f"{side}_roster_slot_{slot}_species_state_{state}" for state in V5_SPECIES_STATES],
+            *[f"{side}_roster_slot_{slot}_placement_{placement}" for placement in V5_ROSTER_PLACEMENTS],
+            *[f"{side}_roster_slot_{slot}_life_state_{state}" for state in V5_ROSTER_LIFE_STATES],
+            *[f"{side}_roster_slot_{slot}_species_source_{source}" for source in V5_SPECIES_SOURCES],
+            *[f"{side}_roster_slot_{slot}_status_{status}" for status in V5_STATUS_STATES],
+            *[f"{side}_roster_slot_{slot}_status_source_{source}" for source in V5_STATUS_SOURCES],
+        )
+    ]
+)
+FEATURE_NAMES_V5 = FEATURE_NAMES_V4 + V5_SLICE3_FEATURE_NAMES
+FEATURE_DIM_V5 = len(FEATURE_NAMES_V5)
+V6_SLICE4_FEATURE_NAMES = (
+    [
+        f"{side}_tera_availability_{state}"
+        for side in ("own", "opponent")
+        for state in V6_TERA_AVAILABILITY_STATES
+    ]
+    + [
+        f"{side}_active_tera_state_{state}"
+        for side in ("own", "opponent")
+        for state in V6_TERA_ACTIVE_STATES
+    ]
+    + [
+        f"{side}_active_tera_type_{type_name.lower()}"
+        for side in ("own", "opponent")
+        for type_name in V3_TYPES
+    ]
+    + [
+        f"{side}_tera_source_{source}"
+        for side in ("own", "opponent")
+        for source in V6_TERA_SOURCES
+    ]
+    + [
+        f"{side}_{field}"
+        for side in ("own", "opponent")
+        for field in ("tera_action_available", "current_type_is_tera")
+    ]
+    + [f"weather_state_{state}" for state in V6_WEATHER_STATES]
+    + [f"weather_source_{source}" for source in V6_FIELD_SOURCES]
+    + ["weather_turns_public_known", "weather_turns_public_norm"]
+    + [f"terrain_state_{state}" for state in V6_TERRAIN_STATES]
+    + [f"terrain_source_{source}" for source in V6_FIELD_SOURCES]
+    + ["terrain_turns_public_known", "terrain_turns_public_norm"]
+    + [
+        f"{effect}_{suffix}"
+        for effect in V6_PSEUDO_WEATHER
+        for suffix in (
+            *[f"state_{state}" for state in V6_ACTIVITY_STATES],
+            "turns_public_known",
+            "turns_public_norm",
+        )
+    ]
+    + [
+        f"{side}_{condition}_{suffix}"
+        for side in ("own", "opponent")
+        for condition in V6_SIDE_CONDITIONS
+        for suffix in (
+            *[f"state_{state}" for state in V6_ACTIVITY_STATES],
+            "turns_public_known",
+            "turns_public_norm",
+        )
+    ]
+    + [
+        f"{side}_stealthrock_state_{state}"
+        for side in ("own", "opponent")
+        for state in V6_ACTIVITY_STATES
+    ]
+    + [
+        f"{side}_spikes_layers_{layers}"
+        for side in ("own", "opponent")
+        for layers in ("unknown", "0", "1", "2", "3")
+    ]
+    + [
+        f"{side}_toxicspikes_layers_{layers}"
+        for side in ("own", "opponent")
+        for layers in ("unknown", "0", "1", "2")
+    ]
+    + [
+        f"{side}_stickyweb_state_{state}"
+        for side in ("own", "opponent")
+        for state in V6_ACTIVITY_STATES
+    ]
+)
+FEATURE_NAMES_V6 = FEATURE_NAMES_V5 + V6_SLICE4_FEATURE_NAMES
+FEATURE_DIM_V6 = len(FEATURE_NAMES_V6)
+
+# --- Slice 5: move identity, revealed PP, and action/move constraints (v7) ---
+V7_MOVE_SLOTS = 4
+V7_MOVE_PROVENANCE = ["unknown", "request", "protocol", "sim_core", "inferred"]
+V7_CONSTRAINT_STATES = ["unknown", "inactive", "active"]
+
+
+def _v7_move_slot_names(side: str, present_label: str) -> List[str]:
+    names: List[str] = []
+    for slot in range(1, V7_MOVE_SLOTS + 1):
+        prefix = f"{side}_active_move_slot_{slot}"
+        names.extend(
+            f"{prefix}_id_hash_{family}_bucket_{bucket:02d}"
+            for family in ("a", "b")
+            for bucket in range(V4_IDENTITY_BUCKETS)
+        )
+        names.extend(
+            [
+                f"{prefix}_{present_label}",
+                f"{prefix}_unknown",
+                f"{prefix}_disabled",
+                f"{prefix}_pp_known",
+                f"{prefix}_pp_norm",
+            ]
+        )
+        names.extend(f"{prefix}_provenance_{prov}" for prov in V7_MOVE_PROVENANCE)
+    return names
+
+
+def _v7_state_names(prefix: str) -> List[str]:
+    return [f"{prefix}_{state}" for state in V7_CONSTRAINT_STATES]
+
+
+V7_OWN_CONSTRAINT_NAMES = (
+    [
+        "own_known_move_count_norm",
+        "own_unknown_move_slot_count_norm",
+        "own_disabled_move_count_norm",
+        "own_selectable_move_count_norm",
+    ]
+    + _v7_state_names("own_recharge_state")
+    + _v7_state_names("own_two_turn_lock_state")
+    + _v7_state_names("own_single_move_lock_state")
+    + _v7_state_names("own_encore_lock_state")
+    + [
+        "own_choice_lock_inferred",
+        "own_force_switch",
+        "own_must_recharge",
+        "own_wait_forced",
+        "own_trapped",
+    ]
+    + _v7_state_names("own_taunt_state")
+    + _v7_state_names("own_torment_state")
+    + _v7_state_names("own_healblock_state")
+    + _v7_state_names("own_imprison_state")
+    + _v7_state_names("own_disable_state")
+    + ["own_substitute_present"]
+    + [
+        f"own_constraint_locked_move_id_hash_{family}_bucket_{bucket:02d}"
+        for family in ("a", "b")
+        for bucket in range(V4_IDENTITY_BUCKETS)
+    ]
+)
+
+V7_OPPONENT_CONSTRAINT_NAMES = (
+    [
+        "opponent_active_revealed_move_count_norm",
+        "opponent_active_unknown_move_slot_count_norm",
+    ]
+    + _v7_state_names("opponent_taunt_state")
+    + _v7_state_names("opponent_torment_state")
+    + _v7_state_names("opponent_healblock_state")
+    + _v7_state_names("opponent_imprison_state")
+    + _v7_state_names("opponent_disable_state")
+    + _v7_state_names("opponent_encore_lock_state")
+    + [
+        "opponent_substitute_present",
+        "opponent_pp_known_any",
+    ]
+)
+
+V7_SLICE5_FEATURE_NAMES = (
+    _v7_move_slot_names("own", "known")
+    + _v7_move_slot_names("opponent", "revealed")
+    + V7_OWN_CONSTRAINT_NAMES
+    + V7_OPPONENT_CONSTRAINT_NAMES
+)
+FEATURE_NAMES_V7 = FEATURE_NAMES_V6 + V7_SLICE5_FEATURE_NAMES
+FEATURE_DIM_V7 = len(FEATURE_NAMES_V7)
 
 
 def _clip(value: float, low: float = 0.0, high: float = 1.0) -> float:
@@ -111,6 +417,520 @@ def _hp_fraction(mon: Dict[str, Any]) -> float:
 
 def _known(value: Any) -> bool:
     return value is not None and str(value).strip() != ""
+
+
+def _stage_value(side: Dict[str, Any], stat: str) -> float:
+    boosts = side.get("boosts") if isinstance(side.get("boosts"), dict) else {}
+    try:
+        return max(-1.0, min(1.0, float(boosts.get(stat, 0) or 0) / 6.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _type_values(side: Dict[str, Any], key: str) -> List[float]:
+    active = {str(value).lower() for value in (side.get(key) or []) if str(value)}
+    return [float(type_name.lower() in active) for type_name in V3_TYPES]
+
+
+def _source_values(side: Dict[str, Any], key: str, sources: Sequence[str]) -> List[float]:
+    source = str(side.get(key) or "unknown")
+    if source not in sources:
+        source = "unknown"
+    return [float(source == candidate) for candidate in sources]
+
+
+def v3_slice1_feature_vector(tactical_state: Optional[Dict[str, Any]]) -> np.ndarray:
+    state = tactical_state if isinstance(tactical_state, dict) else {}
+    own = state.get("own") if isinstance(state.get("own"), dict) else {}
+    opponent = state.get("opponent") if isinstance(state.get("opponent"), dict) else {}
+    values = [
+        *(_stage_value(own, stat) for stat in V3_STAGE_STATS),
+        *(_stage_value(opponent, stat) for stat in V3_STAGE_STATS),
+        *_type_values(own, "active_base_types"),
+        *_type_values(opponent, "active_base_types"),
+        *_type_values(own, "active_current_types"),
+        *_type_values(opponent, "active_current_types"),
+        *_source_values(own, "base_type_source", V3_BASE_TYPE_SOURCES),
+        *_source_values(opponent, "base_type_source", V3_BASE_TYPE_SOURCES),
+        *_source_values(own, "current_type_source", V3_CURRENT_TYPE_SOURCES),
+        *_source_values(opponent, "current_type_source", V3_CURRENT_TYPE_SOURCES),
+    ]
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(V3_SLICE1_FEATURE_NAMES):
+        raise ValueError(
+            f"Live-private v3 slice-1 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(V3_SLICE1_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def _identity_id(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(value or "").lower())
+
+
+def _identity_hash_values(value: Any) -> List[float]:
+    identity = _identity_id(value)
+    values = [0.0] * (V4_IDENTITY_BUCKETS * 2)
+    if not identity:
+        return values
+    digest = hashlib.sha256(identity.encode("utf-8")).digest()
+    values[int.from_bytes(digest[0:4], "little") % V4_IDENTITY_BUCKETS] = 1.0
+    values[V4_IDENTITY_BUCKETS + (int.from_bytes(digest[4:8], "little") % V4_IDENTITY_BUCKETS)] = 1.0
+    return values
+
+
+def _enum_values(value: Any, choices: Sequence[str]) -> List[float]:
+    normalized = str(value or "unknown")
+    if normalized not in choices:
+        normalized = "unknown"
+    return [float(normalized == choice) for choice in choices]
+
+
+def v4_slice2_feature_vector(tactical_state: Optional[Dict[str, Any]]) -> np.ndarray:
+    state = tactical_state if isinstance(tactical_state, dict) else {}
+    own = state.get("own") if isinstance(state.get("own"), dict) else {}
+    opponent = state.get("opponent") if isinstance(state.get("opponent"), dict) else {}
+    identities = [
+        own.get("active_item"),
+        own.get("active_last_item"),
+        opponent.get("active_item"),
+        opponent.get("active_last_item"),
+        own.get("active_base_ability"),
+        own.get("active_current_ability"),
+        opponent.get("active_base_ability"),
+        opponent.get("active_current_ability"),
+    ]
+    values: List[float] = []
+    for identity in identities:
+        values.extend(_identity_hash_values(identity))
+    values.extend(_enum_values(own.get("active_item_state"), V4_ITEM_STATES))
+    values.extend(_enum_values(opponent.get("active_item_state"), V4_ITEM_STATES))
+    values.extend(_enum_values(own.get("active_item_source"), V4_STATE_SOURCES))
+    values.extend(_enum_values(opponent.get("active_item_source"), V4_STATE_SOURCES))
+    values.extend(
+        [
+            float(bool(own.get("active_item_suppressed"))),
+            float(bool(opponent.get("active_item_suppressed"))),
+        ]
+    )
+    values.extend(_enum_values(own.get("active_ability_state"), V4_ABILITY_STATES))
+    values.extend(_enum_values(opponent.get("active_ability_state"), V4_ABILITY_STATES))
+    values.extend(_enum_values(own.get("active_ability_source"), V4_STATE_SOURCES))
+    values.extend(_enum_values(opponent.get("active_ability_source"), V4_STATE_SOURCES))
+    values.extend(
+        [
+            float(bool(own.get("active_ability_suppressed"))),
+            float(bool(opponent.get("active_ability_suppressed"))),
+        ]
+    )
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(V4_SLICE2_FEATURE_NAMES):
+        raise ValueError(
+            f"Live-private v4 slice-2 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(V4_SLICE2_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def _status_state(side_or_mon: Dict[str, Any], *, active: bool = False) -> str:
+    fainted = bool(side_or_mon.get("active_fainted") if active else side_or_mon.get("fainted"))
+    if fainted:
+        return "fainted"
+    status = side_or_mon.get("active_status") if active else side_or_mon.get("status")
+    if str(status or "") in V5_STATUS_STATES:
+        return str(status)
+    source = side_or_mon.get("active_status_source") if active else side_or_mon.get("status_source")
+    species = (
+        side_or_mon.get("active_current_species") or side_or_mon.get("active_species")
+        if active
+        else side_or_mon.get("current_species") or side_or_mon.get("species")
+    )
+    return "none" if species and str(source or "unknown") != "unknown" else "unknown"
+
+
+def _roster_slots(side: Dict[str, Any]) -> List[Dict[str, Any]]:
+    known = [dict(mon) for mon in (side.get("known_team") or []) if isinstance(mon, dict)]
+    return (known + [{} for _ in range(6)])[:6]
+
+
+def v5_slice3_feature_vector(tactical_state: Optional[Dict[str, Any]]) -> np.ndarray:
+    state = tactical_state if isinstance(tactical_state, dict) else {}
+    own = state.get("own") if isinstance(state.get("own"), dict) else {}
+    opponent = state.get("opponent") if isinstance(state.get("opponent"), dict) else {}
+    sides = {"own": own, "opponent": opponent}
+    active_identities = [
+        own.get("active_base_species"),
+        own.get("active_current_species") or own.get("active_species"),
+        own.get("active_displayed_species") or own.get("active_species"),
+        opponent.get("active_base_species"),
+        opponent.get("active_current_species") or opponent.get("active_species"),
+        opponent.get("active_displayed_species") or opponent.get("active_species"),
+    ]
+    roster = {name: _roster_slots(side) for name, side in sides.items()}
+    values: List[float] = []
+    for identity in active_identities:
+        values.extend(_identity_hash_values(identity))
+    for side_name in ("own", "opponent"):
+        for mon in roster[side_name]:
+            values.extend(_identity_hash_values(mon.get("base_species") or mon.get("species")))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        values.extend(
+            [
+                float(bool(side.get("active_transformed"))),
+                float(bool(side.get("active_displayed_species_uncertain"))),
+                float(bool(side.get("active_illusion_revealed"))),
+            ]
+        )
+    for side_name in ("own", "opponent"):
+        values.extend(_enum_values(sides[side_name].get("active_species_source"), V5_SPECIES_SOURCES))
+    for side_name in ("own", "opponent"):
+        values.extend(_enum_values(_status_state(sides[side_name], active=True), V5_STATUS_STATES))
+    for side_name in ("own", "opponent"):
+        values.extend(_enum_values(sides[side_name].get("active_status_source"), V5_STATUS_SOURCES))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        status = _status_state(side, active=True)
+        turns = side.get("active_status_turns_public")
+        for status_id in ("slp", "tox"):
+            known = status == status_id and turns is not None
+            values.extend([float(known), _clip(float(turns or 0) / 15.0) if known else 0.0])
+    for side_name in ("own", "opponent"):
+        for mon in roster[side_name]:
+            species = mon.get("base_species") or mon.get("species")
+            species_state = "known" if _known(species) else "unknown"
+            placement = "active" if mon.get("active") else "bench" if species else "unknown"
+            life_state = "fainted" if mon.get("fainted") else "alive" if species else "unknown"
+            values.extend(_enum_values(species_state, V5_SPECIES_STATES))
+            values.extend(_enum_values(placement, V5_ROSTER_PLACEMENTS))
+            values.extend(_enum_values(life_state, V5_ROSTER_LIFE_STATES))
+            values.extend(_enum_values(mon.get("species_source"), V5_SPECIES_SOURCES))
+            values.extend(_enum_values(_status_state(mon), V5_STATUS_STATES))
+            values.extend(_enum_values(mon.get("status_source"), V5_STATUS_SOURCES))
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(V5_SLICE3_FEATURE_NAMES):
+        raise ValueError(
+            f"Live-private v5 slice-3 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(V5_SLICE3_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def _weather_state(value: Any, known: bool) -> str:
+    if not known:
+        return "unknown"
+    weather = _identity_id(value)
+    return {
+        "": "none",
+        "raindance": "rain",
+        "primordialsea": "rain",
+        "sunnyday": "sun",
+        "desolateland": "sun",
+        "sandstorm": "sand",
+        "snow": "snow",
+        "hail": "hail",
+    }.get(weather, "other")
+
+
+def _terrain_state(value: Any, known: bool) -> str:
+    if not known:
+        return "unknown"
+    terrain = _identity_id(value)
+    return {
+        "": "none",
+        "electricterrain": "electric",
+        "grassyterrain": "grassy",
+        "mistyterrain": "misty",
+        "psychicterrain": "psychic",
+    }.get(terrain, "unknown")
+
+
+def _activity_state(active: bool, known: bool) -> str:
+    if not known:
+        return "unknown"
+    return "active" if active else "inactive"
+
+
+def _duration_values(container: Dict[str, Any], key: str, active: bool) -> List[float]:
+    raw = container.get(key) if isinstance(container.get(key), dict) else {}
+    known = bool(active and raw.get("turns_since_started") is not None)
+    return [float(known), _clip(float(raw.get("turns_since_started", 0) or 0) / 10.0) if known else 0.0]
+
+
+def _tera_availability(side: Dict[str, Any]) -> str:
+    value = str(side.get("tera_availability_state") or "unknown")
+    return value if value in V6_TERA_AVAILABILITY_STATES else "unknown"
+
+
+def v6_slice4_feature_vector(tactical_state: Optional[Dict[str, Any]]) -> np.ndarray:
+    state = tactical_state if isinstance(tactical_state, dict) else {}
+    state_known = bool(state.get("perspective_side"))
+    own = state.get("own") if isinstance(state.get("own"), dict) else {}
+    opponent = state.get("opponent") if isinstance(state.get("opponent"), dict) else {}
+    sides = {"own": own, "opponent": opponent}
+    field_durations = state.get("field_durations") if isinstance(state.get("field_durations"), dict) else {}
+    field_effects = {_identity_id(value) for value in (state.get("field_effects") or [])}
+    values: List[float] = []
+    for side_name in ("own", "opponent"):
+        values.extend(_enum_values(_tera_availability(sides[side_name]), V6_TERA_AVAILABILITY_STATES))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        active_known = bool(side.get("active_species") or side.get("active_current_species"))
+        values.extend(
+            _enum_values(
+                _activity_state(bool(side.get("active_terastallized")), active_known),
+                V6_TERA_ACTIVE_STATES,
+            )
+        )
+    for side_name in ("own", "opponent"):
+        tera_type = str(sides[side_name].get("active_tera_type") or "").lower()
+        values.extend([float(tera_type == type_name.lower()) for type_name in V3_TYPES])
+    for side_name in ("own", "opponent"):
+        values.extend(_enum_values(sides[side_name].get("tera_source"), V6_TERA_SOURCES))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        values.extend(
+            [
+                float(bool(side.get("tera_action_available"))),
+                float(
+                    bool(side.get("active_terastallized"))
+                    and str(side.get("current_type_source") or "") == "protocol_tera"
+                ),
+            ]
+        )
+
+    weather = _weather_state(state.get("weather"), state_known)
+    values.extend(_enum_values(weather, V6_WEATHER_STATES))
+    values.extend(_enum_values("protocol" if state_known else "unknown", V6_FIELD_SOURCES))
+    values.extend(_duration_values(field_durations, "weather", weather not in {"unknown", "none"}))
+
+    terrain = _terrain_state(state.get("terrain"), state_known)
+    values.extend(_enum_values(terrain, V6_TERRAIN_STATES))
+    values.extend(_enum_values("protocol" if state_known else "unknown", V6_FIELD_SOURCES))
+    values.extend(_duration_values(field_durations, "terrain", terrain not in {"unknown", "none"}))
+
+    for effect in V6_PSEUDO_WEATHER:
+        active = effect in field_effects
+        values.extend(_enum_values(_activity_state(active, state_known), V6_ACTIVITY_STATES))
+        values.extend(_duration_values(field_durations, effect, active))
+
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        side_known = state_known and bool(side)
+        conditions = side.get("side_conditions") if isinstance(side.get("side_conditions"), dict) else {}
+        durations = (
+            side.get("side_condition_durations")
+            if isinstance(side.get("side_condition_durations"), dict)
+            else {}
+        )
+        for condition in V6_SIDE_CONDITIONS:
+            active = bool(conditions.get(condition))
+            values.extend(_enum_values(_activity_state(active, side_known), V6_ACTIVITY_STATES))
+            values.extend(_duration_values(durations, condition, active))
+
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        side_known = state_known and bool(side)
+        conditions = side.get("side_conditions") if isinstance(side.get("side_conditions"), dict) else {}
+        values.extend(
+            _enum_values(
+                _activity_state(bool(conditions.get("stealthrock")), side_known),
+                V6_ACTIVITY_STATES,
+            )
+        )
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        conditions = side.get("side_conditions") if isinstance(side.get("side_conditions"), dict) else {}
+        layers = str(max(0, min(3, int(conditions.get("spikes", 0) or 0)))) if state_known else "unknown"
+        values.extend(_enum_values(layers, ["unknown", "0", "1", "2", "3"]))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        conditions = side.get("side_conditions") if isinstance(side.get("side_conditions"), dict) else {}
+        layers = str(max(0, min(2, int(conditions.get("toxicspikes", 0) or 0)))) if state_known else "unknown"
+        values.extend(_enum_values(layers, ["unknown", "0", "1", "2"]))
+    for side_name in ("own", "opponent"):
+        side = sides[side_name]
+        conditions = side.get("side_conditions") if isinstance(side.get("side_conditions"), dict) else {}
+        values.extend(
+            _enum_values(
+                _activity_state(bool(conditions.get("stickyweb")), state_known and bool(side)),
+                V6_ACTIVITY_STATES,
+            )
+        )
+
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(V6_SLICE4_FEATURE_NAMES):
+        raise ValueError(
+            f"Live-private v6 slice-4 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(V6_SLICE4_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def _v7_move_slot_values(move: Optional[Dict[str, Any]]) -> List[float]:
+    """Per-slot move-identity features. ``move`` is None for an unknown/empty slot."""
+    if not isinstance(move, dict):
+        return (
+            [0.0] * (V4_IDENTITY_BUCKETS * 2)
+            + [0.0, 1.0, 0.0, 0.0, 0.0]
+            + _enum_values("unknown", V7_MOVE_PROVENANCE)
+        )
+    name = move.get("name") or move.get("id")
+    values = list(_identity_hash_values(name))
+    disabled = float(bool(move.get("disabled")))
+    pp = move.get("pp")
+    maxpp = move.get("maxpp")
+    if isinstance(pp, (int, float)) and isinstance(maxpp, (int, float)) and float(maxpp) > 0:
+        pp_known, pp_norm = 1.0, _clip(float(pp) / float(maxpp))
+    else:
+        pp_known, pp_norm = 0.0, 0.0
+    source = str(move.get("source") or "")
+    provenance = {"request": "request", "protocol": "protocol", "sim_core": "sim_core", "randbats": "inferred"}.get(
+        source, "inferred" if move.get("inferred") else "unknown"
+    )
+    values.extend([1.0, 0.0, disabled, pp_known, pp_norm])
+    values.extend(_enum_values(provenance, V7_MOVE_PROVENANCE))
+    return values
+
+
+def _opponent_revealed_moves(opponent: Dict[str, Any]) -> List[Dict[str, Any]]:
+    species = opponent.get("active_base_species") or opponent.get("active_species")
+    revealed_map = opponent.get("revealed_moves_by_species")
+    moves = revealed_map.get(species) if isinstance(revealed_map, dict) and species else None
+    moves = moves if isinstance(moves, list) else []
+    return [{"name": str(name), "source": "protocol"} for name in moves if str(name)][:V7_MOVE_SLOTS]
+
+
+def _has_constraint(side: Dict[str, Any], name: str) -> bool:
+    volatiles = {_identity_id(v) for v in (side.get("volatiles") or []) if isinstance(side.get("volatiles"), list)}
+    constraint = {
+        _identity_id(v) for v in (side.get("constraint_volatiles") or []) if isinstance(side.get("constraint_volatiles"), list)
+    }
+    return name in volatiles or name in constraint
+
+
+def _v7_volatile_state(side: Dict[str, Any], name: str, known: bool) -> List[float]:
+    if not known:
+        return _enum_values("unknown", V7_CONSTRAINT_STATES)
+    return _enum_values("active" if _has_constraint(side, name) else "inactive", V7_CONSTRAINT_STATES)
+
+
+def v7_slice5_feature_vector(tactical_state: Optional[Dict[str, Any]]) -> np.ndarray:
+    state = tactical_state if isinstance(tactical_state, dict) else {}
+    own = state.get("own") if isinstance(state.get("own"), dict) else {}
+    opponent = state.get("opponent") if isinstance(state.get("opponent"), dict) else {}
+
+    own_moves = [mv for mv in (own.get("active_moves") or []) if isinstance(mv, dict)]
+    opponent_moves = _opponent_revealed_moves(opponent)
+
+    values: List[float] = []
+    for slot in range(V7_MOVE_SLOTS):
+        values.extend(_v7_move_slot_values(own_moves[slot] if slot < len(own_moves) else None))
+    for slot in range(V7_MOVE_SLOTS):
+        values.extend(_v7_move_slot_values(opponent_moves[slot] if slot < len(opponent_moves) else None))
+
+    # --- own constraints ---
+    own_known = bool(own_moves) or bool(own.get("active_species"))
+    n = len(own_moves)
+    selectable = [mv for mv in own_moves if not mv.get("disabled")]
+    disabled_count = sum(1 for mv in own_moves if mv.get("disabled"))
+    first = own_moves[0] if n == 1 else None
+    first_id = _identity_id(first.get("name") or first.get("id")) if first else ""
+    first_locked = bool(first and first.get("pp") is None)  # locked moves omit PP in the request
+    is_recharge = bool(n == 1 and first_id == "recharge")
+    is_two_turn_lock = bool(first_locked and not is_recharge)
+    is_single_move_lock = bool(n > 1 and len(selectable) == 1)
+    has_encore = _has_constraint(own, "encore")
+    choice_lock_inferred = bool(is_single_move_lock and not has_encore)
+
+    locked_move = None
+    if is_two_turn_lock:
+        locked_move = first.get("name") or first.get("id")
+    elif is_single_move_lock:
+        locked_move = selectable[0].get("name") or selectable[0].get("id")
+
+    def state_enum(active: bool) -> List[float]:
+        if not own_known:
+            return _enum_values("unknown", V7_CONSTRAINT_STATES)
+        return _enum_values("active" if active else "inactive", V7_CONSTRAINT_STATES)
+
+    values.extend(
+        [
+            _clip(n / 4.0),
+            _clip((4 - min(4, n)) / 4.0) if own_known else 1.0,
+            _clip(disabled_count / 4.0),
+            _clip(len(selectable) / 4.0),
+        ]
+    )
+    values.extend(state_enum(is_recharge))
+    values.extend(state_enum(is_two_turn_lock))
+    values.extend(state_enum(is_single_move_lock))
+    values.extend(_v7_volatile_state(own, "encore", own_known))
+    values.extend(
+        [
+            float(choice_lock_inferred),
+            float(bool(own.get("force_switch"))),
+            float(is_recharge),
+            float(bool(own.get("wait"))),
+            float(bool(own.get("trapped"))),
+        ]
+    )
+    values.extend(_v7_volatile_state(own, "taunt", own_known))
+    values.extend(_v7_volatile_state(own, "torment", own_known))
+    values.extend(_v7_volatile_state(own, "healblock", own_known))
+    values.extend(_v7_volatile_state(own, "imprison", own_known))
+    values.extend(_v7_volatile_state(own, "disable", own_known))
+    values.append(float(_has_constraint(own, "substitute")))
+    values.extend(_identity_hash_values(locked_move))
+
+    # --- opponent constraints ---
+    opp_known = bool(opponent.get("active_base_species") or opponent.get("active_species"))
+    values.extend(
+        [
+            _clip(len(opponent_moves) / 4.0),
+            _clip((4 - min(4, len(opponent_moves))) / 4.0) if opp_known else 1.0,
+        ]
+    )
+    values.extend(_v7_volatile_state(opponent, "taunt", opp_known))
+    values.extend(_v7_volatile_state(opponent, "torment", opp_known))
+    values.extend(_v7_volatile_state(opponent, "healblock", opp_known))
+    values.extend(_v7_volatile_state(opponent, "imprison", opp_known))
+    values.extend(_v7_volatile_state(opponent, "disable", opp_known))
+    values.extend(_v7_volatile_state(opponent, "encore", opp_known))
+    values.append(float(_has_constraint(opponent, "substitute")))
+    values.append(0.0)  # opponent_pp_known_any: opponent exact PP is never request-visible
+
+    vector = np.asarray(values, dtype=np.float32)
+    if vector.shape[0] != len(V7_SLICE5_FEATURE_NAMES):
+        raise ValueError(
+            f"Live-private v7 slice-5 size mismatch: got {vector.shape[0]}, "
+            f"expected {len(V7_SLICE5_FEATURE_NAMES)}."
+        )
+    return vector
+
+
+def validate_live_private_feature_metadata(
+    *,
+    feature_version: str,
+    feature_dim: int,
+    expected_version: str,
+) -> None:
+    expected = {
+        FEATURE_VERSION_V1: FEATURE_DIM_V1,
+        FEATURE_VERSION: FEATURE_DIM,
+        FEATURE_VERSION_V3: FEATURE_DIM_V3,
+        FEATURE_VERSION_V4: FEATURE_DIM_V4,
+        FEATURE_VERSION_V5: FEATURE_DIM_V5,
+        FEATURE_VERSION_V6: FEATURE_DIM_V6,
+        FEATURE_VERSION_V7: FEATURE_DIM_V7,
+    }
+    if expected_version not in expected:
+        raise ValueError(f"Unsupported expected feature version: {expected_version!r}.")
+    if feature_version != expected_version or int(feature_dim) != expected[expected_version]:
+        raise ValueError(
+            f"Feature metadata version/dim mismatch: got {feature_version!r}/{feature_dim}; "
+            f"expected {expected_version!r}/{expected[expected_version]}."
+        )
 
 
 def _active_team_member(private_state: Dict[str, Any]) -> Dict[str, Any]:
@@ -400,6 +1220,7 @@ def build_live_private_feature_vector(
     trajectory: Optional[Dict[str, Any]] = None,
     player_side: Optional[str] = None,
     tactical_state: Optional[Dict[str, Any]] = None,
+    feature_version: str = FEATURE_VERSION,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     public = np.asarray(public_features, dtype=np.float32).reshape(-1)
     if public.shape[0] != len(PUBLIC_FEATURE_NAMES):
@@ -417,12 +1238,72 @@ def build_live_private_feature_vector(
             tactical_state = {}
     tactical_state = snapshot_with_private_state(tactical_state, private_state)
     tactical = tactical_state_feature_vector(tactical_state)
-    features = np.concatenate([public, private, opponent, tactical]).astype(np.float32)
-    if features.shape[0] != FEATURE_DIM:
-        raise ValueError(f"Live-private feature size mismatch: got {features.shape[0]}, expected {FEATURE_DIM}.")
+    v2_features = np.concatenate([public, private, opponent, tactical]).astype(np.float32)
+    if v2_features.shape[0] != FEATURE_DIM:
+        raise ValueError(f"Live-private feature size mismatch: got {v2_features.shape[0]}, expected {FEATURE_DIM}.")
+    if feature_version == FEATURE_VERSION:
+        features = v2_features
+        feature_names = FEATURE_NAMES
+    elif feature_version == FEATURE_VERSION_V3:
+        features = np.concatenate([v2_features, v3_slice1_feature_vector(tactical_state)]).astype(np.float32)
+        feature_names = FEATURE_NAMES_V3
+    elif feature_version == FEATURE_VERSION_V4:
+        features = np.concatenate(
+            [
+                v2_features,
+                v3_slice1_feature_vector(tactical_state),
+                v4_slice2_feature_vector(tactical_state),
+            ]
+        ).astype(np.float32)
+        feature_names = FEATURE_NAMES_V4
+    elif feature_version == FEATURE_VERSION_V5:
+        features = np.concatenate(
+            [
+                v2_features,
+                v3_slice1_feature_vector(tactical_state),
+                v4_slice2_feature_vector(tactical_state),
+                v5_slice3_feature_vector(tactical_state),
+            ]
+        ).astype(np.float32)
+        feature_names = FEATURE_NAMES_V5
+    elif feature_version == FEATURE_VERSION_V6:
+        features = np.concatenate(
+            [
+                v2_features,
+                v3_slice1_feature_vector(tactical_state),
+                v4_slice2_feature_vector(tactical_state),
+                v5_slice3_feature_vector(tactical_state),
+                v6_slice4_feature_vector(tactical_state),
+            ]
+        ).astype(np.float32)
+        feature_names = FEATURE_NAMES_V6
+    elif feature_version == FEATURE_VERSION_V7:
+        features = np.concatenate(
+            [
+                v2_features,
+                v3_slice1_feature_vector(tactical_state),
+                v4_slice2_feature_vector(tactical_state),
+                v5_slice3_feature_vector(tactical_state),
+                v6_slice4_feature_vector(tactical_state),
+                v7_slice5_feature_vector(tactical_state),
+            ]
+        ).astype(np.float32)
+        feature_names = FEATURE_NAMES_V7
+    else:
+        raise ValueError(
+            f"Unsupported live-private feature_version={feature_version!r}; "
+            f"expected one of {FEATURE_VERSION!r}, {FEATURE_VERSION_V3!r}, "
+            f"{FEATURE_VERSION_V4!r}, {FEATURE_VERSION_V5!r}, {FEATURE_VERSION_V6!r}, "
+            f"or {FEATURE_VERSION_V7!r}."
+        )
+    if features.shape[0] != len(feature_names):
+        raise ValueError(
+            f"Live-private {feature_version} size mismatch: got {features.shape[0]}, "
+            f"expected {len(feature_names)}."
+        )
     debug = {
-        "feature_version": FEATURE_VERSION,
-        "feature_dim": FEATURE_DIM,
+        "feature_version": feature_version,
+        "feature_dim": len(feature_names),
         "v1_feature_dim": FEATURE_DIM_V1,
         "public_feature_version": PUBLIC_FEATURE_VERSION,
         "tactical_feature_version": TACTICAL_FEATURE_VERSION,
@@ -442,6 +1323,7 @@ def build_features_from_live_payload(
     request_payload: Optional[Dict[str, Any]],
     legal_actions: Sequence[Dict[str, Any]],
     sets_path: Optional[str] = None,
+    feature_version: str = FEATURE_VERSION,
 ) -> Tuple[np.ndarray, Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     trajectory = parse_protocol_log(
         log,
@@ -487,6 +1369,7 @@ def build_features_from_live_payload(
         trajectory=trajectory,
         player_side=player_side if player_side in ("p1", "p2") else None,
         tactical_state=tactical_state,
+        feature_version=feature_version,
     )
     debug["tactical_snapshot"] = tactical_state
     debug.update(public_debug)
@@ -500,6 +1383,26 @@ def feature_schema() -> Dict[str, Any]:
         "feature_version": FEATURE_VERSION,
         "feature_dim": FEATURE_DIM,
         "feature_names": FEATURE_NAMES,
+        "v3_feature_version": FEATURE_VERSION_V3,
+        "v3_feature_dim": FEATURE_DIM_V3,
+        "v3_feature_names": FEATURE_NAMES_V3,
+        "v3_slice1_feature_names": V3_SLICE1_FEATURE_NAMES,
+        "v4_feature_version": FEATURE_VERSION_V4,
+        "v4_feature_dim": FEATURE_DIM_V4,
+        "v4_feature_names": FEATURE_NAMES_V4,
+        "v4_slice2_feature_names": V4_SLICE2_FEATURE_NAMES,
+        "v5_feature_version": FEATURE_VERSION_V5,
+        "v5_feature_dim": FEATURE_DIM_V5,
+        "v5_feature_names": FEATURE_NAMES_V5,
+        "v5_slice3_feature_names": V5_SLICE3_FEATURE_NAMES,
+        "v6_feature_version": FEATURE_VERSION_V6,
+        "v6_feature_dim": FEATURE_DIM_V6,
+        "v6_feature_names": FEATURE_NAMES_V6,
+        "v6_slice4_feature_names": V6_SLICE4_FEATURE_NAMES,
+        "v7_feature_version": FEATURE_VERSION_V7,
+        "v7_feature_dim": FEATURE_DIM_V7,
+        "v7_feature_names": FEATURE_NAMES_V7,
+        "v7_slice5_feature_names": V7_SLICE5_FEATURE_NAMES,
         "v1_feature_version": FEATURE_VERSION_V1,
         "v1_feature_dim": FEATURE_DIM_V1,
         "v1_feature_names": FEATURE_NAMES_V1,

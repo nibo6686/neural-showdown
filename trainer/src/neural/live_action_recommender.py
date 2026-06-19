@@ -7,6 +7,7 @@ import numpy as np
 import torch
 
 from .action_features import ACTION_FEATURE_DIM, build_action_feature_vector, classify_action_category
+from .action_trace import action_trace_enabled, build_action_trace
 from .build_replay_value_dataset import FEATURE_NAMES as PUBLIC_FEATURE_NAMES
 from .checkpoints import torch_load
 from .live_private_features import build_live_private_feature_vector
@@ -891,9 +892,35 @@ def recommend_actions(
         category = str(row.get("action_category") or "unknown")
         action_category_counts[category] = action_category_counts.get(category, 0) + 1
 
+    action_trace = None
+    if action_trace_enabled():
+        # Trace every candidate (including disabled/illegal) so the trace can show
+        # why an action was excluded; each record carries its own legality flag.
+        action_trace = build_action_trace(
+            rows=all_rows,
+            chosen_label=str(ranked[0].get("label")) if ranked else None,
+            recommendation_method=recommendation_method,
+            rollout_mode=rollout_cfg.get("rollout_mode"),
+            rollout_weight=rollout_weight,
+            ranker_weight=ranker_weight,
+            policy_weight=policy_weight,
+            metadata={
+                "value_checkpoint_path": value_metadata.get("path"),
+                "value_feature_version": value_metadata.get("feature_version"),
+                "value_uses_live_private_features": bool(value_metadata.get("uses_live_private_features")),
+                "action_ranker_path": (action_ranker_metadata or {}).get("path"),
+                "action_ranker_input_size": (action_ranker_metadata or {}).get("input_size"),
+                "action_ranker_response_method": (action_ranker_metadata or {}).get("response_method"),
+                "policy_checkpoint_path": policy_metadata.get("path"),
+                "action_feature_dim": ACTION_FEATURE_DIM,
+                "rollouts_per_action": rollout_cfg.get("rollouts_per_action"),
+            },
+        )
+
     return {
         "top_actions": ranked[:limit],
         "all_action_estimates": rows,
+        "action_trace": action_trace,
         "action_recommendation_method": recommendation_method,
         "rollout_mode": rollout_cfg.get("rollout_mode"),
         "rollouts_per_action": rollout_cfg.get("rollouts_per_action"),

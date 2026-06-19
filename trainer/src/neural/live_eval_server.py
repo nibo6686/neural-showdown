@@ -27,6 +27,7 @@ try:
     from neural import damage_engine
     from neural import live_action_recommender as live_action_recommender_module
     from neural.action_features import ACTION_FEATURE_DIM
+    from neural.action_trace import write_action_trace_jsonl
     from neural.env_client import SimCoreClient
     from neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
     from neural.live_action_recommender import recommend_actions
@@ -55,6 +56,7 @@ except ImportError:
     from trainer.src.neural import damage_engine
     from trainer.src.neural import live_action_recommender as live_action_recommender_module
     from trainer.src.neural.action_features import ACTION_FEATURE_DIM
+    from trainer.src.neural.action_trace import write_action_trace_jsonl
     from trainer.src.neural.env_client import SimCoreClient
     from trainer.src.neural.live_action_recommender import legal_action_candidates as _recommend_action_candidates
     from trainer.src.neural.live_action_recommender import recommend_actions
@@ -138,6 +140,85 @@ _value_model = None
 _value_model_metadata: Optional[Dict[str, Any]] = None
 _policy_model = None
 _policy_model_metadata: Optional[Dict[str, Any]] = None
+
+# Opt-in calibrated state evaluator. Default `/evaluate` behavior is unchanged;
+# only set when NEURAL_EVAL_STATE_SCORER selects a calibrated head. The bounded
+# live/sim value head is far better calibrated than the default value head (see
+# artifacts/live_eval_calibration/live_eval_calibration_report.md).
+LIVE_SIM_VALUE_MODEL_PATH = Path("artifacts/checkpoints/gen9randombattle_live_sim_value_v1.pt")
+_live_sim_value_model = None
+_live_sim_value_metadata: Optional[Dict[str, Any]] = None
+
+
+def _env_state_scorer() -> str:
+    """Selected calibrated state scorer for `/evaluate`. Default: off."""
+    return os.environ.get("NEURAL_EVAL_STATE_SCORER", "").strip().lower()
+
+
+def load_live_sim_value_model_once():
+    """Lazily load the bounded live/sim value head (opt-in calibrated scorer)."""
+    global _live_sim_value_model, _live_sim_value_metadata
+    if _live_sim_value_model is not None and _live_sim_value_metadata is not None:
+        return _live_sim_value_model, _live_sim_value_metadata
+    try:
+        from neural.models.value_mlp import BoundedValueMLP
+    except ImportError:
+        from trainer.src.neural.models.value_mlp import BoundedValueMLP
+    path = Path(os.environ.get("NEURAL_LIVE_SIM_VALUE_CHECKPOINT", str(LIVE_SIM_VALUE_MODEL_PATH)))
+    checkpoint = torch_load(path, DEVICE)
+    ckpt_version = str(checkpoint.get("feature_version"))
+    ckpt_dim = int(checkpoint.get("feature_dim") or checkpoint.get("input_size") or 0)
+    if ckpt_version != LIVE_PRIVATE_FEATURE_VERSION:
+        raise ValueError(
+            f"live_sim_value checkpoint feature_version={ckpt_version!r}; expected {LIVE_PRIVATE_FEATURE_VERSION!r}."
+        )
+    if ckpt_dim != LIVE_PRIVATE_FEATURE_DIM:
+        raise ValueError(f"live_sim_value checkpoint feature_dim={ckpt_dim}; expected {LIVE_PRIVATE_FEATURE_DIM}.")
+    if not bool(checkpoint.get("bounded_output")):
+        raise ValueError("live_sim_value checkpoint is not marked bounded_output=true.")
+    model = BoundedValueMLP(input_size=ckpt_dim, hidden_sizes=list(checkpoint.get("hidden_sizes", [256, 256]))).to(DEVICE)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.eval()
+    _live_sim_value_model = model
+    _live_sim_value_metadata = {
+        "path": str(path),
+        "model_type": str(checkpoint.get("model_type")),
+        "feature_version": ckpt_version,
+        "feature_dim": ckpt_dim,
+        "bounded_output": True,
+    }
+    return _live_sim_value_model, _live_sim_value_metadata
+
+
+def _calibrated_state_eval(live_features: np.ndarray, player_side: Optional[str]) -> Dict[str, Any]:
+    """Score the current state with the bounded live/sim head (opt-in).
+
+    Returns a perspective-correct value in [-1, 1] and win probabilities oriented
+    both to the current player and to p1. Used only when NEURAL_EVAL_STATE_SCORER
+    selects it; the default `/evaluate` value is untouched.
+    """
+    model, metadata = load_live_sim_value_model_once()
+    x = torch.tensor(np.asarray(live_features, dtype=np.float32), device=DEVICE).unsqueeze(0)
+    with torch.no_grad():
+        calibrated_value = float(model(x).squeeze().detach().cpu().item())
+    player_win_prob = max(0.0, min(1.0, (calibrated_value + 1.0) / 2.0))
+    # The head scores from the current player's perspective; orient to p1 explicitly
+    # rather than assuming player == p1 (the default path's latent bug).
+    if player_side == "p2":
+        p1_win_prob = 1.0 - player_win_prob
+    else:
+        p1_win_prob = player_win_prob
+    return {
+        "scorer": "live_sim_value",
+        "checkpoint_path": metadata["path"],
+        "feature_version": metadata["feature_version"],
+        "bounded_output": True,
+        "value": calibrated_value,
+        "player_side": player_side,
+        "player_win_prob": player_win_prob,
+        "p1_win_prob": p1_win_prob,
+        "p2_win_prob": 1.0 - p1_win_prob,
+    }
 
 
 def _repo_root() -> Path:
@@ -618,10 +699,13 @@ def _checkpoint_is_policy(metadata: Dict[str, Any], path: Path) -> bool:
 
 def reset_model_caches() -> None:
     global _value_model, _value_model_metadata, _policy_model, _policy_model_metadata
+    global _live_sim_value_model, _live_sim_value_metadata
     _value_model = None
     _value_model_metadata = None
     _policy_model = None
     _policy_model_metadata = None
+    _live_sim_value_model = None
+    _live_sim_value_metadata = None
     reset_action_ranker_cache()
 
 
@@ -941,8 +1025,27 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
     else:
         value_tensor = output
 
-    value = float(value_tensor.squeeze().cpu().item())
-    p1_win_prob = max(0.0, min(1.0, (value + 1.0) / 2.0))
+    legacy_value = float(value_tensor.squeeze().cpu().item())
+    legacy_p1_win_prob = max(0.0, min(1.0, (legacy_value + 1.0) / 2.0))
+
+    # The default value head is collapsed/miscalibrated for current-state win prob
+    # (see artifacts/live_eval_calibration/). Show the bounded, perspective-correct
+    # live_sim_value head by default when available; the old head stays available
+    # for action recommendation and as `legacy_value`. NEURAL_EVAL_STATE_SCORER can
+    # force a scorer: `live_sim_value` (default when present) or `old_live_private`.
+    scorer_choice = _env_state_scorer()
+    state_eval: Optional[Dict[str, Any]] = None
+    value = legacy_value
+    p1_win_prob = legacy_p1_win_prob
+    state_scorer = "old_live_private"
+    if scorer_choice not in {"old_live_private", "old", "legacy"}:
+        try:
+            state_eval = _calibrated_state_eval(live_features, player_side)
+            value = state_eval["value"]
+            p1_win_prob = state_eval["p1_win_prob"]
+            state_scorer = "live_sim_value"
+        except Exception as exc:  # fall back to legacy display on any error
+            state_eval = {"scorer": "live_sim_value", "error": f"{type(exc).__name__}: {exc}"}
     p2_win_prob = 1.0 - p1_win_prob
     action_report = recommend_actions(
         payload=payload,
@@ -951,7 +1054,7 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
         trajectory=trajectory,
         public_features=public_features,
         live_features=live_features,
-        current_value=value,
+        current_value=legacy_value,
         value_model=model,
         value_metadata=model_metadata,
         policy_loader=load_policy_model_once,
@@ -991,6 +1094,10 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
         "p1_win_prob": p1_win_prob,
         "p2_win_prob": p2_win_prob,
         "value": value,
+        "state_scorer": state_scorer,
+        "state_eval": state_eval,
+        "legacy_value": legacy_value,
+        "legacy_p1_win_prob": legacy_p1_win_prob,
         "top_actions": action_report.get("top_actions", []),
         "action_recommendation_method": action_report.get("action_recommendation_method"),
         "policy_checkpoint_loaded": bool(action_report.get("policy_checkpoint_loaded")),
@@ -1024,13 +1131,80 @@ def evaluate_with_model(payload: EvalRequest) -> Dict[str, Any]:
             "belief_source": opponent_beliefs.get("source"),
             "belief_warnings": opponent_beliefs.get("warnings", []),
             "all_action_estimates": action_estimates,
+            "latest_turn": _latest_turn_from_trajectory(trajectory),
+            "action_trace": action_report.get("action_trace"),
         },
     }
 
 
+def _sanitized_eval_log_record(payload: EvalRequest, response: Dict[str, Any]) -> Dict[str, Any]:
+    """Compact, calibration-relevant record. Does NOT log the private team/request.
+
+    Captures only public/scoring fields so future live states can be audited for
+    calibration without persisting the user's hidden team or move choices.
+    """
+    debug_summary = response.get("debug_summary") or {}
+    top = [
+        {"label": a.get("label"), "score": a.get("score")}
+        for a in (response.get("top_actions") or [])[:3]
+        if isinstance(a, dict)
+    ]
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "room_id": payload.room_id,
+        "player": payload.player,
+        "log_len": len(payload.log or []),
+        "value": response.get("value"),
+        "p1_win_prob": response.get("p1_win_prob"),
+        "state_eval": response.get("state_eval"),
+        "feature_version": response.get("feature_version"),
+        "model_type": response.get("model_type"),
+        "action_recommendation_method": response.get("action_recommendation_method"),
+        "top_actions": top,
+        "damage_engine_status": debug_summary.get("damage_engine_status"),
+    }
+
+
+def _maybe_log_eval(payload: EvalRequest, response: Dict[str, Any]) -> None:
+    """Append a sanitized record when NEURAL_EVAL_LOG_PATH is set (opt-in)."""
+    path = os.environ.get("NEURAL_EVAL_LOG_PATH", "").strip()
+    if not path:
+        return
+    try:
+        record = _sanitized_eval_log_record(payload, response)
+        out = Path(path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record) + "\n")
+    except Exception:  # pragma: no cover - logging must never break /evaluate
+        pass
+
+
+def _maybe_log_action_trace(payload: EvalRequest, response: Dict[str, Any]) -> None:
+    """Append a sanitized per-action trace when NEURAL_ACTION_TRACE_PATH is set.
+
+    The bundle (from the recommender) contains only public/scoring fields; this
+    adds the room/turn/player identifiers needed to locate a disputed state.
+    """
+    debug = response.get("debug") if isinstance(response.get("debug"), dict) else {}
+    bundle = debug.get("action_trace")
+    if not isinstance(bundle, dict):
+        return
+    write_action_trace_jsonl(
+        bundle,
+        room_id=payload.room_id,
+        player=debug.get("player_side") or payload.player,
+        turn=debug.get("latest_turn"),
+        url=payload.url,
+    )
+
+
 @app.post("/evaluate")
 def evaluate(payload: EvalRequest):
-    return evaluate_with_model(payload)
+    response = evaluate_with_model(payload)
+    _maybe_log_eval(payload, response)
+    _maybe_log_action_trace(payload, response)
+    return response
 
 
 if __name__ == "__main__":

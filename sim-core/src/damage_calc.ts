@@ -21,6 +21,10 @@ export interface DamagePokemon {
   ivs?: Record<string, number>;
   boosts?: Record<string, number>;
   moves?: string[];
+  // Diagnostic-only opt-in: force the Pokemon's current types (e.g. Soak /
+  // Conversion). The live damage path never sets this, so live estimates stay
+  // byte-identical; only explicit diagnostics that pass it see an override.
+  types_override?: string[] | null;
 }
 
 export interface DamageField {
@@ -293,6 +297,13 @@ function damageInputSummary(request: DamageEstimateRequest, canonicalAttacker?: 
 function buildPokemon(pokemon: DamagePokemon, useTera: boolean): InstanceType<typeof CalcPokemon> {
   const teraType = useTera || pokemon.terastallized ? (pokemon.tera_type || pokemon.teraType || undefined) : undefined;
   const canonicalSpecies = canonicalSpeciesName(pokemon.species);
+  // Diagnostic current-type override (Soak). Passed via the constructor
+  // `overrides` so it survives @smogon/calc's clone-from-options during
+  // calculate(). Deep-merge replaces by index, so this is only reliable when the
+  // override fully covers the base types (callers use it for mono-type targets).
+  const typesOverride = Array.isArray(pokemon.types_override) && pokemon.types_override.length
+    ? [...pokemon.types_override]
+    : undefined;
   const result = new CalcPokemon(gen, canonicalSpecies, {
     name: pokemon.species as any,
     level: Number(pokemon.level || 80),
@@ -304,7 +315,8 @@ function buildPokemon(pokemon: DamagePokemon, useTera: boolean): InstanceType<ty
     ivs: boundedStatTable(pokemon.ivs) as any,
     boosts: { ...(pokemon.boosts || {}) } as any,
     moves: [...(pokemon.moves || [])],
-  });
+    overrides: typesOverride ? { types: typesOverride } : undefined,
+  } as any);
   if (pokemon.cur_hp !== undefined && pokemon.cur_hp !== null) {
     (result as any).originalCurHP = Math.max(1, Math.min(Number(pokemon.cur_hp), Number((result as any).rawStats?.hp || 1)));
   } else if (pokemon.hp_fraction !== undefined && pokemon.hp_fraction !== null) {

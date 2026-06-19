@@ -144,6 +144,45 @@ exhausted, the particle is counted as an error with no hidden-state fallback.
 - Do not remove exact-seeded mode or single-particle mode; evidence weighting is a new opt-in
   agent alongside them.
 
+## State-eval dependency (added 2026-06-18 after the live-eval calibration audit)
+
+Before this belief work proceeds, a separate audit calibrated the live state scorers
+(`artifacts/live_eval_calibration/`). Its findings change which scorer this design
+should rely on at branch leaves and for any value term.
+
+**Which scorer to use while calibrating beliefs:** **material/HP**, unchanged. The
+calibration audit (1406 seeded states) ranked scorers for leaf/action-impact use:
+material/HP is perspective-exact, never saturates (0.3% rails), and gives the best
+one-step action-impact (45% branch winrate). The bounded `live_sim_value` head is the
+best *current-state estimator* (Brier 0.066, AUC 0.987) but selects worse actions
+(15%) because value lookahead turns passive. The old `live_private_value` head — the
+one `/evaluate` shipped — is **collapsed** (sign accuracy 0.558, positive for wins and
+losses alike, 73.7% saturated) and must **not** be used as a belief leaf scorer or a
+weight signal.
+
+**Why current-state calibration affects action impact:** belief search selects the
+action whose sampled-opponent resulting states score best. If the leaf scorer cannot
+rank states (the collapsed head), the per-action impact deltas degrade to noise
+regardless of how good the belief sampling is. A clean leaf scorer is a prerequisite
+for the belief weighting to show any signal — otherwise a belief improvement would be
+masked by leaf-scorer noise. Hence material/HP at the leaves during this work.
+
+**Should belief sample weighting use material/HP, calibrated value, or both:**
+weight the **belief candidates** with the public-evidence factors in this design
+(reveal/damage/speed/effectiveness/randbats priors), and score **leaves** with
+material/HP. Do **not** fold the value model into the candidate weights yet — the
+collapsed default would corrupt them, and even the calibrated bounded head adds a
+passive bias. Keep value scoring as an optional, separately-reported diagnostic term
+(`NEURAL_BRANCH_SCORER=live_sim_value`), never as the belief weight.
+
+**Which uncertainty/candidate-weight signals to expose:** in addition to the
+per-decision belief diagnostics already specified (candidate pool size, surviving
+count, filtered count + dominant reason, weight entropy, MAP weight, active evidence
+factors), expose the **leaf-scorer identity** and, when the diagnostic value term is
+on, a **value-vs-material agreement** flag per action. This lets the belief audit
+separate "belief disagreement" from "scorer disagreement" — the two were conflated in
+the 3-particle run.
+
 ## Open questions for implementation (resolve before coding)
 
 1. **Damage-range inversion fidelity:** how tightly can observed % narrow the spread given

@@ -1,6 +1,8 @@
 import math
 import re
 from collections import defaultdict, deque
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Deque, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -35,11 +37,19 @@ TRACKED_SIDE_CONDITIONS = [
     "lightscreen",
     "auroraveil",
     "tailwind",
+    "safeguard",
+    "mist",
 ]
 
-TRACKED_WEATHERS = ["raindance", "sunnyday", "sandstorm", "snow"]
+# Slice-5 constraint volatiles tracked in a SEPARATE set so the immutable v2-v6
+# `volatiles` list (and every feature vector that reads it) stays byte-identical.
+# Taunt/Torment/Encore/Substitute remain in TRACKED_VOLATILES; these three are
+# additive move-constraint volatiles surfaced only via `constraint_volatiles`.
+CONSTRAINT_ONLY_VOLATILES = ["disable", "healblock", "imprison"]
+
+TRACKED_WEATHERS = ["raindance", "sunnyday", "sandstorm", "snow", "hail"]
 TRACKED_TERRAINS = ["electricterrain", "grassyterrain", "mistyterrain", "psychicterrain"]
-TRACKED_FIELD_EFFECTS = ["trickroom"]
+TRACKED_FIELD_EFFECTS = ["trickroom", "gravity", "magicroom", "wonderroom"]
 
 ABSORB_ABILITIES_BY_TYPE = {
     "Water": {"dryskin", "waterabsorb", "stormdrain", "desolateland"},
@@ -165,6 +175,11 @@ def _species_from_ident(ident: Any) -> Optional[str]:
     return species or None
 
 
+def _tera_type_from_details(details: Any) -> Optional[str]:
+    match = re.search(r"(?:^|,\s*)tera:([^,]+)", str(details or ""), flags=re.IGNORECASE)
+    return match.group(1).strip() if match else None
+
+
 def _split(line: str) -> List[str]:
     return str(line).strip().split("|") if str(line).strip().startswith("|") else []
 
@@ -207,31 +222,73 @@ def _parse_condition(condition: Any) -> Tuple[Optional[float], Optional[float], 
     return None, None, 0.0 if fainted else None, status, fainted
 
 
+@lru_cache(maxsize=1)
+def _species_type_index() -> Dict[str, List[str]]:
+    root = Path(__file__).resolve().parents[3]
+    candidates = [
+        root / "sim-core" / "node_modules" / "pokemon-showdown" / "data" / "pokedex.ts",
+        Path("sim-core/node_modules/pokemon-showdown/data/pokedex.ts"),
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        result: Dict[str, List[str]] = {}
+        pattern = re.compile(r"\n\s*([a-z0-9]+)\s*:\s*\{")
+        position = 0
+        while True:
+            match = pattern.search(text, position)
+            if not match:
+                break
+            depth = 0
+            end = match.end() - 1
+            for index in range(end, len(text)):
+                if text[index] == "{":
+                    depth += 1
+                elif text[index] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = index + 1
+                        break
+            block = text[match.end() - 1 : end]
+            position = end
+            types_match = re.search(r"\btypes\s*:\s*\[([^\]]+)\]", block)
+            if types_match:
+                result[match.group(1)] = re.findall(r'"([^"]+)"', types_match.group(1))
+        return result
+    return {}
+
+
 def _species_types(species: Any) -> List[str]:
-    by_species = {
-        "kingambit": ["Dark", "Steel"],
-        "wigglytuff": ["Normal", "Fairy"],
-        "charizard": ["Fire", "Flying"],
-        "raichu": ["Electric"],
-        "pikachu": ["Electric"],
-        "kommoo": ["Dragon", "Fighting"],
-        "grimmsnarl": ["Dark", "Fairy"],
-        "banette": ["Ghost"],
-        "toedscruel": ["Ground", "Grass"],
-    }
-    return list(by_species.get(to_id(species), []))
+    return list(_species_type_index().get(to_id(species), []))
 
 
 def _team_entry(species: str, *, ident: Optional[str] = None, active: bool = False) -> Dict[str, Any]:
     return {
         "species": species,
+        "base_species": species,
+        "current_species": species,
+        "displayed_species": species,
+        "species_source": "protocol",
+        "transformed": False,
+        "displayed_species_uncertain": False,
+        "illusion_revealed": False,
         "ident": ident,
         "active": active,
         "hp_fraction": None,
         "status": None,
+        "status_source": "unknown",
+        "status_started_turn": None,
         "fainted": False,
         "item": None,
+        "last_item": None,
+        "item_state": "unknown",
+        "item_source": "unknown",
         "ability": None,
+        "base_ability": None,
+        "ability_state": "unknown",
+        "ability_source": "unknown",
+        "ability_suppressed": False,
         "tera_type": None,
         "terastallized": False,
     }
@@ -284,13 +341,37 @@ def _empty_side_state() -> Dict[str, Any]:
         "active": None,
         "active_ident": None,
         "active_species": None,
+        "active_base_species": None,
+        "active_current_species": None,
+        "active_displayed_species": None,
+        "active_species_source": "unknown",
+        "active_transformed": False,
+        "active_displayed_species_uncertain": False,
+        "active_illusion_revealed": False,
         "active_hp": None,
         "active_max_hp": None,
         "active_hp_fraction": None,
         "active_status": None,
+        "active_status_source": "unknown",
+        "active_status_started_turn": None,
         "active_fainted": False,
+        "active_base_types": [],
+        "active_current_types": [],
+        "base_type_source": "unknown",
+        "current_type_source": "unknown",
+        "active_item": None,
+        "active_last_item": None,
+        "active_item_state": "unknown",
+        "active_item_source": "unknown",
+        "active_item_suppressed": False,
+        "active_base_ability": None,
+        "active_current_ability": None,
+        "active_ability_state": "unknown",
+        "active_ability_source": "unknown",
+        "active_ability_suppressed": False,
         "boosts": defaultdict(int),
         "volatiles_by_ident": defaultdict(set),
+        "constraint_volatiles_by_ident": defaultdict(set),
         "side_conditions": defaultdict(int),
         "side_condition_started": {},
         "known_abilities": {},
@@ -307,6 +388,10 @@ def _empty_side_state() -> Dict[str, Any]:
         "tera_type_known": False,
         "tera_used": False,
         "active_tera_type": None,
+        "active_terastallized": False,
+        "tera_source": "unknown",
+        "tera_availability_state": "unknown",
+        "tera_action_available": False,
         "can_tera": False,
         "damage_events_recent": 0,
     }
@@ -339,6 +424,7 @@ class TacticalStateTracker:
         self.recent_events: Deque[Dict[str, Any]] = deque(maxlen=recent_window)
         self.field_started: Dict[str, int] = {}
         self.weather_started: Optional[int] = None
+        self.terrain_started: Optional[int] = None
         self.same_move_chain: Dict[str, Dict[str, Any]] = {
             "p1": {"move": None, "count": 0, "failed_count": 0},
             "p2": {"move": None, "count": 0, "failed_count": 0},
@@ -373,10 +459,22 @@ class TacticalStateTracker:
         if command in ("switch", "drag") and len(parts) >= 4:
             self._handle_switch(parts)
             return
+        if command == "replace" and len(parts) >= 4:
+            self._handle_replace(parts)
+            return
+        if command == "-transform" and len(parts) >= 4:
+            self._handle_transform(parts)
+            return
+        if command == "-formechange" and len(parts) >= 4:
+            self._handle_forme_change(parts)
+            return
         if command == "move" and len(parts) >= 4:
             self._handle_move(parts)
             return
         if command in ("-start", "-end") and len(parts) >= 4:
+            if _effect_id(parts[3]) in {"typechange", "typeadd"}:
+                self._handle_type_change(parts)
+                return
             self._handle_volatile(parts)
             return
         if command in ("-sidestart", "-sideend") and len(parts) >= 4:
@@ -384,8 +482,12 @@ class TacticalStateTracker:
             return
         if command == "-weather" and len(parts) >= 3:
             effect = _effect_id(parts[2])
+            is_upkeep = any("[upkeep]" in str(value).lower() for value in parts[3:])
+            if effect and (effect != self.weather or not is_upkeep):
+                self.weather_started = self.turn
+            elif not effect:
+                self.weather_started = None
             self.weather = effect or None
-            self.weather_started = self.turn if effect else None
             return
         if command in ("-status", "-curestatus") and len(parts) >= 4:
             self._handle_status(parts)
@@ -396,11 +498,17 @@ class TacticalStateTracker:
         if command == "-terastallize" and len(parts) >= 4:
             self._handle_tera(parts)
             return
+        if command in ("-item", "-enditem") and len(parts) >= 4:
+            self._handle_item(parts)
+            return
         if command in ("-fieldstart", "-fieldend") and len(parts) >= 3:
             self._handle_field(parts)
             return
         if command == "-ability" and len(parts) >= 4:
-            self._remember_ability(parts[2], parts[3])
+            self._handle_ability(parts)
+            return
+        if command == "-endability" and len(parts) >= 3:
+            self._handle_end_ability(parts)
             return
         if command in ("-fail", "-immune", "-miss", "-resisted", "-supereffective", "-activate", "-heal", "-damage", "faint"):
             self._handle_result(command, parts)
@@ -412,17 +520,55 @@ class TacticalStateTracker:
         state = self.sides[side]
         ident = str(parts[2])
         species = _species_from_ident(parts[3] if len(parts) > 3 else parts[2])
+        details_tera_type = _tera_type_from_details(parts[3] if len(parts) > 3 else None)
         hp, max_hp, hp_fraction, status, fainted = _parse_condition(parts[4] if len(parts) > 4 else None)
         state["active"] = ident
         state["active_ident"] = ident
         state["active_species"] = species
+        state["active_base_species"] = species
+        state["active_current_species"] = species
+        state["active_displayed_species"] = species
+        state["active_species_source"] = "protocol"
+        state["active_transformed"] = False
+        state["active_displayed_species_uncertain"] = True
+        state["active_illusion_revealed"] = False
         state["active_hp"] = hp
         state["active_max_hp"] = max_hp
         state["active_hp_fraction"] = hp_fraction
         state["active_status"] = status
+        state["active_status_source"] = "protocol"
+        state["active_status_started_turn"] = self.turn if status else None
         state["active_fainted"] = fainted
+        base_types = _species_types(species)
+        state["active_base_types"] = list(base_types)
+        state["active_current_types"] = list(base_types)
+        state["base_type_source"] = "species" if base_types else "unknown"
+        state["current_type_source"] = "species" if base_types else "unknown"
+        entry = state["known_team_by_species"].get(species, {}) if species else {}
+        active_tera_type = details_tera_type or entry.get("tera_type")
+        active_terastallized = bool(details_tera_type or entry.get("terastallized"))
+        state["active_tera_type"] = active_tera_type
+        state["active_terastallized"] = active_terastallized
+        if active_terastallized:
+            state["tera_used"] = True
+            state["tera_type_known"] = bool(active_tera_type)
+            state["tera_source"] = "protocol"
+            state["tera_availability_state"] = "used"
+            state["active_current_types"] = [active_tera_type] if active_tera_type else list(base_types)
+            state["current_type_source"] = "protocol_tera" if active_tera_type else state["current_type_source"]
+        state["active_item"] = entry.get("item")
+        state["active_last_item"] = entry.get("last_item")
+        state["active_item_state"] = entry.get("item_state", "unknown")
+        state["active_item_source"] = entry.get("item_source", "unknown")
+        state["active_item_suppressed"] = "magicroom" in self.field_effects
+        state["active_base_ability"] = entry.get("base_ability")
+        state["active_current_ability"] = entry.get("ability")
+        state["active_ability_state"] = entry.get("ability_state", "unknown")
+        state["active_ability_source"] = entry.get("ability_source", "unknown")
+        state["active_ability_suppressed"] = False
         state["boosts"] = defaultdict(int)
         state["volatiles_by_ident"][ident].clear()
+        state["constraint_volatiles_by_ident"][ident].clear()
         if species:
             entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=ident))
             entry.update(
@@ -431,7 +577,11 @@ class TacticalStateTracker:
                     "active": True,
                     "hp_fraction": hp_fraction,
                     "status": status,
+                    "status_source": "protocol",
+                    "status_started_turn": self.turn if status else None,
                     "fainted": fainted,
+                    "tera_type": active_tera_type,
+                    "terastallized": active_terastallized,
                 }
             )
             for other_species, other in state["known_team_by_species"].items():
@@ -440,6 +590,88 @@ class TacticalStateTracker:
             if fainted:
                 state["fainted_species"].add(species)
             state["total_team_size"] = max(int(state.get("total_team_size", 0) or 0), len(state["known_team_by_species"]))
+
+    def _handle_replace(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        true_species = _species_from_ident(parts[3])
+        if not true_species:
+            return
+        displayed_species = state.get("active_displayed_species") or state.get("active_species")
+        old_entry = state["known_team_by_species"].pop(displayed_species, None) if displayed_species else None
+        entry = state["known_team_by_species"].setdefault(
+            true_species,
+            old_entry or _team_entry(true_species, ident=str(parts[2]), active=True),
+        )
+        entry.update(
+            {
+                "species": true_species,
+                "base_species": true_species,
+                "current_species": true_species,
+                "displayed_species": displayed_species or true_species,
+                "species_source": "protocol",
+                "ident": str(parts[2]),
+                "active": True,
+                "transformed": False,
+                "displayed_species_uncertain": False,
+                "illusion_revealed": True,
+            }
+        )
+        state["active_species"] = true_species
+        state["active_base_species"] = true_species
+        state["active_current_species"] = true_species
+        state["active_displayed_species"] = displayed_species or true_species
+        state["active_species_source"] = "protocol"
+        state["active_transformed"] = False
+        state["active_displayed_species_uncertain"] = False
+        state["active_illusion_revealed"] = True
+
+    def _handle_transform(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        target_side = _side_from_ident(parts[3])
+        target_species = (
+            self.sides[target_side].get("active_current_species")
+            if target_side in self.sides
+            else _species_from_ident(parts[3])
+        )
+        if not target_species:
+            return
+        state["active_current_species"] = target_species
+        state["active_species"] = target_species
+        state["active_displayed_species"] = target_species
+        state["active_species_source"] = "protocol"
+        state["active_transformed"] = True
+        base_species = state.get("active_base_species")
+        if base_species:
+            entry = state["known_team_by_species"].get(base_species)
+            if entry:
+                entry["current_species"] = target_species
+                entry["displayed_species"] = target_species
+                entry["transformed"] = True
+
+    def _handle_forme_change(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        species = _species_from_ident(parts[3])
+        if not species:
+            return
+        state["active_current_species"] = species
+        state["active_species"] = species
+        state["active_displayed_species"] = species
+        state["active_species_source"] = "protocol"
+        base_species = state.get("active_base_species")
+        if base_species:
+            entry = state["known_team_by_species"].get(base_species)
+            if entry:
+                entry["current_species"] = species
+                entry["displayed_species"] = species
 
     def _handle_move(self, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2])
@@ -451,7 +683,11 @@ class TacticalStateTracker:
         record = {"side": side, "move": move_id, "target": target, "turn": self.turn}
         self.last_move_by_side[side] = record
         self.last_move_any = record
-        species = self.sides[side].get("active_species") or _species_from_ident(parts[2])
+        species = (
+            self.sides[side].get("active_base_species")
+            or self.sides[side].get("active_species")
+            or _species_from_ident(parts[2])
+        )
         if species:
             revealed = self.sides[side]["revealed_moves_by_species"][species]
             if move_name not in revealed:
@@ -481,6 +717,13 @@ class TacticalStateTracker:
             effect = "protect"
         elif effect in {"partiallytrapped", "bind", "wrap", "firespin", "whirlpool", "sand Tomb"}:
             effect = "partiallytrapped"
+        if effect in CONSTRAINT_ONLY_VOLATILES:
+            cvol = self.sides[side]["constraint_volatiles_by_ident"][parts[2]]
+            if parts[1] == "-end":
+                cvol.discard(effect)
+            else:
+                cvol.add(effect)
+            return
         if effect not in TRACKED_VOLATILES:
             return
         volatiles = self.sides[side]["volatiles_by_ident"][parts[2]]
@@ -488,6 +731,30 @@ class TacticalStateTracker:
             volatiles.discard(effect)
         else:
             volatiles.add(effect)
+
+    def _handle_type_change(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        effect = _effect_id(parts[3])
+        if side not in self.sides or effect not in {"typechange", "typeadd"}:
+            return
+        state = self.sides[side]
+        if parts[1] == "-end":
+            state["active_current_types"] = list(state.get("active_base_types") or [])
+            state["current_type_source"] = state.get("base_type_source") or "unknown"
+            return
+        raw_types = str(parts[4] if len(parts) > 4 else "")
+        types = [value.strip() for value in raw_types.split("/") if value.strip()]
+        if not types:
+            return
+        if effect == "typechange":
+            state["active_current_types"] = types[:2]
+        else:
+            current = list(state.get("active_current_types") or state.get("active_base_types") or [])
+            for type_name in types:
+                if type_name not in current:
+                    current.append(type_name)
+            state["active_current_types"] = current[:2]
+        state["current_type_source"] = "protocol_typechange"
 
     def _handle_side_condition(self, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2]) if len(parts) > 2 else None
@@ -511,7 +778,12 @@ class TacticalStateTracker:
         if not effect:
             return
         if effect in TRACKED_TERRAINS:
-            self.terrain = None if parts[1] == "-fieldend" else effect
+            if parts[1] == "-fieldend":
+                self.terrain = None
+                self.terrain_started = None
+            else:
+                self.terrain = effect
+                self.terrain_started = self.turn
         if effect in TRACKED_FIELD_EFFECTS:
             if parts[1] == "-fieldend":
                 self.field_effects.discard(effect)
@@ -519,6 +791,10 @@ class TacticalStateTracker:
             else:
                 self.field_effects.add(effect)
                 self.field_started.setdefault(effect, self.turn)
+        if effect == "magicroom":
+            suppressed = parts[1] != "-fieldend"
+            for state in self.sides.values():
+                state["active_item_suppressed"] = suppressed
 
     def _handle_status(self, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2])
@@ -527,10 +803,14 @@ class TacticalStateTracker:
         status = None if parts[1] == "-curestatus" else str(parts[3]).lower()
         state = self.sides[side]
         state["active_status"] = status
-        species = state.get("active_species") or _species_from_ident(parts[2])
+        state["active_status_source"] = "protocol"
+        state["active_status_started_turn"] = self.turn if status else None
+        species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(parts[2])
         if species:
             entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(parts[2])))
             entry["status"] = status
+            entry["status_source"] = "protocol"
+            entry["status_started_turn"] = self.turn if status else None
 
     def _handle_boost(self, command: str, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2])
@@ -563,19 +843,117 @@ class TacticalStateTracker:
         state = self.sides[side]
         state["tera_used"] = True
         state["active_tera_type"] = tera_type
+        state["active_terastallized"] = True
         state["tera_type_known"] = True
-        species = state.get("active_species") or _species_from_ident(parts[2])
+        state["tera_source"] = "protocol"
+        state["tera_availability_state"] = "used"
+        state["tera_action_available"] = False
+        state["can_tera"] = False
+        state["active_current_types"] = [tera_type] if tera_type else []
+        state["current_type_source"] = "protocol_tera" if tera_type else "unknown"
+        species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(parts[2])
         if species:
             entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(parts[2])))
             entry["tera_type"] = tera_type
             entry["terastallized"] = True
+
+    def _handle_item(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        item = str(parts[3])
+        item_id = to_id(item)
+        species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(parts[2])
+        entry = state["known_team_by_species"].setdefault(
+            species, _team_entry(species, ident=str(parts[2]))
+        ) if species else None
+        if parts[1] == "-item":
+            state["active_item"] = item_id
+            state["active_item_state"] = "held"
+            state["active_item_source"] = "protocol"
+            state["item_known"] = True
+            if entry is not None:
+                entry.update({"item": item_id, "item_state": "held", "item_source": "protocol"})
+            return
+
+        tags = [str(value).lower() for value in parts[4:]]
+        consumed = any("[eat]" in value or "[from] gem" in value for value in tags) or not tags
+        item_state = "consumed" if consumed else "removed"
+        state["active_last_item"] = item_id
+        state["active_item"] = None
+        state["active_item_state"] = item_state
+        state["active_item_source"] = "protocol"
+        state["item_known"] = True
+        if entry is not None:
+            entry.update(
+                {
+                    "item": None,
+                    "last_item": item_id,
+                    "item_state": item_state,
+                    "item_source": "protocol",
+                }
+            )
+
+    def _handle_ability(self, parts: Sequence[str]) -> None:
+        ident = parts[2]
+        side = _side_from_ident(ident)
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        ability = str(parts[3])
+        ability_id = to_id(ability)
+        changed = any(str(value).lower().startswith("[from]") for value in parts[4:])
+        if not state.get("active_base_ability") and not changed:
+            state["active_base_ability"] = ability_id
+        state["active_current_ability"] = ability_id
+        state["active_ability_state"] = "changed" if changed else "known"
+        state["active_ability_source"] = "protocol"
+        state["active_ability_suppressed"] = False
+        self._remember_ability(ident, ability)
+        species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(ident)
+        if species:
+            entry = state["known_team_by_species"].setdefault(
+                species, _team_entry(species, ident=str(ident))
+            )
+            if not entry.get("base_ability") and not changed:
+                entry["base_ability"] = ability_id
+            entry.update(
+                {
+                    "ability": ability_id,
+                    "ability_state": "changed" if changed else "known",
+                    "ability_source": "protocol",
+                    "ability_suppressed": False,
+                }
+            )
+
+    def _handle_end_ability(self, parts: Sequence[str]) -> None:
+        side = _side_from_ident(parts[2])
+        if side not in self.sides:
+            return
+        state = self.sides[side]
+        state["active_ability_state"] = "suppressed"
+        state["active_ability_source"] = "protocol"
+        state["active_ability_suppressed"] = True
+        species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(parts[2])
+        if species:
+            entry = state["known_team_by_species"].setdefault(
+                species, _team_entry(species, ident=str(parts[2]))
+            )
+            entry["ability_state"] = "suppressed"
+            entry["ability_source"] = "protocol"
+            entry["ability_suppressed"] = True
 
     def _remember_ability(self, ident: Any, ability: Any) -> None:
         side = _side_from_ident(ident)
         if side in self.sides:
             ability_id = to_id(ability)
             self.sides[side]["known_abilities"][str(ident)] = ability_id
-            species = self.sides[side].get("active_species") or _species_from_ident(ident)
+            species = (
+                self.sides[side].get("active_base_species")
+                or self.sides[side].get("active_species")
+                or _species_from_ident(ident)
+            )
             if species:
                 entry = self.sides[side]["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(ident)))
                 entry["ability"] = ability
@@ -635,7 +1013,11 @@ class TacticalStateTracker:
             self._mark_result(record, "target_fainted", target)
             side = _side_from_ident(target)
             if side in self.sides:
-                species = self.sides[side].get("active_species") or _species_from_ident(target)
+                species = (
+                    self.sides[side].get("active_base_species")
+                    or self.sides[side].get("active_species")
+                    or _species_from_ident(target)
+                )
                 self.sides[side]["active_fainted"] = True
                 self.sides[side]["active_hp"] = 0.0
                 self.sides[side]["active_hp_fraction"] = 0.0
@@ -672,7 +1054,7 @@ class TacticalStateTracker:
                 if status:
                     state["active_status"] = status
                 state["active_fainted"] = bool(fainted)
-                species = state.get("active_species") or _species_from_ident(target)
+                species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(target)
                 if species:
                     entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(target)))
                     if hp_fraction is not None:
@@ -725,6 +1107,13 @@ class TacticalStateTracker:
                 "started_turn": started,
                 "turns_since_started": max(0, int(self.turn) - started),
             }
+        if self.terrain:
+            started = int(self.terrain_started if self.terrain_started is not None else self.turn)
+            durations["terrain"] = {
+                "effect": self.terrain,
+                "started_turn": started,
+                "turns_since_started": max(0, int(self.turn) - started),
+            }
         return durations
 
     def _warnings(self) -> List[str]:
@@ -739,7 +1128,18 @@ class TacticalStateTracker:
         state = self.sides[side]
         active = state.get("active")
         volatiles = sorted(state["volatiles_by_ident"].get(active, set())) if active else []
-        known_team = [dict(value) for value in state["known_team_by_species"].values()]
+        constraint_volatiles = (
+            sorted(state["constraint_volatiles_by_ident"].get(active, set())) if active else []
+        )
+        known_team = []
+        for value in state["known_team_by_species"].values():
+            entry = dict(value)
+            entry["status_turns_public"] = (
+                max(0, int(self.turn) - int(entry["status_started_turn"]))
+                if entry.get("status") and entry.get("status_started_turn") is not None
+                else None
+            )
+            known_team.append(entry)
         total_team_size = max(int(state.get("total_team_size", 0) or 0), len(known_team))
         remaining = sum(1 for mon in known_team if not mon.get("fainted"))
         side_durations = {}
@@ -765,14 +1165,42 @@ class TacticalStateTracker:
             "active": active,
             "active_ident": state.get("active_ident") or active,
             "active_species": state.get("active_species"),
+            "active_base_species": state.get("active_base_species"),
+            "active_current_species": state.get("active_current_species"),
+            "active_displayed_species": state.get("active_displayed_species"),
+            "active_species_source": state.get("active_species_source") or "unknown",
+            "active_transformed": bool(state.get("active_transformed")),
+            "active_displayed_species_uncertain": bool(state.get("active_displayed_species_uncertain")),
+            "active_illusion_revealed": bool(state.get("active_illusion_revealed")),
             "active_hp": state.get("active_hp"),
             "active_max_hp": state.get("active_max_hp"),
             "active_hp_fraction": state.get("active_hp_fraction"),
             "active_status": state.get("active_status"),
             "status": state.get("active_status"),
+            "active_status_source": state.get("active_status_source") or "unknown",
+            "active_status_turns_public": (
+                max(0, int(self.turn) - int(state["active_status_started_turn"]))
+                if state.get("active_status") and state.get("active_status_started_turn") is not None
+                else None
+            ),
             "active_fainted": bool(state.get("active_fainted")),
+            "active_base_types": list(state.get("active_base_types") or []),
+            "active_current_types": list(state.get("active_current_types") or []),
+            "base_type_source": state.get("base_type_source") or "unknown",
+            "current_type_source": state.get("current_type_source") or "unknown",
+            "active_item": state.get("active_item"),
+            "active_last_item": state.get("active_last_item"),
+            "active_item_state": state.get("active_item_state") or "unknown",
+            "active_item_source": state.get("active_item_source") or "unknown",
+            "active_item_suppressed": bool(state.get("active_item_suppressed")),
+            "active_base_ability": state.get("active_base_ability"),
+            "active_current_ability": state.get("active_current_ability"),
+            "active_ability_state": state.get("active_ability_state") or "unknown",
+            "active_ability_source": state.get("active_ability_source") or "unknown",
+            "active_ability_suppressed": bool(state.get("active_ability_suppressed")),
             "boosts": dict(state.get("boosts") or {}),
             "volatiles": volatiles,
+            "constraint_volatiles": constraint_volatiles,
             "side_conditions": dict(state["side_conditions"]),
             "side_condition_durations": side_durations,
             "known_abilities": dict(state["known_abilities"]),
@@ -791,6 +1219,10 @@ class TacticalStateTracker:
             "tera_type_known": bool(state.get("tera_type_known")),
             "tera_used": bool(state.get("tera_used")),
             "active_tera_type": state.get("active_tera_type"),
+            "active_terastallized": bool(state.get("active_terastallized")),
+            "tera_source": state.get("tera_source") or "unknown",
+            "tera_availability_state": state.get("tera_availability_state") or "unknown",
+            "tera_action_available": bool(state.get("tera_action_available")),
             "can_tera": bool(state.get("can_tera")),
             "same_move_chain": dict(self.same_move_chain[side]),
             "last_result": dict(self.last_result_by_side[side]),
@@ -1113,38 +1545,119 @@ def snapshot_with_private_state(snapshot, private_state):
     own = merged.setdefault("own", {})
     team = ps.get("team") or []
     active = next((m for m in team if m.get("active")), None)
+    active_is_private = bool(
+        active
+        and (
+            active.get("known_from_request")
+            or active.get("source") == "request"
+            or (not active.get("inferred") and active.get("source") != "randbats")
+        )
+    )
 
     if ps.get("active_species"):
         own["active_species"] = ps.get("active_species")
     elif active:
         own["active_species"] = active.get("species")
+    if active_is_private:
+        request_species = active.get("species")
+        own["active_base_species"] = request_species or own.get("active_base_species")
+        if not own.get("active_transformed"):
+            own["active_current_species"] = request_species or own.get("active_current_species")
+            own["active_displayed_species"] = request_species or own.get("active_displayed_species")
+        own["active_species_source"] = "request"
+        own["active_displayed_species_uncertain"] = False
+    if own.get("active_species") and not own.get("active_base_types"):
+        species_types = _species_types(own.get("active_species"))
+        if species_types:
+            own["active_base_types"] = list(species_types)
+            own["base_type_source"] = "species"
+            if own.get("current_type_source") in {None, "", "unknown"}:
+                own["active_current_types"] = list(species_types)
+                own["current_type_source"] = "species"
 
     if active:
         own["active_ident"] = active.get("ident", own.get("active_ident"))
         own["active_hp_fraction"] = active.get("hp_fraction", own.get("active_hp_fraction"))
-        own["active_status"] = active.get("status", own.get("active_status"))
-        own["status"] = own.get("active_status")
         own["active_fainted"] = bool(active.get("fainted", own.get("active_fainted", False)))
-        own["active_tera_type"] = active.get("tera_type", own.get("active_tera_type"))
         own["item_known"] = bool(active.get("item") or own.get("item_known"))
         own["ability_known"] = bool(active.get("ability") or active.get("base_ability") or own.get("ability_known"))
-        own["tera_type_known"] = bool(active.get("tera_type") or own.get("tera_type_known"))
+        if active_is_private:
+            own["active_tera_type"] = active.get("tera_type", own.get("active_tera_type"))
+            own["active_terastallized"] = bool(
+                active.get("terastallized", own.get("active_terastallized", False))
+            )
+            own["tera_type_known"] = bool(active.get("tera_type") or own.get("tera_type_known"))
+            prior_status = own.get("active_status")
+            own["active_status"] = active.get("status")
+            own["status"] = own.get("active_status")
+            own["active_status_source"] = "request"
+            if own.get("active_status") != prior_status:
+                own["active_status_turns_public"] = None
+            own["active_item"] = to_id(active.get("item")) or None
+            own["active_last_item"] = to_id(active.get("last_item")) or own.get("active_last_item")
+            if own.get("active_item_state") not in {"removed", "consumed"}:
+                own["active_item_state"] = (
+                    str(active.get("item_state"))
+                    if active.get("item_state")
+                    else "held" if active.get("item") else "none"
+                )
+                own["active_item_source"] = "request"
+            own["active_base_ability"] = to_id(active.get("base_ability")) or None
+            own["active_current_ability"] = to_id(active.get("ability") or active.get("base_ability")) or None
+            if not own.get("active_ability_suppressed"):
+                own["active_ability_state"] = (
+                    str(active.get("ability_state"))
+                    if active.get("ability_state")
+                    else "known" if own["active_current_ability"] else "none"
+                )
+                own["active_ability_source"] = "request"
+        private_types = [str(value) for value in (active.get("types") or []) if str(value)]
+        if private_types:
+            own["active_base_types"] = list(private_types[:2])
+            own["base_type_source"] = "request"
+            if own.get("current_type_source") not in {"protocol_typechange", "protocol_tera"}:
+                own["active_current_types"] = list(private_types[:2])
+                own["current_type_source"] = "request"
+        if own.get("active_terastallized") and own.get("active_tera_type"):
+            own["active_current_types"] = [str(own["active_tera_type"])]
+            own["current_type_source"] = "protocol_tera"
 
     known_team = []
     for mon in team:
+        if not (
+            mon.get("known_from_request")
+            or mon.get("source") == "request"
+            or (not mon.get("inferred") and mon.get("source") != "randbats")
+        ):
+            continue
         species = mon.get("species")
         if not species:
             continue
         known_team.append(
             {
                 "species": species,
+                "base_species": species,
+                "current_species": species,
+                "displayed_species": species,
+                "species_source": "request",
+                "transformed": False,
+                "displayed_species_uncertain": False,
+                "illusion_revealed": False,
                 "ident": mon.get("ident"),
                 "active": bool(mon.get("active")),
                 "hp_fraction": mon.get("hp_fraction"),
                 "status": mon.get("status"),
+                "status_source": "request",
+                "status_started_turn": None,
                 "fainted": bool(mon.get("fainted")),
                 "item": mon.get("item"),
+                "last_item": mon.get("last_item"),
+                "item_state": mon.get("item_state") or ("held" if mon.get("item") else "none"),
                 "ability": mon.get("ability") or mon.get("base_ability"),
+                "base_ability": mon.get("base_ability"),
+                "ability_state": mon.get("ability_state") or (
+                    "known" if mon.get("ability") or mon.get("base_ability") else "none"
+                ),
                 "tera_type": mon.get("tera_type"),
                 "terastallized": bool(mon.get("terastallized")),
             }
@@ -1182,6 +1695,14 @@ def snapshot_with_private_state(snapshot, private_state):
                 "provenance": "exact_private_request",
             }
 
+    # Slice 5: surface the ordered own active-move slots (with request disabled/PP
+    # flags) and forced-action constraints so the v7 move/constraint slice can read
+    # them straight off the snapshot. Additive keys; v2-v6 slices never read them.
+    own["active_moves"] = [dict(mv) for mv in (ps.get("active_moves") or []) if isinstance(mv, dict)]
+    own["force_switch"] = bool(ps.get("force_switch"))
+    own["wait"] = bool(ps.get("wait"))
+    own["trapped"] = bool(ps.get("trapped"))
+
     own["pp_provenance"] = "exact_private_request" if exact_pp else own.get("pp_provenance", "unknown")
     own.setdefault("inferred_pp_by_species_move", {})
     own.setdefault("move_use_counts_by_species", {})
@@ -1189,14 +1710,36 @@ def snapshot_with_private_state(snapshot, private_state):
     own.setdefault("item_known", False)
     own.setdefault("ability_known", False)
     own.setdefault("tera_type_known", False)
-    own["tera_used"] = bool(ps.get("tera_used", own.get("tera_used", False)))
-    own["can_tera"] = bool(ps.get("can_tera", ps.get("canTerastallize", own.get("can_tera", False))))
+    if ps.get("known_from_request"):
+        own["tera_used"] = bool(ps.get("tera_used", own.get("tera_used", False)))
+        own["can_tera"] = bool(ps.get("can_tera", ps.get("canTerastallize", own.get("can_tera", False))))
+        own["tera_action_available"] = bool(ps.get("can_tera", ps.get("canTerastallize", False)))
+        if own["tera_used"]:
+            own["tera_availability_state"] = "used"
+        else:
+            own["tera_availability_state"] = "available" if own["can_tera"] else "unavailable"
+        own["tera_source"] = "request"
 
     for side_name in ("own", "opponent"):
         side = merged.setdefault(side_name, {})
         for key, default in {
             "active_status": None,
             "status": None,
+            "active_status_source": "unknown",
+            "active_status_turns_public": None,
+            "volatiles": [],
+            "constraint_volatiles": [],
+            "active_moves": [],
+            "force_switch": False,
+            "wait": False,
+            "trapped": False,
+            "active_base_species": None,
+            "active_current_species": None,
+            "active_displayed_species": None,
+            "active_species_source": "unknown",
+            "active_transformed": False,
+            "active_displayed_species_uncertain": False,
+            "active_illusion_revealed": False,
             "known_team": [],
             "fainted_species": [],
             "revealed_moves_by_species": {},
@@ -1209,7 +1752,25 @@ def snapshot_with_private_state(snapshot, private_state):
             "tera_type_known": False,
             "tera_used": False,
             "active_tera_type": None,
+            "active_terastallized": False,
+            "tera_source": "unknown",
+            "tera_availability_state": "unknown",
+            "tera_action_available": False,
             "can_tera": False,
+            "active_base_types": [],
+            "active_current_types": [],
+            "base_type_source": "unknown",
+            "current_type_source": "unknown",
+            "active_item": None,
+            "active_last_item": None,
+            "active_item_state": "unknown",
+            "active_item_source": "unknown",
+            "active_item_suppressed": False,
+            "active_base_ability": None,
+            "active_current_ability": None,
+            "active_ability_state": "unknown",
+            "active_ability_source": "unknown",
+            "active_ability_suppressed": False,
         }.items():
             side.setdefault(key, default)
         side["status"] = side.get("active_status")

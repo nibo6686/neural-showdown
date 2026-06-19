@@ -1,0 +1,257 @@
+{
+  "states_path": "artifacts\\live_eval_calibration\\live_eval_calibration_states.jsonl",
+  "num_games_requested": 24,
+  "num_games_used": 24,
+  "num_states": 1406,
+  "controller_matchups": {
+    "heuristic": 12,
+    "heuristic/random": 12
+  },
+  "skipped": {
+    "non_actionable_or_no_view": 188
+  },
+  "wall_time_sec": 14.421914399999878,
+  "timestamp": "2026-06-18T21:04:11",
+  "metrics": {
+    "per_scorer": {
+      "material": {
+        "n_valid": 1406,
+        "sign_accuracy": 0.8158,
+        "brier": 0.155,
+        "auc": 0.9305,
+        "corr_with_outcome": 0.7133,
+        "spearman_with_material": 1.0,
+        "mean_winning_score": 0.2757,
+        "mean_losing_score": -0.2334,
+        "mean_score": 0.0099,
+        "std_score": 0.3565,
+        "frac_saturated_gt_0p9": 0.0028,
+        "perspective_flip_mean_abs_sum": 0.0804,
+        "perspective_flip_corr": 0.9501,
+        "near_terminal_mean_win": 0.3984,
+        "near_terminal_mean_loss": -0.4052,
+        "reliability": [
+          {
+            "bin": "[0.0,0.1)",
+            "n": 6,
+            "pred": 0.074,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.1,0.2)",
+            "n": 48,
+            "pred": 0.164,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.2,0.3)",
+            "n": 137,
+            "pred": 0.247,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.3,0.4)",
+            "n": 148,
+            "pred": 0.356,
+            "empirical": 0.047
+          },
+          {
+            "bin": "[0.4,0.5)",
+            "n": 362,
+            "pred": 0.439,
+            "empirical": 0.243
+          },
+          {
+            "bin": "[0.5,0.6)",
+            "n": 297,
+            "pred": 0.541,
+            "empirical": 0.643
+          },
+          {
+            "bin": "[0.6,0.7)",
+            "n": 214,
+            "pred": 0.652,
+            "empirical": 0.897
+          },
+          {
+            "bin": "[0.7,0.8)",
+            "n": 94,
+            "pred": 0.749,
+            "empirical": 1.0
+          },
+          {
+            "bin": "[0.8,0.9)",
+            "n": 92,
+            "pred": 0.845,
+            "empirical": 1.0
+          },
+          {
+            "bin": "[0.9,1.0)",
+            "n": 8,
+            "pred": 0.942,
+            "empirical": 1.0
+          }
+        ]
+      },
+      "live_sim_value": {
+        "n_valid": 1406,
+        "sign_accuracy": 0.936,
+        "brier": 0.0658,
+        "auc": 0.9866,
+        "corr_with_outcome": 0.8724,
+        "spearman_with_material": 0.8163,
+        "mean_winning_score": 0.5834,
+        "mean_losing_score": -0.6675,
+        "mean_score": -0.0696,
+        "std_score": 0.7162,
+        "frac_saturated_gt_0p9": 0.2852,
+        "perspective_flip_mean_abs_sum": 0.1412,
+        "perspective_flip_corr": 0.9281,
+        "near_terminal_mean_win": 0.9204,
+        "near_terminal_mean_loss": -0.9355,
+        "reliability": [
+          {
+            "bin": "[0.0,0.1)",
+            "n": 324,
+            "pred": 0.033,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.1,0.2)",
+            "n": 161,
+            "pred": 0.143,
+            "empirical": 0.006
+          },
+          {
+            "bin": "[0.2,0.3)",
+            "n": 95,
+            "pred": 0.24,
+            "empirical": 0.063
+          },
+          {
+            "bin": "[0.3,0.4)",
+            "n": 89,
+            "pred": 0.354,
+            "empirical": 0.213
+          },
+          {
+            "bin": "[0.4,0.5)",
+            "n": 135,
+            "pred": 0.452,
+            "empirical": 0.4
+          },
+          {
+            "bin": "[0.5,0.6)",
+            "n": 58,
+            "pred": 0.554,
+            "empirical": 0.931
+          },
+          {
+            "bin": "[0.6,0.7)",
+            "n": 59,
+            "pred": 0.644,
+            "empirical": 0.932
+          },
+          {
+            "bin": "[0.7,0.8)",
+            "n": 83,
+            "pred": 0.751,
+            "empirical": 0.988
+          },
+          {
+            "bin": "[0.8,0.9)",
+            "n": 139,
+            "pred": 0.853,
+            "empirical": 0.993
+          },
+          {
+            "bin": "[0.9,1.0)",
+            "n": 263,
+            "pred": 0.965,
+            "empirical": 1.0
+          }
+        ]
+      },
+      "old_live_private": {
+        "n_valid": 1406,
+        "sign_accuracy": 0.5576,
+        "brier": 0.3954,
+        "auc": 0.6535,
+        "corr_with_outcome": 0.3252,
+        "spearman_with_material": 0.2795,
+        "mean_winning_score": 1.3081,
+        "mean_losing_score": 0.8532,
+        "mean_score": 1.0706,
+        "std_score": 0.6989,
+        "frac_saturated_gt_0p9": 0.7368,
+        "perspective_flip_mean_abs_sum": 2.09,
+        "perspective_flip_corr": 0.0564,
+        "near_terminal_mean_win": 1.3021,
+        "near_terminal_mean_loss": 0.3746,
+        "reliability": [
+          {
+            "bin": "[0.0,0.1)",
+            "n": 48,
+            "pred": 0.008,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.1,0.2)",
+            "n": 10,
+            "pred": 0.138,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.2,0.3)",
+            "n": 8,
+            "pred": 0.235,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.3,0.4)",
+            "n": 22,
+            "pred": 0.36,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.4,0.5)",
+            "n": 24,
+            "pred": 0.464,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.5,0.6)",
+            "n": 32,
+            "pred": 0.548,
+            "empirical": 0.0
+          },
+          {
+            "bin": "[0.6,0.7)",
+            "n": 39,
+            "pred": 0.657,
+            "empirical": 0.179
+          },
+          {
+            "bin": "[0.7,0.8)",
+            "n": 74,
+            "pred": 0.753,
+            "empirical": 0.5
+          },
+          {
+            "bin": "[0.8,0.9)",
+            "n": 90,
+            "pred": 0.86,
+            "empirical": 0.444
+          },
+          {
+            "bin": "[0.9,1.0)",
+            "n": 1059,
+            "pred": 0.993,
+            "empirical": 0.555
+          }
+        ]
+      }
+    },
+    "n_states": 1406
+  }
+}

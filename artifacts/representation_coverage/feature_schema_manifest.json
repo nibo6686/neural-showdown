@@ -1,0 +1,103 @@
+{
+  "generated": "2026-06-19",
+  "status": "diagnostic_schema_freeze_candidate",
+  "defaults": {
+    "state": "live-private-belief-v2",
+    "action": "legal-action-v3"
+  },
+  "state_schemas": [
+    {
+      "version": "live-private-belief-v2",
+      "dimension": 115,
+      "role": "live_default",
+      "prefix_of": ["live-private-belief-v3", "live-private-belief-v4", "live-private-belief-v5", "live-private-belief-v6", "live-private-belief-v7"],
+      "slice": "legacy live private/belief/tactical state"
+    },
+    {
+      "version": "live-private-belief-v3",
+      "dimension": 217,
+      "role": "diagnostic",
+      "exact_prefix": {"version": "live-private-belief-v2", "dimension": 115},
+      "slice": "seven stat stages and base/current typing with provenance"
+    },
+    {
+      "version": "live-private-belief-v4",
+      "dimension": 765,
+      "role": "diagnostic",
+      "exact_prefix": {"version": "live-private-belief-v3", "dimension": 217},
+      "slice": "item lifecycle/identity and base/current ability identity"
+    },
+    {
+      "version": "live-private-belief-v5",
+      "dimension": 2293,
+      "role": "diagnostic",
+      "exact_prefix": {"version": "live-private-belief-v4", "dimension": 765},
+      "slice": "species, roster, Transform/Illusion evidence and major status"
+    },
+    {
+      "version": "live-private-belief-v6",
+      "dimension": 2493,
+      "role": "diagnostic",
+      "exact_prefix": {"version": "live-private-belief-v5", "dimension": 2293},
+      "slice": "Tera, weather, terrain, rooms, side conditions and hazards"
+    },
+    {
+      "version": "live-private-belief-v7",
+      "dimension": 3208,
+      "role": "diagnostic_head",
+      "exact_prefix": {"version": "live-private-belief-v6", "dimension": 2493},
+      "slice": "move identity, PP/disable state and lock/commitment constraints"
+    }
+  ],
+  "action_schemas": [
+    {
+      "version": "legal-action-v3",
+      "dimension": 165,
+      "role": "live_default",
+      "prefix_of": ["legal-action-v4", "legal-action-v5"],
+      "slice": "legacy legal action and tactical metadata"
+    },
+    {
+      "version": "legal-action-v4",
+      "dimension": 269,
+      "role": "diagnostic",
+      "exact_prefix": {"version": "legal-action-v3", "dimension": 165},
+      "slice": "move identity, signed stat deltas, effects, command and switch-target identity"
+    },
+    {
+      "version": "legal-action-v5",
+      "dimension": 318,
+      "role": "diagnostic_head",
+      "exact_prefix": {"version": "legal-action-v4", "dimension": 269},
+      "appended_dimension": 49,
+      "slice": "resolved damage/range, KO, accuracy, effectiveness, provenance and immediate HP impact"
+    }
+  ],
+  "checkpoint_compatibility": {
+    "policy": "Checkpoints are compatible only with their exact recorded feature version, ordered names and dimension.",
+    "cross_version_loading": "reject",
+    "padding_or_truncation": "forbidden",
+    "old_checkpoints_preserved": true,
+    "diagnostic_checkpoints_exist": false
+  },
+  "test_coverage": {
+    "slice1": "trainer/tests/test_live_private_features_v3.py",
+    "slice2": "trainer/tests/test_live_private_features_v4.py",
+    "slice3": "trainer/tests/test_live_private_features_v5.py",
+    "slice4": "trainer/tests/test_live_private_features_v6.py",
+    "slice5_state": "trainer/tests/test_live_private_features_v7.py",
+    "slice5_action": "trainer/tests/test_action_features_v4.py",
+    "slice5_cross": "trainer/tests/test_moves_actions_counterfactual.py",
+    "slice6_action": "trainer/tests/test_action_features_v5.py"
+  },
+  "known_limitations": [
+    "No normalized own raw-stat block or combined effective-order feature in v7.",
+    "Opponent belief identities/distributions remain mostly collapsed to counts.",
+    "Transform copied moves/stats, Illusion reconciliation and global ability suppression are partial.",
+    "Switch candidates lack complete typing/stats/item/ability/moveset and resolved entry-hazard context.",
+    "Recoil/drain/heal are mostly structural booleans rather than exact numeric HP deltas.",
+    "Full future-state action consequences require simulator transition labels.",
+    "Diagnostic types_override cannot reliably replace a dual-type array with a shorter mono-type array.",
+    "No diagnostic schema is a production default."
+  ]
+}

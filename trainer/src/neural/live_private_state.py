@@ -145,8 +145,12 @@ def _extract_team(side_block: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "stats": stats,
                 "types": list(mon.get("types")) if isinstance(mon.get("types"), list) else [],
                 "item": mon.get("item"),
+                "last_item": mon.get("lastItem") or mon.get("last_item"),
+                "item_state": mon.get("itemState") or mon.get("item_state"),
                 "ability": mon.get("ability"),
                 "base_ability": mon.get("baseAbility") or mon.get("base_ability"),
+                "ability_state": mon.get("abilityState") or mon.get("ability_state"),
+                "ability_suppressed": bool(mon.get("abilitySuppressed") or mon.get("ability_suppressed")),
                 "tera_type": mon.get("teraType") or mon.get("tera_type"),
                 "terastallized": bool(mon.get("terastallized", False)),
                 "source": "request",
@@ -334,6 +338,7 @@ def extract_private_side_state(
 
     team = _extract_team(side_block)
     active_moves = _extract_active_moves(active_block)
+    known_from_request = bool(team or active_moves)
     active_can_tera = bool(active_block.get("canTerastallize") or active_block.get("can_terastallize"))
     active_tera_type = None
     raw_can_tera = active_block.get("canTerastallize") or active_block.get("can_terastallize")
@@ -364,7 +369,6 @@ def extract_private_side_state(
     else:
         force_switch = bool(force_switch_raw)
 
-    known_from_request = bool(team or active_moves)
     tera_used = any(bool(mon.get("terastallized")) for mon in team if isinstance(mon, dict))
     inferred_from_randbats = bool(randbats_fallback.get("used"))
     unknown = []

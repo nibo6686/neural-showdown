@@ -1,14 +1,14 @@
 # sim-core Validation Results
 
 - Overall: `PASS`
-- Generated: `2026-06-18T20:41:04-0600`
+- Generated: `2026-06-19T10:09:17-0600`
 - pokemon-showdown: `0.11.10`
 - @smogon/calc: `0.11.0`
 
 ## Commands
 
-- `C:\Program Files\nodejs\npm.CMD test`: `PASS` (4.05s)
-- `D:\Anaconda\envs\neuralgpu\python.exe -m unittest discover -s C:\Users\cloud\Downloads\neural\final\trainer\tests -p test_sim_core_parity.py`: `PASS` (1.30s)
+- `C:\Program Files\nodejs\npm.CMD test`: `PASS` (4.88s)
+- `D:\Anaconda\envs\neuralgpu\python.exe -m unittest discover -s C:\Users\cloud\Downloads\neural\final\trainer\tests -p test_sim_core_parity.py`: `PASS` (1.68s)
 
 ## Damage healthcheck
 

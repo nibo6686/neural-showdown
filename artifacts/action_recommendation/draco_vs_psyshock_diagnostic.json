@@ -1,0 +1,174 @@
+{
+  "fixture": {
+    "attacker": {
+      "species": "Latios",
+      "types": [
+        "Dragon",
+        "Psychic"
+      ],
+      "level": 80
+    },
+    "opponent": {
+      "species": "Hariyama",
+      "types": [
+        "Fighting"
+      ],
+      "level": 80
+    },
+    "candidate_moves": [
+      "Draco Meteor",
+      "Psyshock",
+      "Dragon Pulse",
+      "Aura Sphere",
+      "Flamethrower"
+    ],
+    "switch_target": "Latias"
+  },
+  "approx_rollout_chosen": "move: Psyshock",
+  "approx_rollout_ranking": [
+    "move: Psyshock",
+    "move: Draco Meteor",
+    "move: Dragon Pulse",
+    "move: Aura Sphere",
+    "move: Flamethrower",
+    "switch: Latias"
+  ],
+  "action_value_ranker": {
+    "available": true,
+    "method": "action_value_ranker",
+    "chosen": "move: Draco Meteor",
+    "ranking": [
+      {
+        "label": "move: Draco Meteor",
+        "ranker_score": -2.4257261753082275,
+        "final_score": -2.4257261753082275
+      },
+      {
+        "label": "move: Flamethrower",
+        "ranker_score": -2.500336170196533,
+        "final_score": -2.500336170196533
+      },
+      {
+        "label": "move: Dragon Pulse",
+        "ranker_score": -2.6040985584259033,
+        "final_score": -2.6040985584259033
+      },
+      {
+        "label": "move: Psyshock",
+        "ranker_score": -3.600757360458374,
+        "final_score": -3.600757360458374
+      },
+      {
+        "label": "move: Aura Sphere",
+        "ranker_score": -3.7612318992614746,
+        "final_score": -3.7612318992614746
+      },
+      {
+        "label": "switch: Latias",
+        "ranker_score": -3.9878382682800293,
+        "final_score": -3.9878382682800293
+      }
+    ]
+  },
+  "rows": [
+    {
+      "label": "move: Draco Meteor",
+      "kind": "move",
+      "damage_method": "smogon_calc",
+      "average_percent": 67.68115942028984,
+      "min_percent": 62.02898550724638,
+      "max_percent": 73.33333333333333,
+      "type_effectiveness": 1.0,
+      "ko_chance": 0.0,
+      "self_stat_drop": {
+        "spa": -2
+      },
+      "has_drawback": true,
+      "approx_rollout_score": 3.267080745341615,
+      "approx_warnings": []
+    },
+    {
+      "label": "move: Psyshock",
+      "kind": "move",
+      "damage_method": "smogon_calc",
+      "average_percent": 83.80434782608697,
+      "min_percent": 77.10144927536233,
+      "max_percent": 91.01449275362319,
+      "type_effectiveness": 2.0,
+      "ko_chance": 0.0,
+      "self_stat_drop": null,
+      "has_drawback": false,
+      "approx_rollout_score": 3.6110766045548655,
+      "approx_warnings": []
+    },
+    {
+      "label": "move: Dragon Pulse",
+      "kind": "move",
+      "damage_method": "smogon_calc",
+      "average_percent": 44.347826086956516,
+      "min_percent": 40.869565217391305,
+      "max_percent": 48.11594202898551,
+      "type_effectiveness": 1.0,
+      "ko_chance": 0.0,
+      "self_stat_drop": null,
+      "has_drawback": false,
+      "approx_rollout_score": 2.075414078674948,
+      "approx_warnings": []
+    },
+    {
+      "label": "move: Aura Sphere",
+      "kind": "move",
+      "damage_method": "smogon_calc",
+      "average_percent": 27.98913043478261,
+      "min_percent": 25.79710144927536,
+      "max_percent": 30.434782608695656,
+      "type_effectiveness": 1.0,
+      "ko_chance": 0.0,
+      "self_stat_drop": null,
+      "has_drawback": false,
+      "approx_rollout_score": 1.5663561076604555,
+      "approx_warnings": []
+    },
+    {
+      "label": "move: Flamethrower",
+      "kind": "move",
+      "damage_method": "smogon_calc",
+      "average_percent": 15.68840579710145,
+      "min_percent": 14.492753623188406,
+      "max_percent": 17.101449275362317,
+      "type_effectiveness": 1.0,
+      "ko_chance": 0.0,
+      "self_stat_drop": null,
+      "has_drawback": false,
+      "approx_rollout_score": 1.29824016563147,
+      "approx_warnings": []
+    },
+    {
+      "label": "switch: Latias",
+      "kind": "switch",
+      "damage_method": "not_applicable_switch",
+      "average_percent": null,
+      "min_percent": null,
+      "max_percent": null,
+      "type_effectiveness": null,
+      "ko_chance": null,
+      "self_stat_drop": null,
+      "has_drawback": false,
+      "approx_rollout_score": -0.1,
+      "approx_warnings": []
+    }
+  ],
+  "finding": {
+    "draco_average_percent": 67.68115942028984,
+    "psyshock_average_percent": 83.80434782608697,
+    "draco_type_effectiveness": 1.0,
+    "psyshock_type_effectiveness": 2.0,
+    "draco_self_stat_drop": {
+      "spa": -2
+    },
+    "psyshock_self_stat_drop": null,
+    "draco_approx_score": 3.267080745341615,
+    "psyshock_approx_score": 3.6110766045548655,
+    "spa_drop_represented_in_score": false
+  }
+}

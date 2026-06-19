@@ -1,0 +1,47 @@
+{
+  "captured_at": "2026-06-18T20:41:55-06:00",
+  "reason": "GPU driver update; record environment and rerun sanity checks before trusting new performance comparisons",
+  "host": {
+    "os": "Windows-10-10.0.26200-SP0 (Windows 11 Home)",
+    "cpu": "Intel64 Family 6 Model 158 Stepping 13, GenuineIntel",
+    "logical_cores": 8,
+    "ram_gb": 15.8,
+    "gpu": "NVIDIA GeForce RTX 2060 SUPER",
+    "gpu_memory_mib": 8192,
+    "nvidia_driver_version": "610.62"
+  },
+  "toolchain": {
+    "git_commit": "de49cc0f4e234a62324cac6818c48dd73879e610",
+    "git_core_autocrlf": "true",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python_executable": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "python_version": "3.11.14"
+  },
+  "python_packages": {
+    "torch": "2.5.1+cu121",
+    "torch_cuda_build": "12.1",
+    "torch_cuda_available": true,
+    "cuda_device": "NVIDIA GeForce RTX 2060 SUPER",
+    "cudnn": "90100",
+    "numpy": "2.3.5",
+    "fastapi": "0.136.1",
+    "uvicorn": "0.46.0"
+  },
+  "sim_core_dependencies": {
+    "pokemon-showdown": "0.11.10",
+    "@smogon/calc": "0.11.0"
+  },
+  "compute_split": {
+    "sim_core_uses": "CPU/Node (Pokemon Showdown mechanics + @smogon/calc), not CUDA",
+    "cuda_affects": "PyTorch model inference and training only",
+    "implication": "Driver update can move model-inference latency/training, not branch-search battle accuracy"
+  },
+  "sanity_checks": {
+    "cuda_matmul_smoke": "ok",
+    "validate_sim_core": "ok",
+    "pytest": {"passed": 177, "skipped": 1, "failed": 0},
+    "sim_core_node_tests": {"passed": 26, "failed": 0},
+    "retraining_performed": false
+  }
+}
