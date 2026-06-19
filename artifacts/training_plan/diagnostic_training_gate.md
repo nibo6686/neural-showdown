@@ -5,11 +5,12 @@
 - [x] Final representation freeze audit completed.
 - [x] Machine-readable schema manifest written and validated.
 - [x] Replay profiler designed.
-- [ ] Replay profiler implemented and run against the existing pool.
-- [ ] Battle-level `diagnostic_300` manifest materialized and overlap-checked.
+- [x] Replay profiler implemented and run against the existing pool.
+- [x] Battle-level `diagnostic_300` manifest materialized and overlap-checked.
 - [ ] v7/v5 feature generation benchmarked on a small subset.
 - [x] Slice counterfactual and schema-prefix tests pass.
 - [x] Existing checkpoints and live defaults remain untouched.
+- [x] Representation checkpoint committed before replay profiling.
 - [ ] Training labels are explicitly chosen and documented separately for state
   value, action rank and action value.
 - [ ] Train/validation/test assignment is fixed by battle before featurization.
