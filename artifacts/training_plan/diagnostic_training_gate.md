@@ -7,14 +7,14 @@
 - [x] Replay profiler designed.
 - [x] Replay profiler implemented and run against the existing pool.
 - [x] Battle-level `diagnostic_300` manifest materialized and overlap-checked.
-- [ ] v7/v5 feature generation benchmarked on a small subset.
+- [x] v7/v5 feature generation benchmarked on a small subset.
 - [x] Slice counterfactual and schema-prefix tests pass.
 - [x] Existing checkpoints and live defaults remain untouched.
 - [x] Representation checkpoint committed before replay profiling.
 - [ ] Training labels are explicitly chosen and documented separately for state
   value, action rank and action value.
-- [ ] Train/validation/test assignment is fixed by battle before featurization.
-- [ ] Output metadata records schema versions, ordered-name fingerprints,
+- [x] Train/validation/test assignment is fixed by battle before featurization.
+- [x] Tiny-benchmark output metadata records schema versions, ordered-name fingerprints,
   manifest/profile versions, source commit, dtype and information boundary.
 
 Do not launch the full 15k rebuild until diagnostic 300, small 1000 and medium
@@ -37,6 +37,9 @@ The first diagnostic model must:
 
 ## Decision
 
-The schema freeze is sufficient to proceed with profiler implementation and
-`diagnostic_300` creation. The training gate itself remains closed until the
-unchecked prerequisites above are completed.
+The tiny 10-battle v7/v5 feature-generation benchmark passed with no schema
+errors and supports proceeding to full `diagnostic_300` materialization. The
+training gate remains closed until labels are explicitly defined, the full
+materialization succeeds with acceptable runtime/storage, the first diagnostic
+training command is written, and sanity checks pass on the materialized
+features.

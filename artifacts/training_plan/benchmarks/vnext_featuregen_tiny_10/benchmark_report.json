@@ -1,0 +1,112 @@
+{
+  "action_feature_dim": 318,
+  "action_feature_names_sha256": "20bbfc25b2ace639831c132cb1c1f6d3b7701d4750fd9b95d6bfb423e17ac9a8",
+  "action_feature_version": "legal-action-v5",
+  "average_legal_actions_per_state": 5.568791946308725,
+  "battles_processed": 10,
+  "battles_requested": 10,
+  "benchmark_version": "vnext-featuregen-tiny-v1",
+  "command": ".\\scripts\\run_windows.ps1 -Action benchmark-vnext-featuregen -SimCoreMode native",
+  "dataset_size_bytes": 221729,
+  "dataset_size_mb": 0.2114572525024414,
+  "decision_states": 596,
+  "dense_uncompressed_payload_bytes": 5934820,
+  "dtype_on_disk": "float16",
+  "failed_battles": 0,
+  "failures": [],
+  "files_produced": [
+    "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10\\subset_manifest.json",
+    "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10\\vnext_features_tiny_10.npz",
+    "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10\\feature_metadata.json",
+    "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10\\benchmark_report.json",
+    "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10_report.md"
+  ],
+  "generation_dtype": "float32",
+  "impact_method_counts": {
+    "non_damaging": 507,
+    "smogon_calc": 753,
+    "unavailable": 2059
+  },
+  "information_boundary": "Public replay protocol prefixes and randbats opponent beliefs are used. Own-side private state follows the existing replay-training assumption that later public reveals may complete the own roster/moves; no true hidden opponent team or original private request payload is read.",
+  "legal_action_candidates": 3319,
+  "live_default_action_feature_dim": 165,
+  "live_default_action_feature_version": "legal-action-v3",
+  "live_default_state_feature_dim": 115,
+  "live_default_state_feature_version": "live-private-belief-v2",
+  "manifest_catalog_checksum": "0ebbad4d9a0fa35e3e37f38d964b1d04fa77207870a66048221ec1461044b24e",
+  "manifest_seed": 20260619,
+  "manifest_version": "diagnostic-300-manifest-v1",
+  "output_dir": "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10",
+  "peak_python_tracemalloc_bytes": 18951505,
+  "peak_python_tracemalloc_mb": 18.07356357574463,
+  "profile_versions": [
+    "replay-pool-profile-v1"
+  ],
+  "ready_for_full_diagnostic_300": true,
+  "runtime_per_action_candidate_sec": 0.006383977161795755,
+  "runtime_per_battle_sec": 2.118842020000011,
+  "runtime_per_decision_state_sec": 0.03555104060402703,
+  "runtime_total_sec": 21.18842020000011,
+  "schema_bug_found": false,
+  "selected_replay_ids": [
+    "gen9randombattle-2589352228",
+    "gen9randombattle-2592672685",
+    "gen9randombattle-2593870030",
+    "gen9randombattle-2588074888",
+    "gen9randombattle-2588414109",
+    "gen9randombattle-2592203110",
+    "gen9randombattle-2592477403",
+    "gen9randombattle-2588641014",
+    "gen9randombattle-2589135265",
+    "gen9randombattle-2589912457"
+  ],
+  "selected_splits": {
+    "gen9randombattle-2588074888": "train",
+    "gen9randombattle-2588414109": "train",
+    "gen9randombattle-2588641014": "validation",
+    "gen9randombattle-2589135265": "validation",
+    "gen9randombattle-2589352228": "test",
+    "gen9randombattle-2589912457": "validation",
+    "gen9randombattle-2592203110": "train",
+    "gen9randombattle-2592477403": "train",
+    "gen9randombattle-2592672685": "test",
+    "gen9randombattle-2593870030": "test"
+  },
+  "selection_seed": 20260619,
+  "source_commit": "2fc9149f216bb12dbd1833a00a412000c9e2c7ac",
+  "split_state_counts": {
+    "test": 166,
+    "train": 239,
+    "validation": 191
+  },
+  "state_feature_dim": 3208,
+  "state_feature_names_sha256": "0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf",
+  "state_feature_version": "live-private-belief-v7",
+  "state_vectors_duplicated_per_candidate": false,
+  "storage_layout": "one state row per decision; separate candidate action rows linked by candidate_state_indices",
+  "total_output_size_bytes": 248002,
+  "total_output_size_mb": 0.2365131378173828,
+  "valid_battles": 10,
+  "validation": {
+    "checks": {
+      "action_dim_318": true,
+      "action_dtype_float16": true,
+      "all_examples_trace_to_manifest": true,
+      "candidate_state_indices_valid": true,
+      "live_defaults_unchanged": true,
+      "metadata_records_manifest_profile_source": true,
+      "metadata_records_name_fingerprints": true,
+      "metadata_records_v7_v5": true,
+      "no_battle_crosses_splits": true,
+      "state_dim_3208": true,
+      "state_dtype_float16": true,
+      "state_not_duplicated_per_candidate": true
+    },
+    "passed": true
+  },
+  "warnings": [
+    "Peak memory is Python tracemalloc heap only; it excludes sim-core and NumPy native allocations.",
+    "Own-side reconstructed state follows the existing replay-training future-public-reveal assumption.",
+    "This is a 10-battle feasibility benchmark, not the full diagnostic_300 materialization."
+  ]
+}
