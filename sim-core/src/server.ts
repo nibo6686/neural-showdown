@@ -20,6 +20,14 @@ type SingleRPCRequest =
     }
   | {
       id: string;
+      type: 'fork_belief_env';
+      source_env_id: string;
+      perspective: PlayerID;
+      belief_seed: number[];
+      options?: StepResultOptions;
+    }
+  | {
+      id: string;
       type: 'step';
       env_id: string;
       choices: Partial<Record<PlayerID, string>>;
@@ -132,6 +140,11 @@ function summarizeRequest(request: RPCRequest | SingleRPCRequest): Record<string
     summary.choice_players = Object.keys(request.choices || {});
     summary.choices = request.choices;
   }
+  if (request.type === 'fork_belief_env') {
+    summary.source_env_id = request.source_env_id;
+    summary.perspective = request.perspective;
+    summary.belief_seed = request.belief_seed;
+  }
   if (request.type === 'agent_action') {
     summary.player = request.player;
     summary.agent = request.agent;
@@ -213,6 +226,13 @@ async function handleSingleRequest(request: SingleRPCRequest): Promise<unknown> 
       return manager.createEnv(request.format, request.seed, request.players);
     case 'reset':
       return manager.resetEnv(request.env_id, request.options);
+    case 'fork_belief_env':
+      return manager.forkBeliefEnv(
+        request.source_env_id,
+        request.perspective,
+        request.belief_seed,
+        request.options,
+      );
     case 'step':
       return manager.stepEnv(request.env_id, request.choices || {}, request.options);
     case 'close_env':

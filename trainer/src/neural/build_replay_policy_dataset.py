@@ -47,8 +47,10 @@ def _action_label(event: Dict[str, Any]) -> str:
 def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Optional[str]]:
     winner_side = trajectory.get("winner_side")
     turns = trajectory.get("turns")
-    if winner_side is None or not isinstance(turns, list):
-        return [], None
+    if result_from_winner_side(winner_side, perspective="p1") is None:
+        return [], "missing_or_unknown_winner"
+    if not isinstance(turns, list):
+        return [], "no_turn_events"
 
     state = _initial_state(trajectory)
     mapper = TrajectoryActionMapper()
@@ -139,9 +141,12 @@ def build_public_replay_policy_dataset(
 
     with gzip.open(selected_output, "wt", encoding="utf-8") as handle:
         for trajectory in trajectories:
-            source_examples, _ = examples_from_policy_trajectory(trajectory)
+            source_examples, skip_reason = examples_from_policy_trajectory(trajectory)
             if not source_examples:
-                skipped.append({"replay_id": trajectory.get("replay_id"), "reason": "no_policy_actions_or_missing_winner"})
+                skipped.append({
+                    "replay_id": trajectory.get("replay_id"),
+                    "reason": skip_reason or "no_policy_actions",
+                })
                 continue
             for example in source_examples:
                 handle.write(json.dumps(example, sort_keys=True) + "\n")

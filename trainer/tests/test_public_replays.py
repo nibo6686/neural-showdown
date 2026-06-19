@@ -7,8 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
-from neural.build_replay_policy_dataset import build_public_replay_policy_dataset
-from neural.build_replay_value_dataset import build_public_replay_value_dataset
+from neural.build_replay_policy_dataset import build_public_replay_policy_dataset, examples_from_policy_trajectory
+from neural.build_replay_value_dataset import build_public_replay_value_dataset, examples_from_trajectory
 from neural.parse_replay_logs import parse_protocol_log, parse_replay_logs
 from neural.replay_fetch import (
     build_search_url,
@@ -80,6 +80,52 @@ class PublicReplayParserTest(unittest.TestCase):
         self.assertEqual(len(trajectory["faint_events"]), 1)
         self.assertGreaterEqual(len(trajectory["damage_events"]), 3)
         self.assertEqual(len(trajectory["tera_events"]), 1)
+
+    def test_disconnect_line_followed_by_win_preserves_winner(self):
+        trajectory = parse_protocol_log(
+            [
+                "|player|p1|Alice|1|",
+                "|player|p2|Bob|2|",
+                "|player|p2|",
+                "|win|Bob",
+            ]
+        )
+        self.assertEqual(trajectory["players"]["p2"], "Bob")
+        self.assertEqual(trajectory["winner"], "Bob")
+        self.assertEqual(trajectory["winner_side"], "p2")
+        self.assertEqual(trajectory["winner_status"], "known")
+
+    def test_inactive_timer_line_followed_by_win_preserves_winner(self):
+        trajectory = parse_protocol_log(
+            [
+                "|player|p1|Alice|1|",
+                "|player|p2|Bob|2|",
+                "|inactive|Bob has 30 seconds left.",
+                "|win|Alice",
+            ]
+        )
+        self.assertEqual(trajectory["winner_side"], "p1")
+        self.assertTrue(trajectory["winner_known"])
+
+    def test_missing_win_is_explicit_and_dataset_builders_skip_it(self):
+        trajectory = parse_protocol_log(
+            [
+                "|player|p1|Alice|1|",
+                "|player|p2|Bob|2|",
+                "|turn|1",
+                "|move|p1a: Pikachu|Thunderbolt|p2a: Charizard",
+            ]
+        )
+        self.assertIsNone(trajectory["winner"])
+        self.assertIsNone(trajectory["winner_side"])
+        self.assertEqual(trajectory["winner_status"], "unknown")
+        self.assertFalse(trajectory["winner_known"])
+        value_examples, value_reason = examples_from_trajectory(trajectory)
+        policy_examples, policy_reason = examples_from_policy_trajectory(trajectory)
+        self.assertEqual(value_examples, [])
+        self.assertEqual(value_reason, "missing_or_unknown_winner")
+        self.assertEqual(policy_examples, [])
+        self.assertEqual(policy_reason, "missing_or_unknown_winner")
 
     def test_value_dataset_builder_smoke_from_fixture(self):
         with tempfile.TemporaryDirectory() as tmpdir:

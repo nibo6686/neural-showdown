@@ -10,6 +10,11 @@ export interface ControllerSpec {
   controller: ControllerType;
 }
 
+export interface BeliefForkOptions {
+  perspective: PlayerID;
+  belief_seed: number[];
+}
+
 export interface LegalAction {
   index: number;
   kind: ActionKind;

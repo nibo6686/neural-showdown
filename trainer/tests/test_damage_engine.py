@@ -12,6 +12,23 @@ import torch
 
 
 class DamageEngineTest(unittest.TestCase):
+    def test_direct_exact_stats_change_damage_and_report_diagnostics(self):
+        low = estimate_damage(
+            attacker={"species": "Mew", "level": 80, "stats": {"spa": 50}},
+            defender={"species": "Mew", "level": 80, "stats": {"spd": 500, "hp": 400}},
+            move="Aura Sphere",
+        )
+        high = estimate_damage(
+            attacker={"species": "Mew", "level": 80, "stats": {"spa": 500}},
+            defender={"species": "Mew", "level": 80, "stats": {"spd": 50, "hp": 400}},
+            move="Aura Sphere",
+        )
+        self.assertGreater(high["min_percent"], low["max_percent"])
+        self.assertTrue(low["used_exact_attacker_stats"])
+        self.assertTrue(low["used_exact_defender_stats"])
+        self.assertEqual(low["damage_method"], "smogon_calc")
+        self.assertNotIn("heuristic_fallback", str([low, high]))
+
     def test_direct_smogon_calc_reports_immunity(self):
         result = estimate_damage(
             attacker={"species": "Banette", "level": 80},
@@ -136,6 +153,8 @@ class DamageEngineTest(unittest.TestCase):
         )
         self.assertEqual(result["damage_method"], "smogon_calc")
         self.assertEqual(result["average_percent"], 42.0)
+        self.assertEqual(result["rollout_damage_source"], "sim_core_rpc")
+        self.assertIsNone(result["fallback_reason"])
 
     def test_fallback_survives_rpc_failure(self):
         class BrokenClient:
@@ -151,7 +170,56 @@ class DamageEngineTest(unittest.TestCase):
             client=BrokenClient(),
         )
         self.assertEqual(result["damage_method"], "heuristic_fallback")
+        self.assertIn("damage_rpc_failed:RuntimeError:offline", result["fallback_reason"])
+        self.assertEqual(result["rollout_damage_source"], "heuristic")
         self.assertTrue(any("damage_rpc_failed" in warning for warning in result["warnings"]))
+
+    def test_private_shaped_request_rollout_preserves_exact_stats(self):
+        legal = [{"index": 0, "kind": "move", "label": "move:Aura Sphere", "move": "Aura Sphere"}]
+        trace = {
+            "format": "gen9randombattle",
+            "protocol_log": [
+                "|switch|p1a: Mew|Mew, L80|100/100",
+                "|switch|p2a: Kingambit|Kingambit, L80|100/100",
+                "|turn|1",
+            ],
+            "turns": [{
+                "turn": 1,
+                "steps": [{
+                    "turn": 1,
+                    "view": {
+                        "player": "p1",
+                        "self_team": [{"species": "Mew", "active": True}],
+                        "opponent_team": [{"species": "Kingambit", "active": True}],
+                    },
+                    "request": {
+                        "player": "p1",
+                        "active": {"moves": [{"move": "Aura Sphere", "id": "aurasphere", "pp": 20}]},
+                        "side": [{
+                            "ident": "p1: Mew",
+                            "details": "Mew, L80",
+                            "condition": "300/300",
+                            "active": True,
+                            "stats": {"atk": 120, "def": 180, "spa": 300, "spd": 180, "spe": 200},
+                            "item": "lifeorb",
+                            "ability": "synchronize",
+                        }],
+                    },
+                    "legal_actions": legal,
+                }],
+            }],
+        }
+        results = evaluate_actions(
+            {"trace": trace},
+            "p1",
+            legal,
+            rollout_config={"rollout_mode": "approximate", "rollouts_per_action": 1},
+        )
+        self.assertEqual(results[0]["damage_method"], "smogon_calc")
+        self.assertTrue(results[0]["used_exact_attacker_stats"])
+        self.assertFalse(results[0]["used_exact_defender_stats"])
+        self.assertIsNone(results[0]["fallback_reason"])
+        self.assertIn(results[0]["rollout_damage_source"], {"sim_core_rpc", "node_module"})
 
     def test_public_replay_approximate_gunk_shot_into_kingambit_is_immune(self):
         legal = [

@@ -49,3 +49,8 @@ data/value/*.npz
 artifacts/patches/
 artifacts/replays/
 artifacts/analysis/
+
+# Generated agent-audit / validation run outputs.
+# Keep hand-written .md reports and design docs; ignore per-battle JSON dumps.
+artifacts/agent_audit/**/*.json
+artifacts/validation/*.json

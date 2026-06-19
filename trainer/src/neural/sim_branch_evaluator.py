@@ -89,6 +89,11 @@ def _move_metadata(move_name: str) -> Dict[str, Any]:
 def _not_applicable_switch_damage() -> Dict[str, Any]:
     return {
         "damage_method": "not_applicable_switch",
+        "used_exact_attacker_stats": False,
+        "used_exact_defender_stats": False,
+        "fallback_reason": None,
+        "rollout_damage_source": "not_applicable_switch",
+        "rollout_damage_input": None,
         "damage_rolls": [],
         "estimated_damage_range": [None, None],
         "average_percent": None,
@@ -109,6 +114,11 @@ def _flat_damage_defaults_for_action(action: Dict[str, Any]) -> Dict[str, Any]:
     if classify_action_category(action) == "switch":
         return {
             "damage_method": "not_applicable_switch",
+            "used_exact_attacker_stats": False,
+            "used_exact_defender_stats": False,
+            "fallback_reason": None,
+            "rollout_damage_source": "not_applicable_switch",
+            "rollout_damage_input": None,
             "damage_rolls": [],
             "average_percent": None,
             "min_percent": None,
@@ -120,6 +130,11 @@ def _flat_damage_defaults_for_action(action: Dict[str, Any]) -> Dict[str, Any]:
         }
     return {
         "damage_method": None,
+        "used_exact_attacker_stats": False,
+        "used_exact_defender_stats": False,
+        "fallback_reason": None,
+        "rollout_damage_source": None,
+        "rollout_damage_input": None,
         "damage_rolls": [],
         "average_percent": None,
         "min_percent": None,
@@ -272,6 +287,11 @@ def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) ->
         type_effectiveness = estimate.get("type_effectiveness")
         return {
             "damage_method": estimate.get("damage_method"),
+            "used_exact_attacker_stats": bool(estimate.get("used_exact_attacker_stats")),
+            "used_exact_defender_stats": bool(estimate.get("used_exact_defender_stats")),
+            "fallback_reason": estimate.get("fallback_reason"),
+            "rollout_damage_source": estimate.get("rollout_damage_source"),
+            "rollout_damage_input": estimate.get("rollout_damage_input"),
             "damage_rolls": list(estimate.get("damage_rolls") or []),
             "estimated_damage_range": [min_percent / 100.0, max_percent / 100.0],
             "average_percent": float(estimate.get("average_percent") or 0.0),
@@ -322,6 +342,14 @@ def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) ->
     target_hp = float(opp.get("hp_fraction") if opp.get("hp_fraction") is not None else 1.0)
     return {
         "damage_method": "non_damaging_move" if str(category).lower() == "status" or base_power <= 0 else "heuristic_fallback",
+        "used_exact_attacker_stats": False,
+        "used_exact_defender_stats": False,
+        "fallback_reason": (
+            f"damage_diagnostics_exception:{type(calc_exception).__name__}:{calc_exception}"
+            if calc_exception is not None
+            else "damage_diagnostics_exception:unknown"
+        ),
+        "rollout_damage_source": "heuristic",
         "estimated_damage_range": [float(min_damage), float(max_damage)],
         "average_percent": float((min_damage + max_damage) * 50.0),
         "min_percent": float(min_damage * 100.0),
@@ -606,6 +634,11 @@ def _approximate_decision_rollout(
                 "current_value": current_value,
                 "diagnostics": diagnostics,
                 "damage_method": damage_info.get("damage_method"),
+                "used_exact_attacker_stats": bool(damage_info.get("used_exact_attacker_stats")),
+                "used_exact_defender_stats": bool(damage_info.get("used_exact_defender_stats")),
+                "fallback_reason": damage_info.get("fallback_reason"),
+                "rollout_damage_source": damage_info.get("rollout_damage_source"),
+                "rollout_damage_input": damage_info.get("rollout_damage_input"),
                 "damage_rolls": damage_info.get("damage_rolls", []),
                 "average_percent": damage_info.get("average_percent"),
                 "min_percent": damage_info.get("min_percent"),

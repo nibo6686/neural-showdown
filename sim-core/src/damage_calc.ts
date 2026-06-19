@@ -41,6 +41,8 @@ export interface DamageEstimateRequest {
 
 export interface DamageEstimate {
   damage_method: 'smogon_calc' | 'non_damaging_move';
+  used_exact_attacker_stats: boolean;
+  used_exact_defender_stats: boolean;
   damage_rolls: number[];
   min_percent: number;
   max_percent: number;
@@ -178,6 +180,8 @@ function isNonDamagingMove(moveName: string): boolean {
 function nonDamagingEstimate(): DamageEstimate {
   return {
     damage_method: 'non_damaging_move',
+    used_exact_attacker_stats: false,
+    used_exact_defender_stats: false,
     damage_rolls: [],
     min_percent: 0,
     max_percent: 0,
@@ -190,6 +194,58 @@ function nonDamagingEstimate(): DamageEstimate {
     tera_damage_bonus: 0,
     warnings: [],
   };
+}
+
+function exactStatTable(values?: Record<string, number>): Record<string, number> {
+  const result: Record<string, number> = {};
+  if (!values) return result;
+  for (const stat of STAT_KEYS) {
+    const value = Number(values[stat]);
+    if (Number.isFinite(value) && value > 0) {
+      result[stat] = Math.floor(value);
+    }
+  }
+  return result;
+}
+
+function applyExactStats(
+  pokemon: InstanceType<typeof CalcPokemon>,
+  suppliedStats: Record<string, number>,
+  hpFraction?: number | null,
+  curHp?: number | null,
+): InstanceType<typeof CalcPokemon> {
+  const exactStats = exactStatTable(suppliedStats);
+  if (!Object.keys(exactStats).length) {
+    return pokemon;
+  }
+
+  const rawStats = (pokemon as any).rawStats as Record<string, number>;
+  const stats = (pokemon as any).stats as Record<string, number>;
+  for (const [stat, value] of Object.entries(exactStats)) {
+    rawStats[stat] = value;
+    stats[stat] = value;
+  }
+
+  const maxHp = Math.max(1, Number(rawStats.hp || 1));
+  if (curHp !== undefined && curHp !== null) {
+    (pokemon as any).originalCurHP = Math.max(1, Math.min(Math.floor(Number(curHp)), maxHp));
+  } else if (hpFraction !== undefined && hpFraction !== null) {
+    (pokemon as any).originalCurHP = Math.max(1, Math.min(Math.round(maxHp * Number(hpFraction)), maxHp));
+  } else {
+    (pokemon as any).originalCurHP = maxHp;
+  }
+
+  const originalClone = pokemon.clone.bind(pokemon);
+  (pokemon as any).clone = () => {
+    const cloned = originalClone();
+    return applyExactStats(
+      cloned,
+      { ...(pokemon as any).rawStats },
+      null,
+      (pokemon as any).originalCurHP,
+    );
+  };
+  return pokemon;
 }
 
 function damageInputSummary(request: DamageEstimateRequest, canonicalAttacker?: string, canonicalDefender?: string): string {
@@ -254,7 +310,7 @@ function buildPokemon(pokemon: DamagePokemon, useTera: boolean): InstanceType<ty
   } else if (pokemon.hp_fraction !== undefined && pokemon.hp_fraction !== null) {
     (result as any).originalCurHP = Math.max(1, Math.round(Number((result as any).rawStats?.hp || 1) * Number(pokemon.hp_fraction)));
   }
-  return result;
+  return applyExactStats(result, pokemon.stats || {}, pokemon.hp_fraction, pokemon.cur_hp);
 }
 
 function buildField(field?: DamageField): InstanceType<typeof Field> {
@@ -290,6 +346,8 @@ function estimateOnce(request: DamageEstimateRequest, useTera: boolean): { rolls
 }
 
 export function estimateDamage(request: DamageEstimateRequest): DamageEstimate {
+  const usedExactAttackerStats = Object.keys(exactStatTable(request.attacker?.stats)).length > 0;
+  const usedExactDefenderStats = Object.keys(exactStatTable(request.defender?.stats)).length > 0;
   if (isNonDamagingMove(request.move)) {
     return nonDamagingEstimate();
   }
@@ -310,6 +368,8 @@ export function estimateDamage(request: DamageEstimateRequest): DamageEstimate {
     const withoutTera = request.use_tera ? estimateOnce(request, false) : current;
     return {
       damage_method: 'smogon_calc',
+      used_exact_attacker_stats: usedExactAttackerStats,
+      used_exact_defender_stats: usedExactDefenderStats,
       damage_rolls: rolls,
       min_percent: percents.length ? Math.min(...percents) : 0,
       max_percent: percents.length ? Math.max(...percents) : 0,

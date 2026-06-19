@@ -1,11 +1,35 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
 from .action_features import load_move_metadata, to_id
+
+
+_default_damage_client: Any = None
+
+
+def set_default_damage_client(client: Any) -> None:
+    global _default_damage_client
+    _default_damage_client = client
+
+
+def _configured_damage_client() -> Any:
+    global _default_damage_client
+    if _default_damage_client is not None:
+        return _default_damage_client
+    command_json = os.environ.get("NEURAL_SIM_CORE_COMMAND_JSON")
+    cwd = os.environ.get("NEURAL_SIM_CORE_CWD")
+    if not command_json or not cwd:
+        return None
+    from .env_client import SimCoreClient
+
+    command = json.loads(command_json)
+    _default_damage_client = SimCoreClient(command, cwd)
+    return _default_damage_client
 
 
 def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
@@ -19,7 +43,32 @@ def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
 def _opponent_view_mon(approx_state: Dict[str, Any]) -> Dict[str, Any]:
     view = approx_state.get("view") if isinstance(approx_state.get("view"), dict) else {}
     team = view.get("opponent_team") if isinstance(view.get("opponent_team"), list) else []
-    return team[0] if team and isinstance(team[0], dict) else {}
+    defender = dict(team[0]) if team and isinstance(team[0], dict) else {}
+    belief = approx_state.get("opponent_belief") if isinstance(approx_state.get("opponent_belief"), dict) else {}
+    species_id = to_id(defender.get("species"))
+    opponents = belief.get("opponents") if isinstance(belief.get("opponents"), list) else []
+    inferred_fields = []
+    for opponent in opponents:
+        if not isinstance(opponent, dict) or to_id(opponent.get("species")) != species_id:
+            continue
+        revealed = opponent.get("revealed") if isinstance(opponent.get("revealed"), dict) else {}
+        inferred = opponent.get("inferred") if isinstance(opponent.get("inferred"), dict) else {}
+        for field, plural in (("ability", "abilities"), ("item", "items"), ("tera_type", "tera_types")):
+            if defender.get(field):
+                continue
+            value = revealed.get(field)
+            if not value:
+                distribution = inferred.get(plural) if isinstance(inferred.get(plural), list) else []
+                first = distribution[0] if distribution else None
+                value = first.get("value") if isinstance(first, dict) else None
+                if value:
+                    inferred_fields.append(field)
+            if value:
+                defender[field] = value
+        break
+    if inferred_fields:
+        defender["_randbats_inferred_fields"] = sorted(inferred_fields)
+    return defender
 
 
 def _type_multiplier(move_type: Optional[str], target_types: Sequence[str]) -> float:
@@ -48,6 +97,8 @@ def _type_multiplier(move_type: Optional[str], target_types: Sequence[str]) -> f
 def _default_estimate(method: str = "heuristic_fallback") -> Dict[str, Any]:
     return {
         "damage_method": method,
+        "used_exact_attacker_stats": False,
+        "used_exact_defender_stats": False,
         "damage_rolls": [],
         "average_percent": 0.0,
         "min_percent": 0.0,
@@ -138,6 +189,11 @@ def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_
             "reflect": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("reflect")),
             "light_screen": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("lightscreen")),
             "aurora_veil": bool(((tactical_state.get("opponent") or {}).get("side_conditions") or {}).get("auroraveil")),
+        },
+        "_rollout_damage_input": {
+            "attacker_source": "private_exact" if attacker.get("stats") else "private_inferred",
+            "defender_source": "public_plus_randbats" if defender.get("_randbats_inferred_fields") else "public",
+            "defender_inferred_fields": list(defender.get("_randbats_inferred_fields") or []),
         },
     }
 
@@ -244,17 +300,29 @@ def estimate_action_damage(
     client: Any = None,
     force_tera_active: Optional[bool] = None,
 ) -> Dict[str, Any]:
-    if client is not None:
+    if client is None:
         try:
-            result = client.damage_estimate(_rpc_payload(action, approx_state, force_tera_active=force_tera_active))
+            client = _configured_damage_client()
+        except Exception:
+            client = None
+    if client is not None:
+        payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
+        try:
+            result = client.damage_estimate(payload)
             if isinstance(result, dict):
                 merged = _default_estimate("smogon_calc")
                 merged.update(result)
                 merged.setdefault("warnings", [])
+                merged["rollout_damage_source"] = "sim_core_rpc"
+                merged["rollout_damage_input"] = payload.get("_rollout_damage_input")
+                merged["fallback_reason"] = None
                 return merged
         except Exception as exc:
             fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
-            fallback.setdefault("warnings", []).append(_damage_failure_warning("damage_rpc_failed", exc, _rpc_payload(action, approx_state, force_tera_active=force_tera_active)))
+            fallback["rollout_damage_source"] = "heuristic"
+            fallback["rollout_damage_input"] = payload.get("_rollout_damage_input")
+            fallback["fallback_reason"] = f"damage_rpc_failed:{type(exc).__name__}:{exc}"
+            fallback.setdefault("warnings", []).append(_damage_failure_warning("damage_rpc_failed", exc, payload))
             return fallback
 
     payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
@@ -263,9 +331,15 @@ def estimate_action_damage(
         merged = _default_estimate("smogon_calc")
         merged.update(result)
         merged.setdefault("warnings", [])
+        merged["rollout_damage_source"] = "node_module"
+        merged["rollout_damage_input"] = payload.get("_rollout_damage_input")
+        merged["fallback_reason"] = None
         return merged
     except Exception as exc:
         fallback = _heuristic_estimate(action, approx_state, force_tera_active=force_tera_active)
+        fallback["rollout_damage_source"] = "heuristic"
+        fallback["rollout_damage_input"] = payload.get("_rollout_damage_input")
+        fallback["fallback_reason"] = f"smogon_calc_failed:{type(exc).__name__}:{exc}"
         fallback.setdefault("warnings", []).append(_damage_failure_warning("smogon_calc_failed", exc, payload))
         return fallback
 

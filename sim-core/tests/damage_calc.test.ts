@@ -139,3 +139,22 @@ test('Life Orb, screens, burn, and weather are modeled', () => {
   });
   assert.ok(rain.average_percent > dry.average_percent);
 });
+
+test('exact attacker and defender stats override inferred calc stats', () => {
+  const lowAttack = estimateDamage({
+    attacker: { species: 'Mew', level: 80, stats: { spa: 50 } },
+    defender: { species: 'Mew', level: 80, stats: { spd: 500, hp: 400 } },
+    move: 'Aura Sphere',
+  });
+  const highAttack = estimateDamage({
+    attacker: { species: 'Mew', level: 80, stats: { spa: 500 } },
+    defender: { species: 'Mew', level: 80, stats: { spd: 50, hp: 400 } },
+    move: 'Aura Sphere',
+  });
+
+  assert.ok(highAttack.min_percent > lowAttack.max_percent);
+  assert.equal(lowAttack.used_exact_attacker_stats, true);
+  assert.equal(lowAttack.used_exact_defender_stats, true);
+  assert.equal(highAttack.damage_method, 'smogon_calc');
+  assert.deepEqual(highAttack.warnings, []);
+});

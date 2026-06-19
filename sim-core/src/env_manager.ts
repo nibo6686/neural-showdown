@@ -1,7 +1,8 @@
-import { BattleStream, Teams, getPlayerStreams } from 'pokemon-showdown';
+import { Battle, BattleStream, Teams, getPlayerStreams } from 'pokemon-showdown';
 import { cloneChoiceRequest, removeChoiceFromRequest } from './action_codec';
 import { HeuristicBaselineAgent } from './baselines/heuristic';
 import { RandomBaselineAgent } from './baselines/random';
+import { buildBeliefSnapshot, type BeliefForkMetadata } from './belief_fork';
 import { PlayerStateExtractor } from './state_extractor';
 import type {
   BaselineDecision,
@@ -297,6 +298,54 @@ export class LocalBattleEnv {
     this.lastError = null;
     this.initialized = true;
 
+    this.initializeStreams();
+    if (!this.streams) throw new Error('Battle streams failed to initialize.');
+    const p1Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 11) }));
+    const p2Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 29) }));
+
+    const payload = [
+      `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
+      `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
+      `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
+    ].join('\n');
+
+    await this.streams.omniscient.write(payload);
+    return this.drainUntilExternalDecision(options);
+  }
+
+  async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
+    await this.destroyBattle();
+    this.logLines = [];
+    this.logCursor = 0;
+    this.lastError = null;
+    this.initialized = true;
+    this.initializeStreams();
+    if (!this.battleStream) throw new Error('Battle stream failed to initialize.');
+    const stream = this.battleStream as unknown as {
+      battle: Battle | null;
+      pushMessage: (type: string, data: string | string[]) => void;
+    };
+    const battle = Battle.fromJSON(serialized);
+    battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
+    stream.battle = battle;
+    battle.sentLogPos = 0;
+    battle.sentEnd = false;
+    battle.sendUpdates();
+    for (const side of battle.sides) {
+      if (side?.activeRequest) side.emitRequest(side.activeRequest);
+    }
+    await new Promise<void>(resolve => setImmediate(resolve));
+    return this.drainUntilExternalDecision(options);
+  }
+
+  serializeBattle(): Record<string, unknown> {
+    this.ensureReady();
+    const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
+    if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
+    return battle.toJSON();
+  }
+
+  private initializeStreams(): void {
     this.battleStream = new BattleStream({ keepAlive: true });
     this.streams = getPlayerStreams(this.battleStream);
     this.players = {
@@ -324,18 +373,6 @@ export class LocalBattleEnv {
       void this.players[player].start().catch((error: Error) => this.markError(error));
     }
     void this.listenSpectator().catch((error: Error) => this.markError(error));
-
-    const p1Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 11) }));
-    const p2Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 29) }));
-
-    const payload = [
-      `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
-      `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
-      `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
-    ].join('\n');
-
-    await this.streams.omniscient.write(payload);
-    return this.drainUntilExternalDecision(options);
   }
 
   async step(choices: Partial<Record<PlayerID, string>>): Promise<StepResult> {
@@ -579,6 +616,60 @@ export class EnvironmentManager {
 
   async resetEnv(envId: string, options?: StepResultOptions): Promise<StepResult> {
     return this.requireEnv(envId).resetWithOptions(options);
+  }
+
+  async forkBeliefEnv(
+    sourceEnvId: string,
+    perspective: PlayerID,
+    beliefSeed: number[],
+    options?: StepResultOptions,
+  ): Promise<{ env_id: string; result: StepResult; belief: BeliefForkMetadata }> {
+    const source = this.requireEnv(sourceEnvId);
+    const serialized = source.serializeBattle();
+    const view = source.buildResponseView(perspective, false);
+    const built = buildBeliefSnapshot(serialized, view, perspective, source.format, beliefSeed);
+    const envId = `env-${this.nextId++}`;
+    const env = new LocalBattleEnv(envId, source.format, source.seed, {
+      p1: { controller: 'external' },
+      p2: { controller: 'external' },
+    });
+    this.envs.set(envId, env);
+    try {
+      const result = await env.resetFromSerialized(built.snapshot, options);
+      const forkView = result.views[perspective];
+      if (forkView) {
+        for (const publicMon of view.opponent_team) {
+          const forkMon = forkView.opponent_team.find(mon => mon.species === publicMon.species);
+          if (!forkMon) {
+            built.metadata.public_info_constraint_violations++;
+            continue;
+          }
+          if (publicMon.revealed_moves.some(move => !forkMon.revealed_moves.includes(move))) {
+            built.metadata.public_info_constraint_violations++;
+          }
+          if (publicMon.ability && forkMon.ability !== publicMon.ability) {
+            built.metadata.public_info_constraint_violations++;
+          }
+          if (publicMon.item && publicMon.item !== 'has-item' && forkMon.item !== publicMon.item) {
+            built.metadata.public_info_constraint_violations++;
+          }
+          if (publicMon.terastallized && forkMon.tera_type !== publicMon.tera_type) {
+            built.metadata.public_info_constraint_violations++;
+          }
+          if (publicMon.status !== forkMon.status || publicMon.fainted !== forkMon.fainted) {
+            built.metadata.public_info_constraint_violations++;
+          }
+          if (Math.abs((publicMon.hp_ratio ?? 1) - (forkMon.hp_ratio ?? 1)) > 0.011) {
+            built.metadata.public_info_constraint_violations++;
+          }
+        }
+      }
+      return { env_id: envId, result, belief: built.metadata };
+    } catch (error) {
+      await env.close();
+      this.envs.delete(envId);
+      throw error;
+    }
   }
 
   async stepEnv(envId: string, choices: Partial<Record<PlayerID, string>>, options?: StepResultOptions): Promise<StepResult> {

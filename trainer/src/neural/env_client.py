@@ -154,6 +154,30 @@ class SimCoreClient:
             payload["options"] = options
         return self._request(payload, timeout_sec=timeout_sec, on_wait=on_wait)
 
+    def fork_belief_env(
+        self,
+        source_env_id: str,
+        perspective: str,
+        belief_seed: Sequence[int],
+        options: Optional[Dict[str, Any]] = None,
+        timeout_sec: Optional[float] = None,
+        on_wait: Optional[WaitHook] = None,
+    ) -> Dict[str, Any]:
+        payload = {
+            "id": self._next_id("belief-fork"),
+            "type": "fork_belief_env",
+            "source_env_id": source_env_id,
+            "perspective": perspective,
+            "belief_seed": list(belief_seed),
+        }
+        if options:
+            payload["options"] = options
+        result = self._request(payload, timeout_sec=timeout_sec, on_wait=on_wait)
+        env_id = result.get("env_id")
+        if isinstance(env_id, str) and env_id not in self._open_envs:
+            self._open_envs.append(env_id)
+        return result
+
     def step(
         self,
         env_id: str,

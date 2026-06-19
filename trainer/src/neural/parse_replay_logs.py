@@ -107,6 +107,7 @@ def parse_protocol_log(
     boost_events: List[Dict[str, Any]] = []
     tera_events: List[Dict[str, Any]] = []
     winner: Optional[str] = None
+    winner_side: Optional[str] = None
     current_turn = 0
 
     def ensure_turn(turn: int) -> Dict[str, Any]:
@@ -150,7 +151,10 @@ def parse_protocol_log(
             continue
 
         if command == "player" and len(parts) >= 4:
-            players[parts[2]] = parts[3]
+            side = parts[2]
+            name = parts[3]
+            if side in ("p1", "p2") and name:
+                players[side] = name
             continue
         if command == "teamsize" and len(parts) >= 4:
             try:
@@ -168,10 +172,12 @@ def parse_protocol_log(
             continue
         if command == "win" and len(parts) >= 3:
             winner = parts[2]
+            winner_side = _winner_side(winner, players)
             add_event({"turn": current_turn, "type": "win", "winner": winner, "raw": raw_line})
             continue
         if command == "tie":
             winner = "tie"
+            winner_side = "tie"
             add_event({"turn": current_turn, "type": "win", "winner": "tie", "raw": raw_line})
             continue
 
@@ -276,7 +282,9 @@ def parse_protocol_log(
     ordered_turns = [turns_by_number[turn] for turn in sorted(turn_order)]
     parsed_format = format_name or (metadata or {}).get("format")
     parsed_replay_id = replay_id or (metadata or {}).get("replay_id")
-    winner_side = _winner_side(winner, players)
+    if winner_side is None:
+        winner_side = _winner_side(winner, players)
+    winner_status = "tie" if winner_side == "tie" else "known" if winner_side in ("p1", "p2") else "unknown"
     return {
         "source": "public_pokemon_showdown_replay",
         "replay_id": parsed_replay_id,
@@ -289,6 +297,8 @@ def parse_protocol_log(
         "teamsize": teamsize,
         "winner": winner,
         "winner_side": winner_side,
+        "winner_status": winner_status,
+        "winner_known": winner_status != "unknown",
         "total_turns": max(turn_numbers) if turn_numbers else 0,
         "protocol_log": raw_lines,
         "turns": ordered_turns,

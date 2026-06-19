@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildLegalActionSet } from '../src/action_codec';
+import { buildLegalActionSet, normalizeRequest } from '../src/action_codec';
 
 test('buildLegalActionSet masks moves, tera moves, and switches', () => {
   const request = {
@@ -119,4 +119,63 @@ test('buildLegalActionSet falls back to default when no concrete action is avail
   assert.deepEqual(legal.available_indices, [0]);
   assert.equal(legal.mask[0], true);
   assert.equal(legal.actions[0]?.choice, 'default');
+});
+
+test('forced replacement requests expose only healthy bench switches', () => {
+  const legal = buildLegalActionSet({
+    forceSwitch: [true],
+    side: {
+      pokemon: [
+        { active: true, condition: '0 fnt' },
+        { active: false, condition: '100/100' },
+        { active: false, condition: '0 fnt' },
+        { active: false, condition: '50/100 par' },
+      ],
+    },
+  });
+
+  assert.deepEqual(legal.available_indices, [8, 9]);
+  assert.equal(legal.actions[8]?.choice, 'switch 2');
+  assert.equal(legal.actions[9]?.choice, 'switch 4');
+  assert.ok(legal.mask.slice(0, 8).every((enabled) => !enabled));
+});
+
+test('request-disabled moves encode choice lock, Encore, Taunt, Disable, Assault Vest, and PP legality', () => {
+  for (const reason of ['choice-lock', 'encore', 'taunt', 'disable', 'assault-vest']) {
+    const legal = buildLegalActionSet({
+      active: [{
+        trapped: false,
+        moves: [
+          { move: 'Tackle', id: 'tackle', pp: 35, maxpp: 35, disabled: reason !== 'encore' },
+          { move: 'Swords Dance', id: 'swordsdance', pp: reason === 'encore' ? 20 : 0, maxpp: 20, disabled: reason !== 'taunt' },
+          { move: 'Protect', id: 'protect', pp: 10, maxpp: 10, disabled: true },
+        ],
+      }],
+      side: { pokemon: [{ active: true, condition: '100/100' }] },
+    });
+
+    const enabledMoves = legal.available_indices.filter((index) => index < 4);
+    assert.ok(enabledMoves.length <= 1, `${reason} should leave at most one move enabled`);
+    assert.equal(legal.mask[2], false);
+  }
+});
+
+test('trapped requests remove switches while preserving legal moves', () => {
+  const request = normalizeRequest('p1', {
+    rqid: 7,
+    active: [{
+      trapped: true,
+      moves: [{ move: 'Tackle', id: 'tackle', pp: 35, maxpp: 35, disabled: false }],
+    }],
+    side: {
+      pokemon: [
+        { active: true, condition: '100/100' },
+        { active: false, condition: '100/100' },
+      ],
+    },
+  });
+
+  assert.equal(request.trapped, true);
+  assert.equal(request.active?.can_switch, false);
+  assert.deepEqual(request.legal_actions.available_indices, [0]);
 });

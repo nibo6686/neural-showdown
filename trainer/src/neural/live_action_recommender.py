@@ -247,6 +247,39 @@ def _active_private_mon(private_state: Dict[str, Any]) -> Dict[str, Any]:
     return team[0] if team and isinstance(team[0], dict) else {}
 
 
+def _public_active_fallback(protocol: Sequence[str], side: str) -> Dict[str, Any]:
+    active: Dict[str, Any] = {}
+    prefix = f"{side}a:"
+    for raw_line in protocol:
+        parts = str(raw_line).split("|")
+        if len(parts) < 3:
+            continue
+        command = parts[1]
+        ident = parts[2]
+        if command in {"switch", "drag", "replace"} and ident.startswith(prefix):
+            details = parts[3] if len(parts) > 3 else ident.split(": ", 1)[-1]
+            active = {
+                "ident": ident,
+                "details": details,
+                "species": details.split(",", 1)[0].strip(),
+                "condition": parts[4] if len(parts) > 4 else None,
+            }
+        elif ident.startswith(prefix) and command in {"-damage", "-heal"} and active:
+            active["condition"] = parts[3] if len(parts) > 3 else active.get("condition")
+        elif ident.startswith(prefix) and command == "-status" and active:
+            active["status"] = parts[3] if len(parts) > 3 else None
+        elif ident.startswith(prefix) and command == "-ability" and active:
+            active["ability"] = parts[3] if len(parts) > 3 else None
+        elif ident.startswith(prefix) and command == "-item" and active:
+            active["item"] = parts[3] if len(parts) > 3 else None
+        elif ident.startswith(prefix) and command == "-enditem" and active:
+            active["item"] = None
+        elif ident.startswith(prefix) and command == "-terastallize" and active:
+            active["tera_type"] = parts[3] if len(parts) > 3 else None
+            active["terastallized"] = True
+    return active
+
+
 def _mon_view_from_state(side_state: Dict[str, Any], *, fallback: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     fallback = fallback or {}
     species = str(side_state.get("active_species") or fallback.get("species") or fallback.get("name") or "Unknown")
@@ -325,7 +358,11 @@ def _trace_payload_for_branch_evaluation(
 
     active_private = _active_private_mon(private_state)
     own_view = _mon_view_from_state(own_state, fallback=active_private)
-    opp_view = _mon_view_from_state(opp_state)
+    opponent_side = "p2" if player_side == "p1" else "p1"
+    opp_view = _mon_view_from_state(
+        opp_state,
+        fallback=_public_active_fallback(protocol, opponent_side),
+    )
     turn = _latest_turn(trajectory)
     current_step = {
         "step_index": 0,
@@ -480,6 +517,11 @@ def _estimate_switch_value(
 def _switch_damage_fields() -> Dict[str, Any]:
     return {
         "damage_method": "not_applicable_switch",
+        "used_exact_attacker_stats": False,
+        "used_exact_defender_stats": False,
+        "fallback_reason": None,
+        "rollout_damage_source": "not_applicable_switch",
+        "rollout_damage_input": None,
         "damage_rolls": [],
         "average_percent": None,
         "min_percent": None,
@@ -592,6 +634,11 @@ class ActionValueEstimator:
         action_category = classify_action_category(legal_action)
         damage_fields = _switch_damage_fields() if action_category == "switch" else {
             "damage_method": None,
+            "used_exact_attacker_stats": False,
+            "used_exact_defender_stats": False,
+            "fallback_reason": None,
+            "rollout_damage_source": None,
+            "rollout_damage_input": None,
             "damage_rolls": [],
             "average_percent": None,
             "min_percent": None,
@@ -696,20 +743,26 @@ def recommend_actions(
         "rollout_mode": os.environ.get("NEURAL_ROLLOUT_MODE", "auto"),
     }
 
-    # Attempt to evaluate actions via simulator branching (best-effort fallback to trace continuation).
-    try:
-        player_side = private_state.get("player_side") if private_state.get("player_side") in ("p1", "p2") else "p1"
-        opponent_policy = os.environ.get("NEURAL_OPPONENT_POLICY", "uniform")
-        sim_payload = _trace_payload_for_branch_evaluation(
-            payload=payload,
-            trajectory=trajectory,
-            private_state=private_state,
-            player_side=player_side,
-            candidates=candidates,
-        )
-        sim_results = evaluate_branch_actions(sim_payload, player_side, candidates, opponent_policy, rollout_cfg) or []
-    except Exception as exc:  # pragma: no cover - best-effort
+    rollout_mode = str(rollout_cfg.get("rollout_mode") or "").strip().lower()
+    rollout_disabled = rollout_mode in {"off", "none", "disabled"} or int(rollout_cfg["rollouts_per_action"]) <= 0
+    if rollout_disabled:
         sim_results = []
+        warnings.append("Simulator rollout disabled by NEURAL_ROLLOUT_MODE/NEURAL_ROLLOUTS_PER_ACTION.")
+    else:
+        # Attempt to evaluate actions via simulator branching (best-effort fallback to trace continuation).
+        try:
+            player_side = private_state.get("player_side") if private_state.get("player_side") in ("p1", "p2") else "p1"
+            opponent_policy = os.environ.get("NEURAL_OPPONENT_POLICY", "uniform")
+            sim_payload = _trace_payload_for_branch_evaluation(
+                payload=payload,
+                trajectory=trajectory,
+                private_state=private_state,
+                player_side=player_side,
+                candidates=candidates,
+            )
+            sim_results = evaluate_branch_actions(sim_payload, player_side, candidates, opponent_policy, rollout_cfg) or []
+        except Exception as exc:  # pragma: no cover - best-effort
+            sim_results = []
 
     # Merge sim rollout expected values into rows when available and compute final_score
     label_to_sim = {str(r.get("label")): r for r in sim_results}
@@ -744,6 +797,11 @@ def recommend_actions(
                 "rollout_unavailable_details",
                 "diagnostics",
                 "damage_method",
+                "used_exact_attacker_stats",
+                "used_exact_defender_stats",
+                "fallback_reason",
+                "rollout_damage_source",
+                "rollout_damage_input",
                 "damage_rolls",
                 "average_percent",
                 "min_percent",

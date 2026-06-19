@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server', 'analyze-rollout-actions', 'test-sim-rollout')]
+    [ValidateSet('setup', 'build', 'test', 'validate-sim-core', 'agent-audit', 'branch-audit', 'two-ply-branch-audit', 'belief-branch-audit', 'belief-particles-audit', 'build-live-sim-value-dataset', 'train-live-sim-value', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server', 'analyze-rollout-actions', 'test-sim-rollout')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -301,6 +301,88 @@ function Invoke-Test {
     Invoke-SimCoreNpm -Arguments @('test')
 }
 
+function Invoke-ValidateSimCore {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher validate-sim-core profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    Invoke-PythonModule -Module 'neural.validate_sim_core'
+}
+
+function Invoke-AgentAudit {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher agent-audit profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $outputDir = Join-Path $RepoRoot 'artifacts\agent_audit\rollout_smoke_clean'
+    Invoke-PythonModule -Module 'neural.agent_audit' -Arguments @(
+        '--agents', 'rollout',
+        '--battles', '20',
+        '--workers', '6',
+        '--rollouts-per-action', '1',
+        '--output-dir', $outputDir
+    )
+}
+
+function Invoke-BranchAudit {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher branch-audit profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $outputDir = Join-Path $RepoRoot 'artifacts\agent_audit\one_turn_branch'
+    Invoke-PythonModule -Module 'neural.agent_audit' -Arguments @(
+        '--agents', 'heuristic,action_value_ranker,rollout,branch_one_turn',
+        '--battles', '20',
+        '--workers', '6',
+        '--rollouts-per-action', '1',
+        '--output-dir', $outputDir
+    )
+}
+
+function Invoke-TwoPlyBranchAudit {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher two-ply-branch-audit profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $outputDir = Join-Path $RepoRoot 'artifacts\agent_audit\two_ply_branch'
+    Invoke-PythonModule -Module 'neural.agent_audit' -Arguments @(
+        '--agents', 'heuristic,branch_one_turn,branch_two_ply_material',
+        '--battles', '20',
+        '--workers', '6',
+        '--rollouts-per-action', '1',
+        '--output-dir', $outputDir
+    )
+}
+
+function Invoke-BeliefBranchAudit {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher belief-branch-audit profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $outputDir = Join-Path $RepoRoot 'artifacts\agent_audit\randbats_belief_branch'
+    Invoke-PythonModule -Module 'neural.agent_audit' -Arguments @(
+        '--agents', 'heuristic,branch_two_ply_material,branch_two_ply_belief_material',
+        '--battles', '20',
+        '--workers', '6',
+        '--rollouts-per-action', '1',
+        '--output-dir', $outputDir
+    )
+}
+
+function Invoke-BeliefParticlesAudit {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher belief-particles-audit profile=$Profile sim_core=$($script:SimCoreRuntime.Mode)"
+    $outputDir = Join-Path $RepoRoot 'artifacts\agent_audit\belief_particles'
+    Invoke-PythonModule -Module 'neural.agent_audit' -Arguments @(
+        '--agents', 'heuristic,branch_one_turn,branch_two_ply_material,branch_two_ply_belief_material,branch_two_ply_belief3_material',
+        '--battles', '20',
+        '--workers', '6',
+        '--rollouts-per-action', '1',
+        '--output-dir', $outputDir
+    )
+}
+
+function Invoke-BuildLiveSimValueDataset {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher build-live-sim-value-dataset sim_core=$($script:SimCoreRuntime.Mode)"
+    Invoke-PythonModule -Module 'neural.build_live_sim_value_dataset' -Arguments @('--num-games', '40')
+}
+
+function Invoke-TrainLiveSimValue {
+    Write-Host "launcher train-live-sim-value"
+    Invoke-PythonModule -Module 'neural.train_live_sim_value' -Arguments @('--epochs', '40')
+}
+
 function Invoke-Dataset {
     Ensure-SimCoreBuilt
     Write-Host "launcher dataset | profile=$Profile sim_core=$($script:SimCoreRuntime.Mode) config=$DatasetConfig"
@@ -599,6 +681,14 @@ try {
         'setup' { Invoke-Setup }
         'build' { Invoke-Build }
         'test' { Invoke-Test }
+        'validate-sim-core' { Invoke-ValidateSimCore }
+        'agent-audit' { Invoke-AgentAudit }
+        'branch-audit' { Invoke-BranchAudit }
+        'two-ply-branch-audit' { Invoke-TwoPlyBranchAudit }
+        'belief-branch-audit' { Invoke-BeliefBranchAudit }
+        'belief-particles-audit' { Invoke-BeliefParticlesAudit }
+        'build-live-sim-value-dataset' { Invoke-BuildLiveSimValueDataset }
+        'train-live-sim-value' { Invoke-TrainLiveSimValue }
         'dataset' { Invoke-Dataset }
         'train' { Invoke-Train }
         'ppo' { Invoke-Ppo }
@@ -606,6 +696,8 @@ try {
         'improve' { Invoke-Improve }
         'server' { Invoke-Server }
         'analyze' { Invoke-Analyze }
+        'analyze-rollout-actions' { Invoke-AnalyzeRolloutActions }
+        'test-sim-rollout' { Invoke-TestSimRollout }
         'trace-eval' { Invoke-TraceEval }
         'build-value-dataset' { Invoke-BuildValueDataset }
         'train-value' { Invoke-TrainValue }

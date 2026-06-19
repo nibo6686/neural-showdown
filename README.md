@@ -638,6 +638,10 @@ Useful analysis modules:
 
 Damage estimates are backed by `@smogon/calc` through sim-core when possible.
 The Python `damage_engine` can also spawn the built Node damage module directly.
+When exact attacker or defender stats are available in a private request, the
+calculator uses those raw stats and reports `used_exact_attacker_stats` and
+`used_exact_defender_stats`. Regression tests verify that changing exact stats
+changes the returned damage range.
 
 Healthcheck:
 
@@ -658,6 +662,56 @@ Run all tests through the launcher:
 ```powershell
 .\scripts\run_windows.ps1 -Action test -SimCoreMode native
 ```
+
+Run the dedicated simulator parity gate before trusting new model-training or
+evaluation results:
+
+```powershell
+.\scripts\run_windows.ps1 -Action validate-sim-core -SimCoreMode native
+```
+
+Run the opt-in bounded two-ply material branch audit:
+
+```powershell
+.\scripts\run_windows.ps1 -Action two-ply-branch-audit -SimCoreMode native
+```
+
+Run the live-information-boundary randbats-belief branch audit:
+
+```powershell
+.\scripts\run_windows.ps1 -Action belief-branch-audit -SimCoreMode native
+```
+
+Run the deterministic three-particle randbats-belief audit:
+
+```powershell
+.\scripts\run_windows.ps1 -Action belief-particles-audit -SimCoreMode native
+```
+
+The gate records the pinned Pokemon Showdown and Smogon calc versions, exercises
+seeded Gen 9 singles mechanics/legal-action/privacy checks, validates exact-stat
+damage, and parses saved public replay prefixes. Simulator dependency upgrades
+must be followed by this validation command.
+
+### Simulator performance
+
+Pokemon Showdown battle mechanics run in Node.js on the CPU; they do not use
+CUDA. PyTorch policy, value, and ranker inference uses the GPU when available.
+The normal eval loop batches model inference, but one sim-core process still
+executes battle RPC work on a single JavaScript thread.
+
+For large agent audits, use process-level sharding so each worker owns an
+independent unchanged sim-core process:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path .\trainer\src)
+& 'D:\Anaconda\envs\neuralgpu\python.exe' -m neural.agent_audit --battles 100 --workers 6
+```
+
+Six workers is the measured default for the current 8-core machine, leaving two
+cores for the parent process and operating system. Each worker limits PyTorch
+CPU threads to one to avoid oversubscription. Seeds and Showdown mechanics are
+unchanged, so this optimization affects throughput rather than battle accuracy.
 
 Manual test commands:
 
@@ -792,6 +846,11 @@ PowerShell output looks strange:
 
 ## Current Limitations
 
+- Simulator parity coverage targets seeded Gen 9 singles. Doubles and other
+  multi-action formats are outside the fixed 13-action codec's scope.
+- Exact public replay reproduction is not supported: ordinary public replay
+  logs omit the original PRNG seed, complete private teams, and private request
+  choices. Public-state parsing and prefix validation remain supported.
 - Exact branch search is limited by whether a trace has enough deterministic
   replay seed/state information. Without that, live recommendations use
   approximate rollouts and diagnostics.

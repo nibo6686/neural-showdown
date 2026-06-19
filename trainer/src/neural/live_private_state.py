@@ -43,6 +43,18 @@ def _species_from_details(details: Optional[str]) -> Optional[str]:
     return str(details).split(",", 1)[0].strip() or None
 
 
+def _level_from_details(details: Optional[str]) -> Optional[int]:
+    match = re.search(r"(?:^|,\s*)L(\d+)(?:,|$)", str(details or ""))
+    return int(match.group(1)) if match else None
+
+
+def _hp_values_from_condition(condition: Optional[str]) -> Tuple[Optional[int], Optional[int]]:
+    match = re.search(r"(\d+)\s*/\s*(\d+)", str(condition or ""))
+    if not match:
+        return None, None
+    return int(match.group(1)), int(match.group(2))
+
+
 def _normalize_active_block(request_payload: Dict[str, Any]) -> Dict[str, Any]:
     active = request_payload.get("active")
     if isinstance(active, list) and active:
@@ -58,6 +70,14 @@ def _normalize_side_block(request_payload: Dict[str, Any]) -> Dict[str, Any]:
     side = request_payload.get("side")
     if isinstance(side, dict):
         return side
+    if isinstance(side, list):
+        return {
+            "id": request_payload.get("player"),
+            "pokemon": side,
+        }
+    raw = request_payload.get("raw")
+    if isinstance(raw, dict) and isinstance(raw.get("side"), dict):
+        return raw["side"]
     return {}
 
 
@@ -104,6 +124,10 @@ def _extract_team(side_block: Dict[str, Any]) -> List[Dict[str, Any]]:
         condition = mon.get("condition")
         hp_fraction = _hp_fraction_from_condition(condition)
         details = mon.get("details")
+        cur_hp, max_hp = _hp_values_from_condition(condition)
+        stats = dict(mon.get("stats")) if isinstance(mon.get("stats"), dict) else {}
+        if max_hp is not None:
+            stats["hp"] = max_hp
         result.append(
             {
                 "ident": mon.get("ident"),
@@ -112,10 +136,13 @@ def _extract_team(side_block: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "active": bool(mon.get("active", False)),
                 "condition": condition,
                 "hp_fraction": hp_fraction,
+                "cur_hp": cur_hp,
+                "max_hp": max_hp,
                 "fainted": bool(mon.get("fainted", hp_fraction == 0.0 if hp_fraction is not None else False)),
                 "status": _status_from_condition(condition),
+                "level": _level_from_details(details),
                 "moves": list(mon.get("moves")) if isinstance(mon.get("moves"), list) else [],
-                "stats": dict(mon.get("stats")) if isinstance(mon.get("stats"), dict) else {},
+                "stats": stats,
                 "types": list(mon.get("types")) if isinstance(mon.get("types"), list) else [],
                 "item": mon.get("item"),
                 "ability": mon.get("ability"),
