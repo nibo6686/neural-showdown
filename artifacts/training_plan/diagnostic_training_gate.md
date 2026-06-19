@@ -11,11 +11,21 @@
 - [x] Slice counterfactual and schema-prefix tests pass.
 - [x] Existing checkpoints and live defaults remain untouched.
 - [x] Representation checkpoint committed before replay profiling.
-- [ ] Training labels are explicitly chosen and documented separately for state
+- [x] Training labels are explicitly chosen and documented separately for state
   value, action rank and action value.
 - [x] Train/validation/test assignment is fixed by battle before featurization.
 - [x] Tiny-benchmark output metadata records schema versions, ordered-name fingerprints,
   manifest/profile versions, source commit, dtype and information boundary.
+- [x] vNext state-value, action-rank and action-value label decisions documented.
+- [x] Tiny-10 label extraction dry run completed with explicit unmatched-action reporting.
+- [x] Full `diagnostic_300` v7/v5 feature materialization completed.
+- [x] Full `diagnostic_300` state-value and action-rank label extraction completed.
+- [x] Materialized dataset split/schema/label sanity checks pass.
+- [x] First diagnostic training plan/config/command written.
+- [x] Native v7/v5 diagnostic training entrypoint implemented.
+- [x] Diagnostic `--validate-only` path tested on the full frozen artifact.
+- [ ] First diagnostic training plan/config/command reviewed.
+- [ ] User explicitly approved launching diagnostic training.
 
 Do not launch the full 15k rebuild until diagnostic 300, small 1000 and medium
 5000 benchmarks justify it.
@@ -37,9 +47,19 @@ The first diagnostic model must:
 
 ## Decision
 
-The tiny 10-battle v7/v5 feature-generation benchmark passed with no schema
-errors and supports proceeding to full `diagnostic_300` materialization. The
-training gate remains closed until labels are explicitly defined, the full
-materialization succeeds with acceptable runtime/storage, the first diagnostic
-training command is written, and sanity checks pass on the materialized
-features.
+The full `diagnostic_300` materialization passed: 300/300 battles produced
+25,396 v7 state rows and 189,957 v5 action-candidate rows with exact 210/45/45
+battle splits, no duplicated state vectors, and no action-value labels. State
+labels are limited to +1/-1. Action-rank extraction matched 24,624 decisions;
+772 unmatched groups and 600 initial-deployment non-decisions are explicitly
+audited and excluded from action-rank positives.
+
+The first diagnostic training plan/config/command and native-layout entrypoint
+are implemented. Full-artifact `--validate-only` passed with exact v7/v5
+schemas and fingerprints, 210/45/45 battle splits, 25,396 state rows, 24,624
+matched action groups, zero malformed candidate groups, zero action-value
+labels, correct model output shapes, finite no-grad losses, and zero optimizer
+steps.
+
+The training gate remains **closed** until the plan and validation results are
+reviewed with the user and the user explicitly approves launching training.

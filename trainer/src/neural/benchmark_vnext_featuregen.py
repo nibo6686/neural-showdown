@@ -6,6 +6,7 @@ import subprocess
 import time
 import tracemalloc
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -18,12 +19,9 @@ from .action_features import (
     ACTION_FEATURE_VERSION,
     ACTION_FEATURE_VERSION_V5,
     build_action_feature_vector_v5,
+    to_id,
 )
-from .build_action_rank_dataset import (
-    _action_label_from_event,
-    _chosen_index,
-    _legal_actions_from_private_state,
-)
+from .build_action_rank_dataset import _legal_actions_from_private_state
 from .build_live_private_value_dataset import (
     _reconstructed_completed_private_teams,
     _reconstructed_private_state_for_side,
@@ -43,11 +41,22 @@ from .logging_helper import print_line_safe
 from .parse_replay_logs import parse_protocol_log
 from .resolved_action_impact import resolve_action_impact
 from .tactical_state import build_tactical_state
+from .vnext_labels import (
+    ACTION_RANK_TARGET,
+    ACTION_VALUE_STATUS,
+    LABEL_VERSION,
+    STATE_VALUE_TARGET,
+    chosen_action_label,
+    match_chosen_action,
+    state_value_label,
+)
 
 
 BENCHMARK_VERSION = "vnext-featuregen-tiny-v1"
 DEFAULT_MANIFEST = Path("artifacts/training_plan/manifests/diagnostic_300_manifest.json")
 DEFAULT_OUTPUT_DIR = Path("artifacts/training_plan/benchmarks/vnext_featuregen_tiny_10")
+DEFAULT_FULL_OUTPUT_DIR = Path("artifacts/training_plan/datasets/diagnostic_300_v7_v5")
+DEFAULT_LABEL_MANIFEST = Path("artifacts/training_plan/vnext_label_manifest.json")
 DEFAULT_SEED = 20260619
 DEFAULT_BATTLES = 10
 SPLIT_QUOTAS_10 = {"train": 4, "validation": 3, "test": 3}
@@ -129,6 +138,58 @@ def _names_fingerprint(names: Sequence[str]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _validate_full_preflight(
+    *,
+    manifest: Dict[str, Any],
+    manifest_path: Path,
+    output_dir: Path,
+    label_manifest_path: Path = DEFAULT_LABEL_MANIFEST,
+) -> Dict[str, Any]:
+    entries = manifest.get("entries") if isinstance(manifest.get("entries"), list) else []
+    replay_ids = [str(row.get("replay_id") or "") for row in entries]
+    split_counts = Counter(str(row.get("split") or "") for row in entries)
+    missing_paths = [str(row.get("path") or "") for row in entries if not Path(str(row.get("path") or "")).is_file()]
+    label_manifest = json.loads(label_manifest_path.read_text(encoding="utf-8"))
+    compatibility = label_manifest.get("schema_compatibility") or {}
+    expected_output = DEFAULT_FULL_OUTPUT_DIR.resolve()
+    checks = {
+        "exactly_300_entries": len(entries) == 300,
+        "300_unique_ids": len(set(replay_ids)) == 300 and all(replay_ids),
+        "split_sizes_exact": split_counts == Counter({"train": 210, "validation": 45, "test": 45}),
+        "all_paths_exist": not missing_paths,
+        "label_manifest_valid": (
+            label_manifest.get("label_version") == LABEL_VERSION
+            and compatibility.get("state_feature_version") == FEATURE_VERSION_V7
+            and compatibility.get("state_feature_dim") == FEATURE_DIM_V7
+            and compatibility.get("action_feature_version") == ACTION_FEATURE_VERSION_V5
+            and compatibility.get("action_feature_dim") == ACTION_FEATURE_DIM_V5
+            and (label_manifest.get("action_value") or {}).get("target_status") == ACTION_VALUE_STATUS
+        ),
+        "schema_dimensions_v7_v5": FEATURE_DIM_V7 == 3208 and ACTION_FEATURE_DIM_V5 == 318,
+        "diagnostic_only_output_path": output_dir.resolve() == expected_output,
+    }
+    if not all(checks.values()):
+        raise ValueError(
+            f"diagnostic_300 preflight failed: checks={checks}, missing_paths={missing_paths[:5]}"
+        )
+    return {
+        "checks": checks,
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": _file_sha256(manifest_path),
+        "label_manifest_path": str(label_manifest_path),
+        "label_manifest_sha256": _file_sha256(label_manifest_path),
+        "split_counts": dict(split_counts),
+    }
+
+
 def _damage_client() -> Any:
     command_json = os.environ.get("NEURAL_SIM_CORE_COMMAND_JSON")
     cwd = os.environ.get("NEURAL_SIM_CORE_CWD")
@@ -160,26 +221,143 @@ def _opponent_view(tactical_state: Dict[str, Any]) -> Dict[str, Any]:
     return {"opponent_team": [mon]}
 
 
-def _decision_features(
-    *,
+def _trajectory_prefix_before_event(
     trajectory: Dict[str, Any],
-    side: str,
+    *,
     turn_number: int,
     event: Dict[str, Any],
+    turn_events: Sequence[Dict[str, Any]],
+) -> Dict[str, Any]:
+    prefix = dict(trajectory)
+    cutoff_event = event
+    if event.get("type") == "move":
+        for candidate in reversed(list(turn_events)):
+            if candidate is event:
+                continue
+            if candidate.get("type") == "tera" and candidate.get("side") == event.get("side"):
+                cutoff_event = candidate
+                break
+    earlier_events = []
+    for candidate in turn_events:
+        if candidate is cutoff_event:
+            break
+        earlier_events.append(candidate)
+    prior_turns = [
+        dict(turn)
+        for turn in trajectory.get("turns", [])
+        if isinstance(turn, dict) and int(turn.get("turn", 0) or 0) < int(turn_number)
+    ]
+    if earlier_events:
+        prior_turns.append({"turn": int(turn_number), "events": list(earlier_events)})
+    prefix["turns"] = prior_turns
+    prefix["total_turns"] = int(turn_number)
+
+    raw_target = str(cutoff_event.get("raw") or "")
+    same_raw_before = 0
+    found_event = False
+    for turn in trajectory.get("turns", []):
+        for candidate in turn.get("events", []) if isinstance(turn, dict) else []:
+            if candidate is cutoff_event:
+                found_event = True
+                break
+            if str(candidate.get("raw") or "") == raw_target:
+                same_raw_before += 1
+        if found_event:
+            break
+    prefix_log = []
+    raw_seen = 0
+    for line in trajectory.get("protocol_log", []):
+        if raw_target and str(line) == raw_target:
+            if raw_seen == same_raw_before:
+                break
+            raw_seen += 1
+        prefix_log.append(str(line))
+    prefix["protocol_log"] = prefix_log
+    return prefix
+
+
+def _completed_teams_for_action_reconstruction(
+    trajectory: Dict[str, Any],
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    original = _reconstructed_completed_private_teams(trajectory)
+    teams: Dict[str, Dict[str, Dict[str, Any]]] = {"p1": {}, "p2": {}}
+    active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
+
+    def ensure(side: str, species: str) -> Dict[str, Any]:
+        return teams[side].setdefault(
+            species,
+            {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None},
+        )
+
+    for turn in sorted(trajectory.get("turns", []), key=lambda row: int(row.get("turn", 0) or 0)):
+        for event in turn.get("events", []) if isinstance(turn, dict) else []:
+            if not isinstance(event, dict):
+                continue
+            side = event.get("side")
+            if side not in ("p1", "p2"):
+                continue
+            if event.get("type") == "switch":
+                details = str(event.get("details") or "")
+                species = details.split(",", 1)[0].strip()
+                if species:
+                    active[side] = species
+                    ensure(side, species)
+            elif event.get("type") == "move" and event.get("move") and active.get(side):
+                ensure(side, str(active[side]))["moves"].add(str(event["move"]))
+            elif event.get("type") == "tera" and event.get("tera_type") and active.get(side):
+                ensure(side, str(active[side]))["tera_type"] = str(event["tera_type"])
+
+    for side in ("p1", "p2"):
+        original_by_id = {to_id(species): data for species, data in original.get(side, {}).items()}
+        for species, data in teams[side].items():
+            source = original_by_id.get(to_id(species), {})
+            for key in ("item", "ability", "tera_type"):
+                if data.get(key) is None and source.get(key) is not None:
+                    data[key] = source[key]
+    return teams
+
+
+def _candidate_summaries(actions: Sequence[Dict[str, Any]]) -> List[str]:
+    return [
+        f"{action.get('kind')}:{action.get('move') or action.get('species') or action.get('label')}"
+        for action in actions
+    ]
+
+
+def _mismatch_reason(chosen_label: str, actions: Sequence[Dict[str, Any]]) -> str:
+    chosen_kind, chosen_name = chosen_label.split(":", 1)
+    chosen_id = "".join(char for char in chosen_name.lower() if char.isalnum())
+    same_name_kinds = []
+    for action in actions:
+        action_name = str(action.get("move") or action.get("species") or action.get("label") or "")
+        if ":" in action_name:
+            action_name = action_name.split(":", 1)[1]
+        action_id = "".join(char for char in action_name.lower() if char.isalnum())
+        if action_id == chosen_id:
+            same_name_kinds.append(str(action.get("kind") or ""))
+    if same_name_kinds:
+        return "action_kind_or_tera_availability_mismatch"
+    if chosen_kind.strip() == "switch":
+        return "switch_target_missing_from_pre_action_legal_roster"
+    if chosen_kind.strip() in {"move", "move_tera"}:
+        return "move_missing_from_reconstructed_active_moves"
+    return "unsupported_or_unknown_action"
+
+
+def _context_for_prefix(
+    *,
+    trajectory: Dict[str, Any],
+    prefix: Dict[str, Any],
+    side: str,
+    through_turn: int,
     completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
     sets_path: Optional[str],
-    damage_client: Any,
-) -> Optional[Dict[str, Any]]:
-    chosen_label = _action_label_from_event(event)
-    if not chosen_label:
-        return None
-    context_turn = max(0, int(turn_number) - 1)
-    prefix = _trajectory_prefix_for_training(trajectory, context_turn)
+) -> Tuple[np.ndarray, Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     public_features, _ = public_feature_vector_from_trajectory(prefix, perspective_side=side)
     private_state = _reconstructed_private_state_for_side(
-        trajectory,
+        prefix,
         side=side,
-        through_turn=context_turn,
+        through_turn=through_turn,
         completed_teams=completed_teams,
     )
     opponent_belief = build_opponent_beliefs(
@@ -191,6 +369,57 @@ def _decision_features(
     tactical_state = build_tactical_state(prefix.get("protocol_log", []), perspective_side=side)
     private_state["opponent_belief"] = opponent_belief
     private_state["tactical_state"] = tactical_state
+    own_tactical = tactical_state.get("own") if isinstance(tactical_state.get("own"), dict) else {}
+    private_state["tera_used"] = bool(own_tactical.get("tera_used"))
+    private_state["can_tera"] = not private_state["tera_used"]
+    active_species = private_state.get("active_species")
+    completed_active = completed_teams.get(side, {}).get(active_species, {}) if active_species else {}
+    private_state["active_tera_type"] = completed_active.get("tera_type")
+    return public_features, private_state, opponent_belief, tactical_state
+
+
+def _decision_features(
+    *,
+    trajectory: Dict[str, Any],
+    side: str,
+    turn_number: int,
+    event: Dict[str, Any],
+    turn_events: Sequence[Dict[str, Any]],
+    completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
+    original_completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
+    sets_path: Optional[str],
+    damage_client: Any,
+) -> Optional[Dict[str, Any]]:
+    chosen_label = chosen_action_label(event, turn_events=turn_events)
+    if not chosen_label:
+        return None
+    context_turn = max(0, int(turn_number) - 1)
+    legacy_prefix = _trajectory_prefix_for_training(trajectory, context_turn)
+    _, legacy_private, _, _ = _context_for_prefix(
+        trajectory=trajectory,
+        prefix=legacy_prefix,
+        side=side,
+        through_turn=context_turn,
+        completed_teams=original_completed_teams,
+        sets_path=sets_path,
+    )
+    legacy_actions = _legal_actions_from_private_state(legacy_private, "")
+    legacy_match = match_chosen_action(legacy_actions, chosen_label)
+
+    prefix = _trajectory_prefix_before_event(
+        trajectory=trajectory,
+        turn_number=turn_number,
+        event=event,
+        turn_events=turn_events,
+    )
+    public_features, private_state, opponent_belief, tactical_state = _context_for_prefix(
+        trajectory=trajectory,
+        prefix=prefix,
+        side=side,
+        through_turn=turn_number,
+        completed_teams=completed_teams,
+        sets_path=sets_path,
+    )
     state_features, state_debug = build_live_private_feature_vector(
         public_features=public_features,
         private_state=private_state,
@@ -200,10 +429,11 @@ def _decision_features(
         tactical_state=tactical_state,
         feature_version=FEATURE_VERSION_V7,
     )
-    actions = _legal_actions_from_private_state(private_state, chosen_label)
-    chosen_ordinal = _chosen_index(actions, chosen_label)
-    if chosen_ordinal is None or not actions:
-        return None
+    # Empty chosen label prevents the legacy helper from injecting an unmatched
+    # replay action into the candidate set. Unmatched decisions are explicit.
+    actions = _legal_actions_from_private_state(private_state, "")
+    chosen_ordinal = match_chosen_action(actions, chosen_label)
+    outcome = state_value_label(trajectory.get("winner_side"), side)
 
     approx_state = {
         "private_state": private_state,
@@ -230,9 +460,19 @@ def _decision_features(
         "actions": actions,
         "action_features": action_features,
         "observed": [1 if index == chosen_ordinal else 0 for index in range(len(actions))],
+        "chosen_label": chosen_label,
+        "chosen_ordinal": chosen_ordinal,
+        "matched": chosen_ordinal is not None,
+        "legacy_matched": legacy_match is not None,
+        "state_value_target": outcome,
         "impact_methods": impact_methods,
         "turn": int(turn_number),
         "side": side,
+        "raw_command": event.get("raw"),
+        "candidate_summaries": _candidate_summaries(actions),
+        "legacy_candidate_summaries": _candidate_summaries(legacy_actions),
+        "mismatch_reason": None if chosen_ordinal is not None else _mismatch_reason(chosen_label, actions),
+        "legacy_mismatch_reason": None if legacy_match is not None else _mismatch_reason(chosen_label, legacy_actions),
     }
 
 
@@ -241,9 +481,14 @@ def benchmark_metadata(
     manifest: Dict[str, Any],
     selected_entries: Sequence[Dict[str, Any]],
     seed: int,
+    manifest_path: Path = DEFAULT_MANIFEST,
+    command: Optional[str] = None,
+    artifact_kind: str = "tiny_10_benchmark",
+    preflight: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     return {
         "benchmark_version": BENCHMARK_VERSION,
+        "artifact_kind": artifact_kind,
         "state_feature_version": FEATURE_VERSION_V7,
         "state_feature_dim": FEATURE_DIM_V7,
         "state_feature_names_sha256": _names_fingerprint(FEATURE_NAMES_V7),
@@ -262,6 +507,9 @@ def benchmark_metadata(
         "manifest_version": manifest.get("manifest_version"),
         "manifest_seed": manifest.get("seed"),
         "manifest_catalog_checksum": manifest.get("catalog_checksum"),
+        "source_manifest_path": str(manifest_path),
+        "source_manifest_sha256": _file_sha256(manifest_path) if manifest_path.is_file() else None,
+        "source_replay_pool_path": manifest.get("catalog_path"),
         "profile_versions": sorted({
             str(row.get("profile_version"))
             for row in selected_entries
@@ -270,12 +518,19 @@ def benchmark_metadata(
         "selected_replay_ids": [str(row.get("replay_id")) for row in selected_entries],
         "selected_splits": {str(row.get("replay_id")): str(row.get("split")) for row in selected_entries},
         "source_commit": _git_commit(),
+        "generation_timestamp_utc": datetime.utcnow().replace(tzinfo=timezone.utc).isoformat(),
+        "command": command,
+        "preflight": preflight,
         "information_boundary": (
             "Public replay protocol prefixes and randbats opponent beliefs are used. "
             "Own-side private state follows the existing replay-training assumption that "
             "later public reveals may complete the own roster/moves; no true hidden opponent "
             "team or original private request payload is read."
         ),
+        "label_version": LABEL_VERSION,
+        "state_value_target": STATE_VALUE_TARGET,
+        "action_rank_target": ACTION_RANK_TARGET,
+        "action_value_target_status": ACTION_VALUE_STATUS,
     }
 
 
@@ -285,11 +540,23 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
     state_ids = [str(value) for value in arrays["state_replay_ids"].tolist()]
     state_splits = [str(value) for value in arrays["state_splits"].tolist()]
     candidate_state_indices = arrays["candidate_state_indices"]
+    value_targets = arrays["state_value_targets"]
+    rank_labels = arrays["action_rank_labels"]
+    grouped_positive_counts = [
+        int(rank_labels[candidate_state_indices == state_index].sum())
+        for state_index in np.unique(candidate_state_indices)
+    ]
     replay_split_pairs = set(zip(state_ids, state_splits))
     replay_to_splits: Dict[str, set] = {}
     for replay_id, split in replay_split_pairs:
         replay_to_splits.setdefault(replay_id, set()).add(split)
     manifest_ids = set(str(value) for value in metadata["selected_replay_ids"])
+    selected_splits = {
+        str(replay_id): str(split)
+        for replay_id, split in (metadata.get("selected_splits") or {}).items()
+    }
+    embedded_state_names = [str(value) for value in arrays.get("state_feature_names", np.asarray([])).tolist()]
+    embedded_action_names = [str(value) for value in arrays.get("action_feature_names", np.asarray([])).tolist()]
     checks = {
         "state_dim_3208": states.ndim == 2 and states.shape[1] == FEATURE_DIM_V7,
         "action_dim_318": actions.ndim == 2 and actions.shape[1] == ACTION_FEATURE_DIM_V5,
@@ -305,6 +572,15 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
         ),
         "no_battle_crosses_splits": all(len(splits) == 1 for splits in replay_to_splits.values()),
         "all_examples_trace_to_manifest": set(state_ids).issubset(manifest_ids),
+        "all_selected_battles_represented": (
+            set(state_ids) == manifest_ids
+            if metadata.get("artifact_kind") == "diagnostic_300_materialization"
+            else set(state_ids).issubset(manifest_ids)
+        ),
+        "state_splits_match_manifest": all(
+            selected_splits.get(replay_id) == split
+            for replay_id, split in replay_split_pairs
+        ),
         "metadata_records_v7_v5": (
             metadata.get("state_feature_version") == FEATURE_VERSION_V7
             and metadata.get("action_feature_version") == ACTION_FEATURE_VERSION_V5
@@ -312,6 +588,12 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
         "metadata_records_name_fingerprints": (
             metadata.get("state_feature_names_sha256") == _names_fingerprint(FEATURE_NAMES_V7)
             and metadata.get("action_feature_names_sha256") == _names_fingerprint(ACTION_FEATURE_NAMES_V5)
+        ),
+        "embedded_names_match_schema_and_metadata": (
+            embedded_state_names == list(FEATURE_NAMES_V7)
+            and embedded_action_names == list(ACTION_FEATURE_NAMES_V5)
+            and _names_fingerprint(embedded_state_names) == metadata.get("state_feature_names_sha256")
+            and _names_fingerprint(embedded_action_names) == metadata.get("action_feature_names_sha256")
         ),
         "metadata_records_manifest_profile_source": (
             bool(metadata.get("manifest_version"))
@@ -324,6 +606,18 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
             and metadata.get("live_default_action_feature_version") == "legal-action-v3"
         ),
         "state_not_duplicated_per_candidate": not metadata.get("state_vectors_duplicated_per_candidate"),
+        "state_value_labels_valid": (
+            value_targets.shape == (states.shape[0],)
+            and set(float(value) for value in np.unique(value_targets)).issubset({-1.0, 1.0})
+        ),
+        "action_rank_labels_valid": (
+            rank_labels.shape == (actions.shape[0],)
+            and all(count == 1 for count in grouped_positive_counts)
+        ),
+        "action_value_labels_absent": (
+            metadata.get("action_value_target_status") == "not_generated"
+            and not any(str(name).startswith("action_value") for name in arrays)
+        ),
     }
     return {"passed": all(checks.values()), "checks": checks}
 
@@ -335,16 +629,48 @@ def run_benchmark(
     battles: int = DEFAULT_BATTLES,
     seed: int = DEFAULT_SEED,
     sets_path: Optional[str] = None,
+    full_manifest: bool = False,
 ) -> Dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    selected_entries = select_manifest_subset(manifest, size=battles, seed=seed)
-    metadata = benchmark_metadata(manifest=manifest, selected_entries=selected_entries, seed=seed)
+    command = (
+        ".\\scripts\\run_windows.ps1 -Action materialize-diagnostic-300 -SimCoreMode native"
+        if full_manifest
+        else ".\\scripts\\run_windows.ps1 -Action benchmark-vnext-featuregen -SimCoreMode native"
+    )
+    preflight = (
+        _validate_full_preflight(
+            manifest=manifest,
+            manifest_path=manifest_path,
+            output_dir=output_dir,
+        )
+        if full_manifest
+        else None
+    )
+    selected_entries = (
+        list(manifest.get("entries") or [])
+        if full_manifest
+        else select_manifest_subset(manifest, size=battles, seed=seed)
+    )
+    battles = len(selected_entries)
+    metadata = benchmark_metadata(
+        manifest=manifest,
+        selected_entries=selected_entries,
+        seed=seed,
+        manifest_path=manifest_path,
+        command=command,
+        artifact_kind="diagnostic_300_materialization" if full_manifest else "tiny_10_benchmark",
+        preflight=preflight,
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
-    subset_path = output_dir / "subset_manifest.json"
-    dataset_path = output_dir / "vnext_features_tiny_10.npz"
+    subset_path = output_dir / ("source_manifest_snapshot.json" if full_manifest else "subset_manifest.json")
+    dataset_path = output_dir / ("diagnostic_300_v7_v5.npz" if full_manifest else "vnext_features_tiny_10.npz")
     metadata_path = output_dir / "feature_metadata.json"
-    report_json_path = output_dir / "benchmark_report.json"
-    report_md_path = output_dir.parent / "vnext_featuregen_tiny_10_report.md"
+    report_json_path = output_dir / ("materialization_report.json" if full_manifest else "benchmark_report.json")
+    report_md_path = (
+        output_dir / "diagnostic_300_materialization_report.md"
+        if full_manifest
+        else output_dir.parent / "vnext_featuregen_tiny_10_report.md"
+    )
     subset_path.write_text(
         json.dumps({"metadata": metadata, "entries": selected_entries}, indent=2, sort_keys=True),
         encoding="utf-8",
@@ -360,9 +686,13 @@ def run_benchmark(
     candidate_action_indices: List[int] = []
     candidate_kinds: List[str] = []
     observed_actions: List[int] = []
+    state_value_targets: List[float] = []
     failures: List[Dict[str, str]] = []
     battle_counts: Counter[str] = Counter()
     impact_methods: Counter[str] = Counter()
+    label_counts: Counter[str] = Counter()
+    unmatched_audit: List[Dict[str, Any]] = []
+    skip_audit: List[Dict[str, Any]] = []
 
     client = None
     started = time.perf_counter()
@@ -385,7 +715,8 @@ def run_benchmark(
                     format_name="gen9randombattle",
                     source_path=str(path),
                 )
-                completed_teams = _reconstructed_completed_private_teams(trajectory)
+                original_completed_teams = _reconstructed_completed_private_teams(trajectory)
+                completed_teams = _completed_teams_for_action_reconstruction(trajectory)
                 turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
                 for turn_record in sorted(turns, key=lambda item: int(item.get("turn", 0) or 0)):
                     turn_number = int(turn_record.get("turn", 0) or 0)
@@ -396,17 +727,62 @@ def run_benchmark(
                         side = event.get("side")
                         if side not in ("p1", "p2"):
                             continue
+                        if turn_number <= 0 and event.get("type") == "switch":
+                            label_counts["skipped_initial_deployment_nondecision"] += 1
+                            label_counts["legacy_unmatched"] += 1
+                            label_counts["legacy_unmatched_reason:initial_deployment_nondecision"] += 1
+                            unmatched_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(turn_number),
+                                "side": side,
+                                "raw_replay_command": event.get("raw"),
+                                "parsed_command": chosen_action_label(event, turn_events=events),
+                                "inferred_action_type": "team_preview_or_initial_deployment",
+                                "legacy_candidates": [],
+                                "pre_action_candidates": [],
+                                "legacy_reason": "initial_deployment_nondecision",
+                                "after_fix_matched": False,
+                                "after_fix_reason": "skipped_nondecision",
+                                "fix_classification": "intentionally_skipped_nondecision",
+                            })
+                            skip_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(turn_number),
+                                "side": side,
+                                "raw_replay_command": event.get("raw"),
+                                "reason": "initial_deployment_nondecision",
+                            })
+                            continue
                         decision = _decision_features(
                             trajectory=trajectory,
                             side=side,
                             turn_number=turn_number,
                             event=event,
+                            turn_events=events,
                             completed_teams=completed_teams,
+                            original_completed_teams=original_completed_teams,
                             sets_path=sets_path,
                             damage_client=client,
                         )
                         if not decision:
-                            battle_counts["skipped_unmatched_decision"] += 1
+                            label_counts["skipped_no_action_label"] += 1
+                            skip_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(turn_number),
+                                "side": side,
+                                "raw_replay_command": event.get("raw"),
+                                "reason": "no_action_label",
+                            })
+                            continue
+                        if decision["state_value_target"] is None:
+                            label_counts["skipped_unknown_or_draw_outcome"] += 1
+                            skip_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(turn_number),
+                                "side": side,
+                                "raw_replay_command": event.get("raw"),
+                                "reason": "unknown_or_draw_outcome",
+                            })
                             continue
                         state_index = len(state_rows)
                         state_rows.append(decision["state_features"])
@@ -414,7 +790,51 @@ def run_benchmark(
                         state_splits.append(str(entry["split"]))
                         state_turns.append(decision["turn"])
                         state_sides.append(decision["side"])
+                        state_value_targets.append(float(decision["state_value_target"]))
+                        label_counts["state_value_labels"] += 1
+                        label_counts["state_value_wins" if decision["state_value_target"] > 0 else "state_value_losses"] += 1
                         impact_methods.update(decision["impact_methods"])
+                        chosen_kind = str(decision["chosen_label"]).split(":", 1)[0]
+                        label_counts["legacy_matched" if decision["legacy_matched"] else "legacy_unmatched"] += 1
+                        if not decision["legacy_matched"]:
+                            label_counts[f"legacy_unmatched_reason:{decision['legacy_mismatch_reason']}"] += 1
+                        if not decision["matched"]:
+                            label_counts["chosen_action_unmatched"] += 1
+                            label_counts[f"unmatched_kind:{chosen_kind}"] += 1
+                            label_counts[f"unmatched_reason:{decision['mismatch_reason']}"] += 1
+                            skip_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(decision["turn"]),
+                                "side": decision["side"],
+                                "raw_replay_command": decision["raw_command"],
+                                "parsed_command": decision["chosen_label"],
+                                "reason": "chosen_action_unmatched_for_action_rank",
+                                "detail": decision["mismatch_reason"],
+                                "candidates": decision["candidate_summaries"],
+                            })
+                        if not decision["legacy_matched"]:
+                            unmatched_audit.append({
+                                "replay_id": replay_id,
+                                "turn": int(decision["turn"]),
+                                "side": decision["side"],
+                                "raw_replay_command": decision["raw_command"],
+                                "parsed_command": decision["chosen_label"],
+                                "inferred_action_type": chosen_kind,
+                                "legacy_candidates": decision["legacy_candidate_summaries"],
+                                "pre_action_candidates": decision["candidate_summaries"],
+                                "legacy_reason": decision["legacy_mismatch_reason"],
+                                "after_fix_matched": bool(decision["matched"]),
+                                "after_fix_reason": decision["mismatch_reason"],
+                                "fix_classification": (
+                                    "fixed_by_exact_pre_action_event_prefix"
+                                    if decision["matched"]
+                                    else "intentionally_still_unmatched"
+                                ),
+                            })
+                        if not decision["matched"]:
+                            continue
+                        label_counts["chosen_action_matched"] += 1
+                        label_counts[f"matched_kind:{chosen_kind}"] += 1
                         for action, features, observed in zip(
                             decision["actions"],
                             decision["action_features"],
@@ -425,6 +845,7 @@ def run_benchmark(
                             candidate_action_indices.append(int(action.get("index", 0) or 0))
                             candidate_kinds.append(str(action.get("kind") or ""))
                             observed_actions.append(int(observed))
+                            label_counts["action_rank_positive" if observed else "action_rank_unchosen"] += 1
                 if len(state_rows) == before_states:
                     failures.append({"replay_id": replay_id, "reason": "no valid decision states"})
                 else:
@@ -447,11 +868,13 @@ def run_benchmark(
         "state_splits": np.asarray(state_splits),
         "state_turns": np.asarray(state_turns, dtype=np.int16),
         "state_sides": np.asarray(state_sides),
+        "state_value_targets": np.asarray(state_value_targets, dtype=np.float32),
         "action_features": np.asarray(action_rows, dtype=np.float16),
         "candidate_state_indices": np.asarray(candidate_state_indices, dtype=np.int32),
         "candidate_action_indices": np.asarray(candidate_action_indices, dtype=np.int16),
         "candidate_kinds": np.asarray(candidate_kinds),
         "observed_actions": np.asarray(observed_actions, dtype=np.int8),
+        "action_rank_labels": np.asarray(observed_actions, dtype=np.int8),
         "state_feature_version": np.asarray(FEATURE_VERSION_V7),
         "state_feature_names": np.asarray(FEATURE_NAMES_V7),
         "action_feature_version": np.asarray(ACTION_FEATURE_VERSION_V5),
@@ -466,22 +889,26 @@ def run_benchmark(
         raise ValueError(f"Benchmark validation failed: {validation['checks']}")
     np.savez_compressed(dataset_path, **arrays)
     metadata_path.write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
+    skip_audit_path = output_dir / "decision_skip_audit.jsonl"
+    skip_audit_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in skip_audit),
+        encoding="utf-8",
+    )
 
     elapsed = time.perf_counter() - started
     dataset_bytes = dataset_path.stat().st_size
     output_bytes = sum(path.stat().st_size for path in output_dir.glob("*") if path.is_file())
     splits = Counter(state_splits)
+    battle_splits = Counter(str(row.get("split") or "") for row in selected_entries)
     report = {
         **metadata,
-        "command": (
-            ".\\scripts\\run_windows.ps1 -Action benchmark-vnext-featuregen "
-            "-SimCoreMode native"
-        ),
+        "command": command,
         "output_dir": str(output_dir),
         "files_produced": [
             str(subset_path),
             str(dataset_path),
             str(metadata_path),
+            str(skip_audit_path),
             str(report_json_path),
             str(report_md_path),
         ],
@@ -494,7 +921,70 @@ def run_benchmark(
         "legal_action_candidates": len(action_rows),
         "average_legal_actions_per_state": len(action_rows) / max(1, len(state_rows)),
         "split_state_counts": dict(splits),
+        "split_battle_counts": dict(battle_splits),
         "impact_method_counts": dict(impact_methods),
+        "label_version": LABEL_VERSION,
+        "state_value_label_count": int(label_counts["state_value_labels"]),
+        "state_value_distribution": {
+            "wins": int(label_counts["state_value_wins"]),
+            "losses": int(label_counts["state_value_losses"]),
+            "draws": 0,
+        },
+        "chosen_action_matched_count": int(label_counts["chosen_action_matched"]),
+        "chosen_action_unmatched_count": int(label_counts["chosen_action_unmatched"]),
+        "chosen_action_match_rate": float(
+            label_counts["chosen_action_matched"] / max(
+                1,
+                label_counts["chosen_action_matched"] + label_counts["chosen_action_unmatched"],
+            )
+        ),
+        "chosen_action_matched_by_kind": {
+            key.split(":", 1)[1]: int(value)
+            for key, value in sorted(label_counts.items())
+            if key.startswith("matched_kind:")
+        },
+        "chosen_action_unmatched_by_kind": {
+            key.split(":", 1)[1]: int(value)
+            for key, value in sorted(label_counts.items())
+            if key.startswith("unmatched_kind:")
+        },
+        "matcher_before": {
+            "matched": int(label_counts["legacy_matched"]),
+            "unmatched": int(label_counts["legacy_unmatched"]),
+            "match_rate": float(label_counts["legacy_matched"] / max(1, label_counts["legacy_matched"] + label_counts["legacy_unmatched"])),
+            "unmatched_reasons": {
+                key.split(":", 1)[1]: int(value)
+                for key, value in sorted(label_counts.items())
+                if key.startswith("legacy_unmatched_reason:")
+            },
+        },
+        "matcher_after": {
+            "matched": int(label_counts["chosen_action_matched"]),
+            "unmatched": int(label_counts["chosen_action_unmatched"]),
+            "match_rate": float(label_counts["chosen_action_matched"] / max(1, label_counts["chosen_action_matched"] + label_counts["chosen_action_unmatched"])),
+            "unmatched_reasons": {
+                key.split(":", 1)[1]: int(value)
+                for key, value in sorted(label_counts.items())
+                if key.startswith("unmatched_reason:")
+            },
+        },
+        "unmatched_action_audit": unmatched_audit,
+        "decision_skip_audit_file": str(skip_audit_path),
+        "action_rank_positive_count": int(label_counts["action_rank_positive"]),
+        "action_rank_unchosen_count": int(label_counts["action_rank_unchosen"]),
+        "skipped_state_count": int(
+            label_counts["skipped_no_action_label"]
+            + label_counts["skipped_unknown_or_draw_outcome"]
+            + label_counts["chosen_action_unmatched"]
+            + label_counts["skipped_initial_deployment_nondecision"]
+        ),
+        "skip_reasons": {
+            "no_action_label": int(label_counts["skipped_no_action_label"]),
+            "unknown_or_draw_outcome": int(label_counts["skipped_unknown_or_draw_outcome"]),
+            "chosen_action_unmatched_for_action_rank": int(label_counts["chosen_action_unmatched"]),
+            "initial_deployment_nondecision": int(label_counts["skipped_initial_deployment_nondecision"]),
+        },
+        "action_value_labels_generated": 0,
         "runtime_total_sec": elapsed,
         "runtime_per_battle_sec": elapsed / max(1, len(selected_entries)),
         "runtime_per_decision_state_sec": elapsed / max(1, len(state_rows)),
@@ -510,19 +1000,93 @@ def run_benchmark(
         "warnings": [
             "Peak memory is Python tracemalloc heap only; it excludes sim-core and NumPy native allocations.",
             "Own-side reconstructed state follows the existing replay-training future-public-reveal assumption.",
-            "This is a 10-battle feasibility benchmark, not the full diagnostic_300 materialization.",
-        ],
+            "Action-rank groups with unmatched replay actions are excluded; inspect the reported match rate before training.",
+        ] + (
+            []
+            if full_manifest
+            else ["This is a 10-battle feasibility benchmark, not the full diagnostic_300 materialization."]
+        ),
         "schema_bug_found": False,
         "ready_for_full_diagnostic_300": len(failures) == 0 and validation["passed"],
+        "ready_for_first_diagnostic_training_command_design": (
+            full_manifest
+            and len(failures) == 0
+            and validation["passed"]
+            and battle_splits == Counter({"train": 210, "validation": 45, "test": 45})
+        ),
     }
     report_json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    report_md_path.write_text(_report_markdown(report), encoding="utf-8")
+    report_md_path.write_text(
+        _materialization_report_markdown(report) if full_manifest else _report_markdown(report),
+        encoding="utf-8",
+    )
+    if full_manifest:
+        report["total_output_size_bytes"] = sum(
+            path.stat().st_size for path in output_dir.glob("*") if path.is_file()
+        )
+        report["total_output_size_mb"] = report["total_output_size_bytes"] / (1024 * 1024)
+        report_json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+        report_md_path.write_text(_materialization_report_markdown(report), encoding="utf-8")
+    if not full_manifest:
+        label_report_path = output_dir.parent / "vnext_label_tiny_10_report.md"
+        label_report_path.write_text(_label_report_markdown(report), encoding="utf-8")
+        unmatched_audit_path = output_dir.parent / "vnext_unmatched_action_audit_tiny_10.md"
+        unmatched_audit_path.write_text(_unmatched_audit_markdown(report), encoding="utf-8")
+        matcher_report_path = output_dir.parent / "vnext_label_tiny_10_after_matcher_fixes_report.md"
+        matcher_report_path.write_text(_matcher_report_markdown(report), encoding="utf-8")
     print_line_safe(
         f"benchmark-vnext-featuregen done | battles={len(selected_entries)} "
         f"states={len(state_rows)} candidates={len(action_rows)} runtime={elapsed:.2f}s "
         f"dataset_mb={report['dataset_size_mb']:.2f}"
     )
     return report
+
+
+def _materialization_report_markdown(report: Dict[str, Any]) -> str:
+    checks = report["validation"]["checks"]
+    lines = [
+        "# diagnostic_300 v7/v5 Materialization Report",
+        "",
+        f"- Command: `{report['command']}`",
+        f"- Runtime: {report['runtime_total_sec']:.2f}s",
+        f"- Storage size: {report['total_output_size_mb']:.2f} MiB total; "
+        f"{report['dataset_size_mb']:.2f} MiB dataset",
+        f"- Battles processed: {report['battles_processed']} "
+        f"({report['valid_battles']} valid / {report['failed_battles']} failed)",
+        f"- State count: {report['decision_states']:,}",
+        f"- Action candidate count: {report['legal_action_candidates']:,}",
+        f"- Average candidates/state: {report['average_legal_actions_per_state']:.2f}",
+        f"- State-label distribution: {report['state_value_distribution']}",
+        f"- Action-rank positives: {report['action_rank_positive_count']:,}",
+        f"- Unchosen candidates: {report['action_rank_unchosen_count']:,}",
+        f"- Matched / unmatched decisions: {report['chosen_action_matched_count']:,} / "
+        f"{report['chosen_action_unmatched_count']:,}",
+        f"- Skip reasons: {report['skip_reasons']}",
+        f"- Battle split counts: {report['split_battle_counts']}",
+        f"- State split counts: {report['split_state_counts']}",
+        f"- Dtype/layout: {report['dtype_on_disk']}; {report['storage_layout']}",
+        f"- Duplicated state vectors: {report['state_vectors_duplicated_per_candidate']}",
+        f"- State schema: `{report['state_feature_version']}`, {report['state_feature_dim']}D",
+        f"- Action schema: `{report['action_feature_version']}`, {report['action_feature_dim']}D",
+        f"- Action-value labels: {report['action_value_labels_generated']}",
+        "",
+        "## Files Produced",
+        "",
+    ]
+    lines.extend(f"- `{path}`" for path in report["files_produced"])
+    lines.extend(["", "## Validation", ""])
+    lines.extend(f"- [{'x' if passed else ' '}] `{name}`" for name, passed in checks.items())
+    lines.extend(["", "## Warnings and Limitations", ""])
+    lines.extend(f"- {warning}" for warning in report["warnings"])
+    lines.extend([
+        "",
+        "- Ready for first diagnostic training command design: "
+        f"**{'yes' if report['ready_for_first_diagnostic_training_command_design'] else 'no'}**",
+        "- Training gate: **closed** pending written plan/config/command, sanity-check review, "
+        "and explicit user approval.",
+        "",
+    ])
+    return "\n".join(lines)
 
 
 def _report_markdown(report: Dict[str, Any]) -> str:
@@ -579,6 +1143,95 @@ def _report_markdown(report: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _label_report_markdown(report: Dict[str, Any]) -> str:
+    return "\n".join([
+        "# vNext Label Tiny-10 Dry Run",
+        "",
+        f"- Label version: `{report['label_version']}`",
+        f"- Battles: {report['valid_battles']} valid / {report['failed_battles']} failed",
+        f"- State-value labels: {report['state_value_label_count']}",
+        f"- State-value distribution: {report['state_value_distribution']}",
+        f"- Legal candidates retained for action rank: {report['legal_action_candidates']}",
+        f"- Chosen actions matched: {report['chosen_action_matched_count']}",
+        f"- Chosen actions unmatched: {report['chosen_action_unmatched_count']}",
+        f"- Chosen action match rate: {report['chosen_action_match_rate']:.1%}",
+        f"- Matched by kind: {report['chosen_action_matched_by_kind']}",
+        f"- Unmatched by kind: {report['chosen_action_unmatched_by_kind']}",
+        f"- Action-rank positives / unchosen: "
+        f"{report['action_rank_positive_count']} / {report['action_rank_unchosen_count']}",
+        f"- Skipped states: {report['skipped_state_count']}",
+        f"- Skip reasons: {report['skip_reasons']}",
+        f"- Split state counts: {report['split_state_counts']}",
+        "",
+        "State value is terminal outcome from the state owner's perspective "
+        "(win +1, loss -1; ties/unknown excluded). Action rank is replay "
+        "imitation with exactly one matched positive and unchosen candidates "
+        "treated as unchosen rather than bad. Action-value labels are not generated.",
+        "",
+        f"- Ready for full `diagnostic_300` label extraction: "
+        f"**{'yes' if report['failed_battles'] == 0 else 'no'}**",
+        "- Training gate: **closed**.",
+        "",
+    ])
+
+
+def _unmatched_audit_markdown(report: Dict[str, Any]) -> str:
+    before = report["matcher_before"]
+    after = report["matcher_after"]
+    lines = [
+        "# vNext Unmatched Action Audit — Tiny 10",
+        "",
+        f"- Before: {before['matched']} matched / {before['unmatched']} unmatched ({before['match_rate']:.1%})",
+        f"- After safe fixes: {after['matched']} matched / {after['unmatched']} unmatched ({after['match_rate']:.1%})",
+        f"- Initial-deployment non-decisions skipped: {report['skip_reasons'].get('initial_deployment_nondecision', 0)}",
+        f"- Legacy root causes: {before['unmatched_reasons']}",
+        f"- Remaining root causes: {after['unmatched_reasons']}",
+        "",
+        "No closest-candidate heuristic, guessed switch identity, or injected positive was used.",
+        "",
+        "## Original Unmatched Groups",
+        "",
+    ]
+    for row in report["unmatched_action_audit"]:
+        lines.extend([
+            f"### `{row['replay_id']}` turn {row['turn']} {row['side']}",
+            "",
+            f"- Raw: `{row['raw_replay_command']}`",
+            f"- Parsed: `{row['parsed_command']}`",
+            f"- Type: `{row['inferred_action_type']}`",
+            f"- Legacy reason: `{row['legacy_reason']}`",
+            f"- Result: `{row['fix_classification']}`",
+            f"- Remaining reason: `{row['after_fix_reason']}`",
+            f"- Legacy candidates: `{row['legacy_candidates']}`",
+            f"- Pre-action candidates: `{row['pre_action_candidates']}`",
+            "",
+        ])
+    return "\n".join(lines)
+
+
+def _matcher_report_markdown(report: Dict[str, Any]) -> str:
+    before = report["matcher_before"]
+    after = report["matcher_after"]
+    return "\n".join([
+        "# vNext Label Tiny-10 After Matcher Fixes",
+        "",
+        f"- Matched before / after: {before['matched']} / {after['matched']}",
+        f"- Unmatched before / after: {before['unmatched']} / {after['unmatched']}",
+        f"- Match rate before / after: {before['match_rate']:.1%} / {after['match_rate']:.1%}",
+        f"- Unmatched reasons before: {before['unmatched_reasons']}",
+        f"- Unmatched reasons after: {after['unmatched_reasons']}",
+        f"- Skipped non-decision states: {report['skip_reasons'].get('initial_deployment_nondecision', 0)}",
+        f"- Intentionally still unmatched: {after['unmatched']}",
+        "- Labels injected or guessed: **0**",
+        "",
+        "Safe fixes: skip turn-0 initial deployments; assign public move reveals to "
+        "the chronologically active species rather than actor aliases; stop the "
+        "pre-action prefix before the current decision's Tera commitment; and build "
+        "candidates from the exact event prefix. Remaining groups stay excluded.",
+        "",
+    ])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark v7/v5 feature generation on a tiny manifest subset.")
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
@@ -586,6 +1239,7 @@ def main() -> None:
     parser.add_argument("--battles", type=int, default=DEFAULT_BATTLES)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument("--sets-path", default=None)
+    parser.add_argument("--full-manifest", action="store_true")
     args = parser.parse_args()
     run_benchmark(
         manifest_path=Path(args.manifest),
@@ -593,6 +1247,7 @@ def main() -> None:
         battles=args.battles,
         seed=args.seed,
         sets_path=args.sets_path,
+        full_manifest=args.full_manifest,
     )
 
 

@@ -1,0 +1,77 @@
+{
+  "label_version": "vnext-diagnostic-labels-v1",
+  "schema_compatibility": {
+    "state_feature_version": "live-private-belief-v7",
+    "state_feature_dim": 3208,
+    "action_feature_version": "legal-action-v5",
+    "action_feature_dim": 318
+  },
+  "perspective_convention": "state owner / acting player",
+  "state_value": {
+    "target_name": "terminal_outcome_from_state_owner",
+    "dtype": "float32",
+    "range": [-1.0, 1.0],
+    "win": 1.0,
+    "loss": -1.0,
+    "draw_handling": "exclude",
+    "unknown_outcome_handling": "exclude",
+    "include_both_player_perspectives": true
+  },
+  "action_rank": {
+    "target_name": "replay_chosen_action_one_hot",
+    "type": "grouped_one_hot_imitation",
+    "positive_count_per_included_group": 1,
+    "unchosen_semantics": "unchosen_not_bad",
+    "matching_rules": {
+      "move": "Showdown-style normalized move identity plus action kind",
+      "switch": "normalized target species",
+      "tera_move": "same-side turn Tera event plus normalized move identity",
+      "forced_switch": "switch species match; preserve forced metadata when available",
+      "pass_wait_team_preview": "exclude, including turn-0 initial deployment switches",
+      "candidate_state": "exact protocol/event prefix before observed action",
+      "active_species_moves": "assign move reveals to chronologically active switch-detail species",
+      "unmatched": "skip action-rank group; never inject chosen action"
+    },
+    "tiny_10_match_audit": {
+      "before": {
+        "matched": 459,
+        "unmatched": 137,
+        "match_rate": 0.7701342282
+      },
+      "after": {
+        "eligible_decisions": 576,
+        "matched": 576,
+        "unmatched": 0,
+        "match_rate": 1.0,
+        "initial_deployment_nondecisions_skipped": 20
+      },
+      "labels_injected_or_guessed": 0
+    }
+  },
+  "action_value": {
+    "target_status": "not_generated",
+    "reason": "public replays lack counterfactual outcomes for unchosen actions",
+    "v5_resolved_impact_is_label": false
+  },
+  "forfeit_handling": {
+    "known_winner": "include",
+    "early_forfeit": "include and retain short/forfeit metadata",
+    "timeout_or_disconnect_with_known_winner": "include",
+    "incomplete_without_winner": "exclude"
+  },
+  "sample_weighting": {
+    "state_value": 1.0,
+    "action_rank": 1.0,
+    "terminal_outcome_auxiliary_only_for_action_rank": true
+  },
+  "excluded_state_rules": [
+    "tie outcome",
+    "unknown or incomplete outcome",
+    "unsupported pass/wait/team-preview command",
+    "turn-0 initial deployment switch",
+    "no reconstructed legal candidates for action-rank",
+    "replay-chosen action cannot be matched for action-rank"
+  ],
+  "split_rule": "battle-level split from diagnostic_300 before featurization",
+  "information_boundary": "final outcome is label-only; features use replay prefix and existing documented own-side reconstruction assumption; no true hidden opponent team"
+}

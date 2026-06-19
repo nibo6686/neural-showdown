@@ -2,15 +2,29 @@
   "action_feature_dim": 318,
   "action_feature_names_sha256": "20bbfc25b2ace639831c132cb1c1f6d3b7701d4750fd9b95d6bfb423e17ac9a8",
   "action_feature_version": "legal-action-v5",
-  "average_legal_actions_per_state": 5.568791946308725,
+  "action_rank_positive_count": 576,
+  "action_rank_target": "replay_chosen_action_one_hot",
+  "action_rank_unchosen_count": 3723,
+  "action_value_labels_generated": 0,
+  "action_value_target_status": "not_generated",
+  "average_legal_actions_per_state": 7.463541666666667,
   "battles_processed": 10,
   "battles_requested": 10,
   "benchmark_version": "vnext-featuregen-tiny-v1",
+  "chosen_action_match_rate": 1.0,
+  "chosen_action_matched_by_kind": {
+    "move": 383,
+    "move_tera": 16,
+    "switch": 177
+  },
+  "chosen_action_matched_count": 576,
+  "chosen_action_unmatched_by_kind": {},
+  "chosen_action_unmatched_count": 0,
   "command": ".\\scripts\\run_windows.ps1 -Action benchmark-vnext-featuregen -SimCoreMode native",
-  "dataset_size_bytes": 221729,
-  "dataset_size_mb": 0.2114572525024414,
-  "decision_states": 596,
-  "dense_uncompressed_payload_bytes": 5934820,
+  "dataset_size_bytes": 246410,
+  "dataset_size_mb": 0.23499488830566406,
+  "decision_states": 576,
+  "dense_uncompressed_payload_bytes": 6429780,
   "dtype_on_disk": "float16",
   "failed_battles": 0,
   "failures": [],
@@ -23,12 +37,13 @@
   ],
   "generation_dtype": "float32",
   "impact_method_counts": {
-    "non_damaging": 507,
-    "smogon_calc": 753,
-    "unavailable": 2059
+    "non_damaging": 915,
+    "smogon_calc": 1449,
+    "unavailable": 1935
   },
   "information_boundary": "Public replay protocol prefixes and randbats opponent beliefs are used. Own-side private state follows the existing replay-training assumption that later public reveals may complete the own roster/moves; no true hidden opponent team or original private request payload is read.",
-  "legal_action_candidates": 3319,
+  "label_version": "vnext-diagnostic-labels-v1",
+  "legal_action_candidates": 4299,
   "live_default_action_feature_dim": 165,
   "live_default_action_feature_version": "legal-action-v3",
   "live_default_state_feature_dim": 115,
@@ -36,17 +51,33 @@
   "manifest_catalog_checksum": "0ebbad4d9a0fa35e3e37f38d964b1d04fa77207870a66048221ec1461044b24e",
   "manifest_seed": 20260619,
   "manifest_version": "diagnostic-300-manifest-v1",
+  "matcher_after": {
+    "match_rate": 1.0,
+    "matched": 576,
+    "unmatched": 0,
+    "unmatched_reasons": {}
+  },
+  "matcher_before": {
+    "match_rate": 0.7701342281879194,
+    "matched": 459,
+    "unmatched": 137,
+    "unmatched_reasons": {
+      "initial_deployment_nondecision": 20,
+      "move_missing_from_reconstructed_active_moves": 101,
+      "switch_target_missing_from_pre_action_legal_roster": 16
+    }
+  },
   "output_dir": "artifacts\\training_plan\\benchmarks\\vnext_featuregen_tiny_10",
-  "peak_python_tracemalloc_bytes": 18951505,
-  "peak_python_tracemalloc_mb": 18.07356357574463,
+  "peak_python_tracemalloc_bytes": 20708610,
+  "peak_python_tracemalloc_mb": 19.749269485473633,
   "profile_versions": [
     "replay-pool-profile-v1"
   ],
   "ready_for_full_diagnostic_300": true,
-  "runtime_per_action_candidate_sec": 0.006383977161795755,
-  "runtime_per_battle_sec": 2.118842020000011,
-  "runtime_per_decision_state_sec": 0.03555104060402703,
-  "runtime_total_sec": 21.18842020000011,
+  "runtime_per_action_candidate_sec": 0.010695832053965602,
+  "runtime_per_battle_sec": 4.598138199999812,
+  "runtime_per_decision_state_sec": 0.07982878819444118,
+  "runtime_total_sec": 45.98138199999812,
   "schema_bug_found": false,
   "selected_replay_ids": [
     "gen9randombattle-2589352228",
@@ -73,24 +104,3284 @@
     "gen9randombattle-2593870030": "test"
   },
   "selection_seed": 20260619,
-  "source_commit": "2fc9149f216bb12dbd1833a00a412000c9e2c7ac",
+  "skip_reasons": {
+    "chosen_action_unmatched_for_action_rank": 0,
+    "initial_deployment_nondecision": 20,
+    "no_action_label": 0,
+    "unknown_or_draw_outcome": 0
+  },
+  "skipped_state_count": 20,
+  "source_commit": "daeef07d415bf5d9e7e28778faac229238651273",
   "split_state_counts": {
-    "test": 166,
-    "train": 239,
-    "validation": 191
+    "test": 160,
+    "train": 231,
+    "validation": 185
   },
   "state_feature_dim": 3208,
   "state_feature_names_sha256": "0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf",
   "state_feature_version": "live-private-belief-v7",
+  "state_value_distribution": {
+    "draws": 0,
+    "losses": 294,
+    "wins": 282
+  },
+  "state_value_label_count": 576,
+  "state_value_target": "terminal_outcome_from_state_owner",
   "state_vectors_duplicated_per_candidate": false,
   "storage_layout": "one state row per decision; separate candidate action rows linked by candidate_state_indices",
-  "total_output_size_bytes": 248002,
-  "total_output_size_mb": 0.2365131378173828,
+  "total_output_size_bytes": 399394,
+  "total_output_size_mb": 0.3808917999267578,
+  "unmatched_action_audit": [
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Masquerain",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Masquerain|Masquerain, L87, M|264/264",
+      "replay_id": "gen9randombattle-2589352228",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Dugtrio-Alola",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Dugtrio|Dugtrio-Alola, L84, F|196/196",
+      "replay_id": "gen9randombattle-2589352228",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dugtrio",
+        "switch:switch: Azumarill",
+        "switch:switch: Ditto",
+        "switch:switch: Conkeldurr",
+        "switch:switch: Heracross"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stealth Rock",
+      "pre_action_candidates": [
+        "move:Stealth Rock",
+        "move_tera:Stealth Rock",
+        "switch:switch: Azumarill",
+        "switch:switch: Ditto",
+        "switch:switch: Conkeldurr",
+        "switch:switch: Heracross",
+        "switch:switch: Baxcalibur"
+      ],
+      "raw_replay_command": "|move|p2a: Dugtrio|Stealth Rock|p1a: Masquerain",
+      "replay_id": "gen9randombattle-2589352228",
+      "side": "p2",
+      "turn": 1
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Hurricane",
+        "move:Zen Headbutt",
+        "switch:switch: Dugtrio-Alola"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Baxcalibur",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Zen Headbutt",
+        "switch:switch: Dugtrio-Alola",
+        "switch:switch: Baxcalibur"
+      ],
+      "raw_replay_command": "|switch|p2a: Baxcalibur|Baxcalibur, L75, F|295/295",
+      "replay_id": "gen9randombattle-2589352228",
+      "side": "p2",
+      "turn": 14
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dugtrio-Alola"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Icicle Crash",
+      "pre_action_candidates": [
+        "move:Icicle Crash",
+        "switch:switch: Dugtrio-Alola"
+      ],
+      "raw_replay_command": "|move|p2a: Baxcalibur|Icicle Crash|p1a: Hawlucha",
+      "replay_id": "gen9randombattle-2589352228",
+      "side": "p2",
+      "turn": 15
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Hippowdon",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Hippowdon|Hippowdon, L82, F|311/311",
+      "replay_id": "gen9randombattle-2592672685",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Diancie",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Diancie|Diancie, L82|216/216",
+      "replay_id": "gen9randombattle-2592672685",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Dusknoir",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Dusknoir|Dusknoir, L89, F|225/225",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Typhlosion-Hisui",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Typhlosion|Typhlosion-Hisui, L83, M|257/257",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Meowscarada",
+        "switch:switch: Toxicroak",
+        "switch:switch: Arceus-Psychic"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Shadow Ball",
+      "pre_action_candidates": [
+        "move:Shadow Ball",
+        "move_tera:Shadow Ball",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Meowscarada",
+        "switch:switch: Toxicroak",
+        "switch:switch: Arceus-Psychic",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Typhlosion|Shadow Ball|p1a: Dusknoir",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 1
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Aurora Veil",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Aurora Veil|p1a: Ninetales",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 4
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Blizzard",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Blizzard|p2a: Meowscarada",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 5
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Moonblast",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Moonblast|p2a: Meowscarada",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 6
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Moonblast",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Moonblast|p2a: Toxicroak",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 7
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Encore",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Encore|p2a: Toxicroak",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 8
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Recover",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Recover|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 10
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stored Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Stored Power|p1a: Sceptile",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 11
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Recover",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Recover|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 12
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stored Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Stored Power|p1a: Ninetales",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 13
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Aurora Veil",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Aurora Veil|p1a: Ninetales",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 14
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Cosmic Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Cosmic Power|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 14
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Blizzard",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Blizzard|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 15
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stored Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Stored Power|p1a: Ninetales",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 15
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Blizzard",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Blizzard|p2a: Polteageist",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 16
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Ninetales",
+        "switch:switch: Sceptile"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Moonblast",
+      "pre_action_candidates": [
+        "move:Aurora Veil",
+        "move_tera:Aurora Veil",
+        "move:Blizzard",
+        "move_tera:Blizzard",
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Moonblast",
+        "move_tera:Moonblast",
+        "switch:switch: Dusknoir",
+        "switch:switch: Dragonite",
+        "switch:switch: Sceptile",
+        "switch:switch: Ninetales"
+      ],
+      "raw_replay_command": "|move|p1a: Ninetales|Moonblast|p2a: Polteageist",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p1",
+      "turn": 17
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Toxicroak",
+        "switch:switch: Arceus-Psychic"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Shell Smash",
+      "pre_action_candidates": [
+        "move:Shell Smash",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Toxicroak",
+        "switch:switch: Arceus-Psychic",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Polteageist|Shell Smash|p2a: Polteageist",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 17
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Cosmic Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Cosmic Power|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Cosmic Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "move:Recover",
+        "move:Stored Power",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Toxicroak",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Cosmic Power|p2a: Arceus",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Arceus-Psychic"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Miraidon",
+      "pre_action_candidates": [
+        "move:Shell Smash",
+        "switch:switch: Typhlosion-Hisui",
+        "switch:switch: Arceus-Psychic",
+        "switch:switch: Miraidon"
+      ],
+      "raw_replay_command": "|switch|p2a: Miraidon|Miraidon, L65|238/238",
+      "replay_id": "gen9randombattle-2593870030",
+      "side": "p2",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Ninetales",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Ninetales|Ninetales, L85, M|263/263",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Quagsire",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Quagsire|Quagsire, L84, F|297/297",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ninetales",
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Quiver Dance",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move_tera:Hurricane",
+        "move:Quiver Dance",
+        "move_tera:Quiver Dance",
+        "switch:switch: Ninetales",
+        "switch:switch: Uxie"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Quiver Dance|p1a: Vivillon",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 7
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ninetales",
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move_tera:Hurricane",
+        "move:Quiver Dance",
+        "move_tera:Quiver Dance",
+        "switch:switch: Ninetales",
+        "switch:switch: Uxie"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Hurricane|p2a: Charizard",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 8
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ninetales",
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move_tera:Hurricane",
+        "move:Quiver Dance",
+        "move_tera:Quiver Dance",
+        "switch:switch: Ninetales",
+        "switch:switch: Uxie"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Hurricane|p2a: Ogerpon",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 9
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon",
+        "switch:switch: Gengar",
+        "switch:switch: Espathra"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Ivy Cudgel",
+      "pre_action_candidates": [
+        "move:Ivy Cudgel",
+        "move_tera:Ivy Cudgel",
+        "move:Knock Off",
+        "move_tera:Knock Off",
+        "switch:switch: Gengar",
+        "switch:switch: Espathra",
+        "switch:switch: Necrozma"
+      ],
+      "raw_replay_command": "|move|p2a: Ogerpon|Ivy Cudgel|p1a: Vivillon|[anim] Ivy Cudgel Fire",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 9
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon",
+        "switch:switch: Gengar",
+        "switch:switch: Espathra"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Ivy Cudgel",
+        "move:Knock Off",
+        "switch:switch: Gengar",
+        "switch:switch: Espathra",
+        "switch:switch: Necrozma"
+      ],
+      "raw_replay_command": "|move|p2a: Ogerpon|Knock Off|p1a: Ninetales",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 10
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Nasty Plot",
+        "move_tera:Nasty Plot",
+        "move:Scorching Sands",
+        "move_tera:Scorching Sands",
+        "move:Solar Beam",
+        "move_tera:Solar Beam",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Uxie",
+      "pre_action_candidates": [
+        "move:Nasty Plot",
+        "move_tera:Nasty Plot",
+        "move:Scorching Sands",
+        "move_tera:Scorching Sands",
+        "move:Solar Beam",
+        "move_tera:Solar Beam",
+        "switch:switch: Vivillon-Jungle",
+        "switch:switch: Uxie"
+      ],
+      "raw_replay_command": "|switch|p1a: Uxie|Uxie, L83|260/260",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 12
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move_tera:Encore",
+        "move:Knock Off",
+        "move_tera:Knock Off",
+        "move:Psychic Noise",
+        "move_tera:Psychic Noise",
+        "move:Stealth Rock",
+        "move_tera:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Gengar",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 13
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Gengar",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 14
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic Noise",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Psychic Noise|p2a: Espathra",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 15
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Encore",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Encore|p2a: Espathra",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 16
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Calm Mind",
+        "move:Stored Power",
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Necrozma",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move:Stored Power",
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Necrozma"
+      ],
+      "raw_replay_command": "|switch|p2a: Necrozma|Necrozma, L80|286/286",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 17
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stealth Rock",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Stealth Rock|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 17
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 18
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Espathra"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Earth Power",
+      "pre_action_candidates": [
+        "move:Earth Power",
+        "move:Photon Geyser",
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Espathra"
+      ],
+      "raw_replay_command": "|move|p2a: Necrozma|Earth Power|p1a: Uxie",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 18
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Encore",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Encore|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Espathra"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Earth Power",
+      "pre_action_candidates": [
+        "move:Earth Power",
+        "move:Photon Geyser",
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Espathra"
+      ],
+      "raw_replay_command": "|move|p2a: Necrozma|Earth Power|p1a: Uxie",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Espathra",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Espathra",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Calm Mind",
+        "move:Stored Power",
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Necrozma",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move:Stored Power",
+        "switch:switch: Ogerpon-Hearthflame",
+        "switch:switch: Necrozma"
+      ],
+      "raw_replay_command": "|switch|p2a: Necrozma|Necrozma, L80|201/286",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Photon Geyser",
+      "pre_action_candidates": [
+        "move:Earth Power",
+        "move:Photon Geyser",
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "raw_replay_command": "|move|p2a: Necrozma|Photon Geyser|p1a: Uxie",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Photon Geyser",
+      "pre_action_candidates": [
+        "move:Earth Power",
+        "move:Photon Geyser",
+        "switch:switch: Ogerpon-Hearthflame"
+      ],
+      "raw_replay_command": "|move|p2a: Necrozma|Photon Geyser|p1a: Uxie",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p2",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Encore",
+        "move:Knock Off",
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Vivillon-Jungle"
+      ],
+      "raw_replay_command": "|move|p1a: Uxie|Knock Off|p2a: Necrozma",
+      "replay_id": "gen9randombattle-2588074888",
+      "side": "p1",
+      "turn": 24
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Vivillon-Archipelago",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Vivillon|Vivillon-Archipelago, L83, M|268/268",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Qwilfish",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Qwilfish|Qwilfish, L86, M|252/252",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Shell Smash",
+      "pre_action_candidates": [
+        "move:Shadow Ball",
+        "move_tera:Shadow Ball",
+        "move:Shell Smash",
+        "move_tera:Shell Smash",
+        "move:Stored Power",
+        "move_tera:Stored Power",
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp",
+        "switch:switch: Ditto"
+      ],
+      "raw_replay_command": "|move|p2a: Polteageist|Shell Smash|p2a: Polteageist",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 8
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Shadow Ball",
+      "pre_action_candidates": [
+        "move:Shadow Ball",
+        "move_tera:Shadow Ball",
+        "move:Shell Smash",
+        "move_tera:Shell Smash",
+        "move:Stored Power",
+        "move_tera:Stored Power",
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp",
+        "switch:switch: Ditto"
+      ],
+      "raw_replay_command": "|move|p2a: Polteageist|Shadow Ball|p1a: Torkoal",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 9
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stored Power",
+      "pre_action_candidates": [
+        "move:Shadow Ball",
+        "move_tera:Shadow Ball",
+        "move:Shell Smash",
+        "move_tera:Shell Smash",
+        "move:Stored Power",
+        "move_tera:Stored Power",
+        "switch:switch: Qwilfish",
+        "switch:switch: Inteleon",
+        "switch:switch: Breloom",
+        "switch:switch: Bisharp",
+        "switch:switch: Ditto"
+      ],
+      "raw_replay_command": "|move|p2a: Polteageist|Stored Power|p1a: Toedscruel",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 10
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Gunk Shot",
+        "move:Thunder Wave",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Ditto",
+      "pre_action_candidates": [
+        "move:Gunk Shot",
+        "move:Thunder Wave",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp",
+        "switch:switch: Ditto"
+      ],
+      "raw_replay_command": "|switch|p2a: Ditto|Ditto, L87|225/225",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Psychic",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp"
+      ],
+      "raw_replay_command": "|move|p2a: Ditto|Psychic|p1a: Gothitelle",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 26
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Psychic",
+        "switch:switch: Inteleon",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Bisharp"
+      ],
+      "raw_replay_command": "|move|p2a: Ditto|Psychic|p1a: Vivillon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 27
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Quiver Dance",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Quiver Dance|p1a: Vivillon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 27
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Hurricane|p2a: Bisharp",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 28
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Sleep Powder",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Sleep Powder|p2a: Inteleon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 29
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Hurricane|p2a: Inteleon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 30
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Tera Blast",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|move|p1a: Vivillon|Tera Blast|p2a: Inteleon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 31
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:U-turn",
+        "switch:switch: Polteageist-Antique"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Ditto",
+      "pre_action_candidates": [
+        "move:U-turn",
+        "switch:switch: Polteageist-Antique",
+        "switch:switch: Ditto"
+      ],
+      "raw_replay_command": "|switch|p2a: Ditto|Ditto, L87|121/225",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 31
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Polteageist-Antique"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Psychic",
+        "switch:switch: Polteageist-Antique"
+      ],
+      "raw_replay_command": "|move|p2a: Ditto|Hurricane|p1a: Vivillon",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 32
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Vivillon"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Calyrex-Shadow",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Quiver Dance",
+        "move:Sleep Powder",
+        "move:Tera Blast",
+        "switch:switch: Calyrex-Shadow"
+      ],
+      "raw_replay_command": "|switch|p1a: Calyrex|Calyrex-Shadow, L64|235/235",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p1",
+      "turn": 32
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Polteageist-Antique"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Hurricane",
+      "pre_action_candidates": [
+        "move:Hurricane",
+        "move:Psychic",
+        "switch:switch: Polteageist-Antique"
+      ],
+      "raw_replay_command": "|move|p2a: Ditto|Hurricane|p1a: Calyrex",
+      "replay_id": "gen9randombattle-2588414109",
+      "side": "p2",
+      "turn": 33
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Uxie",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Uxie|Uxie, L83|260/260",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Azelf",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Azelf|Azelf, L82|257/257",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Dazzling Gleam",
+      "pre_action_candidates": [
+        "move:Dazzling Gleam",
+        "move_tera:Dazzling Gleam",
+        "move:Psychic",
+        "move_tera:Psychic"
+      ],
+      "raw_replay_command": "|move|p1a: Indeedee|Dazzling Gleam|p2a: Samurott",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p1",
+      "turn": 18
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Arceus"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Cosmic Power",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "switch:switch: Eternatus"
+      ],
+      "raw_replay_command": "|move|p2a: Arceus|Cosmic Power|p2a: Arceus",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p2",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Psychic",
+      "pre_action_candidates": [
+        "move:Dazzling Gleam",
+        "move_tera:Dazzling Gleam",
+        "move:Psychic",
+        "move_tera:Psychic"
+      ],
+      "raw_replay_command": "|move|p1a: Indeedee|Psychic|p2a: Arceus",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p1",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Arceus"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Eternatus",
+      "pre_action_candidates": [
+        "move:Cosmic Power",
+        "switch:switch: Eternatus"
+      ],
+      "raw_replay_command": "|switch|p2a: Eternatus|Eternatus, L69|308/308",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p2",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Arceus-Fighting"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Meteor Beam",
+      "pre_action_candidates": [
+        "move:Meteor Beam",
+        "switch:switch: Arceus-Fighting"
+      ],
+      "raw_replay_command": "|move|p2a: Eternatus|Meteor Beam||[still]",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p2",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic",
+      "pre_action_candidates": [
+        "move:Dazzling Gleam",
+        "move:Psychic"
+      ],
+      "raw_replay_command": "|move|p1a: Indeedee|Psychic|p2a: Eternatus",
+      "replay_id": "gen9randombattle-2592203110",
+      "side": "p1",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Indeedee-F",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Indeedee|Indeedee-F, L90, F|272/272",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Pachirisu",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Pachirisu|Pachirisu, L96, M|271/271",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee",
+        "switch:switch: Shaymin",
+        "switch:switch: Malamar",
+        "switch:switch: Iron Treads",
+        "switch:switch: Houndoom"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic",
+      "pre_action_candidates": [
+        "move:Psychic",
+        "move_tera:Psychic",
+        "switch:switch: Shaymin",
+        "switch:switch: Malamar",
+        "switch:switch: Iron Treads",
+        "switch:switch: Houndoom",
+        "switch:switch: Eternatus"
+      ],
+      "raw_replay_command": "|move|p1a: Indeedee|Psychic|p2a: Meowscarada",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 1
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [
+        "switch:switch: Pachirisu",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Boomburst",
+      "pre_action_candidates": [
+        "move:Boomburst",
+        "move_tera:Boomburst",
+        "switch:switch: Pachirisu",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Kingdra",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Dudunsparce|Boomburst|p1a: Malamar",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 9
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Pachirisu",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Boomburst",
+      "pre_action_candidates": [
+        "move:Boomburst",
+        "switch:switch: Pachirisu",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Kingdra",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Dudunsparce|Boomburst|p1a: Malamar",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 10
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Pachirisu",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Stealth Rock",
+      "pre_action_candidates": [
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Pachirisu",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Kingdra",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Deoxys|Stealth Rock|p1a: Houndoom",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 16
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Pachirisu",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Kingdra",
+      "pre_action_candidates": [
+        "move:Discharge",
+        "move:Encore",
+        "move:Super Fang",
+        "move:U-turn",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Kingdra",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|switch|p2a: Kingdra|Kingdra, L84, F|263/263",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 17
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Rain Dance",
+      "pre_action_candidates": [
+        "move:Rain Dance",
+        "move:Wave Crash",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Kingdra|Rain Dance|p2a: Kingdra",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 18
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Wave Crash",
+      "pre_action_candidates": [
+        "move:Rain Dance",
+        "move:Wave Crash",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Kingdra|Wave Crash|p1a: Houndoom",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Vigoroth",
+      "pre_action_candidates": [
+        "move:Rain Dance",
+        "move:Wave Crash",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|switch|p2a: Vigoroth|Vigoroth, L85, F|275/275",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 19
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Bulk Up",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move:Knock Off",
+        "move:Slack Off",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense"
+      ],
+      "raw_replay_command": "|move|p2a: Vigoroth|Bulk Up|p2a: Vigoroth",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Earthquake",
+        "move:Iron Head",
+        "move:Rapid Spin",
+        "move:Stealth Rock",
+        "switch:switch: Indeedee-F"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Eternatus",
+      "pre_action_candidates": [
+        "move:Earthquake",
+        "move:Iron Head",
+        "move:Rapid Spin",
+        "move:Stealth Rock",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Eternatus"
+      ],
+      "raw_replay_command": "|switch|p1a: Eternatus|Eternatus, L69|308/308",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Bulk Up",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move:Knock Off",
+        "move:Slack Off",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense"
+      ],
+      "raw_replay_command": "|move|p2a: Vigoroth|Bulk Up|p2a: Vigoroth",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Meteor Beam",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Meteor Beam||[still]",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Slack Off",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move:Knock Off",
+        "move:Slack Off",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense"
+      ],
+      "raw_replay_command": "|move|p2a: Vigoroth|Slack Off|p2a: Vigoroth",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Dynamax Cannon",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Dynamax Cannon|p2a: Vigoroth",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Dudunsparce",
+        "switch:switch: Deoxys-Defense",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move:Knock Off",
+        "move:Slack Off",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys-Defense"
+      ],
+      "raw_replay_command": "|move|p2a: Vigoroth|Knock Off|p1a: Eternatus",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Sludge Bomb",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Sludge Bomb|p2a: Dudunsparce",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 24
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Dynamax Cannon",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Dynamax Cannon|p2a: Deoxys",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Psychic Noise",
+      "pre_action_candidates": [
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|move|p2a: Deoxys|Psychic Noise|p1a: Eternatus",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Dynamax Cannon",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Dynamax Cannon|p2a: Deoxys",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 26
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Deoxys"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Vigoroth",
+      "pre_action_candidates": [
+        "move:Psychic Noise",
+        "move:Stealth Rock",
+        "switch:switch: Dudunsparce-Three-Segment",
+        "switch:switch: Vigoroth"
+      ],
+      "raw_replay_command": "|switch|p2a: Vigoroth|Vigoroth, L85, F|72/275",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p2",
+      "turn": 26
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Dynamax Cannon",
+      "pre_action_candidates": [
+        "move:Dynamax Cannon",
+        "move:Meteor Beam",
+        "move:Sludge Bomb",
+        "switch:switch: Indeedee-F",
+        "switch:switch: Iron Treads"
+      ],
+      "raw_replay_command": "|move|p1a: Eternatus|Dynamax Cannon|p2a: Vigoroth",
+      "replay_id": "gen9randombattle-2592477403",
+      "side": "p1",
+      "turn": 27
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Registeel",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Registeel|Registeel, L81|262/262",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Hippowdon",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Hippowdon|Hippowdon, L82, M|311/311",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Close Combat",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move_tera:Bulk Up",
+        "move:Close Combat",
+        "move_tera:Close Combat",
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva",
+        "switch:switch: Kyogre"
+      ],
+      "raw_replay_command": "|move|p2a: Tauros|Close Combat|p1a: Girafarig",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 5
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Close Combat",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move_tera:Bulk Up",
+        "move:Close Combat",
+        "move_tera:Close Combat",
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva",
+        "switch:switch: Kyogre"
+      ],
+      "raw_replay_command": "|move|p2a: Tauros|Close Combat|p1a: Girafarig",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 6
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Glalie",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Will-O-Wisp",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Glalie",
+        "switch:switch: Vaporeon",
+        "switch:switch: Shiftry"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Will-O-Wisp|p2a: Grafaiai",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 7
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Bulk Up",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move_tera:Bulk Up",
+        "move:Close Combat",
+        "move_tera:Close Combat",
+        "switch:switch: Hippowdon",
+        "switch:switch: Grafaiai",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva",
+        "switch:switch: Kyogre"
+      ],
+      "raw_replay_command": "|move|p2a: Tauros|Bulk Up|p2a: Tauros",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 10
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Glalie",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Will-O-Wisp",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Glalie",
+        "switch:switch: Vaporeon",
+        "switch:switch: Shiftry"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Will-O-Wisp|p2a: Grafaiai|[miss]",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 11
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Earth Power",
+        "move_tera:Earth Power",
+        "move:Energy Ball",
+        "move_tera:Energy Ball",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Kyogre",
+      "pre_action_candidates": [
+        "move:Earth Power",
+        "move_tera:Earth Power",
+        "move:Energy Ball",
+        "move_tera:Energy Ball",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Alomomola",
+        "switch:switch: Kyogre"
+      ],
+      "raw_replay_command": "|switch|p2a: Kyogre|Kyogre, L71|259/259",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Will-O-Wisp",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon",
+        "switch:switch: Shiftry"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Will-O-Wisp|p2a: Kyogre",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 20
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Calm Mind",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move_tera:Calm Mind",
+        "move:Ice Beam",
+        "move_tera:Ice Beam",
+        "move:Thunder",
+        "move_tera:Thunder",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "raw_replay_command": "|move|p2a: Kyogre|Calm Mind|p2a: Kyogre",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 21
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Thunder",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move_tera:Calm Mind",
+        "move:Ice Beam",
+        "move_tera:Ice Beam",
+        "move:Thunder",
+        "move_tera:Thunder",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "raw_replay_command": "|move|p2a: Kyogre|Thunder|p1a: Vaporeon",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "move:Flip Turn",
+        "move_tera:Flip Turn",
+        "move:Scald",
+        "move_tera:Scald",
+        "move:Wish",
+        "move_tera:Wish",
+        "switch:switch: Registeel",
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Giratina"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Shiftry",
+      "pre_action_candidates": [
+        "move:Flip Turn",
+        "move_tera:Flip Turn",
+        "move:Scald",
+        "move_tera:Scald",
+        "move:Wish",
+        "move_tera:Wish",
+        "switch:switch: Registeel",
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Shiftry"
+      ],
+      "raw_replay_command": "|switch|p1a: Shiftry|Shiftry, L89, F|305/305",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Calm Mind",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move_tera:Calm Mind",
+        "move:Ice Beam",
+        "move_tera:Ice Beam",
+        "move:Thunder",
+        "move_tera:Thunder",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "raw_replay_command": "|move|p2a: Kyogre|Calm Mind|p2a: Kyogre",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 23
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Knock Off",
+      "pre_action_candidates": [
+        "move:Knock Off",
+        "move_tera:Knock Off",
+        "switch:switch: Registeel",
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Shiftry|Knock Off|p2a: Kyogre",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 24
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move_tera",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move_tera: Ice Beam",
+      "pre_action_candidates": [
+        "move:Calm Mind",
+        "move_tera:Calm Mind",
+        "move:Ice Beam",
+        "move_tera:Ice Beam",
+        "move:Thunder",
+        "move_tera:Thunder",
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros-Paldea-Combat",
+        "switch:switch: Alomomola",
+        "switch:switch: Arboliva"
+      ],
+      "raw_replay_command": "|move|p2a: Kyogre|Ice Beam|p1a: Shiftry",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 24
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Draco Meteor",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Draco Meteor|p2a: Kyogre",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Will-O-Wisp",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Will-O-Wisp|p2a: Alomomola",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 26
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Poltergeist",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Poltergeist|p2a: Alomomola|[miss]",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 33
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Poltergeist",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Poltergeist|p2a: Alomomola",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 37
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Draco Meteor",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Draco Meteor|p2a: Alomomola",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 38
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Registeel",
+        "switch:switch: Giratina",
+        "switch:switch: Vaporeon"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Shadow Sneak",
+      "pre_action_candidates": [
+        "move:Draco Meteor",
+        "move_tera:Draco Meteor",
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "move:Shadow Sneak",
+        "move_tera:Shadow Sneak",
+        "move:Will-O-Wisp",
+        "move_tera:Will-O-Wisp",
+        "switch:switch: Registeel",
+        "switch:switch: Vaporeon"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Shadow Sneak|p2a: Alomomola",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p1",
+      "turn": 39
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Hippowdon",
+        "switch:switch: Tauros",
+        "switch:switch: Alomomola"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Close Combat",
+      "pre_action_candidates": [
+        "move:Bulk Up",
+        "move:Close Combat",
+        "switch:switch: Hippowdon",
+        "switch:switch: Alomomola"
+      ],
+      "raw_replay_command": "|move|p2a: Tauros|Close Combat|p1a: Registeel",
+      "replay_id": "gen9randombattle-2588641014",
+      "side": "p2",
+      "turn": 45
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Giratina-Origin",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Giratina|Giratina-Origin, L72|335/335",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Abomasnow",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Abomasnow|Abomasnow, L84, M|287/287",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Alcremie",
+        "switch:switch: Arboliva"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Alluring Voice",
+      "pre_action_candidates": [
+        "move:Alluring Voice",
+        "move_tera:Alluring Voice",
+        "switch:switch: Giratina-Origin",
+        "switch:switch: Arboliva",
+        "switch:switch: Kingambit"
+      ],
+      "raw_replay_command": "|move|p1a: Alcremie|Alluring Voice|p2a: Lapras",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p1",
+      "turn": 22
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Alcremie-Salted-Cream"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Poltergeist",
+      "pre_action_candidates": [
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "switch:switch: Alcremie-Salted-Cream",
+        "switch:switch: Kingambit"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Poltergeist|p2a: Lapras",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p1",
+      "turn": 24
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Alcremie-Salted-Cream"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Poltergeist",
+      "pre_action_candidates": [
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "switch:switch: Alcremie-Salted-Cream",
+        "switch:switch: Kingambit"
+      ],
+      "raw_replay_command": "|move|p1a: Giratina|Poltergeist|p2a: Enamorus",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p1",
+      "turn": 25
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "switch",
+      "legacy_candidates": [
+        "switch:switch: Alcremie-Salted-Cream"
+      ],
+      "legacy_reason": "switch_target_missing_from_pre_action_legal_roster",
+      "parsed_command": "switch: Kingambit",
+      "pre_action_candidates": [
+        "move:Poltergeist",
+        "move_tera:Poltergeist",
+        "switch:switch: Alcremie-Salted-Cream",
+        "switch:switch: Kingambit"
+      ],
+      "raw_replay_command": "|switch|p1a: Kingambit|Kingambit, L74, F|270/270",
+      "replay_id": "gen9randombattle-2589135265",
+      "side": "p1",
+      "turn": 26
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Clawitzer",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p1a: Clawitzer|Clawitzer, L87, F|265/265",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p1",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": false,
+      "after_fix_reason": "skipped_nondecision",
+      "fix_classification": "intentionally_skipped_nondecision",
+      "inferred_action_type": "team_preview_or_initial_deployment",
+      "legacy_candidates": [],
+      "legacy_reason": "initial_deployment_nondecision",
+      "parsed_command": "switch: Vikavolt",
+      "pre_action_candidates": [],
+      "raw_replay_command": "|switch|p2a: Vikavolt|Vikavolt, L83, F|263/263",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p2",
+      "turn": 0
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Clawitzer",
+        "switch:switch: Tauros",
+        "switch:switch: Malamar"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Flare Blitz",
+      "pre_action_candidates": [
+        "move:Flare Blitz",
+        "move_tera:Flare Blitz",
+        "switch:switch: Clawitzer",
+        "switch:switch: Malamar"
+      ],
+      "raw_replay_command": "|move|p1a: Tauros|Flare Blitz|p2a: Vikavolt",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p1",
+      "turn": 2
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Clawitzer",
+        "switch:switch: Tauros",
+        "switch:switch: Malamar"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Flare Blitz",
+      "pre_action_candidates": [
+        "move:Flare Blitz",
+        "move_tera:Flare Blitz",
+        "switch:switch: Clawitzer",
+        "switch:switch: Malamar",
+        "switch:switch: Tauros"
+      ],
+      "raw_replay_command": "|move|p1a: Tauros|Flare Blitz|p2a: Sableye",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p1",
+      "turn": 3
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Clawitzer",
+        "switch:switch: Tauros",
+        "switch:switch: Malamar"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Flare Blitz",
+      "pre_action_candidates": [
+        "move:Flare Blitz",
+        "move_tera:Flare Blitz",
+        "switch:switch: Clawitzer",
+        "switch:switch: Malamar",
+        "switch:switch: Tauros"
+      ],
+      "raw_replay_command": "|move|p1a: Tauros|Flare Blitz|p2a: Sableye",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p1",
+      "turn": 4
+    },
+    {
+      "after_fix_matched": true,
+      "after_fix_reason": null,
+      "fix_classification": "fixed_by_exact_pre_action_event_prefix",
+      "inferred_action_type": "move",
+      "legacy_candidates": [
+        "switch:switch: Clawitzer",
+        "switch:switch: Tauros",
+        "switch:switch: Malamar"
+      ],
+      "legacy_reason": "move_missing_from_reconstructed_active_moves",
+      "parsed_command": "move: Flare Blitz",
+      "pre_action_candidates": [
+        "move:Flare Blitz",
+        "move_tera:Flare Blitz",
+        "switch:switch: Clawitzer",
+        "switch:switch: Malamar",
+        "switch:switch: Tauros"
+      ],
+      "raw_replay_command": "|move|p1a: Tauros|Flare Blitz|p2a: Ursaring",
+      "replay_id": "gen9randombattle-2589912457",
+      "side": "p1",
+      "turn": 5
+    }
+  ],
   "valid_battles": 10,
   "validation": {
     "checks": {
       "action_dim_318": true,
       "action_dtype_float16": true,
+      "action_rank_labels_valid": true,
+      "action_value_labels_absent": true,
       "all_examples_trace_to_manifest": true,
       "candidate_state_indices_valid": true,
       "live_defaults_unchanged": true,
@@ -100,13 +3391,15 @@
       "no_battle_crosses_splits": true,
       "state_dim_3208": true,
       "state_dtype_float16": true,
-      "state_not_duplicated_per_candidate": true
+      "state_not_duplicated_per_candidate": true,
+      "state_value_labels_valid": true
     },
     "passed": true
   },
   "warnings": [
     "Peak memory is Python tracemalloc heap only; it excludes sim-core and NumPy native allocations.",
     "Own-side reconstructed state follows the existing replay-training future-public-reveal assumption.",
-    "This is a 10-battle feasibility benchmark, not the full diagnostic_300 materialization."
+    "This is a 10-battle feasibility benchmark, not the full diagnostic_300 materialization.",
+    "Action-rank groups with unmatched replay actions are excluded; inspect the reported match rate before training."
   ]
 }
