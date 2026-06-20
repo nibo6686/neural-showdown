@@ -14,12 +14,12 @@ class RolloutParityHarnessTest(unittest.TestCase):
 
     def test_oracle_vs_local_report_has_no_wrong_exact_failures(self):
         self.assertEqual(self.report["summary"]["FAIL"], 0)
-        self.assertGreaterEqual(self.report["summary"]["PASS"], 29)
-        self.assertGreaterEqual(self.report["summary"]["GAP"], 4)
+        self.assertGreaterEqual(self.report["summary"]["PASS"], 36)
+        self.assertGreaterEqual(self.report["summary"]["GAP"], 8)
 
     def test_harness_distinguishes_transition_phases(self):
         phases = {case["phase"] for case in self.report["cases"]}
-        self.assertEqual(phases, {"immediate", "end_of_turn", "switch_entry", "delayed_future"})
+        self.assertEqual(phases, {"immediate", "end_of_turn", "switch_entry", "delayed_future", "sequential_multihit"})
         for case in self.report["cases"]:
             self.assertTrue(case["starting_state"])
             self.assertTrue(case["chosen_actions"])
@@ -48,6 +48,8 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "salt_cure_normal_residual",
             "salt_cure_water_residual",
             "salt_cure_steel_residual",
+            "binding_residual",
+            "binding_band_residual",
             "sandstorm_chip",
             "grassy_terrain_healing",
             "grassy_terrain_airborne_no_heal",
@@ -58,10 +60,14 @@ class RolloutParityHarnessTest(unittest.TestCase):
     def test_unsupported_residual_and_delayed_cases_are_explicit_gaps(self):
         cases = {case["id"]: case for case in self.report["cases"]}
         for case_id in (
-            "binding_residual",
             "future_sight_replacement_damage_unavailable",
+            "doom_desire_replacement_damage_unavailable",
             "magic_bounce_reflection_gap",
             "good_as_gold_status_gap",
+            "population_bomb_sequential_hits_gap",
+            "population_bomb_initial_miss_stops_gap",
+            "triple_axel_power_ramp_gap",
+            "triple_axel_initial_miss_stops_gap",
         ):
             self.assertEqual(cases[case_id]["status"], "GAP")
             self.assertTrue(cases[case_id]["local"]["reason"])
@@ -77,6 +83,11 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "misty_terrain_blocks_status",
             "electric_terrain_blocks_sleep",
             "damp_blocks_explosion",
+            "powder_blocks_fire_move",
+            "sucker_punch_succeeds_when_target_attacks",
+            "sucker_punch_fails_when_target_uses_status",
+            "thunderclap_succeeds_when_target_attacks",
+            "thunderclap_fails_when_target_uses_status",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 
@@ -87,6 +98,7 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "future_sight_hits_replacement_in_target_slot",
             "future_sight_duplicate_schedule_fails",
             "doom_desire_lands_later",
+            "doom_desire_hits_replacement_in_target_slot",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 
@@ -210,6 +222,60 @@ class RolloutParityHarnessTest(unittest.TestCase):
         effects = [event["effect"] for event in result["events"]]
         self.assertEqual(effects, ["sandstorm", "sandstorm", "leechseed", "brn", "saltcure"])
 
+    def test_binding_residual_requires_complete_provenance(self):
+        supported = {
+            "combatants": {
+                "p1": {
+                    "hp": 160,
+                    "max_hp": 160,
+                    "status": None,
+                    "types": ["Fighting"],
+                    "ability": "No Guard",
+                    "item": "Binding Band",
+                    "residual_modifiers_known": True,
+                    "volatiles": {},
+                },
+                "p2": {
+                    "hp": 160,
+                    "max_hp": 160,
+                    "status": None,
+                    "types": ["Normal"],
+                    "ability": "Run Away",
+                    "item": "",
+                    "residual_modifiers_known": True,
+                    "volatiles": {
+                        "partiallytrapped": {
+                            "source": "p1",
+                            "source_active": True,
+                            "source_effect": "Bind",
+                            "duration_remaining": 2,
+                            "divisor": 6,
+                        }
+                    },
+                },
+            }
+        }
+        result = apply_end_of_turn(supported)
+        self.assertTrue(result["available"])
+        self.assertEqual(result["state"]["combatants"]["p2"]["hp"], 134)
+        self.assertEqual(result["events"][0]["divisor"], 6)
+
+        missing = {
+            "combatants": {
+                "p2": {
+                    "hp": 160,
+                    "max_hp": 160,
+                    "status": None,
+                    "types": ["Normal"],
+                    "ability": "Run Away",
+                    "item": "",
+                    "residual_modifiers_known": True,
+                    "volatiles": {"partiallytrapped": True},
+                }
+            }
+        }
+        self.assertFalse(apply_end_of_turn(missing)["available"])
+
     def test_grassy_terrain_healing_requires_grounding(self):
         state = {
             "terrain": "grassyterrain",
@@ -243,6 +309,35 @@ class RolloutParityHarnessTest(unittest.TestCase):
         )
         self.assertFalse(result["available"])
         self.assertEqual(result["reason"], "target_grounding_required_for_psychic_terrain")
+
+    def test_prevention_helper_handles_powder_and_opponent_action_branches(self):
+        powder = apply_immediate_prevention(
+            {"attacker": {"volatiles": ["powder"]}, "target": {}},
+            {"name": "Flamethrower", "type": "Fire", "priority": 0},
+        )
+        self.assertTrue(powder["available"])
+        self.assertTrue(powder["prevented"])
+
+        sucker_unknown = apply_immediate_prevention(
+            {"attacker": {}, "target": {}},
+            {"name": "Sucker Punch", "priority": 1, "requires_target_attack": True},
+        )
+        self.assertFalse(sucker_unknown["available"])
+        self.assertEqual(sucker_unknown["reason"], "opponent_action_branch_required")
+
+        sucker_attack = apply_immediate_prevention(
+            {"attacker": {}, "target": {}, "opponent_action_category": "Physical"},
+            {"name": "Sucker Punch", "priority": 1, "requires_target_attack": True},
+        )
+        self.assertTrue(sucker_attack["available"])
+        self.assertFalse(sucker_attack["prevented"])
+
+        sucker_status = apply_immediate_prevention(
+            {"attacker": {}, "target": {}, "opponent_action_category": "Status"},
+            {"name": "Sucker Punch", "priority": 1, "requires_target_attack": True},
+        )
+        self.assertTrue(sucker_status["available"])
+        self.assertTrue(sucker_status["prevented"])
 
 
 if __name__ == "__main__":

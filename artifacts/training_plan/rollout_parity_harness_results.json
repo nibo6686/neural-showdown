@@ -776,24 +776,120 @@
           "p2": "Splash"
         }
       ],
-      "diff": [
-        {
-          "field": "transition",
-          "local": "unavailable",
-          "oracle": {
-            "binding_residual_logged": true,
-            "p2_hp": 373
-          }
-        }
-      ],
+      "diff": [],
       "id": "binding_residual",
       "local": {
-        "available": false,
-        "reason": "current tactical state has only partiallytrapped; source activity, source effect, remaining duration, and Binding Band divisor are missing"
+        "available": true,
+        "events": [
+          {
+            "damage": 57,
+            "divisor": 8,
+            "effect": "partiallytrapped",
+            "source": "p1",
+            "source_effect": "bind",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "No Guard",
+                "hp": 321,
+                "item": "",
+                "max_hp": 321,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Fighting"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 373,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {
+                  "partiallytrapped": {
+                    "divisor": 8,
+                    "duration_remaining": 3,
+                    "source": "p1",
+                    "source_active": true,
+                    "source_effect": "Bind"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "No Guard",
+              "hp": 321,
+              "item": "",
+              "max_hp": 321,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Fighting"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 373,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {
+                "partiallytrapped": {
+                  "divisor": 8,
+                  "duration_remaining": 3,
+                  "source": "p1",
+                  "source_active": true,
+                  "source_effect": "Bind"
+                }
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 57,
+              "divisor": 8,
+              "effect": "partiallytrapped",
+              "source": "p1",
+              "source_effect": "bind",
+              "target": "p2"
+            }
+          ]
+        ]
       },
       "oracle": {
         "binding_residual_logged": true,
-        "p2_hp": 373
+        "p2_hp": 373,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 373
+              }
+            }
+          }
+        ]
       },
       "phase": "end_of_turn",
       "starting_state": {
@@ -802,7 +898,139 @@
           "volatile": "partiallytrapped"
         }
       },
-      "status": "GAP"
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Bind",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "binding_band_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 76,
+            "divisor": 6,
+            "effect": "partiallytrapped",
+            "source": "p1",
+            "source_effect": "bind",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "No Guard",
+                "hp": 321,
+                "item": "Binding Band",
+                "max_hp": 321,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Fighting"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 354,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {
+                  "partiallytrapped": {
+                    "divisor": 6,
+                    "duration_remaining": 3,
+                    "source": "p1",
+                    "source_active": true,
+                    "source_effect": "Bind"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "No Guard",
+              "hp": 321,
+              "item": "Binding Band",
+              "max_hp": 321,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Fighting"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 354,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {
+                "partiallytrapped": {
+                  "divisor": 6,
+                  "duration_remaining": 3,
+                  "source": "p1",
+                  "source_active": true,
+                  "source_effect": "Bind"
+                }
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 76,
+              "divisor": 6,
+              "effect": "partiallytrapped",
+              "source": "p1",
+              "source_effect": "bind",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "binding_residual_logged": true,
+        "p2_hp": 354,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 354
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p1_item": "Binding Band",
+        "p2": {
+          "species": "Snorlax",
+          "volatile": "partiallytrapped"
+        }
+      },
+      "status": "PASS"
     },
     {
       "chosen_actions": [
@@ -2069,6 +2297,357 @@
     {
       "chosen_actions": [
         {
+          "p1": "Doom Desire",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "doom_desire_hits_replacement_in_target_slot",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 189,
+            "damage_provenance": "bundled_showdown_fixed_fixture",
+            "effect": "doomdesire",
+            "result": "hit",
+            "target_pokemon_id": "blissey",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "blissey": 189
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "blissey": 189
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 462,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 462,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 189,
+              "damage_provenance": "bundled_showdown_fixed_fixture",
+              "effect": "doomdesire",
+              "result": "hit",
+              "target_pokemon_id": "blissey",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 462,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Doom Desire",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "p2:0:landing_damage_missing_for:blissey",
+          "oracle": {
+            "schedule_results": [
+              true
+            ],
+            "snapshots": [
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 321,
+                    "max_hp": 321,
+                    "pokemon_id": "machamp"
+                  }
+                }
+              },
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey"
+                  }
+                }
+              },
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 462,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "id": "doom_desire_replacement_damage_unavailable",
+      "local": {
+        "available": false,
+        "events": [],
+        "reason": "p2:0:landing_damage_missing_for:blissey",
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 280
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 280
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 651,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 2
+        },
+        "turn_events": [
+          [],
+          []
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 462,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
           "p1": "Stealth Rock",
           "p2": "Splash"
         },
@@ -2659,6 +3238,214 @@
     {
       "chosen_actions": [
         {
+          "p1": "Powder",
+          "p2": "Flamethrower"
+        }
+      ],
+      "diff": [],
+      "id": "powder_blocks_fire_move",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "powder_fire_move_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Blaze",
+            "types": [
+              "Fire",
+              "Flying"
+            ],
+            "volatiles": [
+              "powder"
+            ]
+          },
+          "target": {
+            "ability": "Compound Eyes",
+            "types": [
+              "Bug",
+              "Flying"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "fail_logged": false,
+        "prevented": true,
+        "user_took_powder_damage": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Powder",
+        "p2_move": "Flamethrower",
+        "p2_volatile": "powder"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Sucker Punch",
+          "p2": "Tackle"
+        }
+      ],
+      "diff": [],
+      "id": "sucker_punch_succeeds_when_target_attacks",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Insomnia",
+            "types": [
+              "Dark",
+              "Flying"
+            ]
+          },
+          "opponent_action_category": "Physical",
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Sucker Punch",
+        "p2_move": "Tackle"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Sucker Punch",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "sucker_punch_fails_when_target_uses_status",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "target_not_attacking_branch_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Insomnia",
+            "types": [
+              "Dark",
+              "Flying"
+            ]
+          },
+          "opponent_action_category": "Status",
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "fail_logged": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Sucker Punch",
+        "p2_move": "Splash"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Thunderclap",
+          "p2": "Tackle"
+        }
+      ],
+      "diff": [],
+      "id": "thunderclap_succeeds_when_target_attacks",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Protosynthesis",
+            "types": [
+              "Electric",
+              "Dragon"
+            ]
+          },
+          "opponent_action_category": "Physical",
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Thunderclap",
+        "p2_move": "Tackle"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Thunderclap",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "thunderclap_fails_when_target_uses_status",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "target_not_attacking_branch_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Protosynthesis",
+            "types": [
+              "Electric",
+              "Dragon"
+            ]
+          },
+          "opponent_action_category": "Status",
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "fail_logged": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Thunderclap",
+        "p2_move": "Splash"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
           "p1": "Splash",
           "p2": "Stealth Rock"
         }
@@ -2719,12 +3506,222 @@
         "p2_move": "Spore"
       },
       "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Population Bomb",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "damage_sequence": [
+              174,
+              174,
+              166,
+              137
+            ],
+            "final_hp": 0,
+            "hit_count": 4,
+            "sequential_accuracy": true,
+            "stop_on_miss": true
+          }
+        }
+      ],
+      "id": "population_bomb_sequential_hits_gap",
+      "local": {
+        "available": false,
+        "reason": "exact sequential multi-hit rollout needs per-hit accuracy branch state, PRNG provenance, and per-hit damage trace"
+      },
+      "oracle": {
+        "damage_sequence": [
+          174,
+          174,
+          166,
+          137
+        ],
+        "final_hp": 0,
+        "hit_count": 4,
+        "sequential_accuracy": true,
+        "stop_on_miss": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Population Bomb",
+        "p2_hp": 651,
+        "seed": [
+          31,
+          41,
+          59,
+          26
+        ]
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Population Bomb",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "damage_sequence": [],
+            "final_hp": 651,
+            "hit_count": 0,
+            "missed": true,
+            "sequential_accuracy": true,
+            "stop_on_miss": true
+          }
+        }
+      ],
+      "id": "population_bomb_initial_miss_stops_gap",
+      "local": {
+        "available": false,
+        "reason": "exact sequential multi-hit rollout needs per-hit accuracy branch state, PRNG provenance, and stop-on-miss execution"
+      },
+      "oracle": {
+        "damage_sequence": [],
+        "final_hp": 651,
+        "hit_count": 0,
+        "missed": true,
+        "sequential_accuracy": true,
+        "stop_on_miss": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Population Bomb",
+        "p2_hp": 651,
+        "seed": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Triple Axel",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "damage_sequence": [
+              28,
+              54,
+              91
+            ],
+            "final_hp": 288,
+            "hit_count": 3,
+            "per_hit_power_ramp": [
+              20,
+              40,
+              60
+            ],
+            "sequential_accuracy": true
+          }
+        }
+      ],
+      "id": "triple_axel_power_ramp_gap",
+      "local": {
+        "available": false,
+        "reason": "exact Triple Axel rollout needs per-hit accuracy branch state plus per-hit base-power and damage provenance"
+      },
+      "oracle": {
+        "damage_sequence": [
+          28,
+          54,
+          91
+        ],
+        "final_hp": 288,
+        "hit_count": 3,
+        "per_hit_power_ramp": [
+          20,
+          40,
+          60
+        ],
+        "sequential_accuracy": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Triple Axel",
+        "p2_hp": 461,
+        "seed": [
+          31,
+          41,
+          59,
+          26
+        ]
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Triple Axel",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "damage_sequence": [],
+            "final_hp": 461,
+            "hit_count": 0,
+            "missed": true,
+            "sequential_accuracy": true,
+            "stop_on_miss": true
+          }
+        }
+      ],
+      "id": "triple_axel_initial_miss_stops_gap",
+      "local": {
+        "available": false,
+        "reason": "exact Triple Axel rollout needs per-hit accuracy branch state, PRNG provenance, and stop-on-miss execution"
+      },
+      "oracle": {
+        "damage_sequence": [],
+        "final_hp": 461,
+        "hit_count": 0,
+        "missed": true,
+        "sequential_accuracy": true,
+        "stop_on_miss": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Triple Axel",
+        "p2_hp": 461,
+        "seed": [
+          1,
+          3,
+          5,
+          7
+        ]
+      },
+      "status": "GAP"
     }
   ],
-  "oracle_source": "bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds)",
+  "oracle_source": "bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds; deterministic normal PRNG for miss fixtures)",
   "summary": {
     "FAIL": 0,
-    "GAP": 4,
-    "PASS": 29
+    "GAP": 8,
+    "PASS": 37
   }
 }

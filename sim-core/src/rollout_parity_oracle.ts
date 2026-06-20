@@ -10,7 +10,7 @@ type SetSpec = {
 
 type ParityCase = {
   id: string;
-  phase: 'immediate' | 'end_of_turn' | 'switch_entry' | 'delayed_future';
+  phase: 'immediate' | 'end_of_turn' | 'switch_entry' | 'delayed_future' | 'sequential_multihit';
   starting_state: Record<string, unknown>;
   chosen_actions: Array<{ p1: string; p2: string }>;
   oracle: Record<string, unknown>;
@@ -33,11 +33,16 @@ function packedTeam(sets: SetSpec[]): string {
   })) as any);
 }
 
-function battle(p1: SetSpec[], p2: SetSpec[], seed: [number, number, number, number] = [31, 41, 59, 26]): Battle {
+function battle(
+  p1: SetSpec[],
+  p2: SetSpec[],
+  seed: [number, number, number, number] = [31, 41, 59, 26],
+  forceRandomChance = true,
+): Battle {
   const instance = new Battle({
     formatid: 'gen9customgame',
     seed,
-    forceRandomChance: true,
+    forceRandomChance,
     send: () => undefined,
   } as any);
   instance.setPlayer('p1', { name: 'P1', team: packedTeam(p1) });
@@ -82,10 +87,28 @@ function hpConditions(lines: string[], side: 'p1' | 'p2'): number[] {
   const values: number[] = [];
   for (const line of lines) {
     if (!line.startsWith(`|-damage|${side}a:`)) continue;
-    const hp = Number((line.split('|')[3] || '').split('/')[0]);
+    const hp = Number((line.split('|')[3] || '').split(' ')[0].split('/')[0]);
     if (Number.isFinite(hp) && values[values.length - 1] !== hp) values.push(hp);
   }
   return values;
+}
+
+function damageSequence(lines: string[], side: 'p1' | 'p2', startingHp: number): number[] {
+  const values = hpConditions(lines, side);
+  const sequence: number[] = [];
+  let previous = startingHp;
+  for (const hp of values) {
+    sequence.push(Math.max(0, previous - hp));
+    previous = hp;
+  }
+  return sequence;
+}
+
+function hitCount(lines: string[]): number {
+  const line = lines.find(candidate => candidate.includes('|-hitcount|'));
+  if (!line) return 0;
+  const value = Number(line.split('|').pop());
+  return Number.isFinite(value) ? value : 0;
 }
 
 function sourceDamageFraction(lines: string[], source: string): number {
@@ -183,6 +206,22 @@ function residualCases(): ParityCase[] {
     [{ species: 'Snorlax', ability: 'Thick Fat', moves: ['Splash'] }],
   );
   const bindingLines = choose(binding, 'move 1', 'move 1');
+  const bindingConditions = hpConditions(bindingLines, 'p2');
+  const bindingFinalHp = active(binding, 1).hp;
+  const bindingPreResidualHp =
+    bindingConditions.length >= 2 ? bindingConditions[bindingConditions.length - 2] : bindingFinalHp;
+  const bindingMaxHp = active(binding, 1).maxhp;
+
+  const bindingBand = battle(
+    [{ species: 'Machamp', ability: 'No Guard', item: 'Binding Band', moves: ['Bind'] }],
+    [{ species: 'Snorlax', ability: 'Thick Fat', moves: ['Splash'] }],
+  );
+  const bindingBandLines = choose(bindingBand, 'move 1', 'move 1');
+  const bindingBandConditions = hpConditions(bindingBandLines, 'p2');
+  const bindingBandFinalHp = active(bindingBand, 1).hp;
+  const bindingBandPreResidualHp =
+    bindingBandConditions.length >= 2 ? bindingBandConditions[bindingBandConditions.length - 2] : bindingBandFinalHp;
+  const bindingBandMaxHp = active(bindingBand, 1).maxhp;
 
   const unchanged = battle(
     [{ species: 'Mew', moves: ['Splash'] }],
@@ -346,12 +385,96 @@ function residualCases(): ParityCase[] {
       chosen_actions: [{ p1: 'Bind', p2: 'Splash' }],
       oracle: {
         p2_hp: active(binding, 1).hp,
+        snapshots: [{ combatants: { p2: { hp: bindingFinalHp } } }],
         binding_residual_logged: bindingLines.some(
           line => line.startsWith('|-damage|') && line.includes('[from] move: Bind'),
         ),
       },
-      local_support: 'intentional_gap',
-      gap_reason: 'current tactical state has only partiallytrapped; source activity, source effect, remaining duration, and Binding Band divisor are missing',
+      local_input: {
+        turns: 1,
+        state: {
+          combatants: {
+            p1: {
+              hp: active(binding, 0).hp,
+              max_hp: active(binding, 0).maxhp,
+              status: null,
+              types: ['Fighting'],
+              ability: 'No Guard',
+              item: '',
+              residual_modifiers_known: true,
+              volatiles: {},
+            },
+            p2: {
+              hp: bindingPreResidualHp,
+              max_hp: bindingMaxHp,
+              status: null,
+              types: ['Normal'],
+              ability: 'Thick Fat',
+              item: '',
+              residual_modifiers_known: true,
+              volatiles: {
+                partiallytrapped: {
+                  source: 'p1',
+                  source_active: true,
+                  source_effect: 'Bind',
+                  duration_remaining: 4,
+                  divisor: 8,
+                },
+              },
+            },
+          },
+        },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'binding_band_residual',
+      phase: 'end_of_turn',
+      starting_state: { p1_item: 'Binding Band', p2: { species: 'Snorlax', volatile: 'partiallytrapped' } },
+      chosen_actions: [{ p1: 'Bind', p2: 'Splash' }],
+      oracle: {
+        p2_hp: active(bindingBand, 1).hp,
+        snapshots: [{ combatants: { p2: { hp: bindingBandFinalHp } } }],
+        binding_residual_logged: bindingBandLines.some(
+          line => line.startsWith('|-damage|') && line.includes('[from] move: Bind'),
+        ),
+      },
+      local_input: {
+        turns: 1,
+        state: {
+          combatants: {
+            p1: {
+              hp: active(bindingBand, 0).hp,
+              max_hp: active(bindingBand, 0).maxhp,
+              status: null,
+              types: ['Fighting'],
+              ability: 'No Guard',
+              item: 'Binding Band',
+              residual_modifiers_known: true,
+              volatiles: {},
+            },
+            p2: {
+              hp: bindingBandPreResidualHp,
+              max_hp: bindingBandMaxHp,
+              status: null,
+              types: ['Normal'],
+              ability: 'Thick Fat',
+              item: '',
+              residual_modifiers_known: true,
+              volatiles: {
+                partiallytrapped: {
+                  source: 'p1',
+                  source_active: true,
+                  source_effect: 'Bind',
+                  duration_remaining: 4,
+                  divisor: 6,
+                },
+              },
+            },
+          },
+        },
+      },
+      local_support: 'supported',
     },
     {
       id: 'no_residual_unchanged',
@@ -545,6 +668,22 @@ function delayedDamageCases(): ParityCase[] {
   const doomTurn3 = delayedTarget(doom, 1);
   const doomDamage = Number(doomTurn2.hp) - Number(doomTurn3.hp);
 
+  const doomSwitched = battle(
+    [{ species: 'Jirachi', moves: ['Doom Desire', 'Splash'] }],
+    [
+      { species: 'Machamp', ability: 'No Guard', moves: ['Splash'] },
+      { species: 'Blissey', ability: 'Natural Cure', moves: ['Splash'] },
+    ],
+  );
+  const doomSwitchStart = delayedTarget(doomSwitched, 1);
+  choose(doomSwitched, 'move 1', 'move 1');
+  const doomSwitchTurn1 = delayedTarget(doomSwitched, 1);
+  choose(doomSwitched, 'move 2', 'switch 2');
+  const doomSwitchTurn2 = delayedTarget(doomSwitched, 1);
+  choose(doomSwitched, 'move 2', 'move 1');
+  const doomSwitchTurn3 = delayedTarget(doomSwitched, 1);
+  const doomReplacementDamage = Number(doomSwitchTurn2.hp) - Number(doomSwitchTurn3.hp);
+
   return [
     {
       id: 'future_sight_lands_later',
@@ -688,6 +827,67 @@ function delayedDamageCases(): ParityCase[] {
         ],
       },
       local_support: 'supported',
+    },
+    {
+      id: 'doom_desire_hits_replacement_in_target_slot',
+      phase: 'delayed_future',
+      starting_state: { target_slot: 'p2:0', original_target: doomSwitchStart },
+      chosen_actions: [
+        { p1: 'Doom Desire', p2: 'Splash' },
+        { p1: 'Splash', p2: 'switch Blissey' },
+        { p1: 'Splash', p2: 'Splash' },
+      ],
+      oracle: {
+        snapshots: [
+          { active_slots: { 'p2:0': doomSwitchTurn1 } },
+          { active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { active_slots: { 'p2:0': doomSwitchTurn3 } },
+        ],
+        schedule_results: [true],
+      },
+      local_input: {
+        state: { active_slots: { 'p2:0': doomSwitchStart }, delayed_attacks: {} },
+        timeline: [
+          {
+            turn: 1,
+            schedule: delayedAttackInput('doomdesire', 'jirachi', { blissey: doomReplacementDamage }),
+          },
+          { turn: 2, active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { turn: 3 },
+        ],
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'doom_desire_replacement_damage_unavailable',
+      phase: 'delayed_future',
+      starting_state: { target_slot: 'p2:0', original_target: doomSwitchStart },
+      chosen_actions: [
+        { p1: 'Doom Desire', p2: 'Splash' },
+        { p1: 'Splash', p2: 'switch Blissey' },
+        { p1: 'Splash', p2: 'Splash' },
+      ],
+      oracle: {
+        snapshots: [
+          { active_slots: { 'p2:0': doomSwitchTurn1 } },
+          { active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { active_slots: { 'p2:0': doomSwitchTurn3 } },
+        ],
+        schedule_results: [true],
+      },
+      local_input: {
+        state: { active_slots: { 'p2:0': doomSwitchStart }, delayed_attacks: {} },
+        timeline: [
+          {
+            turn: 1,
+            schedule: delayedAttackInput('doomdesire', 'jirachi', { machamp: doomDamage }),
+          },
+          { turn: 2, active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { turn: 3 },
+        ],
+      },
+      local_support: 'supported',
+      gap_reason: 'replacement target landing damage is absent from current local provenance',
     },
   ];
 }
@@ -841,6 +1041,41 @@ function preventionCases(): ParityCase[] {
   const dampTargetBefore = ratio(damp, 1);
   const dampLines = choose(damp, 'move 1', 'move 1');
 
+  const powder = battle(
+    [{ species: 'Vivillon', ability: 'Compound Eyes', moves: ['Powder'] }],
+    [{ species: 'Charizard', ability: 'Blaze', moves: ['Flamethrower'] }],
+  );
+  const powderAttackerBefore = active(powder, 1).hp;
+  const powderLines = choose(powder, 'move 1', 'move 1');
+
+  const suckerSuccess = battle(
+    [{ species: 'Honchkrow', ability: 'Insomnia', moves: ['Sucker Punch'] }],
+    [{ species: 'Mew', moves: ['Tackle', 'Splash'] }],
+  );
+  const suckerSuccessBefore = active(suckerSuccess, 1).hp;
+  choose(suckerSuccess, 'move 1', 'move 1');
+
+  const suckerFail = battle(
+    [{ species: 'Honchkrow', ability: 'Insomnia', moves: ['Sucker Punch'] }],
+    [{ species: 'Mew', moves: ['Splash'] }],
+  );
+  const suckerFailBefore = active(suckerFail, 1).hp;
+  const suckerFailLines = choose(suckerFail, 'move 1', 'move 1');
+
+  const thunderclapSuccess = battle(
+    [{ species: 'Raging Bolt', ability: 'Protosynthesis', moves: ['Thunderclap'] }],
+    [{ species: 'Mew', moves: ['Tackle', 'Splash'] }],
+  );
+  const thunderclapSuccessBefore = active(thunderclapSuccess, 1).hp;
+  choose(thunderclapSuccess, 'move 1', 'move 1');
+
+  const thunderclapFail = battle(
+    [{ species: 'Raging Bolt', ability: 'Protosynthesis', moves: ['Thunderclap'] }],
+    [{ species: 'Mew', moves: ['Splash'] }],
+  );
+  const thunderclapFailBefore = active(thunderclapFail, 1).hp;
+  const thunderclapFailLines = choose(thunderclapFail, 'move 1', 'move 1');
+
   const magicBounce = battle(
     [{ species: 'Hatterene', ability: 'Magic Bounce', moves: ['Splash'] }],
     [{ species: 'Mew', moves: ['Stealth Rock'] }],
@@ -992,6 +1227,99 @@ function preventionCases(): ParityCase[] {
       local_support: 'supported',
     },
     {
+      id: 'powder_blocks_fire_move',
+      phase: 'immediate',
+      starting_state: { p1_move: 'Powder', p2_move: 'Flamethrower', p2_volatile: 'powder' },
+      chosen_actions: [{ p1: 'Powder', p2: 'Flamethrower' }],
+      oracle: {
+        prevented: active(powder, 0).hp === active(powder, 0).maxhp,
+        user_took_powder_damage: active(powder, 1).hp < powderAttackerBefore,
+        fail_logged: powderLines.some(line => line.includes('[from] move: Powder')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Fire', 'Flying'], ability: 'Blaze', volatiles: ['powder'] },
+          target: { types: ['Bug', 'Flying'], ability: 'Compound Eyes' },
+        },
+        action: { name: 'Flamethrower', type: 'Fire', priority: 0 },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'sucker_punch_succeeds_when_target_attacks',
+      phase: 'immediate',
+      starting_state: { p1_move: 'Sucker Punch', p2_move: 'Tackle' },
+      chosen_actions: [{ p1: 'Sucker Punch', p2: 'Tackle' }],
+      oracle: {
+        prevented: active(suckerSuccess, 1).hp === suckerSuccessBefore,
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Dark', 'Flying'], ability: 'Insomnia' },
+          target: { types: ['Psychic'], ability: 'Synchronize' },
+          opponent_action_category: 'Physical',
+        },
+        action: { name: 'Sucker Punch', priority: 1, requires_target_attack: true },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'sucker_punch_fails_when_target_uses_status',
+      phase: 'immediate',
+      starting_state: { p1_move: 'Sucker Punch', p2_move: 'Splash' },
+      chosen_actions: [{ p1: 'Sucker Punch', p2: 'Splash' }],
+      oracle: {
+        prevented: active(suckerFail, 1).hp === suckerFailBefore,
+        fail_logged: suckerFailLines.some(line => line.startsWith('|-fail|p1a: Honchkrow')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Dark', 'Flying'], ability: 'Insomnia' },
+          target: { types: ['Psychic'], ability: 'Synchronize' },
+          opponent_action_category: 'Status',
+        },
+        action: { name: 'Sucker Punch', priority: 1, requires_target_attack: true },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'thunderclap_succeeds_when_target_attacks',
+      phase: 'immediate',
+      starting_state: { p1_move: 'Thunderclap', p2_move: 'Tackle' },
+      chosen_actions: [{ p1: 'Thunderclap', p2: 'Tackle' }],
+      oracle: {
+        prevented: active(thunderclapSuccess, 1).hp === thunderclapSuccessBefore,
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Electric', 'Dragon'], ability: 'Protosynthesis' },
+          target: { types: ['Psychic'], ability: 'Synchronize' },
+          opponent_action_category: 'Physical',
+        },
+        action: { name: 'Thunderclap', priority: 1, requires_target_attack: true },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'thunderclap_fails_when_target_uses_status',
+      phase: 'immediate',
+      starting_state: { p1_move: 'Thunderclap', p2_move: 'Splash' },
+      chosen_actions: [{ p1: 'Thunderclap', p2: 'Splash' }],
+      oracle: {
+        prevented: active(thunderclapFail, 1).hp === thunderclapFailBefore,
+        fail_logged: thunderclapFailLines.some(line => line.startsWith('|-fail|p1a: Raging Bolt')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Electric', 'Dragon'], ability: 'Protosynthesis' },
+          target: { types: ['Psychic'], ability: 'Synchronize' },
+          opponent_action_category: 'Status',
+        },
+        action: { name: 'Thunderclap', priority: 1, requires_target_attack: true },
+      },
+      local_support: 'supported',
+    },
+    {
       id: 'magic_bounce_reflection_gap',
       phase: 'immediate',
       starting_state: { p1_ability: 'Magic Bounce', p2_move: 'Stealth Rock' },
@@ -1017,15 +1345,119 @@ function preventionCases(): ParityCase[] {
   ];
 }
 
+function sequentialMultiHitCases(): ParityCase[] {
+  const population = battle(
+    [{ species: 'Maushold', ability: 'Technician', moves: ['Population Bomb'] }],
+    [{ species: 'Blissey', ability: 'Natural Cure', moves: ['Splash'] }],
+    [31, 41, 59, 26],
+    true,
+  );
+  const populationStartingHp = active(population, 1).hp;
+  const populationLines = choose(population, 'move 1', 'move 1');
+
+  const populationMiss = battle(
+    [{ species: 'Maushold', ability: 'Technician', moves: ['Population Bomb'] }],
+    [{ species: 'Blissey', ability: 'Natural Cure', moves: ['Splash'] }],
+    [1, 2, 3, 4],
+    false,
+  );
+  const populationMissHp = active(populationMiss, 1).hp;
+  const populationMissLines = choose(populationMiss, 'move 1', 'move 1');
+
+  const tripleAxel = battle(
+    [{ species: 'Weavile', ability: 'Pressure', moves: ['Triple Axel'] }],
+    [{ species: 'Snorlax', ability: 'Thick Fat', moves: ['Splash'] }],
+    [31, 41, 59, 26],
+    true,
+  );
+  const tripleAxelStartingHp = active(tripleAxel, 1).hp;
+  const tripleAxelLines = choose(tripleAxel, 'move 1', 'move 1');
+
+  const tripleAxelMiss = battle(
+    [{ species: 'Weavile', ability: 'Pressure', moves: ['Triple Axel'] }],
+    [{ species: 'Snorlax', ability: 'Thick Fat', moves: ['Splash'] }],
+    [1, 3, 5, 7],
+    false,
+  );
+  const tripleAxelMissHp = active(tripleAxelMiss, 1).hp;
+  const tripleAxelMissLines = choose(tripleAxelMiss, 'move 1', 'move 1');
+
+  return [
+    {
+      id: 'population_bomb_sequential_hits_gap',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Population Bomb', seed: [31, 41, 59, 26], p2_hp: populationStartingHp },
+      chosen_actions: [{ p1: 'Population Bomb', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(populationLines),
+        damage_sequence: damageSequence(populationLines, 'p2', populationStartingHp),
+        final_hp: active(population, 1).hp,
+        sequential_accuracy: true,
+        stop_on_miss: true,
+      },
+      local_support: 'intentional_gap',
+      gap_reason: 'exact sequential multi-hit rollout needs per-hit accuracy branch state, PRNG provenance, and per-hit damage trace',
+    },
+    {
+      id: 'population_bomb_initial_miss_stops_gap',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Population Bomb', seed: [1, 2, 3, 4], p2_hp: populationMissHp },
+      chosen_actions: [{ p1: 'Population Bomb', p2: 'Splash' }],
+      oracle: {
+        missed: populationMissLines.some(line => line.startsWith('|-miss|')),
+        hit_count: hitCount(populationMissLines),
+        damage_sequence: damageSequence(populationMissLines, 'p2', populationMissHp),
+        final_hp: active(populationMiss, 1).hp,
+        sequential_accuracy: true,
+        stop_on_miss: true,
+      },
+      local_support: 'intentional_gap',
+      gap_reason: 'exact sequential multi-hit rollout needs per-hit accuracy branch state, PRNG provenance, and stop-on-miss execution',
+    },
+    {
+      id: 'triple_axel_power_ramp_gap',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Triple Axel', seed: [31, 41, 59, 26], p2_hp: tripleAxelStartingHp },
+      chosen_actions: [{ p1: 'Triple Axel', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(tripleAxelLines),
+        damage_sequence: damageSequence(tripleAxelLines, 'p2', tripleAxelStartingHp),
+        final_hp: active(tripleAxel, 1).hp,
+        sequential_accuracy: true,
+        per_hit_power_ramp: [20, 40, 60],
+      },
+      local_support: 'intentional_gap',
+      gap_reason: 'exact Triple Axel rollout needs per-hit accuracy branch state plus per-hit base-power and damage provenance',
+    },
+    {
+      id: 'triple_axel_initial_miss_stops_gap',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Triple Axel', seed: [1, 3, 5, 7], p2_hp: tripleAxelMissHp },
+      chosen_actions: [{ p1: 'Triple Axel', p2: 'Splash' }],
+      oracle: {
+        missed: tripleAxelMissLines.some(line => line.startsWith('|-miss|')),
+        hit_count: hitCount(tripleAxelMissLines),
+        damage_sequence: damageSequence(tripleAxelMissLines, 'p2', tripleAxelMissHp),
+        final_hp: active(tripleAxelMiss, 1).hp,
+        sequential_accuracy: true,
+        stop_on_miss: true,
+      },
+      local_support: 'intentional_gap',
+      gap_reason: 'exact Triple Axel rollout needs per-hit accuracy branch state, PRNG provenance, and stop-on-miss execution',
+    },
+  ];
+}
+
 export function buildRolloutParityOracle(): { oracle: string; cases: ParityCase[] } {
   return {
-    oracle: 'bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds)',
+    oracle: 'bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds; deterministic normal PRNG for miss fixtures)',
     cases: [
       ...residualCases(),
       ...fieldCases(),
       ...delayedDamageCases(),
       ...hazardCases(),
       ...preventionCases(),
+      ...sequentialMultiHitCases(),
     ],
   };
 }

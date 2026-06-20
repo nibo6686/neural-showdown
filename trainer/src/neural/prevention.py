@@ -32,6 +32,27 @@ def _blocked_by_substitute(move: Dict[str, Any], target: Dict[str, Any]) -> bool
     return bool(has_substitute and move.get("blocked_by_substitute"))
 
 
+def _volatile_ids(mon: Dict[str, Any]) -> set[str]:
+    raw = mon.get("volatiles")
+    if isinstance(raw, dict):
+        return {_to_id(value) for value in raw.keys()}
+    if isinstance(raw, list):
+        return {_to_id(value) for value in raw}
+    return set()
+
+
+def _opponent_action_category(state: Dict[str, Any]) -> Optional[str]:
+    if state.get("opponent_action_category") is not None:
+        return _to_id(state.get("opponent_action_category"))
+    target_action = state.get("target_action")
+    if isinstance(target_action, dict):
+        if target_action.get("category") is not None:
+            return _to_id(target_action.get("category"))
+        if target_action.get("damaging") is not None:
+            return "physical" if bool(target_action.get("damaging")) else "status"
+    return None
+
+
 def apply_immediate_prevention(state: Dict[str, Any], action: Dict[str, Any]) -> Dict[str, Any]:
     """Resolve the focused click-time prevention subset used by rollout parity.
 
@@ -52,9 +73,23 @@ def apply_immediate_prevention(state: Dict[str, Any], action: Dict[str, Any]) ->
 
     attacker_ability = _to_id(attacker.get("ability") or attacker.get("base_ability"))
     target_ability = _to_id(target.get("ability") or target.get("base_ability"))
+    move_type = _to_id(move.get("type"))
 
     if bool(move.get("explosion_like")) and "damp" in {attacker_ability, target_ability}:
         return {"available": True, "reason": "damp_explosion_prevention", "prevented": True, "state": result_state}
+
+    if "powder" in _volatile_ids(attacker):
+        if not move_type:
+            return {"available": False, "reason": "move_type_required_for_powder", "prevented": None, "state": result_state}
+        if move_type == "fire":
+            return {"available": True, "reason": "powder_fire_move_prevention", "prevented": True, "state": result_state}
+
+    if bool(move.get("requires_target_attack")) or move_id in {"suckerpunch", "thunderclap"}:
+        category = _opponent_action_category(result_state)
+        if category is None:
+            return {"available": False, "reason": "opponent_action_branch_required", "prevented": None, "state": result_state}
+        if category not in {"physical", "special"}:
+            return {"available": True, "reason": "target_not_attacking_branch_prevention", "prevented": True, "state": result_state}
 
     if terrain == "psychicterrain":
         if priority is None:

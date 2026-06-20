@@ -174,15 +174,44 @@ def apply_end_of_turn(state: Dict[str, Any]) -> Dict[str, Any]:
             dealt = _damage(mon, damage)
             events.append({"effect": status, "target": side, "damage": dealt, "toxic_stage": mon.get("toxic_stage")})
 
-    # Residual order 13: Salt Cure. Binding is deliberately not inferred from a bare
-    # partiallytrapped flag because Showdown also needs source activity and the
-    # Binding Band-derived divisor.
+    # Residual order 13: partial trapping and Salt Cure. Partial trapping is only
+    # applied when the caller provides the exact source/duration/divisor
+    # provenance needed to avoid guessing from a bare volatile flag.
     for side, mon in combatants.items():
         if int(mon["hp"]) <= 0:
             continue
         volatile = mon.get("volatiles") if isinstance(mon.get("volatiles"), dict) else {}
-        if volatile.get("partiallytrapped"):
-            unsupported.append(f"{side}:partial_trap_source_activity_and_divisor_required")
+        partial_trap = volatile.get("partiallytrapped")
+        if partial_trap:
+            if not isinstance(partial_trap, dict):
+                unsupported.append(f"{side}:partial_trap_source_activity_and_divisor_required")
+            else:
+                source_side = partial_trap.get("source")
+                source = combatants.get(source_side)
+                source_effect = _to_id(partial_trap.get("source_effect"))
+                duration = partial_trap.get("duration_remaining")
+                divisor = partial_trap.get("divisor")
+                if not isinstance(source, dict) or not bool(partial_trap.get("source_active")):
+                    unsupported.append(f"{side}:partial_trap_source_activity_and_divisor_required")
+                elif not source_effect or not isinstance(duration, int) or not isinstance(divisor, int):
+                    unsupported.append(f"{side}:partial_trap_source_activity_and_divisor_required")
+                elif int(divisor) not in {6, 8} or int(duration) <= 0:
+                    unsupported.append(f"{side}:partial_trap_source_activity_and_divisor_required")
+                else:
+                    dealt = _damage(mon, _fraction_damage(int(mon["max_hp"]), int(divisor)))
+                    partial_trap["duration_remaining"] = max(0, int(duration) - 1)
+                    if partial_trap["duration_remaining"] <= 0:
+                        volatile.pop("partiallytrapped", None)
+                    events.append(
+                        {
+                            "effect": "partiallytrapped",
+                            "source_effect": source_effect,
+                            "target": side,
+                            "source": source_side,
+                            "damage": dealt,
+                            "divisor": int(divisor),
+                        }
+                    )
         if not volatile.get("saltcure"):
             continue
         if _to_id(mon.get("ability")) == "magicguard":

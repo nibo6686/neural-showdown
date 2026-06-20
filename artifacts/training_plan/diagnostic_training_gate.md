@@ -573,3 +573,35 @@ format-scoped adapters, and deferred NatDex/old-gen backlog. This was an
 inventory/report task only: no schema, code path, materialization, training,
 checkpoint, promotion, live default, or live path changed. Both gates remain
 **closed**.
+
+Rollout-parity batch 5
+(`rollout_parity_batch_5_inventory_gap_closure_report.md`) expands the
+deterministic harness to **45 fixtures: 37 PASS / 0 FAIL / 8 explicit GAP**.
+New PASS coverage includes binding residual with complete source/effect/duration
+and divisor provenance, Binding Band divisor behavior, Powder Fire-move
+prevention, Sucker Punch and Thunderclap explicit branch handling, and Doom
+Desire replacement-target landing damage when target-specific damage is
+provided. Future Sight/Doom Desire without replacement-specific damage, Magic
+Bounce reflection, generalized Good as Gold blocking, and exact Population Bomb
+/ Triple Axel per-hit execution remain explicit GAPs. No schema/fingerprint,
+live default, live bot behavior, materialization, training, checkpoint, or
+promotion changed. Both gates remain **closed**.
+
+The state/provenance design for the remaining GAPs
+(`state_provenance_schema_design_for_remaining_gaps.md`) specifies the state and
+provenance needed to close the 8 honest GAPs and to support future
+materialization safely. It groups the GAPs into four mechanics (delayed landing
+resolver, reflection routing, ability/status prevention routing, exact
+sequential multi-hit) plus forward-looking status counters/ranges,
+damage-received memory, and last-move/callable-pool provenance, with a per-GAP
+table (missing provenance, proposed representation, owner layer, no-leakage
+concern, batch) and an owner-layer vocabulary (live state extraction, tactical
+state, rollout state, action features, search node, oracle fixture only). The
+recommended order is batch A (no-leakage tests + provenance helpers), B (delayed
+landing resolver), C (ability/prevention/reflection routing), D (status
+counters/damage memory), E (exact multi-hit traces). Binding rules keep
+sampled/hidden values out of features and preserve fail-closed/0-FAIL over GAP
+reduction. This was a design/audit pass only: no `legal-action-v7` schema/dim/
+fingerprint change (stays 552D), no state schema implemented, no materialization,
+training, checkpoint promotion, live default, or live-path change. Both gates
+remain **closed**.
