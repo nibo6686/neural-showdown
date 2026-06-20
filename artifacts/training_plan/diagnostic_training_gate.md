@@ -78,7 +78,11 @@
 - [x] `legal-action-v7` batch 5 implemented (`legal_action_v7_batch_5_hp_side_effects_implementation.md`): typed HP-side-effect slice appended (now 420D; full 406D batch-4 prefix preserved); no rematerialization/training.
 - [x] `legal-action-v7` batch 6 implemented (`legal_action_v7_batch_6_field_side_effects_implementation.md`): typed field/side-effect slice appended (now 452D; full 420D batch-5 prefix preserved); no rematerialization/training.
 - [x] v7 edge-case and rollout-parity audit plan written (`v7_edge_case_rollout_parity_audit_plan.md`), including Gen 9 Randbats/National Dex scope and the action-feature versus transition boundary; no code, materialization, or training.
-- [ ] `legal-action-v7` later batches (conditional execution/history and remaining typed effects) implemented.
+- [x] `legal-action-v7` batch 7 implemented (511D; action-risk/probability and provenance summaries; batch-6 prefix preserved).
+- [x] `legal-action-v7` batch 8 implemented (552D; forced-decision/secondary-chance fields; batch-7 prefix preserved; full fingerprint `956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`).
+- [x] v7/v7 materialization readiness review written (`v7_v7_materialization_readiness_review.md`).
+- [ ] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior).
+- [ ] Small diagnostic v7/v7 materialization explicitly approved after read-only preflight and required tests.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -756,3 +760,25 @@ belief tests, 18 harness tests, JSON valid, `git diff --check` clean. No
 rewrite, no materialization, training, checkpoint promotion/file, live default,
 or live bot behavior change; no NatDex/old-gen mechanics. Both gates remain
 **closed**.
+
+The v7/v7 materialization readiness review
+(`v7_v7_materialization_readiness_review.md`) finds the project **conditionally
+ready** to *plan*, but **not yet runnable**, for a small v7/v7 diagnostic
+materialization (state
+`live-private-belief-v7` 3208D + action `legal-action-v7` 552D /
+`956da3d2…1bf39d7`): the schema is frozen and fingerprint-tested, mechanics are
+FAIL-free (138 PASS / 0 FAIL / 212 INEXACT, zero wrong-exact), rollout parity is
+**59 fixtures: 51 PASS / 0 FAIL / 8 GAP** with only honest fail-closed GAPs, the
+no-leakage and public-belief/effective-context contracts are in place, and the
+generalized materializer is parallel/crash-safe/resumable. The current
+materializer CLI, however, accepts only `legal-action-v5` / `legal-action-v6`,
+and its repeat-chain impact switch is enabled only for v6. Before approval it
+must be minimally wired/tested for v7, then pass the focused schema,
+no-leakage/belief, rollout-parity, sim-core, JSON, materializer, and read-only
+full-preflight gates. The materializer has no `--validate-only` CLI flag.
+Proposed (not run): a `diagnostic_300_v7_v7` dataset on the same frozen
+210/45/45 manifest/splits, written to a new output dir with `--full-manifest`
+and retained per-battle shards. Training, checkpoint promotion, and any
+live-default change remain separately **blocked**. This was a review only: no
+schema, dataset, materialization, training, checkpoint, or live-default change.
+Both gates remain **closed**.
