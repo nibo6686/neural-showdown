@@ -3,6 +3,7 @@ import os
 import socket
 import subprocess
 import sys
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -86,6 +87,8 @@ class EvalRequest(BaseModel):
     room_id: str
     url: str
     player: Optional[str] = None
+    turn: Optional[int] = None
+    decision_phase: Optional[str] = None
     log: List[str] = Field(default_factory=list)
     request: Optional[Dict[str, Any]] = None
     legal_actions: List[LegalAction] = Field(default_factory=list)
@@ -140,6 +143,9 @@ _value_model = None
 _value_model_metadata: Optional[Dict[str, Any]] = None
 _policy_model = None
 _policy_model_metadata: Optional[Dict[str, Any]] = None
+_capture_lock = threading.Lock()
+_CAPTURE_LIMIT = 3
+_CAPTURE_DIR = Path("artifacts/live_eval_captures")
 
 # Opt-in calibrated state evaluator. Default `/evaluate` behavior is unchanged;
 # only set when NEURAL_EVAL_STATE_SCORER selects a calibrated head. The bounded
@@ -1199,12 +1205,140 @@ def _maybe_log_action_trace(payload: EvalRequest, response: Dict[str, Any]) -> N
     )
 
 
+def _sanitize_capture_log(lines: Sequence[str]) -> List[str]:
+    sanitized: List[str] = []
+    omitted_prefixes = ("|c|", "|c:|", "|chat|", "|pm|", "|uhtml|", "|uhtmlchange|", "|challstr|")
+    for line in lines:
+        text = str(line)
+        if text.startswith(omitted_prefixes):
+            continue
+        parts = text.split("|")
+        if len(parts) >= 4 and parts[1] == "player":
+            parts[3] = f"redacted-{parts[2] or 'player'}"
+            text = "|".join(parts)
+        elif len(parts) >= 3 and parts[1] in {"win", "tie"}:
+            parts[2] = "redacted-player"
+            text = "|".join(parts)
+        sanitized.append(text)
+    return sanitized
+
+
+def _sanitize_capture_request(value: Any, *, parent_key: str = "") -> Any:
+    sensitive_keys = {
+        "authorization",
+        "cookie",
+        "cookies",
+        "token",
+        "access_token",
+        "refresh_token",
+        "session",
+        "sessionid",
+        "userid",
+        "user_id",
+        "username",
+    }
+    if isinstance(value, list):
+        return [_sanitize_capture_request(item, parent_key=parent_key) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result: Dict[str, Any] = {}
+    for key, item in value.items():
+        key_text = str(key)
+        if key_text.lower() in sensitive_keys:
+            continue
+        if parent_key == "side" and key_text == "name":
+            result[key_text] = "redacted-player"
+        else:
+            result[key_text] = _sanitize_capture_request(item, parent_key=key_text)
+    return result
+
+
+def _sanitized_capture_payload(payload: EvalRequest) -> Dict[str, Any]:
+    return {
+        "room_id": "captured-room",
+        "url": "captured://showdown-battle",
+        "player": payload.player if payload.player in ("p1", "p2") else None,
+        "turn": payload.turn,
+        "decision_phase": payload.decision_phase,
+        "request": _sanitize_capture_request(payload.request),
+        "log": _sanitize_capture_log(payload.log),
+        "legal_actions": [_legal_action_to_dict(action) for action in payload.legal_actions],
+    }
+
+
+def _is_actionable_capture(payload: EvalRequest) -> bool:
+    if any(not action.disabled for action in payload.legal_actions):
+        return True
+    request = payload.request if isinstance(payload.request, dict) else {}
+    if request.get("wait"):
+        return False
+    return bool(request.get("active") or request.get("forceSwitch"))
+
+
+def _maybe_capture_evaluate_payload(payload: EvalRequest) -> None:
+    """Capture up to three sanitized, actionable payloads when explicitly enabled."""
+    if not _env_flag("NEURAL_CAPTURE_EVALUATE_PAYLOADS") or not _is_actionable_capture(payload):
+        return
+    try:
+        capture_dir = Path(os.environ.get("NEURAL_CAPTURE_EVALUATE_DIR", str(_CAPTURE_DIR)))
+        sanitized = _sanitized_capture_payload(payload)
+        encoded = json.dumps(sanitized, sort_keys=True, separators=(",", ":"))
+        with _capture_lock:
+            capture_dir.mkdir(parents=True, exist_ok=True)
+            existing = sorted(capture_dir.glob("evaluate_*.json"))
+            if len(existing) >= _CAPTURE_LIMIT:
+                return
+            for path in existing:
+                try:
+                    prior = json.dumps(json.loads(path.read_text(encoding="utf-8")), sort_keys=True, separators=(",", ":"))
+                    if prior == encoded:
+                        return
+                except (OSError, ValueError, TypeError):
+                    continue
+            output = capture_dir / f"evaluate_{len(existing) + 1:03d}.json"
+            output.write_text(json.dumps(sanitized, indent=2) + "\n", encoding="utf-8")
+    except Exception:  # pragma: no cover - capture must never break /evaluate
+        pass
+
+
 @app.post("/evaluate")
 def evaluate(payload: EvalRequest):
+    _maybe_capture_evaluate_payload(payload)
     response = evaluate_with_model(payload)
     _maybe_log_eval(payload, response)
     _maybe_log_action_trace(payload, response)
     return response
+
+
+@app.post("/evaluate-vnext-dry-run")
+def evaluate_vnext_dry_run(payload: EvalRequest):
+    """Opt-in vNext (v7/v5) recommendation shadow mode. Default off.
+
+    Returns a dry-run recommendation + diagnostics for display only. It never
+    sends a command to Showdown and does not affect the default `/evaluate` path.
+    Enabled only when NEURAL_VNEXT_INFERENCE is set.
+    """
+    try:
+        from neural.vnext_live_shadow import build_dry_run, shadow_enabled
+    except ImportError:
+        from trainer.src.neural.vnext_live_shadow import build_dry_run, shadow_enabled
+    if not shadow_enabled():
+        return {
+            "ok": False,
+            "mode": "vnext_dry_run",
+            "fallback_reason": "vnext_inference_disabled",
+            "choice": "default",
+            "command_sent_to_showdown": False,
+        }
+    legal_action_payload = [_legal_action_to_dict(action) for action in payload.legal_actions]
+    return build_dry_run(
+        log=payload.log,
+        room_id=payload.room_id,
+        url=payload.url,
+        player=payload.player,
+        request_payload=payload.request,
+        legal_actions=legal_action_payload,
+    )
 
 
 if __name__ == "__main__":

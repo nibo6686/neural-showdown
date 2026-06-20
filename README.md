@@ -5,7 +5,7 @@ TypeScript Pokemon Showdown simulator service with Python tooling for data
 collection, replay ingestion, featurization, model training, evaluation, action
 ranking, and live battle evaluation.
 
-The current repository is centered on three related loops:
+The current repository is centered on four related loops:
 
 - Local simulator experiments: collect self-play or baseline-vs-baseline games,
   train policy/value models, and evaluate checkpoints.
@@ -14,9 +14,31 @@ The current repository is centered on three related loops:
 - Live evaluation: serve a local `/evaluate` endpoint that scores the current
   battle state and ranks legal actions using live request data, opponent beliefs,
   damage diagnostics, rollout estimates, and action rankers.
+- vNext diagnostic program: a newer, frozen-schema research track
+  (`live-private-belief-v7` state + `legal-action-v5` action) that materializes
+  battle-level diagnostic datasets, trains isolated value / action-rank heads,
+  validates representation quality offline, and prepares the action-rank model
+  for eventual private-match testing. See
+  [vNext Diagnostic Program](#vnext-diagnostic-program-v7v5).
 
 This is a research codebase, not a packaged application. Most commands assume
 you run them from the repository root.
+
+### Current focus and status
+
+The active priority is **representation correctness and dataset quality** for the
+vNext program, then training models for private-match testing once the diagnostic
+pipeline is trusted — not maximizing training volume. As of the latest update:
+
+- The action-rank track is the promising one: the `diagnostic_1000` rank-only
+  model beats simple offline baselines (validation top-1/top-3 0.463/0.858).
+- The state-value head is weak on the diagnostic data and is paused.
+- The live `/evaluate` defaults remain intentionally **old and stable**
+  (`live-private-belief-v2` / `legal-action-v3`). The vNext v7/v5 work is
+  **diagnostic-only**: no vNext checkpoint is promoted, and the live bot path is
+  unchanged. Promotion is tracked by a closed gate
+  (`artifacts/training_plan/diagnostic_training_gate.md`).
+- No private or public matches have been run with vNext models.
 
 ## Repository Layout
 
@@ -32,6 +54,9 @@ you run them from the repository root.
   outputs.
 - `artifacts/`: checkpoints, reports, latency traces, analysis outputs, battle
   traces, and live-eval logs.
+- `artifacts/training_plan/`: the vNext diagnostic program's plans, manifests,
+  datasets, audits, training/eval reports, and the promotion gate
+  (`diagnostic_training_gate.md`).
 - `docs/`: concise interface notes for architecture, action space, and state
   schema.
 - `scripts/run_windows.ps1`: Windows launcher that sets `PYTHONPATH`, resolves
@@ -124,6 +149,17 @@ $env:NEURAL_SIM_CORE_COMMAND_JSON = ConvertTo-Json @('node', $serverJs) -Compres
 
 By default the HTTP server binds to `127.0.0.1:8765`.
 
+### Browser overlay (recommendation-only)
+
+`Showdown Local Eval Overlay.user.js` is a userscript that sends the live
+Showdown request/log to the local server and **displays** recommendations — it
+never auto-clicks or submits a choice; the user always decides manually. The
+overlay is a compact, draggable pill that expands to a panel (collapse/position
+persist in `localStorage`) and auto-collapses near Showdown login/modal popups.
+A `vNext shadow` checkbox (default off) optionally calls `/evaluate-vnext-dry-run`
+and shows the vNext recommendation side-by-side for comparison; it degrades to a
+small badge when that route is disabled.
+
 ## Launcher Actions
 
 The main launcher is `scripts/run_windows.ps1`. It supports native Windows
@@ -171,7 +207,15 @@ live-eval
 test-sim-rollout
 server
 all
+benchmark-vnext-featuregen
+materialize-diagnostic-300
+materialize-diagnostic-1000-action-rank
 ```
+
+The last three actions belong to the vNext diagnostic program; see
+[vNext Diagnostic Program](#vnext-diagnostic-program-v7v5). The rest of the vNext
+tooling (training, evaluation, audits, harness) runs as direct
+`python -m neural.<module>` commands rather than launcher actions.
 
 Profiles:
 
@@ -242,10 +286,17 @@ Live action rankers are action-conditioned models. They score each legal action
 from a concatenation of live state features and action features, rather than
 only choosing from the fixed policy head.
 
-Current action feature schema:
+Current **live-default** action feature schema:
 
 - Feature version: `legal-action-v3`
 - Feature dimension: `165`
+
+The vNext diagnostic program uses a richer frozen action schema
+(`legal-action-v5`, 318D) that adds explicit move side-effects/stat-deltas (e.g.
+Draco Meteor's self −2 SpA) and resolved-impact features, and represents Tera
+moves as a distinct `move_tera` candidate kind. It is diagnostic-only and is not
+used by the live default path. See
+[vNext Diagnostic Program](#vnext-diagnostic-program-v7v5).
 
 ## Model and Feature Families
 
@@ -397,6 +448,106 @@ Compare rankers:
 ```powershell
 .\scripts\run_windows.ps1 -Action compare-action-rankers -ReplayId gen9randombattle-2594788118 -Side p1 -SimCoreMode native
 ```
+
+## vNext Diagnostic Program (v7/v5)
+
+The vNext program is a separate, frozen-schema research track aimed at making the
+model receive the *right* battle information in a learnable representation, then
+training models for private-match testing once the diagnostic pipeline is trusted.
+It is intentionally isolated from the live default path: it writes to
+`artifacts/training_plan/` and `artifacts/diagnostic_training/`, never promotes a
+checkpoint, and never changes the live `/evaluate` defaults.
+
+### Frozen schemas
+
+- State: `live-private-belief-v7`, **3208D** (richer privacy-aware belief state).
+- Action: `legal-action-v5`, **318D** (adds move side-effects/stat-deltas and
+  resolved-impact features; Tera moves are a distinct `move_tera` candidate kind).
+
+Both schemas are pinned by ordered feature-name SHA-256 fingerprints. Datasets,
+configs, and checkpoints record these fingerprints, and loaders refuse mismatches
+(no pad/truncate).
+
+### Pipeline stages and modules
+
+1. **Replay pool profiling and manifest selection** —
+   `neural.replay_pool_profiler`, `neural.replay_sample_manifest`. Battle-level
+   deterministic stratified selection from the existing replay pool (~14k eligible
+   battles), with split isolation and enrichment for sparse decision types (Tera,
+   switches). Manifests live in `artifacts/training_plan/manifests/`.
+2. **Feature materialization** — `neural.benchmark_vnext_featuregen`. Builds the
+   v7 state and v5 candidate features per decision via sim-core, with battle-level
+   train/validation/test isolation, action-rank labels (one replay-chosen positive
+   per group), no action-value labels, and float16 separate state/candidate tables.
+   The full-manifest path is **parallel, crash-safe, and resumable** (per-battle
+   shards under `_shards/`). Launcher actions:
+
+   ```powershell
+   .\scripts\run_windows.ps1 -Action materialize-diagnostic-300 -SimCoreMode native
+   .\scripts\run_windows.ps1 -Action materialize-diagnostic-1000-action-rank -SimCoreMode native
+   ```
+
+3. **Diagnostic training** — `neural.train_vnext_diagnostic` with
+   `neural.models.vnext_diagnostic.VNextDiagnosticMLP` (separate state/action
+   encoders + value head + grouped-rank head). Supports multitask, **value-only**,
+   and **action-rank-only** objectives via config; `--validate-only` checks
+   schema/fingerprints/splits and confirms which objective(s) will receive
+   gradients. Checkpoints embed schema versions, dims, and fingerprints.
+
+   ```powershell
+   $env:PYTHONPATH = (Resolve-Path .\trainer\src)
+   $py = 'D:\Anaconda\envs\neuralgpu\python.exe'
+   & $py -m neural.train_vnext_diagnostic --config .\configs\diagnostic_1000_action_rank_v7_v5.rank_only.windows.json --validate-only
+   & $py -m neural.train_vnext_diagnostic --config .\configs\diagnostic_1000_action_rank_v7_v5.rank_only.windows.json
+   ```
+
+4. **Offline evaluation** — `neural.evaluate_vnext_action_rank`. Scores a trained
+   checkpoint against baselines (random, max expected damage, max KO, type prior,
+   no-switch heuristic) with breakdowns by action type, candidate count, and turn.
+
+   ```powershell
+   & $py -m neural.evaluate_vnext_action_rank --config .\configs\diagnostic_1000_action_rank_v7_v5.rank_only.windows.json --checkpoint .\artifacts\diagnostic_training\diagnostic_1000_action_rank_v7_v5_rank_only\model.best.pt --split validation
+   ```
+
+5. **Live-readiness audit** — `neural.audit_vnext_live_inference_readiness`.
+   Read-only: strict schema/fingerprint load, controlled scoring vs the offline
+   evaluator (exact parity), command-serialization checks, latency, and a scan of
+   the live code for v2/v3 assumptions.
+6. **Opt-in inference harness** — `neural.vnext_inference`. Default-off, isolated,
+   fail-closed scorer: strict checkpoint load, candidate scoring with masking,
+   Showdown command serialization (`move`, `move <slot> terastallize`, `switch`),
+   and safe `"default"` fallback on any inconsistency. Gated by
+   `NEURAL_VNEXT_INFERENCE`; **not imported by the default live path**. It consumes
+   precomputed v7/v5 features — live feature generation is not yet wired.
+
+### Current datasets and checkpoints
+
+- `artifacts/training_plan/datasets/diagnostic_300_v7_v5/` — 300 battles
+  (210/45/45), 25,396 states, 189,957 candidates.
+- `artifacts/training_plan/datasets/diagnostic_1000_action_rank_v7_v5/` — 1000
+  battles (700/150/150), 80,899 states, 606,770 candidates, 79,525 action-rank
+  positives.
+- `artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v5_rank_only/model.best.pt`
+  — current best vNext action-rank checkpoint (epoch 8; validation top-1/top-3
+  0.4626/0.8576, test top-1 0.4608). **Not promoted; not live.**
+
+### Reports and the gate
+
+Every stage writes a Markdown report under `artifacts/training_plan/` (dataset
+plans, manifest reports, materialization reports, training reports, the offline
+eval, the legacy pipeline audit, the schema guardrails note, the live-inference
+readiness audit, and the inference harness report). The promotion gate is
+`artifacts/training_plan/diagnostic_training_gate.md`; it remains **closed** for
+training/live/production promotion.
+
+### Known gaps before private-match testing
+
+- Live feature generation does not yet build v7 state or v5 candidates (including
+  `move_tera`); the live path still uses the legacy `ActionRankerMLP` with v2/v3
+  features. The opt-in harness scores precomputed features only.
+- The action-rank model under-ranks Tera moves and is moderate on switches.
+- End-to-end live decision latency (feature gen + scoring) is unmeasured; model
+  scoring alone is under ~1 ms per decision group.
 
 ## Live Evaluation Server
 
@@ -792,6 +943,12 @@ Action recommendation:
 - `NEURAL_RANKER_WEIGHT`
 - `NEURAL_POLICY_WEIGHT`
 
+vNext diagnostic program:
+
+- `NEURAL_VNEXT_INFERENCE`: opt-in flag for the isolated vNext inference harness
+  (`neural.vnext_inference`). Default off; the live default path does not depend
+  on it.
+
 sim-core tracing:
 
 - `SIM_CORE_TRACE_RPC`
@@ -861,3 +1018,8 @@ PowerShell output looks strange:
 - Action recommendations are model/search diagnostics, not hardcoded bans. The
   code should not forbid resisted attacks, immunities, setup, switches, or
   terastallization by rule; those should be learned or scored by models/search.
+- The vNext v7/v5 program is diagnostic-only. No vNext checkpoint is promoted, the
+  live `/evaluate` defaults remain v2/v3, and the opt-in vNext inference harness is
+  off by default and not wired into live battles. The promotion gate
+  (`artifacts/training_plan/diagnostic_training_gate.md`) stays closed until a
+  controlled private-match dry run and explicit approval.

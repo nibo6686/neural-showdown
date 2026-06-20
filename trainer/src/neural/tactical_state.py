@@ -291,6 +291,8 @@ def _team_entry(species: str, *, ident: Optional[str] = None, active: bool = Fal
         "ability_suppressed": False,
         "tera_type": None,
         "terastallized": False,
+        "times_attacked": 0,
+        "times_attacked_known": False,
     }
 
 
@@ -370,6 +372,7 @@ def _empty_side_state() -> Dict[str, Any]:
         "active_ability_source": "unknown",
         "active_ability_suppressed": False,
         "boosts": defaultdict(int),
+        "boosts_known": False,
         "volatiles_by_ident": defaultdict(set),
         "constraint_volatiles_by_ident": defaultdict(set),
         "side_conditions": defaultdict(int),
@@ -394,6 +397,8 @@ def _empty_side_state() -> Dict[str, Any]:
         "tera_action_available": False,
         "can_tera": False,
         "damage_events_recent": 0,
+        "active_times_attacked": 0,
+        "active_times_attacked_known": False,
     }
 
 
@@ -429,7 +434,64 @@ class TacticalStateTracker:
             "p1": {"move": None, "count": 0, "failed_count": 0},
             "p2": {"move": None, "count": 0, "failed_count": 0},
         }
+        self.repeat_chain: Dict[str, Dict[str, Any]] = {
+            "p1": self._new_repeat_chain(),
+            "p2": self._new_repeat_chain(),
+        }
+        self.pending_repeat_move: Dict[str, Optional[Dict[str, Any]]] = {"p1": None, "p2": None}
+        self.defense_curl_active: Dict[str, bool] = {"p1": False, "p2": False}
         self.last_result_by_side: Dict[str, Dict[str, int]] = {"p1": _new_move_result(), "p2": _new_move_result()}
+        self.history_complete = False
+
+    @staticmethod
+    def _new_repeat_chain() -> Dict[str, Any]:
+        return {
+            "move": None,
+            "successful_count": 0,
+            "known": False,
+            "exact": False,
+            "provenance": "unknown",
+            "reset_observed": False,
+        }
+
+    def _reset_repeat_chain(self, side: str, *, observed: bool) -> None:
+        previous = self.repeat_chain[side]
+        known = bool(self.history_complete)
+        self.repeat_chain[side] = {
+            "move": None,
+            "successful_count": 0,
+            "known": known,
+            "exact": known,
+            "provenance": "protocol_complete" if known else "unknown",
+            "reset_observed": bool(observed),
+        }
+        self.pending_repeat_move[side] = None
+
+    def _finalize_pending_repeat(self, side: str) -> None:
+        pending = self.pending_repeat_move.get(side)
+        if not pending:
+            return
+        move_id = str(pending.get("move") or "")
+        failed = bool(pending.get("failed"))
+        chain = self.repeat_chain[side]
+        if failed:
+            self._reset_repeat_chain(side, observed=True)
+            return
+        prior = int(chain.get("successful_count", 0) or 0) if chain.get("move") == move_id else 0
+        successful_count = prior + 1
+        # The Rollout volatile ends after its fifth successful turn.
+        if move_id == "rollout" and successful_count >= 5:
+            self._reset_repeat_chain(side, observed=True)
+            return
+        self.repeat_chain[side] = {
+            "move": move_id,
+            "successful_count": successful_count,
+            "known": bool(self.history_complete),
+            "exact": bool(self.history_complete),
+            "provenance": "protocol_complete" if self.history_complete else "unknown",
+            "reset_observed": False,
+        }
+        self.pending_repeat_move[side] = None
 
     def consume(self, lines: Iterable[str]) -> "TacticalStateTracker":
         for raw_line in lines:
@@ -441,7 +503,18 @@ class TacticalStateTracker:
         if len(parts) < 2:
             return
         command = parts[1]
+        if command == "start":
+            self.history_complete = True
+            for state in self.sides.values():
+                state["boosts_known"] = True
+            for side in ("p1", "p2"):
+                self.repeat_chain[side].update(
+                    {"known": True, "exact": True, "provenance": "protocol_complete"}
+                )
+            return
         if command == "turn":
+            for side in ("p1", "p2"):
+                self._finalize_pending_repeat(side)
             try:
                 self.turn = int(parts[2])
             except (IndexError, ValueError):
@@ -517,6 +590,8 @@ class TacticalStateTracker:
         side = _side_from_ident(parts[2])
         if side not in self.sides:
             return
+        self._reset_repeat_chain(side, observed=True)
+        self.defense_curl_active[side] = False
         state = self.sides[side]
         ident = str(parts[2])
         species = _species_from_ident(parts[3] if len(parts) > 3 else parts[2])
@@ -566,7 +641,10 @@ class TacticalStateTracker:
         state["active_ability_state"] = entry.get("ability_state", "unknown")
         state["active_ability_source"] = entry.get("ability_source", "unknown")
         state["active_ability_suppressed"] = False
+        state["active_times_attacked"] = int(entry.get("times_attacked", 0) or 0)
+        state["active_times_attacked_known"] = bool(entry.get("times_attacked_known") or self.history_complete)
         state["boosts"] = defaultdict(int)
+        state["boosts_known"] = True
         state["volatiles_by_ident"][ident].clear()
         state["constraint_volatiles_by_ident"][ident].clear()
         if species:
@@ -582,8 +660,12 @@ class TacticalStateTracker:
                     "fainted": fainted,
                     "tera_type": active_tera_type,
                     "terastallized": active_terastallized,
+                    "times_attacked": int(entry.get("times_attacked", 0) or 0),
+                    "times_attacked_known": bool(entry.get("times_attacked_known") or self.history_complete),
                 }
             )
+            state["active_times_attacked"] = int(entry["times_attacked"])
+            state["active_times_attacked_known"] = bool(entry["times_attacked_known"])
             for other_species, other in state["known_team_by_species"].items():
                 if other_species != species:
                     other["active"] = False
@@ -704,11 +786,22 @@ class TacticalStateTracker:
             chain["count"] = int(chain.get("count", 0)) + 1
         else:
             chain.update({"move": move_id, "count": 1, "failed_count": 0})
+        self._finalize_pending_repeat(side)
+        if move_id in {"rollout", "furycutter"}:
+            current = self.repeat_chain[side]
+            if current.get("move") not in {None, move_id}:
+                self._reset_repeat_chain(side, observed=True)
+            self.pending_repeat_move[side] = {"move": move_id, "failed": False}
+        else:
+            self._reset_repeat_chain(side, observed=True)
 
     def _handle_volatile(self, parts: Sequence[str]) -> None:
         side = _side_from_ident(parts[2])
         effect = _effect_id(parts[3])
         if side not in self.sides or not effect:
+            return
+        if effect == "defensecurl":
+            self.defense_curl_active[side] = parts[1] != "-end"
             return
         if not self.sides[side].get("active"):
             self.sides[side]["active"] = parts[2]
@@ -818,6 +911,7 @@ class TacticalStateTracker:
             return
         if command == "-clearboost":
             self.sides[side]["boosts"] = defaultdict(int)
+            self.sides[side]["boosts_known"] = True
             return
         if len(parts) < 5:
             return
@@ -829,6 +923,7 @@ class TacticalStateTracker:
         boosts = self.sides[side]["boosts"]
         if command == "-setboost":
             boosts[stat] = max(-6, min(6, amount))
+            self.sides[side]["boosts_known"] = True
         elif command == "-unboost":
             boosts[stat] = max(-6, int(boosts.get(stat, 0) or 0) - amount)
         else:
@@ -981,6 +1076,10 @@ class TacticalStateTracker:
         self.last_result_by_side[side][key] += 1
         event = {"side": side, "move": move_id, "result": key, "turn": self.turn, "target": target or record.get("target")}
         self.recent_events.append(event)
+        if key in {"failed", "immune", "protected", "missed"}:
+            pending = self.pending_repeat_move.get(side)
+            if pending and pending.get("move") == move_id:
+                pending["failed"] = True
         if key in {"failed", "immune", "protected"}:
             self.failed_pairs.add((side, move_id, str(target or record.get("target") or "")))
             chain = self.same_move_chain[side]
@@ -1042,6 +1141,8 @@ class TacticalStateTracker:
         elif command == "-damage":
             side = _side_from_ident(target)
             if side in self.sides:
+                self._reset_repeat_chain(side, observed=True)
+                self.defense_curl_active[side] = False
                 self.sides[side]["damage_events_recent"] += 1
                 hp, max_hp, hp_fraction, status, fainted = _parse_condition(parts[3] if len(parts) > 3 else None)
                 state = self.sides[side]
@@ -1057,6 +1158,19 @@ class TacticalStateTracker:
                 species = state.get("active_base_species") or state.get("active_species") or _species_from_ident(target)
                 if species:
                     entry = state["known_team_by_species"].setdefault(species, _team_entry(species, ident=str(target)))
+                    direct_move_damage = bool(
+                        record
+                        and record.get("side") != side
+                        and str(record.get("target") or "") == str(target or "")
+                        and not any(str(value).lower().startswith("[from]") for value in parts[4:])
+                    )
+                    if direct_move_damage:
+                        entry["times_attacked"] = int(entry.get("times_attacked", 0) or 0) + 1
+                        entry["times_attacked_known"] = bool(
+                            entry.get("times_attacked_known") or self.history_complete
+                        )
+                        state["active_times_attacked"] = int(entry["times_attacked"])
+                        state["active_times_attacked_known"] = bool(entry["times_attacked_known"])
                     if hp_fraction is not None:
                         entry["hp_fraction"] = hp_fraction
                     if status:
@@ -1070,6 +1184,7 @@ class TacticalStateTracker:
         opp = "p2" if own == "p1" else "p1"
         return {
             "feature_version": TACTICAL_FEATURE_VERSION,
+            "history_complete": bool(self.history_complete),
             "turn": self.turn,
             "perspective_side": own,
             "own": self._side_snapshot(own),
@@ -1084,6 +1199,7 @@ class TacticalStateTracker:
             "recent_events": list(self.recent_events),
             "move_results": {f"{side}:{move}": dict(results) for (side, move), results in self.move_results.items()},
             "same_move_chain": {side: dict(value) for side, value in self.same_move_chain.items()},
+            "repeat_chain": {side: self._repeat_chain_snapshot(side) for side in ("p1", "p2")},
             "last_result_by_side": {side: dict(value) for side, value in self.last_result_by_side.items()},
             "failed_pairs": [list(item) for item in sorted(self.failed_pairs)],
         }
@@ -1123,6 +1239,31 @@ class TacticalStateTracker:
                 if int(value or 0) >= 6:
                     warnings.append(f"boost_capped:{side}:{stat}")
         return warnings
+
+    def _repeat_chain_snapshot(self, side: str) -> Dict[str, Any]:
+        chain = dict(self.repeat_chain[side])
+        move_id = str(chain.get("move") or "")
+        count = int(chain.get("successful_count", 0) or 0)
+        multiplier = (
+            float(2 ** min(count, 4))
+            if move_id == "rollout"
+            else float(2 ** min(count, 2))
+            if move_id == "furycutter"
+            else 1.0
+        )
+        defense_curl = bool(self.defense_curl_active[side])
+        if move_id == "rollout" and defense_curl:
+            multiplier *= 2.0
+        chain.update(
+            {
+                "multiplier": multiplier,
+                "defense_curl_active": defense_curl,
+                "defense_curl_known": bool(self.history_complete),
+                "forced_continuation_active": bool(move_id == "rollout" and 0 < count < 5),
+                "forced_continuation_known": bool(self.history_complete),
+            }
+        )
+        return chain
 
     def _side_snapshot(self, side: str) -> Dict[str, Any]:
         state = self.sides[side]
@@ -1198,7 +1339,10 @@ class TacticalStateTracker:
             "active_ability_state": state.get("active_ability_state") or "unknown",
             "active_ability_source": state.get("active_ability_source") or "unknown",
             "active_ability_suppressed": bool(state.get("active_ability_suppressed")),
+            "active_times_attacked": int(state.get("active_times_attacked", 0) or 0),
+            "active_times_attacked_known": bool(state.get("active_times_attacked_known")),
             "boosts": dict(state.get("boosts") or {}),
+            "boosts_known": bool(state.get("boosts_known")),
             "volatiles": volatiles,
             "constraint_volatiles": constraint_volatiles,
             "side_conditions": dict(state["side_conditions"]),
@@ -1225,6 +1369,7 @@ class TacticalStateTracker:
             "tera_action_available": bool(state.get("tera_action_available")),
             "can_tera": bool(state.get("can_tera")),
             "same_move_chain": dict(self.same_move_chain[side]),
+            "repeat_chain": self._repeat_chain_snapshot(side),
             "last_result": dict(self.last_result_by_side[side]),
             "damage_events_recent": int(state.get("damage_events_recent", 0)),
         }

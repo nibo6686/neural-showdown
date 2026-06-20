@@ -12,10 +12,12 @@ from neural.train_vnext_diagnostic import (
     EXPECTED_STATE_DIM,
     _names_fingerprint,
     build_diagnostic_model,
+    build_vnext_checkpoint_metadata,
     forward_loss_smoke_check,
     load_and_validate_diagnostic_config,
     load_diagnostic_dataset,
     main,
+    validate_vnext_checkpoint_metadata,
 )
 
 
@@ -32,6 +34,9 @@ def _write_fixture(
     multi_positive: bool = False,
     zero_positive: bool = False,
     include_action_value: bool = False,
+    rank_enabled: bool = True,
+    value_enabled: bool = True,
+    overfit_enabled: bool = True,
 ):
     state_names = _names("state", EXPECTED_STATE_DIM)
     action_names = _names("action", action_dim)
@@ -147,17 +152,17 @@ def _write_fixture(
         },
         "objectives": {
             "state_value": {
-                "enabled": True,
+                "enabled": value_enabled,
                 "target": "state_value_targets",
                 "loss": "mean_squared_error",
-                "loss_weight": 1.0,
+                "loss_weight": 1.0 if value_enabled else 0.0,
             },
             "action_rank": {
-                "enabled": True,
+                "enabled": rank_enabled,
                 "target": "action_rank_labels",
                 "group_index": "candidate_state_indices",
                 "loss": "grouped_cross_entropy",
-                "loss_weight": 1.0,
+                "loss_weight": 1.0 if rank_enabled else 0.0,
             },
             "action_value": {"enabled": False},
         },
@@ -182,6 +187,15 @@ def _write_fixture(
             "save_every_epochs": 1,
             "early_stopping_patience_epochs": 1,
         },
+        "overfit_check": {
+            "enabled": overfit_enabled,
+            "state_examples": 8,
+            "action_groups": 4 if rank_enabled else 0,
+            "max_steps": 2,
+            "required_value_train_mse_max": 2.0,
+            "required_action_train_top1_min": 0.0,
+            "fail_main_run_if_not_met": True,
+        },
         "outputs": {
             "directory": "output",
             "checkpoint_path": "output/model.pt",
@@ -197,6 +211,17 @@ def _write_fixture(
 
 
 class VNextDiagnosticTrainingTest(unittest.TestCase):
+    def test_config_explicitly_accepts_v6_dimension(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = _write_fixture(Path(tmpdir))
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["dataset"]["action_feature_version"] = "legal-action-v6"
+            payload["dataset"]["action_feature_dim"] = 331
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            config = load_and_validate_diagnostic_config(path)
+        self.assertEqual(config["dataset"]["action_feature_version"], "legal-action-v6")
+        self.assertEqual(config["dataset"]["action_feature_dim"], 331)
+
     def test_config_parsing_and_dataset_validation(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = _write_fixture(Path(tmpdir))
@@ -287,6 +312,278 @@ class VNextDiagnosticTrainingTest(unittest.TestCase):
             self.assertEqual(report["optimizer_steps"], 0)
             self.assertFalse(report["training_launched"])
             self.assertFalse((root / "output").exists())
+
+    def test_value_only_validate_skips_rank_forward(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = _write_fixture(Path(tmpdir), rank_enabled=False)
+            with patch(
+                "neural.models.vnext_diagnostic.VNextDiagnosticMLP.rank_from_embeddings",
+                side_effect=AssertionError("rank forward must stay disabled"),
+            ):
+                report = main(["--config", str(config_path), "--validate-only"])
+        self.assertFalse(report["heads_enabled"]["action_rank"])
+        self.assertFalse(report["smoke_check"]["rank_enabled"])
+        self.assertIsNone(report["smoke_check"]["action_rank_loss"])
+        self.assertEqual(report["smoke_check"]["rank_group_count"], 0)
+
+    def test_value_only_training_uses_only_value_batches(self):
+        from neural.train_vnext_diagnostic import train_diagnostic
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(
+                root,
+                rank_enabled=False,
+                overfit_enabled=False,
+            )
+            with patch(
+                "neural.train_vnext_diagnostic._rank_batch",
+                side_effect=AssertionError("rank batches must stay disabled"),
+            ), patch(
+                "neural.train_vnext_diagnostic._rank_metrics",
+                side_effect=AssertionError("rank metrics must stay disabled"),
+            ):
+                report = train_diagnostic(config_path)
+        self.assertFalse(report["heads_trained"]["action_rank"])
+        self.assertEqual(report["optimizer_step_source"], "value_batches_only")
+        self.assertEqual(report["global_step"], 27)
+        self.assertIsNone(report["test_action_rank"])
+        self.assertEqual(report["test_split_evaluations"], 1)
+
+
+class VNextRankOnlyTrainingTest(unittest.TestCase):
+    def test_validate_only_rank_only_disables_value_head(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = _write_fixture(Path(tmpdir), value_enabled=False)
+            report = main(["--config", str(config_path), "--validate-only"])
+        self.assertEqual(report["status"], "PASS")
+        self.assertFalse(report["heads_enabled"]["state_value"])
+        self.assertTrue(report["heads_enabled"]["action_rank"])
+        self.assertFalse(report["heads_enabled"]["action_value"])
+        self.assertEqual(report["optimizer_step_source"], "rank_batches_only")
+        self.assertFalse(report["smoke_check"]["value_enabled"])
+        self.assertIsNone(report["smoke_check"]["value_loss"])
+        self.assertIsNotNone(report["smoke_check"]["action_rank_loss"])
+
+    def test_rank_only_training_uses_only_rank_batches(self):
+        from neural.train_vnext_diagnostic import train_diagnostic
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root, value_enabled=False, overfit_enabled=False)
+            # The value head must never be exercised in a rank-only run.
+            with patch(
+                "neural.models.vnext_diagnostic.VNextDiagnosticMLP.value_from_embedding",
+                side_effect=AssertionError("value head must stay disabled"),
+            ):
+                report = train_diagnostic(config_path)
+        self.assertFalse(report["heads_trained"]["state_value"])
+        self.assertTrue(report["heads_trained"]["action_rank"])
+        self.assertEqual(report["optimizer_step_source"], "rank_batches_only")
+        self.assertEqual(report["checkpoint_selection_metric"], "validation_action_rank_nll")
+        self.assertIsNone(report["test_value"])
+        self.assertIsNone(report["best_validation_value_mse"])
+        self.assertIsNotNone(report["test_action_rank"])
+        self.assertEqual(report["test_split_evaluations"], 1)
+
+
+class VNextLiveReadinessAuditTest(unittest.TestCase):
+    def test_audit_validates_schema_and_matches_offline_scorer(self):
+        from neural.audit_vnext_live_inference_readiness import (
+            audit_readiness,
+            candidate_to_showdown_command,
+        )
+
+        self.assertEqual(candidate_to_showdown_command("move", 2), "move 2")
+        self.assertEqual(
+            candidate_to_showdown_command("move_tera", 2), "move 2 terastallize"
+        )
+        self.assertEqual(candidate_to_showdown_command("switch", 5), "switch 5")
+        self.assertNotEqual(
+            candidate_to_showdown_command("move", 2),
+            candidate_to_showdown_command("move_tera", 2),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root)
+            config = load_and_validate_diagnostic_config(config_path)
+            dataset = load_diagnostic_dataset(config)
+            model = build_diagnostic_model(config)
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                **build_vnext_checkpoint_metadata(dataset),
+                "model_config": config["model"],
+            }
+            checkpoint_path = root / "audit_model.pt"
+            torch.save(checkpoint, checkpoint_path)
+            summary = audit_readiness(config_path, checkpoint_path, split="validation")
+
+        self.assertEqual(summary["schema_validation"]["status"], "PASS")
+        self.assertTrue(summary["schema_validation"]["fingerprints_complete"])
+        self.assertTrue(summary["all_selected_candidates_serializable"])
+        self.assertTrue(summary["scoring_determinism_ok"])
+        self.assertTrue(summary["offline_scorer_parity"]["top1_match"])
+        self.assertFalse(summary["private_matches_run"])
+        self.assertFalse(summary["live_defaults_changed"])
+
+    def test_audit_requires_fingerprints(self):
+        from neural.audit_vnext_live_inference_readiness import audit_readiness
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root)
+            config = load_and_validate_diagnostic_config(config_path)
+            dataset = load_diagnostic_dataset(config)
+            model = build_diagnostic_model(config)
+            # Legacy-style checkpoint without fingerprints must be rejected for live use.
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                "state_feature_version": "live-private-belief-v7",
+                "action_feature_version": "legal-action-v5",
+                "state_dim": EXPECTED_STATE_DIM,
+                "action_dim": EXPECTED_ACTION_DIM,
+                "model_config": config["model"],
+            }
+            checkpoint_path = root / "legacy_no_fp.pt"
+            torch.save(checkpoint, checkpoint_path)
+            with self.assertRaisesRegex(ValueError, "missing required fingerprint"):
+                audit_readiness(config_path, checkpoint_path, split="validation")
+
+
+class VNextCheckpointSchemaGuardrailTest(unittest.TestCase):
+    EXPECTED_STATE_FP = _names_fingerprint(_names("state", EXPECTED_STATE_DIM))
+    EXPECTED_ACTION_FP = _names_fingerprint(_names("action", EXPECTED_ACTION_DIM))
+
+    def _checkpoint_metadata(self, tmpdir):
+        config_path = _write_fixture(Path(tmpdir))
+        config = load_and_validate_diagnostic_config(config_path)
+        dataset = load_diagnostic_dataset(config)
+        return build_vnext_checkpoint_metadata(dataset)
+
+    def test_built_metadata_includes_fingerprints(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        self.assertEqual(metadata["state_feature_version"], "live-private-belief-v7")
+        self.assertEqual(metadata["action_feature_version"], "legal-action-v5")
+        self.assertEqual(metadata["state_dim"], EXPECTED_STATE_DIM)
+        self.assertEqual(metadata["action_dim"], EXPECTED_ACTION_DIM)
+        self.assertEqual(metadata["state_feature_names_sha256"], self.EXPECTED_STATE_FP)
+        self.assertEqual(metadata["action_feature_names_sha256"], self.EXPECTED_ACTION_FP)
+
+    def test_saved_checkpoint_payload_includes_fingerprints(self):
+        from neural.train_vnext_diagnostic import train_diagnostic
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root, rank_enabled=False, overfit_enabled=False)
+            train_diagnostic(config_path)
+            checkpoint = torch.load(
+                root / "output" / "model.pt", map_location="cpu", weights_only=False
+            )
+        self.assertEqual(checkpoint["state_feature_names_sha256"], self.EXPECTED_STATE_FP)
+        self.assertEqual(checkpoint["action_feature_names_sha256"], self.EXPECTED_ACTION_FP)
+        self.assertEqual(checkpoint["state_feature_version"], "live-private-belief-v7")
+        self.assertEqual(checkpoint["action_feature_version"], "legal-action-v5")
+        self.assertEqual(checkpoint["state_dim"], EXPECTED_STATE_DIM)
+        self.assertEqual(checkpoint["action_dim"], EXPECTED_ACTION_DIM)
+
+    def test_matching_metadata_passes(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        result = validate_vnext_checkpoint_metadata(
+            metadata,
+            expected_state_feature_names_sha256=self.EXPECTED_STATE_FP,
+            expected_action_feature_names_sha256=self.EXPECTED_ACTION_FP,
+        )
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["state_fingerprint_status"], "validated")
+        self.assertEqual(result["action_fingerprint_status"], "validated")
+        self.assertTrue(result["fingerprints_complete"])
+
+    def test_wrong_state_schema_fails(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        metadata["state_feature_version"] = "live-private-belief-v6"
+        with self.assertRaisesRegex(ValueError, "state schema mismatch"):
+            validate_vnext_checkpoint_metadata(metadata)
+
+    def test_wrong_action_schema_fails(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        metadata["action_feature_version"] = "legal-action-v3"
+        with self.assertRaisesRegex(ValueError, "action schema mismatch"):
+            validate_vnext_checkpoint_metadata(metadata)
+
+    def test_wrong_state_dimension_fails(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        metadata["state_dim"] = EXPECTED_STATE_DIM - 1
+        with self.assertRaisesRegex(ValueError, "state dimension mismatch"):
+            validate_vnext_checkpoint_metadata(metadata)
+
+    def test_wrong_action_dimension_fails(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        metadata["action_dim"] = EXPECTED_ACTION_DIM - 1
+        with self.assertRaisesRegex(ValueError, "action dimension mismatch"):
+            validate_vnext_checkpoint_metadata(metadata)
+
+    def test_reordered_feature_fingerprint_fails(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        reordered_fp = _names_fingerprint(
+            list(reversed(_names("state", EXPECTED_STATE_DIM)))
+        )
+        self.assertNotEqual(reordered_fp, self.EXPECTED_STATE_FP)
+        with self.assertRaisesRegex(ValueError, "state_feature_names_sha256 mismatch"):
+            validate_vnext_checkpoint_metadata(
+                metadata, expected_state_feature_names_sha256=reordered_fp
+            )
+
+    def test_missing_fingerprint_is_legacy_not_equivalent(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata = self._checkpoint_metadata(tmpdir)
+        metadata.pop("state_feature_names_sha256")
+        metadata.pop("action_feature_names_sha256")
+        # Schema name/dim still validate, but fingerprints are flagged as legacy.
+        result = validate_vnext_checkpoint_metadata(metadata)
+        self.assertEqual(result["state_fingerprint_status"], "missing_legacy")
+        self.assertEqual(result["action_fingerprint_status"], "missing_legacy")
+        self.assertFalse(result["fingerprints_complete"])
+        # And can be rejected outright when fingerprints are required.
+        with self.assertRaisesRegex(ValueError, "missing required fingerprint"):
+            validate_vnext_checkpoint_metadata(metadata, require_fingerprints=True)
+
+
+class VNextActionRankOfflineEvalTest(unittest.TestCase):
+    def test_evaluate_runs_on_validation_split_with_baselines(self):
+        from neural.evaluate_vnext_action_rank import evaluate
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root)
+            config = load_and_validate_diagnostic_config(config_path)
+            dataset = load_diagnostic_dataset(config)
+            model = build_diagnostic_model(config)
+            checkpoint = {
+                "model_state_dict": model.state_dict(),
+                **build_vnext_checkpoint_metadata(dataset),
+                "model_config": config["model"],
+            }
+            checkpoint_path = root / "eval_model.pt"
+            torch.save(checkpoint, checkpoint_path)
+            summary = evaluate(config_path, checkpoint_path, split="validation")
+
+        self.assertEqual(summary["split"], "validation")
+        self.assertEqual(summary["matched_groups"], 45)
+        self.assertEqual(summary["schema_validation"]["status"], "PASS")
+        for key in ("top1", "top3", "mrr", "nll"):
+            self.assertIn(key, summary["model"])
+        self.assertIn("max_expected_damage", summary["baselines"])
+        self.assertIn("random_legal", summary["baselines"])
+        # Fixture's chosen candidate is always a "move".
+        self.assertIn("move", summary["model_by_chosen_kind"])
 
 
 if __name__ == "__main__":

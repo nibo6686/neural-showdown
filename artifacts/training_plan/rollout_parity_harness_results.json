@@ -1,0 +1,2730 @@
+{
+  "cases": [
+    {
+      "chosen_actions": [
+        {
+          "p1": "Toxic",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "toxic_ramp_three_turns",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 28,
+            "effect": "tox",
+            "target": "p2",
+            "toxic_stage": 1
+          },
+          {
+            "damage": 56,
+            "effect": "tox",
+            "target": "p2",
+            "toxic_stage": 2
+          },
+          {
+            "damage": 84,
+            "effect": "tox",
+            "target": "p2",
+            "toxic_stage": 3
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 433,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": "tox",
+                "toxic_stage": 1,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          },
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 377,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": "tox",
+                "toxic_stage": 2,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          },
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 293,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": "tox",
+                "toxic_stage": 3,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 293,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": "tox",
+              "toxic_stage": 3,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {}
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 28,
+              "effect": "tox",
+              "target": "p2",
+              "toxic_stage": 1
+            }
+          ],
+          [
+            {
+              "damage": 56,
+              "effect": "tox",
+              "target": "p2",
+              "toxic_stage": 2
+            }
+          ],
+          [
+            {
+              "damage": 84,
+              "effect": "tox",
+              "target": "p2",
+              "toxic_stage": 3
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "hp_ratios": [
+          0.9392624728850325,
+          0.8177874186550976,
+          0.6355748373101953
+        ],
+        "p2_status": "tox",
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 433,
+                "toxic_stage": 1
+              }
+            }
+          },
+          {
+            "combatants": {
+              "p2": {
+                "hp": 377,
+                "toxic_stage": 2
+              }
+            }
+          },
+          {
+            "combatants": {
+              "p2": {
+                "hp": 293,
+                "toxic_stage": 3
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 1,
+          "species": "Snorlax",
+          "status": null
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Leech Seed",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "leech_seed_damage_and_heal",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 57,
+            "effect": "leechseed",
+            "healing": 57,
+            "source": "p1",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "Synchronize",
+                "hp": 227,
+                "item": "",
+                "max_hp": 341,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Psychic"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 404,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {
+                  "leechseed": {
+                    "source": "p1"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "Synchronize",
+              "hp": 227,
+              "item": "",
+              "max_hp": 341,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Psychic"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 404,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {
+                "leechseed": {
+                  "source": "p1"
+                }
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 57,
+              "effect": "leechseed",
+              "healing": 57,
+              "source": "p1",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "p1_hp_ratio": 0.6656891495601173,
+        "p2_hp_ratio": 0.8763557483731019,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "hp": 227
+              },
+              "p2": {
+                "hp": 404
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p1": {
+          "hp_ratio": 0.49853372434017595
+        },
+        "p2": {
+          "hp_ratio": 1
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Will-O-Wisp",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "burn_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 28,
+            "effect": "brn",
+            "target": "p2",
+            "toxic_stage": null
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 433,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": "brn",
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 433,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": "brn",
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {}
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 28,
+              "effect": "brn",
+              "target": "p2",
+              "toxic_stage": null
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "p2_hp_ratio": 0.9392624728850325,
+        "p2_status": "brn",
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 433
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 1,
+          "species": "Snorlax"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Poison Powder",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "regular_poison_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 57,
+            "effect": "psn",
+            "target": "p2",
+            "toxic_stage": null
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 404,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": "psn",
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 404,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": "psn",
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {}
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 57,
+              "effect": "psn",
+              "target": "p2",
+              "toxic_stage": null
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "p2_hp_ratio": 0.8763557483731019,
+        "p2_status": "psn",
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 404
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 1,
+          "species": "Snorlax"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Salt Cure",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "salt_cure_normal_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 57,
+            "divisor": 8,
+            "effect": "saltcure",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 308,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {
+                  "saltcure": true
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 308,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {
+                "saltcure": true
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 57,
+              "divisor": 8,
+              "effect": "saltcure",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "divisor": 8,
+        "residual_damage": 57,
+        "salt_cure_residual_logged": true,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 308
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp": 365,
+          "species": "Snorlax",
+          "types": [
+            "Normal"
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Salt Cure",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "salt_cure_water_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 100,
+            "divisor": 4,
+            "effect": "saltcure",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Water Absorb",
+                "hp": 199,
+                "item": "",
+                "max_hp": 401,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Water"
+                ],
+                "volatiles": {
+                  "saltcure": true
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Water Absorb",
+              "hp": 199,
+              "item": "",
+              "max_hp": 401,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Water"
+              ],
+              "volatiles": {
+                "saltcure": true
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 100,
+              "divisor": 4,
+              "effect": "saltcure",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "divisor": 4,
+        "residual_damage": 100,
+        "salt_cure_residual_logged": true,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 199
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp": 299,
+          "species": "Vaporeon",
+          "types": [
+            "Water"
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Salt Cure",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "salt_cure_steel_residual",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 84,
+            "divisor": 4,
+            "effect": "saltcure",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Pressure",
+                "hp": 187,
+                "item": "",
+                "max_hp": 337,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Flying",
+                  "Steel"
+                ],
+                "volatiles": {
+                  "saltcure": true
+                }
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Pressure",
+              "hp": 187,
+              "item": "",
+              "max_hp": 337,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Flying",
+                "Steel"
+              ],
+              "volatiles": {
+                "saltcure": true
+              }
+            }
+          }
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 84,
+              "divisor": 4,
+              "effect": "saltcure",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "divisor": 4,
+        "residual_damage": 84,
+        "salt_cure_residual_logged": true,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 187
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp": 271,
+          "species": "Corviknight",
+          "types": [
+            "Flying",
+            "Steel"
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Bind",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "binding_residual_logged": true,
+            "p2_hp": 373
+          }
+        }
+      ],
+      "id": "binding_residual",
+      "local": {
+        "available": false,
+        "reason": "current tactical state has only partiallytrapped; source activity, source effect, remaining duration, and Binding Band divisor are missing"
+      },
+      "oracle": {
+        "binding_residual_logged": true,
+        "p2_hp": 373
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "species": "Snorlax",
+          "volatile": "partiallytrapped"
+        }
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "no_residual_unchanged",
+      "local": {
+        "available": true,
+        "events": [],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "Synchronize",
+                "hp": 341,
+                "item": "",
+                "max_hp": 341,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Psychic"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 461,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            }
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "Synchronize",
+              "hp": 341,
+              "item": "",
+              "max_hp": 341,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Psychic"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 461,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {}
+            }
+          }
+        },
+        "turn_events": [
+          []
+        ]
+      },
+      "oracle": {
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "hp": 341
+              },
+              "p2": {
+                "hp": 461
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p1": {
+          "hp": 341
+        },
+        "p2": {
+          "hp": 461
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Sandstorm",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "sandstorm_chip",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 21,
+            "effect": "sandstorm",
+            "target": "p1"
+          },
+          {
+            "damage": 13,
+            "effect": "sandstorm",
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "Synchronize",
+                "hp": 320,
+                "item": "",
+                "max_hp": 341,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Psychic"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Static",
+                "hp": 198,
+                "item": "",
+                "max_hp": 211,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Electric"
+                ],
+                "volatiles": {}
+              }
+            },
+            "weather": "sandstorm"
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "Synchronize",
+              "hp": 320,
+              "item": "",
+              "max_hp": 341,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Psychic"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Static",
+              "hp": 198,
+              "item": "",
+              "max_hp": 211,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Electric"
+              ],
+              "volatiles": {}
+            }
+          },
+          "weather": "sandstorm"
+        },
+        "turn_events": [
+          [
+            {
+              "damage": 21,
+              "effect": "sandstorm",
+              "target": "p1"
+            },
+            {
+              "damage": 13,
+              "effect": "sandstorm",
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "p2_hp_ratio": 0.9383886255924171,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "hp": 320
+              },
+              "p2": {
+                "hp": 198
+              }
+            }
+          }
+        ],
+        "weather": "sandstorm"
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 1,
+          "species": "Pikachu"
+        },
+        "weather": null
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Grassy Terrain",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "grassy_terrain_healing",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "effect": "grassyterrain",
+            "healing": 28,
+            "target": "p2"
+          }
+        ],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Thick Fat",
+                "hp": 258,
+                "item": "",
+                "max_hp": 461,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Normal"
+                ],
+                "volatiles": {}
+              }
+            },
+            "terrain": "grassyterrain"
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Thick Fat",
+              "hp": 258,
+              "item": "",
+              "max_hp": 461,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Normal"
+              ],
+              "volatiles": {}
+            }
+          },
+          "terrain": "grassyterrain"
+        },
+        "turn_events": [
+          [
+            {
+              "effect": "grassyterrain",
+              "healing": 28,
+              "target": "p2"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "p2_hp_ratio": 0.559652928416486,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 258
+              }
+            }
+          }
+        ],
+        "terrain": "grassyterrain"
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 0.49891540130151846,
+          "species": "Snorlax"
+        },
+        "terrain": null
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Grassy Terrain",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "grassy_terrain_airborne_no_heal",
+      "local": {
+        "available": true,
+        "events": [],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "ability": "Blaze",
+                "hp": 148,
+                "item": "",
+                "max_hp": 297,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Fire",
+                  "Flying"
+                ],
+                "volatiles": {}
+              }
+            },
+            "terrain": "grassyterrain"
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p2": {
+              "ability": "Blaze",
+              "hp": 148,
+              "item": "",
+              "max_hp": 297,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Fire",
+                "Flying"
+              ],
+              "volatiles": {}
+            }
+          },
+          "terrain": "grassyterrain"
+        },
+        "turn_events": [
+          []
+        ]
+      },
+      "oracle": {
+        "p2_hp_ratio": 0.4983164983164983,
+        "snapshots": [
+          {
+            "combatants": {
+              "p2": {
+                "hp": 148
+              }
+            }
+          }
+        ],
+        "terrain": "grassyterrain"
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p2": {
+          "hp_ratio": 0.4983164983164983,
+          "species": "Charizard"
+        },
+        "terrain": null
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "future_sight_lands_later",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 321,
+            "damage_provenance": "bundled_showdown_fixed_fixture",
+            "effect": "futuresight",
+            "result": "hit",
+            "target_pokemon_id": "machamp",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 0,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 0,
+              "max_hp": 321,
+              "pokemon_id": "machamp"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 321,
+              "damage_provenance": "bundled_showdown_fixed_fixture",
+              "effect": "futuresight",
+              "result": "hit",
+              "target_pokemon_id": "machamp",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 0,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "future_sight_hits_replacement_in_target_slot",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 154,
+            "damage_provenance": "bundled_showdown_fixed_fixture",
+            "effect": "futuresight",
+            "result": "hit",
+            "target_pokemon_id": "blissey",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "blissey": 154
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "blissey": 154
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 497,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 497,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 154,
+              "damage_provenance": "bundled_showdown_fixed_fixture",
+              "effect": "futuresight",
+              "result": "hit",
+              "target_pokemon_id": "blissey",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 497,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "p2:0:landing_damage_missing_for:blissey",
+          "oracle": {
+            "schedule_results": [
+              true
+            ],
+            "snapshots": [
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 321,
+                    "max_hp": 321,
+                    "pokemon_id": "machamp"
+                  }
+                }
+              },
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey"
+                  }
+                }
+              },
+              {
+                "active_slots": {
+                  "p2:0": {
+                    "hp": 497,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "id": "future_sight_replacement_damage_unavailable",
+      "local": {
+        "available": false,
+        "events": [],
+        "reason": "p2:0:landing_damage_missing_for:blissey",
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 651,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 2
+        },
+        "turn_events": [
+          [],
+          []
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 497,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "future_sight_duplicate_schedule_fails",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 321,
+            "damage_provenance": "bundled_showdown_fixed_fixture",
+            "effect": "futuresight",
+            "result": "hit",
+            "target_pokemon_id": "machamp",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          },
+          {
+            "reason": "target_slot_already_has_delayed_attack",
+            "scheduled": false,
+            "turn": 2
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 321
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "futuresight",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 0,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 0,
+              "max_hp": 321,
+              "pokemon_id": "machamp"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 321,
+              "damage_provenance": "bundled_showdown_fixed_fixture",
+              "effect": "futuresight",
+              "result": "hit",
+              "target_pokemon_id": "machamp",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "duplicate_failed": true,
+        "schedule_results": [
+          true,
+          false
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 0,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Doom Desire",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "doom_desire_lands_later",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 280,
+            "damage_provenance": "bundled_showdown_fixed_fixture",
+            "effect": "doomdesire",
+            "result": "hit",
+            "target_pokemon_id": "machamp",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 280
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {
+                  "machamp": 280
+                },
+                "damage_provenance": "bundled_showdown_fixed_fixture",
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 41,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 41,
+              "max_hp": 321,
+              "pokemon_id": "machamp"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 280,
+              "damage_provenance": "bundled_showdown_fixed_fixture",
+              "effect": "doomdesire",
+              "result": "hit",
+              "target_pokemon_id": "machamp",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 41,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Stealth Rock",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Charizard"
+        }
+      ],
+      "diff": [],
+      "id": "stealth_rock_type_effectiveness",
+      "local": {
+        "boots_prevent_hazards": false,
+        "faint_on_entry_risk": false,
+        "grounded": false,
+        "sticky_web_speed_drop": false,
+        "switch_hazard_damage": 0.5,
+        "toxic_spikes_poison_risk": false
+      },
+      "oracle": {
+        "hp_fraction_lost": 0.49831649831649827,
+        "speed_stage": 0,
+        "status": null
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Stealth Rock"
+        ],
+        "target": {
+          "moves": [
+            "Splash"
+          ],
+          "species": "Charizard"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Spikes",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Raichu"
+        }
+      ],
+      "diff": [],
+      "id": "spikes_grounded_one_layer",
+      "local": {
+        "boots_prevent_hazards": false,
+        "faint_on_entry_risk": false,
+        "grounded": true,
+        "sticky_web_speed_drop": false,
+        "switch_hazard_damage": 0.125,
+        "toxic_spikes_poison_risk": false
+      },
+      "oracle": {
+        "hp_fraction_lost": 0.12260536398467436,
+        "speed_stage": 0,
+        "status": null
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Spikes"
+        ],
+        "target": {
+          "moves": [
+            "Splash"
+          ],
+          "species": "Raichu"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Spikes",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Charizard"
+        }
+      ],
+      "diff": [],
+      "id": "spikes_airborne_immunity",
+      "local": {
+        "boots_prevent_hazards": false,
+        "faint_on_entry_risk": false,
+        "grounded": false,
+        "sticky_web_speed_drop": false,
+        "switch_hazard_damage": 0.0,
+        "toxic_spikes_poison_risk": false
+      },
+      "oracle": {
+        "hp_fraction_lost": 0,
+        "speed_stage": 0,
+        "status": null
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Spikes"
+        ],
+        "target": {
+          "moves": [
+            "Splash"
+          ],
+          "species": "Charizard"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Toxic Spikes",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Raichu"
+        }
+      ],
+      "diff": [],
+      "id": "toxic_spikes_grounded_poison",
+      "local": {
+        "boots_prevent_hazards": false,
+        "faint_on_entry_risk": false,
+        "grounded": true,
+        "sticky_web_speed_drop": false,
+        "switch_hazard_damage": 0.0,
+        "toxic_spikes_poison_risk": true
+      },
+      "oracle": {
+        "hp_fraction_lost": 0,
+        "speed_stage": 0,
+        "status": "psn"
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Toxic Spikes"
+        ],
+        "target": {
+          "moves": [
+            "Splash"
+          ],
+          "species": "Raichu"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Sticky Web",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Raichu"
+        }
+      ],
+      "diff": [],
+      "id": "sticky_web_grounded_speed_drop",
+      "local": {
+        "boots_prevent_hazards": false,
+        "faint_on_entry_risk": false,
+        "grounded": true,
+        "sticky_web_speed_drop": true,
+        "switch_hazard_damage": 0.0,
+        "toxic_spikes_poison_risk": false
+      },
+      "oracle": {
+        "hp_fraction_lost": 0,
+        "speed_stage": -1,
+        "status": null
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Sticky Web"
+        ],
+        "target": {
+          "moves": [
+            "Splash"
+          ],
+          "species": "Raichu"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Stealth Rock",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Spikes",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Toxic Spikes",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Sticky Web",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Charizard"
+        }
+      ],
+      "diff": [],
+      "id": "heavy_duty_boots_prevents_hazards",
+      "local": {
+        "boots_prevent_hazards": true,
+        "faint_on_entry_risk": false,
+        "grounded": false,
+        "sticky_web_speed_drop": false,
+        "switch_hazard_damage": 0.0,
+        "toxic_spikes_poison_risk": false
+      },
+      "oracle": {
+        "hp_fraction_lost": 0,
+        "speed_stage": 0,
+        "status": null
+      },
+      "phase": "switch_entry",
+      "starting_state": {
+        "hazards": [
+          "Stealth Rock",
+          "Spikes",
+          "Toxic Spikes",
+          "Sticky Web"
+        ],
+        "target": {
+          "item": "Heavy-Duty Boots",
+          "moves": [
+            "Splash"
+          ],
+          "species": "Charizard"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Quick Attack"
+        }
+      ],
+      "diff": [],
+      "id": "psychic_terrain_blocks_grounded_priority",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "psychic_terrain_priority_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Thick Fat",
+            "types": [
+              "Normal"
+            ]
+          },
+          "target": {
+            "ability": "Static",
+            "types": [
+              "Electric"
+            ]
+          },
+          "terrain": "psychicterrain"
+        }
+      },
+      "oracle": {
+        "fail_logged": false,
+        "p1_hp_unchanged": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p2_move": "Quick Attack",
+        "terrain": "Psychic Terrain"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Tackle"
+        }
+      ],
+      "diff": [],
+      "id": "psychic_terrain_does_not_block_non_priority",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Thick Fat",
+            "types": [
+              "Normal"
+            ]
+          },
+          "target": {
+            "ability": "Static",
+            "types": [
+              "Electric"
+            ]
+          },
+          "terrain": "psychicterrain"
+        }
+      },
+      "oracle": {
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p2_move": "Tackle",
+        "terrain": "Psychic Terrain"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Quick Attack"
+        }
+      ],
+      "diff": [],
+      "id": "psychic_terrain_does_not_block_airborne_target",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Thick Fat",
+            "types": [
+              "Normal"
+            ]
+          },
+          "target": {
+            "ability": "Blaze",
+            "types": [
+              "Fire",
+              "Flying"
+            ]
+          },
+          "terrain": "psychicterrain"
+        }
+      },
+      "oracle": {
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p2_move": "Quick Attack",
+        "target": "Flying",
+        "terrain": "Psychic Terrain"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Grassy Glide"
+        }
+      ],
+      "diff": [],
+      "id": "psychic_terrain_does_not_block_grassy_glide_without_grassy_terrain",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Overgrow",
+            "types": [
+              "Grass"
+            ]
+          },
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          },
+          "terrain": "psychicterrain"
+        }
+      },
+      "oracle": {
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p2_move": "Grassy Glide",
+        "terrain": "Psychic Terrain"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Substitute",
+          "p2": "Leech Seed"
+        }
+      ],
+      "diff": [],
+      "id": "substitute_blocks_leech_seed",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "substitute_target_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Natural Cure",
+            "types": [
+              "Psychic",
+              "Grass"
+            ]
+          },
+          "target": {
+            "ability": "Synchronize",
+            "substitute": true,
+            "types": [
+              "Psychic"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "leech_seed_active": false,
+        "prevented": true,
+        "substitute_active": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1": {
+          "volatile": "Substitute"
+        },
+        "p2_move": "Leech Seed"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Misty Terrain",
+          "p2": "Spore"
+        }
+      ],
+      "diff": [],
+      "id": "misty_terrain_blocks_status",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "misty_terrain_status_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Effect Spore",
+            "types": [
+              "Grass",
+              "Poison"
+            ]
+          },
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          },
+          "terrain": "mistyterrain"
+        }
+      },
+      "oracle": {
+        "p1_status": null,
+        "prevented": true,
+        "terrain": "mistyterrain"
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1": {
+          "status": null
+        },
+        "p2_move": "Spore",
+        "terrain": null
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Electric Terrain",
+          "p2": "Spore"
+        }
+      ],
+      "diff": [],
+      "id": "electric_terrain_blocks_sleep",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "electric_terrain_sleep_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Effect Spore",
+            "types": [
+              "Grass",
+              "Poison"
+            ]
+          },
+          "target": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          },
+          "terrain": "electricterrain"
+        }
+      },
+      "oracle": {
+        "p1_status": null,
+        "prevented": true,
+        "terrain": "electricterrain"
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1": {
+          "status": null
+        },
+        "p2_move": "Spore",
+        "terrain": null
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Explosion",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "damp_blocks_explosion",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "damp_explosion_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Soundproof",
+            "types": [
+              "Electric"
+            ]
+          },
+          "target": {
+            "ability": "Damp",
+            "types": [
+              "Water",
+              "Ground"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "fail_logged": false,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_move": "Explosion",
+        "p2_ability": "Damp"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Stealth Rock"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "reflected": true
+          }
+        }
+      ],
+      "id": "magic_bounce_reflection_gap",
+      "local": {
+        "available": false,
+        "reason": "Magic Bounce reflection needs reflected action target/side-condition provenance, not just a hard-fail bit"
+      },
+      "oracle": {
+        "reflected": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Magic Bounce",
+        "p2_move": "Stealth Rock"
+      },
+      "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Spore"
+        }
+      ],
+      "diff": [
+        {
+          "field": "transition",
+          "local": "unavailable",
+          "oracle": {
+            "blocked": true,
+            "p1_status": null
+          }
+        }
+      ],
+      "id": "good_as_gold_status_gap",
+      "local": {
+        "available": false,
+        "reason": "Good as Gold requires ability provenance in arbitrary rollout states and broader status-move callback routing"
+      },
+      "oracle": {
+        "blocked": true,
+        "p1_status": null
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p2_move": "Spore"
+      },
+      "status": "GAP"
+    }
+  ],
+  "oracle_source": "bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds)",
+  "summary": {
+    "FAIL": 0,
+    "GAP": 4,
+    "PASS": 29
+  }
+}

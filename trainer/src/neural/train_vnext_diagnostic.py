@@ -22,7 +22,10 @@ EXPECTED_STATE_VERSION = "live-private-belief-v7"
 EXPECTED_ACTION_VERSION = "legal-action-v5"
 EXPECTED_STATE_DIM = 3208
 EXPECTED_ACTION_DIM = 318
-EXPECTED_BATTLE_SPLITS = {"train": 210, "validation": 45, "test": 45}
+SUPPORTED_ACTION_SCHEMAS = {
+    "legal-action-v5": 318,
+    "legal-action-v6": 331,
+}
 REQUIRED_SPLITS = ("train", "validation", "test")
 
 
@@ -113,14 +116,16 @@ def load_and_validate_diagnostic_config(path: Path) -> Dict[str, Any]:
             f"Config state dimension must be {EXPECTED_STATE_DIM}, "
             f"got {dataset_cfg['state_feature_dim']}."
         )
-    if dataset_cfg["action_feature_version"] != EXPECTED_ACTION_VERSION:
+    configured_action_version = str(dataset_cfg["action_feature_version"])
+    if configured_action_version not in SUPPORTED_ACTION_SCHEMAS:
         raise ValueError(
-            f"Config action schema must be {EXPECTED_ACTION_VERSION!r}, "
-            f"got {dataset_cfg['action_feature_version']!r}."
+            f"Config action schema must be one of {sorted(SUPPORTED_ACTION_SCHEMAS)!r}, "
+            f"got {configured_action_version!r}."
         )
-    if int(dataset_cfg["action_feature_dim"]) != EXPECTED_ACTION_DIM:
+    configured_action_dim = SUPPORTED_ACTION_SCHEMAS[configured_action_version]
+    if int(dataset_cfg["action_feature_dim"]) != configured_action_dim:
         raise ValueError(
-            f"Config action dimension must be {EXPECTED_ACTION_DIM}, "
+            f"Config action dimension for {configured_action_version!r} must be {configured_action_dim}, "
             f"got {dataset_cfg['action_feature_dim']}."
         )
     if dataset_cfg["dtype_on_disk"] != "float16":
@@ -133,29 +138,43 @@ def load_and_validate_diagnostic_config(path: Path) -> Dict[str, Any]:
         str(key): int(value)
         for key, value in dataset_cfg["expected_battle_split_counts"].items()
     }
-    if configured_splits != EXPECTED_BATTLE_SPLITS:
+    if set(configured_splits) != set(REQUIRED_SPLITS) or any(
+        count <= 0 for count in configured_splits.values()
+    ):
         raise ValueError(
-            f"Expected battle split counts must be {EXPECTED_BATTLE_SPLITS}, "
-            f"got {configured_splits}."
+            f"expected_battle_split_counts must be positive integers for splits "
+            f"{REQUIRED_SPLITS}, got {configured_splits}."
         )
 
     state_objective = _require_mapping(objectives, "state_value")
     rank_objective = _require_mapping(objectives, "action_rank")
     action_value_objective = _require_mapping(objectives, "action_value")
-    if not state_objective.get("enabled") or state_objective.get("target") != "state_value_targets":
-        raise ValueError("State-value objective must use enabled target 'state_value_targets'.")
-    if state_objective.get("loss") != "mean_squared_error":
-        raise ValueError("State-value loss must be 'mean_squared_error'.")
-    if not rank_objective.get("enabled"):
-        raise ValueError("Action-rank objective must be enabled.")
-    if rank_objective.get("target") != "action_rank_labels":
-        raise ValueError("Action-rank target must be 'action_rank_labels'.")
-    if rank_objective.get("group_index") != "candidate_state_indices":
-        raise ValueError("Action-rank group_index must be 'candidate_state_indices'.")
-    if rank_objective.get("loss") != "grouped_cross_entropy":
-        raise ValueError("Action-rank loss must be 'grouped_cross_entropy'.")
+    state_enabled = bool(state_objective.get("enabled"))
+    if state_enabled:
+        if state_objective.get("target") != "state_value_targets":
+            raise ValueError("Enabled state-value objective must use target 'state_value_targets'.")
+        if state_objective.get("loss") != "mean_squared_error":
+            raise ValueError("State-value loss must be 'mean_squared_error'.")
+        if float(state_objective.get("loss_weight", 0.0)) <= 0:
+            raise ValueError("Enabled state-value objective must have positive loss_weight.")
+    elif float(state_objective.get("loss_weight", 0.0)) != 0.0:
+        raise ValueError("Disabled state-value objective must have loss_weight 0.")
+    rank_enabled = bool(rank_objective.get("enabled"))
+    if rank_enabled:
+        if rank_objective.get("target") != "action_rank_labels":
+            raise ValueError("Action-rank target must be 'action_rank_labels'.")
+        if rank_objective.get("group_index") != "candidate_state_indices":
+            raise ValueError("Action-rank group_index must be 'candidate_state_indices'.")
+        if rank_objective.get("loss") != "grouped_cross_entropy":
+            raise ValueError("Action-rank loss must be 'grouped_cross_entropy'.")
+        if float(rank_objective.get("loss_weight", 0.0)) <= 0:
+            raise ValueError("Enabled action-rank objective must have positive loss_weight.")
+    elif float(rank_objective.get("loss_weight", 0.0)) != 0.0:
+        raise ValueError("Disabled action-rank objective must have loss_weight 0.")
     if action_value_objective.get("enabled") is not False:
         raise ValueError("Action-value/Q-value objective must be disabled.")
+    if not state_enabled and not rank_enabled:
+        raise ValueError("At least one of state_value or action_rank objectives must be enabled.")
 
     if model_cfg.get("type") != "shared_state_action_diagnostic_mlp":
         raise ValueError("Unsupported diagnostic model type.")
@@ -179,7 +198,7 @@ def load_and_validate_diagnostic_config(path: Path) -> Dict[str, Any]:
         raise ValueError("training.epochs must be positive.")
     if int(training_cfg.get("value_batch_size", 0)) <= 0:
         raise ValueError("training.value_batch_size must be positive.")
-    if int(training_cfg.get("rank_groups_per_batch", 0)) <= 0:
+    if rank_enabled and int(training_cfg.get("rank_groups_per_batch", 0)) <= 0:
         raise ValueError("training.rank_groups_per_batch must be positive.")
     if float(training_cfg.get("learning_rate", 0.0)) <= 0:
         raise ValueError("training.learning_rate must be positive.")
@@ -285,9 +304,11 @@ def load_diagnostic_dataset(config: Dict[str, Any]) -> DiagnosticDataset:
             f"State feature dimension mismatch: expected (*, {EXPECTED_STATE_DIM}), "
             f"got {states.shape}."
         )
-    if actions.ndim != 2 or actions.shape[1] != EXPECTED_ACTION_DIM:
+    configured_action_dim = int(dataset_cfg["action_feature_dim"])
+    configured_action_version = str(dataset_cfg["action_feature_version"])
+    if actions.ndim != 2 or actions.shape[1] != configured_action_dim:
         raise ValueError(
-            f"Action feature dimension mismatch: expected (*, {EXPECTED_ACTION_DIM}), "
+            f"Action feature dimension mismatch: expected (*, {configured_action_dim}), "
             f"got {actions.shape}."
         )
     if states.dtype != np.float16 or actions.dtype != np.float16:
@@ -300,9 +321,9 @@ def load_diagnostic_dataset(config: Dict[str, Any]) -> DiagnosticDataset:
             f"Embedded state schema mismatch: expected {EXPECTED_STATE_VERSION!r}, "
             f"got {embedded_state_version!r}."
         )
-    if embedded_action_version != EXPECTED_ACTION_VERSION:
+    if embedded_action_version != configured_action_version:
         raise ValueError(
-            f"Embedded action schema mismatch: expected {EXPECTED_ACTION_VERSION!r}, "
+            f"Embedded action schema mismatch: expected {configured_action_version!r}, "
             f"got {embedded_action_version!r}."
         )
 
@@ -575,6 +596,117 @@ def build_diagnostic_model(config: Dict[str, Any]) -> VNextDiagnosticMLP:
     return model
 
 
+def build_vnext_checkpoint_metadata(dataset: DiagnosticDataset) -> Dict[str, Any]:
+    """Schema-identity metadata embedded in vNext checkpoints for safe reload.
+
+    Records both schema versions/dimensions and the ordered feature-name
+    fingerprints so a future loader can prove a checkpoint matches the exact
+    feature ordering it was trained on, not merely a version string and shape.
+    """
+    validation = dataset.validation
+    return {
+        "state_feature_version": validation["state_feature_version"],
+        "action_feature_version": validation["action_feature_version"],
+        "state_dim": int(validation["state_dim"]),
+        "action_dim": int(validation["action_dim"]),
+        "state_feature_names_sha256": validation["state_feature_names_sha256"],
+        "action_feature_names_sha256": validation["action_feature_names_sha256"],
+        "manifest_catalog_checksum": dataset.metadata.get("manifest_catalog_checksum"),
+    }
+
+
+def validate_vnext_checkpoint_metadata(
+    checkpoint: Dict[str, Any],
+    *,
+    expected_state_version: str = EXPECTED_STATE_VERSION,
+    expected_action_version: str = EXPECTED_ACTION_VERSION,
+    expected_state_dim: int = EXPECTED_STATE_DIM,
+    expected_action_dim: int = EXPECTED_ACTION_DIM,
+    expected_state_feature_names_sha256: Optional[str] = None,
+    expected_action_feature_names_sha256: Optional[str] = None,
+    require_fingerprints: bool = False,
+) -> Dict[str, Any]:
+    """Strictly validate vNext checkpoint schema metadata before reuse.
+
+    Raises ``ValueError`` on any schema-name, dimension, or fingerprint mismatch.
+    Missing fingerprints are reported as ``"missing_legacy"`` rather than being
+    treated as equivalent; set ``require_fingerprints=True`` to reject such
+    legacy/incomplete checkpoints outright.
+    """
+    if not isinstance(checkpoint, dict):
+        raise ValueError("vNext checkpoint metadata must be a mapping.")
+
+    state_version = checkpoint.get("state_feature_version")
+    if not state_version:
+        raise ValueError("vNext checkpoint is missing state_feature_version.")
+    if state_version != expected_state_version:
+        raise ValueError(
+            f"vNext checkpoint state schema mismatch: expected {expected_state_version!r}, "
+            f"got {state_version!r}."
+        )
+    action_version = checkpoint.get("action_feature_version")
+    if not action_version:
+        raise ValueError("vNext checkpoint is missing action_feature_version.")
+    if action_version != expected_action_version:
+        raise ValueError(
+            f"vNext checkpoint action schema mismatch: expected {expected_action_version!r}, "
+            f"got {action_version!r}."
+        )
+
+    if "state_dim" not in checkpoint:
+        raise ValueError("vNext checkpoint is missing state_dim.")
+    if int(checkpoint["state_dim"]) != int(expected_state_dim):
+        raise ValueError(
+            f"vNext checkpoint state dimension mismatch: expected {int(expected_state_dim)}, "
+            f"got {int(checkpoint['state_dim'])}."
+        )
+    if "action_dim" not in checkpoint:
+        raise ValueError("vNext checkpoint is missing action_dim.")
+    if int(checkpoint["action_dim"]) != int(expected_action_dim):
+        raise ValueError(
+            f"vNext checkpoint action dimension mismatch: expected {int(expected_action_dim)}, "
+            f"got {int(checkpoint['action_dim'])}."
+        )
+
+    def _fingerprint_status(field: str, expected: Optional[str]) -> str:
+        present = checkpoint.get(field)
+        if not present:
+            if require_fingerprints:
+                raise ValueError(
+                    f"vNext checkpoint is missing required fingerprint {field!r} "
+                    "(legacy/incomplete metadata)."
+                )
+            return "missing_legacy"
+        if expected is None:
+            return "present_unverified"
+        if present != expected:
+            raise ValueError(
+                f"vNext checkpoint {field} mismatch: expected {expected!r}, got {present!r}."
+            )
+        return "validated"
+
+    state_fp_status = _fingerprint_status(
+        "state_feature_names_sha256", expected_state_feature_names_sha256
+    )
+    action_fp_status = _fingerprint_status(
+        "action_feature_names_sha256", expected_action_feature_names_sha256
+    )
+
+    return {
+        "status": "PASS",
+        "state_feature_version": state_version,
+        "action_feature_version": action_version,
+        "state_dim": int(checkpoint["state_dim"]),
+        "action_dim": int(checkpoint["action_dim"]),
+        "state_fingerprint_status": state_fp_status,
+        "action_fingerprint_status": action_fp_status,
+        "fingerprints_complete": (
+            state_fp_status != "missing_legacy"
+            and action_fp_status != "missing_legacy"
+        ),
+    }
+
+
 def grouped_action_rank_loss(
     scores: torch.Tensor,
     labels: torch.Tensor,
@@ -639,6 +771,8 @@ def forward_loss_smoke_check(
     model: VNextDiagnosticMLP,
     dataset: DiagnosticDataset,
     *,
+    rank_enabled: bool = True,
+    value_enabled: bool = True,
     split: str = "train",
     state_batch_size: int = 8,
     rank_group_count: int = 4,
@@ -646,59 +780,76 @@ def forward_loss_smoke_check(
     if split not in REQUIRED_SPLITS:
         raise ValueError(f"Unsupported smoke-check split: {split!r}")
     state_indices = dataset.split_state_indices[split][:state_batch_size]
+    if value_enabled and len(state_indices) == 0:
+        raise ValueError(f"Split {split!r} has no state rows for smoke checking.")
     group_indices = dataset.split_group_state_indices[split][:rank_group_count]
-    if len(state_indices) == 0 or len(group_indices) == 0:
-        raise ValueError(f"Split {split!r} has no rows available for smoke checking.")
-    rank_states, rank_actions, rank_labels, ranges, local_indices = _rank_batch(
-        dataset, group_indices
-    )
+    if rank_enabled and len(group_indices) == 0:
+        raise ValueError(f"Split {split!r} has no action groups for smoke checking.")
     model.eval()
+    value_predictions = None
+    value_loss = None
     with torch.no_grad():
-        value_inputs = torch.from_numpy(
-            dataset.state_features[state_indices].astype(np.float32)
-        )
-        value_targets = torch.from_numpy(dataset.state_value_targets[state_indices])
-        value_embeddings = model.encode_states(value_inputs)
-        value_predictions = model.value_from_embedding(value_embeddings)
-        value_loss = F.mse_loss(value_predictions, value_targets)
+        if value_enabled:
+            value_inputs = torch.from_numpy(
+                dataset.state_features[state_indices].astype(np.float32)
+            )
+            value_targets = torch.from_numpy(dataset.state_value_targets[state_indices])
+            value_embeddings = model.encode_states(value_inputs)
+            value_predictions = model.value_from_embedding(value_embeddings)
+            value_loss = F.mse_loss(value_predictions, value_targets)
 
-        rank_state_tensor = torch.from_numpy(rank_states)
-        rank_action_tensor = torch.from_numpy(rank_actions)
-        local_index_tensor = torch.from_numpy(local_indices)
-        rank_embeddings = model.encode_states(rank_state_tensor)
-        rank_scores = model.rank_from_embeddings(
-            rank_embeddings[local_index_tensor],
-            rank_action_tensor,
-        )
-        rank_loss = grouped_action_rank_loss(
-            rank_scores,
-            torch.from_numpy(rank_labels),
-            ranges,
-        )
-    if value_predictions.shape != (len(state_indices),):
+        rank_scores = None
+        rank_loss = None
+        rank_labels = np.asarray([], dtype=np.float32)
+        if rank_enabled:
+            rank_states, rank_actions, rank_labels, ranges, local_indices = _rank_batch(
+                dataset, group_indices
+            )
+            rank_state_tensor = torch.from_numpy(rank_states)
+            rank_action_tensor = torch.from_numpy(rank_actions)
+            local_index_tensor = torch.from_numpy(local_indices)
+            rank_embeddings = model.encode_states(rank_state_tensor)
+            rank_scores = model.rank_from_embeddings(
+                rank_embeddings[local_index_tensor],
+                rank_action_tensor,
+            )
+            rank_loss = grouped_action_rank_loss(
+                rank_scores,
+                torch.from_numpy(rank_labels),
+                ranges,
+            )
+    if value_enabled and value_predictions.shape != (len(state_indices),):
         raise ValueError(
             f"Value output shape mismatch: expected {(len(state_indices),)}, "
             f"got {tuple(value_predictions.shape)}."
         )
-    if rank_scores.shape != (len(rank_labels),):
+    if rank_enabled and rank_scores is not None and rank_scores.shape != (len(rank_labels),):
         raise ValueError(
             f"Rank output shape mismatch: expected {(len(rank_labels),)}, "
             f"got {tuple(rank_scores.shape)}."
         )
-    if not torch.isfinite(value_loss) or not torch.isfinite(rank_loss):
+    if (value_enabled and not torch.isfinite(value_loss)) or (
+        rank_enabled and rank_loss is not None and not torch.isfinite(rank_loss)
+    ):
         raise ValueError(
             f"Forward/loss smoke check produced non-finite loss: "
-            f"value={value_loss.item()}, rank={rank_loss.item()}."
+            f"value={value_loss.item() if value_loss is not None else 'disabled'}, "
+            f"rank={rank_loss.item() if rank_loss is not None else 'disabled'}."
         )
     return {
         "split": split,
-        "value_batch_size": int(len(state_indices)),
-        "rank_group_count": int(len(group_indices)),
+        "heads_checked": (["state_value"] if value_enabled else []) + (["action_rank"] if rank_enabled else []),
+        "value_enabled": value_enabled,
+        "value_batch_size": int(len(state_indices)) if value_enabled else 0,
+        "rank_enabled": rank_enabled,
+        "rank_group_count": int(len(group_indices)) if rank_enabled else 0,
         "rank_candidate_count": int(len(rank_labels)),
-        "value_output_shape": list(value_predictions.shape),
-        "rank_output_shape": list(rank_scores.shape),
-        "value_loss": float(value_loss.item()),
-        "action_rank_loss": float(rank_loss.item()),
+        "value_output_shape": list(value_predictions.shape) if value_predictions is not None else None,
+        "rank_output_shape": list(rank_scores.shape) if rank_scores is not None else None,
+        "value_loss": float(value_loss.item()) if value_loss is not None else None,
+        "action_rank_loss": float(rank_loss.item()) if rank_loss is not None else None,
+        "value_gradient_contribution": False if not value_enabled else "not_applicable_no_grad",
+        "rank_gradient_contribution": False if not rank_enabled else "not_applicable_no_grad",
         "optimizer_steps": 0,
     }
 
@@ -708,7 +859,11 @@ def validate_diagnostic_wiring(config_path: Path) -> Dict[str, Any]:
     dataset = load_diagnostic_dataset(config)
     _seed_everything(int(config["training"]["seed"]))
     model = build_diagnostic_model(config)
-    smoke = forward_loss_smoke_check(model, dataset)
+    rank_enabled = bool(config["objectives"]["action_rank"]["enabled"])
+    value_enabled = bool(config["objectives"]["state_value"]["enabled"])
+    smoke = forward_loss_smoke_check(
+        model, dataset, rank_enabled=rank_enabled, value_enabled=value_enabled
+    )
     report = {
         "status": "PASS",
         "mode": "validate-only",
@@ -723,6 +878,18 @@ def validate_diagnostic_wiring(config_path: Path) -> Dict[str, Any]:
             "action_dim": int(config["dataset"]["action_feature_dim"]),
         },
         "smoke_check": smoke,
+        "heads_enabled": {
+            "state_value": value_enabled,
+            "action_rank": rank_enabled,
+            "action_value": False,
+        },
+        "optimizer_step_source": (
+            "rank_batches_only"
+            if rank_enabled and not value_enabled
+            else "value_batches_only"
+            if value_enabled and not rank_enabled
+            else "value_and_rank_batches"
+        ),
         "optimizer_created": False,
         "optimizer_steps": 0,
         "training_launched": False,
@@ -756,8 +923,17 @@ def _run_overfit_check(
         return {"enabled": False, "passed": True, "steps": 0}
     model = build_diagnostic_model(config).to(device)
     training_cfg = config["training"]
+    rank_enabled = bool(config["objectives"]["action_rank"]["enabled"])
+    value_enabled = bool(config["objectives"]["state_value"]["enabled"])
+    optimizer_parameters = list(model.state_encoder.parameters())
+    if value_enabled:
+        optimizer_parameters += list(model.value_head.parameters())
+    if rank_enabled:
+        optimizer_parameters += list(model.action_encoder.parameters())
+        optimizer_parameters += list(model.rank_trunk.parameters())
+        optimizer_parameters += list(model.rank_head.parameters())
     optimizer = torch.optim.AdamW(
-        model.parameters(),
+        optimizer_parameters,
         lr=float(training_cfg["learning_rate"]),
         weight_decay=0.0,
     )
@@ -765,21 +941,25 @@ def _run_overfit_check(
         : int(overfit_cfg["state_examples"])
     ]
     group_indices = dataset.split_group_state_indices["train"][
-        : int(overfit_cfg["action_groups"])
+        : int(overfit_cfg.get("action_groups", 0))
     ]
-    if len(state_indices) == 0 or len(group_indices) == 0:
-        raise ValueError("Overfit check requires non-empty training state and action subsets.")
-    rank_states, rank_actions, labels, ranges, local_indices = _rank_batch(
-        dataset, group_indices
-    )
-    state_tensor = torch.from_numpy(
-        dataset.state_features[state_indices].astype(np.float32)
-    ).to(device)
-    target_tensor = torch.from_numpy(dataset.state_value_targets[state_indices]).to(device)
-    rank_state_tensor = torch.from_numpy(rank_states).to(device)
-    rank_action_tensor = torch.from_numpy(rank_actions).to(device)
-    rank_label_tensor = torch.from_numpy(labels).to(device)
-    local_index_tensor = torch.from_numpy(local_indices).to(device)
+    if (value_enabled and len(state_indices) == 0) or (rank_enabled and len(group_indices) == 0):
+        raise ValueError("Overfit check requires non-empty enabled-objective subsets.")
+    state_tensor = None
+    target_tensor = None
+    if value_enabled:
+        state_tensor = torch.from_numpy(
+            dataset.state_features[state_indices].astype(np.float32)
+        ).to(device)
+        target_tensor = torch.from_numpy(dataset.state_value_targets[state_indices]).to(device)
+    if rank_enabled:
+        rank_states, rank_actions, labels, ranges, local_indices = _rank_batch(
+            dataset, group_indices
+        )
+        rank_state_tensor = torch.from_numpy(rank_states).to(device)
+        rank_action_tensor = torch.from_numpy(rank_actions).to(device)
+        rank_label_tensor = torch.from_numpy(labels).to(device)
+        local_index_tensor = torch.from_numpy(local_indices).to(device)
     max_steps = int(overfit_cfg["max_steps"])
     value_mse = float("inf")
     rank_top1 = 0.0
@@ -788,14 +968,21 @@ def _run_overfit_check(
     for step in range(1, max_steps + 1):
         model.train()
         optimizer.zero_grad()
-        value_predictions = model.value_from_embedding(model.encode_states(state_tensor))
-        value_loss = F.mse_loss(value_predictions, target_tensor)
-        rank_embeddings = model.encode_states(rank_state_tensor)
-        rank_scores = model.rank_from_embeddings(
-            rank_embeddings[local_index_tensor], rank_action_tensor
-        )
-        rank_loss = grouped_action_rank_loss(rank_scores, rank_label_tensor, ranges)
-        total_loss = value_loss + rank_loss
+        value_loss = None
+        if value_enabled:
+            value_predictions = model.value_from_embedding(model.encode_states(state_tensor))
+            value_loss = F.mse_loss(value_predictions, target_tensor)
+        rank_loss = None
+        if rank_enabled:
+            rank_embeddings = model.encode_states(rank_state_tensor)
+            rank_scores = model.rank_from_embeddings(
+                rank_embeddings[local_index_tensor], rank_action_tensor
+            )
+            rank_loss = grouped_action_rank_loss(rank_scores, rank_label_tensor, ranges)
+        total_loss = None
+        for partial in (value_loss, rank_loss):
+            if partial is not None:
+                total_loss = partial if total_loss is None else total_loss + partial
         if not torch.isfinite(total_loss):
             raise ValueError("Overfit check produced a non-finite loss.")
         total_loss.backward()
@@ -807,43 +994,52 @@ def _run_overfit_check(
         if step == 1 or step % 25 == 0 or step == max_steps:
             model.eval()
             with torch.no_grad():
-                values = model.value_from_embedding(model.encode_states(state_tensor))
-                value_mse = float(F.mse_loss(values, target_tensor).item())
-                embeddings = model.encode_states(rank_state_tensor)
-                scores = model.rank_from_embeddings(
-                    embeddings[local_index_tensor], rank_action_tensor
-                )
-                rank_loss_value = float(
-                    grouped_action_rank_loss(scores, rank_label_tensor, ranges).item()
-                )
-                correct = 0
-                for start, end in ranges:
-                    predicted = int(torch.argmax(scores[start:end]).item())
-                    chosen = int(
-                        torch.nonzero(
-                            rank_label_tensor[start:end] > 0.5, as_tuple=False
-                        )[0, 0].item()
+                if value_enabled:
+                    values = model.value_from_embedding(model.encode_states(state_tensor))
+                    value_mse = float(F.mse_loss(values, target_tensor).item())
+                if rank_enabled:
+                    embeddings = model.encode_states(rank_state_tensor)
+                    scores = model.rank_from_embeddings(
+                        embeddings[local_index_tensor], rank_action_tensor
                     )
-                    correct += int(predicted == chosen)
-                rank_top1 = correct / len(ranges)
+                    rank_loss_value = float(
+                        grouped_action_rank_loss(scores, rank_label_tensor, ranges).item()
+                    )
+                    correct = 0
+                    for start, end in ranges:
+                        predicted = int(torch.argmax(scores[start:end]).item())
+                        chosen = int(
+                            torch.nonzero(
+                                rank_label_tensor[start:end] > 0.5, as_tuple=False
+                            )[0, 0].item()
+                        )
+                        correct += int(predicted == chosen)
+                    rank_top1 = correct / len(ranges)
             if (
-                value_mse <= float(overfit_cfg["required_value_train_mse_max"])
-                and rank_top1 >= float(overfit_cfg["required_action_train_top1_min"])
+                (not value_enabled or value_mse <= float(overfit_cfg["required_value_train_mse_max"]))
+                and (
+                    not rank_enabled
+                    or rank_top1 >= float(overfit_cfg["required_action_train_top1_min"])
+                )
             ):
                 break
     passed = (
-        value_mse <= float(overfit_cfg["required_value_train_mse_max"])
-        and rank_top1 >= float(overfit_cfg["required_action_train_top1_min"])
+        (not value_enabled or value_mse <= float(overfit_cfg["required_value_train_mse_max"]))
+        and (
+            not rank_enabled
+            or rank_top1 >= float(overfit_cfg["required_action_train_top1_min"])
+        )
     )
     result = {
         "enabled": True,
         "passed": passed,
         "steps": steps,
-        "state_examples": int(len(state_indices)),
-        "action_groups": int(len(group_indices)),
-        "value_train_mse": value_mse,
-        "action_rank_train_nll": rank_loss_value,
-        "action_rank_train_top1": rank_top1,
+        "state_examples": int(len(state_indices)) if value_enabled else 0,
+        "heads_checked": (["state_value"] if value_enabled else []) + (["action_rank"] if rank_enabled else []),
+        "action_groups": int(len(group_indices)) if rank_enabled else 0,
+        "value_train_mse": value_mse if value_enabled else None,
+        "action_rank_train_nll": rank_loss_value if rank_enabled else None,
+        "action_rank_train_top1": rank_top1 if rank_enabled else None,
     }
     if not passed and overfit_cfg.get("fail_main_run_if_not_met", True):
         raise ValueError(f"Mandatory overfit check failed: {result}")
@@ -895,7 +1091,7 @@ def _value_metrics(
     indices: np.ndarray,
     device: torch.device,
     batch_size: int,
-) -> Dict[str, float]:
+) -> Dict[str, Any]:
     model.eval()
     predictions = []
     with torch.no_grad():
@@ -916,7 +1112,13 @@ def _value_metrics(
         "sign_accuracy": float(np.mean((preds > 0) == (targets > 0))),
         "prediction_mean": float(preds.mean()),
         "prediction_std": float(preds.std()),
+        "prediction_min": float(preds.min()),
+        "prediction_max": float(preds.max()),
+        "prediction_abs_ge_0_90_rate": float(np.mean(np.abs(preds) >= 0.90)),
+        "prediction_abs_ge_0_95_rate": float(np.mean(np.abs(preds) >= 0.95)),
+        "prediction_abs_ge_0_99_rate": float(np.mean(np.abs(preds) >= 0.99)),
         "constant_baseline_mse": float(np.mean((targets - mean_target) ** 2)),
+        "constant_zero_baseline_mse": float(np.mean(targets ** 2)),
     }
 
 
@@ -927,25 +1129,53 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
     seed = int(training_cfg["seed"])
     _seed_everything(seed)
     model = build_diagnostic_model(config)
-    forward_loss_smoke_check(model, dataset)
+    rank_enabled = bool(config["objectives"]["action_rank"]["enabled"])
+    value_enabled = bool(config["objectives"]["state_value"]["enabled"])
+    forward_loss_smoke_check(model, dataset, rank_enabled=rank_enabled, value_enabled=value_enabled)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     overfit_result = _run_overfit_check(config, dataset, device)
+    optimizer_parameters = list(model.state_encoder.parameters())
+    if value_enabled:
+        optimizer_parameters += list(model.value_head.parameters())
+    if rank_enabled:
+        optimizer_parameters += list(model.action_encoder.parameters())
+        optimizer_parameters += list(model.rank_trunk.parameters())
+        optimizer_parameters += list(model.rank_head.parameters())
     optimizer = torch.optim.AdamW(
-        model.parameters(),
+        optimizer_parameters,
         lr=float(training_cfg["learning_rate"]),
         weight_decay=float(training_cfg["weight_decay"]),
     )
-    value_weight = float(config["objectives"]["state_value"]["loss_weight"])
-    rank_weight = float(config["objectives"]["action_rank"]["loss_weight"])
+    value_weight = float(config["objectives"]["state_value"].get("loss_weight", 0.0))
+    rank_weight = float(config["objectives"]["action_rank"].get("loss_weight", 0.0))
     value_batch_size = int(training_cfg["value_batch_size"])
-    rank_groups_per_batch = int(training_cfg["rank_groups_per_batch"])
+    rank_groups_per_batch = int(training_cfg.get("rank_groups_per_batch", 1))
     grad_clip = float(training_cfg["gradient_clip_norm"])
+    heads_trained = {
+        "state_value": value_enabled,
+        "action_rank": rank_enabled,
+        "action_value": False,
+    }
+    if value_enabled and rank_enabled:
+        selection_metric = "validation_value_mse_or_action_rank_nll"
+    elif rank_enabled:
+        selection_metric = "validation_action_rank_nll"
+    else:
+        selection_metric = "validation_value_mse"
+    optimizer_step_source = (
+        "rank_batches_only"
+        if rank_enabled and not value_enabled
+        else "value_batches_only"
+        if value_enabled and not rank_enabled
+        else "value_and_rank_batches"
+    )
     rng = np.random.RandomState(seed)
     history = []
     global_step = 0
     best_value_mse = float("inf")
     best_rank_nll = float("inf")
+    best_epoch = 0
     best_model_state: Optional[Dict[str, torch.Tensor]] = None
     patience = 0
     started = time.perf_counter()
@@ -956,8 +1186,14 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
         model.train()
         value_losses = []
         rank_losses = []
-        value_batches = list(_iter_batches(train_states, value_batch_size, rng))
-        rank_batches = list(_iter_batches(train_groups, rank_groups_per_batch, rng))
+        value_batches = (
+            list(_iter_batches(train_states, value_batch_size, rng)) if value_enabled else []
+        )
+        rank_batches = (
+            list(_iter_batches(train_groups, rank_groups_per_batch, rng))
+            if rank_enabled
+            else []
+        )
         batch_count = max(len(value_batches), len(rank_batches))
         for batch_index in range(batch_count):
             optimizer.zero_grad()
@@ -972,7 +1208,7 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
                 value_loss = F.mse_loss(predictions, targets)
                 total_loss = value_weight * value_loss
                 value_losses.append(float(value_loss.item()))
-            if batch_index < len(rank_batches):
+            if rank_enabled and batch_index < len(rank_batches):
                 group_indices = rank_batches[batch_index]
                 rank_states, rank_actions, labels, ranges, local_indices = _rank_batch(
                     dataset, group_indices
@@ -1000,57 +1236,80 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
             optimizer.step()
             global_step += 1
 
-        value_validation = _value_metrics(
-            model,
-            dataset,
-            dataset.split_state_indices["validation"],
-            device,
-            value_batch_size,
+        value_train = (
+            _value_metrics(
+                model, dataset, dataset.split_state_indices["train"], device, value_batch_size
+            )
+            if value_enabled
+            else None
         )
-        rank_validation = _rank_metrics(
-            model,
-            dataset,
-            dataset.split_group_state_indices["validation"],
-            device,
+        value_validation = (
+            _value_metrics(
+                model, dataset, dataset.split_state_indices["validation"], device, value_batch_size
+            )
+            if value_enabled
+            else None
         )
-        improved = (
-            value_validation["mse"] < best_value_mse
-            or rank_validation["nll"] < best_rank_nll
+        rank_validation = (
+            _rank_metrics(
+                model,
+                dataset,
+                dataset.split_group_state_indices["validation"],
+                device,
+            )
+            if rank_enabled
+            else None
         )
+        improved = False
+        if value_enabled and value_validation is not None and value_validation["mse"] < best_value_mse:
+            improved = True
+        if rank_enabled and rank_validation is not None and rank_validation["nll"] < best_rank_nll:
+            improved = True
         if improved:
-            best_value_mse = min(best_value_mse, value_validation["mse"])
-            best_rank_nll = min(best_rank_nll, rank_validation["nll"])
+            if value_enabled and value_validation is not None:
+                best_value_mse = min(best_value_mse, value_validation["mse"])
+            if rank_validation is not None:
+                best_rank_nll = min(best_rank_nll, rank_validation["nll"])
             best_model_state = {
                 key: value.detach().cpu().clone()
                 for key, value in model.state_dict().items()
             }
+            best_epoch = epoch
             patience = 0
         else:
             patience += 1
         epoch_report = {
             "epoch": epoch,
-            "value_train_mse": float(np.mean(value_losses)),
-            "action_rank_train_nll": float(np.mean(rank_losses)),
+            "value_train_mse": float(np.mean(value_losses)) if value_losses else None,
+            "value_train": value_train,
+            "action_rank_train_nll": float(np.mean(rank_losses)) if rank_losses else None,
             "value_validation": value_validation,
             "action_rank_validation": rank_validation,
             "global_step": global_step,
         }
         history.append(epoch_report)
+        rank_text = (
+            f" rank_nll={rank_validation['nll']:.4f}"
+            f" rank_top1={rank_validation['top1']:.3f}"
+            if rank_validation is not None
+            else " rank=disabled"
+        )
+        value_text = (
+            f"train_value_mse={value_train['mse']:.4f} val_value_mse={value_validation['mse']:.4f}"
+            if value_enabled and value_train is not None and value_validation is not None
+            else "value=disabled"
+        )
         print_line_safe(
-            f"train-vnext-diagnostic epoch={epoch} "
-            f"value_mse={value_validation['mse']:.4f} "
-            f"rank_nll={rank_validation['nll']:.4f} "
-            f"rank_top1={rank_validation['top1']:.3f}"
+            f"train-vnext-diagnostic epoch={epoch} {value_text}{rank_text}"
         )
         payload = {
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "model_type": config["model"]["type"],
-            "state_feature_version": EXPECTED_STATE_VERSION,
-            "action_feature_version": EXPECTED_ACTION_VERSION,
-            "state_dim": EXPECTED_STATE_DIM,
-            "action_dim": EXPECTED_ACTION_DIM,
+            **build_vnext_checkpoint_metadata(dataset),
             "model_config": config["model"],
+            "heads_trained": dict(heads_trained),
+            "checkpoint_selection_metric": selection_metric,
             "epoch": epoch,
             "global_step": global_step,
             "training_history": history,
@@ -1068,18 +1327,22 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
 
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
-    test_value = _value_metrics(
-        model,
-        dataset,
-        dataset.split_state_indices["test"],
-        device,
-        value_batch_size,
+    test_value = (
+        _value_metrics(
+            model, dataset, dataset.split_state_indices["test"], device, value_batch_size
+        )
+        if value_enabled
+        else None
     )
-    test_rank = _rank_metrics(
-        model,
-        dataset,
-        dataset.split_group_state_indices["test"],
-        device,
+    test_rank = (
+        _rank_metrics(
+            model,
+            dataset,
+            dataset.split_group_state_indices["test"],
+            device,
+        )
+        if rank_enabled
+        else None
     )
     report = {
         "status": "completed",
@@ -1089,6 +1352,15 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
         "device": device.type,
         "epochs_completed": len(history),
         "global_step": global_step,
+        "heads_trained": dict(heads_trained),
+        "optimizer_step_source": optimizer_step_source,
+        "checkpoint_selection_metric": selection_metric,
+        "best_epoch": best_epoch,
+        "best_validation_value_mse": best_value_mse if value_enabled else None,
+        "best_validation_action_rank_nll": (
+            best_rank_nll if rank_enabled else None
+        ),
+        "test_split_evaluations": 1,
         "runtime_sec": time.perf_counter() - started,
         "overfit_check": overfit_result,
         "training_history": history,
@@ -1107,8 +1379,18 @@ def train_diagnostic(config_path: Path) -> Dict[str, Any]:
                 "",
                 f"- Epochs: {report['epochs_completed']}",
                 f"- Runtime: {report['runtime_sec']:.2f}s",
-                f"- Test value MSE: {test_value['mse']:.6f}",
-                f"- Test action top-1: {test_rank['top1']:.3f}",
+                f"- Heads trained: {report['heads_trained']}",
+                f"- Checkpoint selection: {report['checkpoint_selection_metric']}",
+                (
+                    f"- Test value MSE: {test_value['mse']:.6f}"
+                    if test_value is not None
+                    else "- State value: disabled"
+                ),
+                (
+                    f"- Test action top-1/top-3: {test_rank['top1']:.3f} / {test_rank['top3']:.3f}"
+                    if test_rank is not None
+                    else "- Action rank: disabled"
+                ),
                 "- Production eligible: no",
                 "",
             ]

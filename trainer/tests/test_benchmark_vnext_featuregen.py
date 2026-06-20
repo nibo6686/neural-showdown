@@ -1,3 +1,5 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -65,6 +67,19 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertEqual(len(metadata["action_feature_names_sha256"]), 64)
         self.assertEqual(metadata["live_default_state_feature_version"], "live-private-belief-v2")
         self.assertEqual(metadata["live_default_action_feature_version"], "legal-action-v3")
+
+    def test_metadata_can_explicitly_select_v7_v6_without_changing_defaults(self):
+        selected = select_manifest_subset(self.manifest, size=10, seed=9)
+        metadata = benchmark_metadata(
+            manifest=self.manifest,
+            selected_entries=selected,
+            seed=9,
+            action_feature_version="legal-action-v6",
+        )
+        self.assertEqual(metadata["state_feature_version"], "live-private-belief-v7")
+        self.assertEqual(metadata["action_feature_version"], "legal-action-v6")
+        self.assertEqual(metadata["action_feature_dim"], 331)
+        self.assertEqual(metadata["live_default_action_feature_version"], "legal-action-v3")
         self.assertFalse(metadata["state_vectors_duplicated_per_candidate"])
 
     def test_array_validation_checks_dimensions_and_split_separation(self):
@@ -85,7 +100,7 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         arrays["action_features"] = np.zeros((3, 317), dtype=np.float16)
         result = validate_benchmark_arrays(arrays, metadata)
         self.assertFalse(result["passed"])
-        self.assertFalse(result["checks"]["action_dim_318"])
+        self.assertFalse(result["checks"]["action_dim_matches_schema"])
 
     def test_full_preflight_rejects_non_diagnostic_output(self):
         with self.assertRaises(ValueError):
@@ -114,6 +129,216 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
             trajectory, turn_number=1, event=move, turn_events=[tera, move]
         )
         self.assertNotIn(tera["raw"], prefix["protocol_log"])
+
+
+class GeneralizedFullPreflightTest(unittest.TestCase):
+    def _manifest(self, counts, *, shared_path, split_targets=None, dup=False, overlap=False):
+        entries = []
+        idx = 0
+        for split, count in counts.items():
+            for _ in range(count):
+                entries.append(
+                    {
+                        "replay_id": f"b{idx}",
+                        "path": str(shared_path),
+                        "split": split,
+                        "profile_version": "replay-pool-profile-v1",
+                        "mechanics": {},
+                    }
+                )
+                idx += 1
+        if dup:
+            entries.append(dict(entries[0]))
+        if overlap:
+            clone = dict(entries[0])
+            clone["split"] = "test" if entries[0]["split"] != "test" else "train"
+            entries.append(clone)
+        return {
+            "manifest_version": "test-manifest",
+            "seed": 1,
+            "catalog_checksum": "x",
+            "split_targets": split_targets,
+            "entries": entries,
+        }
+
+    def _preflight(self, tmp, manifest, output_name="ds"):
+        from neural.benchmark_vnext_featuregen import _validate_full_preflight
+
+        manifest_path = tmp / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        return _validate_full_preflight(
+            manifest=manifest,
+            manifest_path=manifest_path,
+            output_dir=tmp / output_name,
+        )
+
+    def test_accepts_300_split_targets(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            manifest = self._manifest(
+                {"train": 210, "validation": 45, "test": 45},
+                shared_path=shared,
+                split_targets={"train": 210, "validation": 45, "test": 45},
+            )
+            result = self._preflight(tmp, manifest)
+        self.assertTrue(all(result["checks"].values()), result["checks"])
+        self.assertEqual(result["expected_total_battles"], 300)
+
+    def test_accepts_1000_action_rank_splits(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            manifest = self._manifest(
+                {"train": 700, "validation": 150, "test": 150},
+                shared_path=shared,
+                split_targets={"train": 700, "validation": 150, "test": 150},
+            )
+            # A non-diagnostic_300 output directory must be accepted.
+            result = self._preflight(tmp, manifest, output_name="diagnostic_1000_action_rank_v7_v5")
+        self.assertTrue(all(result["checks"].values()), result["checks"])
+        self.assertEqual(result["expected_total_battles"], 1000)
+        self.assertEqual(result["split_counts"], {"train": 700, "validation": 150, "test": 150})
+
+    def test_rejects_duplicate_battle_ids(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            manifest = self._manifest(
+                {"train": 4, "validation": 3, "test": 3},
+                shared_path=shared,
+                split_targets={"train": 4, "validation": 3, "test": 3},
+                dup=True,
+            )
+            with self.assertRaisesRegex(ValueError, "preflight failed"):
+                self._preflight(tmp, manifest)
+
+    def test_rejects_split_overlap(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            manifest = self._manifest(
+                {"train": 4, "validation": 3, "test": 3},
+                shared_path=shared,
+                split_targets={"train": 4, "validation": 3, "test": 3},
+                overlap=True,
+            )
+            with self.assertRaisesRegex(ValueError, "preflight failed"):
+                self._preflight(tmp, manifest)
+
+    def test_rejects_missing_replay_path(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            manifest = self._manifest(
+                {"train": 4, "validation": 3, "test": 3},
+                shared_path=tmp / "does_not_exist.log",
+                split_targets={"train": 4, "validation": 3, "test": 3},
+            )
+            with self.assertRaisesRegex(ValueError, "preflight failed"):
+                self._preflight(tmp, manifest)
+
+    def test_rejects_wrong_split_counts(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            # Entries do not match the declared split targets.
+            manifest = self._manifest(
+                {"train": 209, "validation": 45, "test": 45},
+                shared_path=shared,
+                split_targets={"train": 210, "validation": 45, "test": 45},
+            )
+            with self.assertRaisesRegex(ValueError, "preflight failed"):
+                self._preflight(tmp, manifest)
+
+
+class FullMaterializationResumeTest(unittest.TestCase):
+    def test_combines_from_existing_shards_without_simcore(self):
+        import pickle
+
+        from neural.action_features import ACTION_FEATURE_DIM_V5
+        from neural.benchmark_vnext_featuregen import (
+            FEATURE_DIM_V7,
+            _shard_path,
+            run_full_materialization,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text("x", encoding="utf-8")
+            splits = ["train", "train", "validation", "test"]
+            entries = [
+                {
+                    "replay_id": f"b{i}",
+                    "path": str(shared),
+                    "split": splits[i],
+                    "profile_version": "replay-pool-profile-v1",
+                    "mechanics": {},
+                }
+                for i in range(4)
+            ]
+            manifest = {
+                "manifest_version": "test",
+                "seed": 1,
+                "catalog_checksum": "x",
+                "split_targets": {"train": 2, "validation": 1, "test": 1},
+                "entries": entries,
+            }
+            manifest_path = tmp / "manifest.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            output_dir = tmp / "diagnostic_test_v7_v5"
+            shards_dir = output_dir / "_shards"
+            shards_dir.mkdir(parents=True)
+
+            # Pre-seed every shard so no sim-core worker is spawned (resume path).
+            for i, entry in enumerate(entries):
+                result = {
+                    "replay_id": entry["replay_id"],
+                    "split": entry["split"],
+                    "state_rows": np.zeros((1, FEATURE_DIM_V7), dtype=np.float16),
+                    "state_turns": [1],
+                    "state_sides": ["p1"],
+                    "state_value_targets": [1.0 if i % 2 == 0 else -1.0],
+                    "action_rows": np.zeros((2, ACTION_FEATURE_DIM_V5), dtype=np.float16),
+                    "candidate_local_state_indices": [0, 0],
+                    "candidate_action_indices": [0, 1],
+                    "candidate_kinds": ["move", "switch"],
+                    "observed_actions": [1, 0],
+                    "label_counts": {
+                        "state_value_labels": 1,
+                        "chosen_action_matched": 1,
+                        "action_rank_positive": 1,
+                        "action_rank_unchosen": 1,
+                    },
+                    "impact_methods": {},
+                    "skip_audit": [],
+                    "unmatched_audit": [],
+                    "failure": None,
+                    "valid": True,
+                }
+                with open(_shard_path(shards_dir, entry["replay_id"]), "wb") as handle:
+                    pickle.dump(result, handle)
+
+            report = run_full_materialization(
+                manifest_path=manifest_path,
+                output_dir=output_dir,
+                workers=1,
+                resume=True,
+            )
+
+            self.assertTrue(report["validation"]["passed"], report["validation"]["checks"])
+            self.assertEqual(report["decision_states"], 4)
+            self.assertEqual(report["legal_action_candidates"], 8)
+            self.assertEqual(report["split_battle_counts"], {"train": 2, "validation": 1, "test": 1})
+            self.assertEqual(report["action_value_labels_generated"], 0)
+            self.assertTrue((output_dir / "diagnostic_test_v7_v5.npz").exists())
+            # Report filename drops the schema suffix, matching the repo convention.
+            self.assertTrue((output_dir / "diagnostic_test_materialization_report.md").exists())
 
 
 if __name__ == "__main__":

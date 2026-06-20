@@ -21,6 +21,11 @@ export interface DamagePokemon {
   ivs?: Record<string, number>;
   boosts?: Record<string, number>;
   moves?: string[];
+  times_attacked?: number | null;
+  allies_fainted?: number | null;
+  repeat_chain_move?: string | null;
+  repeat_chain_count?: number | null;
+  defense_curl_active?: boolean | null;
   // Diagnostic-only opt-in: force the Pokemon's current types (e.g. Soak /
   // Conversion). The live damage path never sets this, so live estimates stay
   // byte-identical; only explicit diagnostics that pass it see an override.
@@ -54,6 +59,10 @@ export interface DamageEstimate {
   ko_chance: number;
   immune: boolean;
   type_effectiveness: number | null;
+  // Resolved (dynamic) move type actually used by the calculation, e.g. Weather
+  // Ball -> Ice in snow, Ivy Cudgel -> Fire for Ogerpon-Hearthflame, Judgment ->
+  // the held Plate's type. Equals the static type for ordinary moves.
+  move_type_resolved: string | null;
   item_modifier: number;
   burn_attack_penalty: boolean;
   tera_damage_bonus: number;
@@ -193,6 +202,7 @@ function nonDamagingEstimate(): DamageEstimate {
     ko_chance: 0,
     immune: false,
     type_effectiveness: null,
+    move_type_resolved: null,
     item_modifier: 1.0,
     burn_attack_penalty: false,
     tera_damage_bonus: 0,
@@ -273,6 +283,11 @@ function damageInputSummary(request: DamageEstimateRequest, canonicalAttacker?: 
       evs_keys: request.attacker?.evs ? Object.keys(request.attacker.evs).sort() : [],
       ivs_keys: request.attacker?.ivs ? Object.keys(request.attacker.ivs).sort() : [],
       boosts: request.attacker?.boosts || {},
+      times_attacked: request.attacker?.times_attacked,
+      allies_fainted: request.attacker?.allies_fainted,
+      repeat_chain_move: request.attacker?.repeat_chain_move,
+      repeat_chain_count: request.attacker?.repeat_chain_count,
+      defense_curl_active: request.attacker?.defense_curl_active,
     },
     defender: {
       level: request.defender?.level,
@@ -314,6 +329,7 @@ function buildPokemon(pokemon: DamagePokemon, useTera: boolean): InstanceType<ty
     evs: boundedStatTable(pokemon.evs) as any,
     ivs: boundedStatTable(pokemon.ivs) as any,
     boosts: { ...(pokemon.boosts || {}) } as any,
+    alliesFainted: pokemon.allies_fainted ?? undefined,
     moves: [...(pokemon.moves || [])],
     overrides: typesOverride ? { types: typesOverride } : undefined,
   } as any);
@@ -341,19 +357,46 @@ function average(values: number[]): number {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
-function estimateOnce(request: DamageEstimateRequest, useTera: boolean): { rolls: number[]; maxHp: number; typeEffectiveness: number } {
+function estimateOnce(request: DamageEstimateRequest, useTera: boolean): { rolls: number[]; maxHp: number; typeEffectiveness: number; moveType: string } {
   const attacker = buildPokemon(request.attacker, useTera);
   const defender = buildPokemon(request.defender, Boolean(request.defender.terastallized));
-  const move = new CalcMove(gen, request.move);
+  const moveId = toID(request.move);
+  const timesAttacked = Math.max(0, Math.floor(Number(request.attacker.times_attacked ?? 0)));
+  const alliesFainted = Math.max(0, Math.floor(Number(request.attacker.allies_fainted ?? 0)));
+  const repeatChainCount = Math.max(0, Math.floor(Number(request.attacker.repeat_chain_count ?? 0)));
+  const repeatChainMove = toID(request.attacker.repeat_chain_move || '');
+  const overrides = moveId === 'ragefist' && request.attacker.times_attacked !== undefined && request.attacker.times_attacked !== null
+    ? { basePower: Math.min(350, 50 + 50 * timesAttacked) }
+    : moveId === 'lastrespects' && request.attacker.allies_fainted !== undefined && request.attacker.allies_fainted !== null
+      ? { basePower: 50 + 50 * alliesFainted }
+      : moveId === 'rollout' && repeatChainMove === moveId && request.attacker.repeat_chain_count !== undefined && request.attacker.repeat_chain_count !== null
+        ? { basePower: 30 * (2 ** Math.min(repeatChainCount, 4)) * (request.attacker.defense_curl_active ? 2 : 1) }
+        : moveId === 'furycutter' && repeatChainMove === moveId && request.attacker.repeat_chain_count !== undefined && request.attacker.repeat_chain_count !== null
+          ? { basePower: 40 * (2 ** Math.min(repeatChainCount, 2)) }
+          : undefined;
+  const move = new CalcMove(gen, request.move, overrides ? { overrides } : {});
   const field = buildField(request.field);
   const result = calculate(gen, attacker, defender, move, field);
   const rolls = numbersFromDamage(result.damage as any);
   const defenderMaxHp = Number((defender as any).rawStats?.hp || request.defender.max_hp || request.defender.stats?.hp || 100);
   const defenderTypes = (defender.teraType && defender.teraType !== 'Stellar') ? [defender.teraType] : [...defender.types];
+  // Use the resolved (post-calculate) move type so dynamic-type moves report the
+  // type-effectiveness actually applied, not the stale static type.
+  const resolvedType = ((result as any).move && (result as any).move.type) || move.type;
+  let typeEffectiveness = moveTypeMultiplier(resolvedType, defenderTypes);
+  // Freeze-Dry is always super effective against Water regardless of the chart;
+  // reflect that in the reported effectiveness (the calc already does in damage).
+  if (toID(request.move) === 'freezedry') {
+    typeEffectiveness = defenderTypes.reduce(
+      (mult, t) => mult * (toID(t) === 'water' ? 2 : moveTypeMultiplier(resolvedType, [t])),
+      1,
+    );
+  }
   return {
     rolls,
     maxHp: Math.max(1, defenderMaxHp),
-    typeEffectiveness: moveTypeMultiplier(move.type, defenderTypes),
+    typeEffectiveness,
+    moveType: resolvedType,
   };
 }
 
@@ -389,6 +432,7 @@ export function estimateDamage(request: DamageEstimateRequest): DamageEstimate {
       ko_chance: rolls.length ? koRolls / rolls.length : 0,
       immune: current.typeEffectiveness === 0 || rolls.every((roll) => roll === 0),
       type_effectiveness: current.typeEffectiveness,
+      move_type_resolved: current.moveType,
       item_modifier: toID(request.attacker.item || '') === 'lifeorb' ? 1.3 : 1.0,
       burn_attack_penalty: toID(request.attacker.status || '') === 'brn' && Dex.moves.get(request.move).category === 'Physical',
       tera_damage_bonus: request.use_tera ? average(current.rolls) - average(withoutTera.rolls) : 0,

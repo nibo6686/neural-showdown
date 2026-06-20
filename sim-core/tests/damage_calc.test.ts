@@ -158,3 +158,115 @@ test('exact attacker and defender stats override inferred calc stats', () => {
   assert.equal(highAttack.damage_method, 'smogon_calc');
   assert.deepEqual(highAttack.warnings, []);
 });
+
+test('Rage Fist scales with times attacked without affecting other moves', () => {
+  const defender = { species: 'Cresselia', level: 80, hp_fraction: 1 };
+  const attacker = { species: 'Annihilape', level: 76, ability: 'Defiant' };
+  const rage0 = estimateDamage({ attacker: { ...attacker, times_attacked: 0 }, defender, move: 'Rage Fist' });
+  const rage1 = estimateDamage({ attacker: { ...attacker, times_attacked: 1 }, defender, move: 'Rage Fist' });
+  const rage2 = estimateDamage({ attacker: { ...attacker, times_attacked: 2 }, defender, move: 'Rage Fist' });
+  assert.ok(rage1.average_percent > rage0.average_percent * 1.8);
+  assert.ok(rage2.average_percent > rage1.average_percent * 1.4);
+
+  const gunk0 = estimateDamage({ attacker: { ...attacker, times_attacked: 0 }, defender, move: 'Gunk Shot' });
+  const gunk2 = estimateDamage({ attacker: { ...attacker, times_attacked: 2 }, defender, move: 'Gunk Shot' });
+  assert.equal(gunk0.average_percent, gunk2.average_percent);
+});
+
+test('Last Respects scales with fainted allies', () => {
+  const defender = { species: 'Mew', level: 80, hp_fraction: 1 };
+  const attacker = { species: 'Houndstone', level: 80 };
+  const zero = estimateDamage({ attacker: { ...attacker, allies_fainted: 0 }, defender, move: 'Last Respects' });
+  const three = estimateDamage({ attacker: { ...attacker, allies_fainted: 3 }, defender, move: 'Last Respects' });
+  assert.ok(three.average_percent > zero.average_percent * 3.5);
+});
+
+test('variable-power HP, speed, and weight moves follow the calc oracle', () => {
+  const neutral = { species: 'Mew', level: 80, hp_fraction: 1 };
+  const reversalHighHp = estimateDamage({
+    attacker: { species: 'Lucario', level: 80, hp_fraction: 1 },
+    defender: neutral,
+    move: 'Reversal',
+  });
+  const reversalLowHp = estimateDamage({
+    attacker: { species: 'Lucario', level: 80, hp_fraction: 0.05 },
+    defender: neutral,
+    move: 'Reversal',
+  });
+  assert.ok(reversalLowHp.average_percent > reversalHighHp.average_percent * 5);
+
+  const gyroSlow = estimateDamage({
+    attacker: { species: 'Ferrothorn', level: 80, stats: { spe: 30 } },
+    defender: { ...neutral, stats: { spe: 300 } },
+    move: 'Gyro Ball',
+  });
+  const gyroFast = estimateDamage({
+    attacker: { species: 'Ferrothorn', level: 80, stats: { spe: 200 } },
+    defender: { ...neutral, stats: { spe: 50 } },
+    move: 'Gyro Ball',
+  });
+  assert.ok(gyroSlow.average_percent > gyroFast.average_percent * 5);
+
+  const grassLight = estimateDamage({
+    attacker: { species: 'Mew', level: 80 },
+    defender: { species: 'Gastly', level: 80, hp_fraction: 1, stats: { hp: 200, spd: 100 } },
+    move: 'Grass Knot',
+  });
+  const grassHeavy = estimateDamage({
+    attacker: { species: 'Mew', level: 80 },
+    defender: { species: 'Gengar', level: 80, hp_fraction: 1, stats: { hp: 200, spd: 100 } },
+    move: 'Grass Knot',
+  });
+  assert.ok(grassHeavy.average_percent > grassLight.average_percent * 2);
+
+  const slamLight = estimateDamage({
+    attacker: { species: 'Copperajah', level: 80 },
+    defender: { species: 'Donphan', level: 80, hp_fraction: 1, stats: { hp: 200, def: 100 } },
+    move: 'Heavy Slam',
+  });
+  const slamHeavy = estimateDamage({
+    attacker: { species: 'Copperajah', level: 80 },
+    defender: { species: 'Mudsdale', level: 80, hp_fraction: 1, stats: { hp: 200, def: 100 } },
+    move: 'Heavy Slam',
+  });
+  assert.ok(slamLight.average_percent > slamHeavy.average_percent * 2);
+});
+
+test('Rollout and Fury Cutter use explicit repeat-chain context', () => {
+  const defender = { species: 'Mew', level: 80, hp_fraction: 1 };
+  const rolloutBase = estimateDamage({
+    attacker: { species: 'Donphan', level: 80, repeat_chain_move: 'rollout', repeat_chain_count: 0 },
+    defender,
+    move: 'Rollout',
+  });
+  const rolloutChain = estimateDamage({
+    attacker: { species: 'Donphan', level: 80, repeat_chain_move: 'rollout', repeat_chain_count: 2 },
+    defender,
+    move: 'Rollout',
+  });
+  assert.ok(rolloutChain.average_percent > rolloutBase.average_percent * 3.5);
+
+  const furyBase = estimateDamage({
+    attacker: { species: 'Scizor', level: 80, repeat_chain_move: 'furycutter', repeat_chain_count: 0 },
+    defender,
+    move: 'Fury Cutter',
+  });
+  const furyChain = estimateDamage({
+    attacker: { species: 'Scizor', level: 80, repeat_chain_move: 'furycutter', repeat_chain_count: 2 },
+    defender,
+    move: 'Fury Cutter',
+  });
+  assert.ok(furyChain.average_percent > furyBase.average_percent * 3.5);
+
+  const earthquakeBase = estimateDamage({
+    attacker: { species: 'Donphan', level: 80, repeat_chain_move: 'rollout', repeat_chain_count: 0 },
+    defender,
+    move: 'Earthquake',
+  });
+  const earthquakeChain = estimateDamage({
+    attacker: { species: 'Donphan', level: 80, repeat_chain_move: 'rollout', repeat_chain_count: 3 },
+    defender,
+    move: 'Earthquake',
+  });
+  assert.equal(earthquakeBase.average_percent, earthquakeChain.average_percent);
+});

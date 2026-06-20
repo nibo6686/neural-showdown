@@ -8,6 +8,54 @@ from neural.tactical_state import build_tactical_state, snapshot_with_private_st
 
 
 class TacticalStateTest(unittest.TestCase):
+    def test_complete_history_marks_boosts_known(self):
+        state = build_tactical_state(
+            [
+                "|start",
+                "|switch|p1a: Espeon|Espeon, L80|100/100",
+                "|-boost|p1a: Espeon|spa|2",
+                "|-boost|p1a: Espeon|spe|2",
+            ],
+            perspective_side="p1",
+        )
+        self.assertTrue(state["history_complete"])
+        self.assertTrue(state["own"]["boosts_known"])
+        self.assertEqual(state["own"]["boosts"]["spa"], 2)
+        self.assertEqual(state["own"]["boosts"]["spe"], 2)
+
+    def test_times_attacked_tracks_direct_hits_and_persists_per_species(self):
+        state = build_tactical_state(
+            [
+                "|start",
+                "|switch|p1a: Annihilape|Annihilape, L76|292/292",
+                "|switch|p2a: Cresselia|Cresselia, L80|323/323",
+                "|move|p2a: Cresselia|Psyshock|p1a: Annihilape",
+                "|-damage|p1a: Annihilape|220/292",
+                "|move|p2a: Cresselia|Moonblast|p1a: Annihilape",
+                "|-damage|p1a: Annihilape|140/292",
+                "|-damage|p1a: Annihilape|130/292|[from] psn",
+                "|switch|p1a: Pikachu|Pikachu, L80|200/200",
+                "|switch|p1a: Annihilape|Annihilape, L76|130/292",
+            ],
+            perspective_side="p1",
+        )
+        self.assertTrue(state["own"]["active_times_attacked_known"])
+        self.assertEqual(state["own"]["active_times_attacked"], 2)
+        annihilape = next(mon for mon in state["own"]["known_team"] if mon["species"] == "Annihilape")
+        self.assertEqual(annihilape["times_attacked"], 2)
+
+    def test_times_attacked_is_unknown_without_complete_history(self):
+        state = build_tactical_state(
+            [
+                "|switch|p1a: Annihilape|Annihilape, L76|220/292",
+                "|move|p2a: Cresselia|Psyshock|p1a: Annihilape",
+                "|-damage|p1a: Annihilape|150/292",
+            ],
+            perspective_side="p1",
+        )
+        self.assertFalse(state["own"]["active_times_attacked_known"])
+        self.assertEqual(state["own"]["active_times_attacked"], 1)
+
     def test_leech_seed_already_active_is_tracked(self):
         state = build_tactical_state(
             [

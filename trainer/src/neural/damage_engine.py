@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
-from .action_features import load_move_metadata, to_id
+from .action_features import VARIABLE_POWER_DAMAGE_MOVE_IDS, load_move_metadata, to_id
 
 
 _default_damage_client: Any = None
@@ -161,7 +161,13 @@ def _damage_failure_warning(prefix: str, exc: Exception, payload: Dict[str, Any]
     )
 
 
-def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_tera_active: Optional[bool]) -> Dict[str, Any]:
+def _rpc_payload(
+    action: Dict[str, Any],
+    approx_state: Dict[str, Any],
+    *,
+    force_tera_active: Optional[bool],
+    include_repeat_chain_context: bool = False,
+) -> Dict[str, Any]:
     private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
     attacker = dict(_active_private_mon(private_state))
     defender = dict(_opponent_view_mon(approx_state))
@@ -172,6 +178,20 @@ def _rpc_payload(action: Dict[str, Any], approx_state: Dict[str, Any], *, force_
         attacker["status"] = tactical_own.get("active_status")
     if not defender.get("status"):
         defender["status"] = tactical_opp.get("active_status")
+    if not isinstance(attacker.get("boosts"), dict) and tactical_own.get("boosts_known"):
+        attacker["boosts"] = dict(tactical_own.get("boosts") or {})
+    if not isinstance(defender.get("boosts"), dict) and tactical_opp.get("boosts_known"):
+        defender["boosts"] = dict(tactical_opp.get("boosts") or {})
+    if attacker.get("times_attacked") is None and tactical_own.get("active_times_attacked_known"):
+        attacker["times_attacked"] = int(tactical_own.get("active_times_attacked", 0) or 0)
+    if attacker.get("allies_fainted") is None and tactical_state.get("history_complete"):
+        attacker["allies_fainted"] = len(tactical_own.get("fainted_species") or [])
+    if include_repeat_chain_context:
+        repeat_chain = tactical_own.get("repeat_chain") if isinstance(tactical_own.get("repeat_chain"), dict) else {}
+        if repeat_chain.get("known") and repeat_chain.get("exact"):
+            attacker["repeat_chain_move"] = repeat_chain.get("move")
+            attacker["repeat_chain_count"] = int(repeat_chain.get("successful_count", 0) or 0)
+            attacker["defense_curl_active"] = bool(repeat_chain.get("defense_curl_active"))
     move = str(action.get("move") or action.get("label") or "").split(":", 1)[-1].strip()
     if action.get("tera_type") and not attacker.get("tera_type"):
         attacker["tera_type"] = action.get("tera_type")
@@ -249,12 +269,16 @@ def _heuristic_estimate(action: Dict[str, Any], approx_state: Dict[str, Any], *,
     metadata, _ = load_move_metadata()
     move_meta = metadata.get(to_id(move_name), {})
     base_power = float(move_meta.get("base_power", 0.0) or 0.0)
-    if str(move_meta.get("category") or "").lower() == "status" or base_power <= 0:
+    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
+    attacker = _active_private_mon(private_state)
+    if to_id(move_name) == "ragefist" and attacker.get("times_attacked") is not None:
+        base_power = min(350.0, 50.0 + 50.0 * max(0, int(attacker.get("times_attacked") or 0)))
+    if str(move_meta.get("category") or "").lower() == "status" or (
+        base_power <= 0 and to_id(move_name) not in VARIABLE_POWER_DAMAGE_MOVE_IDS
+    ):
         estimate["damage_method"] = "heuristic_fallback"
         return estimate
     move_type = str(move_meta.get("type") or "") or None
-    private_state = approx_state.get("private_state") if isinstance(approx_state.get("private_state"), dict) else {}
-    attacker = _active_private_mon(private_state)
     defender = _opponent_view_mon(approx_state)
     target_types = [str(value) for value in defender.get("types", [])] if isinstance(defender.get("types"), list) else []
     type_eff = _type_multiplier(move_type, target_types)
@@ -299,6 +323,7 @@ def estimate_action_damage(
     approx_state: Dict[str, Any],
     client: Any = None,
     force_tera_active: Optional[bool] = None,
+    include_repeat_chain_context: bool = False,
 ) -> Dict[str, Any]:
     if client is None:
         try:
@@ -306,7 +331,12 @@ def estimate_action_damage(
         except Exception:
             client = None
     if client is not None:
-        payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
+        payload = _rpc_payload(
+            action,
+            approx_state,
+            force_tera_active=force_tera_active,
+            include_repeat_chain_context=include_repeat_chain_context,
+        )
         try:
             result = client.damage_estimate(payload)
             if isinstance(result, dict):
@@ -325,7 +355,12 @@ def estimate_action_damage(
             fallback.setdefault("warnings", []).append(_damage_failure_warning("damage_rpc_failed", exc, payload))
             return fallback
 
-    payload = _rpc_payload(action, approx_state, force_tera_active=force_tera_active)
+    payload = _rpc_payload(
+        action,
+        approx_state,
+        force_tera_active=force_tera_active,
+        include_repeat_chain_context=include_repeat_chain_context,
+    )
     try:
         result = _estimate_with_node(payload)
         merged = _default_estimate("smogon_calc")

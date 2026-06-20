@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('setup', 'build', 'test', 'validate-sim-core', 'benchmark-vnext-featuregen', 'materialize-diagnostic-300', 'agent-audit', 'branch-audit', 'two-ply-branch-audit', 'belief-branch-audit', 'belief-particles-audit', 'build-live-sim-value-dataset', 'train-live-sim-value', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server', 'analyze-rollout-actions', 'test-sim-rollout')]
+    [ValidateSet('setup', 'build', 'test', 'validate-sim-core', 'benchmark-vnext-featuregen', 'materialize-diagnostic-300', 'materialize-diagnostic-1000-action-rank', 'agent-audit', 'branch-audit', 'two-ply-branch-audit', 'belief-branch-audit', 'belief-particles-audit', 'build-live-sim-value-dataset', 'train-live-sim-value', 'dataset', 'train', 'ppo', 'eval', 'improve', 'analyze', 'trace-eval', 'build-value-dataset', 'train-value', 'train-replay-value', 'build-live-private-value-dataset', 'build-live-private-value-dataset-v2', 'train-live-private-value', 'train-live-private-value-v2', 'compare-value-models', 'compare-replay-evals', 'test-live-eval', 'live-eval', 'build-action-rank-dataset', 'build-action-rank-dataset-v2', 'train-action-ranker', 'train-action-ranker-v2', 'build-action-value-dataset', 'train-action-value-ranker', 'compare-action-rankers', 'analyze-action-bias', 'analyze-tactical-failures', 'analyze-state', 'collect-selfplay', 'compare-checkpoints', 'fetch-replays', 'parse-replays', 'build-replay-value-dataset', 'build-replay-policy-dataset', 'all', 'server', 'analyze-rollout-actions', 'test-sim-rollout')]
     [string]$Action = 'all',
     [ValidateSet('dev', 'full')]
     [string]$Profile = 'dev',
@@ -319,6 +319,17 @@ function Invoke-MaterializeDiagnostic300 {
     Invoke-PythonModule -Module 'neural.benchmark_vnext_featuregen' -Arguments @(
         '--full-manifest',
         '--output-dir', '.\artifacts\training_plan\datasets\diagnostic_300_v7_v5'
+    )
+}
+
+function Invoke-MaterializeDiagnostic1000ActionRank {
+    Ensure-SimCoreBuilt
+    Write-Host "launcher materialize-diagnostic-1000-action-rank sim_core=$($script:SimCoreRuntime.Mode)"
+    Invoke-PythonModule -Module 'neural.benchmark_vnext_featuregen' -Arguments @(
+        '--full-manifest',
+        '--manifest', '.\artifacts\training_plan\manifests\diagnostic_1000_action_rank_manifest.json',
+        '--output-dir', '.\artifacts\training_plan\datasets\diagnostic_1000_action_rank_v7_v5',
+        '--workers', '6'
     )
 }
 
@@ -699,6 +710,7 @@ try {
         'validate-sim-core' { Invoke-ValidateSimCore }
         'benchmark-vnext-featuregen' { Invoke-BenchmarkVNextFeaturegen }
         'materialize-diagnostic-300' { Invoke-MaterializeDiagnostic300 }
+        'materialize-diagnostic-1000-action-rank' { Invoke-MaterializeDiagnostic1000ActionRank }
         'agent-audit' { Invoke-AgentAudit }
         'branch-audit' { Invoke-BranchAudit }
         'two-ply-branch-audit' { Invoke-TwoPlyBranchAudit }

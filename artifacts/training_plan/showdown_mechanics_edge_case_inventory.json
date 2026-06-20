@@ -1,0 +1,3831 @@
+{
+  "category_counts": {
+    "ability-triggered prevention/modification": 7,
+    "accuracy / priority / target validity": 4,
+    "branch-dependent execution": 7,
+    "crit chance and crit rules": 2,
+    "delayed damage/future effects": 2,
+    "dynamic base power / damage": 14,
+    "dynamic type / effectiveness": 9,
+    "format/generation overrides": 4,
+    "item-triggered effects": 3,
+    "multi-hit and sequential-hit behavior": 5,
+    "no-leakage/public-information concerns": 7,
+    "random-call and callable-pool behavior": 5,
+    "residual and end-of-turn effects": 5,
+    "secondary effects and secondary modifiers": 4,
+    "status and volatile counters": 4,
+    "switch / drag / pivot / forced replacement": 3
+  },
+  "entries": [
+    {
+      "categories": [
+        "status and volatile counters",
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "no; action features can cause sleep but current-state counter/range is not in action v7",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onBeforeMove / random duration",
+      "id": "sleep-natural-counter",
+      "kind": "condition",
+      "name": "Natural sleep counter/range",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Showdown samples hidden sleep duration; features must expose public elapsed/range, not sampled future wake turn.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/conditions.ts",
+        "line": 47,
+        "matched": "slp"
+      }
+    },
+    {
+      "categories": [
+        "status and volatile counters",
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; move sleep effect exists but Rest-vs-natural sleep provenance is state-level",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onHit / statusState.time",
+      "id": "rest-fixed-sleep",
+      "kind": "move",
+      "name": "Rest fixed sleep provenance",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Rest overwrites sleep duration; model needs public Rest provenance separate from natural hidden duration.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 351,
+        "matched": "rest"
+      }
+    },
+    {
+      "categories": [
+        "status and volatile counters",
+        "branch-dependent execution",
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; confusion chance exists, current counter/range is missing",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onBeforeMove / random duration",
+      "id": "confusion-counter",
+      "kind": "condition",
+      "name": "Confusion duration/range and self-hit branch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Confusion duration is hidden; current action features do not expose elapsed/range or 33% self-hit branch state.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/conditions.ts",
+        "line": 163,
+        "matched": "confusion"
+      }
+    },
+    {
+      "categories": [
+        "residual and end-of-turn effects",
+        "status and volatile counters"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "partial; action status chance exists, current toxic stage is state/rollout",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onResidual",
+      "id": "toxic-ramp",
+      "kind": "condition",
+      "name": "Toxic ramping",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Rollout batch 1 covers fixture parity when toxic stage is available; adapter still needs robust stage provenance.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/conditions.ts",
+        "line": 139,
+        "matched": "tox"
+      }
+    },
+    {
+      "categories": [
+        "residual and end-of-turn effects",
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "partial; residual pressure exists, exact current-state residual is rollout",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "volatileStatus / condition.onResidual",
+      "id": "salt-cure",
+      "kind": "move",
+      "name": "Salt Cure residual normal/Water/Steel",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Parity passes for represented state; broader adapters need source/effect identity and current target typing.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 16213,
+        "matched": "saltcure"
+      }
+    },
+    {
+      "categories": [
+        "delayed damage/future effects",
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; action delayed pressure exists, landing damage remains rollout/state",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "flags.futuremove / onTry",
+      "id": "future-sight",
+      "kind": "move",
+      "name": "Future Sight delayed slot damage",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Scheduling parity exists; replacement damage must use landing target state, not original stale damage.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 6615,
+        "matched": "futuresight"
+      }
+    },
+    {
+      "categories": [
+        "delayed damage/future effects"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; same as Future Sight",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "flags.futuremove / onTry",
+      "id": "doom-desire",
+      "kind": "move",
+      "name": "Doom Desire delayed slot damage",
+      "natdex_future_format_relevance": "medium",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Shares Future Sight queue and target-slot semantics; landing damage provenance still missing generally.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 3982,
+        "matched": "doomdesire"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-ragefist",
+      "kind": "move",
+      "name": "Rage Fist times-hit power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Requires public times-attacked history to avoid stale 50 BP damage.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 15116,
+        "matched": "ragefist"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-lastrespects",
+      "kind": "move",
+      "name": "Last Respects fainted-ally power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on allied faint count and battle history provenance.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 10462,
+        "matched": "lastrespects"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-storedpower",
+      "kind": "move",
+      "name": "Stored Power / Power Trip boost count power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on current positive boosts and exact boost state.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 18804,
+        "matched": "storedpower"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-gyroball",
+      "kind": "move",
+      "name": "Gyro Ball speed-ratio power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on speed stats, boosts, items and field.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 8333,
+        "matched": "gyroball"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-electroball",
+      "kind": "move",
+      "name": "Electro Ball speed-ratio power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on speed ratio and current modifiers.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 4753,
+        "matched": "electroball"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-grassknot",
+      "kind": "move",
+      "name": "Grass Knot / Low Kick weight power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on target weight and possibly form/known species.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 7812,
+        "matched": "grassknot"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-heavyslam",
+      "kind": "move",
+      "name": "Heavy Slam / Heat Crash weight-ratio power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on both weights and target state.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 8829,
+        "matched": "heavyslam"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-reversal",
+      "kind": "move",
+      "name": "Reversal / Flail HP power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Depends on exact current user HP bracket.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 15637,
+        "matched": "reversal"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-beatup",
+      "kind": "move",
+      "name": "Beat Up party-member damage",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "high",
+      "reason": "Depends on party composition and per-ally Attack stats; current impact fails closed.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 1192,
+        "matched": "beatup"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-ficklebeam",
+      "kind": "move",
+      "name": "Fickle Beam random double power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Random power branch should be distribution/provenance, not deterministic damage.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 5410,
+        "matched": "ficklebeam"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-bide",
+      "kind": "move",
+      "name": "Bide stored damage release",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Depends on damage accumulated over prior turns.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 1309,
+        "matched": "bide"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-counter",
+      "kind": "move",
+      "name": "Counter received physical damage",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Depends on same-turn/last damage source and amount.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 347,
+        "matched": "counter"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-mirrorcoat",
+      "kind": "move",
+      "name": "Mirror Coat received special damage",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Depends on same-turn/last damage source and amount.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 12420,
+        "matched": "mirrorcoat"
+      }
+    },
+    {
+      "categories": [
+        "dynamic base power / damage"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; many fail closed or use exact context where available",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "basePowerCallback / damageCallback / onHit",
+      "id": "dynamic-damage-metalburst",
+      "kind": "move",
+      "name": "Metal Burst received damage",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Depends on same-turn damage and move order.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 12069,
+        "matched": "metalburst"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-weatherball",
+      "kind": "move",
+      "name": "Weather Ball type/power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 21498,
+        "matched": "weatherball"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-terrainpulse",
+      "kind": "move",
+      "name": "Terrain Pulse grounded type/power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 20013,
+        "matched": "terrainpulse"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-terablast",
+      "kind": "move",
+      "name": "Tera Blast current Tera type/category",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 19950,
+        "matched": "terablast"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-hiddenpower",
+      "kind": "move",
+      "name": "Hidden Power type generation/formats",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 8927,
+        "matched": "hiddenpower"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-naturalgift",
+      "kind": "move",
+      "name": "Natural Gift berry type/power",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter",
+        "state/provenance feature"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 13012,
+        "matched": "naturalgift"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-freezedry",
+      "kind": "move",
+      "name": "Freeze-Dry Water effectiveness override",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "no action now"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 6373,
+        "matched": "freezedry"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; exact impact handles some cases, schema lacks some provenance",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onModifyType / onEffectiveness / overrideOffensiveStat",
+      "id": "dynamic-type-photongeyser",
+      "kind": "move",
+      "name": "Photon Geyser offensive stat/category override",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "no action now"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Source contains generation- and state-sensitive type/effectiveness behavior that should stay Showdown-format scoped.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 13809,
+        "matched": "photongeyser"
+      }
+    },
+    {
+      "categories": [
+        "dynamic type / effectiveness",
+        "accuracy / priority / target validity"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; weather fields exist but primal weather prevention/attack nullification is not fully modeled",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onSetWeather / onTryMove",
+      "id": "weather-primordial-sea",
+      "kind": "ability",
+      "name": "Primordial Sea / Desolate Land weather prevention",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture",
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Harsh weather can block Fire/Water moves and weather replacement; needs field provenance in rollout/search.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 925,
+        "matched": "primordialsea"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; branch pressure fields",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-suckerpunch",
+      "kind": "move",
+      "name": "Sucker Punch target-action branch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Feature marks pressure but search/rollout still needs branch evaluation.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 19105,
+        "matched": "suckerpunch"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; branch pressure fields",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-thunderclap",
+      "kind": "move",
+      "name": "Thunderclap target-action branch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Same target-action condition as Sucker Punch with priority context.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 20256,
+        "matched": "thunderclap"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; opponent-action pressure only",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-focuspunch",
+      "kind": "move",
+      "name": "Focus Punch lost-focus branch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Needs within-turn damage/lost-focus provenance.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 6211,
+        "matched": "focuspunch"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; active-turn branch",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-fakeout",
+      "kind": "move",
+      "name": "Fake Out first-active-turn condition",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Needs active-turn counter/provenance to resolve exact legality/success.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 5272,
+        "matched": "fakeout"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; active-turn branch",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-firstimpression",
+      "kind": "move",
+      "name": "First Impression first-active-turn condition",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Same first-active-turn provenance need as Fake Out.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 5670,
+        "matched": "firstimpression"
+      }
+    },
+    {
+      "categories": [
+        "format/generation overrides"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; not treated as old-gen branch",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-feint",
+      "kind": "move",
+      "name": "Feint Gen 9 Protect-breaking behavior",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Current Gen 9 behavior differs from older assumptions; keep format-scoped.",
+      "recommended_next": "format-scoped adapter",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 5362,
+        "matched": "feint"
+      }
+    },
+    {
+      "categories": [
+        "branch-dependent execution"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; batch 7 marks future-format pressure",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-pursuit",
+      "kind": "move",
+      "name": "Pursuit target-switch old/NatDex behavior",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Absent from current Gen 9 Randbats but important for NatDex/old-gen adapters.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 14888,
+        "matched": "pursuit"
+      }
+    },
+    {
+      "categories": [
+        "accuracy / priority / target validity"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; volatile pressure only",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTry / onTryHit / condition",
+      "id": "branch-powder",
+      "kind": "move",
+      "name": "Powder Fire-move prevention",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "low",
+      "priority": "medium",
+      "reason": "Needs volatile prevention callback routing for Fire moves.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 3074,
+        "matched": "powder"
+      }
+    },
+    {
+      "categories": [
+        "accuracy / priority / target validity",
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "yes; priority/timing and branch risk fields",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTryHit / terrain condition",
+      "id": "priority-psychic-terrain",
+      "kind": "condition",
+      "name": "Psychic Terrain priority prevention",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "low",
+      "reason": "Already has fixed fixtures for grounded priority prevention; keep as regression coverage.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/conditions.ts",
+        "line": 2552,
+        "matched": "psychicterrain"
+      }
+    },
+    {
+      "categories": [
+        "accuracy / priority / target validity",
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "partial; status action effects exist, prevention is rollout",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onSetStatus / terrain condition",
+      "id": "terrain-status-prevention",
+      "kind": "condition",
+      "name": "Misty/Electric Terrain status prevention",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "low",
+      "reason": "Current parity passes selected terrain prevention; keep expanding only if new callbacks appear.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/conditions.ts",
+        "line": 2556,
+        "matched": "mistyterrain"
+      }
+    },
+    {
+      "categories": [
+        "crit chance and crit rules"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; guaranteed_crit",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "willCrit / critRatio",
+      "id": "secondary-flowertrick",
+      "kind": "move",
+      "name": "Guaranteed crit moves",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "no action now"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Batch 7 distinguishes guaranteed from ordinary crit.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 6087,
+        "matched": "flowertrick"
+      }
+    },
+    {
+      "categories": [
+        "secondary effects and secondary modifiers"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; batch 8 modifier fields",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onModifyMove",
+      "id": "secondary-serenegrace",
+      "kind": "ability",
+      "name": "Serene Grace secondary chance modifier",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Features now expose modified chance; rollout/search still should verify outcome provenance.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 4042,
+        "matched": "serenegrace"
+      }
+    },
+    {
+      "categories": [
+        "secondary effects and secondary modifiers"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; batch 8 marks secondary removal, damage power interaction needs audit",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onBasePower / hasSheerForceBoost",
+      "id": "secondary-sheerforce",
+      "kind": "ability",
+      "name": "Sheer Force secondary removal and power boost",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "v7 action feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "high",
+      "reason": "Need ensure damage estimates include Sheer Force power and no secondary side effects.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 148,
+        "matched": "sheerforce"
+      }
+    },
+    {
+      "categories": [
+        "secondary effects and secondary modifiers"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes when known target ability",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onModifySecondaries",
+      "id": "secondary-shielddust",
+      "kind": "ability",
+      "name": "Shield Dust secondary blocking",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Feature provenance exists; transition tests should verify blocking.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 3278,
+        "matched": "shielddust"
+      }
+    },
+    {
+      "categories": [
+        "secondary effects and secondary modifiers"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes when known target item",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onModifySecondaries",
+      "id": "secondary-covertcloak",
+      "kind": "item",
+      "name": "Covert Cloak secondary blocking",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Feature provenance exists; transition tests should verify blocking.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/items.ts",
+        "line": 1147,
+        "matched": "covertcloak"
+      }
+    },
+    {
+      "categories": [
+        "multi-hit and sequential-hit behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; batch 7 sequential distribution",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-populationbomb",
+      "kind": "move",
+      "name": "Population Bomb sequential multiaccuracy",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Features summarize expected hit count but rollout needs distribution fixture.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 14103,
+        "matched": "populationbomb"
+      }
+    },
+    {
+      "categories": [
+        "multi-hit and sequential-hit behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; batch 7 sequential and per-hit power fields",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-tripleaxel",
+      "kind": "move",
+      "name": "Triple Axel sequential hit power ramp",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Needs fixture for miss-stop and per-hit power ramp.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 20785,
+        "matched": "tripleaxel"
+      }
+    },
+    {
+      "categories": [
+        "multi-hit and sequential-hit behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; batch 7 distribution",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-bulletseed",
+      "kind": "move",
+      "name": "2-5 hit distribution",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Feature has distribution summary; exact rollout can stay future unless decision impact needs it.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 2072,
+        "matched": "bulletseed"
+      }
+    },
+    {
+      "categories": [
+        "random-call and callable-pool behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes; batch 7 pool summary",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-metronome",
+      "kind": "move",
+      "name": "Metronome format callable pool",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter",
+        "no-leakage test"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Pool must remain format-scoped and not leak sampled called move.",
+      "recommended_next": "format-scoped adapter",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 29,
+        "matched": "metronome"
+      }
+    },
+    {
+      "categories": [
+        "random-call and callable-pool behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes when current moves known",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-sleeptalk",
+      "kind": "move",
+      "name": "Sleep Talk current move callable pool",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "no-leakage test"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Needs sleep-state and known move-slot provenance; do not sample future called move.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 639,
+        "matched": "sleeptalk"
+      }
+    },
+    {
+      "categories": [
+        "random-call and callable-pool behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; dependency flag only",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-copycat",
+      "kind": "move",
+      "name": "Copycat last-move callable",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Requires reliable last-move provenance and format exclusions.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 639,
+        "matched": "copycat"
+      }
+    },
+    {
+      "categories": [
+        "random-call and callable-pool behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; dependency flag only",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-mirrormove",
+      "kind": "move",
+      "name": "Mirror Move target last move",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Mostly future-format; needs target last-move provenance.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 12465,
+        "matched": "mirrormove"
+      }
+    },
+    {
+      "categories": [
+        "random-call and callable-pool behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; batch 7 marks party/format dependency",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "multihit / multiaccuracy / onHit",
+      "id": "call-multihit-assist",
+      "kind": "move",
+      "name": "Assist party callable pool",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter",
+        "state/provenance feature"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Absent from current Gen 9 Randbats but important for NatDex/Assist-abuse teams.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 630,
+        "matched": "assist"
+      }
+    },
+    {
+      "categories": [
+        "multi-hit and sequential-hit behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes when known item",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onModifyMove",
+      "id": "multihit-loadeddice",
+      "kind": "item",
+      "name": "Loaded Dice multi-hit modification",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Changes 2-5 and Population Bomb hit distribution when item known.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/items.ts",
+        "line": 3155,
+        "matched": "loadeddice"
+      }
+    },
+    {
+      "categories": [
+        "multi-hit and sequential-hit behavior"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "yes when known ability",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onModifyMove",
+      "id": "multihit-skilllink",
+      "kind": "ability",
+      "name": "Skill Link max-hit guarantee",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Forces max hits and removes multiaccuracy when ability known.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 4211,
+        "matched": "skilllink"
+      }
+    },
+    {
+      "categories": [
+        "switch / drag / pivot / forced replacement"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes; batch 8",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "selfSwitch",
+      "id": "switch-prevention-uturn",
+      "kind": "move",
+      "name": "Self-pivot follow-up replacement",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Action label remains U-turn; replacement is later forced decision.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 20974,
+        "matched": "uturn"
+      }
+    },
+    {
+      "categories": [
+        "switch / drag / pivot / forced replacement"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes; batch 8",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "selfdestruct",
+      "id": "switch-prevention-memento",
+      "kind": "move",
+      "name": "Self-KO sacrifice replacement",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs transition/replacement fixture for sacrifice tempo.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 12032,
+        "matched": "memento"
+      }
+    },
+    {
+      "categories": [
+        "switch / drag / pivot / forced replacement"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes; batch 8",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "forceSwitch / drag",
+      "id": "switch-prevention-roar",
+      "kind": "move",
+      "name": "Phazing forced target switch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Features pressure; rollout/search must model random replacement branch.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/moves.ts",
+        "line": 11587,
+        "matched": "roar"
+      }
+    },
+    {
+      "categories": [
+        "item-triggered effects"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes when known item",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onAfterMoveSecondary",
+      "id": "switch-prevention-ejectbutton",
+      "kind": "item",
+      "name": "Eject Button hit-triggered switch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs branch fixture for item-triggered switch after damage.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/items.ts",
+        "line": 1543,
+        "matched": "ejectbutton"
+      }
+    },
+    {
+      "categories": [
+        "item-triggered effects"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes when known item",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onAfterBoost",
+      "id": "switch-prevention-ejectpack",
+      "kind": "item",
+      "name": "Eject Pack stat-drop switch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs stat-drop trigger and suppression provenance.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/items.ts",
+        "line": 1568,
+        "matched": "ejectpack"
+      }
+    },
+    {
+      "categories": [
+        "item-triggered effects"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes when known item",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onAfterMoveSecondary",
+      "id": "switch-prevention-redcard",
+      "kind": "item",
+      "name": "Red Card forced target switch",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs forced random replacement branch fixture.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/items.ts",
+        "line": 4746,
+        "matched": "redcard"
+      }
+    },
+    {
+      "categories": [
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial/no; known rollout GAP",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTryHit",
+      "id": "switch-prevention-magicbounce",
+      "kind": "ability",
+      "name": "Magic Bounce reflection",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "high",
+      "reason": "Needs reflected action target and side-effect provenance.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 2380,
+        "matched": "magicbounce"
+      }
+    },
+    {
+      "categories": [
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial/no; known rollout GAP",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onTryHit",
+      "id": "switch-prevention-goodasgold",
+      "kind": "ability",
+      "name": "Good as Gold status move blocking",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "high",
+      "reason": "Needs reliable ability provenance and generalized status callback routing.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 1571,
+        "matched": "goodasgold"
+      }
+    },
+    {
+      "categories": [
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; prevention helper covers represented state",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onAnyTryMove",
+      "id": "switch-prevention-damp",
+      "kind": "ability",
+      "name": "Damp Explosion prevention",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "low",
+      "reason": "Existing parity passes Damp Explosion; keep regression.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 809,
+        "matched": "damp"
+      }
+    },
+    {
+      "categories": [
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; coarse blocker exists",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onTryHit",
+      "id": "switch-prevention-soundproof",
+      "kind": "ability",
+      "name": "Soundproof sound-move immunity",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs generalized flag-based prevention fixtures beyond coarse tactical blocker.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 4350,
+        "matched": "soundproof"
+      }
+    },
+    {
+      "categories": [
+        "ability-triggered prevention/modification"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "partial; coarse blocker exists",
+      "gen9_randbats_relevance": "medium",
+      "hook_or_field": "onTryHit",
+      "id": "switch-prevention-bulletproof",
+      "kind": "ability",
+      "name": "Bulletproof bullet-move immunity",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "medium",
+      "reason": "Needs generalized flag-based prevention fixtures.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/abilities.ts",
+        "line": 474,
+        "matched": "bulletproof"
+      }
+    },
+    {
+      "categories": [
+        "residual and end-of-turn effects"
+      ],
+      "current_rollout_harness_likely_covers": "no; known GAP",
+      "current_v7_likely_covers": "partial; binding pressure only",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onResidual",
+      "id": "residual-format-partiallytrapped-0",
+      "kind": "condition",
+      "name": "Binding/partial trapping duration and source",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "high",
+      "reason": "Needs source activity/effect, duration, and Binding Band divisor.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/conditions.ts",
+        "line": 223,
+        "matched": "partiallytrapped"
+      }
+    },
+    {
+      "categories": [
+        "residual and end-of-turn effects"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "partial; rollout not action schema",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onResidual",
+      "id": "residual-format-sandstorm-1",
+      "kind": "condition",
+      "name": "Sandstorm residual",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "no action now"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "low",
+      "reason": "Fixture already passes ordinary sandstorm chip for represented state.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/conditions.ts",
+        "line": 624,
+        "matched": "sandstorm"
+      }
+    },
+    {
+      "categories": [
+        "residual and end-of-turn effects"
+      ],
+      "current_rollout_harness_likely_covers": "yes",
+      "current_v7_likely_covers": "partial; rollout not action schema",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "onResidual",
+      "id": "residual-format-grassyterrain-2",
+      "kind": "condition",
+      "name": "Grassy Terrain end-of-turn healing",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "no action now"
+      ],
+      "old_gen_only_relevance": "none",
+      "priority": "low",
+      "reason": "Batch 4 rollout parity covers grounded and airborne no-heal fixtures.",
+      "recommended_next": "no action now",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/conditions.ts",
+        "line": 2554,
+        "matched": "grassyterrain"
+      }
+    },
+    {
+      "categories": [
+        "format/generation overrides"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "yes for Gen 9 self-KO; old-gen quirks deferred",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "selfdestruct / gen mods",
+      "id": "residual-format-explosion-3",
+      "kind": "move",
+      "name": "Old-gen Explosion defense/crit/self-KO quirks",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Gen 1-4 Explosion and crit behavior are future-format notes only.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/moves.ts",
+        "line": 307,
+        "matched": "explosion"
+      }
+    },
+    {
+      "categories": [
+        "format/generation overrides"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "partial; recharge timing fields exist for current gen",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "mustrecharge / gen mods",
+      "id": "residual-format-hyperbeam-4",
+      "kind": "move",
+      "name": "Old-gen recharge quirks",
+      "natdex_future_format_relevance": "medium",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Old-gen recharge behavior belongs in generation adapter, not current Gen 9 schema.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/scripts.ts",
+        "line": 135,
+        "matched": "hyperbeam"
+      }
+    },
+    {
+      "categories": [
+        "format/generation overrides"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "no; current binding only pressure",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onBeforeMove / residual",
+      "id": "residual-format-partiallytrapped-5",
+      "kind": "condition",
+      "name": "Old-gen partial trapping lock behavior",
+      "natdex_future_format_relevance": "medium",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Old-gen partial trapping differs radically and should stay format-scoped.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/conditions.ts",
+        "line": 186,
+        "matched": "partiallytrapped"
+      }
+    },
+    {
+      "categories": [
+        "crit chance and crit rules"
+      ],
+      "current_rollout_harness_likely_covers": "no",
+      "current_v7_likely_covers": "no; current crit fields Gen 9 scoped",
+      "gen9_randbats_relevance": "low",
+      "hook_or_field": "onModifyCritRatio / gen mods",
+      "id": "residual-format-focusenergy-6",
+      "kind": "condition",
+      "name": "Old-gen crit quirks",
+      "natdex_future_format_relevance": "medium",
+      "needs": [
+        "format-scoped adapter"
+      ],
+      "old_gen_only_relevance": "high",
+      "priority": "low",
+      "reason": "Old-gen crit stages and Focus Energy quirks are not current target.",
+      "recommended_next": "deferred NatDex/old-gen backlog",
+      "source": {
+        "file": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/scripts.ts",
+        "line": 8,
+        "matched": "focusenergy"
+      }
+    },
+    {
+      "categories": [
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "not directly",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "local sim-core wrapper",
+      "id": "local-wrapper-damage_calc",
+      "kind": "local-wrapper",
+      "name": "sim-core damage calculator wrapper",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Wrapper can omit dynamic callbacks unless explicitly plumbed; keep audit tests tied to Showdown source.",
+      "recommended_next": "v7 batch 9",
+      "source": {
+        "file": "sim-core/src/damage_calc.ts",
+        "line": 1,
+        "matched": "damage_calc"
+      }
+    },
+    {
+      "categories": [
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "not directly",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "local sim-core wrapper",
+      "id": "local-wrapper-rollout_parity_oracle",
+      "kind": "local-wrapper",
+      "name": "rollout parity oracle fixtures",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "medium",
+      "reason": "Local fixtures should expand only where represented state/provenance is available.",
+      "recommended_next": "rollout parity batch 5",
+      "source": {
+        "file": "sim-core/src/rollout_parity_oracle.ts",
+        "line": 1,
+        "matched": "rollout_parity_oracle"
+      }
+    },
+    {
+      "categories": [
+        "no-leakage/public-information concerns"
+      ],
+      "current_rollout_harness_likely_covers": "partial",
+      "current_v7_likely_covers": "not directly",
+      "gen9_randbats_relevance": "high",
+      "hook_or_field": "local sim-core wrapper",
+      "id": "local-wrapper-state_extractor",
+      "kind": "local-wrapper",
+      "name": "live state extraction provenance",
+      "natdex_future_format_relevance": "high",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "old_gen_only_relevance": "medium",
+      "priority": "high",
+      "reason": "Many gaps are not action features; they require reliable public/private state extraction.",
+      "recommended_next": "state-schema/provenance design",
+      "source": {
+        "file": "sim-core/src/state_extractor.ts",
+        "line": 1,
+        "matched": "state_extractor"
+      }
+    }
+  ],
+  "format_split_counts": {
+    "gen9_high_or_medium": 63,
+    "natdex_future_high_or_medium": 75,
+    "old_gen_high_or_medium": 36
+  },
+  "hook_occurrence_counts": {
+    "condition": 444,
+    "critRatio": 112,
+    "flags": 2066,
+    "multihit": 107,
+    "onAfterHit": 20,
+    "onAfterMove": 33,
+    "onAfterMoveSecondary": 15,
+    "onAfterMoveSecondarySelf": 24,
+    "onBasePower": 207,
+    "onBeforeMove": 76,
+    "onDisableMove": 36,
+    "onDragOut": 8,
+    "onEffectiveness": 27,
+    "onFaint": 164,
+    "onHit": 391,
+    "onModifyDamage": 32,
+    "onModifyMove": 147,
+    "onModifyPriority": 25,
+    "onModifyType": 43,
+    "onPrepareHit": 200,
+    "onResidual": 132,
+    "onSourceBasePower": 6,
+    "onSwitchIn": 67,
+    "onSwitchOut": 159,
+    "onTry": 86,
+    "onTryHit": 178,
+    "overrideDefensiveStat": 15,
+    "overrideOffensiveStat": 18,
+    "secondaries": 141,
+    "secondary": 1205,
+    "self.volatileStatus": 2,
+    "volatileStatus": 287
+  },
+  "metadata": {
+    "batch7_prefix_fingerprint": "c03b2dd345f47dae0bffefc2a0d2b5731ee7d1eb8f2bf4cabc8d415d183149f5",
+    "current_action_dim": 552,
+    "current_action_fingerprint": "956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7",
+    "current_action_schema": "legal-action-v7 batch 8",
+    "generated_at_utc": "2026-06-20T19:29:46.417143+00:00",
+    "hook_occurrences_found": 6473,
+    "inventory_entries": 75,
+    "rollout_parity_summary": {
+      "FAIL": 0,
+      "GAP": 4,
+      "PASS": 29,
+      "fixtures": 33
+    },
+    "scan_scope": [
+      "pokemon-showdown/data/{moves,abilities,items,conditions,rulesets,scripts}.ts",
+      "pokemon-showdown/config/formats.ts",
+      "pokemon-showdown/data/mods/**/{moves,abilities,items,conditions,rulesets,scripts}.ts",
+      "pokemon-showdown/sim/dex-moves.ts",
+      "sim-core/src/**/*.ts"
+    ],
+    "source_files_scanned": 155,
+    "task": "source-driven mechanics edge-case inventory from local Pokemon Showdown source"
+  },
+  "scanned_files": [
+    {
+      "hook_occurrences": 2763,
+      "hooks": {
+        "condition": 138,
+        "critRatio": 33,
+        "flags": 1009,
+        "multihit": 34,
+        "onAfterHit": 8,
+        "onAfterMove": 12,
+        "onAfterMoveSecondarySelf": 3,
+        "onBasePower": 27,
+        "onBeforeMove": 11,
+        "onDisableMove": 9,
+        "onDragOut": 1,
+        "onEffectiveness": 4,
+        "onFaint": 3,
+        "onHit": 175,
+        "onModifyMove": 33,
+        "onModifyPriority": 1,
+        "onModifyType": 15,
+        "onPrepareHit": 20,
+        "onResidual": 20,
+        "onSourceBasePower": 1,
+        "onSwitchIn": 7,
+        "onTry": 41,
+        "onTryHit": 58,
+        "overrideDefensiveStat": 3,
+        "overrideOffensiveStat": 4,
+        "secondaries": 20,
+        "secondary": 926,
+        "volatileStatus": 147
+      },
+      "line_count": 22113,
+      "path": "sim-core/node_modules/pokemon-showdown/data/moves.ts"
+    },
+    {
+      "hook_occurrences": 534,
+      "hooks": {
+        "condition": 10,
+        "critRatio": 3,
+        "flags": 357,
+        "multihit": 11,
+        "onAfterMoveSecondary": 4,
+        "onAfterMoveSecondarySelf": 1,
+        "onBasePower": 20,
+        "onBeforeMove": 2,
+        "onDisableMove": 1,
+        "onDragOut": 2,
+        "onEffectiveness": 2,
+        "onFaint": 1,
+        "onHit": 2,
+        "onModifyDamage": 3,
+        "onModifyMove": 19,
+        "onModifyPriority": 3,
+        "onModifyType": 6,
+        "onPrepareHit": 3,
+        "onResidual": 15,
+        "onSourceBasePower": 1,
+        "onSwitchIn": 7,
+        "onSwitchOut": 3,
+        "onTryHit": 22,
+        "secondaries": 22,
+        "secondary": 10,
+        "volatileStatus": 4
+      },
+      "line_count": 5640,
+      "path": "sim-core/node_modules/pokemon-showdown/data/abilities.ts"
+    },
+    {
+      "hook_occurrences": 152,
+      "hooks": {
+        "condition": 2,
+        "critRatio": 10,
+        "flags": 29,
+        "onAfterMoveSecondary": 4,
+        "onAfterMoveSecondarySelf": 3,
+        "onBasePower": 56,
+        "onDisableMove": 1,
+        "onEffectiveness": 1,
+        "onHit": 2,
+        "onModifyDamage": 3,
+        "onModifyMove": 7,
+        "onResidual": 9,
+        "onSwitchIn": 2,
+        "onTryHit": 1,
+        "secondaries": 11,
+        "secondary": 5,
+        "volatileStatus": 6
+      },
+      "line_count": 7656,
+      "path": "sim-core/node_modules/pokemon-showdown/data/items.ts"
+    },
+    {
+      "hook_occurrences": 30,
+      "hooks": {
+        "condition": 3,
+        "flags": 2,
+        "onAfterMoveSecondary": 1,
+        "onBasePower": 2,
+        "onBeforeMove": 7,
+        "onDisableMove": 1,
+        "onDragOut": 3,
+        "onEffectiveness": 1,
+        "onModifyMove": 1,
+        "onResidual": 7,
+        "onSwitchIn": 2
+      },
+      "line_count": 891,
+      "path": "sim-core/node_modules/pokemon-showdown/data/conditions.ts"
+    },
+    {
+      "hook_occurrences": 28,
+      "hooks": {
+        "flags": 4,
+        "onBasePower": 1,
+        "onEffectiveness": 1,
+        "onFaint": 2,
+        "onHit": 2,
+        "onModifyMove": 4,
+        "onPrepareHit": 2,
+        "onResidual": 1,
+        "onSwitchIn": 2,
+        "onTry": 2,
+        "secondaries": 4,
+        "volatileStatus": 3
+      },
+      "line_count": 2897,
+      "path": "sim-core/node_modules/pokemon-showdown/data/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/scripts.ts"
+    },
+    {
+      "hook_occurrences": 79,
+      "hooks": {
+        "condition": 1,
+        "critRatio": 3,
+        "flags": 15,
+        "multihit": 1,
+        "onAfterHit": 1,
+        "onAfterMoveSecondarySelf": 1,
+        "onBasePower": 3,
+        "onEffectiveness": 4,
+        "onFaint": 2,
+        "onHit": 4,
+        "onModifyMove": 6,
+        "onModifyPriority": 1,
+        "onModifyType": 2,
+        "onPrepareHit": 1,
+        "onResidual": 1,
+        "onSwitchIn": 9,
+        "onSwitchOut": 3,
+        "onTry": 1,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1,
+        "secondaries": 9,
+        "secondary": 7,
+        "volatileStatus": 2
+      },
+      "line_count": 4401,
+      "path": "sim-core/node_modules/pokemon-showdown/config/formats.ts"
+    },
+    {
+      "hook_occurrences": 62,
+      "hooks": {
+        "condition": 3,
+        "critRatio": 4,
+        "flags": 6,
+        "multihit": 4,
+        "onAfterHit": 1,
+        "onAfterMove": 1,
+        "onAfterMoveSecondary": 1,
+        "onAfterMoveSecondarySelf": 1,
+        "onBasePower": 1,
+        "onDisableMove": 1,
+        "onEffectiveness": 1,
+        "onHit": 3,
+        "onModifyMove": 1,
+        "onModifyPriority": 1,
+        "onModifyType": 1,
+        "onPrepareHit": 1,
+        "onTry": 1,
+        "onTryHit": 1,
+        "overrideDefensiveStat": 4,
+        "overrideOffensiveStat": 4,
+        "secondaries": 6,
+        "secondary": 10,
+        "volatileStatus": 5
+      },
+      "line_count": 688,
+      "path": "sim-core/node_modules/pokemon-showdown/sim/dex-moves.ts"
+    },
+    {
+      "hook_occurrences": 97,
+      "hooks": {
+        "condition": 11,
+        "critRatio": 5,
+        "flags": 6,
+        "onBeforeMove": 2,
+        "onDisableMove": 2,
+        "onHit": 15,
+        "onModifyMove": 2,
+        "onTry": 1,
+        "onTryHit": 8,
+        "secondaries": 1,
+        "secondary": 26,
+        "volatileStatus": 18
+      },
+      "line_count": 977,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/moves.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "condition": 1,
+        "onTryHit": 1,
+        "secondary": 2,
+        "volatileStatus": 2
+      },
+      "line_count": 90,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1jpn/moves.ts"
+    },
+    {
+      "hook_occurrences": 21,
+      "hooks": {
+        "condition": 3,
+        "onBeforeMove": 5,
+        "onDisableMove": 1,
+        "onHit": 6,
+        "onTryHit": 2,
+        "secondary": 1,
+        "volatileStatus": 3
+      },
+      "line_count": 296,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1stadium/moves.ts"
+    },
+    {
+      "hook_occurrences": 105,
+      "hooks": {
+        "condition": 21,
+        "critRatio": 10,
+        "flags": 15,
+        "multihit": 2,
+        "onAfterHit": 1,
+        "onAfterMove": 3,
+        "onBasePower": 1,
+        "onBeforeMove": 1,
+        "onDisableMove": 1,
+        "onHit": 13,
+        "onModifyMove": 2,
+        "onPrepareHit": 6,
+        "onResidual": 2,
+        "onSourceBasePower": 2,
+        "onSwitchIn": 1,
+        "onTry": 3,
+        "onTryHit": 6,
+        "secondaries": 5,
+        "secondary": 6,
+        "volatileStatus": 4
+      },
+      "line_count": 964,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2/moves.ts"
+    },
+    {
+      "hook_occurrences": 5,
+      "hooks": {
+        "condition": 1,
+        "flags": 1,
+        "onDisableMove": 1,
+        "onModifyMove": 1,
+        "onResidual": 1
+      },
+      "line_count": 49,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2doubles/moves.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "onHit": 1,
+        "onPrepareHit": 2
+      },
+      "line_count": 66,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2stadium2/moves.ts"
+    },
+    {
+      "hook_occurrences": 59,
+      "hooks": {
+        "condition": 10,
+        "flags": 20,
+        "multihit": 1,
+        "onBeforeMove": 3,
+        "onDisableMove": 3,
+        "onHit": 6,
+        "onModifyMove": 4,
+        "onResidual": 2,
+        "onTry": 1,
+        "onTryHit": 2,
+        "secondary": 4,
+        "volatileStatus": 3
+      },
+      "line_count": 764,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/moves.ts"
+    },
+    {
+      "hook_occurrences": 205,
+      "hooks": {
+        "condition": 47,
+        "flags": 66,
+        "multihit": 1,
+        "onAfterHit": 1,
+        "onAfterMove": 5,
+        "onBeforeMove": 5,
+        "onDisableMove": 5,
+        "onDragOut": 1,
+        "onHit": 22,
+        "onModifyMove": 5,
+        "onPrepareHit": 1,
+        "onResidual": 8,
+        "onSwitchIn": 2,
+        "onTry": 7,
+        "onTryHit": 11,
+        "secondaries": 7,
+        "secondary": 2,
+        "volatileStatus": 9
+      },
+      "line_count": 1964,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/moves.ts"
+    },
+    {
+      "hook_occurrences": 92,
+      "hooks": {
+        "condition": 13,
+        "flags": 43,
+        "onBasePower": 1,
+        "onHit": 13,
+        "onModifyMove": 1,
+        "onPrepareHit": 1,
+        "onTry": 3,
+        "onTryHit": 9,
+        "secondaries": 1,
+        "secondary": 3,
+        "volatileStatus": 4
+      },
+      "line_count": 1055,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/moves.ts"
+    },
+    {
+      "hook_occurrences": 23,
+      "hooks": {
+        "condition": 6,
+        "flags": 8,
+        "onAfterMoveSecondarySelf": 1,
+        "onBasePower": 1,
+        "onDisableMove": 1,
+        "onHit": 1,
+        "onPrepareHit": 1,
+        "onResidual": 1,
+        "onTry": 1,
+        "onTryHit": 1,
+        "secondary": 1
+      },
+      "line_count": 293,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6/moves.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 18,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6xy/moves.ts"
+    },
+    {
+      "hook_occurrences": 47,
+      "hooks": {
+        "condition": 7,
+        "flags": 8,
+        "onBasePower": 3,
+        "onHit": 15,
+        "onPrepareHit": 1,
+        "onResidual": 1,
+        "onSwitchIn": 2,
+        "onTry": 1,
+        "onTryHit": 6,
+        "secondaries": 1,
+        "secondary": 2
+      },
+      "line_count": 1221,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7/moves.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 1,
+        "onHit": 1,
+        "onTry": 1
+      },
+      "line_count": 93,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7letsgo/moves.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "condition": 1
+      },
+      "line_count": 17,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7pokebilities/moves.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 14,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7sm/moves.ts"
+    },
+    {
+      "hook_occurrences": 26,
+      "hooks": {
+        "condition": 2,
+        "flags": 17,
+        "onAfterMove": 1,
+        "onBasePower": 1,
+        "onModifyMove": 2,
+        "onPrepareHit": 1,
+        "onSwitchIn": 1,
+        "onTry": 1
+      },
+      "line_count": 587,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8/moves.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 915,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8bdsp/moves.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 148,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8dlc1/moves.ts"
+    },
+    {
+      "hook_occurrences": 37,
+      "hooks": {
+        "condition": 7,
+        "flags": 11,
+        "onBeforeMove": 3,
+        "onDisableMove": 3,
+        "onFaint": 2,
+        "onHit": 5,
+        "onResidual": 3,
+        "onTry": 1,
+        "onTryHit": 2
+      },
+      "line_count": 466,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8linked/moves.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "flags": 6
+      },
+      "line_count": 197,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9dlc1/moves.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 70,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9predlc/moves.ts"
+    },
+    {
+      "hook_occurrences": 846,
+      "hooks": {
+        "condition": 91,
+        "critRatio": 5,
+        "flags": 180,
+        "multihit": 13,
+        "onAfterHit": 6,
+        "onAfterMove": 2,
+        "onAfterMoveSecondarySelf": 5,
+        "onBasePower": 8,
+        "onBeforeMove": 1,
+        "onDisableMove": 3,
+        "onDragOut": 1,
+        "onEffectiveness": 5,
+        "onHit": 92,
+        "onModifyMove": 21,
+        "onModifyPriority": 9,
+        "onModifyType": 10,
+        "onPrepareHit": 153,
+        "onResidual": 6,
+        "onSwitchIn": 6,
+        "onTry": 19,
+        "onTryHit": 13,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 3,
+        "secondaries": 7,
+        "secondary": 139,
+        "volatileStatus": 47
+      },
+      "line_count": 7097,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/moves.ts"
+    },
+    {
+      "hook_occurrences": 13,
+      "hooks": {
+        "condition": 4,
+        "flags": 3,
+        "onPrepareHit": 1,
+        "onSwitchIn": 2,
+        "secondary": 3
+      },
+      "line_count": 88,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/littlecolosseum/moves.ts"
+    },
+    {
+      "hook_occurrences": 11,
+      "hooks": {
+        "condition": 3,
+        "flags": 2,
+        "onBeforeMove": 1,
+        "onFaint": 1,
+        "onHit": 3,
+        "onSwitchIn": 1
+      },
+      "line_count": 188,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/partnersincrime/moves.ts"
+    },
+    {
+      "hook_occurrences": 32,
+      "hooks": {
+        "condition": 15,
+        "flags": 1,
+        "multihit": 2,
+        "onAfterMove": 2,
+        "onHit": 2,
+        "onResidual": 5,
+        "onSwitchIn": 4,
+        "onTryHit": 1
+      },
+      "line_count": 305,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/passiveaggressive/moves.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "condition": 1
+      },
+      "line_count": 17,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokebilities/moves.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "condition": 1,
+        "onHit": 1
+      },
+      "line_count": 30,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokemoves/moves.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "condition": 1
+      },
+      "line_count": 18,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharedpower/moves.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "onTry": 1
+      },
+      "line_count": 8,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharingiscaring/moves.ts"
+    },
+    {
+      "hook_occurrences": 8,
+      "hooks": {
+        "condition": 1,
+        "onEffectiveness": 2,
+        "onHit": 2,
+        "onModifyType": 3
+      },
+      "line_count": 125,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/thecardgame/moves.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 22,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/fullpotential/abilities.ts"
+    },
+    {
+      "hook_occurrences": 15,
+      "hooks": {
+        "flags": 9,
+        "onBeforeMove": 1,
+        "onResidual": 2,
+        "onSwitchIn": 1,
+        "onTryHit": 2
+      },
+      "line_count": 218,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/abilities.ts"
+    },
+    {
+      "hook_occurrences": 34,
+      "hooks": {
+        "condition": 2,
+        "flags": 11,
+        "onAfterMoveSecondary": 1,
+        "onBasePower": 4,
+        "onModifyMove": 2,
+        "onSourceBasePower": 1,
+        "onSwitchIn": 2,
+        "onSwitchOut": 1,
+        "onTryHit": 4,
+        "secondaries": 2,
+        "secondary": 4
+      },
+      "line_count": 572,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/abilities.ts"
+    },
+    {
+      "hook_occurrences": 12,
+      "hooks": {
+        "flags": 2,
+        "onModifyMove": 2,
+        "onTryHit": 2,
+        "secondaries": 2,
+        "secondary": 4
+      },
+      "line_count": 90,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/abilities.ts"
+    },
+    {
+      "hook_occurrences": 12,
+      "hooks": {
+        "flags": 4,
+        "onBasePower": 4,
+        "onBeforeMove": 1,
+        "onModifyMove": 2,
+        "onModifyPriority": 1
+      },
+      "line_count": 127,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6/abilities.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "condition": 1,
+        "flags": 3,
+        "onResidual": 1,
+        "onTryHit": 1
+      },
+      "line_count": 131,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7/abilities.ts"
+    },
+    {
+      "hook_occurrences": 5,
+      "hooks": {
+        "flags": 5
+      },
+      "line_count": 117,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7pokebilities/abilities.ts"
+    },
+    {
+      "hook_occurrences": 11,
+      "hooks": {
+        "flags": 5,
+        "multihit": 1,
+        "onModifyMove": 2,
+        "onPrepareHit": 2,
+        "onSourceBasePower": 1
+      },
+      "line_count": 1224,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8/abilities.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 38,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8bdsp/abilities.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 64,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8dlc1/abilities.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "condition": 2,
+        "flags": 4
+      },
+      "line_count": 117,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9dlc1/abilities.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "flags": 5,
+        "onModifyMove": 1
+      },
+      "line_count": 57,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9predlc/abilities.ts"
+    },
+    {
+      "hook_occurrences": 257,
+      "hooks": {
+        "condition": 8,
+        "critRatio": 3,
+        "flags": 123,
+        "multihit": 7,
+        "onAfterMove": 4,
+        "onAfterMoveSecondarySelf": 2,
+        "onBasePower": 16,
+        "onEffectiveness": 1,
+        "onHit": 1,
+        "onModifyDamage": 2,
+        "onModifyMove": 13,
+        "onModifyPriority": 5,
+        "onModifyType": 3,
+        "onPrepareHit": 2,
+        "onResidual": 17,
+        "onSwitchIn": 1,
+        "onSwitchOut": 4,
+        "onTry": 1,
+        "onTryHit": 17,
+        "overrideOffensiveStat": 1,
+        "secondaries": 13,
+        "secondary": 11,
+        "volatileStatus": 2
+      },
+      "line_count": 3163,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/abilities.ts"
+    },
+    {
+      "hook_occurrences": 21,
+      "hooks": {
+        "flags": 14,
+        "onAfterMoveSecondarySelf": 1,
+        "onBeforeMove": 1,
+        "onModifyPriority": 1,
+        "onPrepareHit": 2,
+        "onSwitchIn": 1,
+        "onTryHit": 1
+      },
+      "line_count": 195,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/littlecolosseum/abilities.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 2,
+        "onSwitchIn": 1
+      },
+      "line_count": 74,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/partnersincrime/abilities.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "onResidual": 1
+      },
+      "line_count": 65,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/passiveaggressive/abilities.ts"
+    },
+    {
+      "hook_occurrences": 11,
+      "hooks": {
+        "flags": 10,
+        "onSwitchIn": 1
+      },
+      "line_count": 219,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokebilities/abilities.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 2,
+        "onSwitchIn": 1
+      },
+      "line_count": 71,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokemoves/abilities.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 2,
+        "onSwitchIn": 1
+      },
+      "line_count": 78,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharedpower/abilities.ts"
+    },
+    {
+      "hook_occurrences": 7,
+      "hooks": {
+        "onBasePower": 1,
+        "onModifyPriority": 1,
+        "onModifyType": 3,
+        "onTryHit": 2
+      },
+      "line_count": 183,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/thecardgame/abilities.ts"
+    },
+    {
+      "hook_occurrences": 27,
+      "hooks": {
+        "critRatio": 2,
+        "onBasePower": 2,
+        "onModifyDamage": 18,
+        "onModifyMove": 1,
+        "secondaries": 3,
+        "volatileStatus": 1
+      },
+      "line_count": 319,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2/items.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "onModifyDamage": 2
+      },
+      "line_count": 15,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2stadium2/items.ts"
+    },
+    {
+      "hook_occurrences": 39,
+      "hooks": {
+        "onBasePower": 19,
+        "onModifyMove": 1,
+        "onResidual": 15,
+        "secondaries": 3,
+        "volatileStatus": 1
+      },
+      "line_count": 426,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/items.ts"
+    },
+    {
+      "hook_occurrences": 37,
+      "hooks": {
+        "condition": 4,
+        "critRatio": 4,
+        "flags": 2,
+        "onAfterMove": 3,
+        "onAfterMoveSecondary": 1,
+        "onAfterMoveSecondarySelf": 2,
+        "onBasePower": 5,
+        "onEffectiveness": 1,
+        "onModifyDamage": 1,
+        "onModifyMove": 5,
+        "onTryHit": 1,
+        "secondaries": 6,
+        "volatileStatus": 2
+      },
+      "line_count": 441,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 518,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 42,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5bw1/items.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 1,
+        "onAfterMoveSecondarySelf": 1,
+        "onBasePower": 1
+      },
+      "line_count": 204,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 102,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6xy/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 650,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 26,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7sm/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 745,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8/items.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "flags": 1,
+        "onAfterMoveSecondary": 1
+      },
+      "line_count": 839,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8bdsp/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 54,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8dlc1/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 14,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8linked/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 75,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9dlc1/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 46,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9predlc/items.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "onAfterMoveSecondarySelf": 1
+      },
+      "line_count": 145,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/items.ts"
+    },
+    {
+      "hook_occurrences": 9,
+      "hooks": {
+        "onBasePower": 7,
+        "onSwitchIn": 2
+      },
+      "line_count": 303,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/mixandmega/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 16,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/partnersincrime/items.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "onAfterMoveSecondarySelf": 1,
+        "onResidual": 2
+      },
+      "line_count": 68,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/passiveaggressive/items.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 31,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharingiscaring/items.ts"
+    },
+    {
+      "hook_occurrences": 28,
+      "hooks": {
+        "flags": 8,
+        "onBasePower": 19,
+        "onEffectiveness": 1
+      },
+      "line_count": 362,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/thecardgame/items.ts"
+    },
+    {
+      "hook_occurrences": 11,
+      "hooks": {
+        "condition": 1,
+        "onAfterMoveSecondary": 1,
+        "onBeforeMove": 6,
+        "onDisableMove": 1,
+        "secondary": 2
+      },
+      "line_count": 263,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/conditions.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 12,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1jpn/conditions.ts"
+    },
+    {
+      "hook_occurrences": 5,
+      "hooks": {
+        "onBeforeMove": 4,
+        "onHit": 1
+      },
+      "line_count": 125,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1stadium/conditions.ts"
+    },
+    {
+      "hook_occurrences": 15,
+      "hooks": {
+        "flags": 3,
+        "onAfterMoveSecondary": 1,
+        "onAfterMoveSecondarySelf": 1,
+        "onBeforeMove": 4,
+        "onModifyMove": 1,
+        "onResidual": 2,
+        "onSwitchIn": 1,
+        "secondary": 2
+      },
+      "line_count": 259,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2/conditions.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "flags": 1,
+        "onBeforeMove": 3,
+        "onSwitchIn": 2
+      },
+      "line_count": 137,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2stadium2/conditions.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "onBeforeMove": 1,
+        "onSwitchIn": 1
+      },
+      "line_count": 56,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/conditions.ts"
+    },
+    {
+      "hook_occurrences": 6,
+      "hooks": {
+        "flags": 1,
+        "onBeforeMove": 4,
+        "onSwitchIn": 1
+      },
+      "line_count": 172,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/conditions.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "onBasePower": 1,
+        "onResidual": 1,
+        "onSwitchIn": 1
+      },
+      "line_count": 55,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/conditions.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "onBeforeMove": 2,
+        "onResidual": 1
+      },
+      "line_count": 45,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6/conditions.ts"
+    },
+    {
+      "hook_occurrences": 5,
+      "hooks": {
+        "flags": 1,
+        "onBeforeMove": 4
+      },
+      "line_count": 69,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8linked/conditions.ts"
+    },
+    {
+      "hook_occurrences": 354,
+      "hooks": {
+        "condition": 2,
+        "flags": 6,
+        "multihit": 5,
+        "onBasePower": 3,
+        "onBeforeMove": 3,
+        "onDisableMove": 1,
+        "onEffectiveness": 2,
+        "onFaint": 153,
+        "onHit": 1,
+        "onModifyDamage": 3,
+        "onModifyMove": 8,
+        "onModifyPriority": 1,
+        "onResidual": 4,
+        "onSwitchIn": 1,
+        "onSwitchOut": 148,
+        "onTryHit": 3,
+        "secondaries": 8,
+        "secondary": 2
+      },
+      "line_count": 3345,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/conditions.ts"
+    },
+    {
+      "hook_occurrences": 4,
+      "hooks": {
+        "onResidual": 4
+      },
+      "line_count": 56,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/passiveaggressive/conditions.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "onBeforeMove": 1,
+        "onDisableMove": 1
+      },
+      "line_count": 44,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharingiscaring/conditions.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "onEffectiveness": 1
+      },
+      "line_count": 51,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/thecardgame/conditions.ts"
+    },
+    {
+      "hook_occurrences": 9,
+      "hooks": {
+        "critRatio": 8,
+        "overrideDefensiveStat": 1
+      },
+      "line_count": 135,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/fullpotential/scripts.ts"
+    },
+    {
+      "hook_occurrences": 36,
+      "hooks": {
+        "condition": 1,
+        "critRatio": 2,
+        "flags": 1,
+        "multihit": 3,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1,
+        "secondaries": 3,
+        "secondary": 11,
+        "self.volatileStatus": 2,
+        "volatileStatus": 11
+      },
+      "line_count": 1022,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1jpn/scripts.ts"
+    },
+    {
+      "hook_occurrences": 28,
+      "hooks": {
+        "critRatio": 2,
+        "flags": 1,
+        "multihit": 3,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1,
+        "secondaries": 3,
+        "secondary": 8,
+        "volatileStatus": 9
+      },
+      "line_count": 764,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1stadium/scripts.ts"
+    },
+    {
+      "hook_occurrences": 31,
+      "hooks": {
+        "critRatio": 6,
+        "flags": 1,
+        "multihit": 3,
+        "onAfterHit": 1,
+        "onHit": 1,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1,
+        "secondaries": 2,
+        "secondary": 12,
+        "volatileStatus": 3
+      },
+      "line_count": 724,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2/scripts.ts"
+    },
+    {
+      "hook_occurrences": 10,
+      "hooks": {
+        "critRatio": 6,
+        "flags": 1,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1,
+        "secondary": 1
+      },
+      "line_count": 319,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2doubles/scripts.ts"
+    },
+    {
+      "hook_occurrences": 11,
+      "hooks": {
+        "critRatio": 6,
+        "flags": 1,
+        "multihit": 2,
+        "overrideDefensiveStat": 1,
+        "overrideOffensiveStat": 1
+      },
+      "line_count": 593,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2stadium2/scripts.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "flags": 1,
+        "multihit": 2
+      },
+      "line_count": 486,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 189,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4pt/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5bw1/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen6xy/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7apex/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 98,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7letsgo/scripts.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 215,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7pokebilities/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7sm/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 3,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 11,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8bdsp/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8dlc1/scripts.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 554,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8linked/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 4,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9predlc/scripts.ts"
+    },
+    {
+      "hook_occurrences": 26,
+      "hooks": {
+        "flags": 12,
+        "multihit": 6,
+        "onAfterHit": 1,
+        "onHit": 1,
+        "onModifyPriority": 1,
+        "onTryHit": 1,
+        "secondaries": 2,
+        "secondary": 1,
+        "volatileStatus": 1
+      },
+      "line_count": 2084,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 111,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/littlecolosseum/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 543,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/mixandmega/scripts.ts"
+    },
+    {
+      "hook_occurrences": 4,
+      "hooks": {
+        "flags": 3,
+        "onSwitchIn": 1
+      },
+      "line_count": 462,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/partnersincrime/scripts.ts"
+    },
+    {
+      "hook_occurrences": 8,
+      "hooks": {
+        "flags": 2,
+        "multihit": 6
+      },
+      "line_count": 213,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/passiveaggressive/scripts.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 215,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokebilities/scripts.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 48,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/pokemoves/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 121,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/randomroulette/scripts.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "flags": 1
+      },
+      "line_count": 47,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharedpower/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 144,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/sharingiscaring/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 139,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/thecardgame/scripts.ts"
+    },
+    {
+      "hook_occurrences": 2,
+      "hooks": {
+        "flags": 2
+      },
+      "line_count": 321,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/trademarked/scripts.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 74,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 91,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1jpn/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 7,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen1stadium/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 138,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 19,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2doubles/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 15,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen2stadium2/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 8,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen3/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 46,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen4/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 31,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen5/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 47,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 10,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen7letsgo/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 149,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 14,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen8dlc1/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 25,
+      "path": "sim-core/node_modules/pokemon-showdown/data/mods/gen9ssb/rulesets.ts"
+    },
+    {
+      "hook_occurrences": 4,
+      "hooks": {
+        "condition": 4
+      },
+      "line_count": 229,
+      "path": "sim-core/src/action_codec.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 378,
+      "path": "sim-core/src/baselines/heuristic.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 33,
+      "path": "sim-core/src/baselines/random.ts"
+    },
+    {
+      "hook_occurrences": 4,
+      "hooks": {
+        "condition": 4
+      },
+      "line_count": 140,
+      "path": "sim-core/src/battle_helpers.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 235,
+      "path": "sim-core/src/belief_fork.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 453,
+      "path": "sim-core/src/damage_calc.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 723,
+      "path": "sim-core/src/env_manager.ts"
+    },
+    {
+      "hook_occurrences": 3,
+      "hooks": {
+        "condition": 3
+      },
+      "line_count": 1035,
+      "path": "sim-core/src/rollout_parity_oracle.ts"
+    },
+    {
+      "hook_occurrences": 0,
+      "hooks": {},
+      "line_count": 405,
+      "path": "sim-core/src/server.ts"
+    },
+    {
+      "hook_occurrences": 7,
+      "hooks": {
+        "condition": 7
+      },
+      "line_count": 827,
+      "path": "sim-core/src/state_extractor.ts"
+    },
+    {
+      "hook_occurrences": 1,
+      "hooks": {
+        "condition": 1
+      },
+      "line_count": 225,
+      "path": "sim-core/src/types.ts"
+    }
+  ],
+  "top20_recommended_next_actions": [
+    {
+      "id": "future-sight",
+      "name": "Future Sight delayed slot damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Scheduling parity exists; replacement damage must use landing target state, not original stale damage.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "residual-format-partiallytrapped-0",
+      "name": "Binding/partial trapping duration and source",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Needs source activity/effect, duration, and Binding Band divisor.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "switch-prevention-goodasgold",
+      "name": "Good as Gold status move blocking",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Needs reliable ability provenance and generalized status callback routing.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "switch-prevention-magicbounce",
+      "name": "Magic Bounce reflection",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Needs reflected action target and side-effect provenance.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "confusion-counter",
+      "name": "Confusion duration/range and self-hit branch",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Confusion duration is hidden; current action features do not expose elapsed/range or 33% self-hit branch state.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "dynamic-damage-beatup",
+      "name": "Beat Up party-member damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Depends on party composition and per-ally Attack stats; current impact fails closed.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "dynamic-damage-bide",
+      "name": "Bide stored damage release",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Depends on damage accumulated over prior turns.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "dynamic-damage-counter",
+      "name": "Counter received physical damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Depends on same-turn/last damage source and amount.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "dynamic-damage-metalburst",
+      "name": "Metal Burst received damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Depends on same-turn damage and move order.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "dynamic-damage-mirrorcoat",
+      "name": "Mirror Coat received special damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Depends on same-turn/last damage source and amount.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "local-wrapper-state_extractor",
+      "name": "live state extraction provenance",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Many gaps are not action features; they require reliable public/private state extraction.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "rest-fixed-sleep",
+      "name": "Rest fixed sleep provenance",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Rest overwrites sleep duration; model needs public Rest provenance separate from natural hidden duration.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "sleep-natural-counter",
+      "name": "Natural sleep counter/range",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Showdown samples hidden sleep duration; features must expose public elapsed/range, not sampled future wake turn.",
+      "recommended_next": "state-schema/provenance design"
+    },
+    {
+      "id": "secondary-sheerforce",
+      "name": "Sheer Force secondary removal and power boost",
+      "needs": [
+        "v7 action feature",
+        "rollout parity fixture"
+      ],
+      "priority": "high",
+      "reason": "Need ensure damage estimates include Sheer Force power and no secondary side effects.",
+      "recommended_next": "v7 batch 9"
+    },
+    {
+      "id": "branch-powder",
+      "name": "Powder Fire-move prevention",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "medium",
+      "reason": "Needs volatile prevention callback routing for Fire moves.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "branch-suckerpunch",
+      "name": "Sucker Punch target-action branch",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "priority": "medium",
+      "reason": "Feature marks pressure but search/rollout still needs branch evaluation.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "branch-thunderclap",
+      "name": "Thunderclap target-action branch",
+      "needs": [
+        "rollout parity fixture",
+        "future search/branch evaluation"
+      ],
+      "priority": "medium",
+      "reason": "Same target-action condition as Sucker Punch with priority context.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "call-multihit-populationbomb",
+      "name": "Population Bomb sequential multiaccuracy",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "priority": "medium",
+      "reason": "Features summarize expected hit count but rollout needs distribution fixture.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "call-multihit-tripleaxel",
+      "name": "Triple Axel sequential hit power ramp",
+      "needs": [
+        "rollout parity fixture"
+      ],
+      "priority": "medium",
+      "reason": "Needs fixture for miss-stop and per-hit power ramp.",
+      "recommended_next": "rollout parity batch 5"
+    },
+    {
+      "id": "doom-desire",
+      "name": "Doom Desire delayed slot damage",
+      "needs": [
+        "state/provenance feature",
+        "rollout parity fixture"
+      ],
+      "priority": "medium",
+      "reason": "Shares Future Sight queue and target-slot semantics; landing damage provenance still missing generally.",
+      "recommended_next": "rollout parity batch 5"
+    }
+  ]
+}

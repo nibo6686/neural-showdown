@@ -2,10 +2,12 @@ import argparse
 import hashlib
 import json
 import os
+import pickle
 import subprocess
 import time
 import tracemalloc
 from collections import Counter
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -18,7 +20,8 @@ from .action_features import (
     ACTION_FEATURE_NAMES_V5,
     ACTION_FEATURE_VERSION,
     ACTION_FEATURE_VERSION_V5,
-    build_action_feature_vector_v5,
+    ACTION_FEATURE_VERSION_V6,
+    action_feature_schema,
     to_id,
 )
 from .build_action_rank_dataset import _legal_actions_from_private_state
@@ -59,6 +62,9 @@ DEFAULT_FULL_OUTPUT_DIR = Path("artifacts/training_plan/datasets/diagnostic_300_
 DEFAULT_LABEL_MANIFEST = Path("artifacts/training_plan/vnext_label_manifest.json")
 DEFAULT_SEED = 20260619
 DEFAULT_BATTLES = 10
+# Conservative default for a 16 GB / 8-logical-CPU box: each worker also spawns a
+# node sim-core process, so leave headroom rather than saturating all cores.
+DEFAULT_WORKERS = 4
 SPLIT_QUOTAS_10 = {"train": 4, "validation": 3, "test": 3}
 RARE_MECHANICS = {
     "transform",
@@ -146,39 +152,85 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _overwrite_guard(output_dir: Path, manifest_path: Path) -> Tuple[bool, str]:
+    """Reject pointing a new manifest at a dataset built from a different manifest.
+
+    Idempotent re-runs of the same manifest are allowed (the existing convention);
+    a mismatching source manifest is treated as an accidental overwrite.
+    """
+    existing_metadata = output_dir / "feature_metadata.json"
+    if not existing_metadata.is_file():
+        return True, "fresh_or_empty_output_dir"
+    try:
+        existing = json.loads(existing_metadata.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return True, "unreadable_existing_metadata"
+    existing_sha = existing.get("source_manifest_sha256")
+    new_sha = _file_sha256(manifest_path) if manifest_path.is_file() else None
+    if existing_sha and new_sha and existing_sha != new_sha:
+        return False, f"existing_dataset_from_different_manifest_sha256={existing_sha}"
+    return True, "same_manifest_or_unknown"
+
+
 def _validate_full_preflight(
     *,
     manifest: Dict[str, Any],
     manifest_path: Path,
     output_dir: Path,
     label_manifest_path: Path = DEFAULT_LABEL_MANIFEST,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
 ) -> Dict[str, Any]:
+    """Generalized full-manifest preflight.
+
+    Expected battle/split counts are derived from the manifest's ``split_targets``
+    (falling back to the observed entry split distribution), so manifests other
+    than the legacy 300-battle one are accepted without weakening any check.
+    """
     entries = manifest.get("entries") if isinstance(manifest.get("entries"), list) else []
     replay_ids = [str(row.get("replay_id") or "") for row in entries]
     split_counts = Counter(str(row.get("split") or "") for row in entries)
+    split_targets = manifest.get("split_targets")
+    if isinstance(split_targets, dict) and split_targets:
+        expected_split_counts = Counter({str(key): int(value) for key, value in split_targets.items()})
+    else:
+        expected_split_counts = Counter(split_counts)
+    expected_total = sum(expected_split_counts.values())
     missing_paths = [str(row.get("path") or "") for row in entries if not Path(str(row.get("path") or "")).is_file()]
+    replay_to_splits: Dict[str, set] = {}
+    for row in entries:
+        replay_to_splits.setdefault(str(row.get("replay_id") or ""), set()).add(str(row.get("split") or ""))
     label_manifest = json.loads(label_manifest_path.read_text(encoding="utf-8"))
     compatibility = label_manifest.get("schema_compatibility") or {}
-    expected_output = DEFAULT_FULL_OUTPUT_DIR.resolve()
+    action_schema = action_feature_schema(action_feature_version)
+    overwrite_ok, overwrite_reason = _overwrite_guard(output_dir, manifest_path)
     checks = {
-        "exactly_300_entries": len(entries) == 300,
-        "300_unique_ids": len(set(replay_ids)) == 300 and all(replay_ids),
-        "split_sizes_exact": split_counts == Counter({"train": 210, "validation": 45, "test": 45}),
+        "manifest_has_entries": len(entries) > 0,
+        "entry_count_matches_split_targets": len(entries) == expected_total,
+        "unique_ids": len(set(replay_ids)) == len(entries) and all(replay_ids),
+        "split_sizes_match_targets": split_counts == expected_split_counts,
+        "no_split_overlap": all(len(splits) == 1 for splits in replay_to_splits.values()),
         "all_paths_exist": not missing_paths,
         "label_manifest_valid": (
             label_manifest.get("label_version") == LABEL_VERSION
             and compatibility.get("state_feature_version") == FEATURE_VERSION_V7
             and compatibility.get("state_feature_dim") == FEATURE_DIM_V7
-            and compatibility.get("action_feature_version") == ACTION_FEATURE_VERSION_V5
-            and compatibility.get("action_feature_dim") == ACTION_FEATURE_DIM_V5
+            and compatibility.get("action_feature_version") in {
+                ACTION_FEATURE_VERSION_V5,
+                action_feature_version,
+            }
+            and int(compatibility.get("action_feature_dim", 0) or 0) in {
+                ACTION_FEATURE_DIM_V5,
+                int(action_schema["dim"]),
+            }
             and (label_manifest.get("action_value") or {}).get("target_status") == ACTION_VALUE_STATUS
         ),
-        "schema_dimensions_v7_v5": FEATURE_DIM_V7 == 3208 and ACTION_FEATURE_DIM_V5 == 318,
-        "diagnostic_only_output_path": output_dir.resolve() == expected_output,
+        "schema_dimensions_requested": FEATURE_DIM_V7 == 3208 and int(action_schema["dim"]) > 0,
+        "output_dir_safe_to_write": overwrite_ok,
     }
     if not all(checks.values()):
         raise ValueError(
-            f"diagnostic_300 preflight failed: checks={checks}, missing_paths={missing_paths[:5]}"
+            f"full-manifest preflight failed: checks={checks}, "
+            f"missing_paths={missing_paths[:5]}, overwrite={overwrite_reason}"
         )
     return {
         "checks": checks,
@@ -187,6 +239,9 @@ def _validate_full_preflight(
         "label_manifest_path": str(label_manifest_path),
         "label_manifest_sha256": _file_sha256(label_manifest_path),
         "split_counts": dict(split_counts),
+        "expected_split_counts": dict(expected_split_counts),
+        "expected_total_battles": expected_total,
+        "overwrite_reason": overwrite_reason,
     }
 
 
@@ -389,6 +444,7 @@ def _decision_features(
     original_completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
     sets_path: Optional[str],
     damage_client: Any,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
 ) -> Optional[Dict[str, Any]]:
     chosen_label = chosen_action_label(event, turn_events=turn_events)
     if not chosen_label:
@@ -443,11 +499,18 @@ def _decision_features(
     }
     action_features = []
     impact_methods: Counter[str] = Counter()
+    action_schema = action_feature_schema(action_feature_version)
+    action_builder = action_schema["builder"]
     for action in actions:
-        impact = resolve_action_impact(action, approx_state, client=damage_client)
+        impact = resolve_action_impact(
+            action,
+            approx_state,
+            client=damage_client,
+            enable_repeat_chain=action_feature_version == ACTION_FEATURE_VERSION_V6,
+        )
         impact_methods[str(impact.get("method") or "unavailable")] += 1
         action_features.append(
-            build_action_feature_vector_v5(
+            action_builder(
                 action,
                 private_state,
                 tactical_state=tactical_state,
@@ -485,16 +548,18 @@ def benchmark_metadata(
     command: Optional[str] = None,
     artifact_kind: str = "tiny_10_benchmark",
     preflight: Optional[Dict[str, Any]] = None,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
 ) -> Dict[str, Any]:
+    action_schema = action_feature_schema(action_feature_version)
     return {
         "benchmark_version": BENCHMARK_VERSION,
         "artifact_kind": artifact_kind,
         "state_feature_version": FEATURE_VERSION_V7,
         "state_feature_dim": FEATURE_DIM_V7,
         "state_feature_names_sha256": _names_fingerprint(FEATURE_NAMES_V7),
-        "action_feature_version": ACTION_FEATURE_VERSION_V5,
-        "action_feature_dim": ACTION_FEATURE_DIM_V5,
-        "action_feature_names_sha256": _names_fingerprint(ACTION_FEATURE_NAMES_V5),
+        "action_feature_version": action_schema["version"],
+        "action_feature_dim": action_schema["dim"],
+        "action_feature_names_sha256": _names_fingerprint(action_schema["names"]),
         "live_default_state_feature_version": FEATURE_VERSION,
         "live_default_state_feature_dim": FEATURE_DIM,
         "live_default_action_feature_version": ACTION_FEATURE_VERSION,
@@ -535,6 +600,9 @@ def benchmark_metadata(
 
 
 def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str, Any]) -> Dict[str, Any]:
+    action_schema = action_feature_schema(str(metadata.get("action_feature_version") or ""))
+    action_dim = int(action_schema["dim"])
+    action_names = list(action_schema["names"])
     states = arrays["state_features"]
     actions = arrays["action_features"]
     state_ids = [str(value) for value in arrays["state_replay_ids"].tolist()]
@@ -559,7 +627,7 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
     embedded_action_names = [str(value) for value in arrays.get("action_feature_names", np.asarray([])).tolist()]
     checks = {
         "state_dim_3208": states.ndim == 2 and states.shape[1] == FEATURE_DIM_V7,
-        "action_dim_318": actions.ndim == 2 and actions.shape[1] == ACTION_FEATURE_DIM_V5,
+        "action_dim_matches_schema": actions.ndim == 2 and actions.shape[1] == action_dim,
         "state_dtype_float16": states.dtype == np.float16,
         "action_dtype_float16": actions.dtype == np.float16,
         "candidate_state_indices_valid": (
@@ -574,24 +642,24 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
         "all_examples_trace_to_manifest": set(state_ids).issubset(manifest_ids),
         "all_selected_battles_represented": (
             set(state_ids) == manifest_ids
-            if metadata.get("artifact_kind") == "diagnostic_300_materialization"
+            if str(metadata.get("artifact_kind") or "").endswith("materialization")
             else set(state_ids).issubset(manifest_ids)
         ),
         "state_splits_match_manifest": all(
             selected_splits.get(replay_id) == split
             for replay_id, split in replay_split_pairs
         ),
-        "metadata_records_v7_v5": (
+        "metadata_records_requested_schema": (
             metadata.get("state_feature_version") == FEATURE_VERSION_V7
-            and metadata.get("action_feature_version") == ACTION_FEATURE_VERSION_V5
+            and metadata.get("action_feature_version") == action_schema["version"]
         ),
         "metadata_records_name_fingerprints": (
             metadata.get("state_feature_names_sha256") == _names_fingerprint(FEATURE_NAMES_V7)
-            and metadata.get("action_feature_names_sha256") == _names_fingerprint(ACTION_FEATURE_NAMES_V5)
+            and metadata.get("action_feature_names_sha256") == _names_fingerprint(action_names)
         ),
         "embedded_names_match_schema_and_metadata": (
             embedded_state_names == list(FEATURE_NAMES_V7)
-            and embedded_action_names == list(ACTION_FEATURE_NAMES_V5)
+            and embedded_action_names == action_names
             and _names_fingerprint(embedded_state_names) == metadata.get("state_feature_names_sha256")
             and _names_fingerprint(embedded_action_names) == metadata.get("action_feature_names_sha256")
         ),
@@ -630,18 +698,35 @@ def run_benchmark(
     seed: int = DEFAULT_SEED,
     sets_path: Optional[str] = None,
     full_manifest: bool = False,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
 ) -> Dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    command = (
-        ".\\scripts\\run_windows.ps1 -Action materialize-diagnostic-300 -SimCoreMode native"
-        if full_manifest
-        else ".\\scripts\\run_windows.ps1 -Action benchmark-vnext-featuregen -SimCoreMode native"
-    )
+    action_schema = action_feature_schema(action_feature_version)
+    is_legacy_300 = full_manifest and output_dir.resolve() == DEFAULT_FULL_OUTPUT_DIR.resolve()
+    # Dataset name derives from the output directory; the report name drops the
+    # trailing schema suffix, preserving both the legacy diagnostic_300 filename
+    # and the diagnostic_1000_action_rank convention.
+    dataset_name = output_dir.name
+    if full_manifest:
+        if is_legacy_300:
+            command = ".\\scripts\\run_windows.ps1 -Action materialize-diagnostic-300 -SimCoreMode native"
+        else:
+            command = (
+                "python -m neural.benchmark_vnext_featuregen --full-manifest "
+                f"--manifest {manifest_path} --output-dir {output_dir}"
+            )
+    else:
+        command = (
+            "python -m neural.benchmark_vnext_featuregen "
+            f"--manifest {manifest_path} --output-dir {output_dir} --battles {battles} "
+            f"--action-feature-version {action_feature_version}"
+        )
     preflight = (
         _validate_full_preflight(
             manifest=manifest,
             manifest_path=manifest_path,
             output_dir=output_dir,
+            action_feature_version=action_feature_version,
         )
         if full_manifest
         else None
@@ -658,16 +743,22 @@ def run_benchmark(
         seed=seed,
         manifest_path=manifest_path,
         command=command,
-        artifact_kind="diagnostic_300_materialization" if full_manifest else "tiny_10_benchmark",
+        artifact_kind=(
+            ("diagnostic_300_materialization" if is_legacy_300 else "diagnostic_full_materialization")
+            if full_manifest
+            else "tiny_10_benchmark"
+        ),
         preflight=preflight,
+        action_feature_version=action_feature_version,
     )
+    metadata["dataset_name"] = dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
     subset_path = output_dir / ("source_manifest_snapshot.json" if full_manifest else "subset_manifest.json")
-    dataset_path = output_dir / ("diagnostic_300_v7_v5.npz" if full_manifest else "vnext_features_tiny_10.npz")
+    dataset_path = output_dir / (f"{dataset_name}.npz" if full_manifest else "vnext_features_tiny_10.npz")
     metadata_path = output_dir / "feature_metadata.json"
     report_json_path = output_dir / ("materialization_report.json" if full_manifest else "benchmark_report.json")
     report_md_path = (
-        output_dir / "diagnostic_300_materialization_report.md"
+        output_dir / (dataset_name.replace("_v7_v5", "") + "_materialization_report.md")
         if full_manifest
         else output_dir.parent / "vnext_featuregen_tiny_10_report.md"
     )
@@ -763,6 +854,7 @@ def run_benchmark(
                             original_completed_teams=original_completed_teams,
                             sets_path=sets_path,
                             damage_client=client,
+                            action_feature_version=action_feature_version,
                         )
                         if not decision:
                             label_counts["skipped_no_action_label"] += 1
@@ -877,8 +969,8 @@ def run_benchmark(
         "action_rank_labels": np.asarray(observed_actions, dtype=np.int8),
         "state_feature_version": np.asarray(FEATURE_VERSION_V7),
         "state_feature_names": np.asarray(FEATURE_NAMES_V7),
-        "action_feature_version": np.asarray(ACTION_FEATURE_VERSION_V5),
-        "action_feature_names": np.asarray(ACTION_FEATURE_NAMES_V5),
+        "action_feature_version": np.asarray(action_schema["version"]),
+        "action_feature_names": np.asarray(action_schema["names"]),
         "manifest_catalog_checksum": np.asarray(str(manifest.get("catalog_checksum") or "")),
         "source_commit": np.asarray(str(metadata.get("source_commit") or "")),
     }
@@ -1012,7 +1104,10 @@ def run_benchmark(
             full_manifest
             and len(failures) == 0
             and validation["passed"]
-            and battle_splits == Counter({"train": 210, "validation": 45, "test": 45})
+            and (
+                preflight is None
+                or battle_splits == Counter(preflight.get("expected_split_counts") or {})
+            )
         ),
     }
     report_json_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
@@ -1042,10 +1137,528 @@ def run_benchmark(
     return report
 
 
+def _materialize_one_battle(
+    entry: Dict[str, Any],
+    *,
+    sets_path: Optional[str],
+    client: Any,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+) -> Dict[str, Any]:
+    """Materialize one battle into local (per-battle) arrays and counters.
+
+    Mirrors the sequential loop body but uses battle-local state indices; global
+    candidate_state_indices are assigned during the combine step. Returns a
+    self-contained, picklable result so each battle can be sharded to disk.
+    """
+    replay_id = str(entry["replay_id"])
+    split = str(entry.get("split") or "")
+    path = Path(str(entry["path"]))
+    state_rows: List[np.ndarray] = []
+    state_turns: List[int] = []
+    state_sides: List[str] = []
+    state_value_targets: List[float] = []
+    action_rows: List[np.ndarray] = []
+    candidate_local_state_indices: List[int] = []
+    candidate_action_indices: List[int] = []
+    candidate_kinds: List[str] = []
+    observed_actions: List[int] = []
+    label_counts: Counter = Counter()
+    impact_methods: Counter = Counter()
+    skip_audit: List[Dict[str, Any]] = []
+    unmatched_audit: List[Dict[str, Any]] = []
+    failure: Optional[Dict[str, str]] = None
+    try:
+        trajectory = parse_protocol_log(
+            path.read_text(encoding="utf-8", errors="replace").splitlines(),
+            replay_id=replay_id,
+            format_name="gen9randombattle",
+            source_path=str(path),
+        )
+        original_completed_teams = _reconstructed_completed_private_teams(trajectory)
+        completed_teams = _completed_teams_for_action_reconstruction(trajectory)
+        turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
+        for turn_record in sorted(turns, key=lambda item: int(item.get("turn", 0) or 0)):
+            turn_number = int(turn_record.get("turn", 0) or 0)
+            events = turn_record.get("events") if isinstance(turn_record.get("events"), list) else []
+            for event in events:
+                if not isinstance(event, dict) or event.get("type") not in ("move", "switch"):
+                    continue
+                side = event.get("side")
+                if side not in ("p1", "p2"):
+                    continue
+                if turn_number <= 0 and event.get("type") == "switch":
+                    label_counts["skipped_initial_deployment_nondecision"] += 1
+                    label_counts["legacy_unmatched"] += 1
+                    label_counts["legacy_unmatched_reason:initial_deployment_nondecision"] += 1
+                    unmatched_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(turn_number),
+                        "side": side,
+                        "raw_replay_command": event.get("raw"),
+                        "parsed_command": chosen_action_label(event, turn_events=events),
+                        "inferred_action_type": "team_preview_or_initial_deployment",
+                        "legacy_candidates": [],
+                        "pre_action_candidates": [],
+                        "legacy_reason": "initial_deployment_nondecision",
+                        "after_fix_matched": False,
+                        "after_fix_reason": "skipped_nondecision",
+                        "fix_classification": "intentionally_skipped_nondecision",
+                    })
+                    skip_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(turn_number),
+                        "side": side,
+                        "raw_replay_command": event.get("raw"),
+                        "reason": "initial_deployment_nondecision",
+                    })
+                    continue
+                decision = _decision_features(
+                    trajectory=trajectory,
+                    side=side,
+                    turn_number=turn_number,
+                    event=event,
+                    turn_events=events,
+                    completed_teams=completed_teams,
+                    original_completed_teams=original_completed_teams,
+                    sets_path=sets_path,
+                    damage_client=client,
+                    action_feature_version=action_feature_version,
+                )
+                if not decision:
+                    label_counts["skipped_no_action_label"] += 1
+                    skip_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(turn_number),
+                        "side": side,
+                        "raw_replay_command": event.get("raw"),
+                        "reason": "no_action_label",
+                    })
+                    continue
+                if decision["state_value_target"] is None:
+                    label_counts["skipped_unknown_or_draw_outcome"] += 1
+                    skip_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(turn_number),
+                        "side": side,
+                        "raw_replay_command": event.get("raw"),
+                        "reason": "unknown_or_draw_outcome",
+                    })
+                    continue
+                state_index = len(state_rows)
+                state_rows.append(decision["state_features"])
+                state_turns.append(decision["turn"])
+                state_sides.append(decision["side"])
+                state_value_targets.append(float(decision["state_value_target"]))
+                label_counts["state_value_labels"] += 1
+                label_counts["state_value_wins" if decision["state_value_target"] > 0 else "state_value_losses"] += 1
+                impact_methods.update(decision["impact_methods"])
+                chosen_kind = str(decision["chosen_label"]).split(":", 1)[0]
+                label_counts["legacy_matched" if decision["legacy_matched"] else "legacy_unmatched"] += 1
+                if not decision["legacy_matched"]:
+                    label_counts[f"legacy_unmatched_reason:{decision['legacy_mismatch_reason']}"] += 1
+                if not decision["matched"]:
+                    label_counts["chosen_action_unmatched"] += 1
+                    label_counts[f"unmatched_kind:{chosen_kind}"] += 1
+                    label_counts[f"unmatched_reason:{decision['mismatch_reason']}"] += 1
+                    skip_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(decision["turn"]),
+                        "side": decision["side"],
+                        "raw_replay_command": decision["raw_command"],
+                        "parsed_command": decision["chosen_label"],
+                        "reason": "chosen_action_unmatched_for_action_rank",
+                        "detail": decision["mismatch_reason"],
+                        "candidates": decision["candidate_summaries"],
+                    })
+                if not decision["legacy_matched"]:
+                    unmatched_audit.append({
+                        "replay_id": replay_id,
+                        "turn": int(decision["turn"]),
+                        "side": decision["side"],
+                        "raw_replay_command": decision["raw_command"],
+                        "parsed_command": decision["chosen_label"],
+                        "inferred_action_type": chosen_kind,
+                        "legacy_candidates": decision["legacy_candidate_summaries"],
+                        "pre_action_candidates": decision["candidate_summaries"],
+                        "legacy_reason": decision["legacy_mismatch_reason"],
+                        "after_fix_matched": bool(decision["matched"]),
+                        "after_fix_reason": decision["mismatch_reason"],
+                        "fix_classification": (
+                            "fixed_by_exact_pre_action_event_prefix"
+                            if decision["matched"]
+                            else "intentionally_still_unmatched"
+                        ),
+                    })
+                if not decision["matched"]:
+                    continue
+                label_counts["chosen_action_matched"] += 1
+                label_counts[f"matched_kind:{chosen_kind}"] += 1
+                for action, features, observed in zip(
+                    decision["actions"], decision["action_features"], decision["observed"]
+                ):
+                    action_rows.append(features)
+                    candidate_local_state_indices.append(state_index)
+                    candidate_action_indices.append(int(action.get("index", 0) or 0))
+                    candidate_kinds.append(str(action.get("kind") or ""))
+                    observed_actions.append(int(observed))
+                    label_counts["action_rank_positive" if observed else "action_rank_unchosen"] += 1
+        if len(state_rows) == 0 and failure is None:
+            failure = {"replay_id": replay_id, "reason": "no valid decision states"}
+    except Exception as exc:  # noqa: BLE001 - per-battle isolation
+        failure = {"replay_id": replay_id, "reason": f"{type(exc).__name__}: {exc}"}
+    return {
+        "replay_id": replay_id,
+        "split": split,
+        "state_rows": (
+            np.asarray(state_rows, dtype=np.float16)
+            if state_rows
+            else np.zeros((0, FEATURE_DIM_V7), dtype=np.float16)
+        ),
+        "state_turns": state_turns,
+        "state_sides": state_sides,
+        "state_value_targets": state_value_targets,
+        "action_rows": (
+            np.asarray(action_rows, dtype=np.float16)
+            if action_rows
+            else np.zeros((0, int(action_feature_schema(action_feature_version)["dim"])), dtype=np.float16)
+        ),
+        "candidate_local_state_indices": candidate_local_state_indices,
+        "candidate_action_indices": candidate_action_indices,
+        "candidate_kinds": candidate_kinds,
+        "observed_actions": observed_actions,
+        "label_counts": dict(label_counts),
+        "impact_methods": dict(impact_methods),
+        "skip_audit": skip_audit,
+        "unmatched_audit": unmatched_audit,
+        "failure": failure,
+        "valid": len(state_rows) > 0,
+    }
+
+
+_WORKER_CLIENT: Any = None
+_WORKER_SETS_PATH: Optional[str] = None
+_WORKER_ACTION_FEATURE_VERSION = ACTION_FEATURE_VERSION_V5
+
+
+def _worker_init(
+    sets_path: Optional[str],
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+) -> None:
+    """Per-worker sim-core client; one node process per pool worker."""
+    global _WORKER_ACTION_FEATURE_VERSION, _WORKER_CLIENT, _WORKER_SETS_PATH
+    import atexit
+
+    _WORKER_SETS_PATH = sets_path
+    _WORKER_ACTION_FEATURE_VERSION = action_feature_version
+    _WORKER_CLIENT = _damage_client()
+    if _WORKER_CLIENT is None:
+        raise RuntimeError(
+            "Materialization worker requires NEURAL_SIM_CORE_COMMAND_JSON/NEURAL_SIM_CORE_CWD; "
+            "run through scripts/run_windows.ps1."
+        )
+    atexit.register(lambda: _WORKER_CLIENT.close() if _WORKER_CLIENT is not None else None)
+
+
+def _materialize_battle_worker(entry: Dict[str, Any]) -> Dict[str, Any]:
+    return _materialize_one_battle(
+        entry,
+        sets_path=_WORKER_SETS_PATH,
+        client=_WORKER_CLIENT,
+        action_feature_version=_WORKER_ACTION_FEATURE_VERSION,
+    )
+
+
+def _shard_path(shards_dir: Path, replay_id: str) -> Path:
+    return shards_dir / (hashlib.sha1(replay_id.encode("utf-8")).hexdigest() + ".pkl")
+
+
+def run_full_materialization(
+    *,
+    manifest_path: Path,
+    output_dir: Path,
+    seed: int = DEFAULT_SEED,
+    sets_path: Optional[str] = None,
+    workers: int = DEFAULT_WORKERS,
+    resume: bool = True,
+    action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+) -> Dict[str, Any]:
+    """Parallel, crash-safe, resumable full-manifest materialization.
+
+    Each battle is processed in a worker process with its own sim-core client and
+    written to a per-battle shard immediately, so an interruption never discards
+    completed work. The final dataset is assembled from shards and validated with
+    the same checks as the sequential path.
+    """
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    action_schema = action_feature_schema(action_feature_version)
+    is_legacy_300 = output_dir.resolve() == DEFAULT_FULL_OUTPUT_DIR.resolve()
+    dataset_name = output_dir.name
+    command = (
+        "python -m neural.benchmark_vnext_featuregen --full-manifest "
+        f"--manifest {manifest_path} --output-dir {output_dir} --workers {workers} "
+        f"--action-feature-version {action_feature_version}"
+    )
+    preflight = _validate_full_preflight(
+        manifest=manifest,
+        manifest_path=manifest_path,
+        output_dir=output_dir,
+        action_feature_version=action_feature_version,
+    )
+    selected_entries = list(manifest.get("entries") or [])
+    metadata = benchmark_metadata(
+        manifest=manifest,
+        selected_entries=selected_entries,
+        seed=seed,
+        manifest_path=manifest_path,
+        command=command,
+        artifact_kind="diagnostic_300_materialization" if is_legacy_300 else "diagnostic_full_materialization",
+        preflight=preflight,
+        action_feature_version=action_feature_version,
+    )
+    metadata["dataset_name"] = dataset_name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shards_dir = output_dir / "_shards"
+    shards_dir.mkdir(parents=True, exist_ok=True)
+    subset_path = output_dir / "source_manifest_snapshot.json"
+    subset_path.write_text(
+        json.dumps({"metadata": metadata, "entries": selected_entries}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+    pending = [
+        entry
+        for entry in selected_entries
+        if not (resume and _shard_path(shards_dir, str(entry["replay_id"])).is_file())
+    ]
+    done = len(selected_entries) - len(pending)
+    total = len(selected_entries)
+    print_line_safe(
+        f"materialize-full start | dataset={dataset_name} battles={total} "
+        f"already_sharded={done} pending={len(pending)} workers={workers}"
+    )
+    started = time.perf_counter()
+    if pending:
+        with ProcessPoolExecutor(
+            max_workers=max(1, int(workers)),
+            initializer=_worker_init,
+            initargs=(sets_path, action_feature_version),
+        ) as executor:
+            futures = {executor.submit(_materialize_battle_worker, entry): entry for entry in pending}
+            completed = 0
+            for future in as_completed(futures):
+                result = future.result()
+                with open(_shard_path(shards_dir, result["replay_id"]), "wb") as handle:
+                    pickle.dump(result, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                completed += 1
+                done += 1
+                elapsed = time.perf_counter() - started
+                eta_min = (elapsed / completed) * (len(pending) - completed) / 60.0
+                print_line_safe(
+                    f"materialize-full | done={done}/{total} this_run={completed}/{len(pending)} "
+                    f"battle_states={result['state_rows'].shape[0]} valid={result['valid']} "
+                    f"failed={result['failure'] is not None} eta={eta_min:.1f}min"
+                )
+
+    # Combine shards in manifest order.
+    state_arrays: List[np.ndarray] = []
+    action_arrays: List[np.ndarray] = []
+    state_replay_ids: List[str] = []
+    state_splits: List[str] = []
+    state_turns: List[int] = []
+    state_sides: List[str] = []
+    state_value_targets: List[float] = []
+    candidate_state_indices: List[int] = []
+    candidate_action_indices: List[int] = []
+    candidate_kinds: List[str] = []
+    observed_actions: List[int] = []
+    label_counts: Counter = Counter()
+    impact_methods: Counter = Counter()
+    failures: List[Dict[str, str]] = []
+    unmatched_audit: List[Dict[str, Any]] = []
+    skip_audit: List[Dict[str, Any]] = []
+    valid_battles = 0
+    total_states = 0
+    for entry in selected_entries:
+        replay_id = str(entry["replay_id"])
+        shard = _shard_path(shards_dir, replay_id)
+        if not shard.is_file():
+            raise ValueError(f"Missing shard for battle {replay_id}; re-run to resume materialization.")
+        with open(shard, "rb") as handle:
+            result = pickle.load(handle)
+        n = int(result["state_rows"].shape[0])
+        if n:
+            state_arrays.append(result["state_rows"])
+            state_replay_ids.extend([replay_id] * n)
+            state_splits.extend([result["split"]] * n)
+            state_turns.extend(result["state_turns"])
+            state_sides.extend(result["state_sides"])
+            state_value_targets.extend(result["state_value_targets"])
+        if result["action_rows"].shape[0]:
+            action_arrays.append(result["action_rows"])
+            candidate_state_indices.extend(total_states + li for li in result["candidate_local_state_indices"])
+            candidate_action_indices.extend(result["candidate_action_indices"])
+            candidate_kinds.extend(result["candidate_kinds"])
+            observed_actions.extend(result["observed_actions"])
+        total_states += n
+        label_counts.update(result["label_counts"])
+        impact_methods.update(result["impact_methods"])
+        skip_audit.extend(result["skip_audit"])
+        unmatched_audit.extend(result["unmatched_audit"])
+        if result["failure"]:
+            failures.append(result["failure"])
+        if result["valid"]:
+            valid_battles += 1
+
+    arrays = {
+        "state_features": (
+            np.concatenate(state_arrays) if state_arrays else np.zeros((0, FEATURE_DIM_V7), dtype=np.float16)
+        ),
+        "state_replay_ids": np.asarray(state_replay_ids),
+        "state_splits": np.asarray(state_splits),
+        "state_turns": np.asarray(state_turns, dtype=np.int16),
+        "state_sides": np.asarray(state_sides),
+        "state_value_targets": np.asarray(state_value_targets, dtype=np.float32),
+        "action_features": (
+            np.concatenate(action_arrays)
+            if action_arrays
+            else np.zeros((0, int(action_schema["dim"])), dtype=np.float16)
+        ),
+        "candidate_state_indices": np.asarray(candidate_state_indices, dtype=np.int32),
+        "candidate_action_indices": np.asarray(candidate_action_indices, dtype=np.int16),
+        "candidate_kinds": np.asarray(candidate_kinds),
+        "observed_actions": np.asarray(observed_actions, dtype=np.int8),
+        "action_rank_labels": np.asarray(observed_actions, dtype=np.int8),
+        "state_feature_version": np.asarray(FEATURE_VERSION_V7),
+        "state_feature_names": np.asarray(FEATURE_NAMES_V7),
+        "action_feature_version": np.asarray(action_schema["version"]),
+        "action_feature_names": np.asarray(action_schema["names"]),
+        "manifest_catalog_checksum": np.asarray(str(manifest.get("catalog_checksum") or "")),
+        "source_commit": np.asarray(str(metadata.get("source_commit") or "")),
+    }
+    if arrays["state_features"].shape[0] == 0 or arrays["action_features"].shape[0] == 0:
+        raise ValueError("Full materialization produced no feature rows.")
+    validation = validate_benchmark_arrays(arrays, metadata)
+
+    elapsed = time.perf_counter() - started
+    dataset_path = output_dir / f"{dataset_name}.npz"
+    metadata_path = output_dir / "feature_metadata.json"
+    report_json_path = output_dir / "materialization_report.json"
+    report_md_path = output_dir / (dataset_name.replace("_v7_v5", "") + "_materialization_report.md")
+    skip_audit_path = output_dir / "decision_skip_audit.jsonl"
+
+    battle_splits = Counter(str(row.get("split") or "") for row in selected_entries)
+    split_state_counts = Counter(state_splits)
+    expected_split_counts = Counter(preflight.get("expected_split_counts") or {})
+    report = {
+        **metadata,
+        "command": command,
+        "workers": int(workers),
+        "output_dir": str(output_dir),
+        "shards_dir": str(shards_dir),
+        "files_produced": [
+            str(subset_path),
+            str(dataset_path),
+            str(metadata_path),
+            str(skip_audit_path),
+            str(report_json_path),
+            str(report_md_path),
+        ],
+        "battles_requested": total,
+        "battles_processed": total,
+        "valid_battles": valid_battles,
+        "failed_battles": len(failures),
+        "failures": failures,
+        "decision_states": int(arrays["state_features"].shape[0]),
+        "legal_action_candidates": int(arrays["action_features"].shape[0]),
+        "average_legal_actions_per_state": arrays["action_features"].shape[0] / max(1, arrays["state_features"].shape[0]),
+        "split_state_counts": dict(split_state_counts),
+        "split_battle_counts": dict(battle_splits),
+        "impact_method_counts": dict(impact_methods),
+        "label_version": LABEL_VERSION,
+        "state_value_label_count": int(label_counts["state_value_labels"]),
+        "state_value_distribution": {
+            "wins": int(label_counts["state_value_wins"]),
+            "losses": int(label_counts["state_value_losses"]),
+            "draws": 0,
+        },
+        "chosen_action_matched_count": int(label_counts["chosen_action_matched"]),
+        "chosen_action_unmatched_count": int(label_counts["chosen_action_unmatched"]),
+        "chosen_action_match_rate": float(
+            label_counts["chosen_action_matched"]
+            / max(1, label_counts["chosen_action_matched"] + label_counts["chosen_action_unmatched"])
+        ),
+        "chosen_action_matched_by_kind": {
+            key.split(":", 1)[1]: int(value)
+            for key, value in sorted(label_counts.items())
+            if key.startswith("matched_kind:")
+        },
+        "chosen_action_unmatched_by_kind": {
+            key.split(":", 1)[1]: int(value)
+            for key, value in sorted(label_counts.items())
+            if key.startswith("unmatched_kind:")
+        },
+        "unmatched_action_audit": unmatched_audit,
+        "decision_skip_audit_file": str(skip_audit_path),
+        "action_rank_positive_count": int(label_counts["action_rank_positive"]),
+        "action_rank_unchosen_count": int(label_counts["action_rank_unchosen"]),
+        "skip_reasons": {
+            "no_action_label": int(label_counts["skipped_no_action_label"]),
+            "unknown_or_draw_outcome": int(label_counts["skipped_unknown_or_draw_outcome"]),
+            "chosen_action_unmatched_for_action_rank": int(label_counts["chosen_action_unmatched"]),
+            "initial_deployment_nondecision": int(label_counts["skipped_initial_deployment_nondecision"]),
+        },
+        "action_value_labels_generated": 0,
+        "runtime_total_sec": elapsed,
+        "dataset_size_bytes": 0,
+        "dataset_size_mb": 0.0,
+        "total_output_size_bytes": 0,
+        "total_output_size_mb": 0.0,
+        "validation": validation,
+        "warnings": [
+            "Own-side reconstructed state follows the existing replay-training future-public-reveal assumption.",
+            "Action-rank groups with unmatched replay actions are excluded; inspect the reported match rate before training.",
+            "Per-battle shards persist under _shards/ for crash recovery and resume.",
+        ],
+        "schema_bug_found": False,
+        "ready_for_first_diagnostic_training_command_design": (
+            len(failures) == 0
+            and validation["passed"]
+            and (not expected_split_counts or battle_splits == expected_split_counts)
+        ),
+    }
+    if not validation["passed"]:
+        report_json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        raise ValueError(
+            f"Full materialization validation failed: {validation['checks']}; "
+            f"failures={failures[:5]}. Shards retained at {shards_dir} for inspection/resume."
+        )
+    np.savez_compressed(dataset_path, **arrays)
+    metadata_path.write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
+    skip_audit_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in skip_audit),
+        encoding="utf-8",
+    )
+    dataset_bytes = dataset_path.stat().st_size
+    output_bytes = sum(p.stat().st_size for p in output_dir.glob("*") if p.is_file())
+    report["dataset_size_bytes"] = dataset_bytes
+    report["dataset_size_mb"] = dataset_bytes / (1024 * 1024)
+    report["total_output_size_bytes"] = output_bytes
+    report["total_output_size_mb"] = output_bytes / (1024 * 1024)
+    report_json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    report_md_path.write_text(_materialization_report_markdown(report), encoding="utf-8")
+    print_line_safe(
+        f"materialize-full done | battles={total} states={report['decision_states']} "
+        f"candidates={report['legal_action_candidates']} runtime={elapsed:.1f}s "
+        f"dataset_mb={report['dataset_size_mb']:.2f} validation_passed={validation['passed']}"
+    )
+    return report
+
+
 def _materialization_report_markdown(report: Dict[str, Any]) -> str:
     checks = report["validation"]["checks"]
+    dataset_name = report.get("dataset_name") or "diagnostic_300_v7_v5"
     lines = [
-        "# diagnostic_300 v7/v5 Materialization Report",
+        f"# {dataset_name} Materialization Report",
         "",
         f"- Command: `{report['command']}`",
         f"- Runtime: {report['runtime_total_sec']:.2f}s",
@@ -1233,22 +1846,41 @@ def _matcher_report_markdown(report: Dict[str, Any]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Benchmark v7/v5 feature generation on a tiny manifest subset.")
+    parser = argparse.ArgumentParser(description="Benchmark explicit v7 action-schema feature generation.")
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--battles", type=int, default=DEFAULT_BATTLES)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument("--sets-path", default=None)
     parser.add_argument("--full-manifest", action="store_true")
-    args = parser.parse_args()
-    run_benchmark(
-        manifest_path=Path(args.manifest),
-        output_dir=Path(args.output_dir),
-        battles=args.battles,
-        seed=args.seed,
-        sets_path=args.sets_path,
-        full_manifest=args.full_manifest,
+    parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
+    parser.add_argument("--no-resume", action="store_true")
+    parser.add_argument(
+        "--action-feature-version",
+        choices=(ACTION_FEATURE_VERSION_V5, ACTION_FEATURE_VERSION_V6),
+        default=ACTION_FEATURE_VERSION_V5,
     )
+    args = parser.parse_args()
+    if args.full_manifest:
+        run_full_materialization(
+            manifest_path=Path(args.manifest),
+            output_dir=Path(args.output_dir),
+            seed=args.seed,
+            sets_path=args.sets_path,
+            workers=args.workers,
+            resume=not args.no_resume,
+            action_feature_version=args.action_feature_version,
+        )
+    else:
+        run_benchmark(
+            manifest_path=Path(args.manifest),
+            output_dir=Path(args.output_dir),
+            battles=args.battles,
+            seed=args.seed,
+            sets_path=args.sets_path,
+            full_manifest=False,
+            action_feature_version=args.action_feature_version,
+        )
 
 
 if __name__ == "__main__":

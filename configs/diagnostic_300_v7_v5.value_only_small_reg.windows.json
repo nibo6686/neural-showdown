@@ -1,0 +1,90 @@
+{
+  "profile": "diagnostic_300_v7_v5_value_only_small_reg",
+  "purpose": "Reduced-capacity, regularized value-only experiment on the frozen diagnostic_300 v7 split to test whether the value failure is over-capacity memorization.",
+  "implementation_status": "implemented_validate_only_tested",
+  "entrypoint": "neural.train_vnext_diagnostic",
+  "dataset": {
+    "path": "../artifacts/training_plan/datasets/diagnostic_300_v7_v5/diagnostic_300_v7_v5.npz",
+    "metadata_path": "../artifacts/training_plan/datasets/diagnostic_300_v7_v5/feature_metadata.json",
+    "materialization_report_path": "../artifacts/training_plan/datasets/diagnostic_300_v7_v5/materialization_report.json",
+    "state_feature_version": "live-private-belief-v7",
+    "state_feature_dim": 3208,
+    "state_feature_names_sha256": "0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf",
+    "action_feature_version": "legal-action-v5",
+    "action_feature_dim": 318,
+    "action_feature_names_sha256": "20bbfc25b2ace639831c132cb1c1f6d3b7701d4750fd9b95d6bfb423e17ac9a8",
+    "action_schema_usage": "loader_validation_only_not_trained",
+    "dtype_on_disk": "float16",
+    "storage_layout": "separate_state_and_candidate_tables",
+    "expected_battle_split_counts": {
+      "train": 210,
+      "validation": 45,
+      "test": 45
+    },
+    "split_source": "state_splits",
+    "train_split": "train",
+    "validation_split": "validation",
+    "test_split": "test"
+  },
+  "objectives": {
+    "state_value": {
+      "enabled": true,
+      "target": "state_value_targets",
+      "label_space": [-1.0, 1.0],
+      "loss": "mean_squared_error",
+      "loss_weight": 1.0
+    },
+    "action_rank": {
+      "enabled": false,
+      "target": "action_rank_labels",
+      "group_index": "candidate_state_indices",
+      "loss": "grouped_cross_entropy",
+      "loss_weight": 0.0
+    },
+    "action_value": {
+      "enabled": false
+    }
+  },
+  "model": {
+    "type": "shared_state_action_diagnostic_mlp",
+    "state_encoder_hidden_sizes": [16],
+    "action_encoder_hidden_sizes": [32],
+    "rank_head_hidden_sizes": [32],
+    "activation": "relu",
+    "value_output": "tanh",
+    "dropout": 0.3,
+    "expected_parameter_count_approx": 63170
+  },
+  "training": {
+    "seed": 20260619,
+    "epochs": 10,
+    "value_batch_size": 256,
+    "rank_groups_per_batch": 64,
+    "learning_rate": 0.001,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "mixed_precision": false,
+    "save_every_epochs": 1,
+    "early_stopping_patience_epochs": 2,
+    "early_stopping_rule": "stop when validation value MSE does not improve for two epochs",
+    "checkpoint_selection_metric": "validation_value_mse",
+    "test_usage": "evaluate once after model selection; never use for early stopping"
+  },
+  "overfit_check": {
+    "enabled": true,
+    "state_examples": 128,
+    "action_groups": 0,
+    "max_steps": 4000,
+    "required_value_train_mse_max": 0.02,
+    "required_action_train_top1_min": 0.95,
+    "fail_main_run_if_not_met": true
+  },
+  "outputs": {
+    "directory": "../artifacts/diagnostic_training/diagnostic_300_v7_v5_value_only_small_reg",
+    "checkpoint_path": "../artifacts/diagnostic_training/diagnostic_300_v7_v5_value_only_small_reg/model.pt",
+    "best_checkpoint_path": "../artifacts/diagnostic_training/diagnostic_300_v7_v5_value_only_small_reg/model.best.pt",
+    "report_json_path": "../artifacts/diagnostic_training/diagnostic_300_v7_v5_value_only_small_reg/training_report.json",
+    "report_md_path": "../artifacts/diagnostic_training/diagnostic_300_v7_v5_value_only_small_reg/training_report.md",
+    "production_eligible": false
+  }
+}

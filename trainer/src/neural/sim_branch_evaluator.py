@@ -8,6 +8,7 @@ from . import action_value_search
 from .action_features import action_name as normalized_action_name
 from .action_features import classify_action_category, load_move_metadata, to_id
 from .damage_engine import estimate_action_damage
+from .entry_hazards import hazard_switch_transition
 from .env_client import SimCoreClient, SimCoreError
 from .live_private_features import build_live_private_feature_vector
 from .value_features import select_trace_step, view_request_from_step
@@ -247,31 +248,7 @@ def _hazard_switch_diagnostics(action: Dict[str, Any], approx_state: Dict[str, A
     tactical_state = approx_state.get("tactical_state") if isinstance(approx_state.get("tactical_state"), dict) else {}
     hazards = (tactical_state.get("own") or {}).get("side_conditions") if isinstance(tactical_state.get("own"), dict) else {}
     target = _switch_target_private_mon(action, private_state)
-    item_id = to_id(target.get("item"))
-    boots = item_id == "heavydutyboots"
-    hp = float(target.get("hp_fraction") if target.get("hp_fraction") is not None else 1.0)
-    damage = 0.0
-    poison_risk = False
-    grounded = True
-    types = {str(t).lower() for t in target.get("types", [])} if isinstance(target.get("types"), list) else set()
-    if "flying" in types or to_id(target.get("ability") or target.get("base_ability")) == "levitate":
-        grounded = False
-    if not boots and isinstance(hazards, dict):
-        if int(hazards.get("stealthrock", 0) or 0):
-            damage += 0.125
-        damage += 0.125 * int(hazards.get("spikes", 0) or 0)
-        if grounded and int(hazards.get("toxicspikes", 0) or 0):
-            poison_risk = True
-    if boots:
-        damage = 0.0
-        poison_risk = False
-    return {
-        "boots_prevent_hazards": bool(boots and any(int(v or 0) > 0 for v in (hazards or {}).values())),
-        "grounded": grounded,
-        "switch_hazard_damage": float(min(1.0, damage)),
-        "toxic_spikes_poison_risk": poison_risk,
-        "faint_on_entry_risk": bool(damage >= hp and hp > 0.0),
-    }
+    return hazard_switch_transition(target, hazards if isinstance(hazards, dict) else {})
 
 
 def _damage_diagnostics(action: Dict[str, Any], approx_state: Dict[str, Any]) -> Dict[str, Any]:
