@@ -85,9 +85,99 @@ class DelayedNoStaleDamageTest(unittest.TestCase):
         }
         result = resolve_delayed_attacks(state, 3)
         self.assertFalse(result["available"])
-        self.assertIn("landing_damage_missing_for:replacement_mon", result["reason"])
+        self.assertIn("replacement_landing_damage_unavailable", result["reason"])
         # HP untouched: no stale damage applied.
         self.assertEqual(result["state"]["active_slots"]["p2:0"]["hp"], 200)
+
+
+class DelayedResolverBundleTest(unittest.TestCase):
+    """Batch B: complete landing-time resolver bundle path."""
+
+    def _bundle(self, occupant_id: str, landing_damage):
+        return {
+            "source_snapshot": {"id": "slowking", "side": "p1"},
+            "move_id": "futuresight",
+            "move_type": "psychic",
+            "move_category": "special",
+            "move_base_power": 120,
+            "target_snapshot": {"pokemon_id": occupant_id, "hp": 360, "max_hp": 360},
+            "field_snapshot": {"weather": None, "terrain": None, "screens": []},
+            "landing_damage": landing_damage,
+            "damage_provenance": "bundled_showdown_resolver_bundle",
+        }
+
+    def test_resolver_bundle_exact_damage_for_matching_occupant(self):
+        attack = {"resolver_inputs": self._bundle("blissey", 120)}
+        result = delayed_landing_resolvable(attack, "blissey")
+        self.assertTrue(result["available"])
+        self.assertEqual(result["mode"], "resolver_exact")
+        self.assertEqual(result["damage"], 120)
+
+    def test_resolver_bundle_rejected_for_mismatched_occupant(self):
+        # Bundle was built for blissey; the actual occupant is a different mon.
+        attack = {"resolver_inputs": self._bundle("blissey", 120)}
+        result = delayed_landing_resolvable(attack, "machamp")
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "resolver_target_mismatch")
+
+    def test_resolver_bundle_without_exact_damage_defers(self):
+        bundle = self._bundle("blissey", None)
+        del bundle["landing_damage"]
+        del bundle["damage_provenance"]
+        result = delayed_landing_resolvable({"resolver_inputs": bundle}, "blissey")
+        self.assertTrue(result["available"])
+        self.assertEqual(result["mode"], "resolver_inputs_present")
+        self.assertIsNone(result["damage"])
+
+    def test_real_module_applies_resolver_exact_to_matching_occupant(self):
+        state = {
+            "delayed_attacks": {
+                "p2:0": {
+                    "move": "futuresight",
+                    "source_side": "p1",
+                    "source_pokemon_id": "slowking",
+                    "target_side": "p2",
+                    "target_slot": 0,
+                    "scheduled_turn": 1,
+                    "landing_turn": 3,
+                    "damage_by_target": {},
+                    "damage_provenance": None,
+                    "resolver_inputs": self._bundle("blissey", 120),
+                }
+            },
+            "active_slots": {"p2:0": {"pokemon_id": "blissey", "hp": 360, "max_hp": 360}},
+        }
+        result = resolve_delayed_attacks(state, 3)
+        self.assertTrue(result["available"])
+        self.assertEqual(result["state"]["active_slots"]["p2:0"]["hp"], 240)
+        hit = result["events"][0]
+        self.assertEqual(hit["result"], "hit")
+        self.assertEqual(hit["damage"], 120)
+        self.assertEqual(hit["landing_mode"], "resolver_exact")
+
+    def test_real_module_fails_closed_on_resolver_occupant_mismatch(self):
+        # Occupant differs from the bundle target; no stale damage may apply.
+        state = {
+            "delayed_attacks": {
+                "p2:0": {
+                    "move": "futuresight",
+                    "source_side": "p1",
+                    "source_pokemon_id": "slowking",
+                    "target_side": "p2",
+                    "target_slot": 0,
+                    "scheduled_turn": 1,
+                    "landing_turn": 3,
+                    "damage_by_target": {},
+                    "damage_provenance": None,
+                    "resolver_inputs": self._bundle("blissey", 120),
+                }
+            },
+            "active_slots": {"p2:0": {"pokemon_id": "chansey", "hp": 360, "max_hp": 360}},
+        }
+        result = resolve_delayed_attacks(state, 3)
+        self.assertFalse(result["available"])
+        self.assertIn("resolver_target_mismatch", result["reason"])
+        self.assertEqual(result["state"]["active_slots"]["p2:0"]["hp"], 360)
 
 
 class HiddenDurationNoLeakageTest(unittest.TestCase):

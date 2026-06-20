@@ -612,6 +612,43 @@ function delayedAttackInput(
   };
 }
 
+// A complete landing-time resolver bundle for the actual replacement occupant.
+// The exact landing_damage is the Showdown-derived value for THIS occupant and
+// stays fixture-only; it is never reused for a different occupant.
+function delayedResolverInput(
+  move: 'futuresight' | 'doomdesire',
+  sourcePokemonId: string,
+  occupant: Record<string, unknown>,
+  occupantTypes: string[],
+  landingDamage: number,
+  moveMeta: { type: string; category: string; basePower: number },
+): Record<string, unknown> {
+  return {
+    move,
+    scheduled_turn: 1,
+    source_side: 'p1',
+    source_pokemon_id: sourcePokemonId,
+    target_side: 'p2',
+    target_slot: 0,
+    resolver_inputs: {
+      source_snapshot: { id: sourcePokemonId, side: 'p1' },
+      move_id: move,
+      move_type: moveMeta.type,
+      move_category: moveMeta.category,
+      move_base_power: moveMeta.basePower,
+      target_snapshot: {
+        pokemon_id: occupant.pokemon_id,
+        hp: occupant.hp,
+        max_hp: occupant.max_hp,
+        types: occupantTypes,
+      },
+      field_snapshot: { weather: null, terrain: null, screens: [] },
+      landing_damage: landingDamage,
+      damage_provenance: 'bundled_showdown_resolver_bundle',
+    },
+  };
+}
+
 function delayedDamageCases(): ParityCase[] {
   const future = battle(
     [{ species: 'Slowking', moves: ['Future Sight', 'Splash'] }],
@@ -774,6 +811,40 @@ function delayedDamageCases(): ParityCase[] {
       gap_reason: 'replacement target landing damage is absent from current local provenance',
     },
     {
+      id: 'future_sight_resolver_bundle_replacement',
+      phase: 'delayed_future',
+      starting_state: { target_slot: 'p2:0', original_target: switchStart },
+      chosen_actions: [
+        { p1: 'Future Sight', p2: 'Splash' },
+        { p1: 'Splash', p2: 'switch Blissey' },
+        { p1: 'Splash', p2: 'Splash' },
+      ],
+      oracle: {
+        snapshots: [
+          { active_slots: { 'p2:0': switchTurn1 } },
+          { active_slots: { 'p2:0': switchTurn2 } },
+          { active_slots: { 'p2:0': switchTurn3 } },
+        ],
+        schedule_results: [true],
+      },
+      local_input: {
+        state: { active_slots: { 'p2:0': switchStart }, delayed_attacks: {} },
+        timeline: [
+          {
+            turn: 1,
+            schedule: delayedResolverInput('futuresight', 'slowking', switchTurn2, ['normal'], replacementDamage, {
+              type: 'psychic',
+              category: 'special',
+              basePower: 120,
+            }),
+          },
+          { turn: 2, active_slots: { 'p2:0': switchTurn2 } },
+          { turn: 3 },
+        ],
+      },
+      local_support: 'supported',
+    },
+    {
       id: 'future_sight_duplicate_schedule_fails',
       phase: 'delayed_future',
       starting_state: { target_slot: 'p2:0', target: duplicateStart },
@@ -888,6 +959,40 @@ function delayedDamageCases(): ParityCase[] {
       },
       local_support: 'supported',
       gap_reason: 'replacement target landing damage is absent from current local provenance',
+    },
+    {
+      id: 'doom_desire_resolver_bundle_replacement',
+      phase: 'delayed_future',
+      starting_state: { target_slot: 'p2:0', original_target: doomSwitchStart },
+      chosen_actions: [
+        { p1: 'Doom Desire', p2: 'Splash' },
+        { p1: 'Splash', p2: 'switch Blissey' },
+        { p1: 'Splash', p2: 'Splash' },
+      ],
+      oracle: {
+        snapshots: [
+          { active_slots: { 'p2:0': doomSwitchTurn1 } },
+          { active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { active_slots: { 'p2:0': doomSwitchTurn3 } },
+        ],
+        schedule_results: [true],
+      },
+      local_input: {
+        state: { active_slots: { 'p2:0': doomSwitchStart }, delayed_attacks: {} },
+        timeline: [
+          {
+            turn: 1,
+            schedule: delayedResolverInput('doomdesire', 'jirachi', doomSwitchTurn2, ['normal'], doomReplacementDamage, {
+              type: 'steel',
+              category: 'special',
+              basePower: 140,
+            }),
+          },
+          { turn: 2, active_slots: { 'p2:0': doomSwitchTurn2 } },
+          { turn: 3 },
+        ],
+      },
+      local_support: 'supported',
     },
   ];
 }

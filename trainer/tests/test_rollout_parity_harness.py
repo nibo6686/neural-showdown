@@ -96,9 +96,11 @@ class RolloutParityHarnessTest(unittest.TestCase):
         for case_id in (
             "future_sight_lands_later",
             "future_sight_hits_replacement_in_target_slot",
+            "future_sight_resolver_bundle_replacement",
             "future_sight_duplicate_schedule_fails",
             "doom_desire_lands_later",
             "doom_desire_hits_replacement_in_target_slot",
+            "doom_desire_resolver_bundle_replacement",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 
@@ -149,7 +151,7 @@ class RolloutParityHarnessTest(unittest.TestCase):
             ],
         )
         self.assertFalse(result["available"])
-        self.assertIn("landing_damage_missing_for:blissey", result["reason"])
+        self.assertIn("replacement_landing_damage_unavailable", result["reason"])
 
     def test_residual_helper_handles_hp_floor_and_fainting(self):
         state = {

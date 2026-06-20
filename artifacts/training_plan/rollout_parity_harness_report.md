@@ -5,10 +5,10 @@
 A deterministic oracle-vs-local transition harness compares targeted Gen 9
 state transitions against the bundled Pokemon Showdown engine.
 
-Result after rollout parity batch 5:
+Result after rollout parity batch 6 (delayed landing resolver provenance):
 
-- 45 deterministic cases
-- 37 PASS
+- 47 deterministic cases
+- 39 PASS
 - 0 FAIL
 - 8 explicit GAP
 
@@ -56,7 +56,7 @@ The harness distinguishes:
 - `sequential_multihit`: exact per-hit multi-hit execution fixtures.
 
 Click-time `legal-action-v7` features are not treated as rollout transition
-results. Batch 5 keeps that boundary and adds no v7 fields.
+results. Batch 6 keeps that boundary and adds no v7 fields.
 
 ## Passing parity coverage
 
@@ -94,30 +94,35 @@ Delayed damage:
     later turn.
 21. Future Sight damages the replacement occupying the original target slot
     when target-specific landing damage is present.
-22. A duplicate Future Sight fails without overwriting the pending event.
-23. Doom Desire shares the same timing and slot mechanism.
-24. Doom Desire damages the replacement occupying the original target slot
+22. Future Sight damages the replacement occupying the original target slot
+    when a complete landing-time resolver bundle (built for that occupant, with
+    Showdown-derived exact landing damage) is present.
+23. A duplicate Future Sight fails without overwriting the pending event.
+24. Doom Desire shares the same timing and slot mechanism.
+25. Doom Desire damages the replacement occupying the original target slot
     when target-specific landing damage is present.
+26. Doom Desire damages the replacement occupying the original target slot
+    when a complete landing-time resolver bundle is present.
 
 Immediate prevention:
 
-25. Psychic Terrain blocks a positive-priority move into a grounded target.
-26. Psychic Terrain does not block a non-priority move.
-27. Psychic Terrain does not block a positive-priority move into an airborne
+27. Psychic Terrain blocks a positive-priority move into a grounded target.
+28. Psychic Terrain does not block a non-priority move.
+29. Psychic Terrain does not block a positive-priority move into an airborne
     target.
-28. Psychic Terrain does not block Grassy Glide when Grassy Terrain is absent.
-29. Substitute blocks Leech Seed when substitute-blocking provenance is present.
-30. Misty Terrain blocks a status move into a grounded target.
-31. Electric Terrain blocks sleep into a grounded target.
-32. Damp blocks Explosion when the target ability is represented.
-33. Powder blocks a Fire move when the attacker volatile and Fire typing are
+30. Psychic Terrain does not block Grassy Glide when Grassy Terrain is absent.
+31. Substitute blocks Leech Seed when substitute-blocking provenance is present.
+32. Misty Terrain blocks a status move into a grounded target.
+33. Electric Terrain blocks sleep into a grounded target.
+34. Damp blocks Explosion when the target ability is represented.
+35. Powder blocks a Fire move when the attacker volatile and Fire typing are
     represented.
-34. Sucker Punch succeeds when the target action branch is represented as an
+36. Sucker Punch succeeds when the target action branch is represented as an
     attack.
-35. Sucker Punch fails when the target action branch is represented as status.
-36. Thunderclap succeeds when the target action branch is represented as an
+37. Sucker Punch fails when the target action branch is represented as status.
+38. Thunderclap succeeds when the target action branch is represented as an
     attack.
-37. Thunderclap fails when the target action branch is represented as status.
+39. Thunderclap fails when the target action branch is represented as status.
 
 ## Explicit parity gaps
 
@@ -134,9 +139,16 @@ false for:
 - Triple Axel initial-miss stop-on-miss execution.
 
 The delayed queue stores move, scheduled/landing turns, source identity, target
-side/slot, and damage provenance. It requires target-specific landing damage.
-Showdown calculates against the current slot occupant at landing time, so
-reusing original-target damage for a replacement remains an explicit GAP.
+side/slot, and damage provenance. As of batch 6 it resolves replacement-target
+landing damage from either (a) target-specific damage keyed by the landing
+occupant, or (b) a complete landing-time resolver bundle whose `target_snapshot`
+identity matches the occupant and that carries a Showdown-derived exact
+`landing_damage` with provenance. Showdown calculates against the current slot
+occupant at landing time, so the two `*_replacement_damage_unavailable` cases —
+which carry only the original target's damage — remain explicit GAP, and a
+resolver bundle built for a different occupant fails closed
+(`resolver_target_mismatch`). Original-target damage is never reused for a
+replacement.
 
 Binding is now PASS only for states carrying complete source/effect/duration
 and divisor provenance. A bare `partiallytrapped` volatile still fails closed.
@@ -152,7 +164,26 @@ accuracy branches, PRNG provenance, stop-on-miss execution, and per-hit damage
 or base-power provenance. The v7 action features can summarize risk, but that
 is not exact rollout execution.
 
-## Focused fixes in batch 5
+## Focused fixes in batch 6
+
+- Added a landing-time resolver-bundle provenance path so Future Sight and Doom
+  Desire can resolve replacement-target damage when a complete bundle (source
+  snapshot, move identity/type/category/base power, occupant-matched
+  `target_snapshot`, field snapshot, and a Showdown-derived exact
+  `landing_damage` with provenance) is present.
+- Centralized the landing-damage decision in
+  `provenance_contracts.delayed_landing_resolvable`, which never reuses
+  original-target damage and rejects a bundle built for a different occupant
+  with `resolver_target_mismatch`.
+- Allowed `schedule_delayed_attack` to schedule from either target-specific
+  damage or a resolver bundle; resolution still fails closed when a bundle has
+  inputs but no exact `landing_damage`.
+- Added two Showdown-backed resolver-bundle replacement fixtures
+  (`future_sight_resolver_bundle_replacement`,
+  `doom_desire_resolver_bundle_replacement`) as PASS and kept the two
+  `*_replacement_damage_unavailable` cases explicit GAP.
+
+### Prior batch 5 fixes
 
 - Added binding residual support that fails closed unless source activity,
   source effect, remaining duration, and divisor provenance are present.
@@ -182,7 +213,8 @@ were implemented in this batch.
 - sim-core TypeScript build: PASS
 - sim-core test suite: 35 PASS
 - focused rollout-parity Python tests: 17 PASS
-- deterministic harness: 37 PASS / 0 FAIL / 8 GAP
+- state-provenance no-leakage contract tests: 28 PASS
+- deterministic harness: 39 PASS / 0 FAIL / 8 GAP
 
 ## Gate decision
 

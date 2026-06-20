@@ -283,3 +283,20 @@ helpers realize the contracts above as fail-closed validators:
 
 Batch A closes **no** rollout GAP (still 8 GAP) and changes no schema; it only
 prevents the leakage/stale-damage shortcuts that batches B–E must respect.
+
+## Addendum — Batch B implemented (delayed landing resolver)
+
+GAP group 1 (delayed landing resolver) is now implemented; see
+`rollout_parity_batch_6_delayed_landing_resolver_report.md`. The
+`delayed_landing_resolvable` helper gained the `resolver_exact` /
+`resolver_inputs_present` / `resolver_target_mismatch` outcomes, and
+`delayed_damage.py` schedules from and resolves a complete landing-time resolver
+bundle whose `target_snapshot` matches the actual occupant and that carries a
+Showdown-derived exact `landing_damage`. Two PASS fixtures were added
+(`future_sight_resolver_bundle_replacement`,
+`doom_desire_resolver_bundle_replacement`); harness is now **47 cases,
+39 PASS / 0 FAIL / 8 GAP**. The two `*_replacement_damage_unavailable` cases
+**stay GAP** (they carry only original-target damage), so no GAP was closed by
+weakening correctness. Oracle-derived `landing_damage` stays fixture/queue-only
+and is never flattened into action/state features. No schema migration, no
+`legal-action-v7` change. Batches C–E remain approval-gated.

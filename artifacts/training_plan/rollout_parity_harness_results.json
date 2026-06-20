@@ -1447,6 +1447,7 @@
             "damage": 321,
             "damage_provenance": "bundled_showdown_fixed_fixture",
             "effect": "futuresight",
+            "landing_mode": "target_specific",
             "result": "hit",
             "target_pokemon_id": "machamp",
             "target_slot": "p2:0"
@@ -1477,6 +1478,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1502,6 +1504,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1542,6 +1545,7 @@
               "damage": 321,
               "damage_provenance": "bundled_showdown_fixed_fixture",
               "effect": "futuresight",
+              "landing_mode": "target_specific",
               "result": "hit",
               "target_pokemon_id": "machamp",
               "target_slot": "p2:0"
@@ -1618,6 +1622,7 @@
             "damage": 154,
             "damage_provenance": "bundled_showdown_fixed_fixture",
             "effect": "futuresight",
+            "landing_mode": "target_specific",
             "result": "hit",
             "target_pokemon_id": "blissey",
             "target_slot": "p2:0"
@@ -1648,6 +1653,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1673,6 +1679,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1713,6 +1720,7 @@
               "damage": 154,
               "damage_provenance": "bundled_showdown_fixed_fixture",
               "effect": "futuresight",
+              "landing_mode": "target_specific",
               "result": "hit",
               "target_pokemon_id": "blissey",
               "target_slot": "p2:0"
@@ -1783,7 +1791,7 @@
       "diff": [
         {
           "field": "transition",
-          "local": "p2:0:landing_damage_missing_for:blissey",
+          "local": "p2:0:replacement_landing_damage_unavailable",
           "oracle": {
             "schedule_results": [
               true
@@ -1824,7 +1832,7 @@
       "local": {
         "available": false,
         "events": [],
-        "reason": "p2:0:landing_damage_missing_for:blissey",
+        "reason": "p2:0:replacement_landing_damage_unavailable",
         "schedule_results": [
           {
             "reason": null,
@@ -1849,6 +1857,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1874,6 +1883,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -1952,6 +1962,225 @@
           "p2": "Splash"
         },
         {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "future_sight_resolver_bundle_replacement",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 154,
+            "damage_provenance": "bundled_showdown_resolver_bundle",
+            "effect": "futuresight",
+            "landing_mode": "resolver_exact",
+            "result": "hit",
+            "target_pokemon_id": "blissey",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {},
+                "damage_provenance": null,
+                "landing_turn": 3,
+                "move": "futuresight",
+                "resolver_inputs": {
+                  "damage_provenance": "bundled_showdown_resolver_bundle",
+                  "field_snapshot": {
+                    "screens": [],
+                    "terrain": null,
+                    "weather": null
+                  },
+                  "landing_damage": 154,
+                  "move_base_power": 120,
+                  "move_category": "special",
+                  "move_id": "futuresight",
+                  "move_type": "psychic",
+                  "source_snapshot": {
+                    "id": "slowking",
+                    "side": "p1"
+                  },
+                  "target_snapshot": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey",
+                    "types": [
+                      "normal"
+                    ]
+                  }
+                },
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {},
+                "damage_provenance": null,
+                "landing_turn": 3,
+                "move": "futuresight",
+                "resolver_inputs": {
+                  "damage_provenance": "bundled_showdown_resolver_bundle",
+                  "field_snapshot": {
+                    "screens": [],
+                    "terrain": null,
+                    "weather": null
+                  },
+                  "landing_damage": 154,
+                  "move_base_power": 120,
+                  "move_category": "special",
+                  "move_id": "futuresight",
+                  "move_type": "psychic",
+                  "source_snapshot": {
+                    "id": "slowking",
+                    "side": "p1"
+                  },
+                  "target_snapshot": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey",
+                    "types": [
+                      "normal"
+                    ]
+                  }
+                },
+                "scheduled_turn": 1,
+                "source_pokemon_id": "slowking",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 497,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 497,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 154,
+              "damage_provenance": "bundled_showdown_resolver_bundle",
+              "effect": "futuresight",
+              "landing_mode": "resolver_exact",
+              "result": "hit",
+              "target_pokemon_id": "blissey",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 497,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Future Sight",
+          "p2": "Splash"
+        },
+        {
           "p1": "Future Sight",
           "p2": "Splash"
         },
@@ -1969,6 +2198,7 @@
             "damage": 321,
             "damage_provenance": "bundled_showdown_fixed_fixture",
             "effect": "futuresight",
+            "landing_mode": "target_specific",
             "result": "hit",
             "target_pokemon_id": "machamp",
             "target_slot": "p2:0"
@@ -2004,6 +2234,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -2029,6 +2260,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "futuresight",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "slowking",
                 "source_side": "p1",
@@ -2069,6 +2301,7 @@
               "damage": 321,
               "damage_provenance": "bundled_showdown_fixed_fixture",
               "effect": "futuresight",
+              "landing_mode": "target_specific",
               "result": "hit",
               "target_pokemon_id": "machamp",
               "target_slot": "p2:0"
@@ -2147,6 +2380,7 @@
             "damage": 280,
             "damage_provenance": "bundled_showdown_fixed_fixture",
             "effect": "doomdesire",
+            "landing_mode": "target_specific",
             "result": "hit",
             "target_pokemon_id": "machamp",
             "target_slot": "p2:0"
@@ -2177,6 +2411,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2202,6 +2437,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2242,6 +2478,7 @@
               "damage": 280,
               "damage_provenance": "bundled_showdown_fixed_fixture",
               "effect": "doomdesire",
+              "landing_mode": "target_specific",
               "result": "hit",
               "target_pokemon_id": "machamp",
               "target_slot": "p2:0"
@@ -2318,6 +2555,7 @@
             "damage": 189,
             "damage_provenance": "bundled_showdown_fixed_fixture",
             "effect": "doomdesire",
+            "landing_mode": "target_specific",
             "result": "hit",
             "target_pokemon_id": "blissey",
             "target_slot": "p2:0"
@@ -2348,6 +2586,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2373,6 +2612,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2413,6 +2653,7 @@
               "damage": 189,
               "damage_provenance": "bundled_showdown_fixed_fixture",
               "effect": "doomdesire",
+              "landing_mode": "target_specific",
               "result": "hit",
               "target_pokemon_id": "blissey",
               "target_slot": "p2:0"
@@ -2483,7 +2724,7 @@
       "diff": [
         {
           "field": "transition",
-          "local": "p2:0:landing_damage_missing_for:blissey",
+          "local": "p2:0:replacement_landing_damage_unavailable",
           "oracle": {
             "schedule_results": [
               true
@@ -2524,7 +2765,7 @@
       "local": {
         "available": false,
         "events": [],
-        "reason": "p2:0:landing_damage_missing_for:blissey",
+        "reason": "p2:0:replacement_landing_damage_unavailable",
         "schedule_results": [
           {
             "reason": null,
@@ -2549,6 +2790,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2574,6 +2816,7 @@
                 "damage_provenance": "bundled_showdown_fixed_fixture",
                 "landing_turn": 3,
                 "move": "doomdesire",
+                "resolver_inputs": null,
                 "scheduled_turn": 1,
                 "source_pokemon_id": "jirachi",
                 "source_side": "p1",
@@ -2644,6 +2887,225 @@
         "target_slot": "p2:0"
       },
       "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Doom Desire",
+          "p2": "Splash"
+        },
+        {
+          "p1": "Splash",
+          "p2": "switch Blissey"
+        },
+        {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "doom_desire_resolver_bundle_replacement",
+      "local": {
+        "available": true,
+        "events": [
+          {
+            "damage": 189,
+            "damage_provenance": "bundled_showdown_resolver_bundle",
+            "effect": "doomdesire",
+            "landing_mode": "resolver_exact",
+            "result": "hit",
+            "target_pokemon_id": "blissey",
+            "target_slot": "p2:0"
+          }
+        ],
+        "reason": null,
+        "schedule_results": [
+          {
+            "reason": null,
+            "scheduled": true,
+            "turn": 1
+          }
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {},
+                "damage_provenance": null,
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "resolver_inputs": {
+                  "damage_provenance": "bundled_showdown_resolver_bundle",
+                  "field_snapshot": {
+                    "screens": [],
+                    "terrain": null,
+                    "weather": null
+                  },
+                  "landing_damage": 189,
+                  "move_base_power": 140,
+                  "move_category": "special",
+                  "move_id": "doomdesire",
+                  "move_type": "steel",
+                  "source_snapshot": {
+                    "id": "jirachi",
+                    "side": "p1"
+                  },
+                  "target_snapshot": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey",
+                    "types": [
+                      "normal"
+                    ]
+                  }
+                },
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 1
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {
+              "p2:0": {
+                "damage_by_target": {},
+                "damage_provenance": null,
+                "landing_turn": 3,
+                "move": "doomdesire",
+                "resolver_inputs": {
+                  "damage_provenance": "bundled_showdown_resolver_bundle",
+                  "field_snapshot": {
+                    "screens": [],
+                    "terrain": null,
+                    "weather": null
+                  },
+                  "landing_damage": 189,
+                  "move_base_power": 140,
+                  "move_category": "special",
+                  "move_id": "doomdesire",
+                  "move_type": "steel",
+                  "source_snapshot": {
+                    "id": "jirachi",
+                    "side": "p1"
+                  },
+                  "target_snapshot": {
+                    "hp": 651,
+                    "max_hp": 651,
+                    "pokemon_id": "blissey",
+                    "types": [
+                      "normal"
+                    ]
+                  }
+                },
+                "scheduled_turn": 1,
+                "source_pokemon_id": "jirachi",
+                "source_side": "p1",
+                "target_side": "p2",
+                "target_slot": 0
+              }
+            },
+            "turn": 2
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 462,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            },
+            "delayed_attacks": {},
+            "turn": 3
+          }
+        ],
+        "state": {
+          "active_slots": {
+            "p2:0": {
+              "hp": 462,
+              "max_hp": 651,
+              "pokemon_id": "blissey"
+            }
+          },
+          "delayed_attacks": {},
+          "turn": 3
+        },
+        "turn_events": [
+          [],
+          [],
+          [
+            {
+              "damage": 189,
+              "damage_provenance": "bundled_showdown_resolver_bundle",
+              "effect": "doomdesire",
+              "landing_mode": "resolver_exact",
+              "result": "hit",
+              "target_pokemon_id": "blissey",
+              "target_slot": "p2:0"
+            }
+          ]
+        ]
+      },
+      "oracle": {
+        "schedule_results": [
+          true
+        ],
+        "snapshots": [
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 321,
+                "max_hp": 321,
+                "pokemon_id": "machamp"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 651,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          },
+          {
+            "active_slots": {
+              "p2:0": {
+                "hp": 462,
+                "max_hp": 651,
+                "pokemon_id": "blissey"
+              }
+            }
+          }
+        ]
+      },
+      "phase": "delayed_future",
+      "starting_state": {
+        "original_target": {
+          "hp": 321,
+          "max_hp": 321,
+          "pokemon_id": "machamp"
+        },
+        "target_slot": "p2:0"
+      },
+      "status": "PASS"
     },
     {
       "chosen_actions": [
@@ -3722,6 +4184,6 @@
   "summary": {
     "FAIL": 0,
     "GAP": 8,
-    "PASS": 37
+    "PASS": 39
   }
 }

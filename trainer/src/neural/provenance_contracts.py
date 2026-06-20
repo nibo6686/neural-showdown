@@ -80,14 +80,30 @@ REQUIRED_RESOLVER_INPUT_KEYS = (
 )
 
 
+def _snapshot_identity(snapshot: Any) -> str:
+    if not isinstance(snapshot, dict):
+        return ""
+    return _to_id(snapshot.get("id") or snapshot.get("pokemon_id"))
+
+
 def delayed_landing_resolvable(attack: Dict[str, Any], occupant_id: Any) -> Dict[str, Any]:
     """Decide whether a delayed attack may resolve exact damage on the occupant.
 
-    Fail closed unless either (a) target-specific landing damage keyed by *this*
-    occupant identity exists, or (b) a complete resolver-input bundle exists.
+    Fail closed unless one of these holds for *this* landing occupant:
+
+    1. ``target_specific`` — ``damage_by_target`` carries damage keyed by the
+       occupant identity, with damage provenance.
+    2. ``resolver_exact`` — a complete landing-time resolver bundle whose
+       ``target_snapshot`` identity matches the occupant *and* that carries an
+       oracle/Showdown-derived ``landing_damage`` with ``damage_provenance``.
+
+    A complete bundle without exact damage returns ``resolver_inputs_present``
+    with ``damage=None`` (computation deferred; the caller must fail closed).
+
     Damage computed for the original target must never be reused for a
-    replacement occupant: if the occupant id is not a key in
-    ``damage_by_target`` and no resolver bundle is present, this is unavailable.
+    replacement occupant: an occupant absent from ``damage_by_target`` with no
+    matching resolver bundle is unavailable, and a resolver bundle built for a
+    different occupant returns ``resolver_target_mismatch``.
     """
     occupant = _to_id(occupant_id)
     if not occupant:
@@ -97,15 +113,29 @@ def delayed_landing_resolvable(attack: Dict[str, Any], occupant_id: Any) -> Dict
     if isinstance(damage_by_target, dict):
         keyed = {_to_id(key): value for key, value in damage_by_target.items()}
         if occupant in keyed and attack.get("damage_provenance"):
-            return _available(mode="target_specific", damage=int(keyed[occupant]))
+            return _available(
+                mode="target_specific",
+                damage=int(keyed[occupant]),
+                provenance=str(attack.get("damage_provenance")),
+            )
 
     resolver = attack.get("resolver_inputs")
     if isinstance(resolver, dict):
         missing = [key for key in REQUIRED_RESOLVER_INPUT_KEYS if not resolver.get(key)]
-        if not missing:
-            # Bundle present; actual damage computation is batch B, not here.
-            return _available(mode="resolver_inputs_present", damage=None)
-        return _unavailable("resolver_inputs_incomplete:" + ",".join(missing))
+        if missing:
+            return _unavailable("resolver_inputs_incomplete:" + ",".join(missing))
+        # The bundle must have been built for the actual landing occupant.
+        if _snapshot_identity(resolver.get("target_snapshot")) != occupant:
+            return _unavailable("resolver_target_mismatch")
+        landing_damage = resolver.get("landing_damage")
+        if isinstance(landing_damage, int) and resolver.get("damage_provenance"):
+            return _available(
+                mode="resolver_exact",
+                damage=int(landing_damage),
+                provenance=str(resolver.get("damage_provenance")),
+            )
+        # Inputs present but exact damage is not computed locally yet.
+        return _available(mode="resolver_inputs_present", damage=None, provenance=None)
 
     return _unavailable("replacement_landing_damage_unavailable")
 

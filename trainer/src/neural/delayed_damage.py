@@ -3,6 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any, Dict, List
 
+from .provenance_contracts import delayed_landing_resolvable
+
 
 _SUPPORTED_MOVES = {"futuresight", "doomdesire"}
 
@@ -26,11 +28,14 @@ def schedule_delayed_attack(state: Dict[str, Any], attack: Dict[str, Any]) -> Di
     if not isinstance(attack.get("target_slot"), int) or not attack.get("target_side"):
         return {"available": False, "scheduled": False, "reason": "target_side_and_slot_required", "state": result}
     damage_by_target = attack.get("damage_by_target")
-    if not isinstance(damage_by_target, dict) or not attack.get("damage_provenance"):
+    resolver_inputs = attack.get("resolver_inputs")
+    has_target_specific = isinstance(damage_by_target, dict) and bool(attack.get("damage_provenance"))
+    has_resolver = isinstance(resolver_inputs, dict) and bool(resolver_inputs)
+    if not has_target_specific and not has_resolver:
         return {
             "available": False,
             "scheduled": False,
-            "reason": "target_specific_damage_and_provenance_required",
+            "reason": "target_specific_damage_or_resolver_inputs_required",
             "state": result,
         }
 
@@ -52,8 +57,9 @@ def schedule_delayed_attack(state: Dict[str, Any], attack: Dict[str, Any]) -> Di
         "target_slot": int(attack["target_slot"]),
         "scheduled_turn": scheduled_turn,
         "landing_turn": scheduled_turn + 2,
-        "damage_by_target": {str(key): int(value) for key, value in damage_by_target.items()},
-        "damage_provenance": str(attack["damage_provenance"]),
+        "damage_by_target": {str(name): int(value) for name, value in damage_by_target.items()} if has_target_specific else {},
+        "damage_provenance": str(attack["damage_provenance"]) if has_target_specific else None,
+        "resolver_inputs": deepcopy(resolver_inputs) if has_resolver else None,
     }
     return {"available": True, "scheduled": True, "reason": None, "state": result}
 
@@ -78,15 +84,23 @@ def resolve_delayed_attacks(state: Dict[str, Any], turn: int) -> Dict[str, Any]:
         if target_id and target_id == str(attack.get("source_pokemon_id") or ""):
             events.append({"effect": attack["move"], "target_slot": key, "result": "target_is_source"})
             continue
-        damage_by_target = attack.get("damage_by_target") or {}
-        if target_id not in damage_by_target:
+        resolution = delayed_landing_resolvable(attack, target_id)
+        if not resolution["available"]:
             return {
                 "available": False,
-                "reason": f"{key}:landing_damage_missing_for:{target_id or 'unknown_target'}",
+                "reason": f"{key}:{resolution['reason']}",
                 "state": result,
                 "events": events,
             }
-        damage = max(0, int(damage_by_target[target_id]))
+        damage = resolution.get("damage")
+        if damage is None:
+            return {
+                "available": False,
+                "reason": f"{key}:resolver_inputs_present_without_exact_landing_damage",
+                "state": result,
+                "events": events,
+            }
+        damage = max(0, int(damage))
         dealt = min(int(target["hp"]), damage)
         target["hp"] = max(0, int(target["hp"]) - dealt)
         events.append(
@@ -96,7 +110,8 @@ def resolve_delayed_attacks(state: Dict[str, Any], turn: int) -> Dict[str, Any]:
                 "target_pokemon_id": target_id,
                 "result": "hit",
                 "damage": dealt,
-                "damage_provenance": attack["damage_provenance"],
+                "damage_provenance": resolution.get("provenance"),
+                "landing_mode": resolution.get("mode"),
             }
         )
     result["turn"] = int(turn)

@@ -624,3 +624,25 @@ rejects a distribution summary as an exact trace. No GAP was closed (still
 8 GAP), no `legal-action-v7`/state/action schema changed, no materialization,
 training, checkpoint promotion, live default, or live-path change occurred.
 Both gates remain **closed**.
+
+Rollout-parity batch 6 (`rollout_parity_batch_6_delayed_landing_resolver_report.md`)
+implements design group 1 (delayed landing resolver) and expands the harness to
+**47 fixtures: 39 PASS / 0 FAIL / 8 explicit GAP**. A landing-time
+resolver-bundle provenance path lets Future Sight / Doom Desire resolve a
+replacement occupant's exact damage only when a complete bundle (source/move/
+occupant-matched `target_snapshot`/field + a Showdown-derived exact
+`landing_damage`) is present; the decision is centralized in
+`provenance_contracts.delayed_landing_resolvable`, which never reuses
+original-target damage and rejects a bundle built for a different occupant
+(`resolver_target_mismatch`). Two new PASS fixtures
+(`future_sight_resolver_bundle_replacement`,
+`doom_desire_resolver_bundle_replacement`) were added; the two
+`*_replacement_damage_unavailable` cases **stay GAP** (they carry only
+original-target damage), so GAP count is unchanged and no GAP was closed by
+weakening correctness. Oracle-derived `landing_damage` stays fixture/queue-only
+and is never flattened into action/state features. Tests: sim-core build + 35
+sim-core tests, 28 no-leakage contract tests, 17 harness tests, JSON valid,
+`git diff --check` clean. No `legal-action-v7`/state/action schema change (v7
+stays 552D), no materialization, training, checkpoint promotion/file, live
+default, or live bot behavior change; no NatDex/old-gen mechanics. Both gates
+remain **closed**.
