@@ -51,6 +51,7 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "binding_residual",
             "binding_band_residual",
             "sandstorm_chip",
+            "sandstorm_suppressed_by_cloud_nine",
             "grassy_terrain_healing",
             "grassy_terrain_airborne_no_heal",
             "no_residual_unchanged",
@@ -93,6 +94,8 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "good_as_gold_bypassed_by_known_mold_breaker",
             "ability_shield_protects_good_as_gold_from_mold_breaker",
             "safety_goggles_blocks_powder_move",
+            "neutralizing_gas_suppresses_good_as_gold",
+            "ability_shield_protects_good_as_gold_from_neutralizing_gas",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 

@@ -710,3 +710,26 @@ contract tests, 17 harness tests, JSON valid, `git diff --check` clean. No
 rewrite, no materialization, training, checkpoint promotion/file, live default,
 or live bot behavior change; no NatDex/old-gen mechanics. Both gates remain
 **closed**.
+
+Effective-context batch 2
+(`effective_context_batch_2_weather_suppression_secondary_blocking_report.md`)
+then wired known Cloud Nine / Air Lock weather suppression and known Neutralizing
+Gas ability suppression, verified against bundled Showdown, expanding the harness
+to **55 fixtures: 47 PASS / 0 FAIL / 8 explicit GAP**. The Sandstorm chip in
+`end_of_turn` is gated through `EffectiveWeatherContext` on a
+`weather_negator_known` flag (matches `Field.effectiveWeather` /
+`suppressingWeather`); a known active Neutralizing Gas suppresses Good as Gold in
+`apply_immediate_prevention` (`neutralizing_gas_suppresses_target`) unless a known
+Ability Shield protects (matches `Pokemon.ignoringAbility`). Three new PASS
+fixtures (`sandstorm_suppressed_by_cloud_nine`,
+`neutralizing_gas_suppresses_good_as_gold`,
+`ability_shield_protects_good_as_gold_from_neutralizing_gas`); GAP unchanged,
+0 FAIL preserved. A `secondary_effect_blocked` contract (Covert Cloak / Shield
+Dust) is added and unit-tested but harness-deferred — the local rollout has no
+secondary-effect application phase, documented as the missing routing. Unknown
+negator/gas/item is never assumed. Tests: sim-core build + 35 sim-core tests, 49
+belief tests, 43 no-leakage contract tests, 17 harness tests, JSON valid,
+`git diff --check` clean. No `legal-action-v7`/state/action schema change (v7
+stays 552D), no live-extraction rewrite, no materialization, training, checkpoint
+promotion/file, live default, or live bot behavior change; no NatDex/old-gen
+mechanics. Both gates remain **closed**.

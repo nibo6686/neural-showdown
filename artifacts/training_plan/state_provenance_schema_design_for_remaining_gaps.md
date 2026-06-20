@@ -346,3 +346,12 @@ Gold (known Ability Shield protects) and known Safety Goggles powder block, via
 FAIL / 8 GAP**. Cloud Nine / Air Lock, Neutralizing Gas harness coverage, and
 Covert Cloak / Shield Dust remain deferred (unit-tested at the contract level).
 Unknown ability/item is never assumed; no `legal-action-v7`/state schema change.
+
+Effective-context batch 2 then wired known Cloud Nine / Air Lock Sandstorm-chip
+suppression (`end_of_turn` + `EffectiveWeatherContext`) and known Neutralizing
+Gas suppression of Good as Gold (`prevention.py` + `neutralizing_gas_suppresses_target`,
+Ability Shield protects), both verified against bundled Showdown; harness is now
+**55 cases, 47 PASS / 0 FAIL / 8 GAP**. A `secondary_effect_blocked` contract
+(Covert Cloak / Shield Dust) is unit-tested but harness-deferred (no local
+secondary-effect phase). Unknown negator/gas/item never assumed; no
+`legal-action-v7`/state schema change.

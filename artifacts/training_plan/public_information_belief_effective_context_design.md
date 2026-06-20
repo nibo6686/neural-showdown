@@ -201,6 +201,21 @@ secondary blocking remain **deferred** (unit-tested at the contract level,
 harness wiring needs clean oracle setup / secondary routing). Unknown
 ability/item is never assumed; no `legal-action-v7`/state schema change.
 
+## Addendum — effective-context batch 2 landed
+
+A second wiring slice is implemented; see
+`effective_context_batch_2_weather_suppression_secondary_blocking_report.md`.
+Verified against bundled Showdown: known Cloud Nine / Air Lock suppresses the
+Sandstorm chip (`end_of_turn` via `EffectiveWeatherContext` +
+`weather_negator_known`), and known active Neutralizing Gas suppresses Good as
+Gold unless Ability Shield protects (`prevention.py` via
+`neutralizing_gas_suppresses_target`). A `secondary_effect_blocked` contract for
+Covert Cloak / Shield Dust is added and unit-tested but **not** wired to a
+rollout transition (no local secondary-effect phase) — harness secondary
+blocking stays deferred. Three new PASS fixtures; harness now 55 cases,
+47 PASS / 0 FAIL / 8 GAP. Unknown negator/gas/item is never assumed; no
+`legal-action-v7`/state schema change.
+
 ## 5. What did NOT change
 
 No live extraction rewrite, no `legal-action-v7`/state/action schema change, no

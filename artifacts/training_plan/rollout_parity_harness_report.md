@@ -5,10 +5,10 @@
 A deterministic oracle-vs-local transition harness compares targeted Gen 9
 state transitions against the bundled Pokemon Showdown engine.
 
-Result after effective-context known-modifier wiring (batch 8):
+Result after effective-context batch 2 — weather/ability suppression (batch 9):
 
-- 52 deterministic cases
-- 44 PASS
+- 55 deterministic cases
+- 47 PASS
 - 0 FAIL
 - 8 explicit GAP
 
@@ -56,7 +56,7 @@ The harness distinguishes:
 - `sequential_multihit`: exact per-hit multi-hit execution fixtures.
 
 Click-time `legal-action-v7` features are not treated as rollout transition
-results. Batch 8 keeps that boundary and adds no v7 fields.
+results. Batch 9 keeps that boundary and adds no v7 fields.
 
 ## Passing parity coverage
 
@@ -134,6 +134,15 @@ Immediate prevention:
 43. A known Ability Shield on the Good as Gold holder protects it from the Mold
     Breaker bypass, so the status move is still blocked.
 44. A known Safety Goggles blocks a powder-flagged move.
+45. A known active Neutralizing Gas suppresses Good as Gold, so the status move
+    lands.
+46. A known Ability Shield protects Good as Gold from Neutralizing Gas
+    suppression, so the status move is still blocked.
+
+Weather suppression (end-of-turn):
+
+47. A known active Cloud Nine / Air Lock suppresses the Sandstorm chip while the
+    weather is still set.
 
 ## Explicit parity gaps
 
@@ -180,6 +189,28 @@ Population Bomb and Triple Axel remain GAP because exact parity needs per-hit
 accuracy branches, PRNG provenance, stop-on-miss execution, and per-hit damage
 or base-power provenance. The v7 action features can summarize risk, but that
 is not exact rollout execution.
+
+## Focused fixes in batch 9 (effective-context batch 2)
+
+- Added known Cloud Nine / Air Lock weather suppression in `end_of_turn`: the
+  Sandstorm chip is gated through `EffectiveWeatherContext` on a
+  `weather_negator_known` flag (verified vs bundled Showdown
+  `Field.effectiveWeather` / `suppressingWeather`). An unknown negator does not
+  suppress.
+- Added known Neutralizing Gas ability suppression in `apply_immediate_prevention`
+  (`neutralizing_gas_suppresses_target`): a known active Neutralizing Gas
+  suppresses Good as Gold so a status move lands, unless the holder has a known
+  Ability Shield or its own ability is Neutralizing Gas (verified vs
+  `Pokemon.ignoringAbility`).
+- Added a `secondary_effect_blocked` contract helper for Covert Cloak (item) /
+  Shield Dust (ability), verified vs `onModifySecondaries` (self/dustproof
+  secondaries are never blocked; Shield Dust is breakable so a known Mold Breaker
+  bypasses it). It is **not** wired into a rollout transition — the local helpers
+  have no secondary-effect application phase — so it backs unit tests only and the
+  harness secondary blocking stays deferred.
+- New PASS fixtures: `sandstorm_suppressed_by_cloud_nine`,
+  `neutralizing_gas_suppresses_good_as_gold`,
+  `ability_shield_protects_good_as_gold_from_neutralizing_gas`.
 
 ## Focused fixes in batch 8 (effective-context known modifiers)
 
@@ -268,8 +299,8 @@ were implemented in this batch.
 - sim-core test suite: 35 PASS
 - focused rollout-parity Python tests: 17 PASS
 - state-provenance no-leakage contract tests: 43 PASS
-- public-information belief / effective-context tests: 36 PASS
-- deterministic harness: 44 PASS / 0 FAIL / 8 GAP
+- public-information belief / effective-context tests: 49 PASS
+- deterministic harness: 47 PASS / 0 FAIL / 8 GAP
 
 ## Gate decision
 

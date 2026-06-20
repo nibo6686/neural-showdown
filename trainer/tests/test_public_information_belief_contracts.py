@@ -8,6 +8,7 @@ revealed. Pure-Python, torch-free; no materialization, training, or live change.
 
 import unittest
 
+from neural.end_of_turn import apply_end_of_turn
 from neural.prevention import apply_immediate_prevention
 from neural.provenance_contracts import (
     AbilityKnownness,
@@ -17,9 +18,11 @@ from neural.provenance_contracts import (
     ItemState,
     item_belief_from_state,
     item_blocks,
+    neutralizing_gas_suppresses_target,
     public_ability_belief,
     public_item_belief,
     resolve_status_move_ability_block,
+    secondary_effect_blocked,
     source_ignores_target_abilities,
     speed_belief_exact,
     speed_belief_range,
@@ -273,6 +276,107 @@ class SafetyGogglesPreventionTest(unittest.TestCase):
         result = apply_immediate_prevention(state, {"name": "Tackle", "priority": 0})
         self.assertTrue(result["available"])
         self.assertFalse(result["prevented"])
+
+
+class CloudNineWeatherSuppressionTest(unittest.TestCase):
+    def _sand_state(self, **extra):
+        return {
+            "weather": "sandstorm",
+            "combatants": {
+                "p1": {"hp": 160, "max_hp": 320, "types": ["Water"], "residual_modifiers_known": True},
+            },
+            **extra,
+        }
+
+    def test_known_cloud_nine_suppresses_sandstorm_chip(self):
+        result = apply_end_of_turn(self._sand_state(weather_negator_known=True))
+        self.assertTrue(result["available"])
+        self.assertEqual(result["state"]["combatants"]["p1"]["hp"], 160)  # no chip
+        self.assertEqual(result["events"], [])
+
+    def test_unknown_negator_does_not_suppress_chip(self):
+        # No known negator: sandstorm chip applies (floor(320/16) = 20).
+        result = apply_end_of_turn(self._sand_state())
+        self.assertTrue(result["available"])
+        self.assertEqual(result["state"]["combatants"]["p1"]["hp"], 140)
+
+
+class NeutralizingGasSuppressionTest(unittest.TestCase):
+    def test_known_neutralizing_gas_suppresses_target_ability(self):
+        self.assertTrue(neutralizing_gas_suppresses_target({"ability": "Good as Gold", "ability_known": True}, True))
+
+    def test_unknown_neutralizing_gas_does_not_suppress(self):
+        self.assertFalse(neutralizing_gas_suppresses_target({"ability": "Good as Gold", "ability_known": True}, False))
+
+    def test_ability_shield_protects_from_neutralizing_gas(self):
+        target = {"ability": "Good as Gold", "ability_known": True, "item": "Ability Shield", "item_known": True}
+        self.assertFalse(neutralizing_gas_suppresses_target(target, True))
+
+    def test_own_neutralizing_gas_is_not_self_suppressed(self):
+        target = {"ability": "Neutralizing Gas", "ability_known": True}
+        self.assertFalse(neutralizing_gas_suppresses_target(target, True))
+
+    def test_known_neutralizing_gas_unblocks_good_as_gold_status_move(self):
+        state = {
+            "attacker": {"ability": "Neutralizing Gas", "ability_known": True},
+            "target": {"ability": "Good as Gold", "ability_known": True},
+            "neutralizing_gas_known": True,
+        }
+        result = apply_immediate_prevention(state, {"name": "Will-O-Wisp", "category": "Status", "status": "brn"})
+        self.assertTrue(result["available"])
+        self.assertFalse(result["prevented"])
+
+    def test_ability_shield_keeps_good_as_gold_under_neutralizing_gas(self):
+        state = {
+            "attacker": {"ability": "Neutralizing Gas", "ability_known": True},
+            "target": {
+                "ability": "Good as Gold",
+                "ability_known": True,
+                "item": "Ability Shield",
+                "item_known": True,
+            },
+            "neutralizing_gas_known": True,
+        }
+        result = apply_immediate_prevention(state, {"name": "Will-O-Wisp", "category": "Status", "status": "brn"})
+        self.assertTrue(result["available"])
+        self.assertTrue(result["prevented"])
+
+
+class SecondaryEffectBlockingTest(unittest.TestCase):
+    def _flinch(self):
+        return {"chance": 30, "volatileStatus": "flinch"}
+
+    def test_known_covert_cloak_blocks_secondary(self):
+        target = {"item": "Covert Cloak", "item_known": True}
+        result = secondary_effect_blocked(target, {}, self._flinch())
+        self.assertTrue(result["available"])
+        self.assertTrue(result["blocked"])
+
+    def test_known_shield_dust_blocks_secondary(self):
+        target = {"ability": "Shield Dust", "ability_known": True}
+        result = secondary_effect_blocked(target, {}, self._flinch())
+        self.assertTrue(result["available"])
+        self.assertTrue(result["blocked"])
+
+    def test_mold_breaker_bypasses_shield_dust(self):
+        target = {"ability": "Shield Dust", "ability_known": True}
+        attacker = {"ability": "Mold Breaker", "ability_known": True}
+        result = secondary_effect_blocked(target, attacker, self._flinch())
+        # Both known: Shield Dust is breakable and bypassed, so the secondary
+        # lands. We know this definitively (not fail-closed): blocked is False.
+        self.assertTrue(result["available"])
+        self.assertFalse(result["blocked"])
+
+    def test_unknown_blocker_fails_closed(self):
+        result = secondary_effect_blocked({}, {}, self._flinch())
+        self.assertFalse(result["available"])
+        self.assertIsNone(result["blocked"])
+
+    def test_self_secondary_is_never_blocked(self):
+        target = {"item": "Covert Cloak", "item_known": True}
+        result = secondary_effect_blocked(target, {}, {"chance": 100, "self": {"boosts": {"spe": 1}}})
+        self.assertTrue(result["available"])
+        self.assertFalse(result["blocked"])
 
 
 if __name__ == "__main__":

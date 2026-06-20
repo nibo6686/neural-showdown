@@ -507,6 +507,16 @@ function fieldCases(): ParityCase[] {
   const sandP2 = residualMon(sand, 1);
   choose(sand, 'move 1', 'move 1');
 
+  // Cloud Nine suppresses weather effects: Tyranitar's sandstorm is active but
+  // chip damage does not apply while Golduck (Cloud Nine) is on the field.
+  const cloudNineSand = battle(
+    [{ species: 'Golduck', ability: 'Cloud Nine', moves: ['Splash'] }],
+    [{ species: 'Tyranitar', ability: 'Sand Stream', moves: ['Splash'] }],
+  );
+  const cloudNineP1 = residualMon(cloudNineSand, 0);
+  const cloudNineP2 = residualMon(cloudNineSand, 1);
+  choose(cloudNineSand, 'move 1', 'move 1');
+
   const grassy = battle(
     [{ species: 'Mew', moves: ['Grassy Terrain'] }],
     [{ species: 'Snorlax', ability: 'Thick Fat', moves: ['Splash'] }],
@@ -545,6 +555,29 @@ function fieldCases(): ParityCase[] {
         state: {
           weather: 'sandstorm',
           combatants: { p1: sandP1, p2: sandP2 },
+        },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'sandstorm_suppressed_by_cloud_nine',
+      phase: 'end_of_turn',
+      starting_state: { weather: 'sandstorm', p1_ability: 'Cloud Nine' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Splash' }],
+      oracle: {
+        snapshots: [{
+          combatants: {
+            p1: { hp: active(cloudNineSand, 0).hp },
+            p2: { hp: active(cloudNineSand, 1).hp },
+          },
+        }],
+      },
+      local_input: {
+        turns: 1,
+        state: {
+          weather: 'sandstorm',
+          weather_negator_known: true,
+          combatants: { p1: cloudNineP1, p2: cloudNineP2 },
         },
       },
       local_support: 'supported',
@@ -1214,6 +1247,20 @@ function preventionCases(): ParityCase[] {
   );
   const safetyGogglesLines = choose(safetyGoggles, 'move 1', 'move 1');
 
+  // Neutralizing Gas suppresses Good as Gold, so a status move lands.
+  const neutralizingGasGAG = battle(
+    [{ species: 'Gholdengo', ability: 'Good as Gold', moves: ['Splash'] }],
+    [{ species: 'Weezing-Galar', ability: 'Neutralizing Gas', moves: ['Will-O-Wisp'] }],
+  );
+  const neutralizingGasGAGLines = choose(neutralizingGasGAG, 'move 1', 'move 1');
+
+  // Ability Shield protects Good as Gold from Neutralizing Gas suppression.
+  const abilityShieldNeutralGas = battle(
+    [{ species: 'Gholdengo', ability: 'Good as Gold', item: 'Ability Shield', moves: ['Splash'] }],
+    [{ species: 'Weezing-Galar', ability: 'Neutralizing Gas', moves: ['Will-O-Wisp'] }],
+  );
+  const abilityShieldNeutralGasLines = choose(abilityShieldNeutralGas, 'move 1', 'move 1');
+
   return [
     {
       id: 'psychic_terrain_blocks_grounded_priority',
@@ -1567,6 +1614,50 @@ function preventionCases(): ParityCase[] {
           target: { types: ['Normal'], ability: 'Thick Fat', item: 'Safety Goggles', item_known: true },
         },
         action: { name: 'Spore', category: 'Status', status: 'slp', powder: true },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'neutralizing_gas_suppresses_good_as_gold',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Good as Gold', p2_ability: 'Neutralizing Gas', p2_move: 'Will-O-Wisp' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Will-O-Wisp' }],
+      oracle: {
+        prevented: !active(neutralizingGasGAG, 0).status,
+        blocked: neutralizingGasGAGLines.some(line => line.includes('[from] ability: Good as Gold')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Poison'], ability: 'Neutralizing Gas', ability_known: true },
+          target: { types: ['Steel', 'Ghost'], ability: 'Good as Gold', ability_known: true },
+          neutralizing_gas_known: true,
+        },
+        action: { name: 'Will-O-Wisp', category: 'Status', status: 'brn' },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'ability_shield_protects_good_as_gold_from_neutralizing_gas',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Good as Gold', p1_item: 'Ability Shield', p2_ability: 'Neutralizing Gas', p2_move: 'Will-O-Wisp' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Will-O-Wisp' }],
+      oracle: {
+        prevented: !active(abilityShieldNeutralGas, 0).status,
+        blocked: abilityShieldNeutralGasLines.some(line => line.includes('[from] ability: Good as Gold')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Poison'], ability: 'Neutralizing Gas', ability_known: true },
+          target: {
+            types: ['Steel', 'Ghost'],
+            ability: 'Good as Gold',
+            ability_known: true,
+            item: 'Ability Shield',
+            item_known: true,
+          },
+          neutralizing_gas_known: true,
+        },
+        action: { name: 'Will-O-Wisp', category: 'Status', status: 'brn' },
       },
       local_support: 'supported',
     },

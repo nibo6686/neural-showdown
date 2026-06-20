@@ -1260,6 +1260,108 @@
     {
       "chosen_actions": [
         {
+          "p1": "Splash",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "sandstorm_suppressed_by_cloud_nine",
+      "local": {
+        "available": true,
+        "events": [],
+        "reason": null,
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "ability": "Cloud Nine",
+                "hp": 301,
+                "item": "",
+                "max_hp": 301,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Water"
+                ],
+                "volatiles": {}
+              },
+              "p2": {
+                "ability": "Sand Stream",
+                "hp": 341,
+                "item": "",
+                "max_hp": 341,
+                "residual_modifiers_known": true,
+                "status": null,
+                "types": [
+                  "Rock",
+                  "Dark"
+                ],
+                "volatiles": {}
+              }
+            },
+            "weather": "sandstorm",
+            "weather_negator_known": true
+          }
+        ],
+        "state": {
+          "combatants": {
+            "p1": {
+              "ability": "Cloud Nine",
+              "hp": 301,
+              "item": "",
+              "max_hp": 301,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Water"
+              ],
+              "volatiles": {}
+            },
+            "p2": {
+              "ability": "Sand Stream",
+              "hp": 341,
+              "item": "",
+              "max_hp": 341,
+              "residual_modifiers_known": true,
+              "status": null,
+              "types": [
+                "Rock",
+                "Dark"
+              ],
+              "volatiles": {}
+            }
+          },
+          "weather": "sandstorm",
+          "weather_negator_known": true
+        },
+        "turn_events": [
+          []
+        ]
+      },
+      "oracle": {
+        "snapshots": [
+          {
+            "combatants": {
+              "p1": {
+                "hp": 301
+              },
+              "p2": {
+                "hp": 341
+              }
+            }
+          }
+        ]
+      },
+      "phase": "end_of_turn",
+      "starting_state": {
+        "p1_ability": "Cloud Nine",
+        "weather": "sandstorm"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
           "p1": "Grassy Terrain",
           "p2": "Splash"
         }
@@ -4198,6 +4300,98 @@
     {
       "chosen_actions": [
         {
+          "p1": "Splash",
+          "p2": "Will-O-Wisp"
+        }
+      ],
+      "diff": [],
+      "id": "neutralizing_gas_suppresses_good_as_gold",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Neutralizing Gas",
+            "ability_known": true,
+            "types": [
+              "Poison"
+            ]
+          },
+          "neutralizing_gas_known": true,
+          "target": {
+            "ability": "Good as Gold",
+            "ability_known": true,
+            "types": [
+              "Steel",
+              "Ghost"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "blocked": false,
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p2_ability": "Neutralizing Gas",
+        "p2_move": "Will-O-Wisp"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Will-O-Wisp"
+        }
+      ],
+      "diff": [],
+      "id": "ability_shield_protects_good_as_gold_from_neutralizing_gas",
+      "local": {
+        "available": true,
+        "blocked": true,
+        "prevented": true,
+        "reason": "good_as_gold_status_block",
+        "state": {
+          "attacker": {
+            "ability": "Neutralizing Gas",
+            "ability_known": true,
+            "types": [
+              "Poison"
+            ]
+          },
+          "neutralizing_gas_known": true,
+          "target": {
+            "ability": "Good as Gold",
+            "ability_known": true,
+            "item": "Ability Shield",
+            "item_known": true,
+            "types": [
+              "Steel",
+              "Ghost"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "blocked": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p1_item": "Ability Shield",
+        "p2_ability": "Neutralizing Gas",
+        "p2_move": "Will-O-Wisp"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
           "p1": "Population Bomb",
           "p2": "Splash"
         }
@@ -4410,6 +4604,6 @@
   "summary": {
     "FAIL": 0,
     "GAP": 8,
-    "PASS": 44
+    "PASS": 47
   }
 }

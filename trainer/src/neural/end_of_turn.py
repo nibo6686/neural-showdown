@@ -4,6 +4,8 @@ from copy import deepcopy
 from math import floor
 from typing import Any, Dict, List, Tuple
 
+from .provenance_contracts import EffectiveWeatherContext
+
 
 _SAND_IMMUNE_TYPES = {"rock", "ground", "steel"}
 _SAND_IMMUNE_ABILITIES = {
@@ -91,8 +93,14 @@ def apply_end_of_turn(state: Dict[str, Any]) -> Dict[str, Any]:
     events: List[Dict[str, Any]] = []
     unsupported: List[str] = []
 
-    # Field residual order 1: ordinary sandstorm chip.
-    if _to_id(result.get("weather")) == "sandstorm":
+    # Field residual order 1: ordinary sandstorm chip. A known active
+    # Cloud Nine / Air Lock suppresses weather effects (bundled Showdown
+    # Field.effectiveWeather / suppressingWeather); an unknown negator does not.
+    effective_weather = EffectiveWeatherContext(
+        weather=result.get("weather"),
+        weather_negator_known=bool(result.get("weather_negator_known")),
+    ).effective_weather()
+    if effective_weather == "sandstorm":
         for side, mon in combatants.items():
             if int(mon["hp"]) <= 0:
                 continue

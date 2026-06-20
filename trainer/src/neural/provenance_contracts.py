@@ -335,6 +335,23 @@ def source_ignores_target_abilities(attacker: Optional[Dict[str, Any]]) -> bool:
     return effective.knownness == AbilityKnownness.KNOWN and effective.ability in _MOLD_BREAKER_ABILITIES
 
 
+def neutralizing_gas_suppresses_target(target: Any, neutralizing_gas_known: bool) -> bool:
+    """A KNOWN active Neutralizing Gas suppresses the target's ability.
+
+    Verified vs bundled Showdown `Pokemon.ignoringAbility`: suppression does not
+    apply when the target holds a known Ability Shield or its own ability is
+    Neutralizing Gas. An unknown/possible Neutralizing Gas never suppresses.
+    """
+    if not neutralizing_gas_known:
+        return False
+    if _holds_known_item(target, "abilityshield"):
+        return False
+    own = effective_ability_from_state(target if isinstance(target, dict) else {})
+    if own.ability == "neutralizinggas":
+        return False
+    return True
+
+
 def resolve_status_move_ability_block(
     target: Dict[str, Any], attacker: Optional[Dict[str, Any]], move: Dict[str, Any]
 ) -> Optional[Dict[str, Any]]:
@@ -683,6 +700,45 @@ def item_belief_from_state(mon: Any) -> PublicItemBelief:
     if mon.get("item_known") and item:
         return public_item_belief([item], revealed_item=item, state=ItemState.KNOWN)
     return public_item_belief(mon.get("possible_items") or [])
+
+
+def secondary_effect_blocked(
+    target: Dict[str, Any], attacker: Optional[Dict[str, Any]], secondary: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Known Covert Cloak (item) / Shield Dust (ability) blocks a move secondary.
+
+    Verified vs bundled Showdown `onModifySecondaries` (Covert Cloak item, Shield
+    Dust ability): a secondary is kept (not blocked) when it is self-targeting
+    (``self``) or ``dustproof``. Shield Dust is ``breakable``, so a known Mold
+    Breaker-class attacker bypasses it (but not Covert Cloak, an item).
+
+    Tri-state: ``blocked`` True/False when determinable, else fail closed
+    (``available=False``) when neither blocker is known. This contract is not yet
+    wired into a rollout transition (no local secondary-application phase exists);
+    it backs the no-leakage tests and any future secondary routing.
+    """
+    if not isinstance(secondary, dict):
+        return _unavailable("secondary_payload_required", blocked=None)
+    if secondary.get("self") or secondary.get("dustproof"):
+        return _available(blocked=False, reason_detail="secondary_not_blockable")
+
+    cloak = item_blocks(EffectiveItemContext(belief=item_belief_from_state(target)), "covertcloak")
+    if cloak["available"] and cloak["blocks"]:
+        return _available(blocked=True, reason_detail="covert_cloak_blocks_secondary")
+
+    defender = effective_ability_from_state(target, attacker)
+    if (
+        defender.knownness == AbilityKnownness.KNOWN
+        and defender.ability == "shielddust"
+        and defender.is_active
+        and not source_ignores_target_abilities(attacker)
+    ):
+        return _available(blocked=True, reason_detail="shield_dust_blocks_secondary")
+
+    # Neither blocker is positively known: fail closed rather than claim no-block.
+    if not cloak["available"] and defender.knownness != AbilityKnownness.KNOWN:
+        return _unavailable("secondary_blocker_unknown", blocked=None)
+    return _available(blocked=False)
 
 
 # --- Effective weather context ---------------------------------------------

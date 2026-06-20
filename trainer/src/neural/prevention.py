@@ -9,6 +9,7 @@ from .provenance_contracts import (
     effective_ability_from_state,
     item_belief_from_state,
     item_blocks,
+    neutralizing_gas_suppresses_target,
     resolve_status_move_ability_block,
     validate_reflection_provenance,
 )
@@ -114,6 +115,11 @@ def apply_immediate_prevention(state: Dict[str, Any], action: Dict[str, Any]) ->
                 "destination_side": validated["destination_side"],
                 "state": result_state,
             }
+
+    # A known active Neutralizing Gas suppresses the target ability (e.g. Good as
+    # Gold no longer blocks), unless a known Ability Shield protects it.
+    if neutralizing_gas_suppresses_target(target, bool(result_state.get("neutralizing_gas_known"))):
+        target = {**target, "ability_suppressed": True}
 
     # Good as Gold: a known-active Good as Gold blocks an opponent status move.
     good_as_gold = resolve_status_move_ability_block(target, attacker, move)
