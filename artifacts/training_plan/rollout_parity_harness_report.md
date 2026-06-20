@@ -5,10 +5,10 @@
 A deterministic oracle-vs-local transition harness compares targeted Gen 9
 state transitions against the bundled Pokemon Showdown engine.
 
-Result after rollout parity batch 7 (ability/prevention/reflection routing):
+Result after effective-context known-modifier wiring (batch 8):
 
-- 49 deterministic cases
-- 41 PASS
+- 52 deterministic cases
+- 44 PASS
 - 0 FAIL
 - 8 explicit GAP
 
@@ -56,7 +56,7 @@ The harness distinguishes:
 - `sequential_multihit`: exact per-hit multi-hit execution fixtures.
 
 Click-time `legal-action-v7` features are not treated as rollout transition
-results. Batch 7 keeps that boundary and adds no v7 fields.
+results. Batch 8 keeps that boundary and adds no v7 fields.
 
 ## Passing parity coverage
 
@@ -129,6 +129,11 @@ Immediate prevention:
     known-active Magic Bounce and the reflection routing provenance (original
     source, reflector, destination side, reflected target, side-effect payload)
     is complete.
+42. A known Mold Breaker-class attacker bypasses a known Good as Gold, so the
+    status move lands.
+43. A known Ability Shield on the Good as Gold holder protects it from the Mold
+    Breaker bypass, so the status move is still blocked.
+44. A known Safety Goggles blocks a powder-flagged move.
 
 ## Explicit parity gaps
 
@@ -175,6 +180,24 @@ Population Bomb and Triple Axel remain GAP because exact parity needs per-hit
 accuracy branches, PRNG provenance, stop-on-miss execution, and per-hit damage
 or base-power provenance. The v7 action features can summarize risk, but that
 is not exact rollout execution.
+
+## Focused fixes in batch 8 (effective-context known modifiers)
+
+- Added a known Mold Breaker / Teravolt / Turboblaze bypass of the breakable Good
+  as Gold (`source_ignores_target_abilities`), with a known Ability Shield on the
+  holder protecting it — verified against bundled Showdown `sim/battle.ts`
+  `suppressingAbility` (bypass requires `!target.hasItem('Ability Shield')`).
+- Added a Safety Goggles powder-move block in `apply_immediate_prevention`
+  (`item_belief_from_state` + `item_blocks`), gated on a *known* item; an unknown
+  item is never assumed to be Safety Goggles and does not block.
+- Already represented and unchanged: Heavy-Duty Boots hazard prevention
+  (`heavy_duty_boots_prevents_hazards` PASS) and Safety Goggles weather chip
+  immunity (sandstorm immune-set in `end_of_turn`).
+- Deferred (documented, not wired here): Cloud Nine / Air Lock weather
+  suppression in residuals, Neutralizing Gas harness coverage, and Covert Cloak /
+  Shield Dust secondary-effect blocking — covered at the belief-contract unit
+  level; harness wiring needs a clean oracle setup or secondary-effect routing
+  not yet represented.
 
 ## Focused fixes in batch 7
 
@@ -245,7 +268,8 @@ were implemented in this batch.
 - sim-core test suite: 35 PASS
 - focused rollout-parity Python tests: 17 PASS
 - state-provenance no-leakage contract tests: 43 PASS
-- deterministic harness: 41 PASS / 0 FAIL / 8 GAP
+- public-information belief / effective-context tests: 36 PASS
+- deterministic harness: 44 PASS / 0 FAIL / 8 GAP
 
 ## Gate decision
 

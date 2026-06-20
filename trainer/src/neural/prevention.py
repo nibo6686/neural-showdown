@@ -5,7 +5,10 @@ from typing import Any, Dict, Optional
 
 from .provenance_contracts import (
     AbilityKnownness,
+    EffectiveItemContext,
     effective_ability_from_state,
+    item_belief_from_state,
+    item_blocks,
     resolve_status_move_ability_block,
     validate_reflection_provenance,
 )
@@ -128,6 +131,14 @@ def apply_immediate_prevention(state: Dict[str, Any], action: Dict[str, Any]) ->
             return {"available": False, "reason": "move_type_required_for_powder", "prevented": None, "state": result_state}
         if move_type == "fire":
             return {"available": True, "reason": "powder_fire_move_prevention", "prevented": True, "state": result_state}
+
+    # Safety Goggles blocks a powder-flagged move when the target's item is known
+    # (bundled Showdown: Safety Goggles `onTryHit` blocks `move.flags['powder']`).
+    # An unknown item is never assumed to be Safety Goggles, so it does not block.
+    if bool(move.get("powder")):
+        goggles = item_blocks(EffectiveItemContext(belief=item_belief_from_state(target)), "safetygoggles")
+        if goggles["available"] and goggles["blocks"]:
+            return {"available": True, "reason": "safety_goggles_powder_prevention", "prevented": True, "state": result_state}
 
     if bool(move.get("requires_target_attack")) or move_id in {"suckerpunch", "thunderclap"}:
         category = _opponent_action_category(result_state)

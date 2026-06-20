@@ -688,3 +688,25 @@ no-leakage contract tests still pass. This is a design/guardrail pass only: no
 live-extraction rewrite, no `legal-action-v7`/state/action schema change, no
 materialization, training, checkpoint promotion/file, live default, or live bot
 behavior change; no NatDex/old-gen mechanics. Both gates remain **closed**.
+
+Effective-context known-modifier wiring
+(`effective_context_known_modifier_wiring_report.md`) then wired a first narrow
+slice of these contracts into prevention, verified against bundled Showdown, and
+expanded the harness to **52 fixtures: 44 PASS / 0 FAIL / 8 explicit GAP**. A
+known Mold Breaker / Teravolt / Turboblaze source bypasses a known Good as Gold
+unless the holder has a known Ability Shield (`source_ignores_target_abilities`,
+`_holds_known_item`; matches `sim/battle.ts suppressingAbility`), and a known
+Safety Goggles blocks a powder move (`item_belief_from_state` + `item_blocks`).
+Three new PASS fixtures (`good_as_gold_bypassed_by_known_mold_breaker`,
+`ability_shield_protects_good_as_gold_from_mold_breaker`,
+`safety_goggles_blocks_powder_move`); GAP count unchanged, 0 FAIL preserved.
+Heavy-Duty Boots (hazards) and Safety Goggles (weather chip) were already
+represented; Cloud Nine / Air Lock, Neutralizing Gas harness coverage, and
+Covert Cloak / Shield Dust secondary blocking remain deferred (unit-tested at the
+contract level). Unknown ability/item is never assumed (no leakage of hidden
+truth). Tests: sim-core build + 35 sim-core tests, 36 belief tests, 43 no-leakage
+contract tests, 17 harness tests, JSON valid, `git diff --check` clean. No
+`legal-action-v7`/state/action schema change (v7 stays 552D), no live-extraction
+rewrite, no materialization, training, checkpoint promotion/file, live default,
+or live bot behavior change; no NatDex/old-gen mechanics. Both gates remain
+**closed**.

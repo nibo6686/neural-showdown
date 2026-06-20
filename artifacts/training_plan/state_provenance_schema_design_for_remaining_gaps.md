@@ -337,3 +337,12 @@ Backed by `test_public_information_belief_contracts.py` (25 tests). This is a
 contract+test guardrail only: no live-extraction rewrite, no `legal-action-v7`/
 state/action schema change, no materialization/training/promotion/live-default
 change. Both gates remain **closed**.
+
+A first narrow wiring then landed (`effective_context_known_modifier_wiring_report.md`),
+verified against bundled Showdown: known Mold Breaker bypass of known Good as
+Gold (known Ability Shield protects) and known Safety Goggles powder block, via
+`source_ignores_target_abilities` / `item_belief_from_state` / `item_blocks` in
+`prevention.py`. Three new PASS fixtures; harness is now **52 cases, 44 PASS / 0
+FAIL / 8 GAP**. Cloud Nine / Air Lock, Neutralizing Gas harness coverage, and
+Covert Cloak / Shield Dust remain deferred (unit-tested at the contract level).
+Unknown ability/item is never assumed; no `legal-action-v7`/state schema change.

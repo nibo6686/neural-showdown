@@ -8,15 +8,19 @@ revealed. Pure-Python, torch-free; no materialization, training, or live change.
 
 import unittest
 
+from neural.prevention import apply_immediate_prevention
 from neural.provenance_contracts import (
     AbilityKnownness,
     EffectiveAbilityContext,
     EffectiveItemContext,
     EffectiveWeatherContext,
     ItemState,
+    item_belief_from_state,
     item_blocks,
     public_ability_belief,
     public_item_belief,
+    resolve_status_move_ability_block,
+    source_ignores_target_abilities,
     speed_belief_exact,
     speed_belief_range,
 )
@@ -188,6 +192,87 @@ class EffectiveWeatherContextTest(unittest.TestCase):
         context = EffectiveWeatherContext(weather=None)
         self.assertFalse(context.weather_effects_active)
         self.assertIsNone(context.effective_weather())
+
+
+class ItemBeliefFromStateTest(unittest.TestCase):
+    def test_known_item_is_present(self):
+        belief = item_belief_from_state({"item": "Safety Goggles", "item_known": True})
+        self.assertEqual(belief.state, ItemState.KNOWN)
+        self.assertTrue(belief.has_active_item)
+
+    def test_unknown_item_stays_unknown(self):
+        # Item present in state but not yet revealed: must not be treated as known.
+        belief = item_belief_from_state({"item": "Safety Goggles"})
+        self.assertEqual(belief.state, ItemState.UNKNOWN)
+        self.assertIsNone(belief.has_active_item)
+
+    def test_removed_item(self):
+        belief = item_belief_from_state({"item": "Leftovers", "item_known": True, "item_removed": True})
+        self.assertEqual(belief.state, ItemState.REMOVED)
+        self.assertFalse(belief.has_active_item)
+
+
+class MoldBreakerBypassTest(unittest.TestCase):
+    def test_known_mold_breaker_source_ignores_abilities(self):
+        self.assertTrue(source_ignores_target_abilities({"ability": "Mold Breaker", "ability_known": True}))
+        self.assertTrue(source_ignores_target_abilities({"ability": "Teravolt", "ability_known": True}))
+
+    def test_unknown_source_ability_is_not_assumed_to_bypass(self):
+        self.assertFalse(source_ignores_target_abilities({"ability": "Mold Breaker"}))
+        self.assertFalse(source_ignores_target_abilities({"ability": "Intimidate", "ability_known": True}))
+
+    def test_mold_breaker_bypasses_known_good_as_gold(self):
+        target = {"ability": "Good as Gold", "ability_known": True}
+        attacker = {"ability": "Mold Breaker", "ability_known": True}
+        result = resolve_status_move_ability_block(target, attacker, {"name": "Thunder Wave", "category": "Status"})
+        self.assertFalse(result["prevented"])
+
+    def test_ability_shield_protects_good_as_gold_from_mold_breaker(self):
+        target = {"ability": "Good as Gold", "ability_known": True, "item": "Ability Shield", "item_known": True}
+        attacker = {"ability": "Mold Breaker", "ability_known": True}
+        result = resolve_status_move_ability_block(target, attacker, {"name": "Thunder Wave", "category": "Status"})
+        self.assertTrue(result["prevented"])
+
+    def test_unknown_ability_shield_does_not_protect(self):
+        # Ability Shield present but unrevealed: not assumed, so bypass applies.
+        target = {"ability": "Good as Gold", "ability_known": True, "item": "Ability Shield"}
+        attacker = {"ability": "Mold Breaker", "ability_known": True}
+        result = resolve_status_move_ability_block(target, attacker, {"name": "Thunder Wave", "category": "Status"})
+        self.assertFalse(result["prevented"])
+
+
+class SafetyGogglesPreventionTest(unittest.TestCase):
+    def _powder_move(self):
+        return {"name": "Spore", "category": "Status", "status": "slp", "powder": True}
+
+    def test_known_safety_goggles_blocks_powder(self):
+        state = {
+            "attacker": {"types": ["Grass", "Poison"], "ability": "Effect Spore"},
+            "target": {"types": ["Normal"], "ability": "Thick Fat", "item": "Safety Goggles", "item_known": True},
+        }
+        result = apply_immediate_prevention(state, self._powder_move())
+        self.assertTrue(result["available"])
+        self.assertTrue(result["prevented"])
+
+    def test_unknown_item_does_not_block_powder(self):
+        # Unrevealed item: Safety Goggles is not assumed, so the powder move is
+        # not blocked by this path (no guess, no GAP).
+        state = {
+            "attacker": {"types": ["Grass", "Poison"], "ability": "Effect Spore"},
+            "target": {"types": ["Normal"], "ability": "Thick Fat", "item": "Safety Goggles"},
+        }
+        result = apply_immediate_prevention(state, self._powder_move())
+        self.assertTrue(result["available"])
+        self.assertFalse(result["prevented"])
+
+    def test_non_powder_move_is_unaffected(self):
+        state = {
+            "attacker": {"types": ["Normal"], "ability": "Thick Fat"},
+            "target": {"types": ["Normal"], "ability": "Thick Fat", "item": "Safety Goggles", "item_known": True},
+        }
+        result = apply_immediate_prevention(state, {"name": "Tackle", "priority": 0})
+        self.assertTrue(result["available"])
+        self.assertFalse(result["prevented"])
 
 
 if __name__ == "__main__":

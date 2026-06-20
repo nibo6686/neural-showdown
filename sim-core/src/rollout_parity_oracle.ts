@@ -1193,6 +1193,27 @@ function preventionCases(): ParityCase[] {
   );
   const goodAsGoldLines = choose(goodAsGold, 'move 1', 'move 1');
 
+  // Mold Breaker bypasses the breakable Good as Gold; a status move lands.
+  const moldBreakerGAG = battle(
+    [{ species: 'Gholdengo', ability: 'Good as Gold', moves: ['Splash'] }],
+    [{ species: 'Haxorus', ability: 'Mold Breaker', moves: ['Thunder Wave'] }],
+  );
+  const moldBreakerGAGLines = choose(moldBreakerGAG, 'move 1', 'move 1');
+
+  // Ability Shield protects Good as Gold from the Mold Breaker bypass.
+  const abilityShieldGAG = battle(
+    [{ species: 'Gholdengo', ability: 'Good as Gold', item: 'Ability Shield', moves: ['Splash'] }],
+    [{ species: 'Haxorus', ability: 'Mold Breaker', moves: ['Thunder Wave'] }],
+  );
+  const abilityShieldGAGLines = choose(abilityShieldGAG, 'move 1', 'move 1');
+
+  // Safety Goggles blocks a powder move on a target without Good as Gold.
+  const safetyGoggles = battle(
+    [{ species: 'Snorlax', ability: 'Thick Fat', item: 'Safety Goggles', moves: ['Splash'] }],
+    [{ species: 'Amoonguss', moves: ['Spore'] }],
+  );
+  const safetyGogglesLines = choose(safetyGoggles, 'move 1', 'move 1');
+
   return [
     {
       id: 'psychic_terrain_blocks_grounded_priority',
@@ -1488,6 +1509,66 @@ function preventionCases(): ParityCase[] {
       },
       local_support: 'intentional_gap',
       gap_reason: 'Good as Gold requires ability provenance in arbitrary rollout states and broader status-move callback routing',
+    },
+    {
+      id: 'good_as_gold_bypassed_by_known_mold_breaker',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Good as Gold', p2_ability: 'Mold Breaker', p2_move: 'Thunder Wave' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Thunder Wave' }],
+      oracle: {
+        prevented: !active(moldBreakerGAG, 0).status,
+        blocked: moldBreakerGAGLines.some(line => line.includes('[from] ability: Good as Gold')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Dragon'], ability: 'Mold Breaker', ability_known: true },
+          target: { types: ['Steel', 'Ghost'], ability: 'Good as Gold', ability_known: true },
+        },
+        action: { name: 'Thunder Wave', category: 'Status', status: 'par' },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'ability_shield_protects_good_as_gold_from_mold_breaker',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Good as Gold', p1_item: 'Ability Shield', p2_ability: 'Mold Breaker', p2_move: 'Thunder Wave' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Thunder Wave' }],
+      oracle: {
+        prevented: !active(abilityShieldGAG, 0).status,
+        blocked: abilityShieldGAGLines.some(line => line.includes('[from] ability: Good as Gold')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Dragon'], ability: 'Mold Breaker', ability_known: true },
+          target: {
+            types: ['Steel', 'Ghost'],
+            ability: 'Good as Gold',
+            ability_known: true,
+            item: 'Ability Shield',
+            item_known: true,
+          },
+        },
+        action: { name: 'Thunder Wave', category: 'Status', status: 'par' },
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'safety_goggles_blocks_powder_move',
+      phase: 'immediate',
+      starting_state: { p1_item: 'Safety Goggles', p2_move: 'Spore' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Spore' }],
+      oracle: {
+        prevented: !active(safetyGoggles, 0).status,
+        goggles_activate: safetyGogglesLines.some(line => line.includes('item: Safety Goggles')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Grass', 'Poison'], ability: 'Effect Spore' },
+          target: { types: ['Normal'], ability: 'Thick Fat', item: 'Safety Goggles', item_known: true },
+        },
+        action: { name: 'Spore', category: 'Status', status: 'slp', powder: true },
+      },
+      local_support: 'supported',
     },
   ];
 }

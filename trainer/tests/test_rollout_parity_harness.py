@@ -90,6 +90,9 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "thunderclap_fails_when_target_uses_status",
             "good_as_gold_known_blocks_status",
             "magic_bounce_reflects_stealth_rock",
+            "good_as_gold_bypassed_by_known_mold_breaker",
+            "ability_shield_protects_good_as_gold_from_mold_breaker",
+            "safety_goggles_blocks_powder_move",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 

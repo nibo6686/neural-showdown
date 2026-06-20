@@ -4066,6 +4066,138 @@
     {
       "chosen_actions": [
         {
+          "p1": "Splash",
+          "p2": "Thunder Wave"
+        }
+      ],
+      "diff": [],
+      "id": "good_as_gold_bypassed_by_known_mold_breaker",
+      "local": {
+        "available": true,
+        "prevented": false,
+        "reason": null,
+        "state": {
+          "attacker": {
+            "ability": "Mold Breaker",
+            "ability_known": true,
+            "types": [
+              "Dragon"
+            ]
+          },
+          "target": {
+            "ability": "Good as Gold",
+            "ability_known": true,
+            "types": [
+              "Steel",
+              "Ghost"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "blocked": false,
+        "prevented": false
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p2_ability": "Mold Breaker",
+        "p2_move": "Thunder Wave"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Thunder Wave"
+        }
+      ],
+      "diff": [],
+      "id": "ability_shield_protects_good_as_gold_from_mold_breaker",
+      "local": {
+        "available": true,
+        "blocked": true,
+        "prevented": true,
+        "reason": "good_as_gold_status_block",
+        "state": {
+          "attacker": {
+            "ability": "Mold Breaker",
+            "ability_known": true,
+            "types": [
+              "Dragon"
+            ]
+          },
+          "target": {
+            "ability": "Good as Gold",
+            "ability_known": true,
+            "item": "Ability Shield",
+            "item_known": true,
+            "types": [
+              "Steel",
+              "Ghost"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "blocked": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p1_item": "Ability Shield",
+        "p2_ability": "Mold Breaker",
+        "p2_move": "Thunder Wave"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Spore"
+        }
+      ],
+      "diff": [],
+      "id": "safety_goggles_blocks_powder_move",
+      "local": {
+        "available": true,
+        "prevented": true,
+        "reason": "safety_goggles_powder_prevention",
+        "state": {
+          "attacker": {
+            "ability": "Effect Spore",
+            "types": [
+              "Grass",
+              "Poison"
+            ]
+          },
+          "target": {
+            "ability": "Thick Fat",
+            "item": "Safety Goggles",
+            "item_known": true,
+            "types": [
+              "Normal"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "goggles_activate": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_item": "Safety Goggles",
+        "p2_move": "Spore"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
           "p1": "Population Bomb",
           "p2": "Splash"
         }
@@ -4278,6 +4410,6 @@
   "summary": {
     "FAIL": 0,
     "GAP": 8,
-    "PASS": 41
+    "PASS": 44
   }
 }

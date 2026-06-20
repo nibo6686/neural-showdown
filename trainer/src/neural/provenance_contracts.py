@@ -306,6 +306,35 @@ def _is_status_move(move: Dict[str, Any]) -> bool:
     return bool(move.get("is_status_move")) or bool(move.get("status"))
 
 
+# Mold Breaker / Teravolt / Turboblaze set ``move.ignoreAbility`` and bypass
+# ``breakable`` abilities (e.g. Good as Gold) per bundled Showdown
+# `sim/battle.ts suppressingAbility` / the `breakable` flag.
+_MOLD_BREAKER_ABILITIES = frozenset({"moldbreaker", "teravolt", "turboblaze"})
+
+
+def _holds_known_item(mon: Any, item_id: Any) -> bool:
+    """True only when ``mon`` is *known* to hold ``item_id`` (not a guess)."""
+    if not isinstance(mon, dict):
+        return False
+    if not mon.get("item_known"):
+        return False
+    if mon.get("item_removed") or mon.get("item_consumed"):
+        return False
+    return _to_id(mon.get("item")) == _to_id(item_id)
+
+
+def source_ignores_target_abilities(attacker: Optional[Dict[str, Any]]) -> bool:
+    """True only when the attacker's ability is a KNOWN Mold Breaker-class ability.
+
+    An unknown attacker ability is never assumed to bypass: a hidden ability stays
+    hidden, so the common case (no bypass) holds until the ability is revealed.
+    """
+    if not isinstance(attacker, dict):
+        return False
+    effective = effective_ability_from_state(attacker)
+    return effective.knownness == AbilityKnownness.KNOWN and effective.ability in _MOLD_BREAKER_ABILITIES
+
+
 def resolve_status_move_ability_block(
     target: Dict[str, Any], attacker: Optional[Dict[str, Any]], move: Dict[str, Any]
 ) -> Optional[Dict[str, Any]]:
@@ -317,10 +346,21 @@ def resolve_status_move_ability_block(
     Good as Gold but suppressed/ignored, it returns a non-blocking result. An
     unknown/unrevealed ability never reaches a block here (it is not KNOWN), so
     the unrevealed-ability case stays an explicit fixture GAP rather than a guess.
+
+    A KNOWN Mold Breaker-class attacker bypasses Good as Gold, unless the target
+    holds a KNOWN Ability Shield (verified vs bundled Showdown
+    `suppressingAbility`: bypass requires ``!target.hasItem('Ability Shield')``).
     """
     if not _is_status_move(move):
         return None
     defender = effective_ability_from_state(target, attacker)
+    if source_ignores_target_abilities(attacker) and not _holds_known_item(target, "abilityshield"):
+        defender = EffectiveAbility(
+            ability=defender.ability,
+            knownness=defender.knownness,
+            suppressed=defender.suppressed,
+            ignored=True,
+        )
     if defender.knownness != AbilityKnownness.KNOWN or defender.ability != "goodasgold":
         return None
     decision = status_move_blocked_by_ability(defender, "goodasgold")
@@ -625,6 +665,24 @@ def item_blocks(context: EffectiveItemContext, blocking_item_id: Any) -> Dict[st
     if active is None:
         return _unavailable("item_unknown", blocks=None)
     return _available(blocks=bool(active))
+
+
+def item_belief_from_state(mon: Any) -> PublicItemBelief:
+    """Build a `PublicItemBelief` from dict state with explicit knownness.
+
+    No-leakage: an item is treated as known only when ``item_known`` is truthy.
+    Removed/consumed map to those states; otherwise possible items may be listed
+    but the held item stays unknown."""
+    if not isinstance(mon, dict):
+        return public_item_belief([])
+    item = mon.get("item")
+    if mon.get("item_removed"):
+        return public_item_belief([], revealed_item=item, state=ItemState.REMOVED)
+    if mon.get("item_consumed"):
+        return public_item_belief([], revealed_item=item, state=ItemState.CONSUMED)
+    if mon.get("item_known") and item:
+        return public_item_belief([item], revealed_item=item, state=ItemState.KNOWN)
+    return public_item_belief(mon.get("possible_items") or [])
 
 
 # --- Effective weather context ---------------------------------------------

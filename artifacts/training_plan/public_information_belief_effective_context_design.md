@@ -185,6 +185,22 @@ live extraction and tactical state in a later, separately-approved batch, with
 the seed-invariance/perturbation no-leakage tests added before any
 materialization.
 
+## Addendum — known-modifier wiring landed
+
+A first narrow wiring of these contracts is now implemented; see
+`effective_context_known_modifier_wiring_report.md`. Verified against bundled
+Showdown and added to `prevention.py` / `provenance_contracts.py`: a known Mold
+Breaker / Teravolt / Turboblaze source bypasses a known Good as Gold unless the
+holder has a known Ability Shield (`source_ignores_target_abilities`,
+`_holds_known_item`), and a known Safety Goggles blocks a powder move
+(`item_belief_from_state` + `item_blocks`). Three new PASS fixtures; harness now
+52 cases, 44 PASS / 0 FAIL / 8 GAP. Heavy-Duty Boots (hazards) and Safety
+Goggles (weather chip) were already represented. Cloud Nine / Air Lock weather
+suppression, Neutralizing Gas harness coverage, and Covert Cloak / Shield Dust
+secondary blocking remain **deferred** (unit-tested at the contract level,
+harness wiring needs clean oracle setup / secondary routing). Unknown
+ability/item is never assumed; no `legal-action-v7`/state schema change.
+
 ## 5. What did NOT change
 
 No live extraction rewrite, no `legal-action-v7`/state/action schema change, no
