@@ -4598,12 +4598,169 @@
         ]
       },
       "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Population Bomb",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "population_bomb_exact_trace",
+      "local": {
+        "available": true,
+        "executed": true,
+        "hit_count": 4,
+        "missed": false,
+        "move": "populationbomb",
+        "per_hit_power": [],
+        "reason": null,
+        "total_damage": 651
+      },
+      "oracle": {
+        "final_hp": 0,
+        "hit_count": 4,
+        "missed": false
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Population Bomb",
+        "p2_hp": 651,
+        "seed": [
+          31,
+          41,
+          59,
+          26
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Population Bomb",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "population_bomb_stop_on_miss_trace",
+      "local": {
+        "available": true,
+        "executed": true,
+        "hit_count": 0,
+        "missed": true,
+        "move": "populationbomb",
+        "per_hit_power": [],
+        "reason": null,
+        "total_damage": 0
+      },
+      "oracle": {
+        "final_hp": 651,
+        "hit_count": 0,
+        "missed": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Population Bomb",
+        "p2_hp": 651,
+        "seed": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Triple Axel",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "triple_axel_exact_power_ramp_trace",
+      "local": {
+        "available": true,
+        "executed": true,
+        "hit_count": 3,
+        "missed": false,
+        "move": "tripleaxel",
+        "per_hit_power": [
+          20,
+          40,
+          60
+        ],
+        "reason": null,
+        "total_damage": 173
+      },
+      "oracle": {
+        "final_hp": 288,
+        "hit_count": 3,
+        "missed": false,
+        "per_hit_power_ramp": [
+          20,
+          40,
+          60
+        ]
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Triple Axel",
+        "p2_hp": 461,
+        "seed": [
+          31,
+          41,
+          59,
+          26
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Triple Axel",
+          "p2": "Splash"
+        }
+      ],
+      "diff": [],
+      "id": "triple_axel_stop_on_miss_trace",
+      "local": {
+        "available": true,
+        "executed": true,
+        "hit_count": 0,
+        "missed": true,
+        "move": "tripleaxel",
+        "per_hit_power": [],
+        "reason": null,
+        "total_damage": 0
+      },
+      "oracle": {
+        "final_hp": 461,
+        "hit_count": 0,
+        "missed": true
+      },
+      "phase": "sequential_multihit",
+      "starting_state": {
+        "p1_move": "Triple Axel",
+        "p2_hp": 461,
+        "seed": [
+          1,
+          3,
+          5,
+          7
+        ]
+      },
+      "status": "PASS"
     }
   ],
   "oracle_source": "bundled pokemon-showdown Battle (gen9customgame, fixed PRNG seeds; deterministic normal PRNG for miss fixtures)",
   "summary": {
     "FAIL": 0,
     "GAP": 8,
-    "PASS": 47
+    "PASS": 51
   }
 }

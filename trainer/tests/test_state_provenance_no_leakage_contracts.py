@@ -9,6 +9,7 @@ and do not materialize, train, or touch any live default.
 import unittest
 
 from neural.delayed_damage import resolve_delayed_attacks
+from neural.multihit_trace import execute_sequential_multihit
 from neural.prevention import apply_immediate_prevention
 from neural.provenance_contracts import (
     AbilityKnownness,
@@ -449,6 +450,105 @@ class ImmediatePreventionAbilityReflectionTest(unittest.TestCase):
         result = apply_immediate_prevention(state, {"name": "Stealth Rock", "reflectable": True, "category": "Status"})
         self.assertTrue(result["available"])
         self.assertFalse(bool(result.get("reflected")))
+
+
+class SequentialMultihitExecutionTest(unittest.TestCase):
+    """Batch E: exact per-hit sequential multi-hit trace execution."""
+
+    def _full_population(self):
+        hits = [{"index": i, "hit": True, "damage": 10} for i in range(10)]
+        return {
+            "move": "populationbomb",
+            "source": "maushold",
+            "target": "blissey",
+            "hits": hits,
+            "total_damage": 100,
+            "hit_count": 10,
+            "stop_on_miss": True,
+            "provenance": "bundled_showdown_fixture",
+        }
+
+    def test_complete_trace_executes(self):
+        result = execute_sequential_multihit(self._full_population())
+        self.assertTrue(result["available"])
+        self.assertTrue(result["executed"])
+        self.assertEqual(result["hit_count"], 10)
+        self.assertEqual(result["total_damage"], 100)
+        self.assertFalse(result["missed"])
+
+    def test_missing_trace_fails_closed(self):
+        result = execute_sequential_multihit(None)
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "trace_mapping_required")
+
+    def test_distribution_summary_is_rejected(self):
+        summary = {"move": "populationbomb", "multihit_expected": 7.0, "hit_chance": 0.9}
+        result = execute_sequential_multihit(summary)
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "summary_is_not_exact_trace")
+
+    def test_stop_on_miss_is_honored(self):
+        # Three landed, then a miss; a later record must not be counted.
+        trace = {
+            "move": "populationbomb",
+            "hits": [
+                {"index": 0, "hit": True, "damage": 8},
+                {"index": 1, "hit": True, "damage": 8},
+                {"index": 2, "hit": True, "damage": 8},
+                {"index": 3, "hit": False},
+                {"index": 4, "hit": True, "damage": 999},
+            ],
+            "total_damage": 24,
+            "hit_count": 3,
+            "stop_on_miss": True,
+            "provenance": "bundled_showdown_fixture",
+        }
+        result = execute_sequential_multihit(trace)
+        self.assertTrue(result["available"])
+        self.assertEqual(result["hit_count"], 3)
+        self.assertEqual(result["total_damage"], 24)
+        self.assertTrue(result["missed"])
+
+    def test_triple_axel_power_ramp_is_recorded_in_order(self):
+        trace = {
+            "move": "tripleaxel",
+            "hits": [
+                {"index": 0, "hit": True, "damage": 18, "base_power": 20},
+                {"index": 1, "hit": True, "damage": 30, "base_power": 40},
+                {"index": 2, "hit": True, "damage": 42, "base_power": 60},
+            ],
+            "total_damage": 90,
+            "hit_count": 3,
+            "stop_on_miss": True,
+            "provenance": "bundled_showdown_fixture",
+        }
+        result = execute_sequential_multihit(trace)
+        self.assertTrue(result["available"])
+        self.assertEqual(result["per_hit_power"], [20, 40, 60])
+
+    def test_trace_move_mismatch_fails_closed(self):
+        result = execute_sequential_multihit(self._full_population(), expected_move="tripleaxel")
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "trace_move_mismatch")
+
+    def test_trace_target_mismatch_fails_closed(self):
+        result = execute_sequential_multihit(self._full_population(), expected_target="snorlax")
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "trace_target_mismatch")
+
+    def test_inconsistent_declared_total_fails_closed(self):
+        trace = self._full_population()
+        trace["total_damage"] = 999  # disagrees with the per-hit sum
+        result = execute_sequential_multihit(trace)
+        self.assertFalse(result["available"])
+        self.assertTrue(result["reason"].startswith("total_damage_inconsistent"))
+
+    def test_landed_hit_without_damage_fails_closed(self):
+        trace = self._full_population()
+        trace["hits"][0] = {"index": 0, "hit": True}  # missing damage
+        result = execute_sequential_multihit(trace)
+        self.assertFalse(result["available"])
+        self.assertEqual(result["reason"], "hit[0]_missing:damage")
 
 
 if __name__ == "__main__":

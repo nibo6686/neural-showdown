@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 from .delayed_damage import run_delayed_timeline
 from .end_of_turn import apply_end_of_turns
 from .entry_hazards import hazard_switch_transition
+from .multihit_trace import execute_sequential_multihit
 from .prevention import apply_immediate_prevention
 
 
@@ -156,6 +157,40 @@ def _compare_immediate(case: Dict[str, Any]) -> Dict[str, Any]:
     return {"status": "PASS" if not diffs else "FAIL", "local": local, "diff": diffs}
 
 
+def _compare_sequential_multihit(case: Dict[str, Any]) -> Dict[str, Any]:
+    local_input = case["local_input"]
+    trace = local_input.get("trace")
+    local = execute_sequential_multihit(
+        trace,
+        expected_move=local_input.get("move"),
+        expected_source=local_input.get("source"),
+        expected_target=local_input.get("target"),
+    )
+    if not local["available"]:
+        return {
+            "status": "GAP",
+            "local": local,
+            "diff": [{"field": "transition", "oracle": case.get("oracle"), "local": local.get("reason")}],
+        }
+
+    oracle = case["oracle"]
+    diffs: List[Dict[str, Any]] = []
+    if "hit_count" in oracle and int(oracle["hit_count"]) != int(local["hit_count"]):
+        diffs.append({"field": "hit_count", "oracle": int(oracle["hit_count"]), "local": int(local["hit_count"])})
+    if "missed" in oracle and bool(oracle["missed"]) != bool(local["missed"]):
+        diffs.append({"field": "missed", "oracle": bool(oracle["missed"]), "local": bool(local["missed"])})
+    starting_hp = local_input.get("starting_hp")
+    if "final_hp" in oracle and starting_hp is not None:
+        local_final = int(starting_hp) - int(local["total_damage"])
+        if int(oracle["final_hp"]) != local_final:
+            diffs.append({"field": "final_hp", "oracle": int(oracle["final_hp"]), "local": local_final})
+    if "per_hit_power_ramp" in oracle and list(oracle["per_hit_power_ramp"]) != list(local["per_hit_power"]):
+        diffs.append(
+            {"field": "per_hit_power_ramp", "oracle": list(oracle["per_hit_power_ramp"]), "local": list(local["per_hit_power"])}
+        )
+    return {"status": "PASS" if not diffs else "FAIL", "local": local, "diff": diffs}
+
+
 def compare_case(case: Dict[str, Any]) -> Dict[str, Any]:
     if case.get("local_support") == "supported" and case.get("phase") == "switch_entry":
         comparison = _compare_switch_entry(case)
@@ -165,6 +200,8 @@ def compare_case(case: Dict[str, Any]) -> Dict[str, Any]:
         comparison = _compare_delayed_future(case)
     elif case.get("local_support") == "supported" and case.get("phase") == "immediate":
         comparison = _compare_immediate(case)
+    elif case.get("local_support") == "supported" and case.get("phase") == "sequential_multihit":
+        comparison = _compare_sequential_multihit(case)
     else:
         comparison = {
             "status": "GAP",

@@ -733,3 +733,26 @@ belief tests, 43 no-leakage contract tests, 17 harness tests, JSON valid,
 stays 552D), no live-extraction rewrite, no materialization, training, checkpoint
 promotion/file, live default, or live bot behavior change; no NatDex/old-gen
 mechanics. Both gates remain **closed**.
+
+Rollout-parity batch 8 / Batch E
+(`rollout_parity_batch_8_sequential_multihit_trace_report.md`) implements the
+exact sequential multi-hit design group as an oracle-trace-driven exact replay
+and expands the harness to **59 fixtures: 51 PASS / 0 FAIL / 8 explicit GAP**. A
+new `multihit_trace.py` (`validate_sequential_multihit_trace`,
+`execute_sequential_multihit`) replays a complete per-hit trace with stop-on-miss
+and consistency checks and refuses a distribution/expected-hit summary;
+`rollout_parity.py` gains a `sequential_multihit` phase handler. Four new PASS
+fixtures (Population Bomb / Triple Axel exact + stop-on-miss, built from real
+Showdown logs, incl. the 20/40/60 Triple Axel ramp); the four summary-only `*_gap`
+fixtures **stay GAP**, so GAP count is unchanged and no GAP was closed by
+weakening correctness. The per-hit trace is fixture-only transition provenance,
+never a model feature; no PRNG simulator was added. With this, all four original
+remaining-GAP design groups (delayed landing resolver, reflection routing,
+ability/status prevention, exact multi-hit) have a provenance-safe exact path; the
+remaining 8 GAP fixtures are the honest under-determined cases. Tests: sim-core
+build + 35 sim-core tests, 52 state-provenance + multihit contract tests, 49
+belief tests, 18 harness tests, JSON valid, `git diff --check` clean. No
+`legal-action-v7`/state/action schema change (v7 stays 552D), no live-extraction
+rewrite, no materialization, training, checkpoint promotion/file, live default,
+or live bot behavior change; no NatDex/old-gen mechanics. Both gates remain
+**closed**.

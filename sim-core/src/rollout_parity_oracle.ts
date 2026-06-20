@@ -111,6 +111,42 @@ function hitCount(lines: string[]): number {
   return Number.isFinite(value) ? value : 0;
 }
 
+// Build a complete per-hit execution trace from the deterministic Showdown log.
+// Landed hits come first (Showdown stops sequential accuracy on the first miss),
+// then a single missing hit record when a miss occurred. This is fixture-only
+// transition provenance, never a model feature.
+function multihitTrace(
+  move: string,
+  source: string,
+  target: string,
+  lines: string[],
+  startingHp: number,
+  options: { stopOnMiss?: boolean; powerRamp?: number[] } = {},
+): Record<string, unknown> {
+  const damages = damageSequence(lines, 'p2', startingHp);
+  const missed = lines.some(line => line.startsWith('|-miss|'));
+  const hits: Record<string, unknown>[] = damages.map((damage, index) => {
+    const hit: Record<string, unknown> = { index, hit: true, damage };
+    if (options.powerRamp && options.powerRamp[index] !== undefined) hit.base_power = options.powerRamp[index];
+    return hit;
+  });
+  if (missed) {
+    const missHit: Record<string, unknown> = { index: hits.length, hit: false };
+    if (options.powerRamp && options.powerRamp[hits.length] !== undefined) missHit.base_power = options.powerRamp[hits.length];
+    hits.push(missHit);
+  }
+  return {
+    move,
+    source,
+    target,
+    hits,
+    total_damage: damages.reduce((sum, value) => sum + value, 0),
+    hit_count: damages.length,
+    stop_on_miss: options.stopOnMiss ?? true,
+    provenance: 'bundled_showdown_fixture',
+  };
+}
+
 function sourceDamageFraction(lines: string[], source: string): number {
   const line = lines.find(candidate => candidate.startsWith('|-damage|') && candidate.includes(source));
   if (!line) return 0;
@@ -1763,6 +1799,87 @@ function sequentialMultiHitCases(): ParityCase[] {
       },
       local_support: 'intentional_gap',
       gap_reason: 'exact Triple Axel rollout needs per-hit accuracy branch state, PRNG provenance, and stop-on-miss execution',
+    },
+    {
+      id: 'population_bomb_exact_trace',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Population Bomb', seed: [31, 41, 59, 26], p2_hp: populationStartingHp },
+      chosen_actions: [{ p1: 'Population Bomb', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(populationLines),
+        final_hp: active(population, 1).hp,
+        missed: populationLines.some(line => line.startsWith('|-miss|')),
+      },
+      local_input: {
+        move: 'populationbomb',
+        source: 'maushold',
+        target: 'blissey',
+        starting_hp: populationStartingHp,
+        trace: multihitTrace('populationbomb', 'maushold', 'blissey', populationLines, populationStartingHp),
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'population_bomb_stop_on_miss_trace',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Population Bomb', seed: [1, 2, 3, 4], p2_hp: populationMissHp },
+      chosen_actions: [{ p1: 'Population Bomb', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(populationMissLines),
+        final_hp: active(populationMiss, 1).hp,
+        missed: populationMissLines.some(line => line.startsWith('|-miss|')),
+      },
+      local_input: {
+        move: 'populationbomb',
+        source: 'maushold',
+        target: 'blissey',
+        starting_hp: populationMissHp,
+        trace: multihitTrace('populationbomb', 'maushold', 'blissey', populationMissLines, populationMissHp),
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'triple_axel_exact_power_ramp_trace',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Triple Axel', seed: [31, 41, 59, 26], p2_hp: tripleAxelStartingHp },
+      chosen_actions: [{ p1: 'Triple Axel', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(tripleAxelLines),
+        final_hp: active(tripleAxel, 1).hp,
+        missed: tripleAxelLines.some(line => line.startsWith('|-miss|')),
+        per_hit_power_ramp: [20, 40, 60].slice(0, hitCount(tripleAxelLines)),
+      },
+      local_input: {
+        move: 'tripleaxel',
+        source: 'weavile',
+        target: 'snorlax',
+        starting_hp: tripleAxelStartingHp,
+        trace: multihitTrace('tripleaxel', 'weavile', 'snorlax', tripleAxelLines, tripleAxelStartingHp, {
+          powerRamp: [20, 40, 60],
+        }),
+      },
+      local_support: 'supported',
+    },
+    {
+      id: 'triple_axel_stop_on_miss_trace',
+      phase: 'sequential_multihit',
+      starting_state: { p1_move: 'Triple Axel', seed: [1, 3, 5, 7], p2_hp: tripleAxelMissHp },
+      chosen_actions: [{ p1: 'Triple Axel', p2: 'Splash' }],
+      oracle: {
+        hit_count: hitCount(tripleAxelMissLines),
+        final_hp: active(tripleAxelMiss, 1).hp,
+        missed: tripleAxelMissLines.some(line => line.startsWith('|-miss|')),
+      },
+      local_input: {
+        move: 'tripleaxel',
+        source: 'weavile',
+        target: 'snorlax',
+        starting_hp: tripleAxelMissHp,
+        trace: multihitTrace('tripleaxel', 'weavile', 'snorlax', tripleAxelMissLines, tripleAxelMissHp, {
+          powerRamp: [20, 40, 60],
+        }),
+      },
+      local_support: 'supported',
     },
   ];
 }

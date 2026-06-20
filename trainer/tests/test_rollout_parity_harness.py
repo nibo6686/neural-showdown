@@ -99,6 +99,16 @@ class RolloutParityHarnessTest(unittest.TestCase):
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 
+    def test_supported_sequential_multihit_traces_match_showdown(self):
+        cases = {case["id"]: case for case in self.report["cases"]}
+        for case_id in (
+            "population_bomb_exact_trace",
+            "population_bomb_stop_on_miss_trace",
+            "triple_axel_exact_power_ramp_trace",
+            "triple_axel_stop_on_miss_trace",
+        ):
+            self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
+
     def test_supported_delayed_damage_cases_match_showdown(self):
         cases = {case["id"]: case for case in self.report["cases"]}
         for case_id in (

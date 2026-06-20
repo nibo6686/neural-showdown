@@ -355,3 +355,23 @@ Ability Shield protects), both verified against bundled Showdown; harness is now
 (Covert Cloak / Shield Dust) is unit-tested but harness-deferred (no local
 secondary-effect phase). Unknown negator/gas/item never assumed; no
 `legal-action-v7`/state schema change.
+
+## Addendum — Batch E implemented (exact sequential multi-hit traces)
+
+GAP group 4 (exact sequential multi-hit) is now implemented as an
+oracle-trace-driven exact replay; see
+`rollout_parity_batch_8_sequential_multihit_trace_report.md`. A new
+`multihit_trace.py` adds `validate_sequential_multihit_trace` and
+`execute_sequential_multihit`: a complete per-hit trace (move id, ordered
+hit/miss records with damage and optional per-hit base power, declared totals,
+provenance) is replayed with stop-on-miss and consistency checks, and a
+distribution/expected-hit summary is refused. `rollout_parity.py` gains a
+`sequential_multihit` phase handler. Four PASS fixtures (Population Bomb / Triple
+Axel exact + stop-on-miss, built from real Showdown logs) were added; the four
+summary-only `*_gap` fixtures **stay GAP**. Harness is now **59 cases, 51 PASS /
+0 FAIL / 8 GAP**. The per-hit trace is fixture-only transition provenance, never
+a model feature; no `legal-action-v7`/state schema change, no PRNG simulator.
+This was the last of the original four remaining-GAP design groups to receive a
+provenance-safe exact path; the remaining 8 GAP fixtures are the honest
+under-determined cases (missing replacement-specific damage, incomplete
+reflection routing, unknown Good as Gold ability, summary-only multi-hit).

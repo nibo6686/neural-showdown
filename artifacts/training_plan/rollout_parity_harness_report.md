@@ -5,10 +5,10 @@
 A deterministic oracle-vs-local transition harness compares targeted Gen 9
 state transitions against the bundled Pokemon Showdown engine.
 
-Result after effective-context batch 2 — weather/ability suppression (batch 9):
+Result after exact sequential multi-hit trace execution (batch 10):
 
-- 55 deterministic cases
-- 47 PASS
+- 59 deterministic cases
+- 51 PASS
 - 0 FAIL
 - 8 explicit GAP
 
@@ -56,7 +56,7 @@ The harness distinguishes:
 - `sequential_multihit`: exact per-hit multi-hit execution fixtures.
 
 Click-time `legal-action-v7` features are not treated as rollout transition
-results. Batch 9 keeps that boundary and adds no v7 fields.
+results. Batch 10 keeps that boundary and adds no v7 fields.
 
 ## Passing parity coverage
 
@@ -144,6 +144,13 @@ Weather suppression (end-of-turn):
 47. A known active Cloud Nine / Air Lock suppresses the Sandstorm chip while the
     weather is still set.
 
+Sequential multi-hit execution (oracle per-hit trace):
+
+48. Population Bomb replays its exact per-hit trace (hit count and total damage).
+49. Population Bomb honors stop-on-miss from its per-hit trace.
+50. Triple Axel replays its exact per-hit trace including the 20/40/60 power ramp.
+51. Triple Axel honors stop-on-miss from its per-hit trace.
+
 ## Explicit parity gaps
 
 The harness records Showdown outcomes but local transition availability is
@@ -155,10 +162,10 @@ false for:
   or the reflector ability is not a known-active Magic Bounce.
 - Good as Gold status-move blocking when the target ability is unrevealed/unknown
   in the rollout state.
-- Population Bomb exact sequential-hit execution.
-- Population Bomb initial-miss stop-on-miss execution.
-- Triple Axel exact power-ramp execution.
-- Triple Axel initial-miss stop-on-miss execution.
+- Population Bomb / Triple Axel sequential execution when only an expected-hit
+  summary is available (no per-hit execution trace). These now PASS when a
+  complete Showdown per-hit trace is supplied (batch 10), but the four
+  summary-only `*_gap` fixtures remain explicit GAP.
 
 The delayed queue stores move, scheduled/landing turns, source identity, target
 side/slot, and damage provenance. As of batch 6 it resolves replacement-target
@@ -185,10 +192,27 @@ status move; a known-but-suppressed/ignored Good as Gold does not block, and an
 unrevealed/unknown ability is never assumed (so the unknown-ability fixture
 remains an explicit GAP rather than a guess that would risk a wrong-exact).
 
-Population Bomb and Triple Axel remain GAP because exact parity needs per-hit
-accuracy branches, PRNG provenance, stop-on-miss execution, and per-hit damage
-or base-power provenance. The v7 action features can summarize risk, but that
-is not exact rollout execution.
+Population Bomb and Triple Axel now PASS when a complete Showdown per-hit
+execution trace is supplied: the local `execute_sequential_multihit` replays the
+trace deterministically, honoring stop-on-miss and the Triple Axel 20/40/60 power
+ramp, and verifies the per-hit sum against the declared totals. The four
+summary-only `*_gap` fixtures remain explicit GAP because an expected-hit count /
+distribution summary is not an exact execution trace. The trace is fixture-only
+transition provenance and is never exposed as a model feature; the v7 action
+features still only summarize multi-hit risk.
+
+## Focused fixes in batch 10 (exact sequential multi-hit traces)
+
+- Added `multihit_trace.py` with `validate_sequential_multihit_trace` and
+  `execute_sequential_multihit`: a complete per-hit trace (move id, ordered
+  hit/miss records with damage and optional per-hit base power, declared total
+  damage and hit count, provenance) is replayed with stop-on-miss and consistency
+  checks; a distribution summary or missing/mismatched trace fails closed.
+- Extended the rollout comparison with a `sequential_multihit` phase handler.
+- Added four PASS fixtures (`population_bomb_exact_trace`,
+  `population_bomb_stop_on_miss_trace`, `triple_axel_exact_power_ramp_trace`,
+  `triple_axel_stop_on_miss_trace`) built from real Showdown logs; kept the four
+  summary-only `*_gap` fixtures as explicit GAP.
 
 ## Focused fixes in batch 9 (effective-context batch 2)
 
@@ -297,10 +321,10 @@ were implemented in this batch.
   `2.5.1+cu121`, CUDA available `True`
 - sim-core TypeScript build: PASS
 - sim-core test suite: 35 PASS
-- focused rollout-parity Python tests: 17 PASS
-- state-provenance no-leakage contract tests: 43 PASS
+- focused rollout-parity Python tests: 18 PASS
+- state-provenance + multihit-trace contract tests: 52 PASS
 - public-information belief / effective-context tests: 49 PASS
-- deterministic harness: 47 PASS / 0 FAIL / 8 GAP
+- deterministic harness: 51 PASS / 0 FAIL / 8 GAP
 
 ## Gate decision
 
