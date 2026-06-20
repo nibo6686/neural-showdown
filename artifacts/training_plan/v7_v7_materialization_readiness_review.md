@@ -9,23 +9,19 @@ promoted, or changed in live defaults.**
 
 ## Readiness verdict
 
-**Conditionally ready** for a small v7/v7 *diagnostic* materialization, but
-**not runnable from the current materializer CLI yet**.
+**Ready for an explicitly approved small v7/v7 diagnostic materialization.**
 
 The schema is frozen and fingerprint-tested, mechanics fidelity is FAIL-free,
 rollout parity is FAIL-free with only honest GAPs, the no-leakage contracts are
 in place, and the generalized full-manifest path is
-parallel/crash-safe/resumable with built-in validation. However,
-`benchmark_vnext_featuregen.py` currently imports and exposes only
-`legal-action-v5` / `legal-action-v6`; its CLI rejects `legal-action-v7`, and
-its repeat-chain impact switch is currently enabled only for v6. Therefore the
-remaining conditions are:
+parallel/crash-safe/resumable with built-in validation. The materializer CLI now
+accepts `legal-action-v7`, records and validates its 552D schema and exact
+ordered-name fingerprint, and enables the same repeat-chain impact path for v7
+that remains enabled for v6. The remaining conditions are procedural:
 
-1. make the minimal materializer-only v7 wiring change and test it without
-   materializing a dataset,
-2. pass the pre-materialization test gate below,
-3. obtain explicit user approval to materialize (hard constraint), and
-4. produce a validation report while retaining intermediate shards.
+1. pass the pre-materialization test gate immediately before the run,
+2. obtain explicit user approval to materialize (hard constraint), and
+3. produce a validation report while retaining intermediate shards.
 
 Training, checkpoint promotion, and any live-default change remain **separately
 blocked** regardless of this materialization.
@@ -144,16 +140,17 @@ Run green immediately before any approved materialization:
    compatibility. The materializer has **no `--validate-only` CLI flag**; do not
    claim otherwise.
 
-The review verification covered 1–3 and 5. The current read-only v7 preflight
+The materializer wiring verification covers item 6 without writing a real
+dataset: CLI dispatch is mocked, metadata/array validation is in memory, and the
+existing assembly smoke uses only a temporary directory. The read-only v7 preflight
 also passed all checks with manifest SHA-256
 `3399bf06c268f3eeb6cfabc8b6b102bde8a77e100f3e06c2ecc2f11a69d98185`;
-rerun it after the materializer wiring change. Item 6 remains the technical
-blocker before approval to materialize.
+rerun it immediately before any approved materialization.
 
 ## Proposed materialization plan (DO NOT RUN — approval-gated)
 
-After the materializer blocker above is fixed and approved, the smallest
-meaningful step is a **`diagnostic_300` v7/v7** dataset that mirrors the
+After explicit approval, the smallest meaningful step is a **`diagnostic_300`
+v7/v7** dataset that mirrors the
 existing `diagnostic_300_v7_v6` but swaps the action schema v6→v7 (the v7 action
 vector is append-only over the same frozen 331D v6 prefix, so this is a strictly
 richer drop-in on the same mechanics-clean impact path and the same frozen
@@ -161,11 +158,11 @@ manifest/splits).
 
 - Manifest (reuse, frozen): `artifacts/training_plan/manifests/diagnostic_300_manifest.json`
   (`diagnostic-300-manifest-v1`, seed `20260619`, 210/45/45).
-- Entrypoint after minimal v7 wiring:
+- Entrypoint:
   `trainer/src/neural/benchmark_vnext_featuregen.py` (parallel, crash-safe,
   resumable via per-battle `_shards/`, validates on assembly).
 - New output dir (no overwrite): `artifacts/training_plan/datasets/diagnostic_300_v7_v7/`.
-- Proposed command after that wiring is tested (illustrative; **not executed**):
+- Proposed command (illustrative; **not executed**):
 
   ```powershell
   $py = 'D:\Anaconda\envs\neuralgpu\python.exe'
@@ -181,9 +178,9 @@ manifest/splits).
       --workers 6
   ```
 
-The current checkout rejects this command because v7 is not yet an allowed
-materializer action version. Omitting `--full-manifest` would incorrectly run
-the tiny benchmark path rather than the 300-battle materialization.
+The current checkout accepts the v7 action version. Omitting `--full-manifest`
+would incorrectly run the tiny benchmark path rather than the 300-battle
+materialization.
 
 Plan requirements:
 
@@ -207,8 +204,8 @@ Plan requirements:
 - **No live-default change** — state stays `live-private-belief-v2`, action stays
   `legal-action-v3`; vNext stays diagnostic/shadow only.
 - **No materialization** until explicitly approved.
-- **No materialization** until the v7 materializer wiring/tests and read-only
-  preflight pass.
+- **No materialization** until the required tests and read-only preflight pass
+  immediately before the approved run.
 - **No `legal-action-v7` schema change** (stays 552D / `956da3d2…`).
 - **No NatDex/old-gen** mechanics.
 

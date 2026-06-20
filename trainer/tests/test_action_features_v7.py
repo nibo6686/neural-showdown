@@ -100,6 +100,33 @@ class SchemaIntegrityTest(unittest.TestCase):
             self.assertEqual(v7.shape[0], ACTION_FEATURE_DIM_V7, move)
             np.testing.assert_array_equal(v7[:ACTION_FEATURE_DIM_V6], v6)
 
+    def test_v7_preserves_v6_rollout_repeat_chain_prefix(self):
+        tactical = {
+            "history_complete": True,
+            "own": {
+                "repeat_chain": {
+                    "move": "rollout",
+                    "successful_count": 2,
+                    "multiplier": 4.0,
+                    "known": True,
+                    "exact": True,
+                    "provenance": "protocol_complete",
+                    "reset_observed": False,
+                    "defense_curl_active": False,
+                    "defense_curl_known": True,
+                    "forced_continuation_active": True,
+                }
+            },
+            "opponent": {},
+        }
+        action = _action("Rollout")
+        v6 = build_action_feature_vector_v6(action, _PRIVATE, tactical, None)
+        v7 = build_action_feature_vector_v7(action, _PRIVATE, tactical, None)
+        np.testing.assert_array_equal(v7[:ACTION_FEATURE_DIM_V6], v6)
+        by_name = dict(zip(ACTION_FEATURE_NAMES_V6, v6))
+        self.assertEqual(by_name["repeat_chain_is_rollout"], 1.0)
+        self.assertGreater(by_name["repeat_chain_count_norm"], 0.0)
+
 
 class CheckpointGuardTest(unittest.TestCase):
     def _meta(self, version, dim, fp):

@@ -2,18 +2,21 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
 from neural.benchmark_vnext_featuregen import (
+    _repeat_chain_enabled,
     _validate_full_preflight,
     _completed_teams_for_action_reconstruction,
     _trajectory_prefix_before_event,
     benchmark_metadata,
+    main,
     select_manifest_subset,
     validate_benchmark_arrays,
 )
-from neural.action_features import ACTION_FEATURE_NAMES_V5
+from neural.action_features import ACTION_FEATURE_NAMES_V5, ACTION_FEATURE_NAMES_V7
 from neural.live_private_features import FEATURE_NAMES_V7
 
 
@@ -81,6 +84,47 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertEqual(metadata["action_feature_dim"], 331)
         self.assertEqual(metadata["live_default_action_feature_version"], "legal-action-v3")
         self.assertFalse(metadata["state_vectors_duplicated_per_candidate"])
+
+    def test_metadata_can_select_v7_with_exact_schema_guardrails(self):
+        selected = select_manifest_subset(self.manifest, size=10, seed=9)
+        metadata = benchmark_metadata(
+            manifest=self.manifest,
+            selected_entries=selected,
+            seed=9,
+            action_feature_version="legal-action-v7",
+        )
+        self.assertEqual(metadata["action_feature_version"], "legal-action-v7")
+        self.assertEqual(metadata["action_feature_dim"], 552)
+        self.assertEqual(
+            metadata["action_feature_names_sha256"],
+            "956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7",
+        )
+        arrays = {
+            "state_features": np.zeros((1, 3208), dtype=np.float16),
+            "action_features": np.zeros((1, 552), dtype=np.float16),
+            "candidate_state_indices": np.asarray([0], dtype=np.int32),
+            "state_value_targets": np.asarray([1.0], dtype=np.float32),
+            "action_rank_labels": np.asarray([1], dtype=np.int8),
+            "state_replay_ids": np.asarray([selected[0]["replay_id"]]),
+            "state_splits": np.asarray([selected[0]["split"]]),
+            "state_feature_names": np.asarray(FEATURE_NAMES_V7),
+            "action_feature_names": np.asarray(ACTION_FEATURE_NAMES_V7),
+        }
+        self.assertTrue(validate_benchmark_arrays(arrays, metadata)["passed"])
+
+    def test_cli_accepts_v7_without_running_materialization(self):
+        with patch("neural.benchmark_vnext_featuregen.run_full_materialization") as materialize:
+            main(["--full-manifest", "--action-feature-version", "legal-action-v7"])
+        self.assertEqual(materialize.call_args.kwargs["action_feature_version"], "legal-action-v7")
+
+    def test_cli_rejects_unknown_action_feature_version(self):
+        with self.assertRaises(SystemExit):
+            main(["--action-feature-version", "legal-action-v8"])
+
+    def test_v6_and_v7_enable_the_same_repeat_chain_impact_path(self):
+        self.assertFalse(_repeat_chain_enabled("legal-action-v5"))
+        self.assertTrue(_repeat_chain_enabled("legal-action-v6"))
+        self.assertTrue(_repeat_chain_enabled("legal-action-v7"))
 
     def test_array_validation_checks_dimensions_and_split_separation(self):
         selected = select_manifest_subset(self.manifest, size=10, seed=9)

@@ -21,6 +21,7 @@ from .action_features import (
     ACTION_FEATURE_VERSION,
     ACTION_FEATURE_VERSION_V5,
     ACTION_FEATURE_VERSION_V6,
+    ACTION_FEATURE_VERSION_V7,
     action_feature_schema,
     to_id,
 )
@@ -75,6 +76,10 @@ RARE_MECHANICS = {
     "encore",
     "disable",
 }
+
+
+def _repeat_chain_enabled(action_feature_version: str) -> bool:
+    return action_feature_version in {ACTION_FEATURE_VERSION_V6, ACTION_FEATURE_VERSION_V7}
 
 
 def _stable_key(seed: int, replay_id: str, namespace: str) -> str:
@@ -506,7 +511,7 @@ def _decision_features(
             action,
             approx_state,
             client=damage_client,
-            enable_repeat_chain=action_feature_version == ACTION_FEATURE_VERSION_V6,
+            enable_repeat_chain=_repeat_chain_enabled(action_feature_version),
         )
         impact_methods[str(impact.get("method") or "unavailable")] += 1
         action_features.append(
@@ -1845,7 +1850,7 @@ def _matcher_report_markdown(report: Dict[str, Any]) -> str:
     ])
 
 
-def main() -> None:
+def main(argv: Optional[Sequence[str]] = None) -> None:
     parser = argparse.ArgumentParser(description="Benchmark explicit v7 action-schema feature generation.")
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
@@ -1857,10 +1862,10 @@ def main() -> None:
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument(
         "--action-feature-version",
-        choices=(ACTION_FEATURE_VERSION_V5, ACTION_FEATURE_VERSION_V6),
+        choices=(ACTION_FEATURE_VERSION_V5, ACTION_FEATURE_VERSION_V6, ACTION_FEATURE_VERSION_V7),
         default=ACTION_FEATURE_VERSION_V5,
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.full_manifest:
         run_full_materialization(
             manifest_path=Path(args.manifest),

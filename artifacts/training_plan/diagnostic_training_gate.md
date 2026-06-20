@@ -81,7 +81,7 @@
 - [x] `legal-action-v7` batch 7 implemented (511D; action-risk/probability and provenance summaries; batch-6 prefix preserved).
 - [x] `legal-action-v7` batch 8 implemented (552D; forced-decision/secondary-chance fields; batch-7 prefix preserved; full fingerprint `956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`).
 - [x] v7/v7 materialization readiness review written (`v7_v7_materialization_readiness_review.md`).
-- [ ] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior).
+- [x] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior, 552D metadata, and exact fingerprint validation).
 - [ ] Small diagnostic v7/v7 materialization explicitly approved after read-only preflight and required tests.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
@@ -762,23 +762,24 @@ or live bot behavior change; no NatDex/old-gen mechanics. Both gates remain
 **closed**.
 
 The v7/v7 materialization readiness review
-(`v7_v7_materialization_readiness_review.md`) finds the project **conditionally
-ready** to *plan*, but **not yet runnable**, for a small v7/v7 diagnostic
-materialization (state
+(`v7_v7_materialization_readiness_review.md`) finds the project **ready for an
+explicitly approved** small v7/v7 diagnostic materialization (state
 `live-private-belief-v7` 3208D + action `legal-action-v7` 552D /
 `956da3d2…1bf39d7`): the schema is frozen and fingerprint-tested, mechanics are
 FAIL-free (138 PASS / 0 FAIL / 212 INEXACT, zero wrong-exact), rollout parity is
 **59 fixtures: 51 PASS / 0 FAIL / 8 GAP** with only honest fail-closed GAPs, the
 no-leakage and public-belief/effective-context contracts are in place, and the
-generalized materializer is parallel/crash-safe/resumable. The current
-materializer CLI, however, accepts only `legal-action-v5` / `legal-action-v6`,
-and its repeat-chain impact switch is enabled only for v6. Before approval it
-must be minimally wired/tested for v7, then pass the focused schema,
-no-leakage/belief, rollout-parity, sim-core, JSON, materializer, and read-only
-full-preflight gates. The materializer has no `--validate-only` CLI flag.
+generalized materializer is parallel/crash-safe/resumable. Its CLI now accepts
+v7, records and validates the 552D exact fingerprint, and shares v6 repeat-chain
+impact handling without changing v5. Focused temp/in-memory tests cover mocked
+full-manifest CLI dispatch, metadata/array guardrails, unknown-version
+rejection, and the byte-identical v6 Rollout prefix inside v7. The materializer
+has no `--validate-only` CLI flag; use its read-only preflight function before
+approval.
 Proposed (not run): a `diagnostic_300_v7_v7` dataset on the same frozen
 210/45/45 manifest/splits, written to a new output dir with `--full-manifest`
 and retained per-battle shards. Training, checkpoint promotion, and any
-live-default change remain separately **blocked**. This was a review only: no
-schema, dataset, materialization, training, checkpoint, or live-default change.
-Both gates remain **closed**.
+live-default change remain separately **blocked**. No schema, dataset,
+materialization, training, checkpoint, or live-default change occurred. A
+fresh green preflight/test gate and explicit approval remain required. Both
+gates remain **closed**.
