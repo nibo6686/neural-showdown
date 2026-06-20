@@ -26,7 +26,8 @@ Inspected modules: `tactical_state.py`, `live_eval_server.py`,
 `provenance_contracts.py`. The existing pipeline **already separates revealed
 from possible**, which this design formalizes rather than replaces:
 
-- **Revealed/known** is set only on public events: `item_known` /
+- **Revealed/known** is set on public events or the player's own legal request:
+  `item_known` /
   `ability_known` flags, `active_base_ability` / `active_current_ability`,
   `known_abilities` (per side), and `revealed_moves_by_species` (appended as
   moves are observed). `item_known` flips true after an item is revealed/used;
@@ -62,15 +63,31 @@ Fields: `species_known`, `possible_abilities` (species/format list),
 `revealed_ability`, `inferred_ability`, `knownness ∈ {known, inferred,
 unknown}`. `effective_ability` returns an `EffectiveAbility` that carries a
 concrete id only when `KNOWN` (revealed) or `INFERRED`; an unknown belief
-resolves to `ability=None, UNKNOWN`. Listing `possible_abilities` never selects
-one as truth.
+resolves to `ability=None, UNKNOWN`. A reliable known species with exactly one
+legal ability in the current species/format set is deterministic public
+knowledge and collapses to `INFERRED` (for example Gholdengo → Good as Gold).
+Multiple possibilities never collapse. If the displayed species may be false
+because Illusion is unresolved, `displayed_species_uncertain=True` prevents the
+singleton collapse until true species is public.
+
+### Own side — `OwnSidePublicKnowledge`
+
+The player's own legal request supplies exact ability, item, moves, and Tera
+type. `own_side_public_knowledge` normalizes those values and exposes ability
+and item beliefs as `KNOWN`; this is legal player-private information, not
+opponent leakage.
 
 ### Item — `PublicItemBelief`
 
 Fields: `possible_items`, `revealed_item`, `state ∈ {known, inferred, unknown,
 removed, consumed}`. `has_active_item` returns `True` only for a known/inferred
 present item, `False` for removed/consumed, and **`None` for unknown** (cannot
-claim presence or absence).
+claim presence or absence). `item_belief_from_public_evidence` recognizes an
+explicit Showdown reveal/activation as `KNOWN`, allows a genuinely deterministic
+public deduction to be marked `INFERRED`, and treats absence of one
+probabilistic secondary effect as non-evidence. Thus one Iron Head non-flinch
+does not infer Covert Cloak; a protocol-supported Safety Goggles reveal can be
+known.
 
 ### Speed — `PublicSpeedBelief`
 
@@ -145,11 +162,12 @@ via `item_blocks`). Status blocking = Good as Gold (already wired in batch 7 via
 
 Binding rules:
 
-1. **Unrevealed ability stays unknown** — never copied from species default or a
-   single possible candidate. (`test_unrevealed_ability_stays_unknown_not_species_default`)
-2. **Possible sets may be listed without selecting truth.**
+1. **Species-unique ability is deterministic public inference** only when the
+   species identity is reliable. Gholdengo's singleton set becomes inferred
+   Good as Gold; unresolved Illusion or unknown species prevents collapse.
+2. **Ambiguous possible sets may be listed without selecting truth.**
    (`test_possible_abilities_listed_without_selecting_truth`)
-3. **Revealed becomes known only after a public event.**
+3. **Own-side request facts and public reveals are known.**
    (`test_revealed_ability_becomes_known`, `test_revealed_item_becomes_known`)
 4. **Unknown item stays unknown even when it would matter**; `item_blocks` fails
    closed. (`test_unknown_item_stays_unknown`, `test_unknown_item_fails_closed`)
@@ -160,11 +178,13 @@ Binding rules:
 7. **Cloud Nine / Air Lock suppress weather only when known.**
 8. **Speed is a range; exact is leaked only when public/inferable.**
    (`PublicSpeedBeliefTest`)
-9. **Possible-but-unrevealed opponent ability/item must not be treated as
-   known** — the unifying invariant behind 1–8.
+9. **Possible-but-ambiguous opponent ability/item must not be treated as
+   known** — deterministic public facts are allowed, hidden truth is not.
+10. **One missed probabilistic secondary is not item evidence**; Covert Cloak
+    stays unknown without a reveal or deterministic deduction.
 
-Test coverage delivered: 25 tests in
-`test_public_information_belief_contracts.py`, plus the existing 43 in
+Test coverage is maintained in
+`test_public_information_belief_contracts.py`, plus the 52 tests in
 `test_state_provenance_no_leakage_contracts.py` (ability knownness, Good as
 Gold, Magic Bounce). Future no-leakage tests to add when wiring into live
 extraction: seed-invariance over hidden ability/item/speed; future-prefix

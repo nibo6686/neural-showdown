@@ -82,6 +82,7 @@
 - [x] `legal-action-v7` batch 8 implemented (552D; forced-decision/secondary-chance fields; batch-7 prefix preserved; full fingerprint `956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`).
 - [x] v7/v7 materialization readiness review written (`v7_v7_materialization_readiness_review.md`).
 - [x] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior, 552D metadata, and exact fingerprint validation).
+- [x] Skilled-player public-belief calibration contracts added: species-singleton ability inference, ambiguous-set preservation, exact own-side knowledge, Illusion guard, conservative item evidence, and speed range/exact separation.
 - [ ] Small diagnostic v7/v7 materialization explicitly approved after read-only preflight and required tests.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
@@ -782,4 +783,17 @@ and retained per-battle shards. Training, checkpoint promotion, and any
 live-default change remain separately **blocked**. No schema, dataset,
 materialization, training, checkpoint, or live-default change occurred. A
 fresh green preflight/test gate and explicit approval remain required. Both
+gates remain **closed**.
+
+Pre-materialization skilled-player information calibration is complete at the
+pure contract/test layer. A reliable singleton species/format ability set now
+becomes deterministic public inference (Gholdengo → Good as Gold); ambiguous
+sets stay unknown/possible, and unresolved Illusion blocks species-derived
+collapse. Own legal-request ability/item/moves/Tera are exact known facts.
+Explicit item reveals are known, deterministic deductions may be inferred, one
+probabilistic non-flinch does not infer Covert Cloak, and speed ranges never
+surface exact hidden speed. Existing Neutralizing Gas, Mold Breaker, Ability
+Shield, and Safety Goggles effective-context behavior is preserved. The
+readiness verdict is unchanged; no materialization, training, checkpoint, live
+default, live bot, state schema, or `legal-action-v7` change occurred. Both
 gates remain **closed**.

@@ -16,9 +16,11 @@ from neural.provenance_contracts import (
     EffectiveItemContext,
     EffectiveWeatherContext,
     ItemState,
+    item_belief_from_public_evidence,
     item_belief_from_state,
     item_blocks,
     neutralizing_gas_suppresses_target,
+    own_side_public_knowledge,
     public_ability_belief,
     public_item_belief,
     resolve_status_move_ability_block,
@@ -30,12 +32,10 @@ from neural.provenance_contracts import (
 
 
 class PublicAbilityBeliefTest(unittest.TestCase):
-    def test_unrevealed_ability_stays_unknown_not_species_default(self):
-        # Gholdengo's only ability is Good as Gold, but until it is revealed the
-        # belief must not treat it as known.
+    def test_species_singleton_ability_is_deterministic_public_inference(self):
         belief = public_ability_belief(species_known=True, possible_abilities=["Good as Gold"])
-        self.assertEqual(belief.knownness, AbilityKnownness.UNKNOWN)
-        self.assertIsNone(belief.effective_ability.ability)
+        self.assertEqual(belief.knownness, AbilityKnownness.INFERRED)
+        self.assertEqual(belief.effective_ability.ability, "goodasgold")
 
     def test_possible_abilities_listed_without_selecting_truth(self):
         belief = public_ability_belief(
@@ -61,6 +61,36 @@ class PublicAbilityBeliefTest(unittest.TestCase):
         self.assertEqual(belief.knownness, AbilityKnownness.INFERRED)
         self.assertEqual(belief.effective_ability.knownness, AbilityKnownness.INFERRED)
 
+    def test_singleton_does_not_collapse_under_illusion_uncertainty(self):
+        belief = public_ability_belief(
+            species_known=True,
+            possible_abilities=["Good as Gold"],
+            displayed_species_uncertain=True,
+        )
+        self.assertEqual(belief.knownness, AbilityKnownness.UNKNOWN)
+        self.assertIsNone(belief.effective_ability.ability)
+
+    def test_singleton_does_not_collapse_when_species_is_unknown(self):
+        belief = public_ability_belief(species_known=False, possible_abilities=["Good as Gold"])
+        self.assertEqual(belief.knownness, AbilityKnownness.UNKNOWN)
+        self.assertIsNone(belief.effective_ability.ability)
+
+
+class OwnSidePublicKnowledgeTest(unittest.TestCase):
+    def test_own_side_request_facts_are_exact_known(self):
+        own = own_side_public_knowledge(
+            ability="Neutralizing Gas",
+            item="Ability Shield",
+            moves=["Sludge Bomb", "Will-O-Wisp"],
+            tera_type="Dark",
+        )
+        self.assertEqual(own.ability_belief.knownness, AbilityKnownness.KNOWN)
+        self.assertEqual(own.ability_belief.effective_ability.ability, "neutralizinggas")
+        self.assertEqual(own.item_belief.state, ItemState.KNOWN)
+        self.assertEqual(own.item_belief.revealed_item, "abilityshield")
+        self.assertEqual(set(own.moves), {"sludgebomb", "willowisp"})
+        self.assertEqual(own.tera_type, "dark")
+
 
 class PublicItemBeliefTest(unittest.TestCase):
     def test_unknown_item_stays_unknown(self):
@@ -82,6 +112,33 @@ class PublicItemBeliefTest(unittest.TestCase):
         belief = public_item_belief(possible_items=[], revealed_item="Sitrus Berry", state=ItemState.CONSUMED)
         self.assertFalse(belief.has_active_item)
 
+    def test_showdown_reveal_makes_safety_goggles_known(self):
+        belief = item_belief_from_public_evidence(
+            ["Safety Goggles", "Leftovers"],
+            candidate_item="Safety Goggles",
+            evidence="showdown_reveal",
+        )
+        self.assertEqual(belief.state, ItemState.KNOWN)
+        self.assertEqual(belief.revealed_item, "safetygoggles")
+
+    def test_one_probabilistic_non_flinch_does_not_infer_covert_cloak(self):
+        belief = item_belief_from_public_evidence(
+            ["Covert Cloak", "Leftovers"],
+            candidate_item="Covert Cloak",
+            evidence="single_probabilistic_secondary_absence",
+        )
+        self.assertEqual(belief.state, ItemState.UNKNOWN)
+        self.assertIsNone(belief.revealed_item)
+
+    def test_deterministic_public_item_deduction_is_inferred_not_revealed(self):
+        belief = item_belief_from_public_evidence(
+            ["Safety Goggles", "Leftovers"],
+            candidate_item="Safety Goggles",
+            evidence="deterministic_public_deduction",
+        )
+        self.assertEqual(belief.state, ItemState.INFERRED)
+        self.assertEqual(belief.revealed_item, "safetygoggles")
+
 
 class PublicSpeedBeliefTest(unittest.TestCase):
     def test_range_does_not_leak_exact_speed(self):
@@ -102,7 +159,13 @@ class PublicSpeedBeliefTest(unittest.TestCase):
 
 class EffectiveAbilityContextTest(unittest.TestCase):
     def _known_gag(self):
-        return public_ability_belief(True, ["Good as Gold"], revealed_ability="Good as Gold")
+        return public_ability_belief(True, ["Good as Gold"])
+
+    def test_species_deterministic_good_as_gold_is_active(self):
+        eff = EffectiveAbilityContext(belief=self._known_gag()).resolve()
+        self.assertEqual(eff.ability, "goodasgold")
+        self.assertEqual(eff.knownness, AbilityKnownness.INFERRED)
+        self.assertTrue(eff.is_active)
 
     def test_neutralizing_gas_suppresses_known_ability(self):
         context = EffectiveAbilityContext(belief=self._known_gag(), neutralizing_gas_known=True)
@@ -130,7 +193,7 @@ class EffectiveAbilityContextTest(unittest.TestCase):
 
     def test_unknown_ability_stays_unknown_even_under_suppression(self):
         # Suppressing an unknown ability does not turn it into a known ability.
-        unknown = public_ability_belief(True, ["Good as Gold"])
+        unknown = public_ability_belief(True, ["Magic Bounce", "Synchronize"])
         context = EffectiveAbilityContext(belief=unknown, neutralizing_gas_known=True)
         eff = context.resolve()
         self.assertEqual(eff.knownness, AbilityKnownness.UNKNOWN)

@@ -497,7 +497,8 @@ class PublicAbilityBelief:
     ``possible_abilities`` is the species/format ability list — public knowledge
     a skilled player has. The *hidden true* ability is never stored here; it
     becomes ``revealed_ability`` only after a public activation/protocol event,
-    or ``inferred_ability`` only when narrowed by public evidence.
+    or ``inferred_ability`` when deterministic public knowledge (including a
+    singleton species/format ability set) narrows it to one possibility.
     """
 
     species_known: bool
@@ -521,11 +522,15 @@ def public_ability_belief(
     *,
     revealed_ability: Any = None,
     inferred_ability: Any = None,
+    displayed_species_uncertain: bool = False,
 ) -> PublicAbilityBelief:
-    """Build a `PublicAbilityBelief`. Revealed wins over inferred over unknown.
+    """Build a skilled-player `PublicAbilityBelief`.
 
-    Listing ``possible_abilities`` never selects one as truth; only an explicit
-    revealed/inferred public signal sets a concrete ability.
+    Revealed wins over explicit inference. A singleton species/format ability
+    set is deterministic public knowledge and becomes ``INFERRED`` when the
+    species identity is reliable. Multiple possibilities never collapse.
+    ``displayed_species_uncertain`` guards active Illusion/Zoroark cases: the
+    displayed species alone cannot justify species-derived ability knowledge.
     """
     possible = _id_tuple(possible_abilities)
     revealed = _to_id(revealed_ability) or None
@@ -534,7 +539,53 @@ def public_ability_belief(
         return PublicAbilityBelief(bool(species_known), possible, revealed, None, AbilityKnownness.KNOWN)
     if inferred:
         return PublicAbilityBelief(bool(species_known), possible, None, inferred, AbilityKnownness.INFERRED)
+    if bool(species_known) and not displayed_species_uncertain and len(possible) == 1:
+        return PublicAbilityBelief(True, possible, None, possible[0], AbilityKnownness.INFERRED)
     return PublicAbilityBelief(bool(species_known), possible, None, None, AbilityKnownness.UNKNOWN)
+
+
+# --- Own-side exact knowledge ----------------------------------------------
+
+
+@dataclass(frozen=True)
+class OwnSidePublicKnowledge:
+    """Exact facts supplied by the player's own legal request.
+
+    Own ability, item, moves, and Tera type are player-known private information,
+    not opponent hidden-state leakage.
+    """
+
+    ability: Optional[str]
+    item: Optional[str]
+    moves: Tuple[str, ...]
+    tera_type: Optional[str]
+
+    @property
+    def ability_belief(self) -> PublicAbilityBelief:
+        return public_ability_belief(
+            species_known=True,
+            possible_abilities=[self.ability] if self.ability else [],
+            revealed_ability=self.ability,
+        )
+
+    @property
+    def item_belief(self) -> "PublicItemBelief":
+        return public_item_belief(
+            [self.item] if self.item else [],
+            revealed_item=self.item,
+            state=ItemState.KNOWN if self.item else ItemState.UNKNOWN,
+        )
+
+
+def own_side_public_knowledge(
+    *, ability: Any = None, item: Any = None, moves: Any = None, tera_type: Any = None
+) -> OwnSidePublicKnowledge:
+    return OwnSidePublicKnowledge(
+        ability=_to_id(ability) or None,
+        item=_to_id(item) or None,
+        moves=_id_tuple(moves),
+        tera_type=_to_id(tera_type) or None,
+    )
 
 
 # --- Public item belief ----------------------------------------------------
@@ -582,6 +633,28 @@ def public_item_belief(
     if revealed:
         return PublicItemBelief(possible, revealed, state or ItemState.KNOWN)
     return PublicItemBelief(possible, None, state or ItemState.UNKNOWN)
+
+
+def item_belief_from_public_evidence(
+    possible_items: Any,
+    *,
+    candidate_item: Any = None,
+    evidence: Any = None,
+) -> PublicItemBelief:
+    """Conservatively map public item evidence to a belief tier.
+
+    An explicit Showdown reveal/activation is known. A deterministic public
+    deduction may be marked inferred. Absence of a probabilistic secondary
+    effect (for example one Iron Head non-flinch) is non-evidence and remains
+    unknown; it must not manufacture Covert Cloak.
+    """
+    candidate = _to_id(candidate_item) or None
+    evidence_id = _to_id(evidence)
+    if candidate and evidence_id in {"showdownreveal", "publicactivation"}:
+        return public_item_belief(possible_items, revealed_item=candidate, state=ItemState.KNOWN)
+    if candidate and evidence_id == "deterministicpublicdeduction":
+        return public_item_belief(possible_items, revealed_item=candidate, state=ItemState.INFERRED)
+    return public_item_belief(possible_items)
 
 
 # --- Public speed belief ---------------------------------------------------

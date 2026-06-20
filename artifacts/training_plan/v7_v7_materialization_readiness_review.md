@@ -83,7 +83,7 @@ There are **no remaining known FAIL/wrong-exact mechanics**.
 - Materialization builds an exact pre-action protocol prefix and stops before the
   current decision's Tera event; state is reconstructed from public protocol +
   legal own request only.
-- Standalone no-leakage contracts (52 tests) + public-belief contracts (49 tests):
+- Standalone no-leakage contracts + public-belief contracts:
   delayed-landing no stale reuse, hidden sleep/confusion durations never
   surfaced, ability/item knownness tri-state (unrevealed never assumed), Mold
   Breaker / Neutralizing Gas / Cloud Nine / Ability Shield / Safety Goggles only
@@ -99,14 +99,25 @@ extraction.
 ## Public-belief / effective-context status (sufficient for Gen 9 Randbats scope)
 
 The public-information belief and effective-context contracts cover the Gen 9
-Randbats-relevant knowns: possible abilities/items, speed ranges, revealed/
-inferred public info, and known-active modifiers (Mold Breaker, Neutralizing
-Gas, Cloud Nine/Air Lock, Ability Shield, Safety Goggles, Heavy-Duty Boots).
+Randbats-relevant knowns: exact own-side request facts; reliable
+species/format-singleton ability inference (Gholdengo → Good as Gold);
+ambiguous ability/item possibility sets; Illusion identity uncertainty; speed
+ranges versus public exact speed; revealed/inferred public info; and known-active
+modifiers (Mold Breaker, Neutralizing Gas, Cloud Nine/Air Lock, Ability Shield,
+Safety Goggles, Heavy-Duty Boots). Item evidence remains conservative: explicit
+reveals are known, deterministic deductions may be inferred, and one failed
+probabilistic flinch does not infer Covert Cloak.
 Covert Cloak / Shield Dust secondary blocking and several Cloud Nine weather
 sub-effects are documented-deferred (no local secondary-effect phase); these are
 rollout-exactness items, not blockers for click-time v7 candidate
 materialization. NatDex/old-gen stays out of scope. Sufficient for the current
 scope.
+
+This calibration does not change the readiness verdict: the project remains
+ready for an explicitly approved small diagnostic materialization, subject to
+the same fresh test/preflight gate. Full Illusion-aware live extraction remains
+a separately approved integration task; the pure contract already prevents
+species-derived collapse when identity uncertainty is marked.
 
 ## Action-feature prefix/fingerprint guardrails (sufficient)
 
