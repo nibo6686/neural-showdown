@@ -3,6 +3,13 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any, Dict, Optional
 
+from .provenance_contracts import (
+    AbilityKnownness,
+    effective_ability_from_state,
+    resolve_status_move_ability_block,
+    validate_reflection_provenance,
+)
+
 
 def _to_id(value: Any) -> str:
     return "".join(character for character in str(value or "").lower() if character.isalnum())
@@ -77,6 +84,44 @@ def apply_immediate_prevention(state: Dict[str, Any], action: Dict[str, Any]) ->
 
     if bool(move.get("explosion_like")) and "damp" in {attacker_ability, target_ability}:
         return {"available": True, "reason": "damp_explosion_prevention", "prevented": True, "state": result_state}
+
+    # Magic Bounce reflection: only routes when the reflector ability is a known,
+    # active Magic Bounce and the reflection provenance is complete. Otherwise the
+    # caller's fixture stays an explicit GAP; a partial bundle fails closed here.
+    if bool(move.get("reflectable")):
+        reflector = effective_ability_from_state(target, attacker)
+        if reflector.knownness == AbilityKnownness.KNOWN and reflector.ability == "magicbounce":
+            reflection = dict(result_state.get("reflection") or {})
+            reflection.setdefault("reflectable", True)
+            reflection["reflector_ability"] = reflector
+            validated = validate_reflection_provenance(reflection)
+            if not validated["available"]:
+                return {
+                    "available": False,
+                    "reason": validated["reason"],
+                    "prevented": None,
+                    "reflected": None,
+                    "state": result_state,
+                }
+            return {
+                "available": True,
+                "reason": "magic_bounce_reflection",
+                "prevented": True,
+                "reflected": True,
+                "destination_side": validated["destination_side"],
+                "state": result_state,
+            }
+
+    # Good as Gold: a known-active Good as Gold blocks an opponent status move.
+    good_as_gold = resolve_status_move_ability_block(target, attacker, move)
+    if good_as_gold is not None and good_as_gold["prevented"]:
+        return {
+            "available": True,
+            "reason": good_as_gold["reason"],
+            "prevented": True,
+            "blocked": True,
+            "state": result_state,
+        }
 
     if "powder" in _volatile_ids(attacker):
         if not move_type:

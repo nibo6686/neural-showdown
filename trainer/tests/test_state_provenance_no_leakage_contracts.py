@@ -9,6 +9,7 @@ and do not materialize, train, or touch any live default.
 import unittest
 
 from neural.delayed_damage import resolve_delayed_attacks
+from neural.prevention import apply_immediate_prevention
 from neural.provenance_contracts import (
     AbilityKnownness,
     ConfusionProvenance,
@@ -17,8 +18,10 @@ from neural.provenance_contracts import (
     assert_no_hidden_sampled_values,
     confusion_provenance,
     delayed_landing_resolvable,
+    effective_ability_from_state,
     natural_sleep_provenance,
     rest_sleep_provenance,
+    resolve_status_move_ability_block,
     status_move_blocked_by_ability,
     validate_multihit_trace,
     validate_reflection_provenance,
@@ -315,6 +318,137 @@ class SequentialMultihitTraceTest(unittest.TestCase):
         result = validate_multihit_trace(summary)
         self.assertFalse(result["available"])
         self.assertEqual(result["reason"], "summary_is_not_exact_trace")
+
+
+class EffectiveAbilityProvenanceTest(unittest.TestCase):
+    """Batch C: ability knownness/suppression read from dict state."""
+
+    def test_known_ability_is_surfaced(self):
+        eff = effective_ability_from_state({"ability": "Good as Gold", "ability_known": True})
+        self.assertEqual(eff.ability, "goodasgold")
+        self.assertEqual(eff.knownness, AbilityKnownness.KNOWN)
+
+    def test_unknown_ability_identity_is_not_surfaced(self):
+        # No ability_known flag => unknown; the raw (unrevealed) identity is hidden.
+        eff = effective_ability_from_state({"ability": "Good as Gold"})
+        self.assertEqual(eff.knownness, AbilityKnownness.UNKNOWN)
+        self.assertIsNone(eff.ability)
+
+    def test_inferred_ability_knownness(self):
+        eff = effective_ability_from_state({"ability": "Levitate", "ability_known": "inferred"})
+        self.assertEqual(eff.knownness, AbilityKnownness.INFERRED)
+
+    def test_suppressed_and_ignored_make_ability_inactive(self):
+        eff = effective_ability_from_state(
+            {"ability": "Good as Gold", "ability_known": True, "ability_suppressed": True},
+            {"ability_ignoring": True},
+        )
+        self.assertTrue(eff.suppressed)
+        self.assertTrue(eff.ignored)
+        self.assertFalse(eff.is_active)
+
+
+class GoodAsGoldResolverTest(unittest.TestCase):
+    def test_non_status_move_is_not_applicable(self):
+        result = resolve_status_move_ability_block(
+            {"ability": "Good as Gold", "ability_known": True}, {}, {"name": "Tackle", "category": "Physical"}
+        )
+        self.assertIsNone(result)
+
+    def test_unknown_ability_is_not_a_guess(self):
+        # Unknown ability => fall through (None), never a silent "not blocked".
+        result = resolve_status_move_ability_block(
+            {"ability": "Good as Gold"}, {}, {"name": "Spore", "category": "Status"}
+        )
+        self.assertIsNone(result)
+
+    def test_known_good_as_gold_blocks(self):
+        result = resolve_status_move_ability_block(
+            {"ability": "Good as Gold", "ability_known": True}, {}, {"name": "Spore", "category": "Status"}
+        )
+        self.assertTrue(result["prevented"])
+
+    def test_suppressed_good_as_gold_does_not_block(self):
+        result = resolve_status_move_ability_block(
+            {"ability": "Good as Gold", "ability_known": True, "ability_suppressed": True},
+            {},
+            {"name": "Spore", "category": "Status"},
+        )
+        self.assertFalse(result["prevented"])
+
+    def test_ignored_good_as_gold_does_not_block(self):
+        result = resolve_status_move_ability_block(
+            {"ability": "Good as Gold", "ability_known": True},
+            {"ability_ignoring": True},
+            {"name": "Spore", "category": "Status"},
+        )
+        self.assertFalse(result["prevented"])
+
+
+class ImmediatePreventionAbilityReflectionTest(unittest.TestCase):
+    """Batch C: prevention.py wiring for Good as Gold and Magic Bounce."""
+
+    def test_good_as_gold_known_blocks_status_move(self):
+        state = {"attacker": {"ability": "Effect Spore"}, "target": {"ability": "Good as Gold", "ability_known": True}}
+        result = apply_immediate_prevention(state, {"name": "Spore", "category": "Status", "status": "slp"})
+        self.assertTrue(result["available"])
+        self.assertTrue(result["prevented"])
+        self.assertTrue(result.get("blocked"))
+
+    def test_good_as_gold_unknown_does_not_block(self):
+        # Unrevealed ability: this path makes no guess (prevented False); the
+        # harness keeps the unknown-ability scenario an explicit fixture GAP.
+        state = {"attacker": {"ability": "Effect Spore"}, "target": {"ability": "Good as Gold"}}
+        result = apply_immediate_prevention(state, {"name": "Spore", "category": "Status", "status": "slp"})
+        self.assertTrue(result["available"])
+        self.assertFalse(result["prevented"])
+
+    def test_good_as_gold_suppressed_does_not_block(self):
+        state = {
+            "attacker": {"ability": "Effect Spore"},
+            "target": {"ability": "Good as Gold", "ability_known": True, "ability_suppressed": True},
+        }
+        result = apply_immediate_prevention(state, {"name": "Spore", "category": "Status", "status": "slp"})
+        self.assertTrue(result["available"])
+        self.assertFalse(result["prevented"])
+
+    def _reflection_state(self, with_payload=True):
+        reflection = {
+            "original_source": "p2:0",
+            "reflector": "p1:0",
+            "destination_side": "p2",
+            "reflected_target": "p2:0",
+        }
+        if with_payload:
+            reflection["effect_payload"] = {"side_condition": "stealthrock"}
+        return {
+            "attacker": {"ability": "Synchronize"},
+            "target": {"ability": "Magic Bounce", "ability_known": True},
+            "reflection": reflection,
+        }
+
+    def test_magic_bounce_complete_reflection(self):
+        result = apply_immediate_prevention(
+            self._reflection_state(), {"name": "Stealth Rock", "reflectable": True, "category": "Status"}
+        )
+        self.assertTrue(result["available"])
+        self.assertTrue(result["reflected"])
+        self.assertEqual(result["destination_side"], "p2")
+
+    def test_magic_bounce_incomplete_payload_fails_closed(self):
+        result = apply_immediate_prevention(
+            self._reflection_state(with_payload=False),
+            {"name": "Stealth Rock", "reflectable": True, "category": "Status"},
+        )
+        self.assertFalse(result["available"])
+        self.assertIn("effect_payload", result["reason"])
+
+    def test_magic_bounce_unknown_ability_does_not_reflect(self):
+        state = self._reflection_state()
+        state["target"] = {"ability": "Magic Bounce"}  # not known
+        result = apply_immediate_prevention(state, {"name": "Stealth Rock", "reflectable": True, "category": "Status"})
+        self.assertTrue(result["available"])
+        self.assertFalse(bool(result.get("reflected")))
 
 
 if __name__ == "__main__":

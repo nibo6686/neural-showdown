@@ -1425,6 +1425,30 @@ function preventionCases(): ParityCase[] {
       local_support: 'supported',
     },
     {
+      id: 'magic_bounce_reflects_stealth_rock',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Magic Bounce', p2_move: 'Stealth Rock' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Stealth Rock' }],
+      oracle: {
+        reflected: magicBounceLines.some(line => line.includes('[from] ability: Magic Bounce')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Psychic'], ability: 'Synchronize' },
+          target: { types: ['Psychic', 'Fairy'], ability: 'Magic Bounce', ability_known: true },
+          reflection: {
+            original_source: 'p2:0',
+            reflector: 'p1:0',
+            destination_side: 'p2',
+            reflected_target: 'p2:0',
+            effect_payload: { side_condition: 'stealthrock' },
+          },
+        },
+        action: { name: 'Stealth Rock', reflectable: true, category: 'Status' },
+      },
+      local_support: 'supported',
+    },
+    {
       id: 'magic_bounce_reflection_gap',
       phase: 'immediate',
       starting_state: { p1_ability: 'Magic Bounce', p2_move: 'Stealth Rock' },
@@ -1434,6 +1458,24 @@ function preventionCases(): ParityCase[] {
       },
       local_support: 'intentional_gap',
       gap_reason: 'Magic Bounce reflection needs reflected action target/side-condition provenance, not just a hard-fail bit',
+    },
+    {
+      id: 'good_as_gold_known_blocks_status',
+      phase: 'immediate',
+      starting_state: { p1_ability: 'Good as Gold', p2_move: 'Spore' },
+      chosen_actions: [{ p1: 'Splash', p2: 'Spore' }],
+      oracle: {
+        prevented: !active(goodAsGold, 0).status,
+        blocked: goodAsGoldLines.some(line => line.includes('[from] ability: Good as Gold')),
+      },
+      local_input: {
+        state: {
+          attacker: { types: ['Grass', 'Poison'], ability: 'Effect Spore' },
+          target: { types: ['Steel', 'Ghost'], ability: 'Good as Gold', ability_known: true },
+        },
+        action: { name: 'Spore', category: 'Status', status: 'slp' },
+      },
+      local_support: 'supported',
     },
     {
       id: 'good_as_gold_status_gap',

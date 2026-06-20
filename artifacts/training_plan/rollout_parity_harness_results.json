@@ -3912,6 +3912,57 @@
           "p2": "Stealth Rock"
         }
       ],
+      "diff": [],
+      "id": "magic_bounce_reflects_stealth_rock",
+      "local": {
+        "available": true,
+        "destination_side": "p2",
+        "prevented": true,
+        "reason": "magic_bounce_reflection",
+        "reflected": true,
+        "state": {
+          "attacker": {
+            "ability": "Synchronize",
+            "types": [
+              "Psychic"
+            ]
+          },
+          "reflection": {
+            "destination_side": "p2",
+            "effect_payload": {
+              "side_condition": "stealthrock"
+            },
+            "original_source": "p2:0",
+            "reflected_target": "p2:0",
+            "reflector": "p1:0"
+          },
+          "target": {
+            "ability": "Magic Bounce",
+            "ability_known": true,
+            "types": [
+              "Psychic",
+              "Fairy"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "reflected": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Magic Bounce",
+        "p2_move": "Stealth Rock"
+      },
+      "status": "PASS"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Stealth Rock"
+        }
+      ],
       "diff": [
         {
           "field": "transition",
@@ -3935,6 +3986,49 @@
         "p2_move": "Stealth Rock"
       },
       "status": "GAP"
+    },
+    {
+      "chosen_actions": [
+        {
+          "p1": "Splash",
+          "p2": "Spore"
+        }
+      ],
+      "diff": [],
+      "id": "good_as_gold_known_blocks_status",
+      "local": {
+        "available": true,
+        "blocked": true,
+        "prevented": true,
+        "reason": "good_as_gold_status_block",
+        "state": {
+          "attacker": {
+            "ability": "Effect Spore",
+            "types": [
+              "Grass",
+              "Poison"
+            ]
+          },
+          "target": {
+            "ability": "Good as Gold",
+            "ability_known": true,
+            "types": [
+              "Steel",
+              "Ghost"
+            ]
+          }
+        }
+      },
+      "oracle": {
+        "blocked": true,
+        "prevented": true
+      },
+      "phase": "immediate",
+      "starting_state": {
+        "p1_ability": "Good as Gold",
+        "p2_move": "Spore"
+      },
+      "status": "PASS"
     },
     {
       "chosen_actions": [
@@ -4184,6 +4278,6 @@
   "summary": {
     "FAIL": 0,
     "GAP": 8,
-    "PASS": 39
+    "PASS": 41
   }
 }

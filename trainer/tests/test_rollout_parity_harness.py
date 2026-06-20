@@ -88,6 +88,8 @@ class RolloutParityHarnessTest(unittest.TestCase):
             "sucker_punch_fails_when_target_uses_status",
             "thunderclap_succeeds_when_target_attacks",
             "thunderclap_fails_when_target_uses_status",
+            "good_as_gold_known_blocks_status",
+            "magic_bounce_reflects_stealth_rock",
         ):
             self.assertEqual(cases[case_id]["status"], "PASS", msg=cases[case_id]["diff"])
 

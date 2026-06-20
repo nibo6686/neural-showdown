@@ -150,8 +150,9 @@ def _compare_immediate(case: Dict[str, Any]) -> Dict[str, Any]:
 
     oracle = case["oracle"]
     diffs: List[Dict[str, Any]] = []
-    if "prevented" in oracle and bool(oracle["prevented"]) != bool(local["prevented"]):
-        diffs.append({"field": "prevented", "oracle": bool(oracle["prevented"]), "local": bool(local["prevented"])})
+    for field in ("prevented", "reflected", "blocked"):
+        if field in oracle and bool(oracle[field]) != bool(local.get(field)):
+            diffs.append({"field": field, "oracle": bool(oracle[field]), "local": bool(local.get(field))})
     return {"status": "PASS" if not diffs else "FAIL", "local": local, "diff": diffs}
 
 

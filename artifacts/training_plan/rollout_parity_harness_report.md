@@ -5,10 +5,10 @@
 A deterministic oracle-vs-local transition harness compares targeted Gen 9
 state transitions against the bundled Pokemon Showdown engine.
 
-Result after rollout parity batch 6 (delayed landing resolver provenance):
+Result after rollout parity batch 7 (ability/prevention/reflection routing):
 
-- 47 deterministic cases
-- 39 PASS
+- 49 deterministic cases
+- 41 PASS
 - 0 FAIL
 - 8 explicit GAP
 
@@ -56,7 +56,7 @@ The harness distinguishes:
 - `sequential_multihit`: exact per-hit multi-hit execution fixtures.
 
 Click-time `legal-action-v7` features are not treated as rollout transition
-results. Batch 6 keeps that boundary and adds no v7 fields.
+results. Batch 7 keeps that boundary and adds no v7 fields.
 
 ## Passing parity coverage
 
@@ -123,6 +123,12 @@ Immediate prevention:
 38. Thunderclap succeeds when the target action branch is represented as an
     attack.
 39. Thunderclap fails when the target action branch is represented as status.
+40. Good as Gold blocks a status move when the target ability is known-active
+    Good as Gold.
+41. Magic Bounce reflects a reflectable move when the reflector ability is a
+    known-active Magic Bounce and the reflection routing provenance (original
+    source, reflector, destination side, reflected target, side-effect payload)
+    is complete.
 
 ## Explicit parity gaps
 
@@ -131,8 +137,10 @@ false for:
 
 - Future Sight replacement damage when target-specific landing damage is absent.
 - Doom Desire replacement damage when target-specific landing damage is absent.
-- Magic Bounce reflection.
-- Good as Gold status-move blocking in arbitrary rollout states.
+- Magic Bounce reflection when the reflection routing provenance is incomplete
+  or the reflector ability is not a known-active Magic Bounce.
+- Good as Gold status-move blocking when the target ability is unrevealed/unknown
+  in the rollout state.
 - Population Bomb exact sequential-hit execution.
 - Population Bomb initial-miss stop-on-miss execution.
 - Triple Axel exact power-ramp execution.
@@ -153,18 +161,41 @@ replacement.
 Binding is now PASS only for states carrying complete source/effect/duration
 and divisor provenance. A bare `partiallytrapped` volatile still fails closed.
 
-Magic Bounce remains a GAP because it is reflection, not a simple no-op
-prevention. Correct rollout needs reflected action target, destination side,
-and side-effect application provenance. Good as Gold remains a GAP because
-arbitrary rollout states still need reliable active ability provenance,
-ability suppression/ignoring state, and broader status-move callback routing.
+Magic Bounce now PASSes when the reflector ability is a known-active Magic
+Bounce and the reflection routing provenance (original source, reflector,
+destination side, reflected target, side-effect payload) is complete; it routes
+through `validate_reflection_provenance` and fails closed when any of those are
+missing, so the incomplete fixture remains an explicit GAP. Good as Gold now
+PASSes when the target ability is known-active Good as Gold and the move is a
+status move; a known-but-suppressed/ignored Good as Gold does not block, and an
+unrevealed/unknown ability is never assumed (so the unknown-ability fixture
+remains an explicit GAP rather than a guess that would risk a wrong-exact).
 
 Population Bomb and Triple Axel remain GAP because exact parity needs per-hit
 accuracy branches, PRNG provenance, stop-on-miss execution, and per-hit damage
 or base-power provenance. The v7 action features can summarize risk, but that
 is not exact rollout execution.
 
-## Focused fixes in batch 6
+## Focused fixes in batch 7
+
+- Added a known-active Good as Gold status-move block in
+  `apply_immediate_prevention`, routed through ability knownness/suppression
+  provenance (`effective_ability_from_state` +
+  `resolve_status_move_ability_block`). It blocks only when the target ability is
+  known-active Good as Gold; suppressed/ignored does not block; unknown/unrevealed
+  is never assumed.
+- Added Magic Bounce reflection routing: a reflectable move against a known-active
+  Magic Bounce reflector is validated by `validate_reflection_provenance` and
+  resolves with `reflected=True` and a destination side; incomplete routing fails
+  closed (GAP).
+- Extended the immediate comparison to check `reflected` and `blocked` alongside
+  `prevented`.
+- Added two PASS fixtures (`good_as_gold_known_blocks_status`,
+  `magic_bounce_reflects_stealth_rock`) and kept the unknown/incomplete
+  `good_as_gold_status_gap` and `magic_bounce_reflection_gap` as explicit GAP.
+- Powder, Sucker Punch, and Thunderclap branch handling from batch 5 still PASS.
+
+### Prior batch 6 fixes
 
 - Added a landing-time resolver-bundle provenance path so Future Sight and Doom
   Desire can resolve replacement-target damage when a complete bundle (source
@@ -213,8 +244,8 @@ were implemented in this batch.
 - sim-core TypeScript build: PASS
 - sim-core test suite: 35 PASS
 - focused rollout-parity Python tests: 17 PASS
-- state-provenance no-leakage contract tests: 28 PASS
-- deterministic harness: 39 PASS / 0 FAIL / 8 GAP
+- state-provenance no-leakage contract tests: 43 PASS
+- deterministic harness: 41 PASS / 0 FAIL / 8 GAP
 
 ## Gate decision
 

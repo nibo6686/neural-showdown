@@ -646,3 +646,45 @@ sim-core tests, 28 no-leakage contract tests, 17 harness tests, JSON valid,
 stays 552D), no materialization, training, checkpoint promotion/file, live
 default, or live bot behavior change; no NatDex/old-gen mechanics. Both gates
 remain **closed**.
+
+Rollout-parity batch 7 (`rollout_parity_batch_7_ability_reflection_routing_report.md`)
+implements design groups 2 (reflection routing) and 3 (ability/status prevention
+routing) and expands the harness to **49 fixtures: 41 PASS / 0 FAIL / 8 explicit
+GAP**. `provenance_contracts.py` gained `effective_ability_from_state`
+(tri-state knownness + suppressed/ignored; hides unrevealed ability identity) and
+`resolve_status_move_ability_block`; `prevention.py` adds a known-active Good as
+Gold status block and Magic Bounce reflection routing through
+`validate_reflection_provenance` (complete → `reflected=True` + destination side;
+incomplete/unknown/suppressed/ignored → fail closed), and `_compare_immediate`
+now checks `reflected`/`blocked`. Two new PASS fixtures
+(`good_as_gold_known_blocks_status`, `magic_bounce_reflects_stealth_rock`) were
+added; the unknown/incomplete `good_as_gold_status_gap` and
+`magic_bounce_reflection_gap` **stay GAP**, so GAP count is unchanged and no GAP
+was closed by weakening correctness. Unrevealed abilities and reflection payloads
+stay transition/fixture-only and are never flattened into action/state features.
+Tests: sim-core build + 35 sim-core tests, 43 no-leakage contract tests, 17
+harness tests, JSON valid, `git diff --check` clean. No `legal-action-v7`/state/
+action schema change (v7 stays 552D), no materialization, training, checkpoint
+promotion/file, live default, or live bot behavior change; no NatDex/old-gen
+mechanics. Both gates remain **closed**.
+
+The public-information belief & effective-context design
+(`public_information_belief_effective_context_design.md`) adds a contract+test
+guardrail layer so the model receives the same *category* of information a
+skilled Showdown player has (known species, possible abilities/items, speed
+ranges, revealed/inferred public info) but never hidden truth before it is
+revealed. It grounds in the existing extraction (which already separates
+revealed `known_abilities`/`item_known`/`revealed_moves_by_species` from
+`opponent_belief` possibility candidates) and formalizes the
+known/possible/inferred/hidden split plus effective mechanics. New pure,
+torch-free helpers in `provenance_contracts.py`: `PublicAbilityBelief`,
+`PublicItemBelief`, `PublicSpeedBelief`, `EffectiveAbilityContext`,
+`EffectiveItemContext` + `item_blocks`, `EffectiveWeatherContext` — all applying
+suppression/bypass/blocking (Mold Breaker, Neutralizing Gas, Gastro Acid,
+Ability Shield, Cloud Nine/Air Lock, Heavy-Duty Boots, Safety Goggles, Covert
+Cloak, Magic Room) only when known active and failing closed on unknown. Backed
+by `test_public_information_belief_contracts.py` (25 tests); existing 43
+no-leakage contract tests still pass. This is a design/guardrail pass only: no
+live-extraction rewrite, no `legal-action-v7`/state/action schema change, no
+materialization, training, checkpoint promotion/file, live default, or live bot
+behavior change; no NatDex/old-gen mechanics. Both gates remain **closed**.

@@ -300,3 +300,40 @@ Showdown-derived exact `landing_damage`. Two PASS fixtures were added
 weakening correctness. Oracle-derived `landing_damage` stays fixture/queue-only
 and is never flattened into action/state features. No schema migration, no
 `legal-action-v7` change. Batches C–E remain approval-gated.
+
+## Addendum — Batch C implemented (ability/prevention/reflection routing)
+
+GAP groups 2 (reflection routing) and 3 (ability/status prevention routing) are
+now implemented; see `rollout_parity_batch_7_ability_reflection_routing_report.md`.
+`provenance_contracts.py` gained `effective_ability_from_state` (tri-state
+knownness + suppressed/ignored, hides unrevealed ability identity) and
+`resolve_status_move_ability_block` (known-active Good as Gold blocks status
+moves; suppressed/ignored does not; unknown falls through, never a guess).
+`prevention.py` routes Magic Bounce reflectable moves through
+`validate_reflection_provenance` (complete routing → `reflected=True` +
+destination side; incomplete → fail closed) and applies the Good as Gold block;
+`_compare_immediate` now checks `reflected`/`blocked`. Two PASS fixtures were
+added (`good_as_gold_known_blocks_status`, `magic_bounce_reflects_stealth_rock`)
+and the unknown/incomplete `good_as_gold_status_gap` / `magic_bounce_reflection_gap`
+**stay GAP**; harness is now **49 cases, 41 PASS / 0 FAIL / 8 GAP**. Unrevealed
+abilities and reflection payloads stay transition/fixture-only and are never
+flattened into action/state features. No schema migration, no `legal-action-v7`
+change. Batches D–E remain approval-gated.
+
+## Addendum — public-information belief & effective-context guardrails
+
+A public-information belief layer and effective-context layer are now designed
+(`public_information_belief_effective_context_design.md`) with pure, torch-free
+guardrail contracts added to `provenance_contracts.py`: `PublicAbilityBelief`,
+`PublicItemBelief`, `PublicSpeedBelief` (known/possible/inferred/hidden tiers,
+exact speed only when public), and `EffectiveAbilityContext`,
+`EffectiveItemContext` + `item_blocks`, `EffectiveWeatherContext` (ability
+suppression/bypass with Ability Shield, item effects incl. Heavy-Duty Boots /
+Safety Goggles / Covert Cloak / Magic Room, Cloud Nine / Air Lock weather
+suppression). All apply suppression/bypass/blocking only when the relevant
+effect is *known active* and fail closed on unknown — extending the same
+no-leakage invariant used by the Good as Gold / Magic Bounce routing in batch C.
+Backed by `test_public_information_belief_contracts.py` (25 tests). This is a
+contract+test guardrail only: no live-extraction rewrite, no `legal-action-v7`/
+state/action schema change, no materialization/training/promotion/live-default
+change. Both gates remain **closed**.
