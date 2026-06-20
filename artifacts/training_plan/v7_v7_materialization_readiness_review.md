@@ -119,6 +119,25 @@ the same fresh test/preflight gate. Full Illusion-aware live extraction remains
 a separately approved integration task; the pure contract already prevents
 species-derived collapse when identity uncertainty is marked.
 
+The possible mechanic-threat awareness audit
+(`possible_mechanic_threat_awareness_audit.md`) further qualifies this verdict:
+v7 is **partially possible-threat-aware**, not complete. Setup/stat deltas,
+current boosts, species identity, and action classes make Unaware-like
+interactions indirectly learnable; type-absorb abilities already have an
+explicit known-or-possible action-risk field. Possible Unaware, Magic Bounce,
+Good as Gold, Levitate, Covert Cloak, Shield Dust, and Inner Focus are not
+consistently surfaced as action-conditioned possibility flags. Some batch-8
+fields named `*_possible` currently require a concrete known target
+ability/item.
+
+This does not block the small diagnostic baseline because no wrong-exact claim
+is made and exact rollout remains fail-closed. The dataset/report must not be
+described as comprehensively threat-aware. A future append-only
+`legal-action-v8` possible-threat slice is recommended before durable
+threat-aware training; if the next dataset is intended as that durable training
+schema rather than a diagnostic baseline, delay it until v8 is designed and
+frozen.
+
 ## Action-feature prefix/fingerprint guardrails (sufficient)
 
 - 552D and the full fingerprint are asserted in the v7 tests.

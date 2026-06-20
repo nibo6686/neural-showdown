@@ -83,6 +83,7 @@
 - [x] v7/v7 materialization readiness review written (`v7_v7_materialization_readiness_review.md`).
 - [x] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior, 552D metadata, and exact fingerprint validation).
 - [x] Skilled-player public-belief calibration contracts added: species-singleton ability inference, ambiguous-set preservation, exact own-side knowledge, Illusion guard, conservative item evidence, and speed range/exact separation.
+- [x] Possible mechanic-threat awareness audited (`possible_mechanic_threat_awareness_audit.md`): v7 is partial; absorb threats are explicit, while Unaware/Magic Bounce/Good as Gold/Levitate/secondary-blocker possibility flags remain future-v8 work.
 - [ ] Small diagnostic v7/v7 materialization explicitly approved after read-only preflight and required tests.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
@@ -784,6 +785,21 @@ live-default change remain separately **blocked**. No schema, dataset,
 materialization, training, checkpoint, or live-default change occurred. A
 fresh green preflight/test gate and explicit approval remain required. Both
 gates remain **closed**.
+
+The possible mechanic-threat awareness audit finds v7 sufficient for an
+explicitly approved small diagnostic baseline, but not a complete threat-aware
+training schema. Existing state/action features expose setup/stat deltas,
+current boosts, species/Illusion identity, exact own facts, known effective
+mechanics, and an explicit known-or-possible absorb-ability risk bit. Possible
+Unaware, Magic Bounce, Good as Gold, Levitate, Covert Cloak, Shield Dust, and
+Inner Focus are missing or only indirectly species-learnable; batch-8
+`*_possible` secondary-blocker fields currently require known target state. A
+future append-only `legal-action-v8` action-conditioned threat slice is
+recommended before durable threat-aware training. The v7/v7 diagnostic
+materialization verdict remains approval-gated and unchanged, with the explicit
+limitation that v7 is only partially possible-threat-aware. No schema, dataset,
+materialization, training, checkpoint, live default, or live behavior changed.
+Both gates remain **closed**.
 
 Pre-materialization skilled-player information calibration is complete at the
 pure contract/test layer. A reliable singleton species/format ability set now
