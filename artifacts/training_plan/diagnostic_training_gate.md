@@ -605,3 +605,22 @@ reduction. This was a design/audit pass only: no `legal-action-v7` schema/dim/
 fingerprint change (stays 552D), no state schema implemented, no materialization,
 training, checkpoint promotion, live default, or live-path change. Both gates
 remain **closed**.
+
+Batch A (no-leakage tests + minimal provenance helper contracts) is now
+implemented as an isolated guardrail layer ahead of the full state schema:
+`trainer/src/neural/provenance_contracts.py` (small, torch-free, no simulator
+rewrite) plus `trainer/tests/test_state_provenance_no_leakage_contracts.py`
+(23 tests). It enforces five contracts: (1) delayed-landing resolvability fails
+closed and never reuses the original target's damage for a replacement occupant
+— verified against the production `resolve_delayed_attacks`; (2) natural
+sleep/confusion expose only a public range with `hidden_duration_unknown` while
+Rest is fixed-duration, and a structural guard rejects any leaked sampled wake
+turn; (3) ability knownness is tri-state (known/inferred/unknown) with
+suppressed/ignored handling, so an unrevealed ability is never assumed to be (or
+not be) Good as Gold; (4) Magic Bounce reflection fails closed without complete
+source/reflector/destination/target/effect provenance and a known reflector
+ability; (5) exact sequential multi-hit refuses a missing per-hit trace and
+rejects a distribution summary as an exact trace. No GAP was closed (still
+8 GAP), no `legal-action-v7`/state/action schema changed, no materialization,
+training, checkpoint promotion, live default, or live-path change occurred.
+Both gates remain **closed**.

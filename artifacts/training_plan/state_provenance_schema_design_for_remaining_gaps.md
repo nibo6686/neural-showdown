@@ -255,5 +255,31 @@ depends on seeded PRNG provenance that only the oracle can supply.
 - NatDex/old-gen remains documented (format-scoped) but unimplemented.
 
 Both the rollout-parity gate and the overall diagnostic training gate remain
-**closed**. Implementation of batches A–E is approval-gated and out of scope for
+**closed**. Implementation of batches B–E is approval-gated and out of scope for
 this design pass.
+
+## Addendum — Batch A implemented (guardrails only)
+
+Batch A is now implemented as an isolated guardrail layer, ahead of any state
+schema. It adds `trainer/src/neural/provenance_contracts.py` (small, torch-free
+pure functions / frozen dataclasses; no simulator rewrite, no schema migration)
+and `trainer/tests/test_state_provenance_no_leakage_contracts.py` (23 tests). The
+helpers realize the contracts above as fail-closed validators:
+
+- `delayed_landing_resolvable` — target-specific or complete-resolver-bundle, else
+  unavailable; never reuses original-target damage (also verified against the
+  production `resolve_delayed_attacks`).
+- `natural_sleep_provenance` / `rest_sleep_provenance` / `confusion_provenance` plus
+  `assert_no_hidden_sampled_values` — public range + `hidden_duration_unknown` for
+  natural sleep/confusion, fixed duration for Rest, and a structural guard that
+  rejects any leaked sampled wake turn (`FORBIDDEN_HIDDEN_KEYS`).
+- `EffectiveAbility` / `AbilityKnownness` / `status_move_blocked_by_ability` —
+  tri-state knownness with suppressed/ignored handling; unknown ability fails
+  closed (`blocked=None`).
+- `validate_reflection_provenance` — requires full routing provenance + known
+  reflector ability, else fail closed.
+- `validate_multihit_trace` — requires a per-hit accuracy/damage trace and rejects
+  a distribution summary as an exact trace.
+
+Batch A closes **no** rollout GAP (still 8 GAP) and changes no schema; it only
+prevents the leakage/stale-damage shortcuts that batches B–E must respect.
