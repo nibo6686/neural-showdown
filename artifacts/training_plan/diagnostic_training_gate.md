@@ -978,3 +978,33 @@ after a future approved rematerialization is therefore **1**. Rematerialization
 is still required before smoke training. No training, rematerialization,
 checkpoint promotion, live-default/live-bot change, schema/v8/old-gen change, or
 push occurred. Production and live gates remain **closed**.
+
+The explicitly approved **post-Illusion v7/v7 rematerialization** then ran from
+source commit `4cde8bd15ff71021d57e582d8eb808da1f11bbad` into
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_post_illusion`
+(`diagnostic_300_v7_v7_post_illusion_materialization_report.md`): 300/300 valid
+battles, 0 failed, 291s, 25,235 states, 197,429 candidates, exact 210/45/45
+splits, 300 retained shards, `live-private-belief-v7` 3208D +
+`legal-action-v7` 552D / `956da3d2…1bf39d7`, all 18 validation checks passed, live
+defaults unchanged, 0 action-value labels, displayed-species uncertainty 0/25,235.
+Match rate rose from the corrected 97.94% (519 unmatched) to **99.94% (15
+unmatched)** — all `move`-kind explicit skips, no wrong labels. The quality audit
+(`diagnostic_300_v7_v7_post_illusion_dataset_quality_audit.md`) confirms every
+documented fix landed in the artifact (Ditto `Thunder Wave`; actor-private
+`Sludge Bomb` and `Will-O-Wisp` t6/t18; duplicate Houndstone→`Zoroark` switches
+t21/t23/t25 all matched) and categorizes the 15 residuals: **3 irreducible
+non-self-confirming Illusion stints** (the documented quarantined Avalugg row, its
+same-stint Poltergeist companion, and one new instance — Gumshoos/Zoroark-Hisui in
+`gen9randombattle-2593283718` t3), **11 from a newly-surfaced fixable Ditto/Imposter
+re-transform-into-same-species bug** (Sacred Fire, Energy Ball, Outrage; the stint
+anchor in `_active_transform_copied_moves` collides on identical re-transform
+`raw`), and **1 Struggle PP-exhaustion** explicit skip. The expected "1" applied
+only to the 8 documented rows; the full materialization surfaces the additional
+Ditto/Illusion patterns. Old datasets were not overwritten (byte-identical
+`.npz`). A tiny smoke/plumbing run is acceptable on this artifact if approved
+(0.06% excluded rows inject no error); durable training should wait for the
+category-B Ditto re-transform fix + another rematerialization. `legal-action-v7`
+stays 552D / `956da3d2…1bf39d7`; no state dim changed. No training, checkpoint
+promotion, live-default/live-bot change, schema/v8/old-gen change, or push
+occurred. This supersedes `diagnostic_300_v7_v7_corrected` for quality purposes.
+Production and live gates remain **closed**.

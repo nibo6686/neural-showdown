@@ -394,3 +394,26 @@ matched, 1 unmatched, all-as-expected. Full v7/v7 rematerialization is ready for
 explicit approval; smoke training remains blocked pending the fresh artifact and
 re-audit. No training, rematerialization, checkpoint promotion,
 live-default/live-bot change, schema/v8 change, or push occurred.
+
+## Post-Illusion rematerialization completed
+
+The approved post-Illusion v7/v7 rematerialization ran (source
+`4cde8bd15ff71021d57e582d8eb808da1f11bbad`) into
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_post_illusion`. Result:
+300/300 valid, 0 failed, 25,235 states, 197,429 candidates, 210/45/45 splits, 300
+shards, `live-private-belief-v7` 3208D + `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, all validation passed, live defaults unchanged. Match rate
+**99.94% (25,220 / 15)**, up from the corrected 97.94% (519 unmatched). See
+`diagnostic_300_v7_v7_post_illusion_materialization_report.md` and
+`diagnostic_300_v7_v7_post_illusion_dataset_quality_audit.md`.
+
+All documented reconstruction fixes are confirmed present in the artifact. The 15
+remaining residuals are all `move`-kind explicit skips: 3 irreducible
+non-self-confirming Illusion stints, 11 from a newly-surfaced **fixable Ditto
+re-transform-into-same-species bug** in `_active_transform_copied_moves` (stint
+anchor collides on identical re-transform `raw`), and 1 Struggle PP-exhaustion
+skip. The earlier "expected 1" applied only to the 8 documented rows. A tiny
+smoke/plumbing run is acceptable on this artifact if approved; durable training
+should wait for the Ditto re-transform fix and another rematerialization. Old
+datasets were not overwritten. No training, checkpoint promotion,
+live-default/live-bot change, schema/v8 change, or push occurred.

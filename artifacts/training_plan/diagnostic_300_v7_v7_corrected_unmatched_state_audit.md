@@ -1,5 +1,11 @@
 # diagnostic_300 v7/v7 Corrected Unmatched-State Audit
 
+> **Superseded (materialization quality):** the fresh
+> `diagnostic_300_v7_v7_post_illusion` rematerialization reduces these 519
+> residuals to 15 (99.94% match). See
+> `diagnostic_300_v7_v7_post_illusion_dataset_quality_audit.md`. This document is
+> retained as the pre-fix residual analysis.
+
 ## Scope
 
 This is a read-only audit of the 519 residual action-rank unmatched rows in:
