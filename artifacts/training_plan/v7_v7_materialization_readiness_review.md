@@ -287,3 +287,20 @@ artifact must be measured rather than assumed clean.
 Materialization readiness is **blocked on manifest replacement and fresh
 approval**. Training remains blocked on the replacement artifact's quality
 audit. No schema or fingerprint changed.
+
+## Corrected manifest preflight update
+
+Manifest replacement is prepared in
+`artifacts/training_plan/manifests/diagnostic_300_v7_v7_corrected_manifest.json`.
+It excludes `gen9randombattle-2591563263` and replaces it with the eligible
+train-split `long_close` replay `gen9randombattle-2591433931`, whose public
+team sizes are p1=6 and p2=6. The original manifest remains unchanged, the
+validation/test splits remain unchanged, and split counts remain 210/45/45.
+
+Read-only manifest validation and full preflight pass with `legal-action-v7`:
+all entries are unique and present, all paths exist, selected mechanic coverage
+remains above the random baseline, and there are zero unsupported team-size
+replays. The old `diagnostic_300_v7_v7` artifact remains stale for training
+because it predates the reconstruction fixes. Full v7/v7 rematerialization is
+now ready for explicit approval; smoke training remains blocked pending the
+fresh artifact and quality audit.

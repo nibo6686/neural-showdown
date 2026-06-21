@@ -867,3 +867,15 @@ artifact, replace the unsupported train replay, and rematerialize only after
 explicit approval. Subtracting the custom replay leaves 519 old-artifact
 matcher limitations to remeasure. No training, rematerialization, checkpoint,
 live, schema, or v8 change occurred. Both gates remain **closed**.
+
+The corrected manifest preflight replaced that train replay with
+`gen9randombattle-2591433931` in
+`artifacts/training_plan/manifests/diagnostic_300_v7_v7_corrected_manifest.json`.
+The original manifest was not overwritten, validation/test splits were left
+unchanged, split counts remain 210/45/45, and read-only full preflight passes
+with zero unsupported team-size replays. The old `diagnostic_300_v7_v7`
+dataset remains stale and prohibited for training because it was materialized
+before the team-size and displayed-species knownness fixes. A clean v7/v7
+rematerialization is now ready for explicit approval, followed by a new quality
+audit before smoke training. No full materialization, training, checkpoint,
+live, schema, or v8 change occurred. Both gates remain **closed**.

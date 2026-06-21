@@ -214,3 +214,14 @@ unsupported replay. Replace that train entry and rematerialize only after
 explicit approval, then issue a new quality audit. The custom replay accounts
 for 253 of the old 772 unmatched states; 519 old-artifact matcher limitations
 remain to be remeasured.
+
+## Corrected manifest preflight note
+
+The unsupported train replay was replaced in the separate corrected manifest
+`artifacts/training_plan/manifests/diagnostic_300_v7_v7_corrected_manifest.json`.
+The replacement is `gen9randombattle-2591433931`, validation/test splits remain
+unchanged, and read-only full preflight now passes with zero unsupported
+team-size replays. This does not update the old dataset: its displayed-species
+knownness statistics and unmatched-action counts remain stale pre-fix results.
+Use the corrected manifest only after explicit approval for a clean v7/v7
+rematerialization and then repeat this audit.
