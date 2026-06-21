@@ -260,6 +260,36 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertIn("switch: Glalie", [action["label"] for action in decision["actions"]])
         self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
 
+    def test_revival_blessing_heal_restores_switch_legality(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2592073212",
+            "|switch|p2a: Venomoth|Venomoth, L84, M|127/255",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "switch: Venomoth")
+        self.assertIn("switch: Venomoth", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_public_illusion_replace_updates_active_identity(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2591469202",
+            "|move|p2a: Zoroark|Sludge Bomb|p1a: Chansey",
+            side="p2",
+        )
+        self.assertEqual(decision["private_state"]["active_species"], "Zoroark")
+        self.assertIn("Sludge Bomb", [move["name"] for move in decision["private_state"]["active_moves"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_public_illusion_replace_restores_true_bench_switch(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2591469202",
+            "|switch|p2a: Staraptor|Staraptor, L79, F|263/263",
+            side="p2",
+        )
+        self.assertEqual(decision["private_state"]["active_species"], "Zoroark")
+        self.assertIn("switch: Staraptor", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
     def test_move_tera_candidate_reconstructed_without_chosen_injection(self):
         decision = self._replay_decision(
             "gen9randombattle-2589811158",

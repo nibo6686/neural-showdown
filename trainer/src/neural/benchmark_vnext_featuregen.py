@@ -394,6 +394,7 @@ def _completed_teams_for_action_reconstruction(
     original = _reconstructed_completed_private_teams(trajectory)
     teams: Dict[str, Dict[str, Dict[str, Any]]] = {"p1": {}, "p2": {}}
     active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
+    active_stint_moves: Dict[str, set] = {"p1": set(), "p2": set()}
     canonical_species: Dict[str, Dict[str, str]] = {"p1": {}, "p2": {}}
 
     def ensure(side: str, species: str) -> Dict[str, Any]:
@@ -416,9 +417,25 @@ def _completed_teams_for_action_reconstruction(
                 species = details.split(",", 1)[0].strip()
                 if species:
                     active[side] = species
+                    active_stint_moves[side] = set()
                     ensure(side, species)
+            elif event.get("type") == "replace":
+                details = str(event.get("details") or "")
+                species = details.split(",", 1)[0].strip()
+                if species:
+                    previous = active.get(side)
+                    revealed = ensure(side, species)
+                    if previous and _replay_roster_alias_id(previous) != _replay_roster_alias_id(species):
+                        previous_slot = ensure(side, str(previous))
+                        for move in active_stint_moves[side]:
+                            previous_slot["moves"].discard(move)
+                            revealed["moves"].add(move)
+                    active[side] = species
+                    active_stint_moves[side] = set()
             elif event.get("type") == "move" and event.get("move") and active.get(side):
-                ensure(side, str(active[side]))["moves"].add(str(event["move"]))
+                move = str(event["move"])
+                ensure(side, str(active[side]))["moves"].add(move)
+                active_stint_moves[side].add(move)
             elif event.get("type") == "tera" and event.get("tera_type") and active.get(side):
                 ensure(side, str(active[side]))["tera_type"] = str(event["tera_type"])
 
@@ -431,17 +448,11 @@ def _completed_teams_for_action_reconstruction(
                 alias_id,
                 {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None},
             )
-            source_moves = source.get("moves", set())
-            if isinstance(source_moves, set):
-                merged["moves"].update(str(move) for move in source_moves if move)
             for key in ("item", "ability", "tera_type"):
                 if merged.get(key) is None and source.get(key) is not None:
                     merged[key] = source[key]
         for species, data in teams[side].items():
             source = original_by_id.get(to_id(species), {}) or original_by_alias.get(_replay_roster_alias_id(species), {})
-            source_moves = source.get("moves", set())
-            if isinstance(source_moves, set):
-                data["moves"].update(str(move) for move in source_moves if move)
             for key in ("item", "ability", "tera_type"):
                 if data.get(key) is None and source.get(key) is not None:
                     data[key] = source[key]

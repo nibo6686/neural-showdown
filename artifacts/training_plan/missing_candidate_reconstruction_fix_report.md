@@ -99,6 +99,14 @@ apparent five-move conflicts where adding the replay command as a candidate
 would be more likely to create an illegal candidate or hidden-information leak
 than to reconstruct a trustworthy legal request.
 
+Follow-up triage in `residual_34_unmatched_case_triage_report.md` found 26 of
+those 34 were still safely fixable: 7 stale-fainted Revival Blessing switch
+targets and 19 public Illusion `replace` / active-stint reconstruction rows.
+The post-triage lightweight replay-prefix audit now naturally matches 511 of
+the old 519 skipped rows and leaves 8 residual rows: 5 legitimate no-leakage
+move cases and 3 unsupported Illusion duplicate switch artifacts. The checked-in
+dataset remains stale until a future explicitly approved rematerialization.
+
 ## Regression Tests Added
 
 `trainer/tests/test_benchmark_vnext_featuregen.py` now covers:

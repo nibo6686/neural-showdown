@@ -59,7 +59,7 @@ def _species_from_text(value: Any) -> Optional[str]:
 
 
 def _species_from_event(event: Dict[str, Any]) -> Optional[str]:
-    if event.get("type") == "switch":
+    if event.get("type") in ("switch", "replace"):
         return _species_from_text(event.get("details") or event.get("actor"))
     return _species_from_text(event.get("actor") or event.get("target"))
 
@@ -207,7 +207,7 @@ def _side_public_state_at_turn(trajectory: Dict[str, Any], side: str, through_tu
             if not species:
                 continue
             slot = state.setdefault(species, {"hp_fraction": 1.0, "fainted": False, "active": False})
-            if event.get("type") == "switch":
+            if event.get("type") in ("switch", "replace"):
                 for existing in state.values():
                     existing["active"] = False
                 active_species = species
@@ -216,7 +216,10 @@ def _side_public_state_at_turn(trajectory: Dict[str, Any], side: str, through_tu
                     slot["hp_fraction"] = max(0.0, min(1.0, _safe_float(event.get("hp_fraction"), 1.0)))
                 slot["fainted"] = False
             elif event.get("type") in ("damage", "heal") and event.get("hp_fraction") is not None:
-                slot["hp_fraction"] = max(0.0, min(1.0, _safe_float(event.get("hp_fraction"), 1.0)))
+                hp_fraction = max(0.0, min(1.0, _safe_float(event.get("hp_fraction"), 1.0)))
+                slot["hp_fraction"] = hp_fraction
+                if event.get("type") == "heal" and hp_fraction > 0.0:
+                    slot["fainted"] = False
             elif event.get("type") == "faint":
                 slot["hp_fraction"] = 0.0
                 slot["fainted"] = True

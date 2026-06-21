@@ -30,7 +30,9 @@ Post-corrected addendum: the approved corrected v7/v7 dataset later exposed
 519 residual missing-candidate skips. The targeted source fix documented in
 `missing_candidate_reconstruction_fix_report.md` resolves the clean
 reconstruction paths in code and tests without changing `legal-action-v7`;
-the old materialized artifact remains stale until a future explicitly approved
+the follow-up `residual_34_unmatched_case_triage_report.md` reduces the
+source-level replay-prefix residual to 8 no-leakage/unsupported rows. The old
+materialized artifact remains stale until a future explicitly approved
 rematerialization.
 
 ## Current schema / dim / fingerprint

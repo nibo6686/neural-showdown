@@ -919,3 +919,13 @@ naturally matches 485 and leaves 34 ambiguous/no-leakage residuals. The
 materialized `diagnostic_300_v7_v7_corrected` dataset was not rematerialized,
 so it remains stale with respect to this source fix; smoke training remains
 blocked until a future explicitly approved rematerialization and audit.
+
+The residual-34 triage
+(`residual_34_unmatched_case_triage_report.md`) then audited those 34 rows
+directly and fixed all safe Category A cases: stale-fainted Revival Blessing
+switch targets and public Illusion `replace` / active-stint identity handling.
+The source-level lightweight audit now matches 511 of the old 519 residual rows
+and leaves 8 rows: 5 no-leakage move cases and 3 unsupported Illusion duplicate
+switch artifacts. Source is ready for an explicitly approved rematerialization,
+but smoke training remains blocked until the fresh artifact is materialized and
+passes audit. Production and live gates remain **closed**.

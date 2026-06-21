@@ -211,6 +211,23 @@ def parse_protocol_log(
             }
             add_event(event)
             continue
+        if command == "replace" and len(parts) >= 4:
+            actor = parts[2]
+            condition = parts[4] if len(parts) > 4 else None
+            event = {
+                "turn": current_turn,
+                "type": "replace",
+                "command": command,
+                "side": side_from_ident(actor),
+                "actor": actor,
+                "details": parts[3],
+                "condition": condition,
+                "hp_fraction": parse_hp_fraction(condition),
+                "status": _status_from_condition(condition),
+                "raw": raw_line,
+            }
+            add_event(event)
+            continue
         if command == "faint" and len(parts) >= 3:
             target = parts[2]
             event = {

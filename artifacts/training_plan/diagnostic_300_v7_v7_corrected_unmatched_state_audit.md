@@ -13,7 +13,10 @@ Post-checkpoint source fix note:
 `missing_candidate_reconstruction_fix_report.md` records the targeted
 reconstruction fix made after checkpoint
 `96e56696798dab0b5c884e3d05bcb075cf262eb7`. A lightweight replay-prefix audit
-over these same 519 rows now naturally matches 485 and leaves 34 unmatched.
+over these same 519 rows initially matched 485 and left 34 unmatched. Follow-up
+triage in `residual_34_unmatched_case_triage_report.md` fixed 26 more
+source-level reconstruction bugs; the same lightweight recomputation now
+naturally matches 511 and leaves 8 unmatched.
 The materialized `diagnostic_300_v7_v7_corrected` dataset itself was not
 rematerialized, so this document remains the authoritative pre-fix artifact
 audit.
