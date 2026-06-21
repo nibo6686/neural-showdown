@@ -57,6 +57,7 @@ class EvidenceLedgerEntry:
     mass_before: float
     mass_after: float
     contradiction: bool
+    source_covered: bool = True
 
 
 @dataclass(frozen=True)
@@ -131,12 +132,36 @@ class OpponentSetBelief:
             return replace(self, last_public_event_index=evidence.event_index)
 
         before = self.hypotheses
+        confirmed = _confirmed_with(self.confirmed, evidence)
+
+        if not _dimension_covered(before, evidence.kind):
+            # The pinned source does not model this attribute for any hypothesis
+            # (e.g. items in the Randbats role data, or any reveal on a
+            # missing-species belief).  Record the public fact without filtering
+            # or contradicting the unrelated role/ability/move/Tera posterior;
+            # the explicit unknown tail is preserved unchanged.
+            before_mass = sum(hypothesis.probability for hypothesis in before)
+            entry = EvidenceLedgerEntry(
+                evidence=evidence,
+                support_before=len(before),
+                support_after=len(before),
+                mass_before=before_mass,
+                mass_after=before_mass,
+                contradiction=False,
+                source_covered=False,
+            )
+            return replace(
+                self,
+                confirmed=confirmed,
+                evidence_ledger=(*self.evidence_ledger, entry),
+                last_public_event_index=evidence.event_index,
+            )
+
         compatible = tuple(
             hypothesis
             for hypothesis in before
             if _hypothesis_matches(hypothesis, evidence)
         )
-        confirmed = _confirmed_with(self.confirmed, evidence)
         newly_ruled = {hypothesis.hypothesis_id for hypothesis in before} - {
             hypothesis.hypothesis_id for hypothesis in compatible
         }
@@ -172,6 +197,7 @@ class OpponentSetBelief:
             mass_before=sum(hypothesis.probability for hypothesis in before),
             mass_after=sum(hypothesis.probability for hypothesis in hypotheses),
             contradiction=contradiction,
+            source_covered=True,
         )
         return OpponentSetBelief(
             format_id=self.format_id,
@@ -212,6 +238,28 @@ def initialize_belief(
         other_mass=prior.other_mass,
         source_available=True,
     )
+
+
+def _dimension_covered(
+    hypotheses: Sequence[SetHypothesis], kind: EvidenceKind
+) -> bool:
+    """Whether the prior models the evidence's attribute for any hypothesis.
+
+    A dimension is source-covered when at least one concrete hypothesis carries
+    a value for it.  When no hypothesis does (items in the Randbats role data, or
+    any reveal on a missing-species belief), the source simply does not know the
+    attribute, so a reveal must be recorded as a public fact rather than treated
+    as a contradiction of the role/ability/move/Tera hypotheses.
+    """
+    if kind == EvidenceKind.MOVE_REVEALED:
+        return any(hypothesis.moves for hypothesis in hypotheses)
+    if kind == EvidenceKind.ABILITY_REVEALED:
+        return any(hypothesis.ability for hypothesis in hypotheses)
+    if kind == EvidenceKind.ITEM_REVEALED:
+        return any(hypothesis.item for hypothesis in hypotheses)
+    if kind == EvidenceKind.TERA_TYPE_REVEALED:
+        return any(hypothesis.tera_type for hypothesis in hypotheses)
+    raise ValueError(f"Unsupported public evidence kind: {kind!r}")
 
 
 def _hypothesis_matches(

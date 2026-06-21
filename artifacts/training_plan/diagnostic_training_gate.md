@@ -116,9 +116,14 @@
   joint facts (exact sets, items, frequencies) are source-absent and need the
   generator snapshot; the one fidelity gap (item reveal forcing false
   contradiction) is a deferred posterior-conditioning fix, not an adapter change.
-- [ ] Posterior conditioning fix so source-absent reveals (items first) are
-  absorbed by the unknown tail instead of forcing `prior_contradiction`, then
-  re-run the public-prefix audit (before any v8 feature wiring).
+- [x] Posterior conditioning fix so source-absent reveals (items first) are
+  absorbed by the unknown tail instead of forcing `prior_contradiction`:
+  `OpponentSetBelief.update` now derives per-dimension source coverage,
+  records source-absent reveals as confirmed public facts with
+  `source_covered = False` and no contradiction, and preserves explicit
+  source-covered contradiction behavior; `EvidenceLedgerEntry.source_covered`
+  added, no schema/item-prior/live change. Re-running the public-prefix audit
+  with this fix remains open.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

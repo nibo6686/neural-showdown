@@ -16,6 +16,8 @@ from neural.opponent_set_belief import (
     initialize_belief,
     public_evidence_from_protocol_lines,
 )
+from neural.opponent_set_belief_replay_adapter import build_replay_prefix_beliefs
+from neural.parse_replay_logs import parse_protocol_log
 from neural.randbats_meta_prior_source import RandbatsMetaPriorSource
 
 FORMAT = "gen9randombattle"
@@ -95,22 +97,145 @@ class RandbatsJointSetPosteriorFidelityTest(unittest.TestCase):
         self.assertIn((EvidenceKind.ABILITY_REVEALED, "magicbounce"), kinds)
         self.assertNotIn((EvidenceKind.MOVE_REVEALED, "stealthrock"), kinds)
 
-    def test_item_reveal_currently_contradicts_role_only_source(self):
-        # Documented fidelity gap: items are absent from sets.json, so an item
-        # reveal matches no hypothesis and the current posterior collapses the
-        # entire role/move/ability/Tera support to a contradiction tail instead
-        # of absorbing the item into the explicit unknown mass.
+    def test_item_reveal_on_source_without_items_preserves_posterior(self):
+        # Items are absent from sets.json (source-absent dimension).  An item
+        # reveal must be recorded as a confirmed public fact while leaving the
+        # role/ability/move/Tera posterior and the unknown tail untouched -- no
+        # false contradiction.
+        belief = initialize_belief(
+            self.source, format_id=FORMAT, species_form_key="Gholdengo"
+        )
+        before_roles = _roles(belief)
+        before_tera = belief.possible_tera_types
+        before_abilities = belief.possible_abilities
+        before_tail = belief.other_mass
+
+        updated = belief.update(
+            PublicEvidence(EvidenceKind.ITEM_REVEALED, "Leftovers", 1)
+        )
+        self.assertFalse(updated.prior_contradiction)
+        self.assertEqual(updated.confirmed.item, "leftovers")
+        self.assertEqual(len(updated.hypotheses), len(belief.hypotheses))
+        self.assertEqual(_roles(updated), before_roles)
+        self.assertEqual(updated.possible_tera_types, before_tera)
+        self.assertEqual(updated.possible_abilities, before_abilities)
+        self.assertEqual(updated.other_mass, before_tail)
+        # The ledger marks the dimension as not source-covered.
+        self.assertFalse(updated.evidence_ledger[-1].source_covered)
+        self.assertEqual(updated.ruled_out.items, frozenset())
+
+    def test_item_reveal_then_move_reveal_still_collapses_role(self):
+        # An earlier source-absent item reveal must not block a later
+        # source-covered move reveal from collapsing the role.
+        belief = initialize_belief(
+            self.source, format_id=FORMAT, species_form_key="Clodsire"
+        )
+        with_item = belief.update(
+            PublicEvidence(EvidenceKind.ITEM_REVEALED, "Leftovers", 1)
+        )
+        collapsed = with_item.update(
+            PublicEvidence(EvidenceKind.MOVE_REVEALED, "Curse", 2)
+        )
+        self.assertEqual(_roles(collapsed), {"bulkyattacker"})
+        self.assertEqual(collapsed.confirmed.item, "leftovers")
+        self.assertIn("curse", collapsed.confirmed.moves)
+
+    def test_poltergeist_item_confirms_without_nuking_posterior(self):
+        # Poltergeist reveals the holder's item via -activate move: Poltergeist.
+        trace = parse_protocol_log(
+            [
+                "|switch|p2a: Gholdengo|Gholdengo, L77|100/100",
+                "|turn|1",
+                "|-activate|p2a: Gholdengo|move: Poltergeist|Leftovers",
+            ],
+            replay_id="poltergeist-item-no-nuke",
+            format_name=FORMAT,
+        )
+        snapshot = build_replay_prefix_beliefs(
+            trace, self.source, perspective_side="p1"
+        )
+        slot = snapshot.slots_for_species("Gholdengo")[0]
+        self.assertEqual(slot.belief.confirmed.item, "leftovers")
+        self.assertFalse(slot.belief.prior_contradiction)
+        self.assertEqual(len(slot.belief.hypotheses), 6)
+        self.assertEqual(slot.belief.possible_abilities, {"goodasgold"})
+
+    def test_item_activation_confirms_without_nuking_posterior(self):
+        # A plain item activation row is also source-absent for Randbats.
+        trace = parse_protocol_log(
+            [
+                "|switch|p2a: Gholdengo|Gholdengo, L77|100/100",
+                "|turn|1",
+                "|-activate|p2a: Gholdengo|item: Leftovers",
+            ],
+            replay_id="item-activation-no-nuke",
+            format_name=FORMAT,
+        )
+        snapshot = build_replay_prefix_beliefs(
+            trace, self.source, perspective_side="p1"
+        )
+        slot = snapshot.slots_for_species("Gholdengo")[0]
+        self.assertEqual(slot.belief.confirmed.item, "leftovers")
+        self.assertFalse(slot.belief.prior_contradiction)
+        self.assertEqual(len(slot.belief.hypotheses), 6)
+
+    def test_source_covered_ability_contradiction_still_explicit(self):
+        # Abilities are source-covered: a reveal incompatible with every
+        # hypothesis must still produce an explicit contradiction routed to the
+        # unknown tail, so real source/data mismatches stay visible.
         belief = initialize_belief(
             self.source, format_id=FORMAT, species_form_key="Gholdengo"
         )
         updated = belief.update(
-            PublicEvidence(EvidenceKind.ITEM_REVEALED, "Leftovers", 1)
+            PublicEvidence(EvidenceKind.ABILITY_REVEALED, "Levitate", 1)
         )
         self.assertTrue(updated.prior_contradiction)
         self.assertEqual(updated.hypotheses, ())
         self.assertEqual(updated.other_mass, 1.0)
-        # The confirmed item is still retained as a public fact.
-        self.assertEqual(updated.confirmed.item, "leftovers")
+        self.assertTrue(updated.evidence_ledger[-1].source_covered)
+        self.assertTrue(updated.evidence_ledger[-1].contradiction)
+        self.assertEqual(updated.confirmed.ability, "levitate")
+
+    def test_missing_species_records_facts_and_keeps_unknown_mass(self):
+        belief = initialize_belief(
+            self.source, format_id=FORMAT, species_form_key="MissingNo"
+        )
+        self.assertFalse(belief.source_available)
+        updated = belief.update(
+            PublicEvidence(EvidenceKind.ITEM_REVEALED, "Choice Band", 1)
+        ).update(PublicEvidence(EvidenceKind.MOVE_REVEALED, "Splash", 2))
+        self.assertFalse(updated.prior_contradiction)
+        self.assertEqual(updated.other_mass, 1.0)
+        self.assertEqual(updated.confirmed.item, "choiceband")
+        self.assertEqual(updated.confirmed.moves, {"splash"})
+
+    def test_item_evidence_never_consults_prior_hidden_truth(self):
+        # Differing hidden-truth annotations must not change the public belief
+        # produced after an item reveal.
+        lines = [
+            "|switch|p2a: Gholdengo|Gholdengo, L77|100/100",
+            "|turn|1",
+            "|-item|p2a: Gholdengo|Leftovers",
+        ]
+        trace_a = parse_protocol_log(
+            list(lines), replay_id="item-no-leak-a", format_name=FORMAT
+        )
+        trace_b = parse_protocol_log(
+            list(lines), replay_id="item-no-leak-b", format_name=FORMAT
+        )
+        trace_a["hidden_opponent_truth"] = {"item": "Choice Specs"}
+        trace_b["hidden_opponent_truth"] = {"item": "Air Balloon"}
+        first = build_replay_prefix_beliefs(
+            trace_a, self.source, perspective_side="p1"
+        )
+        second = build_replay_prefix_beliefs(
+            trace_b, self.source, perspective_side="p1"
+        )
+        self.assertEqual(first.slots, second.slots)
+        self.assertEqual(
+            first.slots_for_species("Gholdengo")[0].belief.confirmed.item,
+            "leftovers",
+        )
 
 
 if __name__ == "__main__":

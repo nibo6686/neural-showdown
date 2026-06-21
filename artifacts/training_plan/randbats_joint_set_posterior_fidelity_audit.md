@@ -202,9 +202,18 @@ already separates "snapshot did not cover reality" from "the reveal did not
 happen") and is a prerequisite the prior public-prefix audit already flagged
 (item collapses + Trace/Transform/composite-form separation + alias policy).
 
-It is intentionally **not implemented in this audit task** (audit-only). It
-should be its own small, tested change to `opponent_set_belief.py` before any v8
-feature wiring, then re-run the public-prefix audit.
+**Status: implemented** (checkpoint after `0948db0`). `OpponentSetBelief.update`
+now derives per-dimension source coverage with `_dimension_covered`: a dimension
+is source-covered only when at least one hypothesis carries a concrete value for
+it. A reveal on a source-absent dimension (items for Randbats; any reveal on a
+missing-species belief) is recorded as a confirmed public fact and appended to
+the evidence ledger with `source_covered = False`, leaving the hypotheses,
+`other_mass`, and `ruled_out` sets untouched — no `prior_contradiction`. A reveal
+on a source-covered dimension keeps the existing filter/contradiction behavior
+and is logged with `source_covered = True`, so genuine source/data mismatches
+remain explicit. `EvidenceLedgerEntry` gained the `source_covered: bool` field;
+no `meta_prior.py` schema change was needed. Item priors are still not modelled
+and items are never inferred.
 
 Note: this still does not give calibrated joint probabilities. The equal-weight
 role split and coarse movepool support remain uncalibrated; calibrated joint
@@ -241,9 +250,10 @@ design §5:
   **No** — the richer joint facts (exact sets, items, frequencies) are not in
   the source; recovering them needs the generator snapshot.
 - Recommended adapter change: **none to the adapter.** The single recommended
-  change is a posterior-conditioning fix so source-absent reveals (items first)
+  change was a posterior-conditioning fix so source-absent reveals (items first)
   are absorbed by the unknown tail instead of forcing a false contradiction.
-  Deferred to its own tested change before v8 feature wiring.
+  **This is now implemented** in `OpponentSetBelief.update` (see §6); the adapter
+  itself is unchanged.
 
 This keeps the project on the design's stated path: faithful factorized
 role-level Randbats priors now, generator-sampled calibrated joint snapshot for

@@ -185,6 +185,66 @@ class OpponentSetBeliefUpdateTest(unittest.TestCase):
             )
 
 
+def _itemless_source(*, other_mass=0.0):
+    known_mass = 1.0 - other_mass
+    prior = SetPrior(
+        species_form_key=SPECIES,
+        hypotheses=(
+            SetHypothesis(
+                "bounce",
+                known_mass * 0.5,
+                ability="Magic Bounce",
+                item=None,
+                moves=("Psychic", "Nuzzle"),
+                tera_type="Water",
+                roles=("utility",),
+            ),
+            SetHypothesis(
+                "healer",
+                known_mass * 0.5,
+                ability="Healer",
+                item=None,
+                moves=("Calm Mind", "Draining Kiss"),
+                tera_type="Fairy",
+                roles=("setup",),
+            ),
+        ),
+        other_mass=other_mass,
+        joint_quality=JointQuality.FACTORIZED,
+    )
+    return FixtureMetaPriorSource(format_id=FORMAT, priors={SPECIES: prior})
+
+
+class SourceAbsentDimensionTest(unittest.TestCase):
+    def test_item_reveal_on_itemless_prior_preserves_hypotheses(self):
+        belief = initialize_belief(
+            _itemless_source(other_mass=0.2),
+            format_id=FORMAT,
+            species_form_key=SPECIES,
+        )
+        updated = belief.update(
+            PublicEvidence(EvidenceKind.ITEM_REVEALED, "Choice Specs", 1)
+        )
+        self.assertFalse(updated.prior_contradiction)
+        self.assertEqual(updated.confirmed.item, "choicespecs")
+        self.assertEqual(len(updated.hypotheses), 2)
+        self.assertEqual(updated.other_mass, belief.other_mass)
+        self.assertEqual(updated.ruled_out.items, frozenset())
+        self.assertFalse(updated.evidence_ledger[-1].source_covered)
+
+    def test_source_covered_move_contradiction_still_explicit(self):
+        belief = initialize_belief(
+            _itemless_source(), format_id=FORMAT, species_form_key=SPECIES
+        )
+        updated = belief.update(
+            PublicEvidence(EvidenceKind.MOVE_REVEALED, "Spore", 1)
+        )
+        self.assertTrue(updated.prior_contradiction)
+        self.assertEqual(updated.hypotheses, ())
+        self.assertEqual(updated.other_mass, 1.0)
+        self.assertTrue(updated.evidence_ledger[-1].source_covered)
+
+
 class PublicPrefixNoLeakageTest(unittest.TestCase):
     def test_safe_protocol_evidence_and_reflection_attribution(self):
         lines = [

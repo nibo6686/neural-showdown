@@ -569,3 +569,13 @@ wiring. First implement and test:
 
 Then rerun the same audit. See
 `randbats_meta_prior_public_prefix_audit.md`.
+
+Update: item (2) is now implemented. `OpponentSetBelief.update` derives
+per-dimension source coverage and absorbs source-absent reveals (items for
+Randbats; any reveal on a missing-species belief) into the unknown tail as
+confirmed public facts without forcing `prior_contradiction`, while preserving
+explicit contradiction for source-covered dimensions. This should remove the
+item-driven first collapses; the alias policy (1) and dynamic-ability/Transform
+semantics (3) remain open. Rerunning the public-prefix audit to quantify the new
+contradiction rate is the recommended next step. See
+`randbats_joint_set_posterior_fidelity_audit.md`.

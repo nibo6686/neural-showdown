@@ -847,14 +847,24 @@ ability in 45/304.
 The richer joint facts the adapter cannot express (exact four-move sets with
 combo rules, items, frequencies) are **absent from `sets.json` entirely** and
 require the generator-sampled snapshot in §4 — no static adapter can recover
-them. The one genuine source-faithfulness gap is in the posterior, not the
-adapter: an item reveal (and any source-absent attribute) currently forces a
+them. The one genuine source-faithfulness gap was in the posterior, not the
+adapter: an item reveal (and any source-absent attribute) forced a
 false `prior_contradiction` instead of being absorbed by the unknown tail as a
-confirmed fact. The recommended pre-v8 fix is to make `OpponentSetBelief.update`
-distinguish "source-covered reveal contradicts all hypotheses" (real
-contradiction) from "source never carried this attribute" (confirm + tail), then
-re-run the public-prefix audit. Characterization tests are in
-`trainer/tests/test_randbats_joint_set_posterior_fidelity.py`.
+confirmed fact.
+
+**This gap is now fixed.** `OpponentSetBelief.update` derives per-dimension
+source coverage (`_dimension_covered`): a dimension is source-covered only when
+some hypothesis carries a concrete value for it. A reveal on a source-absent
+dimension (items for Randbats; any reveal on a missing-species belief) is
+recorded as a confirmed public fact (ledger `source_covered = False`) with the
+role/ability/move/Tera hypotheses, `other_mass`, and `ruled_out` left untouched
+and no contradiction. Source-covered reveals keep the existing filter and
+explicit-contradiction behavior (`source_covered = True`), so real source/data
+mismatches stay visible. `EvidenceLedgerEntry` gained a `source_covered` field;
+no `meta_prior.py` change was required and no item prior was added. Tests are in
+`trainer/tests/test_randbats_joint_set_posterior_fidelity.py` and the
+source-neutral `SourceAbsentDimensionTest` in
+`trainer/tests/test_meta_prior_belief_contracts.py`.
 
 ## Held-out public-prefix audit result
 
