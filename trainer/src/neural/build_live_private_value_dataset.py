@@ -228,12 +228,88 @@ def _side_public_state_at_turn(trajectory: Dict[str, Any], side: str, through_tu
     return state
 
 
+def _ordered_events(trajectory: Dict[str, Any]) -> List[Dict[str, Any]]:
+    events: List[Dict[str, Any]] = []
+    for turn in sorted(trajectory.get("turns", []), key=lambda row: int(row.get("turn", 0) or 0)):
+        if not isinstance(turn, dict):
+            continue
+        for event in turn.get("events", []):
+            if isinstance(event, dict):
+                events.append(event)
+    return events
+
+
+def _active_transform_copied_moves(
+    prefix: Dict[str, Any],
+    full_trajectory: Optional[Dict[str, Any]],
+    side: str,
+) -> Optional[set]:
+    """Reconstruct the copied moveset of a currently-transformed active.
+
+    Transform/Imposter copies the target's moveset, which the transforming player
+    legitimately sees in their own request. The copied set is scoped to the
+    current Transform stint: it resets on the actor's switch and on each new
+    Transform, and never merges moves from a different stint. Within the current
+    stint the own-side future-public-reveal assumption applies (moves revealed
+    later in the same stint are part of the same copied request), but later
+    Transform stints are excluded.
+
+    Returns the copied move set when the active is currently transformed, else
+    ``None``.
+    """
+    transformed = False
+    target_species: Optional[str] = None
+    stint_raw: Optional[str] = None
+    for event in _ordered_events(prefix):
+        if event.get("side") != side:
+            continue
+        etype = event.get("type")
+        if etype == "switch":
+            transformed = False
+            target_species = None
+            stint_raw = None
+        elif etype == "transform":
+            transformed = True
+            target_species = _species_from_text(event.get("target"))
+            stint_raw = event.get("raw")
+    if not transformed:
+        return None
+
+    copied: set = set()
+    opponent_active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
+    in_stint = False
+    for event in _ordered_events(full_trajectory or prefix):
+        event_side = event.get("side")
+        etype = event.get("type")
+        if etype in ("switch", "replace"):
+            species = _species_from_text(event.get("details") or event.get("actor"))
+            if event_side in ("p1", "p2") and species:
+                opponent_active[event_side] = species
+        if not in_stint:
+            if event_side == side and etype == "transform" and event.get("raw") == stint_raw:
+                in_stint = True
+            continue
+        if event_side == side and etype in ("switch", "faint"):
+            break
+        if event_side == side and etype == "transform" and event.get("raw") != stint_raw:
+            break
+        if etype == "move" and event.get("move"):
+            move = str(event["move"])
+            if event_side == side:
+                copied.add(move)
+            elif target_species and opponent_active.get(event_side) == target_species:
+                copied.add(move)
+    copied.discard("Transform")
+    return copied
+
+
 def _reconstructed_private_state_for_side(
     trajectory: Dict[str, Any],
     *,
     side: str,
     through_turn: int,
     completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
+    full_trajectory: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     completed_team = completed_teams.get(side, {})
     raw_current_state = _side_public_state_at_turn(trajectory, side, through_turn)
@@ -273,9 +349,13 @@ def _reconstructed_private_state_for_side(
 
     active_moves = []
     active_complete_moves = set()
-    if active_species and active_species in completed_team:
+    transform_moves = _active_transform_copied_moves(trajectory, full_trajectory, side) if active_species else None
+    if transform_moves is not None:
+        active_complete_moves = set(transform_moves)
+    elif active_species and active_species in completed_team:
         raw_moves = completed_team[active_species].get("moves", set())
         active_complete_moves = set(raw_moves) if isinstance(raw_moves, set) else set()
+    if active_species:
         for move in _request_like_move_names(active_complete_moves):
             active_moves.append(
                 {

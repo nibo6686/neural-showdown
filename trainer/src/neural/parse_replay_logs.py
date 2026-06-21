@@ -295,6 +295,18 @@ def parse_protocol_log(
             }
             add_event(event)
             continue
+        if command == "-transform" and len(parts) >= 4:
+            actor = parts[2]
+            event = {
+                "turn": current_turn,
+                "type": "transform",
+                "side": side_from_ident(actor),
+                "actor": actor,
+                "target": parts[3],
+                "raw": raw_line,
+            }
+            add_event(event)
+            continue
 
     ordered_turns = [turns_by_number[turn] for turn in sorted(turn_order)]
     parsed_format = format_name or (metadata or {}).get("format")

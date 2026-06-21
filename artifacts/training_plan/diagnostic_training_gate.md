@@ -929,3 +929,26 @@ and leaves 8 rows: 5 no-leakage move cases and 3 unsupported Illusion duplicate
 switch artifacts. Source is ready for an explicitly approved rematerialization,
 but smoke training remains blocked until the fresh artifact is materialized and
 passes audit. Production and live gates remain **closed**.
+
+The Transform/Imposter reconstruction fix
+(`transform_imposter_reconstruction_fix_report.md`) then resolved the one
+residual the residual-8 verification found still fixable:
+`gen9randombattle-2589571474` turn 20 p1 `move: Thunder Wave`. It was a real
+Ditto/Imposter reconstruction bug — copied moves were merged across three
+Transform stints and a future `Leaf Blade` was pulled from a later Virizion
+stint, displacing `Thunder Wave`. `-transform` is now parsed as a typed event,
+the completed-team builder no longer attributes copied moves to the base species,
+and a stint-scoped helper reconstructs the current Transform stint's copied
+moveset (own-side future-reveal applies within a stint, never across stints).
+`Thunder Wave` now matches without adding a fifth move; the Ho-Oh stint stays
+stint-scoped; Ditto's global moveset is no longer backfilled with copied opponent
+moves. `legal-action-v7` is unchanged (552D / `956da3d2…1bf39d7`). A new
+read-only harness, `scripts/recompute_v7_v7_residual_unmatched_from_replays.py`,
+makes the residual analysis reproducible and now reports 1 matched (Ditto) and 7
+unmatched. The expected residual count after a future approved rematerialization
+is therefore **7**, not 8 (4 pre-reveal Illusion move cases + 3 unsupported
+Illusion duplicate switch artifacts); the never-revealed-Zoroark public-replay
+ambiguity is an irreducible public-replay limitation, not a live-play one.
+Rematerialization is still required before smoke training. No training,
+rematerialization, checkpoint promotion, live-default/live-bot change, schema/v8
+change, or push occurred. Production and live gates remain **closed**.

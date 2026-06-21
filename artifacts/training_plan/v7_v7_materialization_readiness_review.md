@@ -344,3 +344,27 @@ training run as a plumbing/overfit sanity check only. It is not yet a durable
 training-quality baseline; larger training should wait for move-list and
 roster/form alias reconstruction fixes followed by approval-gated
 rematerialization.
+
+## Residual triage + Transform/Imposter fix update
+
+The residual-34 triage fixed 26 of the 34 source-level replay-prefix residuals
+and was checkpointed at `5ad748b78670d565056b9273c72e1d3ad0c4337e`. The
+follow-up residual-8 verification then found one of the remaining rows still
+fixable: `gen9randombattle-2589571474` turn 20 p1 `move: Thunder Wave` was a
+Ditto/Imposter Transform reconstruction bug (copied moves merged across Transform
+stints, plus a future `Leaf Blade` pulled from a later stint). It is now fixed
+with stint-scoped Transform reconstruction
+(`transform_imposter_reconstruction_fix_report.md`); `legal-action-v7` is
+unchanged (552D / `956da3d2…1bf39d7`).
+
+The expected residual unmatched count after a future approved rematerialization
+is now **7** (4 pre-reveal Illusion move cases + 3 unsupported Illusion duplicate
+switch artifacts), down from 8. The remaining 7 are bounded Illusion/public-replay
+ambiguity, not live-play limitations: live play knows its own true side from the
+Showdown request. `scripts/recompute_v7_v7_residual_unmatched_from_replays.py`
+makes this reproducible read-only (1 matched, 7 unmatched, all-as-expected).
+
+Full v7/v7 rematerialization is ready for explicit approval; smoke training
+remains blocked until the fresh artifact is materialized and re-audited. No
+training, rematerialization, checkpoint promotion, live-default/live-bot change,
+schema change, or push occurred.

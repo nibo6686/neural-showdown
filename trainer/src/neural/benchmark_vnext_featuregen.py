@@ -395,6 +395,7 @@ def _completed_teams_for_action_reconstruction(
     teams: Dict[str, Dict[str, Dict[str, Any]]] = {"p1": {}, "p2": {}}
     active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
     active_stint_moves: Dict[str, set] = {"p1": set(), "p2": set()}
+    transformed: Dict[str, bool] = {"p1": False, "p2": False}
     canonical_species: Dict[str, Dict[str, str]] = {"p1": {}, "p2": {}}
 
     def ensure(side: str, species: str) -> Dict[str, Any]:
@@ -418,7 +419,10 @@ def _completed_teams_for_action_reconstruction(
                 if species:
                     active[side] = species
                     active_stint_moves[side] = set()
+                    transformed[side] = False
                     ensure(side, species)
+            elif event.get("type") == "transform":
+                transformed[side] = True
             elif event.get("type") == "replace":
                 details = str(event.get("details") or "")
                 species = details.split(",", 1)[0].strip()
@@ -433,9 +437,13 @@ def _completed_teams_for_action_reconstruction(
                     active[side] = species
                     active_stint_moves[side] = set()
             elif event.get("type") == "move" and event.get("move") and active.get(side):
-                move = str(event["move"])
-                ensure(side, str(active[side]))["moves"].add(move)
-                active_stint_moves[side].add(move)
+                # Copied moves used while transformed (Imposter/Transform) are
+                # transient stint facts; do not attribute them to the base
+                # species' global moveset.
+                if not transformed[side]:
+                    move = str(event["move"])
+                    ensure(side, str(active[side]))["moves"].add(move)
+                    active_stint_moves[side].add(move)
             elif event.get("type") == "tera" and event.get("tera_type") and active.get(side):
                 ensure(side, str(active[side]))["tera_type"] = str(event["tera_type"])
 
@@ -501,6 +509,7 @@ def _context_for_prefix(
         side=side,
         through_turn=through_turn,
         completed_teams=completed_teams,
+        full_trajectory=trajectory,
     )
     opponent_belief = build_opponent_beliefs(
         protocol_log=prefix.get("protocol_log", []),

@@ -347,6 +347,54 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         )
         self.assertNotIn("Sludge Bomb", json.dumps(opponent_belief))
 
+    def test_ditto_transform_exposes_current_stint_copied_move(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589571474",
+            "|move|p1a: Ditto|Thunder Wave|p2a: Virizion",
+            side="p1",
+        )
+        self.assertEqual(decision["label"], "move: Thunder Wave")
+        self.assertEqual(decision["private_state"]["active_species"], "Ditto")
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertIn("Thunder Wave", names)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_ditto_transform_excludes_future_transform_stint_move(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589571474",
+            "|move|p1a: Ditto|Thunder Wave|p2a: Virizion",
+            side="p1",
+        )
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        # Leaf Blade is copied during a later Virizion Transform stint after the
+        # decision and must not contaminate the current Sableye stint.
+        self.assertNotIn("Leaf Blade", names)
+
+    def test_transform_copied_moves_do_not_merge_across_stints(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589571474",
+            "|move|p1a: Ditto|Brave Bird|p2a: Ho-Oh",
+            side="p1",
+        )
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        # Ho-Oh stint exposes its own copied moves only, never moves copied during
+        # the later Sableye or Virizion stints.
+        self.assertIn("Brave Bird", names)
+        self.assertNotIn("Thunder Wave", names)
+        self.assertNotIn("Leaf Blade", names)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_transform_copied_moves_not_globally_backfilled_into_species(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589571474",
+            "|move|p1a: Ditto|Thunder Wave|p2a: Virizion",
+            side="p1",
+        )
+        ditto_moves = set(decision["completed"]["p1"].get("Ditto", {}).get("moves", set()))
+        # Copied opponent moves must not be backfilled into Ditto's global moveset.
+        for copied in ("Thunder Wave", "Brave Bird", "Leaf Blade", "Knock Off"):
+            self.assertNotIn(copied, ditto_moves)
+
 
 class GeneralizedFullPreflightTest(unittest.TestCase):
     def _manifest(self, counts, *, shared_path, split_targets=None, dup=False, overlap=False):
