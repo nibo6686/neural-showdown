@@ -257,24 +257,24 @@ def _active_transform_copied_moves(
     Returns the copied move set when the active is currently transformed, else
     ``None``.
     """
-    transformed = False
+    anchor_event: Optional[Dict[str, Any]] = None
     target_species: Optional[str] = None
-    stint_raw: Optional[str] = None
     for event in _ordered_events(prefix):
         if event.get("side") != side:
             continue
         etype = event.get("type")
         if etype == "switch":
-            transformed = False
+            anchor_event = None
             target_species = None
-            stint_raw = None
         elif etype == "transform":
-            transformed = True
+            anchor_event = event
             target_species = _species_from_text(event.get("target"))
-            stint_raw = event.get("raw")
-    if not transformed:
+    if anchor_event is None:
         return None
 
+    # Anchor the current stint by event identity, not by raw string: re-transforming
+    # into the same species produces identical `raw` markers, so a string match would
+    # bind to the earliest occurrence and stop at an intervening switch.
     copied: set = set()
     opponent_active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
     in_stint = False
@@ -286,12 +286,12 @@ def _active_transform_copied_moves(
             if event_side in ("p1", "p2") and species:
                 opponent_active[event_side] = species
         if not in_stint:
-            if event_side == side and etype == "transform" and event.get("raw") == stint_raw:
+            if event is anchor_event:
                 in_stint = True
             continue
         if event_side == side and etype in ("switch", "faint"):
             break
-        if event_side == side and etype == "transform" and event.get("raw") != stint_raw:
+        if event_side == side and etype == "transform" and event is not anchor_event:
             break
         if etype == "move" and event.get("move"):
             move = str(event["move"])

@@ -86,9 +86,14 @@ bug was not exposed.
 
 This is a clean, safe reconstruction fix (anchor the stint by event identity /
 occurrence index rather than by `raw`), recoverable without leakage or illegal
-candidates. It is **not fixed in this task** (audit/materialization scope; a fix
-would need its own checkpoint and a re-materialization). Recommended as the next
-follow-up; it would recover these 11 rows (and likely the Struggle row below).
+candidates.
+
+> **Update — fixed (follow-up task):** `_active_transform_copied_moves` now
+> anchors the stint by event object identity. All 11 rows match on replay-prefix
+> recomputation (Sacred Fire/Energy Ball/Outrage), with no cross-stint merge
+> (e.g. the re-transform Entei stint copies `Sacred Fire` but not the earlier
+> stint's `Stone Edge`). See `ditto_retransform_same_species_fix_report.md`. The
+> checked-in dataset is unchanged until a future approved rematerialization.
 
 ### C. Struggle / PP-exhaustion explicit skip — established category (1 row)
 
@@ -96,9 +101,14 @@ follow-up; it would recover these 11 rows (and likely the Struggle row below).
 | --- | ---: | --- | --- |
 | `smogtours-gen9randombattle-929481` | 65 | p2 | Struggle |
 
-`Struggle` is the forced PP-exhaustion fallback, an explicit skip in every prior
-audit until PP/choice-exhaustion legality is modeled. This row is also affected by
-the category-B bug, but Struggle is not a normal candidate regardless.
+`Struggle` is the forced PP-exhaustion fallback. This row was also affected by the
+category-B re-transform bug, which masked the replay-observed `Struggle`.
+
+> **Update — fixed (follow-up task):** with the corrected stint, the active's
+> replay-observed `Struggle` is surfaced and the existing exhaustion-fallback
+> generates a `move: Struggle` candidate (schema-safe, no illegal candidate). The
+> row now matches on replay-prefix recomputation. See
+> `ditto_retransform_same_species_fix_report.md` (Part 3 inspection).
 
 ## Other quality signals
 
@@ -133,6 +143,12 @@ companion + one new instance of the same pattern), 11 from a newly-surfaced
 fixable Ditto re-transform-same-species bug, and 1 Struggle explicit skip. None is
 a leakage or wrong-label issue.
 
+> **Update — follow-up fix applied:** the 11 Ditto re-transform rows and the 1
+> Struggle row are now fixed in source and verified by replay-prefix
+> recomputation. The **expected residual after a future approved rematerialization
+> is now 3** (the irreducible non-self-confirming Illusion stints). This dataset
+> is unchanged (still 15) until that rematerialization is explicitly approved.
+
 ## Gate decision
 
 - The dataset is structurally valid (all 18 checks passed), schema/fingerprint
@@ -140,10 +156,12 @@ a leakage or wrong-label issue.
   explained skips (no wrong labels, no forced quarantined rows).
 - **A tiny smoke / plumbing training run is acceptable** on this artifact if
   explicitly approved (the 0.06% excluded rows inject no error). It is **not yet a
-  durable quality baseline**: the category-B Ditto re-transform bug should be
-  fixed and the dataset rematerialized before durable training, and the 3
-  non-self-confirming Illusion rows remain an irreducible public-replay limitation
-  (not a live-play limitation — live play knows its own true side).
+  durable quality baseline**: the category-B Ditto re-transform bug is now fixed in
+  source (see `ditto_retransform_same_species_fix_report.md`) but a fresh
+  rematerialization is required for the fix to reach the dataset, after which the
+  expected residual drops to 3. The 3 non-self-confirming Illusion rows remain an
+  irreducible public-replay limitation (not a live-play limitation — live play
+  knows its own true side).
 - Training, checkpoint promotion, and live promotion remain **closed** pending
   explicit approval.
 

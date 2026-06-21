@@ -1008,3 +1008,29 @@ stays 552D / `956da3d2…1bf39d7`; no state dim changed. No training, checkpoint
 promotion, live-default/live-bot change, schema/v8/old-gen change, or push
 occurred. This supersedes `diagnostic_300_v7_v7_corrected` for quality purposes.
 Production and live gates remain **closed**.
+
+The Ditto/Imposter re-transform-into-same-species fix
+(`ditto_retransform_same_species_fix_report.md`) then resolved 12 of the 15
+post-Illusion residuals in source. `_active_transform_copied_moves` now anchors the
+current Transform stint by event object identity instead of `raw` string (identical
+`-transform` markers on re-transform into the same species had bound it to the
+earliest occurrence and stopped at the intervening switch). The 11 Ditto rows
+(Sacred Fire x3, Energy Ball x4, Outrage x4) now match, with no cross-stint merge
+(the re-transform Entei stint copies `Sacred Fire` but not the earlier stint's
+`Stone Edge`), Ditto's global moveset still not backfilled, and the prior
+`gen9randombattle-2589571474` `Thunder Wave` case (with `Leaf Blade` still absent)
+preserved. The single `Struggle` row (`smogtours-gen9randombattle-929481` t65) is
+also resolved: with the corrected stint the active's replay-observed `Struggle` is
+surfaced and the existing exhaustion fallback emits a schema-safe `move: Struggle`
+candidate (a deterministic forced action; no illegal candidate, no schema change).
+The residual recomputation harness now covers all 22 post-Illusion residuals and
+reports 19 matched / 3 unmatched, `all_as_expected = True`. The **expected residual
+count after a future approved rematerialization is now 3** — the irreducible
+non-self-confirming Illusion stints. This is a source/test/report change verified by
+replay-prefix recomputation; the checked-in `diagnostic_300_v7_v7_post_illusion`
+dataset is unchanged (still 15) until a future explicitly approved
+rematerialization. `legal-action-v7` stays 552D /
+`956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`; no state dim
+changed. No training, rematerialization, checkpoint promotion,
+live-default/live-bot change, schema/v8/old-gen change, or push occurred. Production
+and live gates remain **closed**.

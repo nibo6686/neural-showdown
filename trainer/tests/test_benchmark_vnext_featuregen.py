@@ -453,6 +453,56 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         for copied in ("Thunder Wave", "Brave Bird", "Leaf Blade", "Knock Off"):
             self.assertNotIn(copied, ditto_moves)
 
+    def test_ditto_retransform_same_species_matches_sacred_fire(self):
+        # Ditto transforms into Entei, switches out, re-transforms into Entei.
+        # Identical -transform raw must not bind to the earlier stint.
+        decision = self._replay_decision(
+            "gen9randombattle-2590922693",
+            "|move|p2a: Ditto|Sacred Fire|p1a: Scream Tail",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Sacred Fire")
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertIn("Sacred Fire", names)
+        # Stone Edge was copied during the earlier Entei stint; the re-transform
+        # stint must not merge it in.
+        self.assertNotIn("Stone Edge", names)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_ditto_retransform_same_species_matches_energy_ball(self):
+        decision = self._replay_decision(
+            "smogtours-gen9randombattle-929481",
+            "|move|p2a: Ditto|Energy Ball|p1a: Meganium",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Energy Ball")
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertIn("Energy Ball", names)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_ditto_retransform_same_species_matches_outrage(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2594584178",
+            "|move|p1a: Ditto|Outrage|p2a: Koraidon",
+            side="p1",
+        )
+        self.assertEqual(decision["label"], "move: Outrage")
+        names = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertIn("Outrage", names)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_ditto_struggle_pp_exhaustion_matches_with_correct_stint(self):
+        # With the correct re-transform stint, Ditto's replay-observed Struggle is
+        # surfaced and represented by the existing exhaustion fallback candidate.
+        decision = self._replay_decision(
+            "smogtours-gen9randombattle-929481",
+            "|move|p2a: Ditto|Struggle|p1a: Meganium",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Struggle")
+        self.assertIn("move: Struggle", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
 
 class GeneralizedFullPreflightTest(unittest.TestCase):
     def _manifest(self, counts, *, shared_path, split_targets=None, dup=False, overlap=False):

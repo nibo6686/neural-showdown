@@ -1,5 +1,13 @@
 # Transform / Imposter Reconstruction Fix Report
 
+> **Follow-up (later task):** the full post-Illusion materialization surfaced a
+> related gap — re-transforming into the **same species** produced identical
+> `-transform` `raw` markers, so this report's stint anchor bound to the wrong
+> occurrence. Fixed by anchoring the stint by event object identity; see
+> `ditto_retransform_same_species_fix_report.md`. That fix also resolved the single
+> `Struggle` residual. The expected residual after a future rematerialization is
+> now 3 (irreducible non-self-confirming Illusion stints).
+
 ## Scope
 
 Source/test-only fix for the one residual unmatched case the residual-8

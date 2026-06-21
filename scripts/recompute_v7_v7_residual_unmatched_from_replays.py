@@ -51,10 +51,13 @@ ILLUSION_CATEGORIES = {
     "unsupported_or_quarantined",
 }
 
-# Documented cases from residual_34_unmatched_case_triage_report.md.
+# Documented cases from residual_34_unmatched_case_triage_report.md plus the full
+# post-Illusion materialization residuals (diagnostic_300_v7_v7_post_illusion).
 # kind: "move" matches on the move name; "switch" matches on the target species.
-# expected_matched reflects the post-Transform + actor-private-Illusion fixes.
+# expected_matched reflects the post-Transform + actor-private-Illusion +
+# Ditto re-transform-same-species fixes.
 CASES: List[Dict[str, Any]] = [
+    # --- Original documented 8 (Transform + actor-private Illusion) ---
     {
         "replay": "gen9randombattle-2589571474", "turn": 20, "side": "p1",
         "kind": "move", "key": "Thunder Wave",
@@ -95,6 +98,23 @@ CASES: List[Dict[str, Any]] = [
         "kind": "switch", "key": "Houndstone",
         "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
+    # --- Full-materialization Ditto re-transform-into-same-species residuals (now fixed) ---
+    {"replay": "gen9randombattle-2590922693", "turn": 92, "side": "p2", "kind": "move", "key": "Sacred Fire", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2590922693", "turn": 93, "side": "p2", "kind": "move", "key": "Sacred Fire", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2590922693", "turn": 94, "side": "p2", "kind": "move", "key": "Sacred Fire", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "smogtours-gen9randombattle-929481", "turn": 68, "side": "p2", "kind": "move", "key": "Energy Ball", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "smogtours-gen9randombattle-929481", "turn": 69, "side": "p2", "kind": "move", "key": "Energy Ball", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "smogtours-gen9randombattle-929481", "turn": 70, "side": "p2", "kind": "move", "key": "Energy Ball", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "smogtours-gen9randombattle-929481", "turn": 71, "side": "p2", "kind": "move", "key": "Energy Ball", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2594584178", "turn": 25, "side": "p1", "kind": "move", "key": "Outrage", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2594584178", "turn": 26, "side": "p1", "kind": "move", "key": "Outrage", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2594584178", "turn": 27, "side": "p1", "kind": "move", "key": "Outrage", "category": "ditto_retransform_fixed", "expected_matched": True},
+    {"replay": "gen9randombattle-2594584178", "turn": 28, "side": "p1", "kind": "move", "key": "Outrage", "category": "ditto_retransform_fixed", "expected_matched": True},
+    # --- Struggle PP-exhaustion: now matched via the corrected stint + exhaustion fallback ---
+    {"replay": "smogtours-gen9randombattle-929481", "turn": 65, "side": "p2", "kind": "move", "key": "Struggle", "category": "struggle_pp_exhaustion_fixed", "expected_matched": True},
+    # --- Additional non-self-confirming Illusion stints surfaced by full materialization (quarantined) ---
+    {"replay": "gen9randombattle-2593348981", "turn": 2, "side": "p1", "kind": "move", "key": "Poltergeist", "category": "unsupported_or_quarantined", "expected_matched": False},
+    {"replay": "gen9randombattle-2593283718", "turn": 3, "side": "p1", "kind": "move", "key": "Hyper Voice", "category": "unsupported_or_quarantined", "expected_matched": False},
 ]
 
 

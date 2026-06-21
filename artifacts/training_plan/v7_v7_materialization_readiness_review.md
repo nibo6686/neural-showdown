@@ -417,3 +417,22 @@ smoke/plumbing run is acceptable on this artifact if approved; durable training
 should wait for the Ditto re-transform fix and another rematerialization. Old
 datasets were not overwritten. No training, checkpoint promotion,
 live-default/live-bot change, schema/v8 change, or push occurred.
+
+## Ditto re-transform fix completed (residual 15 → expected 3)
+
+The Ditto/Imposter re-transform-into-same-species bug is now fixed
+(`ditto_retransform_same_species_fix_report.md`): `_active_transform_copied_moves`
+anchors the current stint by event object identity instead of `raw` string. On
+replay-prefix recomputation the 11 Ditto rows (Sacred Fire/Energy Ball/Outrage)
+now match, and the single `Struggle` row also matches (the corrected stint surfaces
+the replay-observed Struggle, represented by the existing schema-safe exhaustion
+fallback). The `Thunder Wave` Transform case and Illusion fixes are preserved. The
+residual recomputation harness covers all 22 post-Illusion residuals: 19 matched /
+3 unmatched, all-as-expected. The **expected residual after a future approved
+rematerialization is now 3** (the irreducible non-self-confirming Illusion stints).
+This is a source/test/report change; the checked-in
+`diagnostic_300_v7_v7_post_illusion` dataset is unchanged until a future explicitly
+approved rematerialization applies the fix. `legal-action-v7` stays 552D /
+`956da3d2…1bf39d7`; no state dim changed. No training, rematerialization,
+checkpoint promotion, live-default/live-bot change, schema/v8 change, or push
+occurred.
