@@ -25,6 +25,7 @@ EXPECTED_ACTION_DIM = 318
 SUPPORTED_ACTION_SCHEMAS = {
     "legal-action-v5": 318,
     "legal-action-v6": 331,
+    "legal-action-v7": 552,
 }
 REQUIRED_SPLITS = ("train", "validation", "test")
 
