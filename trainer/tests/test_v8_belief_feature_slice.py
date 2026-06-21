@@ -100,6 +100,21 @@ class V8SliceValueTest(unittest.TestCase):
         self.assertEqual(named["opponent_belief_quality_uncalibrated_probabilities"], 1.0)
         self.assertGreater(named["opponent_belief_support_size_norm"], 0.0)
 
+    def test_source_quality_flags_survive_supported_evidence_updates(self):
+        named = _named(
+            v8_belief_slice_feature_vector(
+                self._belief(
+                    "Clodsire",
+                    PublicEvidence(EvidenceKind.MOVE_REVEALED, "Curse", 1),
+                )
+            )
+        )
+        self.assertEqual(named["opponent_belief_has_meta_prior"], 1.0)
+        self.assertEqual(named["opponent_belief_quality_factorized"], 1.0)
+        self.assertEqual(named["opponent_belief_quality_coarse_movepool_support"], 1.0)
+        self.assertEqual(named["opponent_belief_quality_item_unknown"], 1.0)
+        self.assertEqual(named["opponent_belief_quality_uncalibrated_probabilities"], 1.0)
+
     def test_alias_flag_is_set_for_aliased_prior(self):
         named = _named(v8_belief_slice_feature_vector(self._belief("Palafin-Hero")))
         self.assertEqual(named["opponent_belief_has_meta_prior"], 1.0)

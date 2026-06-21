@@ -23,7 +23,30 @@ Missing species/forms:
 
 Priors resolved via the explicit form-alias policy (`randbats-form-alias-v1`), public->base:
 
+- `palafinhero->palafin`: 4 public slots
+- `polteageistantique->polteageist`: 4 public slots
+- `sinistchamasterpiece->sinistcha`: 3 public slots
+- `florgesorange->florges`: 3 public slots
+- `pikachusinnoh->pikachu`: 2 public slots
+- `miniorindigo->minior`: 2 public slots
+- `miniorviolet->minior`: 2 public slots
+- `dudunsparcethreesegment->dudunsparce`: 2 public slots
+- `sawsbuckwinter->sawsbuck`: 1 public slots
+- `pikachupartner->pikachu`: 1 public slots
 - `vivillonhighplains->vivillon`: 1 public slots
+- `ogerponcornerstonetera->ogerponcornerstone`: 1 public slots
+- `sawsbucksummer->sawsbuck`: 1 public slots
+- `pikachualola->pikachu`: 1 public slots
+- `vivillonmarine->vivillon`: 1 public slots
+- `vivillonriver->vivillon`: 1 public slots
+- `magearnaoriginal->magearna`: 1 public slots
+- `vivillonarchipelago->vivillon`: 1 public slots
+- `mimikyubusted->mimikyu`: 1 public slots
+- `vivillonelegant->vivillon`: 1 public slots
+- `pikachukalos->pikachu`: 1 public slots
+- `zarudedada->zarude`: 1 public slots
+- `alcremiematchacream->alcremie`: 1 public slots
+- `pikachuunova->pikachu`: 1 public slots
 
 ## Public reveal support
 

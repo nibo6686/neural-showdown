@@ -65,6 +65,17 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertEqual(sum(row["split"] == "validation" for row in first), 3)
         self.assertEqual(sum(row["split"] == "test" for row in first), 3)
 
+    def test_selecting_manifest_size_preserves_all_entries(self):
+        selected = select_manifest_subset(
+            self.manifest,
+            size=len(self.manifest["entries"]),
+            seed=9,
+        )
+        self.assertEqual(
+            {row["replay_id"] for row in selected},
+            {row["replay_id"] for row in self.manifest["entries"]},
+        )
+
     def test_metadata_records_v7_v5_and_live_defaults(self):
         selected = select_manifest_subset(self.manifest, size=10, seed=9)
         metadata = benchmark_metadata(manifest=self.manifest, selected_entries=selected, seed=9)

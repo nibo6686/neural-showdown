@@ -125,6 +125,12 @@ def select_manifest_subset(
     entries = manifest.get("entries") if isinstance(manifest.get("entries"), list) else []
     if size <= 0 or size > len(entries):
         raise ValueError(f"Subset size must be between 1 and {len(entries)}, got {size}.")
+    if size == len(entries):
+        selected = list(entries)
+        ids = [str(row.get("replay_id")) for row in selected]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Manifest contains duplicate replay IDs.")
+        return sorted(selected, key=lambda row: (str(row.get("split")), str(row.get("replay_id"))))
     if size == 10:
         quotas = dict(SPLIT_QUOTAS_10)
     else:
@@ -253,6 +259,7 @@ def _validate_full_preflight(
     output_dir: Path,
     label_manifest_path: Path = DEFAULT_LABEL_MANIFEST,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Dict[str, Any]:
     """Generalized full-manifest preflight.
 
@@ -278,6 +285,10 @@ def _validate_full_preflight(
     action_schema = action_feature_schema(action_feature_version)
     overwrite_ok, overwrite_reason = _overwrite_guard(output_dir, manifest_path)
     unsupported_team_sizes = _unsupported_team_size_entries(entries)
+    # Labels are independent of the state feature version; the v8 state schema is
+    # an append-only superset of the v7 prefix the label manifest records, so the
+    # label-manifest compatibility check accepts v7 or the requested state version.
+    _, requested_state_dim = _state_schema(state_feature_version)
     checks = {
         "manifest_has_entries": len(entries) > 0,
         "entry_count_matches_split_targets": len(entries) == expected_total,
@@ -288,8 +299,14 @@ def _validate_full_preflight(
         "team_sizes_fit_frozen_six_slot_schema": not unsupported_team_sizes,
         "label_manifest_valid": (
             label_manifest.get("label_version") == LABEL_VERSION
-            and compatibility.get("state_feature_version") == FEATURE_VERSION_V7
-            and compatibility.get("state_feature_dim") == FEATURE_DIM_V7
+            and compatibility.get("state_feature_version") in {
+                FEATURE_VERSION_V7,
+                state_feature_version,
+            }
+            and compatibility.get("state_feature_dim") in {
+                FEATURE_DIM_V7,
+                requested_state_dim,
+            }
             and compatibility.get("action_feature_version") in {
                 ACTION_FEATURE_VERSION_V5,
                 action_feature_version,
@@ -1284,6 +1301,7 @@ def _materialize_one_battle(
     sets_path: Optional[str],
     client: Any,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Dict[str, Any]:
     """Materialize one battle into local (per-battle) arrays and counters.
 
@@ -1365,6 +1383,7 @@ def _materialize_one_battle(
                     sets_path=sets_path,
                     damage_client=client,
                     action_feature_version=action_feature_version,
+                    state_feature_version=state_feature_version,
                 )
                 if not decision:
                     label_counts["skipped_no_action_label"] += 1
@@ -1480,18 +1499,22 @@ def _materialize_one_battle(
 _WORKER_CLIENT: Any = None
 _WORKER_SETS_PATH: Optional[str] = None
 _WORKER_ACTION_FEATURE_VERSION = ACTION_FEATURE_VERSION_V5
+_WORKER_STATE_FEATURE_VERSION = FEATURE_VERSION_V7
 
 
 def _worker_init(
     sets_path: Optional[str],
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> None:
     """Per-worker sim-core client; one node process per pool worker."""
     global _WORKER_ACTION_FEATURE_VERSION, _WORKER_CLIENT, _WORKER_SETS_PATH
+    global _WORKER_STATE_FEATURE_VERSION
     import atexit
 
     _WORKER_SETS_PATH = sets_path
     _WORKER_ACTION_FEATURE_VERSION = action_feature_version
+    _WORKER_STATE_FEATURE_VERSION = state_feature_version
     _WORKER_CLIENT = _damage_client()
     if _WORKER_CLIENT is None:
         raise RuntimeError(
@@ -1507,6 +1530,7 @@ def _materialize_battle_worker(entry: Dict[str, Any]) -> Dict[str, Any]:
         sets_path=_WORKER_SETS_PATH,
         client=_WORKER_CLIENT,
         action_feature_version=_WORKER_ACTION_FEATURE_VERSION,
+        state_feature_version=_WORKER_STATE_FEATURE_VERSION,
     )
 
 
@@ -1523,6 +1547,7 @@ def run_full_materialization(
     workers: int = DEFAULT_WORKERS,
     resume: bool = True,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Dict[str, Any]:
     """Parallel, crash-safe, resumable full-manifest materialization.
 
@@ -1533,18 +1558,21 @@ def run_full_materialization(
     """
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     action_schema = action_feature_schema(action_feature_version)
+    _state_schema(state_feature_version)  # fail closed on unknown version
     is_legacy_300 = output_dir.resolve() == DEFAULT_FULL_OUTPUT_DIR.resolve()
     dataset_name = output_dir.name
     command = (
         "python -m neural.benchmark_vnext_featuregen --full-manifest "
         f"--manifest {manifest_path} --output-dir {output_dir} --workers {workers} "
-        f"--action-feature-version {action_feature_version}"
+        f"--action-feature-version {action_feature_version} "
+        f"--state-feature-version {state_feature_version}"
     )
     preflight = _validate_full_preflight(
         manifest=manifest,
         manifest_path=manifest_path,
         output_dir=output_dir,
         action_feature_version=action_feature_version,
+        state_feature_version=state_feature_version,
     )
     selected_entries = list(manifest.get("entries") or [])
     metadata = benchmark_metadata(
@@ -1556,6 +1584,7 @@ def run_full_materialization(
         artifact_kind="diagnostic_300_materialization" if is_legacy_300 else "diagnostic_full_materialization",
         preflight=preflight,
         action_feature_version=action_feature_version,
+        state_feature_version=state_feature_version,
     )
     metadata["dataset_name"] = dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1583,7 +1612,7 @@ def run_full_materialization(
         with ProcessPoolExecutor(
             max_workers=max(1, int(workers)),
             initializer=_worker_init,
-            initargs=(sets_path, action_feature_version),
+            initargs=(sets_path, action_feature_version, state_feature_version),
         ) as executor:
             futures = {executor.submit(_materialize_battle_worker, entry): entry for entry in pending}
             completed = 0
@@ -1651,9 +1680,10 @@ def run_full_materialization(
         if result["valid"]:
             valid_battles += 1
 
+    state_names_full, state_dim_full = _state_schema(state_feature_version)
     arrays = {
         "state_features": (
-            np.concatenate(state_arrays) if state_arrays else np.zeros((0, FEATURE_DIM_V7), dtype=np.float16)
+            np.concatenate(state_arrays) if state_arrays else np.zeros((0, state_dim_full), dtype=np.float16)
         ),
         "state_replay_ids": np.asarray(state_replay_ids),
         "state_splits": np.asarray(state_splits),
@@ -1670,8 +1700,8 @@ def run_full_materialization(
         "candidate_kinds": np.asarray(candidate_kinds),
         "observed_actions": np.asarray(observed_actions, dtype=np.int8),
         "action_rank_labels": np.asarray(observed_actions, dtype=np.int8),
-        "state_feature_version": np.asarray(FEATURE_VERSION_V7),
-        "state_feature_names": np.asarray(FEATURE_NAMES_V7),
+        "state_feature_version": np.asarray(state_feature_version),
+        "state_feature_names": np.asarray(state_names_full),
         "action_feature_version": np.asarray(action_schema["version"]),
         "action_feature_names": np.asarray(action_schema["names"]),
         "manifest_catalog_checksum": np.asarray(str(manifest.get("catalog_checksum") or "")),
@@ -2009,12 +2039,6 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     )
     args = parser.parse_args(argv)
     if args.full_manifest:
-        if args.state_feature_version != FEATURE_VERSION_V7:
-            raise SystemExit(
-                "Full-manifest materialization is restricted to "
-                f"{FEATURE_VERSION_V7!r} in this task; v8 is smoke-only via the "
-                "non-full path."
-            )
         run_full_materialization(
             manifest_path=Path(args.manifest),
             output_dir=Path(args.output_dir),
@@ -2023,6 +2047,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             workers=args.workers,
             resume=not args.no_resume,
             action_feature_version=args.action_feature_version,
+            state_feature_version=args.state_feature_version,
         )
     else:
         run_benchmark(

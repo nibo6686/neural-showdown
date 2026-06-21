@@ -167,7 +167,7 @@
   defaults unchanged. A `--state-feature-version` flag was added to the
   featuregen CLI (default v7 unchanged; full-manifest restricted to v7). No
   training/checkpoint/live change; generated dataset unstaged.
-- [ ] 300-battle v8/v7 belief-slice materialization (frozen diagnostic_300
+- [x] 300-battle v8/v7 belief-slice materialization (frozen diagnostic_300
   splits, new dir) + read-only quality audit, before any candidate/action v8
   slice or durable v8 run.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
@@ -1364,3 +1364,25 @@ wiring in its current end-to-end form**. Before a schema task, repair
 source-neutral alias/form resolution, unknown-tail-safe conditioning, and
 dynamic ability/Transform evidence semantics, then rerun this audit. The
 generator-sampled snapshot remains separately open.
+
+The frozen-original 300-battle v8-state/v7-action diagnostic is now complete
+(`diagnostic_300_v8_v7_belief_slice_materialization_report.md` and
+`diagnostic_300_v8_v7_belief_slice_quality_audit.md`). The exact requested
+non-full command attempted all 300 manifest entries after fixing all-entry
+selection; 299 materialized and the one known 24-vs-24 replay was rejected by
+the frozen six-slot schema. The artifact contains 25,020 states and 194,967
+candidates with exact `live-private-belief-v8` 3229D /
+`8ac51441…26053` plus `legal-action-v7` 552D / `956da3d2…1bf39d7`; all
+19 validation checks pass, v7 prefix identity is preserved, arrays are finite,
+and Batch 7/8 action activity remains present.
+
+The audit found and fixed one v8 provenance defect before final
+rematerialization: source-covered posterior updates had dropped immutable prior
+quality/alias fields. All 24,904 prior-bearing rows now retain all four quality
+flags; 116 rows across 14 replays exercise explicit unknown with
+`has_meta_prior=0` / `other_mass=1`. Labels are 25,017 matched / 3 unmatched,
+exactly the known non-self-confirming Illusion ambiguity floor, with no new
+v8-caused category. Old dataset NPZs are unchanged. This closes the 300-battle
+state-slice quality gate only; training, promotion, live use, and 1,000-battle
+v8 materialization remain closed. Candidate/action-v8 design is the recommended
+next representation step.

@@ -294,6 +294,10 @@ class OpponentSetBelief:
             prior_contradiction=self.prior_contradiction or contradiction,
             evidence_ledger=(*self.evidence_ledger, entry),
             last_public_event_index=evidence.event_index,
+            prior_source_key=self.prior_source_key,
+            prior_alias_policy_version=self.prior_alias_policy_version,
+            prior_joint_quality=self.prior_joint_quality,
+            prior_coverage_warnings=self.prior_coverage_warnings,
         )
 
 

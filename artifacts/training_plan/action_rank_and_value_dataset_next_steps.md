@@ -617,3 +617,22 @@ recommended next gated step is a 300-battle v8/v7 belief-slice materialization
 (frozen splits, new dir) + read-only quality audit, then the candidate/action v8
 slice; no training or durable run is approved. Value-dataset work remains
 independent.
+
+Update 5: the frozen-original 300-battle v8-state/v7-action materialization and
+quality audit are complete
+(`diagnostic_300_v8_v7_belief_slice_materialization_report.md`,
+`diagnostic_300_v8_v7_belief_slice_quality_audit.md`). The exact non-full
+command attempted all 300 entries; 299 were valid and the manifest's known
+24-vs-24 replay was rejected by the frozen six-slot schema. The resulting
+25,020-state / 194,967-candidate artifact has exact v8/v7 dimensions and
+fingerprints, all 19 validations pass, v7 prefix identity and Batch 7/8 activity
+are preserved, and arrays are finite.
+
+The audit also caught and fixed loss of immutable prior-quality provenance after
+source-covered belief updates; all 24,904 prior-bearing rows now carry the four
+quality flags, while 116 rows exercise explicit unknown. Labels remain at
+25,017 matched / 3 known Illusion ambiguity skips with no new v8-caused
+category. No training or live/default change occurred. Candidate/action-v8
+design is now the recommended next representation step; a 1,000-battle v8/v7
+state-only materialization remains a separately approved scale check rather than
+the default next action.
