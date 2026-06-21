@@ -1270,3 +1270,37 @@ This completes only the existing-data source adapter. The separate
 generator-sampled snapshot and convergence/calibration gate remains open. No
 v8 feature/schema, v7 fingerprint, materialization, training, checkpoint,
 live/default, browser, or strategic behavior changed.
+
+The held-out public-prefix audit is now complete on all 150 battles in the
+1,000-battle manifest's test split. Source coverage is high but not complete:
+1,562/1,600 public identity slots (97.62%) and 463/487 unique displayed
+species/forms (95.07%) have a prior. All 38 missing slots are recognizable
+form/alias-key gaps such as Palafin-Hero, cosmetic Pikachu/Vivillon/Florges
+forms, Polteageist-Antique, and Minior colors; the audit reports candidates but
+does not silently remap them.
+
+Unique public-label support is 306/337 abilities (90.80%), 2,984/3,071 moves
+(97.17%), and 205/214 Tera types (95.79%). These are declaration-support
+figures, not calibrated generator frequencies. The coarse ability probability
+has mean assigned mass 0.4439 including the fixed tail and log loss 2.2680;
+it is not suitable as production calibration.
+
+End-to-end posterior behavior is not ready for feature wiring: 724/1,600 slots
+(45.25%) reach explicit contradiction and 1,072/1,600 (67.00%) end with
+dominant unknown tail. Item reveals cause 701 first collapses because the source
+has no item hypotheses and current unknown-tail conditioning treats that as
+contradiction. The remaining first collapses expose dynamic/public identity
+semantics (Trace-copied abilities, Ditto copied moves/abilities, composite or
+forme abilities) plus six move cases, primarily Ditto and Struggle.
+
+All leakage checks pass: 300/300 prefix/suffix comparisons and 300/300
+hidden-truth perturbations; one Illusion replacement segment and two reflected
+move rows also pass without retrospective identity rewrite or reflected-move
+pollution.
+
+Decision: the checked-in role source is useful for offline plumbing and coarse
+support diagnostics, but is **not sufficient for first durable v8 feature
+wiring in its current end-to-end form**. Before a schema task, repair
+source-neutral alias/form resolution, unknown-tail-safe conditioning, and
+dynamic ability/Transform evidence semantics, then rerun this audit. The
+generator-sampled snapshot remains separately open.

@@ -807,3 +807,46 @@ This adapter is useful for diagnostic prefix coverage and posterior plumbing,
 but it does not supersede the separately designed generator-sampled snapshot
 or its convergence/calibration requirements. It is not wired into v8 features,
 schemas, materialization, training, damage, search, or live behavior.
+
+## Held-out public-prefix audit result
+
+The repository-backed source and replay-prefix adapter were audited on the
+entire 150-battle `test` split of the frozen 1,000-battle manifest. Evaluation
+labels use eventual public reveals only; belief snapshots use the prior plus
+the public prefix through the evaluated turn.
+
+Results:
+
+- public identity-slot coverage: 1,562/1,600 (97.62%);
+- unique displayed species/form coverage: 463/487 (95.07%);
+- unique ability-label support: 306/337 (90.80%);
+- unique move-label support: 2,984/3,071 (97.17%);
+- Tera-label support: 205/214 (95.79%);
+- tail-dominant final slots: 1,072/1,600 (67.00%);
+- explicitly contradictory final slots: 724/1,600 (45.25%);
+- prefix/suffix causality: 300/300;
+- hidden-truth perturbation invariance: 300/300;
+- Illusion segments: 1 observed, 0 failures;
+- reflected move rows: 2 observed, 0 attribution/pollution failures.
+
+Coverage misses are overwhelmingly public form/alias keys that have a plausible
+base source row but are intentionally not remapped by the current adapter.
+Ability/move/Tera support is strong as a binary declaration-support signal, but
+the probabilities are not calibrated: mean assigned ability mass is 0.4439
+including the fixed tail, with coarse log loss 2.2680.
+
+The contradiction rate exposes three pre-schema blockers:
+
+1. item facts are absent from the role source, while current posterior
+   conditioning turns an item reveal into contradiction instead of allowing
+   the explicit unknown tail to absorb it (701 first collapses);
+2. Trace, Transform/Imposter, and other dynamic current-state ability/move
+   protocol rows need separation from base hidden-set evidence;
+3. composite/forme abilities and displayed identities need an explicit,
+   versioned public alias policy.
+
+Decision: this source is sufficient for offline plumbing and coarse
+support/unknown diagnostics, but not for first durable v8 feature wiring as-is.
+Repair those three source-neutral semantics and rerun the audit before any
+feature names, dimensions, or fingerprints are proposed. A generator-sampled
+snapshot remains the preferred route for calibrated joint probabilities.

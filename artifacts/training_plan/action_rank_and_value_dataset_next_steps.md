@@ -535,3 +535,37 @@ to hidden replay/context truth. See
 
 No Randbats data was scraped, regenerated, sampled, or changed. The full
 generator-sampled prior snapshot remains a separate future task.
+
+## Held-out Randbats public-prefix audit update
+
+The full 150-battle test split of
+`diagnostic_1000_v7_v7_post_ditto_manifest.json` was scanned read-only.
+Coverage is 97.62% of 1,600 public identity slots and 95.07% of 487 unique
+displayed species/forms. The 38 missing slots are form/alias normalization
+gaps; no source row was invented or silently substituted.
+
+Unique eventual public labels are supported at:
+
+- abilities: 306/337 (90.80%);
+- moves: 2,984/3,071 (97.17%);
+- Tera types: 205/214 (95.79%).
+
+These values measure declaration support, not calibrated frequency. The fixed
+tail and equal role/alternative weighting remain too coarse for probability
+claims. More importantly, 45.25% of public slots reach explicit contradiction
+and 67.00% end tail-dominant. Most collapse is from items absent in the source;
+the remainder exposes Trace/Transform/composite-form evidence semantics and a
+small set of unsupported moves.
+
+Prefix causality and hidden-truth invariance both pass 300/300, and the observed
+Illusion/reflection cases pass. Therefore the next work should not be v8 schema
+wiring. First implement and test:
+
+1. an explicit public species/form alias policy;
+2. conditioning that lets unknown tail absorb unsupported item/fact reveals
+   without falsely declaring prior contradiction;
+3. dynamic ability and Transform/Imposter evidence semantics that distinguish
+   current copied state from base hidden-set facts.
+
+Then rerun the same audit. See
+`randbats_meta_prior_public_prefix_audit.md`.
