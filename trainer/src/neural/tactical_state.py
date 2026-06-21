@@ -605,7 +605,7 @@ class TacticalStateTracker:
         state["active_displayed_species"] = species
         state["active_species_source"] = "protocol"
         state["active_transformed"] = False
-        state["active_displayed_species_uncertain"] = True
+        state["active_displayed_species_uncertain"] = False
         state["active_illusion_revealed"] = False
         state["active_hp"] = hp
         state["active_max_hp"] = max_hp
@@ -652,7 +652,15 @@ class TacticalStateTracker:
             entry.update(
                 {
                     "ident": ident,
+                    "species": species,
+                    "base_species": species,
+                    "current_species": species,
+                    "displayed_species": species,
+                    "species_source": "protocol",
                     "active": True,
+                    "transformed": False,
+                    "displayed_species_uncertain": False,
+                    "illusion_revealed": False,
                     "hp_fraction": hp_fraction,
                     "status": status,
                     "status_source": "protocol",

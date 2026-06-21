@@ -177,6 +177,52 @@ def _overwrite_guard(output_dir: Path, manifest_path: Path) -> Tuple[bool, str]:
     return True, "same_manifest_or_unknown"
 
 
+def _explicit_protocol_team_sizes(path: Path) -> Dict[str, int]:
+    sizes: Dict[str, int] = {}
+    for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not raw_line.startswith("|teamsize|"):
+            continue
+        parts = raw_line.split("|")
+        if len(parts) >= 4 and parts[2] in ("p1", "p2"):
+            try:
+                sizes[parts[2]] = int(parts[3])
+            except ValueError:
+                continue
+    return sizes
+
+
+def _unsupported_team_size_entries(entries: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    unsupported = []
+    for entry in entries:
+        path = Path(str(entry.get("path") or ""))
+        if not path.is_file():
+            continue
+        sizes = _explicit_protocol_team_sizes(path)
+        if any(size <= 0 or size > 6 for size in sizes.values()):
+            unsupported.append(
+                {
+                    "replay_id": str(entry.get("replay_id") or ""),
+                    "team_sizes": sizes,
+                }
+            )
+    return unsupported
+
+
+def _validate_supported_replay_team_sizes(
+    trajectory: Dict[str, Any], *, replay_id: str
+) -> None:
+    sizes = trajectory.get("teamsize") if isinstance(trajectory.get("teamsize"), dict) else {}
+    unsupported = {
+        str(side): int(size)
+        for side, size in sizes.items()
+        if int(size) <= 0 or int(size) > 6
+    }
+    if unsupported:
+        raise ValueError(
+            f"{replay_id}: explicit team sizes {unsupported} exceed the frozen six-slot schema"
+        )
+
+
 def _validate_full_preflight(
     *,
     manifest: Dict[str, Any],
@@ -208,6 +254,7 @@ def _validate_full_preflight(
     compatibility = label_manifest.get("schema_compatibility") or {}
     action_schema = action_feature_schema(action_feature_version)
     overwrite_ok, overwrite_reason = _overwrite_guard(output_dir, manifest_path)
+    unsupported_team_sizes = _unsupported_team_size_entries(entries)
     checks = {
         "manifest_has_entries": len(entries) > 0,
         "entry_count_matches_split_targets": len(entries) == expected_total,
@@ -215,6 +262,7 @@ def _validate_full_preflight(
         "split_sizes_match_targets": split_counts == expected_split_counts,
         "no_split_overlap": all(len(splits) == 1 for splits in replay_to_splits.values()),
         "all_paths_exist": not missing_paths,
+        "team_sizes_fit_frozen_six_slot_schema": not unsupported_team_sizes,
         "label_manifest_valid": (
             label_manifest.get("label_version") == LABEL_VERSION
             and compatibility.get("state_feature_version") == FEATURE_VERSION_V7
@@ -235,7 +283,9 @@ def _validate_full_preflight(
     if not all(checks.values()):
         raise ValueError(
             f"full-manifest preflight failed: checks={checks}, "
-            f"missing_paths={missing_paths[:5]}, overwrite={overwrite_reason}"
+            f"missing_paths={missing_paths[:5]}, "
+            f"unsupported_team_sizes={unsupported_team_sizes[:5]}, "
+            f"overwrite={overwrite_reason}"
         )
     return {
         "checks": checks,
@@ -246,6 +296,7 @@ def _validate_full_preflight(
         "split_counts": dict(split_counts),
         "expected_split_counts": dict(expected_split_counts),
         "expected_total_battles": expected_total,
+        "unsupported_team_size_replays": unsupported_team_sizes,
         "overwrite_reason": overwrite_reason,
     }
 
@@ -811,6 +862,7 @@ def run_benchmark(
                     format_name="gen9randombattle",
                     source_path=str(path),
                 )
+                _validate_supported_replay_team_sizes(trajectory, replay_id=replay_id)
                 original_completed_teams = _reconstructed_completed_private_teams(trajectory)
                 completed_teams = _completed_teams_for_action_reconstruction(trajectory)
                 turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []
@@ -1179,6 +1231,7 @@ def _materialize_one_battle(
             format_name="gen9randombattle",
             source_path=str(path),
         )
+        _validate_supported_replay_team_sizes(trajectory, replay_id=replay_id)
         original_completed_teams = _reconstructed_completed_private_teams(trajectory)
         completed_teams = _completed_teams_for_action_reconstruction(trajectory)
         turns = trajectory.get("turns") if isinstance(trajectory.get("turns"), list) else []

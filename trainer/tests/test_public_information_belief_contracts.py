@@ -29,9 +29,38 @@ from neural.provenance_contracts import (
     speed_belief_exact,
     speed_belief_range,
 )
+from neural.tactical_state import build_tactical_state
 
 
 class PublicAbilityBeliefTest(unittest.TestCase):
+    def test_ordinary_displayed_gholdengo_allows_singleton_inference(self):
+        tactical = build_tactical_state(
+            ["|start", "|switch|p2a: Gholdengo|Gholdengo, L80|100/100"],
+            perspective_side="p1",
+        )
+        opponent = tactical["opponent"]
+        belief = public_ability_belief(
+            species_known=bool(opponent["active_displayed_species"]),
+            possible_abilities=["Good as Gold"],
+            displayed_species_uncertain=opponent["active_displayed_species_uncertain"],
+        )
+        self.assertEqual(belief.knownness, AbilityKnownness.INFERRED)
+        self.assertEqual(belief.effective_ability.ability, "goodasgold")
+
+    def test_ordinary_ambiguous_species_ability_does_not_collapse(self):
+        tactical = build_tactical_state(
+            ["|start", "|switch|p2a: Salamence|Salamence, L80|100/100"],
+            perspective_side="p1",
+        )
+        opponent = tactical["opponent"]
+        belief = public_ability_belief(
+            species_known=bool(opponent["active_displayed_species"]),
+            possible_abilities=["Intimidate", "Moxie"],
+            displayed_species_uncertain=opponent["active_displayed_species_uncertain"],
+        )
+        self.assertEqual(belief.knownness, AbilityKnownness.UNKNOWN)
+        self.assertIsNone(belief.effective_ability.ability)
+
     def test_species_singleton_ability_is_deterministic_public_inference(self):
         belief = public_ability_belief(species_known=True, possible_abilities=["Good as Gold"])
         self.assertEqual(belief.knownness, AbilityKnownness.INFERRED)

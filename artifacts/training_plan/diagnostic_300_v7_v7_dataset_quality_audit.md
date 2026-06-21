@@ -198,3 +198,19 @@ reconstruction issue is fixed and a clean v7 baseline can be audited.
 The dataset remains valid for read-only schema, prefix, distribution, and
 materializer diagnostics. Tiny smoke training, checkpoint promotion, and
 production/live use remain closed.
+
+## Post-audit fix note
+
+The primary blockers were subsequently fixed in source. The 253-mismatch replay
+is `gen9randombattle-2591563263`, a custom 24-vs-24 battle now rejected by
+profiler eligibility, full preflight, and per-battle validation. Ordinary
+switch/drag events also no longer mark displayed species globally uncertain;
+the flag remains an explicit Illusion/true-species guard.
+
+This report describes the immutable pre-fix artifact, so its statistics remain
+correct. The existing dataset is now **known-stale and prohibited for
+training**, and the current manifest is stale because it still contains the
+unsupported replay. Replace that train entry and rematerialize only after
+explicit approval, then issue a new quality audit. The custom replay accounts
+for 253 of the old 772 unmatched states; 519 old-artifact matcher limitations
+remain to be remeasured.

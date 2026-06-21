@@ -8,6 +8,16 @@ from neural.tactical_state import build_tactical_state, snapshot_with_private_st
 
 
 class TacticalStateTest(unittest.TestCase):
+    def test_ordinary_switch_has_known_displayed_species_without_illusion_guard(self):
+        state = build_tactical_state(
+            ["|start", "|switch|p2a: Gholdengo|Gholdengo, L80|100/100"],
+            perspective_side="p1",
+        )
+        opponent = state["opponent"]
+        self.assertEqual(opponent["active_displayed_species"], "Gholdengo")
+        self.assertFalse(opponent["active_displayed_species_uncertain"])
+        self.assertFalse(opponent["active_illusion_revealed"])
+
     def test_complete_history_marks_boosts_known(self):
         state = build_tactical_state(
             [

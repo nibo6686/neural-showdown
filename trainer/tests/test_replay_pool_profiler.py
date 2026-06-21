@@ -80,6 +80,17 @@ class ReplayPoolProfilerTest(unittest.TestCase):
         self.assertFalse(row["mechanics"]["illusion"])
         self.assertFalse(row["early_forfeit_or_short"])
 
+    def test_custom_team_size_above_six_is_not_diagnostic_eligible(self):
+        row = extract_replay_profile(
+            "|teamsize|p1|24\n|teamsize|p2|24\n|turn|5\n|win|Alice\n",
+            replay_id="custom-24",
+            path=Path("custom-24.log"),
+            metadata={"format": "gen9randombattle"},
+            replay_json={"inputlog": ">p1 move tackle\n"},
+        )
+        self.assertEqual(row["team_sizes"], {"p1": 24, "p2": 24})
+        self.assertFalse(row["eligible_diagnostic_300"])
+
 
 def _catalog_row(root: Path, index: int) -> dict:
     path = root / f"battle-{index}.log"

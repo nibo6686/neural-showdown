@@ -8,6 +8,7 @@ import numpy as np
 
 from neural.benchmark_vnext_featuregen import (
     _repeat_chain_enabled,
+    _validate_supported_replay_team_sizes,
     _validate_full_preflight,
     _completed_teams_for_action_reconstruction,
     _trajectory_prefix_before_event,
@@ -162,6 +163,17 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertIn("Stealth Rock", teams["p1"]["Dugtrio-Alola"]["moves"])
         self.assertNotIn("Dugtrio", teams["p1"])
 
+    def test_per_battle_validation_rejects_custom_team_size(self):
+        with self.assertRaisesRegex(ValueError, "frozen six-slot schema"):
+            _validate_supported_replay_team_sizes(
+                {"teamsize": {"p1": 24, "p2": 24}},
+                replay_id="custom-24",
+            )
+        _validate_supported_replay_team_sizes(
+            {"teamsize": {"p1": 6, "p2": 6}},
+            replay_id="standard-six",
+        )
+
     def test_pre_action_prefix_stops_before_same_decision_tera_event(self):
         tera = {"type": "tera", "side": "p1", "raw": "|-terastallize|p1a: X|Ghost"}
         move = {"type": "move", "side": "p1", "move": "Shadow Ball", "raw": "|move|p1a: X|Shadow Ball|p2a: Y"}
@@ -297,6 +309,22 @@ class GeneralizedFullPreflightTest(unittest.TestCase):
                 split_targets={"train": 210, "validation": 45, "test": 45},
             )
             with self.assertRaisesRegex(ValueError, "preflight failed"):
+                self._preflight(tmp, manifest)
+
+    def test_rejects_replay_with_team_size_above_frozen_six_slots(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            shared = tmp / "r.log"
+            shared.write_text(
+                "|teamsize|p1|24\n|teamsize|p2|24\n|turn|1\n",
+                encoding="utf-8",
+            )
+            manifest = self._manifest(
+                {"train": 2, "validation": 1, "test": 1},
+                shared_path=shared,
+                split_targets={"train": 2, "validation": 1, "test": 1},
+            )
+            with self.assertRaisesRegex(ValueError, "unsupported_team_sizes"):
                 self._preflight(tmp, manifest)
 
 

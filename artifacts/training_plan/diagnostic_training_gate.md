@@ -86,7 +86,9 @@
 - [x] Possible mechanic-threat awareness audited (`possible_mechanic_threat_awareness_audit.md`): v7 is partial; absorb threats are explicit, while Unaware/Magic Bounce/Good as Gold/Levitate/secondary-blocker possibility flags remain future-v8 work.
 - [x] Small diagnostic v7/v7 materialization explicitly approved, completed, and validated (`diagnostic_300_v7_v7_materialization_report.md`): 300/300 valid battles, 25,396 states, 189,957 candidates, 210/45/45 battle splits, 552D v7 action fingerprint validated, 300 resumable shards retained.
 - [x] `diagnostic_300_v7_v7` read-only dataset quality audit completed (`diagnostic_300_v7_v7_dataset_quality_audit.md`): structurally valid, but smoke training blocked on replay-state/materializer reconstruction quality.
-- [ ] Replay-state/materializer roster, move, form, and displayed-species uncertainty issues fixed and integration-tested before v7/v7 smoke training.
+- [x] Primary replay-state/materializer blockers fixed and regression-tested (`replay_state_reconstruction_blocker_fix_report.md`): custom team sizes above six now fail eligibility/preflight, and ordinary displayed species are public-known rather than globally Illusion-uncertain.
+- [ ] Replace the rejected 24-member train replay in `diagnostic_300_manifest.json`, pass fresh preflight, and obtain explicit approval for full v7/v7 rematerialization.
+- [ ] Fresh v7/v7 replacement artifact passes the dataset-quality audit before smoke training.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -850,3 +852,18 @@ approved rematerialization or training; do not add v8 first because it would
 not repair these data-quality defects. No dataset was changed, no training ran,
 and no checkpoint/live/schema setting changed. Training and production/live
 gates remain **closed**.
+
+The primary reconstruction blocker fix identified
+`gen9randombattle-2591563263` as a custom 24-vs-24 battle that slipped into the
+standard six-slot manifest. Its shard has 253 unmatched states because later
+team members cannot be represented. Replay profiling now makes explicit team
+sizes above six ineligible, full preflight rejects them, and per-battle
+materialization fails clearly if preflight is bypassed. Ordinary switch/drag
+events now keep their public displayed species known instead of activating the
+Illusion guard globally; explicit guards still block singleton ability
+collapse, ordinary Gholdengo can infer Good as Gold, and ambiguous sets remain
+unknown. The old dataset and manifest are stale for training: retain the
+artifact, replace the unsupported train replay, and rematerialize only after
+explicit approval. Subtracting the custom replay leaves 519 old-artifact
+matcher limitations to remeasure. No training, rematerialization, checkpoint,
+live, schema, or v8 change occurred. Both gates remain **closed**.

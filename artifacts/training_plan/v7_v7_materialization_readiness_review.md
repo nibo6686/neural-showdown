@@ -266,3 +266,24 @@ blocked, and implementing `legal-action-v8` first is not recommended because it
 would not repair the v7 dataset-state defects. The frozen v7 schema remains
 552D with fingerprint
 `956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`.
+
+## Reconstruction blocker fix update
+
+The two primary blockers are fixed in source and regression-tested:
+
+- `gen9randombattle-2591563263` is a custom 24-vs-24 replay. Profiler
+  eligibility, full preflight, and per-battle materialization now reject
+  explicit team sizes above the frozen six-slot schema.
+- Ordinary switch/drag events no longer mark public displayed species
+  uncertain. The bit remains an explicit Illusion/true-species guard.
+
+The existing artifact and source manifest are stale for training. Retain the
+dataset as a before-fix diagnostic, but replace the unsupported train replay,
+pass fresh read-only preflight/tests, obtain explicit approval, rematerialize
+v7/v7, and repeat the quality audit. The old artifact has 519 residual
+mismatches after subtracting the 253 custom-replay mismatches; the replacement
+artifact must be measured rather than assumed clean.
+
+Materialization readiness is **blocked on manifest replacement and fresh
+approval**. Training remains blocked on the replacement artifact's quality
+audit. No schema or fingerprint changed.

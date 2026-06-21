@@ -173,6 +173,7 @@ def extract_replay_profile(
     public_actions = 0
     faint_counts: Counter = Counter()
     revealed: Dict[str, set] = {"p1": set(), "p2": set()}
+    team_sizes: Dict[str, int] = {}
     warnings: List[str] = []
     timer_or_forfeit_evidence = False
 
@@ -190,6 +191,11 @@ def extract_replay_profile(
 
         if command == "player" and len(parts) >= 4 and parts[2] in players and parts[3]:
             players[parts[2]] = parts[3]
+        elif command == "teamsize" and len(parts) >= 4 and parts[2] in ("p1", "p2"):
+            try:
+                team_sizes[parts[2]] = int(parts[3])
+            except ValueError:
+                warnings.append(f"invalid team size: {parts[2]}={parts[3]}")
         elif command == "turn" and len(parts) >= 3:
             try:
                 total_turns = max(total_turns, int(parts[2]))
@@ -310,6 +316,7 @@ def extract_replay_profile(
         and total_turns >= 5
         and decisions > 0
         and _normalize_format(format_value) == "gen9randombattle"
+        and all(0 < size <= 6 for size in team_sizes.values())
     )
     upload_time = metadata.get("upload_time")
     if upload_time in (None, ""):
@@ -344,6 +351,7 @@ def extract_replay_profile(
             "p2": len(revealed["p2"]),
         },
         "faint_counts": {"p1": faint_counts["p1"], "p2": faint_counts["p2"]},
+        "team_sizes": dict(sorted(team_sizes.items())),
         "warnings": warnings,
         "error": "; ".join(warnings) if parse_error else None,
     }
