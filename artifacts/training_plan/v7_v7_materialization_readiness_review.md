@@ -436,3 +436,24 @@ approved rematerialization applies the fix. `legal-action-v7` stays 552D /
 `956da3d2…1bf39d7`; no state dim changed. No training, rematerialization,
 checkpoint promotion, live-default/live-bot change, schema/v8 change, or push
 occurred.
+
+## Post-Ditto rematerialization completed (residual 15 → 3)
+
+The approved post-Ditto v7/v7 rematerialization ran (source
+`01f14d6c04097b757f7a0435bc4eb3bf039ab768`) into
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_post_ditto`. Result: 300/300
+valid, 0 failed, 230.5s, 25,235 states, 197,449 candidates, 210/45/45 splits, 300
+shards, `live-private-belief-v7` 3208D + `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, all 18 validation checks passed, live defaults unchanged. Match
+rate **99.99% (25,232 / 3)**, up from post-Illusion 99.94% (15 unmatched). See
+`diagnostic_300_v7_v7_post_ditto_materialization_report.md` and
+`diagnostic_300_v7_v7_post_ditto_dataset_quality_audit.md`.
+
+All reconstruction fixes are confirmed present in the artifact (11 Ditto
+re-transform rows, Struggle, prior Thunder Wave Transform with Leaf Blade absent,
+actor-private Zoroark/Illusion). The only 3 remaining residuals are the irreducible
+non-self-confirming Illusion stints — explicit quarantined skips. Schema/feature
+names byte-identical to post_illusion; old datasets not overwritten. This is the
+cleanest v7/v7 artifact to date and the recommended baseline for a first tiny
+smoke/plumbing training run if explicitly approved. No training, checkpoint
+promotion, live-default/live-bot change, schema/v8 change, or push occurred.

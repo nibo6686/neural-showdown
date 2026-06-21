@@ -1,5 +1,11 @@
 # diagnostic_300_v7_v7_post_illusion Dataset Quality Audit
 
+> **Superseded (materialization quality):** the fresh
+> `diagnostic_300_v7_v7_post_ditto` rematerialization reduces these 15 residuals
+> to 3 (99.99% match) by applying the Ditto re-transform + Struggle fixes. See
+> `diagnostic_300_v7_v7_post_ditto_dataset_quality_audit.md`. This document is
+> retained as the pre-Ditto-fix residual analysis.
+
 Read-only audit of the fresh post-Illusion v7/v7 dataset
 (`artifacts/training_plan/datasets/diagnostic_300_v7_v7_post_illusion`). No
 training, rematerialization beyond the one approved run, checkpoint promotion,

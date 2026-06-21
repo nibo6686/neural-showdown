@@ -1034,3 +1034,31 @@ rematerialization. `legal-action-v7` stays 552D /
 changed. No training, rematerialization, checkpoint promotion,
 live-default/live-bot change, schema/v8/old-gen change, or push occurred. Production
 and live gates remain **closed**.
+
+The explicitly approved **post-Ditto v7/v7 rematerialization** then ran from source
+commit `01f14d6c04097b757f7a0435bc4eb3bf039ab768` into
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_post_ditto`
+(`diagnostic_300_v7_v7_post_ditto_materialization_report.md`): 300/300 valid
+battles, 0 failed, 230.5s, 25,235 states, 197,449 candidates, exact 210/45/45
+splits, 300 retained shards, `live-private-belief-v7` 3208D + `legal-action-v7`
+552D / `956da3d2…1bf39d7`, all 18 validation checks passed, live defaults
+unchanged, displayed-species uncertainty 0/25,235. Match rate rose from the
+post-Illusion 99.94% (15 unmatched) to **99.99% (3 unmatched)** — exactly the
+expected residual. The quality audit
+(`diagnostic_300_v7_v7_post_ditto_dataset_quality_audit.md`) confirms every fix
+landed in the artifact: the 11 Ditto re-transform rows (Sacred Fire/Energy
+Ball/Outrage) matched, the Struggle row matched, the prior Thunder Wave Transform
+case matched (Leaf Blade still absent), and the actor-private Zoroark/Illusion move
+and duplicate-Houndstone-switch cases matched. The **only 3 remaining residuals**
+are the irreducible non-self-confirming Illusion stints
+(`gen9randombattle-2593348981` t1 `Will-O-Wisp` and t2 `Poltergeist`;
+`gen9randombattle-2593283718` t3 `Hyper Voice`) — explicit quarantined skips, no
+wrong labels. Action/state feature name vectors are byte-identical to
+`diagnostic_300_v7_v7_post_illusion` (schema unchanged; v6 prefix names identical).
+Old datasets were not overwritten (byte-identical `.npz`). This is the cleanest
+v7/v7 artifact to date and the recommended baseline for a first tiny
+smoke/plumbing training run if explicitly approved. `legal-action-v7` stays 552D /
+`956da3d2…1bf39d7`; no state dim changed. No training, checkpoint promotion,
+live-default/live-bot change, schema/v8/old-gen change, or push occurred. This
+supersedes `diagnostic_300_v7_v7_post_illusion` for quality purposes. Production and
+live gates remain **closed**.
