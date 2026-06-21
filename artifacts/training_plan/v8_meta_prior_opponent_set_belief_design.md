@@ -721,3 +721,48 @@ prefix, and missing priors cannot fall back to hidden truth.
 This batch does not wire the contracts into v7/v8 feature generation, damage,
 search, materialization, or live behavior. Randbats sampling, Smogon/replay
 ingestion, feature schemas, and calibration remain the next separate gates.
+
+## Diagnostic public-replay-prefix adapter update
+
+The next contract-only bridge is implemented in
+`trainer/src/neural/opponent_set_belief_replay_adapter.py`. It accepts an
+existing `parse_protocol_log` trajectory and a `MetaPriorSource`, reads only
+the retained public protocol prefix, and returns immutable diagnostic snapshots
+for active and known opponent public identity segments. Prefix selection is
+inclusive by turn or exclusive by protocol-line count.
+
+Safe adapter evidence is deliberately narrow:
+
+- public move usage, excluding reflected move rows;
+- explicit ability/item/Tera reveal or activation;
+- named `[from] ability` and `[from] item` protocol attribution, including
+  safely named prevention/reflection/immunity events;
+- explicit Poltergeist item display.
+
+When protocol supplies `[of]`, ownership follows that named public actor;
+otherwise it follows the row subject. Thus reflected Defog/Will-O-Wisp confirms
+Magic Bounce on Hatterene but does not add those reflected moves to Hatterene's
+known moves. Generic immunity/failure, generic damage/healing, switches, move
+order, and strategic interpretation do not update set facts.
+
+Illusion is represented causally rather than repaired retrospectively. A
+`replace` row marks the prior displayed identity segment ambiguous and creates
+a new segment for the newly public species/form. Earlier prefix snapshots and
+their evidence remain unchanged.
+
+Nine focused tests include exact public rows from:
+
+- `gen9randombattle-2589608300` (reflected Defog and later Psychic);
+- `gen9randombattle-2594129364` (reflected Will-O-Wisp with Tera Steel);
+- `gen9randombattle-2593348981` (Illusion replacement and ordinary
+  ability/Poltergeist-item/move reveals).
+
+The tests prove prefix causality, hidden-truth perturbation invariance, correct
+reflection actor attribution, non-evidence behavior for switch/damage/speed
+proxies, and explicit unknown-tail preservation for missing priors.
+
+No Randbats data discovery, scraping, regeneration, sampling, or ingestion was
+performed. This adapter is not connected to v8 features, schemas, damage,
+search, materialization, training, or live behavior. The next separate design
+gate is a pinned prior-source adapter using the repository's already known
+Randbats set-data provenance, then held-out posterior calibration.

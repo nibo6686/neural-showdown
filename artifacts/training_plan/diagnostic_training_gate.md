@@ -104,8 +104,9 @@
 - [x] v8 source-neutral meta-prior/posterior contracts and fixture source
   implemented with future-prefix, hidden-truth perturbation, contradiction,
   unknown-tail, and safe protocol-evidence tests.
-- [ ] v8 contracts wired into a diagnostic-only belief construction path
-  without changing state/action features.
+- [x] v8 contracts wired into a diagnostic-only public-replay-prefix belief
+  construction path with real Magic Bounce/Illusion/item fixtures and no
+  state/action feature changes.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
@@ -1224,3 +1225,25 @@ Randbats/Smogon ingestion, materialization, training, checkpoint, live-default,
 or live-behavior change occurred. The next gate is a diagnostic-only adapter
 from existing public parsed prefixes into these contracts, followed separately
 by a pinned Randbats prior snapshot builder.
+
+The diagnostic replay-prefix adapter gate is now complete. The adapter consumes
+only the public `protocol_log` retained by the existing replay parser, truncates
+causally by line or turn, and updates fixture-backed beliefs for known public
+opponent identity segments. It handles explicit move, ability, item, Tera,
+named prevention/reflection/immunity, and Poltergeist item-reveal rows. Generic
+switching, damage, immunity, and move order do not become set evidence.
+
+Replay-backed tests cover reflected Defog/Psychic
+(`gen9randombattle-2589608300`), reflected Will-O-Wisp plus Tera labeling
+(`gen9randombattle-2594129364`), Illusion `replace` ambiguity, and ordinary
+ability/item/move reveals (`gen9randombattle-2593348981`). Illusion creates a
+new public identity segment instead of rewriting the earlier displayed-species
+belief. Tests also prove future-line truncation, hidden-truth perturbation
+invariance, correct reflection ownership, and explicit unknown-tail fallback.
+
+No Randbats source discovery, scraping, regeneration, sampling, or ingestion
+was attempted. No v8 feature/schema, v7 fingerprint, materialization, training,
+checkpoint, live/default, or browser behavior changed. The next separate gate
+is a pinned prior-source adapter using already established repository Randbats
+set provenance, followed by posterior calibration; it remains unimplemented
+and requires a separate task.

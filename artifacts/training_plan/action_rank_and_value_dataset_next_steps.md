@@ -483,10 +483,32 @@ features exist yet, and the v7 dimensions/fingerprints are untouched.
 
 Recommended next sequence:
 
-1. add a diagnostic-only adapter that maps existing parsed public prefixes and
-   reliable public identity into `OpponentSetBelief`, still producing no model
-   features;
-2. build the pinned offline Randbats generator snapshot exporter with
-   convergence/checksum reporting;
+1. use the completed diagnostic replay-prefix adapter to run a held-out
+   posterior calibration/prefix-invariance audit once a pinned source adapter
+   exists;
+2. build the pinned offline Randbats prior adapter/exporter from the
+   repository's already established set-data path, without rediscovery or
+   regeneration;
 3. audit posterior calibration and prefix invariance on held-out replays;
 4. only then design/freeze the compact append-only v8 feature slices.
+
+## Diagnostic replay-prefix adapter update
+
+`opponent_set_belief_replay_adapter.py` now bridges existing parsed replay
+trajectories to the source-neutral belief contracts without producing model
+features. It reads only retained public protocol prefixes, supports inclusive
+turn and exclusive line truncation, tracks active/known public identity
+segments, and applies only explicit move/ability/item/Tera and named
+prevention/reflection/immunity evidence. Explicit Poltergeist item display is
+also accepted. Generic damage, generic immunity, switches, speed order, and
+strategic behavior are non-evidence.
+
+The replay tests use exact public rows from the existing Magic Bounce and
+Illusion audit cases. Reflected Defog and Will-O-Wisp confirm Magic Bounce on
+the reflector without polluting its move set. A later Illusion `replace`
+creates a new Zoroark-Hisui segment and cannot mutate the earlier displayed
+Avalugg prefix belief. Missing fixture priors remain `other_mass = 1`.
+
+This remains diagnostic infrastructure only. No Randbats/Smogon prior
+ingestion, v8 feature encoder, schema change, materialization, training, or
+live behavior is included.
