@@ -239,6 +239,114 @@ class RandbatsJointSetPosteriorFidelityTest(unittest.TestCase):
         )
 
 
+class RandbatsCopiedStateSemanticsTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = RandbatsMetaPriorSource()
+
+    def _opp_belief(self, lines):
+        trace = parse_protocol_log(
+            lines, replay_id="copied-state", format_name=FORMAT
+        )
+        snapshot = build_replay_prefix_beliefs(
+            trace, self.source, perspective_side="p1"
+        )
+        return snapshot.active_slots[0].belief
+
+    def _copied(self, belief):
+        return {
+            row.evidence.value
+            for row in belief.evidence_ledger
+            if row.current_state_only
+        }
+
+    def test_trace_copied_ability_is_current_state_only(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Gardevoir|Gardevoir, L80, F|100/100",
+                "|turn|1",
+                "|-ability|p2a: Gardevoir|Sturdy|Trace"
+                "|[from] ability: Trace|[of] p1a: Skarmory",
+            ]
+        )
+        self.assertFalse(belief.prior_contradiction)
+        # Base Trace is confirmed; the copied Sturdy is current-state only.
+        self.assertEqual(belief.confirmed.ability, "trace")
+        self.assertIn("sturdy", self._copied(belief))
+        self.assertNotIn("sturdy", belief.ruled_out.abilities)
+
+    def test_traced_carrier_later_activation_is_current_state(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Gardevoir|Gardevoir, L80, F|100/100",
+                "|-ability|p2a: Gardevoir|Volt Absorb|Trace"
+                "|[from] ability: Trace|[of] p1a: Pincurchin",
+                "|turn|1",
+                "|-immune|p2a: Gardevoir|[from] ability: Volt Absorb",
+            ]
+        )
+        self.assertFalse(belief.prior_contradiction)
+        self.assertIn("voltabsorb", self._copied(belief))
+
+    def test_imposter_transform_copies_are_current_state(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Ditto|Ditto, L84|100/100",
+                "|-transform|p2a: Ditto|p1a: Koraidon|[from] ability: Imposter",
+                "|turn|1",
+                "|move|p2a: Ditto|Close Combat|p1a: Koraidon",
+                "|-ability|p2a: Ditto|Orichalcum Pulse",
+            ]
+        )
+        self.assertFalse(belief.prior_contradiction)
+        self.assertEqual(belief.confirmed.ability, "imposter")
+        self.assertNotIn("closecombat", belief.confirmed.moves)
+        copied = self._copied(belief)
+        self.assertIn("closecombat", copied)
+        self.assertIn("orichalcumpulse", copied)
+
+    def test_struggle_does_not_contradict_base_prior(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Dragalge|Dragalge, L84, F|100/100",
+                "|turn|1",
+                "|move|p2a: Dragalge|Struggle|p1a: Koraidon",
+            ]
+        )
+        self.assertFalse(belief.prior_contradiction)
+        self.assertNotIn("struggle", belief.confirmed.moves)
+        self.assertIn("struggle", self._copied(belief))
+
+    def test_as_one_component_abilities_do_not_contradict(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Calyrex|Calyrex-Ice, L75|100/100",
+                "|-ability|p2a: Calyrex|As One",
+                "|-ability|p2a: Calyrex|Unnerve",
+                "|turn|1",
+                "|-ability|p2a: Calyrex|Chilling Neigh|boost",
+            ]
+        )
+        self.assertFalse(belief.prior_contradiction)
+        copied = self._copied(belief)
+        self.assertIn("asone", copied)
+        self.assertIn("unnerve", copied)
+        self.assertIn("chillingneigh", copied)
+
+    def test_true_source_limitation_remains_visible(self):
+        belief = self._opp_belief(
+            [
+                "|switch|p2a: Leavanny|Leavanny, L88, F|100/100",
+                "|turn|1",
+                "|-ability|p2a: Leavanny|Pickpocket",
+            ]
+        )
+        # Pickpocket is a genuine base-set ability the role source omits, so the
+        # source-covered contradiction must stay explicit.
+        self.assertTrue(belief.prior_contradiction)
+        self.assertEqual(belief.confirmed.ability, "pickpocket")
+
+
 class RandbatsContradictionClassifierTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -17,6 +17,9 @@ from .opponent_set_belief import (
     OpponentSetBelief,
     PublicEvidence,
     initialize_belief,
+    is_copied_ability_marker,
+    is_forme_state_ability,
+    is_universal_noise_move,
 )
 
 
@@ -142,6 +145,41 @@ def _line_evidence(raw: str, event_index: int, turn: int) -> Tuple[Tuple[str, Pu
 
     from_ability = re.search(r"\[from\]\s*ability:\s*([^|\]]+)", raw, re.I)
     from_item = re.search(r"\[from\]\s*item:\s*([^|\]]+)", raw, re.I)
+    trace_copy = bool(
+        from_ability and is_copied_ability_marker(from_ability.group(1))
+    )
+    if trace_copy:
+        # Trace activation: `-ability|TRACER|CopiedAbility|Trace|[from] ability:
+        # Trace|[of] SOURCE`.  Trace belongs to the subject (the tracer), and the
+        # copied ability is the tracer's current state -- do not attribute Trace
+        # to the `[of]` source (that is the copy origin, not a Trace carrier).
+        result.append(
+            (
+                subject,
+                PublicEvidence(
+                    EvidenceKind.ABILITY_REVEALED,
+                    from_ability.group(1),
+                    event_index,
+                    turn,
+                    provenance="public_replay_trace_base",
+                ),
+            )
+        )
+        if len(parts) > 3 and canonical_id(parts[3]):
+            result.append(
+                (
+                    subject,
+                    PublicEvidence(
+                        EvidenceKind.ABILITY_REVEALED,
+                        parts[3],
+                        event_index,
+                        turn,
+                        provenance="public_replay_trace_copied",
+                        current_state_only=True,
+                    ),
+                )
+            )
+        return tuple(result)
     if from_ability:
         owner = _named_owner(raw, subject)
         result.append(
@@ -181,6 +219,7 @@ def _line_evidence(raw: str, event_index: int, turn: int) -> Tuple[Tuple[str, Pu
                     event_index,
                     turn,
                     provenance="public_replay_move",
+                    current_state_only=is_universal_noise_move(parts[3]),
                 ),
             )
         )
@@ -194,6 +233,7 @@ def _line_evidence(raw: str, event_index: int, turn: int) -> Tuple[Tuple[str, Pu
                     event_index,
                     turn,
                     provenance="public_replay_ability",
+                    current_state_only=is_forme_state_ability(parts[3]),
                 ),
             )
         )
@@ -226,9 +266,10 @@ def _line_evidence(raw: str, event_index: int, turn: int) -> Tuple[Tuple[str, Pu
     elif command == "-activate" and len(parts) > 3:
         activation = re.fullmatch(r"\s*(ability|item)\s*:\s*(.+?)\s*", parts[3], re.I)
         if activation:
+            is_ability = activation.group(1).lower() == "ability"
             kind = (
                 EvidenceKind.ABILITY_REVEALED
-                if activation.group(1).lower() == "ability"
+                if is_ability
                 else EvidenceKind.ITEM_REVEALED
             )
             result.append(
@@ -240,6 +281,9 @@ def _line_evidence(raw: str, event_index: int, turn: int) -> Tuple[Tuple[str, Pu
                         event_index,
                         turn,
                         provenance="public_replay_activation",
+                        current_state_only=(
+                            is_ability and is_forme_state_ability(activation.group(2))
+                        ),
                     ),
                 )
             )
@@ -283,6 +327,8 @@ def build_replay_prefix_beliefs(
     active_by_position: Dict[str, str] = {}
     reusable_by_species: Dict[str, str] = {}
     species_counts: Dict[str, int] = {}
+    transformed_slots: set = set()  # Transform/Imposter: copied moves + abilities
+    copied_ability_slots: set = set()  # Trace carrier / As One fused: copied abilities
     turn = 0
 
     def create_slot(position: str, species: str) -> str:
@@ -331,6 +377,9 @@ def build_replay_prefix_beliefs(
                 deactivate(position)
                 slot_key = select_switch_slot(position, species)
                 active_by_position[position] = slot_key
+                # A fresh switch-in reverts any copied (Transform/Trace) state.
+                transformed_slots.discard(slot_key)
+                copied_ability_slots.discard(slot_key)
         elif command == "replace" and len(parts) > 3 and _side(parts[2]) == opponent_side:
             position = _position(parts[2])
             species = _species_from_details(parts[3])
@@ -363,7 +412,37 @@ def build_replay_prefix_beliefs(
                 active_by_position[position] = slot_key
             slot = slots[slot_key]
             applied = replace(evidence, subject_key=slot.species_form_key)
+            if not evidence.current_state_only:
+                ability_copied = (
+                    slot_key in transformed_slots or slot_key in copied_ability_slots
+                ) and canonical_id(evidence.value) != "trace"
+                if evidence.kind == EvidenceKind.ABILITY_REVEALED and ability_copied:
+                    # Abilities shown by a Transformed/Traced/As One slot are copied.
+                    applied = replace(applied, current_state_only=True)
+                elif (
+                    evidence.kind == EvidenceKind.MOVE_REVEALED
+                    and slot_key in transformed_slots
+                ):
+                    applied = replace(applied, current_state_only=True)
             slots[slot_key] = replace(slot, belief=slot.belief.update(applied))
+            # An As One fused-ability reveal makes later component abilities
+            # (Unnerve, Chilling/Grim Neigh) copied current-state on this slot.
+            if (
+                evidence.kind == EvidenceKind.ABILITY_REVEALED
+                and canonical_id(evidence.value).startswith("asone")
+            ):
+                copied_ability_slots.add(slot_key)
+
+        if len(parts) > 2 and _side(parts[2]) == opponent_side:
+            position = _position(parts[2])
+            slot_key = active_by_position.get(position or "")
+            if slot_key:
+                # Mark after the line so the row's own `[from] ability: Imposter`
+                # / base Trace stays base; copied facts arrive on later lines.
+                if command == "-transform":
+                    transformed_slots.add(slot_key)
+                if re.search(r"\[from\]\s*ability:\s*trace", raw, re.I):
+                    copied_ability_slots.add(slot_key)
 
     return ReplayPrefixBeliefSnapshot(
         replay_id=(

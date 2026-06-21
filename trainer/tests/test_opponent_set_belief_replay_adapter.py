@@ -338,5 +338,65 @@ class PrefixCausalityAndNoLeakageTest(unittest.TestCase):
         self.assertFalse(belief.prior_contradiction)
 
 
+class TransformCopiedStateTest(unittest.TestCase):
+    def _ditto_source(self):
+        return fixture_source_for_species(
+            format_id=FORMAT,
+            priors={
+                "Ditto": _prior(
+                    "Ditto",
+                    _hypothesis("imposter", 1.0, ability="Imposter", moves=("Transform",)),
+                )
+            },
+        )
+
+    def test_transform_copied_moves_and_abilities_are_current_state(self):
+        trace = _trajectory(
+            "ditto-transform",
+            [
+                "|switch|p2a: Ditto|Ditto, L84|100/100",
+                "|-transform|p2a: Ditto|p1a: Koraidon|[from] ability: Imposter",
+                "|turn|1",
+                "|move|p2a: Ditto|Close Combat|p1a: Koraidon",
+                "|-ability|p2a: Ditto|Orichalcum Pulse",
+            ],
+        )
+        belief = build_replay_prefix_beliefs(
+            trace, self._ditto_source(), perspective_side="p1"
+        ).active_slots[0].belief
+        # Base Imposter stays confirmed; copied move/ability never contradict and
+        # are not added to Ditto's base confirmed facts.
+        self.assertEqual(belief.confirmed.ability, "imposter")
+        self.assertFalse(belief.prior_contradiction)
+        self.assertNotIn("closecombat", belief.confirmed.moves)
+        copied = [
+            row.evidence.value
+            for row in belief.evidence_ledger
+            if row.current_state_only
+        ]
+        self.assertIn("closecombat", copied)
+        self.assertIn("orichalcumpulse", copied)
+
+    def test_switch_out_reverts_copied_state(self):
+        trace = _trajectory(
+            "ditto-transform-revert",
+            [
+                "|switch|p2a: Ditto|Ditto, L84|100/100",
+                "|-transform|p2a: Ditto|p1a: Koraidon|[from] ability: Imposter",
+                "|move|p2a: Ditto|Close Combat|p1a: Koraidon",
+                "|switch|p2a: Gholdengo|Gholdengo, L77|100/100",
+                "|switch|p2a: Ditto|Ditto, L84|50/100",
+                "|move|p2a: Ditto|Transform|p1a: Koraidon",
+            ],
+        )
+        # After switching back in (before re-transforming) the base Transform move
+        # is real base evidence, not copied state.
+        belief = build_replay_prefix_beliefs(
+            trace, self._ditto_source(), perspective_side="p1"
+        ).active_slots[0].belief
+        self.assertFalse(belief.prior_contradiction)
+        self.assertIn("transform", belief.confirmed.moves)
+
+
 if __name__ == "__main__":
     unittest.main()

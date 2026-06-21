@@ -9,6 +9,7 @@ from neural.opponent_set_belief_replay_adapter import build_replay_prefix_belief
 from neural.parse_replay_logs import parse_protocol_log
 from neural.randbats_meta_prior_source import (
     DEFAULT_UNKNOWN_TAIL_MASS,
+    RANDBATS_ALIAS_POLICY_VERSION,
     RANDBATS_META_PRIOR_ADAPTER_VERSION,
     RandbatsMetaPriorSource,
 )
@@ -95,6 +96,41 @@ class RandbatsMetaPriorSourceTest(unittest.TestCase):
         self.assertIsNone(self.source.prior_for(FORMAT, "MissingNo"))
         with self.assertRaisesRegex(ValueError, "format mismatch"):
             self.source.prior_for("gen9ou", "Dondozo")
+
+    def test_exact_form_alias_maps_to_base_prior_with_metadata(self):
+        direct = self.source.prior_for(FORMAT, "Palafin")
+        aliased = self.source.prior_for(FORMAT, "Palafin-Hero")
+        self.assertIsNotNone(aliased)
+        # Displayed key is preserved; source key records the canonical base.
+        self.assertEqual(aliased.species_form_key, "palafinhero")
+        self.assertEqual(aliased.source_species_key, "palafin")
+        self.assertTrue(aliased.alias_applied)
+        self.assertEqual(aliased.alias_policy_version, RANDBATS_ALIAS_POLICY_VERSION)
+        self.assertIn("prior_via_species_alias:palafin", aliased.coverage_warnings)
+        # The hypotheses are exactly the base prior's (modulo the display key).
+        self.assertEqual(
+            {h.ability for h in aliased.hypotheses},
+            {h.ability for h in direct.hypotheses},
+        )
+
+    def test_cosmetic_form_alias_maps_to_base(self):
+        aliased = self.source.prior_for(FORMAT, "Vivillon-High Plains")
+        self.assertIsNotNone(aliased)
+        self.assertEqual(aliased.source_species_key, "vivillon")
+        self.assertEqual(aliased.alias_policy_version, RANDBATS_ALIAS_POLICY_VERSION)
+
+    def test_direct_hit_is_not_marked_aliased(self):
+        direct = self.source.prior_for(FORMAT, "Dondozo")
+        self.assertIsNone(direct.source_species_key)
+        self.assertIsNone(direct.alias_policy_version)
+        self.assertFalse(direct.alias_applied)
+
+    def test_unknown_form_is_not_guessed(self):
+        # Not in the explicit map and not a listed cosmetic genus.
+        self.assertIsNone(self.source.prior_for(FORMAT, "Totallyfakemon-Xyz"))
+        # A functional regional forme genus is intentionally excluded from the
+        # cosmetic allowlist, so an unknown Tauros forme is not fuzzed to tauros.
+        self.assertIsNone(self.source.prior_for(FORMAT, "Tauros-Fakeregion"))
 
     def test_metadata_and_prior_do_not_accept_hidden_truth_fields(self):
         prior_a = self.source.prior_for(

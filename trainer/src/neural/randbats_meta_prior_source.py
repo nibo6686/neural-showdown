@@ -28,6 +28,41 @@ RANDBATS_META_PRIOR_ADAPTER_VERSION = "randbats-role-data-adapter-v1"
 DEFAULT_FORMAT_ID = "gen9randombattle"
 DEFAULT_UNKNOWN_TAIL_MASS = 0.5
 
+# Explicit, versioned public-form alias policy.  The role source stores some
+# public display forms under a base key; this layer maps the public key to that
+# base key.  It is deliberately conservative: only the exact keys and the listed
+# purely-cosmetic genera are mapped, every target must exist in the source, and
+# anything not covered stays a visible missing prior (never silently guessed).
+RANDBATS_ALIAS_POLICY_VERSION = "randbats-form-alias-v1"
+
+# Exact public-form key -> canonical base key.
+_EXACT_FORM_ALIASES = {
+    "palafinhero": "palafin",
+    "polteageistantique": "polteageist",
+    "sinistchamasterpiece": "sinistcha",
+    "dudunsparcethreesegment": "dudunsparce",
+    "magearnaoriginal": "magearna",
+    "mimikyubusted": "mimikyu",
+    "zarudedada": "zarude",
+    # Ogerpon terastallized masks map to their (non-tera) mask base entry.
+    "ogerpontealtera": "ogerpon",
+    "ogerponwellspringtera": "ogerponwellspring",
+    "ogerponhearthflametera": "ogerponhearthflame",
+    "ogerponcornerstonetera": "ogerponcornerstone",
+}
+
+# Purely-cosmetic genera: any suffixed display variant maps to the base species
+# (color/pattern/region cosmetics with identical sets).  Functional regional
+# formes (e.g. Tauros-Paldea) are intentionally excluded.
+_COSMETIC_FORM_BASES = (
+    "vivillon",
+    "alcremie",
+    "pikachu",
+    "minior",
+    "florges",
+    "sawsbuck",
+)
+
 
 class RandbatsMetaPriorSource(MetaPriorSource):
     """Wrap the old shortcut's pinned role/movepool source as a prior source."""
@@ -104,13 +139,35 @@ class RandbatsMetaPriorSource(MetaPriorSource):
             )
         species_key = canonical_id(species_form_key)
         candidates = self._index.get(species_key)
+        source_key: Optional[str] = None
+        if not candidates:
+            alias_base = self._resolve_alias(species_key)
+            if alias_base:
+                candidates = self._index.get(alias_base)
+                if candidates:
+                    source_key = alias_base
         if not candidates:
             return None
         return _prior_from_role_candidates(
             species_key,
             candidates,
             unknown_tail_mass=self._unknown_tail_mass,
+            source_species_key=source_key,
         )
+
+    def _resolve_alias(self, species_key: str) -> Optional[str]:
+        """Map a public form key to an in-source base key via explicit policy."""
+        exact = _EXACT_FORM_ALIASES.get(species_key)
+        if exact and exact in self._index:
+            return exact
+        for base in _COSMETIC_FORM_BASES:
+            if (
+                species_key != base
+                and species_key.startswith(base)
+                and base in self._index
+            ):
+                return base
+        return None
 
 
 def _repo_root() -> Path:
@@ -137,6 +194,7 @@ def _prior_from_role_candidates(
     candidates: List[Dict[str, Any]],
     *,
     unknown_tail_mass: float,
+    source_species_key: Optional[str] = None,
 ) -> SetPrior:
     expansions: List[Tuple[int, str, str, str, Tuple[str, ...]]] = []
     warnings = {
@@ -146,6 +204,11 @@ def _prior_from_role_candidates(
         "role_weights_unavailable_equal_weight_assumption",
         f"unvalidated_unknown_tail_policy:{unknown_tail_mass:g}",
     }
+    alias_policy_version = (
+        RANDBATS_ALIAS_POLICY_VERSION if source_species_key else None
+    )
+    if source_species_key:
+        warnings.add(f"prior_via_species_alias:{source_species_key}")
 
     for candidate_index, candidate in enumerate(candidates):
         abilities = _nonempty(candidate.get("abilities")) or ("",)
@@ -165,6 +228,8 @@ def _prior_from_role_candidates(
             other_mass=1.0,
             joint_quality=JointQuality.FACTORIZED,
             coverage_warnings=tuple(sorted(warnings | {"no_usable_role_declarations"})),
+            source_species_key=source_species_key,
+            alias_policy_version=alias_policy_version,
         )
 
     represented_mass = 1.0 - unknown_tail_mass
@@ -203,4 +268,6 @@ def _prior_from_role_candidates(
         other_mass=unknown_tail_mass,
         joint_quality=JointQuality.FACTORIZED,
         coverage_warnings=tuple(sorted(warnings)),
+        source_species_key=source_species_key,
+        alias_policy_version=alias_policy_version,
     )

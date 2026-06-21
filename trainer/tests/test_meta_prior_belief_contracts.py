@@ -244,6 +244,27 @@ class SourceAbsentDimensionTest(unittest.TestCase):
         self.assertEqual(updated.other_mass, 1.0)
         self.assertTrue(updated.evidence_ledger[-1].source_covered)
 
+    def test_current_state_only_evidence_never_filters_or_contradicts(self):
+        belief = initialize_belief(
+            _itemless_source(), format_id=FORMAT, species_form_key=SPECIES
+        )
+        # A copied/forme current-state reveal incompatible with every hypothesis
+        # is recorded in the ledger but must not filter, rule out, or contradict.
+        updated = belief.update(
+            PublicEvidence(
+                EvidenceKind.ABILITY_REVEALED,
+                "Volt Absorb",
+                1,
+                current_state_only=True,
+            )
+        )
+        self.assertFalse(updated.prior_contradiction)
+        self.assertEqual(len(updated.hypotheses), len(belief.hypotheses))
+        self.assertEqual(updated.other_mass, belief.other_mass)
+        self.assertIsNone(updated.confirmed.ability)
+        self.assertEqual(updated.ruled_out.abilities, frozenset())
+        self.assertTrue(updated.evidence_ledger[-1].current_state_only)
+
 
 class PublicPrefixNoLeakageTest(unittest.TestCase):
     def test_safe_protocol_evidence_and_reflection_attribution(self):

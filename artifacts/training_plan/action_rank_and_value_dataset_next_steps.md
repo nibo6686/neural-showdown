@@ -579,8 +579,17 @@ dimensions. The re-run audit (150-battle test split) confirms the explicit
 contradiction rate fell 45.25% → **1.75%** with **0** item contradictions across
 2,207 item reveals; tail-dominant fell 67.00% → 44.31%. The 28 remaining
 contradictions are all source-covered: 16 dynamic/copied-state (Trace/Imposter),
-9 forme-tied abilities, 2 true source gaps, 1 Struggle. The source is now clean
-enough for a first append-only v8 belief-feature slice with explicit
-source-quality/unknown provenance; the alias policy (1) and
-dynamic-ability/Transform semantics (3) remain bounded, non-blocking follow-ups.
+9 forme-tied abilities, 2 true source gaps, 1 Struggle.
+
+Update 2: blockers (1) alias policy and (3) dynamic-ability/Transform semantics
+are now implemented and re-audited. An explicit versioned form-alias policy
+(`randbats-form-alias-v1`) and copied/forme current-state semantics
+(`current_state_only` for Trace, Imposter/Transform, Struggle, As One/Tera
+Shell/Battle Bond/Embody Aspect) bring coverage to **100%/100%** and the explicit
+contradiction rate to **0.12% (2/1600)** — only the genuine source gaps
+`leavanny:pickpocket` and `beartic:dryskin` remain (correctly visible). All
+causality/hidden-truth/Illusion/reflection checks pass. The source is now clean
+enough for the first append-only v8 belief-feature slice (features must expose
+source-quality/unknown provenance and treat coarse support as uncalibrated); the
+generator-sampled snapshot remains the route to calibrated joint probabilities.
 See `randbats_meta_prior_public_prefix_audit.md`.

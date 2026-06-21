@@ -10,13 +10,21 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 from .meta_prior import SetPrior, canonical_id
-from .opponent_set_belief import EvidenceKind
+from .opponent_set_belief import (
+    EvidenceKind,
+    is_copied_ability_marker,
+    is_forme_state_ability,
+    is_universal_noise_move,
+)
 from .opponent_set_belief_replay_adapter import (
     build_replay_prefix_beliefs,
     replay_protocol_prefix,
 )
 from .parse_replay_logs import parse_protocol_log
-from .randbats_meta_prior_source import RandbatsMetaPriorSource
+from .randbats_meta_prior_source import (
+    RANDBATS_ALIAS_POLICY_VERSION,
+    RandbatsMetaPriorSource,
+)
 
 
 def _side(ident: str) -> Optional[str]:
@@ -57,6 +65,8 @@ def _prior_support(prior: SetPrior, kind: EvidenceKind, value: str) -> Tuple[boo
 
 def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
     active: Dict[str, str] = {}
+    transformed: set = set()  # Transform/Imposter: copied moves + abilities
+    copied_ability: set = set()  # Trace carrier / As One fused: copied abilities
     turn = 0
     result: List[Dict[str, Any]] = []
     for index, raw in enumerate(lines):
@@ -75,6 +85,8 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
             species = _species(parts[3])
             if position and species:
                 active[position] = species
+                transformed.discard(position)
+                copied_ability.discard(position)
                 result.append(
                     {
                         "kind": "identity",
@@ -93,6 +105,8 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
         side = _side(subject)
         if not species or not side:
             continue
+        copied_slot = position in transformed  # copied moves
+        ability_copied = position in transformed or position in copied_ability
         from_ability = re.search(r"\[from\]\s*ability:\s*([^|\]]+)", raw, re.I)
         from_item = re.search(r"\[from\]\s*item:\s*([^|\]]+)", raw, re.I)
         if command == "move" and len(parts) > 3 and not from_ability:
@@ -105,12 +119,13 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                     "turn": turn,
                     "line": index,
                     "raw": raw,
+                    "current_state": copied_slot or is_universal_noise_move(parts[3]),
                 }
             )
         trace_reveal = bool(
             command == "-ability"
             and from_ability
-            and canonical_id(from_ability.group(1)) == "trace"
+            and is_copied_ability_marker(from_ability.group(1))
         )
         if command == "-ability" and len(parts) > 3:
             result.append(
@@ -122,6 +137,12 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                     "turn": turn,
                     "line": index,
                     "raw": raw,
+                    # Trace base ability stays base; the copied ability and
+                    # forme-state labels are current-state, not base-set.
+                    "current_state": (
+                        not trace_reveal
+                        and (ability_copied or is_forme_state_ability(parts[3]))
+                    ),
                 }
             )
         elif command in {"-item", "-enditem"} and len(parts) > 3:
@@ -153,9 +174,10 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                 r"\s*(ability|item)\s*:\s*(.+?)\s*", parts[3], re.I
             )
             if activation:
+                is_ability = activation.group(1).lower() == "ability"
                 kind = (
                     EvidenceKind.ABILITY_REVEALED
-                    if activation.group(1).lower() == "ability"
+                    if is_ability
                     else EvidenceKind.ITEM_REVEALED
                 )
                 result.append(
@@ -167,8 +189,18 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                         "turn": turn,
                         "line": index,
                         "raw": raw,
+                        "current_state": is_ability
+                        and (ability_copied or is_forme_state_ability(activation.group(2))),
                     }
                 )
+        if command == "-transform":
+            transformed.add(position)
+        if command == "-ability" and len(parts) > 3 and canonical_id(parts[3]).startswith(
+            "asone"
+        ):
+            copied_ability.add(position)
+        if trace_reveal:
+            copied_ability.add(position)
         if from_ability and not trace_reveal:
             owner = subject
             owner_match = re.search(r"\[of\]\s*([^|]+)", raw, re.I)
@@ -189,6 +221,10 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                     "line": index,
                     "raw": raw,
                     "named_effect": True,
+                    "current_state": (
+                        owner_position in transformed
+                        or owner_position in copied_ability
+                    ),
                 }
             )
         if from_item:
@@ -205,35 +241,6 @@ def _public_events(lines: Iterable[str]) -> List[Dict[str, Any]]:
                 }
             )
     return result
-
-
-def _alias_candidate(species: str, source: RandbatsMetaPriorSource) -> Optional[str]:
-    replacements = (
-        ("palafinhero", "palafin"),
-        ("polteageistantique", "polteageist"),
-        ("sinistchamasterpiece", "sinistcha"),
-        ("dudunsparcethreesegment", "dudunsparce"),
-        ("ogerponcornerstonetera", "ogerponcornerstone"),
-        ("magearnaoriginal", "magearna"),
-        ("mimikyubusted", "mimikyu"),
-        ("zarudedada", "zarude"),
-    )
-    for exact, base in replacements:
-        if species == exact and source.prior_for(source.metadata.format_id, base):
-            return base
-    for prefix in (
-        "florges",
-        "pikachu",
-        "sawsbuck",
-        "vivillon",
-        "alcremie",
-        "minior",
-    ):
-        if species.startswith(prefix) and source.prior_for(
-            source.metadata.format_id, prefix
-        ):
-            return prefix
-    return None
 
 
 def _pct(numerator: int, denominator: int) -> float:
@@ -308,7 +315,8 @@ def audit_manifest(
     source = RandbatsMetaPriorSource(sets_path=str(prior_source_path))
 
     missing_species = Counter()
-    missing_alias_candidates = Counter()
+    alias_resolved_slots = Counter()
+    current_state_ledger_by_kind = Counter()
     unique_species = set()
     supported_unique_species = set()
     event_totals = Counter()
@@ -359,6 +367,9 @@ def audit_manifest(
                 if event["command"] == "replace":
                     illusion_segments += 1
                 continue
+            if event.get("current_state"):
+                # Copied/forme current-state reveals are not base-set support.
+                continue
             label_key = (
                 replay_id,
                 event["side"],
@@ -397,13 +408,12 @@ def audit_manifest(
                 if not slot.belief.source_available:
                     missing_prior_slots += 1
                     missing_species[slot.species_form_key] += 1
-                    alias = _alias_candidate(slot.species_form_key, source)
-                    if alias:
-                        missing_alias_candidates[
-                            f"{slot.species_form_key}->{alias}"
-                        ] += 1
                 else:
                     supported_unique_species.add(slot.species_form_key)
+                    if slot.belief.prior_source_key:
+                        alias_resolved_slots[
+                            f"{slot.species_form_key}->{slot.belief.prior_source_key}"
+                        ] += 1
                 if slot.belief.other_mass > 0.5:
                     tail_dominant += 1
                 if slot.belief.prior_contradiction:
@@ -412,6 +422,8 @@ def audit_manifest(
                     ledger_entries_by_kind[ledger.evidence.kind.value] += 1
                     if not ledger.source_covered:
                         source_absent_by_kind[ledger.evidence.kind.value] += 1
+                    if ledger.current_state_only:
+                        current_state_ledger_by_kind[ledger.evidence.kind.value] += 1
                     if ledger.contradiction:
                         contradiction_by_kind[
                             ledger.evidence.kind.value
@@ -587,7 +599,10 @@ def audit_manifest(
             len(supported_unique_species), len(unique_species)
         ),
         "missing_species": missing_species.most_common(),
-        "missing_alias_candidates": missing_alias_candidates.most_common(),
+        "alias_resolved_slots": alias_resolved_slots.most_common(),
+        "alias_policy_version": RANDBATS_ALIAS_POLICY_VERSION,
+        "current_state_ledger_by_kind": dict(current_state_ledger_by_kind),
+        "current_state_ledger_total": sum(current_state_ledger_by_kind.values()),
         "slot_count": slot_total,
         "missing_prior_slots": missing_prior_slots,
         "tail_dominant_slots": tail_dominant,
@@ -666,11 +681,18 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
         [f"- `{species}`: {count} appearances" for species, count in missing]
         or ["- None."]
     )
-    lines.extend(["", "Likely alias/form-key gaps (not silently remapped):", ""])
+    lines.extend(
+        [
+            "",
+            f"Priors resolved via the explicit form-alias policy "
+            f"(`{summary['alias_policy_version']}`), public->base:",
+            "",
+        ]
+    )
     lines.extend(
         [
             f"- `{mapping}`: {count} public slots"
-            for mapping, count in summary["missing_alias_candidates"]
+            for mapping, count in summary["alias_resolved_slots"]
         ]
         or ["- None."]
     )
@@ -735,6 +757,16 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
             f"contradictions: {summary['item_contradiction_count']}.",
             "- Every item reveal is now absorbed rather than collapsing the",
             "  posterior, so the prior 701 item-driven first collapses are gone.",
+            "",
+            "## Copied/forme current-state evidence (recorded, non-contradicting)",
+            "",
+            "- Trace copies, Imposter/Transform copied moves/abilities, Struggle,",
+            "  and forme-state abilities (As One, Tera Shell/Shift, Battle Bond,",
+            "  Embody Aspect) are flagged `current_state_only`: recorded in the",
+            "  ledger but never used as base-set evidence or contradiction.",
+            f"- Current-state ledger entries: "
+            f"{summary['current_state_ledger_total']} "
+            f"(`{summary['current_state_ledger_by_kind']}`).",
             "",
             "## Posterior contradictions",
             "",
@@ -804,37 +836,24 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
             "",
             "## Decision",
             "",
-            "After the source-absent evidence fix the end-to-end contradiction",
-            "rate is small and fully explained: every remaining contradiction is",
-            "a source-covered ability/move incompatibility, dominated by dynamic",
-            "copied-state (Trace/Imposter) and forme-tied abilities. Items no",
-            "longer collapse the posterior. Causality, hidden-truth invariance,",
-            "Illusion, and reflection checks all pass.",
+            "Both non-source-data blockers are now fixed. The explicit form-alias",
+            "policy resolves cosmetic/forme public keys to their base prior (with",
+            "alias provenance recorded), and copied/forme current-state evidence",
+            "(Trace, Imposter/Transform, Struggle, forme abilities) is recorded",
+            "without contradicting the base prior. Items remain absorbed as",
+            "source-absent. Causality, hidden-truth invariance, Illusion, and",
+            "reflection checks all pass.",
             "",
-            "This makes the source clean enough for first append-only v8",
-            "belief-feature wiring **only if** every feature retains explicit",
-            "unknown/quality provenance and treats coarse support/unknown",
-            "indicators as uncalibrated. The fixed 0.5 tail, factorized role",
-            "alternatives, absent items, and declaration-rather-than-generated",
-            "probabilities still make this unsuitable as a sole calibrated",
-            "production prior; the generator-sampled snapshot remains the route to",
-            "calibrated joint probabilities.",
-            "",
-            "Remaining non-blocking follow-ups (classify, do not strategy-hardcode):",
-            "",
-            "1. Explicit public species/forme alias policy for missing-prior forms",
-            "   (Palafin-Hero, Polteagist-Antique, Ogerpon/Minior/Vivillon/Pikachu",
-            "   cosmetic forms) and forme-key abilities (As One vs As One-Glastrier,",
-            "   Tera Shell vs Tera Shift).",
-            "2. Dynamic ability / Transform-Imposter semantics that separate",
-            "   current copied state (Trace/Imposter displayed ability, Ditto copied",
-            "   moves) from base hidden-set facts, so copied state is not recorded",
-            "   as base-set evidence or a contradiction.",
-            "",
-            "Both are bounded by the classification above; neither requires the",
-            "generator snapshot. They can be implemented and tested before or",
-            "alongside the first v8 feature slice as long as features expose source",
-            "quality and unknown mass.",
+            "Any remaining contradictions are genuine source limitations (the role",
+            "data simply omits a real base-set ability/move). The source is now",
+            "clean enough for the first append-only v8 belief-feature slice,",
+            "provided every feature retains explicit source-quality/unknown",
+            "provenance and treats coarse support/unknown indicators as",
+            "uncalibrated. The fixed 0.5 tail, factorized role alternatives, absent",
+            "items, and declaration-rather-than-generated probabilities still make",
+            "this unsuitable as a sole calibrated production prior; the",
+            "generator-sampled snapshot remains the route to calibrated joint",
+            "probabilities.",
         ]
     )
     return "\n".join(lines) + "\n"

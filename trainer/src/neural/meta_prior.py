@@ -101,11 +101,23 @@ class SetPrior:
     other_mass: float = 0.0
     joint_quality: JointQuality = JointQuality.EXACT
     coverage_warnings: Tuple[str, ...] = ()
+    # Set only when the prior was resolved through an explicit form-alias policy.
+    # ``species_form_key`` stays the public displayed key; ``source_species_key``
+    # records the canonical base key whose data actually backed the hypotheses.
+    source_species_key: Optional[str] = None
+    alias_policy_version: Optional[str] = None
+
+    @property
+    def alias_applied(self) -> bool:
+        return self.source_species_key is not None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "species_form_key", canonical_id(self.species_form_key))
         object.__setattr__(self, "hypotheses", tuple(self.hypotheses))
         object.__setattr__(self, "coverage_warnings", tuple(self.coverage_warnings))
+        object.__setattr__(
+            self, "source_species_key", canonical_id(self.source_species_key) or None
+        )
         if not self.species_form_key:
             raise ValueError("Set prior species_form_key is required.")
         if len({hypothesis.hypothesis_id for hypothesis in self.hypotheses}) != len(

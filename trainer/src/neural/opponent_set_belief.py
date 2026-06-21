@@ -28,6 +28,54 @@ class EvidenceKind(str, Enum):
     TERA_TYPE_REVEALED = "tera_type_revealed"
 
 
+# Showdown mechanics that produce *current-state* facts, not base hidden-set
+# facts.  Evidence flagged current-state-only is recorded in the ledger but must
+# never filter or contradict the base-set prior hypotheses.
+COPIED_ABILITY_MARKER = "trace"  # `[from] ability: Trace` copies the target ability
+TRANSFORM_ABILITY_MARKERS = frozenset({"imposter"})  # auto-Transform on switch-in
+UNIVERSAL_NOISE_MOVES = frozenset({"struggle"})  # never a declared set move
+
+# Forme/identity-tied abilities whose label reflects current forme activation;
+# the static role source stores the base set under a (possibly different) forme
+# key, so the reveal is forme state, not a base-set contradiction.
+FORME_STATE_ABILITY_PREFIXES = (
+    "asone",
+    "embodyaspect",
+    "terashell",
+    "terashift",
+    "battlebond",
+    "zerotohero",
+    "shieldsdown",
+    "powerconstruct",
+    "schooling",
+    "gulpmissile",
+    "iceface",
+    "hungerswitch",
+    "disguise",
+    "commander",
+)
+
+
+def is_universal_noise_move(value: str) -> bool:
+    return canonical_id(value) in UNIVERSAL_NOISE_MOVES
+
+
+def is_copied_ability_marker(value: str) -> bool:
+    return canonical_id(value) == COPIED_ABILITY_MARKER
+
+
+def is_transform_ability(value: str) -> bool:
+    return canonical_id(value) in TRANSFORM_ABILITY_MARKERS
+
+
+def is_forme_state_ability(value: str) -> bool:
+    canonical = canonical_id(value)
+    return any(
+        canonical == prefix or canonical.startswith(prefix)
+        for prefix in FORME_STATE_ABILITY_PREFIXES
+    )
+
+
 @dataclass(frozen=True)
 class PublicEvidence:
     kind: EvidenceKind
@@ -36,6 +84,10 @@ class PublicEvidence:
     turn: int = 0
     subject_key: Optional[str] = None
     provenance: str = "public_protocol"
+    # When True the reveal is a copied/forme current-state fact (Trace, Imposter/
+    # Transform copies, Struggle, forme-state abilities) recorded without
+    # filtering or contradicting the base hidden-set prior.
+    current_state_only: bool = False
 
     def __post_init__(self) -> None:
         normalized = canonical_id(self.value)
@@ -58,6 +110,7 @@ class EvidenceLedgerEntry:
     mass_after: float
     contradiction: bool
     source_covered: bool = True
+    current_state_only: bool = False
 
 
 @dataclass(frozen=True)
@@ -90,6 +143,9 @@ class OpponentSetBelief:
     prior_contradiction: bool = False
     evidence_ledger: Tuple[EvidenceLedgerEntry, ...] = ()
     last_public_event_index: int = -1
+    # Set when the prior was resolved through an explicit form-alias policy.
+    prior_source_key: Optional[str] = None
+    prior_alias_policy_version: Optional[str] = None
 
     def __post_init__(self) -> None:
         total = sum(hypothesis.probability for hypothesis in self.hypotheses)
@@ -132,6 +188,29 @@ class OpponentSetBelief:
             return replace(self, last_public_event_index=evidence.event_index)
 
         before = self.hypotheses
+
+        if evidence.current_state_only:
+            # Copied/forme current-state fact (Trace, Imposter/Transform copy,
+            # Struggle, forme-state ability).  Record it in the ledger only; the
+            # base-set hypotheses, confirmed base facts, ruled-out sets, and tail
+            # are all left untouched and it can never trigger a contradiction.
+            before_mass = sum(hypothesis.probability for hypothesis in before)
+            entry = EvidenceLedgerEntry(
+                evidence=evidence,
+                support_before=len(before),
+                support_after=len(before),
+                mass_before=before_mass,
+                mass_after=before_mass,
+                contradiction=False,
+                source_covered=True,
+                current_state_only=True,
+            )
+            return replace(
+                self,
+                evidence_ledger=(*self.evidence_ledger, entry),
+                last_public_event_index=evidence.event_index,
+            )
+
         confirmed = _confirmed_with(self.confirmed, evidence)
 
         if not _dimension_covered(before, evidence.kind):
@@ -237,6 +316,8 @@ def initialize_belief(
         hypotheses=prior.hypotheses,
         other_mass=prior.other_mass,
         source_available=True,
+        prior_source_key=prior.source_species_key,
+        prior_alias_policy_version=prior.alias_policy_version,
     )
 
 
@@ -336,6 +417,7 @@ def public_evidence_from_protocol_lines(
         lines = lines[: max(0, int(through_line))]
     result: List[PublicEvidence] = []
     turn = 0
+    transformed: set[str] = set()
     for index, raw in enumerate(lines):
         if not isinstance(raw, str) or not raw.startswith("|"):
             continue
@@ -351,8 +433,15 @@ def public_evidence_from_protocol_lines(
         if not subject.startswith(opponent_side):
             continue
         subject_key = _subject_from_ident(subject)
+        position = subject.split(":", 1)[0].strip()
+        if command in {"switch", "drag"}:
+            # A fresh switch-in reverts any Transform copied state at this slot.
+            transformed.discard(position)
+            continue
+        copied_slot = position in transformed
         from_ability = re.search(r"\[from\]\s*ability:\s*([^|\]]+)", raw, re.I)
         from_item = re.search(r"\[from\]\s*item:\s*([^|\]]+)", raw, re.I)
+        trace_copy = bool(from_ability and is_copied_ability_marker(from_ability.group(1)))
         if from_ability:
             result.append(
                 PublicEvidence(
@@ -383,6 +472,7 @@ def public_evidence_from_protocol_lines(
                     index,
                     turn,
                     subject_key,
+                    current_state_only=copied_slot or is_universal_noise_move(parts[3]),
                 )
             )
         elif command == "-ability" and len(parts) > 3:
@@ -393,6 +483,11 @@ def public_evidence_from_protocol_lines(
                     index,
                     turn,
                     subject_key,
+                    current_state_only=(
+                        copied_slot
+                        or trace_copy
+                        or is_forme_state_ability(parts[3])
+                    ),
                 )
             )
         elif command in {"-item", "-enditem"} and len(parts) > 3:
@@ -420,9 +515,10 @@ def public_evidence_from_protocol_lines(
                 r"\s*(ability|item)\s*:\s*(.+?)\s*", parts[3], re.I
             )
             if activation:
+                is_ability = activation.group(1).lower() == "ability"
                 kind = (
                     EvidenceKind.ABILITY_REVEALED
-                    if activation.group(1).lower() == "ability"
+                    if is_ability
                     else EvidenceKind.ITEM_REVEALED
                 )
                 result.append(
@@ -433,8 +529,16 @@ def public_evidence_from_protocol_lines(
                         turn,
                         subject_key,
                         "public_protocol_activation",
+                        current_state_only=(
+                            copied_slot
+                            or (is_ability and is_forme_state_ability(activation.group(2)))
+                        ),
                     )
                 )
+        if command == "-transform":
+            # Mark after this line so the row's own `[from] ability: Imposter`
+            # stays base evidence; copied moves/abilities arrive on later lines.
+            transformed.add(position)
     return tuple(result)
 
 

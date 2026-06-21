@@ -134,6 +134,19 @@
   explicit source-quality/unknown provenance. Two non-blocking follow-ups remain:
   forme/alias normalization policy and dynamic-ability/Transform-Imposter
   copied-state semantics.
+- [x] Both non-source-data blockers fixed and re-audited
+  (`randbats_meta_prior_public_prefix_audit.md`): (1) explicit versioned form-alias
+  policy (`randbats-form-alias-v1`: exact map + bounded cosmetic-genus allowlist,
+  targets validated, no fuzzy guessing; `SetPrior`/`OpponentSetBelief` record
+  alias provenance, displayed key preserved); (2) copied/forme current-state
+  semantics (`current_state_only` flag for Trace, Imposter/Transform copies,
+  Struggle, As One/Tera Shell/Battle Bond/Embody Aspect; Trace `[of]`
+  mis-attribution fixed). Re-run: coverage **100%/100%**, contradictions **0.12%
+  (2/1600)** — both genuine source gaps (`leavanny:pickpocket`, `beartic:dryskin`)
+  that stay visible; support move/Tera 100%, ability 299/301; causality 300/300,
+  hidden-truth 300/300, Illusion 1/0, reflection 2/0. Source is clean enough for
+  the first append-only v8 belief-feature slice (features must expose
+  source-quality/unknown provenance). No v8 schema/features/training/live change.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

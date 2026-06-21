@@ -866,7 +866,38 @@ no `meta_prior.py` change was required and no item prior was added. Tests are in
 source-neutral `SourceAbsentDimensionTest` in
 `trainer/tests/test_meta_prior_belief_contracts.py`.
 
-## Public-prefix audit re-run after the source-absent fix
+## Alias policy + copied-state semantics fix (current)
+
+The two non-source-data blockers are now implemented and the public-prefix audit
+re-run confirms them.
+
+1. **Explicit form-alias policy** (`randbats_meta_prior_source.py`,
+   `randbats-form-alias-v1`): an exact public-form->base map plus a bounded
+   cosmetic-genus allowlist (Vivillon/Alcremie/Pikachu/Minior/Florges/Sawsbuck),
+   each target validated against the source; anything else stays a visible
+   missing prior (no fuzzy guessing). `SetPrior` gained `source_species_key` /
+   `alias_policy_version` and `OpponentSetBelief` records the same; the public
+   displayed key is preserved.
+2. **Copied/forme current-state semantics** (`opponent_set_belief.py`,
+   `opponent_set_belief_replay_adapter.py`): a `current_state_only` evidence flag
+   records Trace copies, Imposter/Transform copied moves+abilities, Struggle, and
+   forme-state abilities (As One incl. Unnerve/Neigh components, Tera Shell/Shift,
+   Battle Bond, Embody Aspect) in the ledger without filtering or contradicting
+   the base-set prior. The Trace `[of]` mis-attribution is fixed (Trace stays on
+   the carrier; the copied ability is current-state).
+
+Audit re-run (150-battle test split): coverage **100%** appearances and unique
+forms (was 97.62%/95.07%); explicit contradictions **2/1600 (0.12%)**, both
+genuine source gaps (`leavanny:pickpocket`, `beartic:dryskin`) that correctly
+remain visible; 59 copied/forme current-state ledger entries; 2,207 item reveals
+still absorbed with 0 item contradictions; ability/move/Tera base-set support
+299/301, 3059/3059, 214/214; causality 300/300, hidden-truth 300/300,
+Illusion 1/0, reflection 2/0. The source is now clean enough for the first
+append-only v8 belief-feature slice (features must still expose source-quality/
+unknown provenance and treat coarse support as uncalibrated); the generator
+snapshot remains the route to calibrated joint probabilities.
+
+## Public-prefix audit re-run after the source-absent fix (historical)
 
 The held-out audit was re-run on the 150-battle test split of the 1,000-battle
 manifest with the source-absent evidence fix in place
