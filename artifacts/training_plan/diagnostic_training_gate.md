@@ -101,8 +101,11 @@
 - [x] Source-agnostic v8 meta-prior/opponent-set belief representation designed
   (joint prior/posterior contract, Randbats/Smogon/replay/fixture sources,
   compact state/action projections, and no-leakage test plan); not implemented.
-- [ ] v8 meta-prior source/posterior contracts and fixture source implemented
-  with future-prefix and hidden-truth perturbation tests.
+- [x] v8 source-neutral meta-prior/posterior contracts and fixture source
+  implemented with future-prefix, hidden-truth perturbation, contradiction,
+  unknown-tail, and safe protocol-evidence tests.
+- [ ] v8 contracts wired into a diagnostic-only belief construction path
+  without changing state/action features.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
@@ -1206,3 +1209,18 @@ The existing 1,000-battle v7 baseline is sufficient comparison evidence, so v8
 meta-prior implementation/audit should precede the next durable or substantially
 larger rank run. Implementation, materialization, training, promotion, and live
 use remain separately closed.
+
+The source-neutral contract batch is now implemented in `meta_prior.py` and
+`opponent_set_belief.py`, with a fixture source and 14 focused tests. It
+preserves joint set hypotheses, applies only explicit public move/ability/item/
+Tera evidence in ordered prefixes, records confirmed and ruled-out support,
+retains unknown tail mass, and falls back to tail-only state on missing or
+contradictory priors. Hidden truth is not accepted by the API; perturbation and
+future-prefix tests pass. Generic immunity, damage, speed, and switching remain
+non-evidence.
+
+This closes only the pure contract/test gate. No v8 feature/schema wiring,
+Randbats/Smogon ingestion, materialization, training, checkpoint, live-default,
+or live-behavior change occurred. The next gate is a diagnostic-only adapter
+from existing public parsed prefixes into these contracts, followed separately
+by a pinned Randbats prior snapshot builder.

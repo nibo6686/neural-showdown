@@ -681,3 +681,43 @@ prevention/Tera/switch/high-candidate slices. Therefore:
 - No v7 schema/fingerprint edits.
 - No schema-wide atomic identity vocabulary tied to one metagame snapshot.
 - No materialization, training, promotion, or live-default change in this task.
+
+## Source-neutral contract implementation update
+
+The first implementation-only contract batch is complete:
+
+- `trainer/src/neural/meta_prior.py` defines immutable
+  `MetaPriorMetadata`, `SetHypothesis`, `SetPrior`, the abstract
+  `MetaPriorSource`, source/joint-quality enums, and a deterministic
+  `FixtureMetaPriorSource`;
+- `trainer/src/neural/opponent_set_belief.py` defines immutable
+  `OpponentSetBelief`, confirmed/possible/ruled-out views, evidence-ledger
+  records, initialization from any `MetaPriorSource`, safe public evidence
+  updates, explicit unknown-tail handling, and public-protocol-prefix helpers;
+- `trainer/tests/test_meta_prior_belief_contracts.py` provides 14 focused
+  contract/no-leakage tests.
+
+The posterior remains a distribution over joint hypotheses. Public evidence is
+applied in non-decreasing protocol-line order (a line may reveal more than one
+explicit fact) and returns a new belief snapshot. Revealed moves, named
+abilities, items, and Tera types hard-condition
+the represented support. Unknown tail mass is retained and renormalized; an
+incompatible available prior becomes explicit `prior_contradiction` with
+`other_mass = 1`, while a missing prior starts as non-contradictory unknown
+mass. Confirmed public facts remain available in either case.
+
+The protocol helper accepts only explicit evidence:
+
+- opponent move use, excluding reflected move rows with named `[from] ability`
+  provenance;
+- `-ability`, `-item`/`-enditem`, and `-terastallize`;
+- named `[from] ability: ...` prevention/reflection/immunity attribution.
+
+Generic immunity/failure, switching, damage, speed, and strategic behavior are
+non-evidence. The API has no hidden-set parameter. Tests prove hidden truth
+perturbations cannot affect the belief, future lines cannot affect a truncated
+prefix, and missing priors cannot fall back to hidden truth.
+
+This batch does not wire the contracts into v7/v8 feature generation, damage,
+search, materialization, or live behavior. Randbats sampling, Smogon/replay
+ingestion, feature schemas, and calibration remain the next separate gates.

@@ -464,3 +464,29 @@ Recommended ordering is now:
 
 Another larger v7 run remains useful only as an explicitly chosen scale-control
 comparison. The separate value-dataset plan remains independent.
+
+## Meta-prior contract implementation update
+
+The source-neutral foundation is now implemented without model/schema wiring:
+
+- immutable prior metadata and joint set hypotheses;
+- abstract `MetaPriorSource`;
+- deterministic fixture source;
+- immutable `OpponentSetBelief` posterior snapshots;
+- ordered public move/ability/item/Tera evidence updates;
+- confirmed, possible, and ruled-out support;
+- retained unknown tail mass and explicit contradiction fallback;
+- public-prefix and hidden-truth no-leakage tests.
+
+No Randbats sampling or Smogon/replay ingestion was added. No v8 state/action
+features exist yet, and the v7 dimensions/fingerprints are untouched.
+
+Recommended next sequence:
+
+1. add a diagnostic-only adapter that maps existing parsed public prefixes and
+   reliable public identity into `OpponentSetBelief`, still producing no model
+   features;
+2. build the pinned offline Randbats generator snapshot exporter with
+   convergence/checksum reporting;
+3. audit posterior calibration and prefix invariance on held-out replays;
+4. only then design/freeze the compact append-only v8 feature slices.
