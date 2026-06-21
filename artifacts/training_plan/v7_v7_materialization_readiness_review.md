@@ -457,3 +457,24 @@ names byte-identical to post_illusion; old datasets not overwritten. This is the
 cleanest v7/v7 artifact to date and the recommended baseline for a first tiny
 smoke/plumbing training run if explicitly approved. No training, checkpoint
 promotion, live-default/live-bot change, schema/v8 change, or push occurred.
+
+## Post-Ditto smoke training completed
+
+The explicitly approved one-epoch smoke/plumbing run completed on CUDA with
+exit code 0 using
+`training_runs/smoke_v7_v7_post_ditto/smoke_v7_v7_post_ditto_config.json` and
+the post-Ditto `.npz`. It trained the state-value and action-rank heads for
+2,569 steps and passed its tiny overfit check. Train value MSE was 1.295563.
+Validation value MSE was 1.483368; validation rank NLL/top-1/top-3 were
+1.383279 / 0.434146 / 0.838137. Test value MSE was 1.478658; test rank
+NLL/top-1/top-3 were 1.414682 / 0.410626 / 0.815486.
+
+Both generated checkpoints record exact `live-private-belief-v7` 3208D and
+`legal-action-v7` 552D versions, dimensions, ordered-name fingerprints, and
+manifest checksum, with `production_eligible: false`. Numeric report values,
+dataset arrays, and checkpoint tensors are finite. The smoke therefore passes
+the intended plumbing/schema/checkpoint gate, but the one-epoch quality metrics
+do not authorize durable training or promotion; the value head does not beat
+the constant baseline. Checkpoint promotion, live/default changes, and
+production remain closed. See
+`training_runs/smoke_v7_v7_post_ditto/smoke_v7_v7_post_ditto_report.md`.

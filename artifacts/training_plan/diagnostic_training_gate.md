@@ -87,10 +87,11 @@
 - [x] Small diagnostic v7/v7 materialization explicitly approved, completed, and validated (`diagnostic_300_v7_v7_materialization_report.md`): 300/300 valid battles, 25,396 states, 189,957 candidates, 210/45/45 battle splits, 552D v7 action fingerprint validated, 300 resumable shards retained.
 - [x] `diagnostic_300_v7_v7` read-only dataset quality audit completed (`diagnostic_300_v7_v7_dataset_quality_audit.md`): structurally valid, but smoke training blocked on replay-state/materializer reconstruction quality.
 - [x] Primary replay-state/materializer blockers fixed and regression-tested (`replay_state_reconstruction_blocker_fix_report.md`): custom team sizes above six now fail eligibility/preflight, and ordinary displayed species are public-known rather than globally Illusion-uncertain.
-- [ ] Replace the rejected 24-member train replay in `diagnostic_300_manifest.json`, pass fresh preflight, and obtain explicit approval for full v7/v7 rematerialization.
-- [ ] Fresh v7/v7 replacement artifact passes the dataset-quality audit before smoke training.
+- [x] Rejected 24-member train replay replaced in the corrected manifest; fresh preflight and approved v7/v7 rematerializations completed.
+- [x] Fresh post-Ditto v7/v7 replacement artifact passes the dataset-quality audit before smoke training.
+- [x] Explicitly approved one-epoch post-Ditto v7/v7 smoke/plumbing training completed and reported with exact checkpoint metadata and finite outputs.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
-- [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
+- [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
 - [ ] Controlled manual private-match recommendation test plan approved.
 - [ ] Value-label quality audit approved.
@@ -1062,3 +1063,21 @@ smoke/plumbing training run if explicitly approved. `legal-action-v7` stays 552D
 live-default/live-bot change, schema/v8/old-gen change, or push occurred. This
 supersedes `diagnostic_300_v7_v7_post_illusion` for quality purposes. Production and
 live gates remain **closed**.
+
+The explicitly approved **post-Ditto v7/v7 smoke/plumbing training run** then
+completed on CUDA with exit code 0 from
+`training_runs/smoke_v7_v7_post_ditto/smoke_v7_v7_post_ditto_config.json`.
+It used the post-Ditto `.npz` above with exact `live-private-belief-v7` 3208D
+and `legal-action-v7` 552D metadata/fingerprints, trained state-value and
+action-rank heads for one epoch (2,569 steps), and passed the tiny overfit
+check. Train value MSE was 1.295563. Validation value MSE was 1.483368;
+validation rank NLL/top-1/top-3 were 1.383279 / 0.434146 / 0.838137. Test value
+MSE was 1.478658; test rank NLL/top-1/top-3 were
+1.414682 / 0.410626 / 0.815486. Both generated checkpoints contain the exact
+schema versions, 3208/552 dimensions, ordered-name fingerprints, manifest
+checksum, epoch/global-step metadata, and `production_eligible: false`; all
+report values, dataset arrays, and checkpoint tensors are finite. See
+`training_runs/smoke_v7_v7_post_ditto/smoke_v7_v7_post_ditto_report.md`.
+This closes only the tiny smoke/plumbing gate. The value metric does not beat
+the constant baseline, so durable training, checkpoint promotion, live use,
+and production remain **closed**. No live/default behavior changed.
