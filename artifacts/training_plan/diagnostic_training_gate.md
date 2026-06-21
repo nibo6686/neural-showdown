@@ -94,7 +94,7 @@
 - [x] Approved `diagnostic_1000_v7_v7_post_ditto` materialization completed: 1,000/1,000 valid, 80,644 states, 617,687 candidates, exact v7/v7 metadata, all 18 structural checks passed.
 - [x] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination with targeted replay-backed reproduction and regression tests.
 - [x] Explicitly approve and run a fresh 1,000-battle v7/v7 rematerialization after the Magic Bounce fix, then pass re-audit before rank-only training.
-- [ ] Separately approve the 1,000-battle post-Magic-Bounce v7/v7 rank-only diagnostic training run.
+- [x] Separately approve and complete the 1,000-battle post-Magic-Bounce v7/v7 rank-only diagnostic training run.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1141,3 +1141,23 @@ The dataset-quality gate for a separately approved rank-only diagnostic is now
 **open**. Training itself remains **closed** pending a read-only
 `--validate-only` check and separate explicit user approval. No training,
 checkpoint, promotion, live/default, schema, v8, old-gen, or push occurred.
+
+The separately approved **1,000-battle post-Magic-Bounce v7/v7 rank-only
+diagnostic run** then completed on CUDA with exit code 0. It trained only the
+action-rank head for 10 epochs / 10,070 rank-only optimizer steps and
+early-stopped after three non-improving epochs, selecting epoch 7 by validation
+rank NLL. The tiny overfit check passed (top-1 0.96875). Selected validation
+NLL/top-1/top-3/MRR were
+1.175278 / 0.515985 / 0.888422 / 0.705594. The test split was evaluated once
+after selection: 1.181397 / 0.507626 / 0.886274 / 0.700131.
+
+Both generated checkpoints contain the exact v7/v7 versions, 3208/552
+dimensions, ordered-name fingerprints, manifest checksum, rank-only trained
+head flags, and `production_eligible: false`; all checkpoint tensors are
+finite. `model.best.pt` is epoch 7 / step 7,049, while `model.pt` is the
+retained final epoch 10 / step 10,070 checkpoint. See
+`training_runs/diagnostic_1000_action_rank_v7_v7_post_magic_bounce_rank_only/diagnostic_1000_action_rank_v7_v7_post_magic_bounce_rank_only_report.md`.
+
+This closes the approved offline rank-only training gate only. Checkpoint
+promotion, browser/live shadow testing, production use, live/default changes,
+and v8 disposition remain separately closed.

@@ -380,3 +380,28 @@ for that diagnostic is open, but the training command remains
 `do_not_run_unless_explicitly_approved`. Recommended next step: run only the
 read-only `--validate-only` command, review its result, and seek separate
 explicit approval before training.
+
+## Post-Magic-Bounce rank-only training result
+
+The separately approved run completed successfully on CUDA in 375.94 seconds.
+It trained only action rank for 10 epochs / 10,070 optimizer steps and selected
+epoch 7 by validation rank NLL after early stopping. The tiny overfit check
+passed at top-1 0.96875.
+
+Selected validation NLL/top-1/top-3/MRR:
+1.175278 / 0.515985 / 0.888422 / 0.705594.
+The test split was evaluated once after selection:
+1.181397 / 0.507626 / 0.886274 / 0.700131.
+
+Compared with the earlier v7/v5 test result
+(1.3252 / 0.4608 / 0.8504), v7/v7 improves NLL by 0.1438, top-1 by 0.0468
+absolute, and top-3 by 0.0359 absolute. This establishes the clean
+post-Magic-Bounce v7/v7 model as the stronger offline diagnostic baseline.
+
+`model.best.pt` is epoch 7 / step 7,049; `model.pt` is the final epoch 10 /
+step 10,070 checkpoint. Both have exact v7/v7 metadata, finite tensors, and
+`production_eligible: false`. See
+`training_runs/diagnostic_1000_action_rank_v7_v7_post_magic_bounce_rank_only/diagnostic_1000_action_rank_v7_v7_post_magic_bounce_rank_only_report.md`.
+
+No checkpoint is promoted. Browser/live shadow evaluation, live/default
+changes, production use, and v8 disposition remain separate approval gates.
