@@ -243,3 +243,26 @@ Plan requirements:
 
 Both the rollout-parity and overall diagnostic training gates remain **closed**.
 This review changes no schema, dataset, checkpoint, or live default.
+
+## Post-materialization dataset-quality update
+
+The approved materialization completed successfully, but the subsequent
+read-only quality audit changes readiness for the next step:
+
+- the artifact is structurally valid and remains suitable for schema,
+  materializer, prefix, and feature-distribution diagnostics;
+- it is **not ready for tiny smoke training**;
+- 772 / 25,396 states have no matched action, with 769 in train and 253 from one
+  replay after reconstructed roster/moves diverge;
+- forced-switch coverage is zero;
+- `opponent_active_displayed_species_uncertain` is active in 25,381 / 25,396
+  states, so the intended Illusion-scoped species inference and skilled-player
+  public-belief calibration did not reach this materialized path as intended.
+
+The next gate is to fix and integration-test replay-state/materializer roster,
+move/form continuity, and displayed-species uncertainty handling. Any
+rematerialization still requires explicit approval. Smoke training remains
+blocked, and implementing `legal-action-v8` first is not recommended because it
+would not repair the v7 dataset-state defects. The frozen v7 schema remains
+552D with fingerprint
+`956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`.

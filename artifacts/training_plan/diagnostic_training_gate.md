@@ -84,7 +84,9 @@
 - [x] Full-manifest materializer minimally wired and tested for `legal-action-v7` (including inherited v6 repeat-chain impact behavior, 552D metadata, and exact fingerprint validation).
 - [x] Skilled-player public-belief calibration contracts added: species-singleton ability inference, ambiguous-set preservation, exact own-side knowledge, Illusion guard, conservative item evidence, and speed range/exact separation.
 - [x] Possible mechanic-threat awareness audited (`possible_mechanic_threat_awareness_audit.md`): v7 is partial; absorb threats are explicit, while Unaware/Magic Bounce/Good as Gold/Levitate/secondary-blocker possibility flags remain future-v8 work.
-- [ ] Small diagnostic v7/v7 materialization explicitly approved after read-only preflight and required tests.
+- [x] Small diagnostic v7/v7 materialization explicitly approved, completed, and validated (`diagnostic_300_v7_v7_materialization_report.md`): 300/300 valid battles, 25,396 states, 189,957 candidates, 210/45/45 battle splits, 552D v7 action fingerprint validated, 300 resumable shards retained.
+- [x] `diagnostic_300_v7_v7` read-only dataset quality audit completed (`diagnostic_300_v7_v7_dataset_quality_audit.md`): structurally valid, but smoke training blocked on replay-state/materializer reconstruction quality.
+- [ ] Replay-state/materializer roster, move, form, and displayed-species uncertainty issues fixed and integration-tested before v7/v7 smoke training.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] `legal-action-v7` rematerialization + training approved (after the typed-effect slices are complete and re-audited).
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -631,6 +633,23 @@ rejects a distribution summary as an exact trace. No GAP was closed (still
 training, checkpoint promotion, live default, or live-path change occurred.
 Both gates remain **closed**.
 
+The approved `diagnostic_300_v7_v7` baseline materialization completed from
+source commit `63484055aad7b5d45102fa53e431fe682cc3bb45` in 290.73 seconds
+with 6 workers: **300/300 valid battles, 0 failed**, 25,396 state rows and
+189,957 action candidates. Battle splits are exactly 210/45/45 with no split
+crossing. Built-in and independent validation passed for
+`live-private-belief-v7` 3208D and `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, embedded names/fingerprints, float16 layout, manifest
+traceability, candidate indices, state/action-rank labels, unchanged live
+defaults, and zero action-value labels. Action matching is 24,624 / 25,396
+(96.96%); 772 unmatched groups remain explicitly audited/excluded. All 300
+per-battle shards remain for resume. The previous v7/v6 NPZ hash is unchanged.
+Generated dataset artifacts remain unstaged. This completes only the approved
+diagnostic materialization; no training, checkpoint promotion, live-default,
+live-bot, action/state schema, or v8 change occurred. The possible-threat
+limitations and 8 honest rollout GAPs remain. Both training and production/live
+gates remain **closed**.
+
 Rollout-parity batch 6 (`rollout_parity_batch_6_delayed_landing_resolver_report.md`)
 implements design group 1 (delayed landing resolver) and expands the harness to
 **47 fixtures: 39 PASS / 0 FAIL / 8 explicit GAP**. A landing-time
@@ -812,4 +831,22 @@ surface exact hidden speed. Existing Neutralizing Gas, Mold Breaker, Ability
 Shield, and Safety Goggles effective-context behavior is preserved. The
 readiness verdict is unchanged; no materialization, training, checkpoint, live
 default, live bot, state schema, or `legal-action-v7` change occurred. Both
+gates remain **closed**.
+
+The read-only `diagnostic_300_v7_v7` dataset quality audit confirms a sound
+archive and frozen schema: 25,396 finite 3208D state rows, 189,957 finite 552D
+candidate rows, exact `956da3d2…1bf39d7` action fingerprint, exact 210/45/45
+battle splits, internally consistent candidate indices/labels, and a
+byte-identical v6 prefix. It remains useful for schema, prefix, distribution,
+and feature-coverage diagnostics. It is **not approved for smoke training**:
+772 states have no matched action (96.96% match), 769 of those are in train,
+one replay contributes 253 after roster reconstruction diverges, no forced
+switches are represented, and ordinary opponent species are marked uncertain
+in 25,381 / 25,396 states. Exact-own/public-belief calibration is therefore
+largely contract-level in this replay materialization path, while possible
+Unaware/Magic Bounce/Good as Gold/Levitate/secondary-blocker gaps remain.
+Fix and integration-test replay-state/materializer reconstruction before any
+approved rematerialization or training; do not add v8 first because it would
+not repair these data-quality defects. No dataset was changed, no training ran,
+and no checkpoint/live/schema setting changed. Training and production/live
 gates remain **closed**.
