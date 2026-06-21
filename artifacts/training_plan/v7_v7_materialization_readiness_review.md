@@ -514,3 +514,26 @@ approved rematerialization is still required; expected residuals then drop
 from 43 to **41**, all currently classified as quarantined Illusion ambiguity.
 Training remains blocked until that artifact passes re-audit. No training,
 full rematerialization, promotion, live/default, schema, or v8 change occurred.
+
+## Post-Magic-Bounce 1,000-battle rematerialization and re-audit
+
+The explicitly approved clean rebuild completed in
+`datasets/diagnostic_1000_v7_v7_post_magic_bounce` from source commit
+`4cba668d28491cf3aaf3b171660c47f113a57edc`. It produced 80,635 states and
+617,555 candidates from 1,000/1,000 valid battles, retained exact 700/150/150
+battle splits and 1,000 shards, and passed all 18 structural checks with frozen
+`live-private-belief-v7` 3208D and `legal-action-v7` 552D /
+`956da3d2…1bf39d7`.
+
+The re-audit confirms the source fix reached the artifact: all nine explicit
+Magic Bounce reflection events are nondecisions and do not become moveset
+evidence. The later Psychic case now matches and the reflected Will-O-Wisp case
+creates no rank group. Match quality is 80,594 / 41 (99.9492%); all 41 residuals
+are the previously bounded, explicitly quarantined public-replay Illusion
+ambiguities. Arrays are finite, labels/groups are internally valid, old dataset
+hashes are unchanged, and live defaults remain v2/v3.
+
+Materialization and dataset-quality readiness for a rank-only diagnostic are
+therefore **complete**. Rank-only training remains a separate explicit approval
+gate; first run the draft config's read-only `--validate-only` path. No training,
+checkpoint promotion, live/default change, schema/v8 work, or push occurred.

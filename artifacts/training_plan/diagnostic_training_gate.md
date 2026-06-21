@@ -93,7 +93,8 @@
 - [x] Fresh 1,000-battle v7/v7 manifest regenerated with current six-slot eligibility filters and exact 700/150/150 battle splits.
 - [x] Approved `diagnostic_1000_v7_v7_post_ditto` materialization completed: 1,000/1,000 valid, 80,644 states, 617,687 candidates, exact v7/v7 metadata, all 18 structural checks passed.
 - [x] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination with targeted replay-backed reproduction and regression tests.
-- [ ] Explicitly approve and run a fresh 1,000-battle v7/v7 rematerialization after the Magic Bounce fix, then pass re-audit before rank-only training.
+- [x] Explicitly approve and run a fresh 1,000-battle v7/v7 rematerialization after the Magic Bounce fix, then pass re-audit before rank-only training.
+- [ ] Separately approve the 1,000-battle post-Magic-Bounce v7/v7 rank-only diagnostic training run.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1119,3 +1120,24 @@ future residual count is **41** quarantined Illusion rows. Rank-only training
 remains **closed** pending explicit rematerialization approval and re-audit.
 No training, full rematerialization, promotion, live/default, schema, or v8
 change occurred.
+
+The explicitly approved **post-Magic-Bounce 1,000-battle v7/v7
+rematerialization** then completed from source commit
+`4cba668d28491cf3aaf3b171660c47f113a57edc` into
+`datasets/diagnostic_1000_v7_v7_post_magic_bounce`: 1,000/1,000 valid battles,
+80,635 states, 617,555 candidates, exact 700/150/150 battle splits,
+`live-private-belief-v7` 3208D plus `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, 1,000 retained shards, and all 18 validation checks passed.
+Independent inspection found finite arrays, 80,594 groups with exactly one
+positive, and 41 explicitly quarantined zero-positive groups. All nine explicit
+Magic Bounce reflection rows are now nondecisions; reflected Defog no longer
+pollutes Hatterene's moveset and later Psychic matches, while reflected
+Will-O-Wisp produces no actor label. The residual set is exactly the previously
+classified 41-row public-replay Illusion ambiguity floor, with no new category.
+See `diagnostic_1000_v7_v7_post_magic_bounce_materialization_report.md` and
+`diagnostic_1000_v7_v7_post_magic_bounce_dataset_quality_audit.md`.
+
+The dataset-quality gate for a separately approved rank-only diagnostic is now
+**open**. Training itself remains **closed** pending a read-only
+`--validate-only` check and separate explicit user approval. No training,
+checkpoint, promotion, live/default, schema, v8, old-gen, or push occurred.

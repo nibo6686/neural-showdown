@@ -362,3 +362,21 @@ candidate sets, the proposed rank-only run remains **blocked** pending that
 source fix, regression tests, approved rematerialization, and re-audit. The
 draft config now points at the actual materialized dataset path but must not be
 run.
+
+## Post-Magic-Bounce dataset update
+
+The approved superseding materialization completed in
+`datasets/diagnostic_1000_v7_v7_post_magic_bounce` and passes independent
+quality audit: 1,000/1,000 valid battles, 80,635 states, 617,555 candidates,
+80,594 matched / 41 quarantined unmatched (99.9492%), finite arrays, exact
+700/150/150 battle splits, and frozen v7/v7 metadata/fingerprints. All nine
+explicit Magic Bounce reflection rows are nondecisions; the earlier Defog and
+Will-O-Wisp defects are absent. The remaining 41 rows are exactly the known
+public-replay Illusion ambiguity set.
+
+The draft rank-only config now points to this post-Magic-Bounce dataset and
+uses a post-Magic-Bounce non-production output directory. The data-quality gate
+for that diagnostic is open, but the training command remains
+`do_not_run_unless_explicitly_approved`. Recommended next step: run only the
+read-only `--validate-only` command, review its result, and seek separate
+explicit approval before training.
