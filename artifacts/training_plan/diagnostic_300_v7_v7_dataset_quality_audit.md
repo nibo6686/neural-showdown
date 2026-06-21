@@ -225,3 +225,16 @@ team-size replays. This does not update the old dataset: its displayed-species
 knownness statistics and unmatched-action counts remain stale pre-fix results.
 Use the corrected manifest only after explicit approval for a clean v7/v7
 rematerialization and then repeat this audit.
+
+## Superseded by corrected artifact
+
+The corrected v7/v7 rematerialization now exists at
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_corrected` and is audited
+in `diagnostic_300_v7_v7_corrected_dataset_quality_audit.md`. It excludes
+`gen9randombattle-2591563263`, validates 300/300 battles with 0 failures, keeps
+210/45/45 battle splits, records 24,716 matched / 519 unmatched decisions, and
+has 0 displayed-species-uncertain states.
+
+This stale audit remains useful only as historical evidence for the pre-fix
+artifact. The old `diagnostic_300_v7_v7` directory was not overwritten and must
+not be used for training.

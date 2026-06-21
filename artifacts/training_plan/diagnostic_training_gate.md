@@ -879,3 +879,18 @@ before the team-size and displayed-species knownness fixes. A clean v7/v7
 rematerialization is now ready for explicit approval, followed by a new quality
 audit before smoke training. No full materialization, training, checkpoint,
 live, schema, or v8 change occurred. Both gates remain **closed**.
+
+The explicitly approved corrected v7/v7 rematerialization completed in
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_corrected` with 300/300
+valid battles, 0 failures, exact 210/45/45 battle splits, 25,235 states,
+191,667 candidates, 300 retained shards, and the frozen 552D action fingerprint
+`956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`. The
+quality audit (`diagnostic_300_v7_v7_corrected_dataset_quality_audit.md`) shows
+24,716 matched / 519 unmatched decisions (97.94%), removes the unsupported
+24-vs-24 replay cluster, and reduces displayed-species uncertainty from
+25,381 stale states to 0 corrected states. The stale
+`diagnostic_300_v7_v7` artifact was not overwritten and remains prohibited for
+training. No training, checkpoint promotion, live-default/live-bot change,
+schema change, push, or v8 work occurred. Corrected materialization is complete;
+smoke training remains pending a separate explicit gate decision. Production
+and live gates remain **closed**.

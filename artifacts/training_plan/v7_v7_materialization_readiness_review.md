@@ -304,3 +304,19 @@ replays. The old `diagnostic_300_v7_v7` artifact remains stale for training
 because it predates the reconstruction fixes. Full v7/v7 rematerialization is
 now ready for explicit approval; smoke training remains blocked pending the
 fresh artifact and quality audit.
+
+## Corrected materialization update
+
+The corrected v7/v7 materialization was explicitly approved and completed in
+`artifacts/training_plan/datasets/diagnostic_300_v7_v7_corrected`. It processed
+300/300 valid battles with 0 failures, retained 300 shards, preserved 210/45/45
+battle splits, produced 25,235 states and 191,667 candidates, and validated
+`live-private-belief-v7` 3208D plus `legal-action-v7` 552D with fingerprint
+`956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7`.
+
+The corrected quality audit reports 24,716 matched / 519 unmatched decisions
+(97.94%), zero unsupported team-size replays, no selected
+`gen9randombattle-2591563263`, and 0 displayed-species-uncertain states. The
+old stale dataset remains untouched and superseded for training. Readiness for
+materialization is complete; smoke training remains a separate explicit
+approval gate after accepting the corrected audit.
