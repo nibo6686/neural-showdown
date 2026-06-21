@@ -78,7 +78,9 @@ Corrected audit results:
 - `gen9randombattle-2591563263` has zero corrected unmatched entries.
 - The prior 24-vs-24 mismatch cluster is gone.
 - Replacement replay `gen9randombattle-2591433931` is selected and contributes
-  21 unmatched entries.
+  zero residual unmatched entries in `decision_skip_audit.jsonl`. It has 21
+  rows only in the broader legacy audit stream: 19 fixed rows and 2 intentional
+  initial-deployment skips.
 
 ## Displayed species knownness
 
@@ -133,7 +135,8 @@ This confirms the corrected v7/v7 artifact exercises the late v7 action slices.
 Remaining red flags:
 
 - 519 unmatched action groups remain.
-- The replacement replay contributes 21 unmatched entries.
+- The residual unmatched rows are missing-candidate cases rather than exact
+  candidate-label mismatches.
 - The existing own-side replay-training future-public-reveal assumption remains
   documented in materializer warnings.
 - This audit did not run training and does not approve checkpoint promotion or
@@ -143,5 +146,6 @@ Gate status:
 
 - Corrected materialization: complete and structurally valid.
 - Old stale artifact: superseded for training and still prohibited.
-- Smoke training: pending explicit acceptance/approval after this audit.
+- Smoke training: acceptable only as a separately approved tiny
+  plumbing/overfit sanity check after the residual unmatched-state audit.
 - Production/live: closed.

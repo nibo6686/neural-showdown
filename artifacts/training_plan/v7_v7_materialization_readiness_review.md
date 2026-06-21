@@ -320,3 +320,18 @@ The corrected quality audit reports 24,716 matched / 519 unmatched decisions
 old stale dataset remains untouched and superseded for training. Readiness for
 materialization is complete; smoke training remains a separate explicit
 approval gate after accepting the corrected audit.
+
+## Residual unmatched-state audit update
+
+The 519 residual unmatched labels are now audited. They are all missing-candidate
+cases, not candidate-label mismatches: 486 are missing reconstructed active
+moves and 33 are missing switch targets. The distribution is 516 train, 1
+validation, and 2 test. The replacement replay `gen9randombattle-2591433931`
+has zero residual unmatched labels; its 21 broader legacy-audit rows were fixed
+or intentionally skipped initial deployments.
+
+The corrected dataset is acceptable for an explicitly approved tiny smoke
+training run as a plumbing/overfit sanity check only. It is not yet a durable
+training-quality baseline; larger training should wait for move-list and
+roster/form alias reconstruction fixes followed by approval-gated
+rematerialization.

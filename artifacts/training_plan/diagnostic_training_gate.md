@@ -894,3 +894,17 @@ training. No training, checkpoint promotion, live-default/live-bot change,
 schema change, push, or v8 work occurred. Corrected materialization is complete;
 smoke training remains pending a separate explicit gate decision. Production
 and live gates remain **closed**.
+
+The residual unmatched-state audit
+(`diagnostic_300_v7_v7_corrected_unmatched_state_audit.md`) explains all 519
+remaining skipped labels as missing-candidate cases: 486 missing reconstructed
+active moves and 33 missing switch targets, with zero exact parsed actions
+already present in the candidate list. The skips are concentrated in train
+(516 train / 1 validation / 2 test). Replacement replay
+`gen9randombattle-2591433931` contributes zero residual unmatched labels; its
+21 broader legacy-audit rows were 19 fixed rows plus 2 intentional initial
+deployments. This makes an explicitly approved tiny smoke training run
+acceptable as plumbing/overfit sanity only, not as a durable quality baseline.
+Before larger training, fix the remaining move-list and roster/form alias
+reconstruction gaps and rematerialize only with explicit approval. Production
+and live gates remain **closed**.
