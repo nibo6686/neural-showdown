@@ -19,6 +19,7 @@ from neural.benchmark_vnext_featuregen import (
     validate_benchmark_arrays,
 )
 from neural.build_action_rank_dataset import _legal_actions_from_private_state
+from neural.build_live_private_value_dataset import actor_private_switch_relabel
 from neural.action_features import ACTION_FEATURE_NAMES_V5, ACTION_FEATURE_NAMES_V7
 from neural.live_private_features import FEATURE_NAMES_V7
 from neural.parse_replay_logs import parse_protocol_log
@@ -217,6 +218,9 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
                         sets_path=None,
                     )
                     actions = _legal_actions_from_private_state(private_state, "")
+                    label = actor_private_switch_relabel(
+                        chosen_action_label(event, turn_events=events), trajectory, event["side"], event
+                    )
                     return {
                         "trajectory": trajectory,
                         "completed": completed,
@@ -224,7 +228,7 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
                         "turn_events": events,
                         "private_state": private_state,
                         "opponent_belief": opponent_belief,
-                        "label": chosen_action_label(event, turn_events=events),
+                        "label": label,
                         "actions": actions,
                     }
         self.fail(f"Replay command not found: {raw_command}")
@@ -312,40 +316,94 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertIn("move: Struggle", [action["label"] for action in decision["actions"]])
         self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
 
-    def test_no_chosen_action_injection_or_illusion_move_leakage(self):
+    def _opponent_belief_at(self, replay_id, raw_command, *, opponent_side, turn_number):
+        path = Path("data/replays/raw/gen9randombattle") / f"{replay_id}.log"
+        trajectory = parse_protocol_log(
+            path.read_text(encoding="utf-8").splitlines(),
+            replay_id=replay_id,
+            source_path=str(path),
+        )
+        completed = _completed_teams_for_action_reconstruction(trajectory)
+        turn = next(row for row in trajectory["turns"] if int(row["turn"]) == turn_number)
+        event = next(row for row in turn["events"] if row.get("raw") == raw_command)
+        prefix = _trajectory_prefix_before_event(
+            trajectory=trajectory, turn_number=turn_number, event=event, turn_events=turn["events"],
+        )
+        _, _, opponent_belief, _ = _context_for_prefix(
+            trajectory=trajectory, prefix=prefix, side=opponent_side,
+            through_turn=turn_number, completed_teams=completed, sets_path=None,
+        )
+        return json.dumps(opponent_belief)
+
+    def test_actor_private_illusion_staraptor_sludge_bomb_matches(self):
+        # Actor-private: the p2 player knew their Staraptor was really Zoroark.
         decision = self._replay_decision(
             "gen9randombattle-2591469202",
             "|move|p2a: Staraptor|Sludge Bomb|p1a: Chansey",
             side="p2",
         )
         self.assertEqual(decision["label"], "move: Sludge Bomb")
-        self.assertIsNone(match_chosen_action(decision["actions"], decision["label"]))
-        self.assertNotIn("move: Sludge Bomb", [action["label"] for action in decision["actions"]])
+        self.assertEqual(decision["private_state"]["active_species"], "Zoroark")
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+        # Opponent (p1) pre-action belief must not leak the hidden true species/move.
+        belief = self._opponent_belief_at(
+            "gen9randombattle-2591469202",
+            "|move|p2a: Staraptor|Sludge Bomb|p1a: Chansey",
+            opponent_side="p1", turn_number=1,
+        )
+        self.assertNotIn("Sludge Bomb", belief)
+        self.assertNotIn("Zoroark", belief)
 
-        path = Path("data/replays/raw/gen9randombattle/gen9randombattle-2591469202.log")
-        trajectory = parse_protocol_log(
-            path.read_text(encoding="utf-8").splitlines(),
-            replay_id="gen9randombattle-2591469202",
-            source_path=str(path),
-        )
-        completed = _completed_teams_for_action_reconstruction(trajectory)
-        turn = next(row for row in trajectory["turns"] if int(row["turn"]) == 1)
-        event = next(row for row in turn["events"] if row.get("raw") == "|move|p2a: Staraptor|Sludge Bomb|p1a: Chansey")
-        prefix = _trajectory_prefix_before_event(
-            trajectory=trajectory,
-            turn_number=1,
-            event=event,
-            turn_events=turn["events"],
-        )
-        _, _, opponent_belief, _ = _context_for_prefix(
-            trajectory=trajectory,
-            prefix=prefix,
+    def test_actor_private_illusion_avalugg_will_o_wisp_matches(self):
+        # Actor-private: the p1 player knew their Avalugg was really Zoroark-Hisui.
+        decision = self._replay_decision(
+            "gen9randombattle-2593348981",
+            "|move|p1a: Avalugg|Will-O-Wisp|p2a: Chi-Yu|[miss]",
             side="p1",
-            through_turn=1,
-            completed_teams=completed,
-            sets_path=None,
         )
-        self.assertNotIn("Sludge Bomb", json.dumps(opponent_belief))
+        self.assertEqual(decision["label"], "move: Will-O-Wisp")
+        self.assertEqual(decision["private_state"]["active_species"], "Zoroark-Hisui")
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+        # Opponent pre-reveal belief must still show the disguise species, never the
+        # true species behind Illusion. (Will-O-Wisp was already used publicly by the
+        # displayed Avalugg on turn 1, so it is legitimately observed opponent info.)
+        belief = self._opponent_belief_at(
+            "gen9randombattle-2593348981",
+            "|move|p1a: Avalugg|Will-O-Wisp|p2a: Chi-Yu|[miss]",
+            opponent_side="p2", turn_number=6,
+        )
+        self.assertNotIn("Zoroark", belief)
+
+    def test_non_self_confirming_illusion_stint_stays_unmatched(self):
+        # Turn 1 Avalugg switched out before any reveal; it is publicly
+        # indistinguishable from the real Avalugg, so it stays quarantined.
+        decision = self._replay_decision(
+            "gen9randombattle-2593348981",
+            "|move|p1a: Avalugg|Will-O-Wisp|p2a: Froslass",
+            side="p1",
+        )
+        self.assertEqual(decision["private_state"]["active_species"], "Avalugg")
+        self.assertIsNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_actor_private_duplicate_illusion_switch_relabels_to_true_species(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2591404793",
+            "|switch|p1a: Houndstone|Houndstone, L86, M, tera:Poison|235/235 slp",
+            side="p1",
+        )
+        # Displayed switch target is Houndstone; true target is the disguised Zoroark.
+        self.assertEqual(decision["label"], "switch: Zoroark")
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+        # No illegal switch-to-active displayed species candidate is created.
+        self.assertNotIn("switch: Houndstone", [action["label"] for action in decision["actions"]])
+
+    def test_real_houndstone_switch_is_not_relabeled(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2591404793",
+            "|switch|p1a: Houndstone|Houndstone, L86, M|141/264",
+            side="p1",
+        )
+        self.assertEqual(decision["label"], "switch: Houndstone")
 
     def test_ditto_transform_exposes_current_stint_copied_move(self):
         decision = self._replay_decision(

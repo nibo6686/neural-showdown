@@ -368,3 +368,29 @@ Full v7/v7 rematerialization is ready for explicit approval; smoke training
 remains blocked until the fresh artifact is materialized and re-audited. No
 training, rematerialization, checkpoint promotion, live-default/live-bot change,
 schema change, or push occurred.
+
+## Zoroark/Illusion actor-private reconstruction update
+
+The 7 remaining Illusion residuals were then audited from the acting player's
+perspective (`illusion_zoroark_actor_private_reconstruction_report.md`). All 7 are
+the Zoroark user's own decision rows, so the true Zoroark/Zoroark-Hisui identity
+is an own-side fact. Six are now fixed by actor-private reconstruction of stints
+that self-confirm via a later `replace`: three move de-disguises
+(`gen9randombattle-2591469202` t1; `gen9randombattle-2593348981` t6, t18) and three
+duplicate-Illusion switch relabels to the true `switch: Zoroark`
+(`gen9randombattle-2591404793` t21/t23/t25). One row
+(`gen9randombattle-2593348981` t1) is quarantined: its "Avalugg" stint switched
+out before any reveal and is publicly indistinguishable from the real Avalugg, an
+irreducible public-replay attribution limitation.
+
+The opponent's pre-reveal belief is unchanged (true species never leaks); the
+post-action impossible-displayed-species contradiction signal is deferred to
+future `legal-action-v8` threat-awareness work (no schema change here).
+`legal-action-v7` stays 552D / `956da3d2…1bf39d7`; no state dim changed.
+
+The expected residual unmatched count after a future approved rematerialization is
+now **1** (down from 7). The residual recomputation harness reports 8 cases, 7
+matched, 1 unmatched, all-as-expected. Full v7/v7 rematerialization is ready for
+explicit approval; smoke training remains blocked pending the fresh artifact and
+re-audit. No training, rematerialization, checkpoint promotion,
+live-default/live-bot change, schema/v8 change, or push occurred.

@@ -37,15 +37,23 @@ from neural.benchmark_vnext_featuregen import (
     _trajectory_prefix_before_event,
 )
 from neural.build_action_rank_dataset import _legal_actions_from_private_state
+from neural.build_live_private_value_dataset import actor_private_switch_relabel
 from neural.parse_replay_logs import parse_protocol_log
 from neural.vnext_labels import chosen_action_label, match_chosen_action
 
 
 DEFAULT_REPLAY_DIR = Path("data/replays/raw/gen9randombattle")
 
+ILLUSION_CATEGORIES = {
+    "actor_private_illusion_fixed",
+    "no_leakage_illusion",
+    "illusion_duplicate_artifact",
+    "unsupported_or_quarantined",
+}
+
 # Documented cases from residual_34_unmatched_case_triage_report.md.
 # kind: "move" matches on the move name; "switch" matches on the target species.
-# expected_matched reflects the post-Ditto-fix expectation.
+# expected_matched reflects the post-Transform + actor-private-Illusion fixes.
 CASES: List[Dict[str, Any]] = [
     {
         "replay": "gen9randombattle-2589571474", "turn": 20, "side": "p1",
@@ -55,37 +63,37 @@ CASES: List[Dict[str, Any]] = [
     {
         "replay": "gen9randombattle-2591469202", "turn": 1, "side": "p2",
         "kind": "move", "key": "Sludge Bomb",
-        "category": "no_leakage_illusion", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
     {
         "replay": "gen9randombattle-2593348981", "turn": 1, "side": "p1",
         "kind": "move", "key": "Will-O-Wisp",
-        "category": "no_leakage_illusion", "expected_matched": False,
+        "category": "unsupported_or_quarantined", "expected_matched": False,
     },
     {
         "replay": "gen9randombattle-2593348981", "turn": 6, "side": "p1",
         "kind": "move", "key": "Will-O-Wisp",
-        "category": "no_leakage_illusion", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
     {
         "replay": "gen9randombattle-2593348981", "turn": 18, "side": "p1",
         "kind": "move", "key": "Will-O-Wisp",
-        "category": "no_leakage_illusion", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
     {
         "replay": "gen9randombattle-2591404793", "turn": 21, "side": "p1",
         "kind": "switch", "key": "Houndstone",
-        "category": "illusion_duplicate_artifact", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
     {
         "replay": "gen9randombattle-2591404793", "turn": 23, "side": "p1",
         "kind": "switch", "key": "Houndstone",
-        "category": "illusion_duplicate_artifact", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
     {
         "replay": "gen9randombattle-2591404793", "turn": 25, "side": "p1",
         "kind": "switch", "key": "Houndstone",
-        "category": "illusion_duplicate_artifact", "expected_matched": False,
+        "category": "actor_private_illusion_fixed", "expected_matched": True,
     },
 ]
 
@@ -125,7 +133,9 @@ def recompute_case(case: Dict[str, Any], replay_dir: Path) -> Dict[str, Any]:
                 through_turn=case["turn"], completed_teams=completed, sets_path=None,
             )
             actions = _legal_actions_from_private_state(private_state, "")
-            label = chosen_action_label(event, turn_events=events)
+            label = actor_private_switch_relabel(
+                chosen_action_label(event, turn_events=events), trajectory, case["side"], event
+            )
             matched = match_chosen_action(actions, label) is not None
             return {
                 "replay": replay_id, "turn": case["turn"], "side": case["side"],
@@ -154,11 +164,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     for row in rows:
         categories[row["category"]] = categories.get(row["category"], 0) + 1
 
+    illusion_rows = [row for row in rows if row["category"] in ILLUSION_CATEGORIES]
+    illusion_matched = sum(1 for row in illusion_rows if row.get("matched") is True)
+    illusion_unmatched = sum(1 for row in illusion_rows if row.get("matched") is False)
+
     summary = {
         "total_cases": len(rows),
         "matched": matched,
         "unmatched": unmatched,
         "category_summary": categories,
+        "illusion_cases": len(illusion_rows),
+        "illusion_matched": illusion_matched,
+        "illusion_unmatched": illusion_unmatched,
+        "residual_after_future_rematerialization": unmatched,
         "all_as_expected": all(row.get("as_expected") for row in rows),
         "rows": rows,
     }
@@ -181,6 +199,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     print(f"matched             : {matched}")
     print(f"unmatched           : {unmatched}")
     print(f"category summary    : {categories}")
+    print(f"illusion cases      : {len(illusion_rows)} (matched {illusion_matched}, skipped {illusion_unmatched})")
+    print(f"residual after remat: {unmatched}")
     print(f"all as expected     : {summary['all_as_expected']}")
     return 0 if summary["all_as_expected"] else 1
 

@@ -123,6 +123,12 @@ artifacts. The never-revealed-Zoroark-in-public-replay ambiguity is an
 irreducible public-replay limitation, not a live-play limitation: in live play
 the bot knows its own true side from the Showdown request.
 
+> **Update (follow-up task):** the 7 Illusion residuals were subsequently
+> audited and 6 were fixed by actor-private reconstruction
+> (`illusion_zoroark_actor_private_reconstruction_report.md`), lowering the
+> expected residual count to **1** (the quarantined non-self-confirming turn-1
+> Avalugg stint in `gen9randombattle-2593348981`).
+
 ## Gate status
 
 Source is ready for an explicitly approved corrected v7/v7 rematerialization.

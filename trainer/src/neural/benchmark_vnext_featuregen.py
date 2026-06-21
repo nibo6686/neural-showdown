@@ -31,6 +31,7 @@ from .build_live_private_value_dataset import (
     _reconstructed_completed_private_teams,
     _reconstructed_private_state_for_side,
     _trajectory_prefix_for_training,
+    actor_private_switch_relabel,
 )
 from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_features import (
@@ -543,6 +544,7 @@ def _decision_features(
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
 ) -> Optional[Dict[str, Any]]:
     chosen_label = chosen_action_label(event, turn_events=turn_events)
+    chosen_label = actor_private_switch_relabel(chosen_label, trajectory, side, event)
     if not chosen_label:
         return None
     context_turn = max(0, int(turn_number) - 1)

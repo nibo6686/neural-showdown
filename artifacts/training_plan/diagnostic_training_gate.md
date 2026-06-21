@@ -952,3 +952,29 @@ ambiguity is an irreducible public-replay limitation, not a live-play one.
 Rematerialization is still required before smoke training. No training,
 rematerialization, checkpoint promotion, live-default/live-bot change, schema/v8
 change, or push occurred. Production and live gates remain **closed**.
+
+The Zoroark/Illusion actor-private reconstruction
+(`illusion_zoroark_actor_private_reconstruction_report.md`) then fixed 6 of the 7
+remaining Illusion residuals by reconstructing the acting Zoroark user's own true
+identity, which is an own-side fact the actor knew at decision time. A stint that
+self-confirms via a later `replace` (reveal before the next switch for that side)
+is reconstructed as its true species: own move decisions de-disguise the active
+(`gen9randombattle-2591469202` t1 `Sludge Bomb`; `gen9randombattle-2593348981` t6
+and t18 `Will-O-Wisp`), and own duplicate-Illusion switch decisions are relabeled
+from the displayed `switch: Houndstone` to the true `switch: Zoroark`
+(`gen9randombattle-2591404793` t21/t23/t25), an already-legal bench candidate with
+no switch-to-active-displayed-species candidate added. One row is quarantined:
+`gen9randombattle-2593348981` t1 `Will-O-Wisp`, whose "Avalugg" stint switched out
+before any reveal and is publicly indistinguishable from the player's real
+Avalugg — an irreducible public-replay attribution limitation, not leakage. The
+opponent's pre-reveal belief never receives the true species; the impossible
+displayed-species contradiction/suspicion signal is documented as future
+`legal-action-v8` threat-awareness work (no schema change). `legal-action-v7`
+stays 552D / `956da3d2…1bf39d7` and no state dim changed. The residual
+recomputation harness now reports 8 cases, 7 matched, 1 unmatched
+(`{transform_reconstruction_fixed: 1, actor_private_illusion_fixed: 6,
+unsupported_or_quarantined: 1}`, all-as-expected). The expected residual count
+after a future approved rematerialization is therefore **1**. Rematerialization
+is still required before smoke training. No training, rematerialization,
+checkpoint promotion, live-default/live-bot change, schema/v8/old-gen change, or
+push occurred. Production and live gates remain **closed**.

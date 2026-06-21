@@ -303,6 +303,85 @@ def _active_transform_copied_moves(
     return copied
 
 
+def _illusion_true_species_for_stint(
+    full_trajectory: Optional[Dict[str, Any]],
+    side: str,
+    anchor_event: Dict[str, Any],
+) -> Optional[str]:
+    """Return the true Illusion species for an active stint that self-confirms.
+
+    A stint starts when ``anchor_event`` (a switch) brings an entity into the
+    active slot. If a later ``replace`` for ``side`` reveals a different species
+    before the next ``switch`` for ``side``, that entity was an Illusion and the
+    revealed species is its true identity. Otherwise the stint is not
+    self-confirming and ``None`` is returned. Detection uses only the replay's
+    own reveal — never a chosen-action guess or HP heuristic.
+    """
+    if full_trajectory is None or anchor_event.get("type") != "switch":
+        return None
+    apparent = _species_from_text(anchor_event.get("details") or anchor_event.get("actor"))
+    started = False
+    for event in _ordered_events(full_trajectory):
+        if not started:
+            if event is anchor_event:
+                started = True
+            continue
+        if event.get("side") != side:
+            continue
+        etype = event.get("type")
+        if etype == "switch":
+            return None
+        if etype == "replace":
+            revealed = _species_from_text(event.get("details") or event.get("actor"))
+            if revealed and revealed != apparent:
+                return revealed
+            return None
+    return None
+
+
+def _own_side_illusion_true_active(
+    prefix: Dict[str, Any],
+    full_trajectory: Optional[Dict[str, Any]],
+    side: str,
+) -> Optional[str]:
+    """True species of the own-side active when it is a pre-reveal Illusion.
+
+    The active entity is anchored by the most recent switch/replace for ``side``
+    in the causal prefix. If that entity is still displayed under its disguise
+    (anchor is a switch) but self-confirms as an Illusion later in the full
+    trajectory, the actor privately knew the true species at decision time.
+    Returns ``None`` once the reveal has already happened publicly (anchor is a
+    replace) or when the stint is not self-confirming.
+    """
+    anchor = None
+    for event in _ordered_events(prefix):
+        if event.get("side") == side and event.get("type") in ("switch", "replace"):
+            anchor = event
+    if anchor is None:
+        return None
+    return _illusion_true_species_for_stint(full_trajectory, side, anchor)
+
+
+def actor_private_switch_relabel(
+    label: Optional[str],
+    full_trajectory: Optional[Dict[str, Any]],
+    side: str,
+    event: Dict[str, Any],
+) -> Optional[str]:
+    """Relabel an own-side switch action to the true Illusion species.
+
+    When the switched-in entity self-confirms as an Illusion (a later ``replace``
+    in its stint), the acting player knew they were switching in their true
+    Zoroark/Zoroark-Hisui, so the displayed-species label is mapped to the true
+    species. The mapped label only matches an already-legal own-side switch
+    candidate; no new candidate is created.
+    """
+    if not label or not label.startswith("switch:") or event.get("type") != "switch":
+        return label
+    true_species = _illusion_true_species_for_stint(full_trajectory, side, event)
+    return f"switch: {true_species}" if true_species else label
+
+
 def _reconstructed_private_state_for_side(
     trajectory: Dict[str, Any],
     *,
@@ -317,6 +396,24 @@ def _reconstructed_private_state_for_side(
     for species, state in raw_current_state.items():
         canonical_species = _canonical_species_from_completed_team(completed_team, species)
         _merge_public_species_state(current_state, canonical_species, state)
+    # Actor-private Illusion de-disguise: when the own-side active is a pre-reveal
+    # Illusion that self-confirms later, the acting player privately knew the true
+    # species. Move the active entry from the displayed species to the true one so
+    # its true moves become legal candidates. Opponent belief is built separately
+    # from the causal prefix and is unaffected.
+    illusion_true = _own_side_illusion_true_active(trajectory, full_trajectory, side)
+    if illusion_true and illusion_true in completed_team:
+        apparent = next((sp for sp, st in current_state.items() if st.get("active")), None)
+        if apparent and _replay_roster_alias_id(apparent) != _replay_roster_alias_id(illusion_true):
+            moved = current_state.pop(apparent)
+            target = current_state.setdefault(
+                illusion_true, {"hp_fraction": 1.0, "fainted": False, "active": False}
+            )
+            target["active"] = True
+            target["hp_fraction"] = moved.get("hp_fraction", 1.0)
+            if moved.get("fainted"):
+                target["fainted"] = True
+
     species_order = list(completed_team.keys())
     for species in current_state:
         if species not in completed_team:

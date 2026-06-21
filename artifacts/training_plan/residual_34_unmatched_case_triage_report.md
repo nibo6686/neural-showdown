@@ -110,6 +110,38 @@ live-play limitation (live play knows its own true side from the Showdown
 request). `scripts/recompute_v7_v7_residual_unmatched_from_replays.py`
 reproduces this result (1 matched, 7 unmatched, all-as-expected).
 
+## Addendum: Zoroark/Illusion actor-private reconstruction (residual 7 → 1)
+
+The 7 remaining Illusion rows were then audited from the acting (Zoroark user's)
+perspective. Six are now fixed by actor-private reconstruction, because the
+acting player privately knew their own true Zoroark/Zoroark-Hisui:
+
+- Move cases `gen9randombattle-2591469202` t1 (`Sludge Bomb`),
+  `gen9randombattle-2593348981` t6 and t18 (`Will-O-Wisp`): the own active is
+  reconstructed as the true species for stints that self-confirm via a later
+  `replace`, so the true move becomes a legal candidate.
+- Switch cases `gen9randombattle-2591404793` t21/t23/t25: the displayed
+  `switch: Houndstone` is relabeled to the true `switch: Zoroark` (an
+  already-legal bench candidate); no switch-to-active-displayed-species candidate
+  is added.
+
+One row stays unmatched: `gen9randombattle-2593348981` t1 (`Will-O-Wisp`). Its
+active "Avalugg" stint switched out before any reveal, so it does not
+self-confirm and is publicly indistinguishable from the player's real Avalugg.
+It is **quarantined** as an irreducible public-replay attribution limitation (not
+leakage, not an illegal candidate). See
+`illusion_zoroark_actor_private_reconstruction_report.md`.
+
+The opponent pre-reveal belief is unchanged (true species never leaks before
+reveal); the post-action impossible-displayed-species contradiction signal is
+documented as future `legal-action-v8` threat-awareness work (no schema change
+here).
+
+**Expected residual unmatched count after a future approved rematerialization is
+now 1** (the quarantined non-self-confirming turn-1 Avalugg stint).
+`scripts/recompute_v7_v7_residual_unmatched_from_replays.py` reproduces this
+(8 cases, 7 matched, 1 unmatched, all-as-expected).
+
 ## Gate Status
 
 The source code is ready for an explicitly approved corrected v7/v7
