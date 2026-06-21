@@ -478,3 +478,23 @@ do not authorize durable training or promotion; the value head does not beat
 the constant baseline. Checkpoint promotion, live/default changes, and
 production remain closed. See
 `training_runs/smoke_v7_v7_post_ditto/smoke_v7_v7_post_ditto_report.md`.
+
+## 1,000-battle post-Ditto materialization and audit
+
+The approved larger v7/v7 materialization completed in
+`datasets/diagnostic_1000_v7_v7_post_ditto` with 1,000/1,000 valid battles,
+80,644 states, 617,687 candidates, 700/150/150 battle splits, exact frozen
+v7/v7 schema/fingerprints, and all 18 structural checks passing. The manifest
+generator now enforces the six-slot protocol limit directly; the stale 24-vs-24
+and 8-vs-8 selections were replaced before materialization. Old datasets were
+not overwritten.
+
+The quality audit reports 80,601 matched / 43 unmatched (99.9467%). Forty-one
+rows are explicit quarantined Illusion/public-replay ambiguities. Two rows
+surface a fixable Magic Bounce category: reflected Defog becomes false Hatterene
+moveset evidence and crowds out Psychic, and reflected Will-O-Wisp is treated as
+an actor-selected move. Since reflected-move contamination can also introduce
+illegal unchosen candidates, this artifact is not approved for rank-only
+training. Fix, regression-test, rematerialize under explicit approval, and
+re-audit first. No training, promotion, live/default, schema, or v8 change
+occurred.

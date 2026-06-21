@@ -83,7 +83,7 @@ training.
 
 Proposed future dataset:
 
-`artifacts/training_plan/datasets/diagnostic_1000_action_rank_v7_v7_post_ditto/diagnostic_1000_action_rank_v7_v7_post_ditto.npz`
+`artifacts/training_plan/datasets/diagnostic_1000_v7_v7_post_ditto/diagnostic_1000_v7_v7_post_ditto.npz`
 
 It should reuse the existing 1,000-battle action-rank manifest and fixed
 700/150/150 battle splits, but be freshly materialized through the post-Ditto
@@ -338,8 +338,27 @@ does not authorize production or autonomous play.
 
 ## Current gate status
 
-This task creates a plan and draft config only. No dataset was materialized, no
-training or browser/live test was run, no checkpoint was promoted, and no
-live/default behavior changed. The proposed materialization, rank-only
-training, value-dataset work, v8 work, and browser/live shadow testing all
-remain blocked pending explicit approval.
+The initial planning task created only a plan and draft config. The subsequent
+explicitly approved 1,000-battle materialization is recorded below. No training
+or browser/live test was run, no checkpoint was promoted, and no live/default
+behavior changed. Rank-only training, value-dataset work, v8 work, and
+browser/live shadow testing remain blocked pending their separate gates.
+
+## 1,000-battle v7/v7 materialization update
+
+The explicitly approved materialization completed in
+`datasets/diagnostic_1000_v7_v7_post_ditto`: 1,000/1,000 valid battles,
+80,644 states, 617,687 candidates, exact 700/150/150 battle splits,
+`live-private-belief-v7` 3208D plus `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, and all 18 structural checks passed. Match quality is
+80,601 / 43 (99.9467%).
+
+Quality audit disposition: 41 residuals are quarantined non-self-confirming
+Illusion/public-replay ambiguity, but two newly surfaced Magic Bounce rows are
+fixable. Reflected `Defog` is incorrectly admitted as Hatterene moveset evidence
+and crowds out `Psychic`; reflected `Will-O-Wisp` is incorrectly parsed as a
+Hatterene decision. Because reflected-move contamination can affect unchosen
+candidate sets, the proposed rank-only run remains **blocked** pending that
+source fix, regression tests, approved rematerialization, and re-audit. The
+draft config now points at the actual materialized dataset path but must not be
+run.

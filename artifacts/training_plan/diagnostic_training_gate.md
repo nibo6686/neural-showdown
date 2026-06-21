@@ -90,6 +90,9 @@
 - [x] Rejected 24-member train replay replaced in the corrected manifest; fresh preflight and approved v7/v7 rematerializations completed.
 - [x] Fresh post-Ditto v7/v7 replacement artifact passes the dataset-quality audit before smoke training.
 - [x] Explicitly approved one-epoch post-Ditto v7/v7 smoke/plumbing training completed and reported with exact checkpoint metadata and finite outputs.
+- [x] Fresh 1,000-battle v7/v7 manifest regenerated with current six-slot eligibility filters and exact 700/150/150 battle splits.
+- [x] Approved `diagnostic_1000_v7_v7_post_ditto` materialization completed: 1,000/1,000 valid, 80,644 states, 617,687 candidates, exact v7/v7 metadata, all 18 structural checks passed.
+- [ ] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination, rematerialize the 1,000-battle v7/v7 artifact, and pass re-audit before rank-only training.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1081,3 +1084,22 @@ report values, dataset arrays, and checkpoint tensors are finite. See
 This closes only the tiny smoke/plumbing gate. The value metric does not beat
 the constant baseline, so durable training, checkpoint promotion, live use,
 and production remain **closed**. No live/default behavior changed.
+
+The approved **1,000-battle post-Ditto v7/v7 materialization** then completed
+from `manifests/diagnostic_1000_v7_v7_post_ditto_manifest.json` into
+`datasets/diagnostic_1000_v7_v7_post_ditto`: 1,000/1,000 valid battles,
+80,644 states, 617,687 candidates, exact 700/150/150 battle splits,
+`live-private-belief-v7` 3208D plus `legal-action-v7` 552D /
+`956da3d2…1bf39d7`, 1,000 retained shards, and all 18 structural validation
+checks passed. The fresh manifest excludes the stale 24-vs-24 and 8-vs-8
+replays; old datasets remain byte-identical. Match quality is 80,601 matched /
+43 unmatched (99.9467%). Semantic audit classifies 41 as explicitly
+quarantined non-self-confirming Illusion/public-replay ambiguity and two as a
+new fixable Magic Bounce category: reflected Defog contaminates Hatterene's
+moveset and crowds out Psychic, while reflected Will-O-Wisp is parsed as an
+actor decision. See
+`diagnostic_1000_v7_v7_post_ditto_materialization_report.md` and
+`diagnostic_1000_v7_v7_post_ditto_dataset_quality_audit.md`.
+Structural materialization passed, but rank-only training remains **closed**
+pending the Magic Bounce fix, regression tests, approved rematerialization, and
+re-audit. No training, promotion, live/default, schema, or v8 change occurred.

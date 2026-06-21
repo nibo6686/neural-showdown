@@ -476,17 +476,36 @@ def _enrichment_summary(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def _fits_frozen_six_slot_schema(row: Dict[str, Any]) -> bool:
+    path = Path(str(row.get("path") or ""))
+    if not path.is_file():
+        return True
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        parts = line.split("|")
+        if len(parts) >= 4 and parts[1] == "teamsize":
+            try:
+                if int(parts[3]) > 6:
+                    return False
+            except ValueError:
+                continue
+    return True
+
+
 def generate_action_rank_manifest(
     *,
     catalog_path: Path = DEFAULT_CATALOG,
     output_path: Path = ACTION_RANK_OUTPUT,
     seed: int = DEFAULT_SEED,
+    action_feature_version: str = "legal-action-v5",
+    action_feature_dim: int = 318,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     rows = load_catalog(catalog_path)
     eligible = [
         row
         for row in rows
-        if row.get("eligible_diagnostic_300") and not row.get("parse_error")
+        if row.get("eligible_diagnostic_300")
+        and not row.get("parse_error")
+        and _fits_frozen_six_slot_schema(row)
     ]
     unique = {row["replay_id"]: row for row in eligible}
     eligible = list(unique.values())
@@ -587,8 +606,8 @@ def generate_action_rank_manifest(
         "objective": "action_rank",
         "state_feature_version": "live-private-belief-v7",
         "state_feature_dim": 3208,
-        "action_feature_version": "legal-action-v5",
-        "action_feature_dim": 318,
+        "action_feature_version": action_feature_version,
+        "action_feature_dim": action_feature_dim,
         "seed": seed,
         "catalog_path": str(catalog_path),
         "catalog_checksum": catalog_checksum(catalog_path),
@@ -632,7 +651,8 @@ def _action_rank_report_markdown(manifest: Dict[str, Any], report: Dict[str, Any
         "",
         f"- Overall: **{'PASS' if report['passed'] else 'FAIL'}**",
         f"- Manifest version: `{manifest['manifest_version']}`",
-        f"- Objective: action-rank (state v7/3208, action v5/318)",
+        f"- Objective: action-rank (state v7/3208, "
+        f"action {manifest['action_feature_version']}/{manifest['action_feature_dim']})",
         f"- Seed: `{manifest['seed']}`",
         f"- Source replay pool: `{manifest['catalog_path']}`",
         f"- Catalog SHA-256: `{manifest['catalog_checksum']}`",

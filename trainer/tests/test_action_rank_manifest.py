@@ -9,6 +9,7 @@ from neural.replay_sample_manifest import (
     ACTION_RANK_SPLIT_TARGETS,
     ACTION_RANK_TOTAL,
     SWITCH_HEAVY_MIN,
+    _fits_frozen_six_slot_schema,
     generate_action_rank_manifest,
 )
 
@@ -47,6 +48,12 @@ def _write_catalog(root: Path, n: int = 1200) -> Path:
 
 
 class ActionRankManifestTest(unittest.TestCase):
+    def test_rejects_protocol_team_sizes_above_six(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            replay = Path(tmpdir) / "custom.log"
+            replay.write_text("|teamsize|p1|8\n|teamsize|p2|8\n", encoding="utf-8")
+            self.assertFalse(_fits_frozen_six_slot_schema({"path": str(replay)}))
+
     def test_generates_valid_1000_battle_manifest(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
