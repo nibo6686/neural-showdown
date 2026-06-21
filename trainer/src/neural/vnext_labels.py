@@ -59,8 +59,29 @@ def _normalized_action_parts(value: Any) -> tuple:
     return kind.strip(), normalized_name
 
 
+def _roster_alias_id(value: Any) -> str:
+    species_id = re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
+    if species_id in {"terapagosterastal", "terapagosstellar"}:
+        return "terapagos"
+    if species_id == "palafinhero":
+        return "palafin"
+    if species_id.startswith("ogerpon") and species_id.endswith("tera"):
+        return species_id[: -len("tera")]
+    if species_id in {"polteageistantique", "sinisteaantique"}:
+        return species_id.replace("antique", "")
+    if species_id in {"eiscuenoice", "mimikyubusted", "miniorcore", "zygardecomplete"}:
+        return {
+            "eiscuenoice": "eiscue",
+            "mimikyubusted": "mimikyu",
+            "miniorcore": "minior",
+            "zygardecomplete": "zygarde",
+        }[species_id]
+    return species_id
+
+
 def match_chosen_action(actions: Sequence[Dict[str, Any]], chosen_label: str) -> Optional[int]:
     target_kind, target_name = _normalized_action_parts(chosen_label)
+    target_alias = _roster_alias_id(target_name) if target_kind == "switch" else target_name
     for index, action in enumerate(actions):
         kind = str(action.get("kind") or "").lower()
         label_kind, label_name = _normalized_action_parts(action.get("label"))
@@ -70,6 +91,7 @@ def match_chosen_action(actions: Sequence[Dict[str, Any]], chosen_label: str) ->
             str(action.get("move") or action.get("species") or label_name).lower(),
         )
         effective_kind = kind or label_kind
-        if effective_kind == target_kind and action_name == target_name:
+        comparable_name = _roster_alias_id(action_name) if target_kind == "switch" else action_name
+        if effective_kind == target_kind and comparable_name == target_alias:
             return index
     return None

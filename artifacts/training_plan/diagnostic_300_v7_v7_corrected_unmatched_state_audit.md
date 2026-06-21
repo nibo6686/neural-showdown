@@ -9,6 +9,15 @@ This is a read-only audit of the 519 residual action-rank unmatched rows in:
 No training, rematerialization, checkpoint promotion, live-default change,
 live-bot change, schema change, push, or `legal-action-v8` work occurred.
 
+Post-checkpoint source fix note:
+`missing_candidate_reconstruction_fix_report.md` records the targeted
+reconstruction fix made after checkpoint
+`96e56696798dab0b5c884e3d05bcb075cf262eb7`. A lightweight replay-prefix audit
+over these same 519 rows now naturally matches 485 and leaves 34 unmatched.
+The materialized `diagnostic_300_v7_v7_corrected` dataset itself was not
+rematerialized, so this document remains the authoritative pre-fix artifact
+audit.
+
 Audit helper:
 
 ```powershell

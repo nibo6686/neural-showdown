@@ -11,14 +11,18 @@ from neural.benchmark_vnext_featuregen import (
     _validate_supported_replay_team_sizes,
     _validate_full_preflight,
     _completed_teams_for_action_reconstruction,
+    _context_for_prefix,
     _trajectory_prefix_before_event,
     benchmark_metadata,
     main,
     select_manifest_subset,
     validate_benchmark_arrays,
 )
+from neural.build_action_rank_dataset import _legal_actions_from_private_state
 from neural.action_features import ACTION_FEATURE_NAMES_V5, ACTION_FEATURE_NAMES_V7
 from neural.live_private_features import FEATURE_NAMES_V7
+from neural.parse_replay_logs import parse_protocol_log
+from neural.vnext_labels import chosen_action_label, match_chosen_action
 
 
 def _entry(index, split):
@@ -185,6 +189,133 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
             trajectory, turn_number=1, event=move, turn_events=[tera, move]
         )
         self.assertNotIn(tera["raw"], prefix["protocol_log"])
+
+    def _replay_decision(self, replay_id, raw_command, *, side=None):
+        path = Path("data/replays/raw/gen9randombattle") / f"{replay_id}.log"
+        trajectory = parse_protocol_log(
+            path.read_text(encoding="utf-8").splitlines(),
+            replay_id=replay_id,
+            source_path=str(path),
+        )
+        completed = _completed_teams_for_action_reconstruction(trajectory)
+        for turn in trajectory["turns"]:
+            events = turn.get("events", [])
+            for event in events:
+                if event.get("raw") == raw_command and (side is None or event.get("side") == side):
+                    prefix = _trajectory_prefix_before_event(
+                        trajectory=trajectory,
+                        turn_number=int(turn["turn"]),
+                        event=event,
+                        turn_events=events,
+                    )
+                    _, private_state, opponent_belief, _ = _context_for_prefix(
+                        trajectory=trajectory,
+                        prefix=prefix,
+                        side=event["side"],
+                        through_turn=int(turn["turn"]),
+                        completed_teams=completed,
+                        sets_path=None,
+                    )
+                    actions = _legal_actions_from_private_state(private_state, "")
+                    return {
+                        "trajectory": trajectory,
+                        "completed": completed,
+                        "event": event,
+                        "turn_events": events,
+                        "private_state": private_state,
+                        "opponent_belief": opponent_belief,
+                        "label": chosen_action_label(event, turn_events=events),
+                        "actions": actions,
+                    }
+        self.fail(f"Replay command not found: {raw_command}")
+
+    def test_top_replay_support_move_survives_struggle_slot_pressure(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2592785310",
+            "|move|p2a: Gholdengo|Thunder Wave|p1a: Registeel",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Thunder Wave")
+        self.assertIn("Thunder Wave", [move["name"] for move in decision["private_state"]["active_moves"]])
+        self.assertNotIn("Struggle", [move["name"] for move in decision["private_state"]["active_moves"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_battle_form_switch_target_matches_roster_slot(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2587967313",
+            "|drag|p2a: Terapagos|Terapagos-Terastal, L77, F|239/273",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "switch: Terapagos-Terastal")
+        self.assertIn("switch: Terapagos", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_roster_aliases_keep_sixth_switch_target_available(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589411985",
+            "|switch|p2a: Glalie|Glalie, L96, F|309/309|[from] Volt Switch",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "switch: Glalie")
+        self.assertIn("switch: Glalie", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_move_tera_candidate_reconstructed_without_chosen_injection(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589811158",
+            "|move|p2a: Glaceon|Wish|p2a: Glaceon",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move_tera: Wish")
+        self.assertIn("move_tera: Wish", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_struggle_is_exhaustion_candidate_without_displacing_real_moves(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2587977426",
+            "|move|p2a: Lapras|Struggle|p1a: Phione",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Struggle")
+        active_moves = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertEqual(active_moves, ["Freeze-Dry", "Rest", "Sleep Talk", "Sparkling Aria"])
+        self.assertIn("move: Struggle", [action["label"] for action in decision["actions"]])
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_no_chosen_action_injection_or_illusion_move_leakage(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2591469202",
+            "|move|p2a: Staraptor|Sludge Bomb|p1a: Chansey",
+            side="p2",
+        )
+        self.assertEqual(decision["label"], "move: Sludge Bomb")
+        self.assertIsNone(match_chosen_action(decision["actions"], decision["label"]))
+        self.assertNotIn("move: Sludge Bomb", [action["label"] for action in decision["actions"]])
+
+        path = Path("data/replays/raw/gen9randombattle/gen9randombattle-2591469202.log")
+        trajectory = parse_protocol_log(
+            path.read_text(encoding="utf-8").splitlines(),
+            replay_id="gen9randombattle-2591469202",
+            source_path=str(path),
+        )
+        completed = _completed_teams_for_action_reconstruction(trajectory)
+        turn = next(row for row in trajectory["turns"] if int(row["turn"]) == 1)
+        event = next(row for row in turn["events"] if row.get("raw") == "|move|p2a: Staraptor|Sludge Bomb|p1a: Chansey")
+        prefix = _trajectory_prefix_before_event(
+            trajectory=trajectory,
+            turn_number=1,
+            event=event,
+            turn_events=turn["events"],
+        )
+        _, _, opponent_belief, _ = _context_for_prefix(
+            trajectory=trajectory,
+            prefix=prefix,
+            side="p1",
+            through_turn=1,
+            completed_teams=completed,
+            sets_path=None,
+        )
+        self.assertNotIn("Sludge Bomb", json.dumps(opponent_belief))
 
 
 class GeneralizedFullPreflightTest(unittest.TestCase):

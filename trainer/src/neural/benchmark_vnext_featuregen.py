@@ -27,6 +27,7 @@ from .action_features import (
 )
 from .build_action_rank_dataset import _legal_actions_from_private_state
 from .build_live_private_value_dataset import (
+    _replay_roster_alias_id,
     _reconstructed_completed_private_teams,
     _reconstructed_private_state_for_side,
     _trajectory_prefix_for_training,
@@ -393,8 +394,11 @@ def _completed_teams_for_action_reconstruction(
     original = _reconstructed_completed_private_teams(trajectory)
     teams: Dict[str, Dict[str, Dict[str, Any]]] = {"p1": {}, "p2": {}}
     active: Dict[str, Optional[str]] = {"p1": None, "p2": None}
+    canonical_species: Dict[str, Dict[str, str]] = {"p1": {}, "p2": {}}
 
     def ensure(side: str, species: str) -> Dict[str, Any]:
+        alias_id = _replay_roster_alias_id(species)
+        species = canonical_species[side].setdefault(alias_id, species)
         return teams[side].setdefault(
             species,
             {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None},
@@ -420,8 +424,24 @@ def _completed_teams_for_action_reconstruction(
 
     for side in ("p1", "p2"):
         original_by_id = {to_id(species): data for species, data in original.get(side, {}).items()}
+        original_by_alias: Dict[str, Dict[str, Any]] = {}
+        for species, source in original.get(side, {}).items():
+            alias_id = _replay_roster_alias_id(species)
+            merged = original_by_alias.setdefault(
+                alias_id,
+                {"species": species, "moves": set(), "item": None, "ability": None, "tera_type": None},
+            )
+            source_moves = source.get("moves", set())
+            if isinstance(source_moves, set):
+                merged["moves"].update(str(move) for move in source_moves if move)
+            for key in ("item", "ability", "tera_type"):
+                if merged.get(key) is None and source.get(key) is not None:
+                    merged[key] = source[key]
         for species, data in teams[side].items():
-            source = original_by_id.get(to_id(species), {})
+            source = original_by_id.get(to_id(species), {}) or original_by_alias.get(_replay_roster_alias_id(species), {})
+            source_moves = source.get("moves", set())
+            if isinstance(source_moves, set):
+                data["moves"].update(str(move) for move in source_moves if move)
             for key in ("item", "ability", "tera_type"):
                 if data.get(key) is None and source.get(key) is not None:
                     data[key] = source[key]

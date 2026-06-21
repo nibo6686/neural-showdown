@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import time
 from collections import Counter
 from pathlib import Path
@@ -61,6 +62,50 @@ def _species_from_event(event: Dict[str, Any]) -> Optional[str]:
     if event.get("type") == "switch":
         return _species_from_text(event.get("details") or event.get("actor"))
     return _species_from_text(event.get("actor") or event.get("target"))
+
+
+def _replay_roster_alias_id(species: Any) -> str:
+    species_id = re.sub(r"[^a-z0-9]+", "", str(species or "").lower())
+    if species_id in {"terapagosterastal", "terapagosstellar"}:
+        return "terapagos"
+    if species_id == "palafinhero":
+        return "palafin"
+    if species_id.startswith("ogerpon") and species_id.endswith("tera"):
+        return species_id[: -len("tera")]
+    if species_id in {"polteageistantique", "sinisteaantique"}:
+        return species_id.replace("antique", "")
+    if species_id in {"eiscuenoice", "mimikyubusted", "miniorcore", "zygardecomplete"}:
+        return {
+            "eiscuenoice": "eiscue",
+            "mimikyubusted": "mimikyu",
+            "miniorcore": "minior",
+            "zygardecomplete": "zygarde",
+        }[species_id]
+    return species_id
+
+
+def _canonical_species_from_completed_team(completed_team: Dict[str, Dict[str, Any]], species: str) -> str:
+    alias_id = _replay_roster_alias_id(species)
+    for existing in completed_team:
+        if _replay_roster_alias_id(existing) == alias_id:
+            return existing
+    return species
+
+
+def _merge_public_species_state(current_state: Dict[str, Dict[str, Any]], species: str, state: Dict[str, Any]) -> None:
+    slot = current_state.setdefault(species, {"hp_fraction": 1.0, "fainted": False, "active": False})
+    if state.get("active"):
+        slot["active"] = True
+    if "hp_fraction" in state:
+        slot["hp_fraction"] = state.get("hp_fraction")
+    if state.get("fainted"):
+        slot["fainted"] = True
+
+
+def _request_like_move_names(moves: Any) -> List[str]:
+    move_names = sorted(str(move) for move in moves if str(move or "").strip())
+    non_struggle = [move for move in move_names if re.sub(r"[^a-z0-9]+", "", move.lower()) != "struggle"]
+    return (non_struggle or move_names)[:4]
 
 
 def _protocol_prefix_until_turn(protocol_log: Sequence[str], through_turn: int) -> List[str]:
@@ -188,7 +233,11 @@ def _reconstructed_private_state_for_side(
     completed_teams: Dict[str, Dict[str, Dict[str, Any]]],
 ) -> Dict[str, Any]:
     completed_team = completed_teams.get(side, {})
-    current_state = _side_public_state_at_turn(trajectory, side, through_turn)
+    raw_current_state = _side_public_state_at_turn(trajectory, side, through_turn)
+    current_state: Dict[str, Dict[str, Any]] = {}
+    for species, state in raw_current_state.items():
+        canonical_species = _canonical_species_from_completed_team(completed_team, species)
+        _merge_public_species_state(current_state, canonical_species, state)
     species_order = list(completed_team.keys())
     for species in current_state:
         if species not in completed_team:
@@ -220,8 +269,11 @@ def _reconstructed_private_state_for_side(
         )
 
     active_moves = []
+    active_complete_moves = set()
     if active_species and active_species in completed_team:
-        for move in sorted(list(completed_team[active_species].get("moves", set())))[:4]:
+        raw_moves = completed_team[active_species].get("moves", set())
+        active_complete_moves = set(raw_moves) if isinstance(raw_moves, set) else set()
+        for move in _request_like_move_names(active_complete_moves):
             active_moves.append(
                 {
                     "id": move.lower().replace(" ", ""),
@@ -253,6 +305,10 @@ def _reconstructed_private_state_for_side(
         "trapped": False,
         "legal_actions": legal_actions[:13],
         "can_tera": False,
+        "struggle_available": any(
+            re.sub(r"[^a-z0-9]+", "", str(move).lower()) == "struggle"
+            for move in active_complete_moves
+        ),
     }
 
 

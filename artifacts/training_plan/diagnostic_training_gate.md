@@ -908,3 +908,14 @@ acceptable as plumbing/overfit sanity only, not as a durable quality baseline.
 Before larger training, fix the remaining move-list and roster/form alias
 reconstruction gaps and rematerialize only with explicit approval. Production
 and live gates remain **closed**.
+
+The missing-candidate reconstruction source fix
+(`missing_candidate_reconstruction_fix_report.md`) is now complete. It keeps the
+552D `legal-action-v7` schema and fingerprint unchanged, prevents `Struggle`
+from displacing real active moves, merges safe battle-form roster aliases,
+matches switch labels by roster identity, and preserves no-leakage/Illusion
+guards. A lightweight replay-prefix audit over the old 519 skipped rows now
+naturally matches 485 and leaves 34 ambiguous/no-leakage residuals. The
+materialized `diagnostic_300_v7_v7_corrected` dataset was not rematerialized,
+so it remains stale with respect to this source fix; smoke training remains
+blocked until a future explicitly approved rematerialization and audit.

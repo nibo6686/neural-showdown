@@ -26,6 +26,13 @@ that remains enabled for v6. The remaining conditions are procedural:
 Training, checkpoint promotion, and any live-default change remain **separately
 blocked** regardless of this materialization.
 
+Post-corrected addendum: the approved corrected v7/v7 dataset later exposed
+519 residual missing-candidate skips. The targeted source fix documented in
+`missing_candidate_reconstruction_fix_report.md` resolves the clean
+reconstruction paths in code and tests without changing `legal-action-v7`;
+the old materialized artifact remains stale until a future explicitly approved
+rematerialization.
+
 ## Current schema / dim / fingerprint
 
 - Action: `legal-action-v7`, **552D**, ordered-name fingerprint

@@ -91,6 +91,23 @@ def _legal_actions_from_private_state(private_state: Dict[str, Any], chosen_labe
                     }
                 )
 
+    if private_state.get("struggle_available") and not private_state.get("force_switch"):
+        label = "move: Struggle"
+        key = ("move", _normalize_label(label))
+        if key not in seen:
+            seen.add(key)
+            actions.append(
+                {
+                    "index": len(actions),
+                    "kind": "move",
+                    "label": label,
+                    "choice": "move 1",
+                    "move": "Struggle",
+                    "slot": 1,
+                    "disabled": False,
+                }
+            )
+
     chosen_kind = chosen_label.split(":", 1)[0].strip().lower()
     if chosen_kind in {"move", "move_tera"} and (chosen_kind, _normalize_label(chosen_label)) not in seen:
         actions.append({"index": min(7 if chosen_kind == "move_tera" else 3, len(actions)), "kind": chosen_kind, "label": chosen_label, "disabled": False})
