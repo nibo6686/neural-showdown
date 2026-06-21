@@ -484,12 +484,12 @@ features exist yet, and the v7 dimensions/fingerprints are untouched.
 Recommended next sequence:
 
 1. use the completed diagnostic replay-prefix adapter to run a held-out
-   posterior calibration/prefix-invariance audit once a pinned source adapter
-   exists;
-2. build the pinned offline Randbats prior adapter/exporter from the
-   repository's already established set-data path, without rediscovery or
-   regeneration;
-3. audit posterior calibration and prefix invariance on held-out replays;
+   coverage, contradiction, and prefix-invariance audit with the completed
+   pinned existing-data source adapter;
+2. separately decide whether to build the full generator-sampled snapshot and
+   convergence report described by the design;
+3. audit posterior calibration on held-out public reveals without hidden-truth
+   completion;
 4. only then design/freeze the compact append-only v8 feature slices.
 
 ## Diagnostic replay-prefix adapter update
@@ -512,3 +512,26 @@ Avalugg prefix belief. Missing fixture priors remain `other_mass = 1`.
 This remains diagnostic infrastructure only. No Randbats/Smogon prior
 ingestion, v8 feature encoder, schema change, materialization, training, or
 live behavior is included.
+
+## Pinned existing Randbats source adapter update
+
+`randbats_meta_prior_source.py` now wraps the exact checked-in source selected
+by the old shortcut:
+
+`data/random-battles/gen9/sets.json`
+
+The adapter fingerprints the raw file, records the source locator, adapter and
+data versions, and emits deterministic `SetPrior` records. The file has 508
+species/forms and 877 role declarations. It supplies role movepools,
+abilities, and Tera alternatives, but not items, exact generated four-move
+sets, or empirical role weights. Priors therefore use `joint_quality =
+factorized`, explicit coverage warnings, `sample_count = 0`, and a conservative
+unvalidated `other_mass = 0.5` policy.
+
+Focused tests cover known Dondozo, Hatterene, and Great Tusk declarations,
+missing species, format rejection, deterministic fingerprints, and invariance
+to hidden replay/context truth. See
+`randbats_meta_prior_source_adapter_report.md`.
+
+No Randbats data was scraped, regenerated, sampled, or changed. The full
+generator-sampled prior snapshot remains a separate future task.

@@ -766,3 +766,44 @@ performed. This adapter is not connected to v8 features, schemas, damage,
 search, materialization, training, or live behavior. The next separate design
 gate is a pinned prior-source adapter using the repository's already known
 Randbats set-data provenance, then held-out posterior calibration.
+
+## Pinned existing Randbats role-data adapter update
+
+`trainer/src/neural/randbats_meta_prior_source.py` now wraps the exact source
+already selected by `live_opponent_beliefs.load_randbats_index`:
+
+`data/random-battles/gen9/sets.json`
+
+The adapter does not scrape, regenerate, sample, or modify the source. It
+records:
+
+- format `gen9randombattle`;
+- stable repository-relative source locator;
+- raw source SHA-256
+  `7dc75740d17755d921c473fca68b3022f6f37a2af387d3cd9c94432bd646eaef`;
+- adapter version `randbats-role-data-adapter-v1`;
+- checksum-derived data/source versions;
+- `sample_count = 0`.
+
+The existing 508-species/877-role file is not the complete generator output
+recommended in section 4. It has role movepools, abilities, and Tera
+alternatives, but lacks items, exact generated four-move sets, and empirical
+role weights. The adapter therefore emits factorized coarse role hypotheses:
+declared roles receive equal weight, ability/Tera alternatives are uniformly
+expanded, movepools remain coarse support, items remain unknown, and
+`other_mass = 0.5` is retained under an explicit unvalidated adapter policy.
+Coverage warnings make each approximation inspectable.
+
+The metadata contract gained source-neutral optional `source_locator`,
+`adapter_version`, and `data_version` fields. Fixture behavior remains
+unchanged.
+
+Tests cover deterministic metadata and priors, Dondozo/Hatterene/Great Tusk
+source parity, missing species, format mismatch, explicit path handling, and
+replay/context hidden-truth perturbation invariance. The compact report is
+`randbats_meta_prior_source_adapter_report.md`.
+
+This adapter is useful for diagnostic prefix coverage and posterior plumbing,
+but it does not supersede the separately designed generator-sampled snapshot
+or its convergence/calibration requirements. It is not wired into v8 features,
+schemas, materialization, training, damage, search, or live behavior.

@@ -49,6 +49,9 @@ class MetaPriorMetadata:
     source_sha256: str
     generated_at_utc: str
     format_id: str
+    source_locator: str = ""
+    adapter_version: str = ""
+    data_version: Optional[str] = None
     effective_from: Optional[str] = None
     effective_through: Optional[str] = None
     sample_count: int = 0

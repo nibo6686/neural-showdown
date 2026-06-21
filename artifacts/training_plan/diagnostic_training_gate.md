@@ -107,6 +107,9 @@
 - [x] v8 contracts wired into a diagnostic-only public-replay-prefix belief
   construction path with real Magic Bounce/Illusion/item fixtures and no
   state/action feature changes.
+- [x] Existing checked-in Gen 9 Randbats role/movepool data wrapped behind a
+  deterministic pinned `MetaPriorSource`, with factorized quality, source
+  SHA-256, explicit incompleteness warnings, and unknown tail mass.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
@@ -1247,3 +1250,23 @@ checkpoint, live/default, or browser behavior changed. The next separate gate
 is a pinned prior-source adapter using already established repository Randbats
 set provenance, followed by posterior calibration; it remains unimplemented
 and requires a separate task.
+
+The pinned existing-data adapter is now complete. It reuses the old shortcut's
+loader and selected source `data/random-battles/gen9/sets.json` without
+scraping, rediscovery, regeneration, or generator sampling. The exact raw
+source SHA-256 is
+`7dc75740d17755d921c473fca68b3022f6f37a2af387d3cd9c94432bd646eaef`;
+the adapter version is `randbats-role-data-adapter-v1`.
+
+Because the source contains role/movepool declarations but no items, exact
+four-move generated sets, or empirical role weights, emitted priors are marked
+`factorized`, role and ability/Tera alternatives are expanded uniformly, and
+`other_mass = 0.5` remains explicit under an unvalidated adapter policy.
+`sample_count = 0` prevents this source from masquerading as a sampled
+generator snapshot. Tests cover Dondozo, Hatterene, Great Tusk, missing data,
+determinism, format mismatch, and replay/context hidden-truth perturbations.
+
+This completes only the existing-data source adapter. The separate
+generator-sampled snapshot and convergence/calibration gate remains open. No
+v8 feature/schema, v7 fingerprint, materialization, training, checkpoint,
+live/default, browser, or strategic behavior changed.
