@@ -1,0 +1,93 @@
+{
+  "profile": "diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only",
+  "purpose": "Proposed action-rank-only diagnostic training on a future approved and audited 1000-battle post-Ditto v7/v7 materialization. State-value and action-value objectives are disabled; only grouped action-rank imitation is trained.",
+  "approval_status": "do_not_run_unless_explicitly_approved",
+  "implementation_status": "implemented",
+  "entrypoint": "neural.train_vnext_diagnostic",
+  "dataset": {
+    "path": "../artifacts/training_plan/datasets/diagnostic_1000_action_rank_v7_v7_post_ditto/diagnostic_1000_action_rank_v7_v7_post_ditto.npz",
+    "metadata_path": "../artifacts/training_plan/datasets/diagnostic_1000_action_rank_v7_v7_post_ditto/feature_metadata.json",
+    "materialization_report_path": "../artifacts/training_plan/datasets/diagnostic_1000_action_rank_v7_v7_post_ditto/materialization_report.json",
+    "state_feature_version": "live-private-belief-v7",
+    "state_feature_dim": 3208,
+    "state_feature_names_sha256": "0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf",
+    "action_feature_version": "legal-action-v7",
+    "action_feature_dim": 552,
+    "action_feature_names_sha256": "956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7",
+    "action_schema_usage": "trained_grouped_action_rank",
+    "dtype_on_disk": "float16",
+    "storage_layout": "separate_state_and_candidate_tables",
+    "expected_battle_split_counts": {
+      "train": 700,
+      "validation": 150,
+      "test": 150
+    },
+    "split_source": "state_splits",
+    "train_split": "train",
+    "validation_split": "validation",
+    "test_split": "test"
+  },
+  "objectives": {
+    "state_value": {
+      "enabled": false,
+      "target": "state_value_targets",
+      "label_space": [-1.0, 1.0],
+      "loss": "mean_squared_error",
+      "loss_weight": 0.0
+    },
+    "action_rank": {
+      "enabled": true,
+      "target": "action_rank_labels",
+      "group_index": "candidate_state_indices",
+      "loss": "grouped_cross_entropy",
+      "positive_count_per_group": 1,
+      "ignore_groups_without_exactly_one_positive": true,
+      "loss_weight": 1.0
+    },
+    "action_value": {
+      "enabled": false
+    }
+  },
+  "model": {
+    "type": "shared_state_action_diagnostic_mlp",
+    "state_encoder_hidden_sizes": [64],
+    "action_encoder_hidden_sizes": [32],
+    "rank_head_hidden_sizes": [32],
+    "activation": "relu",
+    "value_output": "tanh",
+    "dropout": 0.0,
+    "expected_parameter_count_approx": 226274
+  },
+  "training": {
+    "seed": 20260619,
+    "epochs": 12,
+    "value_batch_size": 256,
+    "rank_groups_per_batch": 64,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "mixed_precision": false,
+    "save_every_epochs": 1,
+    "early_stopping_patience_epochs": 3,
+    "early_stopping_rule": "stop when validation action-rank NLL does not improve for three epochs",
+    "checkpoint_selection_metric": "validation_action_rank_nll",
+    "test_usage": "evaluate once after model selection; never use for early stopping"
+  },
+  "overfit_check": {
+    "enabled": true,
+    "state_examples": 0,
+    "action_groups": 64,
+    "max_steps": 2000,
+    "required_value_train_mse_max": 2.0,
+    "required_action_train_top1_min": 0.95,
+    "fail_main_run_if_not_met": true
+  },
+  "outputs": {
+    "directory": "../artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only",
+    "checkpoint_path": "../artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only/model.pt",
+    "best_checkpoint_path": "../artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only/model.best.pt",
+    "report_json_path": "../artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only/training_report.json",
+    "report_md_path": "../artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v7_post_ditto_rank_only/training_report.md",
+    "production_eligible": false
+  }
+}
