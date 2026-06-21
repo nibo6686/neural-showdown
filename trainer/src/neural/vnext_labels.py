@@ -8,6 +8,11 @@ ACTION_RANK_TARGET = "replay_chosen_action_one_hot"
 ACTION_VALUE_STATUS = "not_generated"
 
 
+def is_magic_bounce_reflection(event: Dict[str, Any]) -> bool:
+    raw = str(event.get("raw") or "").lower()
+    return "[from] ability: magic bounce" in raw
+
+
 def state_value_label(winner_side: Optional[str], perspective_side: str) -> Optional[float]:
     if perspective_side not in ("p1", "p2"):
         raise ValueError(f"Unsupported perspective side: {perspective_side!r}")
@@ -36,6 +41,8 @@ def chosen_action_label(
     event_type = str(event.get("type") or "")
     side = event.get("side")
     if event_type == "move" and event.get("move"):
+        if is_magic_bounce_reflection(event):
+            return None
         tera_used_now = any(
             isinstance(candidate, dict)
             and candidate.get("type") == "tera"

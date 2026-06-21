@@ -116,3 +116,22 @@ focused Magic Bounce regression tests for both `Defog` and `Will-O-Wisp`,
 explicitly approve a resume-safe rematerialization into a new superseding path
 or a clean rebuild of this not-yet-trained artifact, then repeat this audit.
 Do not train from this artifact in its current form.
+
+## Post-audit Magic Bounce source-fix update
+
+The reflected-move attribution bug is now fixed in source and covered by
+targeted replay-backed tests
+(`magic_bounce_reflected_move_attribution_fix_report.md`). Explicit
+`[from] ability: Magic Bounce` move rows are no longer treated as
+actor-selected labels or reflector moveset evidence.
+
+The two audited battles now pass targeted recomputation:
+
+- reflected Defog is absent from Hatterene's moveset and later Psychic matches;
+- reflected Will-O-Wisp produces no actor-choice label.
+
+This generated artifact was **not** rematerialized and remains stale: it still
+contains 43 unmatched rows and at least one false-positive reflected decision.
+Expected unmatched count after a future approved rematerialization is **41**,
+leaving only the currently identified quarantined Illusion ambiguities.
+Rank-only training remains blocked until rematerialization and re-audit.

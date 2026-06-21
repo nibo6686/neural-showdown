@@ -168,6 +168,39 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         self.assertIn("Stealth Rock", teams["p1"]["Dugtrio-Alola"]["moves"])
         self.assertNotIn("Dugtrio", teams["p1"])
 
+    def test_magic_bounce_reflected_defog_does_not_pollute_hatterene_moves(self):
+        decision = self._replay_decision(
+            "gen9randombattle-2589608300",
+            "|move|p2a: Hatterene|Psychic|p1a: Bastiodon",
+            side="p2",
+        )
+        moves = [move["name"] for move in decision["private_state"]["active_moves"]]
+        self.assertNotIn("Defog", decision["completed"]["p2"]["Hatterene"]["moves"])
+        self.assertIn("Psychic", moves)
+        self.assertIsNotNone(match_chosen_action(decision["actions"], decision["label"]))
+
+    def test_magic_bounce_reflected_will_o_wisp_has_no_choice_label(self):
+        path = Path(
+            "data/replays/raw/gen9randombattle/gen9randombattle-2594129364.log"
+        )
+        trajectory = parse_protocol_log(
+            path.read_text(encoding="utf-8").splitlines(),
+            replay_id="gen9randombattle-2594129364",
+            source_path=str(path),
+        )
+        raw = (
+            "|move|p2a: Hatterene|Will-O-Wisp|p1a: Misdreavus|"
+            "[from] ability: Magic Bounce"
+        )
+        for turn in trajectory["turns"]:
+            for event in turn.get("events", []):
+                if event.get("raw") == raw:
+                    self.assertIsNone(
+                        chosen_action_label(event, turn_events=turn.get("events", []))
+                    )
+                    return
+        self.fail("Magic Bounce reflected Will-O-Wisp event not found")
+
     def test_per_battle_validation_rejects_custom_team_size(self):
         with self.assertRaisesRegex(ValueError, "frozen six-slot schema"):
             _validate_supported_replay_team_sizes(

@@ -498,3 +498,19 @@ illegal unchosen candidates, this artifact is not approved for rank-only
 training. Fix, regression-test, rematerialize under explicit approval, and
 re-audit first. No training, promotion, live/default, schema, or v8 change
 occurred.
+
+## Magic Bounce reflected-move source fix completed
+
+Targeted replay-prefix reproduction now passes for both newly surfaced cases
+(`magic_bounce_reflected_move_attribution_fix_report.md`). Explicit Magic
+Bounce reflection rows are excluded from actor-choice labels and from the
+reflector's reconstructed moveset. Reflected Defog no longer crowds out
+Hatterene's later Psychic, and reflected Will-O-Wisp is no longer labeled as a
+Hatterene Tera move. The rule uses only public `[from] ability: Magic Bounce`
+provenance and adds no hidden information or illegal candidate.
+
+The existing 1,000-battle artifact is unchanged/stale. A future explicitly
+approved rematerialization is still required; expected residuals then drop
+from 43 to **41**, all currently classified as quarantined Illusion ambiguity.
+Training remains blocked until that artifact passes re-audit. No training,
+full rematerialization, promotion, live/default, schema, or v8 change occurred.

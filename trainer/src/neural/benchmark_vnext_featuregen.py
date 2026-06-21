@@ -53,6 +53,7 @@ from .vnext_labels import (
     LABEL_VERSION,
     STATE_VALUE_TARGET,
     chosen_action_label,
+    is_magic_bounce_reflection,
     match_chosen_action,
     state_value_label,
 )
@@ -440,8 +441,10 @@ def _completed_teams_for_action_reconstruction(
             elif event.get("type") == "move" and event.get("move") and active.get(side):
                 # Copied moves used while transformed (Imposter/Transform) are
                 # transient stint facts; do not attribute them to the base
-                # species' global moveset.
-                if not transformed[side]:
+                # species' global moveset. Magic Bounce protocol move rows are
+                # reflected effects, not moves selected or known by the
+                # reflector.
+                if not transformed[side] and not is_magic_bounce_reflection(event):
                     move = str(event["move"])
                     ensure(side, str(active[side]))["moves"].add(move)
                     active_stint_moves[side].add(move)

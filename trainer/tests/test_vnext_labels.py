@@ -2,7 +2,12 @@ import json
 import unittest
 from pathlib import Path
 
-from neural.vnext_labels import chosen_action_label, match_chosen_action, state_value_label
+from neural.vnext_labels import (
+    chosen_action_label,
+    is_magic_bounce_reflection,
+    match_chosen_action,
+    state_value_label,
+)
 
 
 class VNextLabelsTest(unittest.TestCase):
@@ -47,6 +52,19 @@ class VNextLabelsTest(unittest.TestCase):
         labels = [1 if index == chosen else 0 for index in range(len(actions))]
         self.assertIsNone(chosen)
         self.assertEqual(sum(labels), 0)
+
+    def test_magic_bounce_reflection_is_not_an_actor_choice(self):
+        event = {
+            "type": "move",
+            "side": "p2",
+            "move": "Will-O-Wisp",
+            "raw": (
+                "|move|p2a: Hatterene|Will-O-Wisp|p1a: Misdreavus|"
+                "[from] ability: Magic Bounce"
+            ),
+        }
+        self.assertTrue(is_magic_bounce_reflection(event))
+        self.assertIsNone(chosen_action_label(event, turn_events=[event]))
 
     def test_label_manifest_is_valid_json(self):
         path = Path("artifacts/training_plan/vnext_label_manifest.json")

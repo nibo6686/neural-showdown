@@ -92,7 +92,8 @@
 - [x] Explicitly approved one-epoch post-Ditto v7/v7 smoke/plumbing training completed and reported with exact checkpoint metadata and finite outputs.
 - [x] Fresh 1,000-battle v7/v7 manifest regenerated with current six-slot eligibility filters and exact 700/150/150 battle splits.
 - [x] Approved `diagnostic_1000_v7_v7_post_ditto` materialization completed: 1,000/1,000 valid, 80,644 states, 617,687 candidates, exact v7/v7 metadata, all 18 structural checks passed.
-- [ ] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination, rematerialize the 1,000-battle v7/v7 artifact, and pass re-audit before rank-only training.
+- [x] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination with targeted replay-backed reproduction and regression tests.
+- [ ] Explicitly approve and run a fresh 1,000-battle v7/v7 rematerialization after the Magic Bounce fix, then pass re-audit before rank-only training.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1103,3 +1104,18 @@ actor decision. See
 Structural materialization passed, but rank-only training remains **closed**
 pending the Magic Bounce fix, regression tests, approved rematerialization, and
 re-audit. No training, promotion, live/default, schema, or v8 change occurred.
+
+The **Magic Bounce reflected-move attribution fix** then passed targeted
+recomputation on the two audited battles
+(`magic_bounce_reflected_move_attribution_fix_report.md`). Protocol move rows
+with explicit `[from] ability: Magic Bounce` provenance no longer become
+actor-selected labels or reflector moveset evidence. This removes reflected
+Defog from Hatterene's reconstructed moves, restores the later Psychic
+candidate/match, and makes reflected Will-O-Wisp a nondecision. Focused
+materialization/label, v7 action-feature, public-belief, no-leakage,
+prevention/rollout, trainer, and manifest tests pass. The existing 1,000-battle
+artifact was not rematerialized and remains stale at 43 unmatched; expected
+future residual count is **41** quarantined Illusion rows. Rank-only training
+remains **closed** pending explicit rematerialization approval and re-audit.
+No training, full rematerialization, promotion, live/default, schema, or v8
+change occurred.
