@@ -98,6 +98,13 @@
 - [x] Selected post-Magic-Bounce v7/v7 rank-only checkpoint evaluated offline
   on the full test split with strict inference loading, incompatible
   schema/dimension/fingerprint rejection probes, baselines, and mistake slices.
+- [x] Source-agnostic v8 meta-prior/opponent-set belief representation designed
+  (joint prior/posterior contract, Randbats/Smogon/replay/fixture sources,
+  compact state/action projections, and no-leakage test plan); not implemented.
+- [ ] v8 meta-prior source/posterior contracts and fixture source implemented
+  with future-prefix and hidden-truth perturbation tests.
+- [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
+  audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1183,3 +1190,19 @@ This supports a separately approved larger non-production rank experiment and
 targeted v8 threat-awareness work. It does not authorize promotion, production,
 browser/live shadow, or live/default changes; real-packet slot parity and v8
 disposition remain open.
+
+The source-agnostic v8 meta-prior design is now complete
+(`v8_meta_prior_opponent_set_belief_design.md`). It proposes immutable,
+versioned prior sources; a time-causal posterior over joint set hypotheses; and
+compact semantic state plus candidate-sensitivity features. Randbats priors
+should come from deterministic offline sampling of the pinned Showdown set
+generator. Standard-format priors should use pinned Smogon usage snapshots with
+explicit factorized/joint-quality and freshness metadata. Public reveals may
+condition the posterior; hidden truth, future reveals, strategic switch-choice
+inference, and initial damage/speed inference are prohibited.
+
+This is design only. v7 schemas/fingerprints and live defaults are unchanged.
+The existing 1,000-battle v7 baseline is sufficient comparison evidence, so v8
+meta-prior implementation/audit should precede the next durable or substantially
+larger rank run. Implementation, materialization, training, promotion, and live
+use remain separately closed.

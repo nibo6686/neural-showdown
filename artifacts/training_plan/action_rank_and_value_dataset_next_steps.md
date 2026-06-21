@@ -438,3 +438,29 @@ moves (24.8%), and turns with more than 12 candidates (36.8%). Forced switches
 (61.2% top-1 / 99.3% top-3) and obvious revenge-kill proxies
 (74.6% / 97.4%) are substantially stronger. Full definitions and caveats are in
 `diagnostic_1000_v7_v7_rank_only_offline_eval_report.md`.
+
+## v8 meta-prior design update
+
+The source-agnostic opponent-set belief design is now documented in
+`v8_meta_prior_opponent_set_belief_design.md`. It separates a pinned
+`MetaPriorSource`, a public-prefix-only `OpponentSetBelief` posterior over
+joint set hypotheses, and compact state/action feature projections.
+
+The code audit found that v7 keeps multiple Randbats candidates but exposes
+mostly counts/entropy to the state encoder. One damage path also fills missing
+ability/item/Tera from the first marginal entry, which can manufacture an
+impossible pseudo-set. The v8 path must instead reserve exact mechanics for
+confirmed/deterministic facts, expose semantic posterior probabilities to the
+ranker, and sample complete joint hypotheses only inside belief-search nodes.
+
+Recommended ordering is now:
+
+1. implement and validate the source-neutral prior/posterior contracts and
+   leakage tests;
+2. generate a pinned Randbats prior snapshot from the actual Showdown set
+   generator, then freeze compact v8 state/action slices;
+3. run a tiny approval-gated v8 materialization/audit;
+4. only then consider the next durable or substantially larger rank run.
+
+Another larger v7 run remains useful only as an explicitly chosen scale-control
+comparison. The separate value-dataset plan remains independent.
