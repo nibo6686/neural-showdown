@@ -37,9 +37,13 @@ from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_features import (
     FEATURE_DIM,
     FEATURE_DIM_V7,
+    FEATURE_DIM_V8,
     FEATURE_NAMES_V7,
+    FEATURE_NAMES_V8,
     FEATURE_VERSION,
     FEATURE_VERSION_V7,
+    FEATURE_VERSION_V8,
+    active_opponent_set_belief,
     build_live_private_feature_vector,
     public_feature_vector_from_trajectory,
 )
@@ -83,6 +87,22 @@ RARE_MECHANICS = {
 
 def _repeat_chain_enabled(action_feature_version: str) -> bool:
     return action_feature_version in {ACTION_FEATURE_VERSION_V6, ACTION_FEATURE_VERSION_V7}
+
+
+_STATE_SCHEMAS = {
+    FEATURE_VERSION_V7: (FEATURE_NAMES_V7, FEATURE_DIM_V7),
+    FEATURE_VERSION_V8: (FEATURE_NAMES_V8, FEATURE_DIM_V8),
+}
+
+
+def _state_schema(state_feature_version: str) -> Tuple[Sequence[str], int]:
+    try:
+        return _STATE_SCHEMAS[state_feature_version]
+    except KeyError as exc:
+        raise ValueError(
+            f"Unsupported state_feature_version={state_feature_version!r}; "
+            f"expected one of {sorted(_STATE_SCHEMAS)}."
+        ) from exc
 
 
 def _stable_key(seed: int, replay_id: str, namespace: str) -> str:
@@ -545,6 +565,7 @@ def _decision_features(
     sets_path: Optional[str],
     damage_client: Any,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Optional[Dict[str, Any]]:
     chosen_label = chosen_action_label(event, turn_events=turn_events)
     chosen_label = actor_private_switch_relabel(chosen_label, trajectory, side, event)
@@ -577,6 +598,12 @@ def _decision_features(
         completed_teams=completed_teams,
         sets_path=sets_path,
     )
+    opponent_set_belief = None
+    if state_feature_version == FEATURE_VERSION_V8:
+        # Public-prefix-only meta-prior belief for the opponent active slot.
+        opponent_set_belief = active_opponent_set_belief(
+            prefix, player_side=side, sets_path=sets_path
+        )
     state_features, state_debug = build_live_private_feature_vector(
         public_features=public_features,
         private_state=private_state,
@@ -584,7 +611,8 @@ def _decision_features(
         trajectory=prefix,
         player_side=side,
         tactical_state=tactical_state,
-        feature_version=FEATURE_VERSION_V7,
+        feature_version=state_feature_version,
+        opponent_set_belief=opponent_set_belief,
     )
     # Empty chosen label prevents the legacy helper from injecting an unmatched
     # replay action into the candidate set. Unmatched decisions are explicit.
@@ -650,14 +678,16 @@ def benchmark_metadata(
     artifact_kind: str = "tiny_10_benchmark",
     preflight: Optional[Dict[str, Any]] = None,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Dict[str, Any]:
     action_schema = action_feature_schema(action_feature_version)
+    state_names, state_dim = _state_schema(state_feature_version)
     return {
         "benchmark_version": BENCHMARK_VERSION,
         "artifact_kind": artifact_kind,
-        "state_feature_version": FEATURE_VERSION_V7,
-        "state_feature_dim": FEATURE_DIM_V7,
-        "state_feature_names_sha256": _names_fingerprint(FEATURE_NAMES_V7),
+        "state_feature_version": state_feature_version,
+        "state_feature_dim": state_dim,
+        "state_feature_names_sha256": _names_fingerprint(state_names),
         "action_feature_version": action_schema["version"],
         "action_feature_dim": action_schema["dim"],
         "action_feature_names_sha256": _names_fingerprint(action_schema["names"]),
@@ -704,6 +734,9 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
     action_schema = action_feature_schema(str(metadata.get("action_feature_version") or ""))
     action_dim = int(action_schema["dim"])
     action_names = list(action_schema["names"])
+    state_feature_version = str(metadata.get("state_feature_version") or FEATURE_VERSION_V7)
+    state_names_schema, state_dim_schema = _state_schema(state_feature_version)
+    state_names_schema = list(state_names_schema)
     states = arrays["state_features"]
     actions = arrays["action_features"]
     state_ids = [str(value) for value in arrays["state_replay_ids"].tolist()]
@@ -727,7 +760,7 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
     embedded_state_names = [str(value) for value in arrays.get("state_feature_names", np.asarray([])).tolist()]
     embedded_action_names = [str(value) for value in arrays.get("action_feature_names", np.asarray([])).tolist()]
     checks = {
-        "state_dim_3208": states.ndim == 2 and states.shape[1] == FEATURE_DIM_V7,
+        f"state_dim_{state_dim_schema}": states.ndim == 2 and states.shape[1] == state_dim_schema,
         "action_dim_matches_schema": actions.ndim == 2 and actions.shape[1] == action_dim,
         "state_dtype_float16": states.dtype == np.float16,
         "action_dtype_float16": actions.dtype == np.float16,
@@ -751,19 +784,20 @@ def validate_benchmark_arrays(arrays: Dict[str, np.ndarray], metadata: Dict[str,
             for replay_id, split in replay_split_pairs
         ),
         "metadata_records_requested_schema": (
-            metadata.get("state_feature_version") == FEATURE_VERSION_V7
+            metadata.get("state_feature_version") == state_feature_version
             and metadata.get("action_feature_version") == action_schema["version"]
         ),
         "metadata_records_name_fingerprints": (
-            metadata.get("state_feature_names_sha256") == _names_fingerprint(FEATURE_NAMES_V7)
+            metadata.get("state_feature_names_sha256") == _names_fingerprint(state_names_schema)
             and metadata.get("action_feature_names_sha256") == _names_fingerprint(action_names)
         ),
         "embedded_names_match_schema_and_metadata": (
-            embedded_state_names == list(FEATURE_NAMES_V7)
+            embedded_state_names == state_names_schema
             and embedded_action_names == action_names
             and _names_fingerprint(embedded_state_names) == metadata.get("state_feature_names_sha256")
             and _names_fingerprint(embedded_action_names) == metadata.get("action_feature_names_sha256")
         ),
+        "v7_prefix_preserved": embedded_state_names[:FEATURE_DIM_V7] == list(FEATURE_NAMES_V7),
         "metadata_records_manifest_profile_source": (
             bool(metadata.get("manifest_version"))
             and bool(metadata.get("manifest_catalog_checksum"))
@@ -800,9 +834,11 @@ def run_benchmark(
     sets_path: Optional[str] = None,
     full_manifest: bool = False,
     action_feature_version: str = ACTION_FEATURE_VERSION_V5,
+    state_feature_version: str = FEATURE_VERSION_V7,
 ) -> Dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     action_schema = action_feature_schema(action_feature_version)
+    _state_schema(state_feature_version)  # fail closed on unknown version
     is_legacy_300 = full_manifest and output_dir.resolve() == DEFAULT_FULL_OUTPUT_DIR.resolve()
     # Dataset name derives from the output directory; the report name drops the
     # trailing schema suffix, preserving both the legacy diagnostic_300 filename
@@ -820,7 +856,8 @@ def run_benchmark(
         command = (
             "python -m neural.benchmark_vnext_featuregen "
             f"--manifest {manifest_path} --output-dir {output_dir} --battles {battles} "
-            f"--action-feature-version {action_feature_version}"
+            f"--action-feature-version {action_feature_version} "
+            f"--state-feature-version {state_feature_version}"
         )
     preflight = (
         _validate_full_preflight(
@@ -851,6 +888,7 @@ def run_benchmark(
         ),
         preflight=preflight,
         action_feature_version=action_feature_version,
+        state_feature_version=state_feature_version,
     )
     metadata["dataset_name"] = dataset_name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -957,6 +995,7 @@ def run_benchmark(
                             sets_path=sets_path,
                             damage_client=client,
                             action_feature_version=action_feature_version,
+                            state_feature_version=state_feature_version,
                         )
                         if not decision:
                             label_counts["skipped_no_action_label"] += 1
@@ -1069,8 +1108,8 @@ def run_benchmark(
         "candidate_kinds": np.asarray(candidate_kinds),
         "observed_actions": np.asarray(observed_actions, dtype=np.int8),
         "action_rank_labels": np.asarray(observed_actions, dtype=np.int8),
-        "state_feature_version": np.asarray(FEATURE_VERSION_V7),
-        "state_feature_names": np.asarray(FEATURE_NAMES_V7),
+        "state_feature_version": np.asarray(state_feature_version),
+        "state_feature_names": np.asarray(_state_schema(state_feature_version)[0]),
         "action_feature_version": np.asarray(action_schema["version"]),
         "action_feature_names": np.asarray(action_schema["names"]),
         "manifest_catalog_checksum": np.asarray(str(manifest.get("catalog_checksum") or "")),
@@ -1963,8 +2002,19 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         choices=(ACTION_FEATURE_VERSION_V5, ACTION_FEATURE_VERSION_V6, ACTION_FEATURE_VERSION_V7),
         default=ACTION_FEATURE_VERSION_V5,
     )
+    parser.add_argument(
+        "--state-feature-version",
+        choices=(FEATURE_VERSION_V7, FEATURE_VERSION_V8),
+        default=FEATURE_VERSION_V7,
+    )
     args = parser.parse_args(argv)
     if args.full_manifest:
+        if args.state_feature_version != FEATURE_VERSION_V7:
+            raise SystemExit(
+                "Full-manifest materialization is restricted to "
+                f"{FEATURE_VERSION_V7!r} in this task; v8 is smoke-only via the "
+                "non-full path."
+            )
         run_full_materialization(
             manifest_path=Path(args.manifest),
             output_dir=Path(args.output_dir),
@@ -1983,6 +2033,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
             sets_path=args.sets_path,
             full_manifest=False,
             action_feature_version=args.action_feature_version,
+            state_feature_version=args.state_feature_version,
         )
 
 

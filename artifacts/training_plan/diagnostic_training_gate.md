@@ -156,8 +156,20 @@
   forme current-state and source-absent facts never contradict; true source
   limitations stay visible. 14 no-leakage/append-only tests pass; public-prefix
   audit unchanged. No training/full-rematerialization/live change.
-- [ ] Tiny approval-gated v8 materialization smoke (e.g. diagnostic_300 with
-  `live-private-belief-v8`) to confirm featuregen/metadata/fingerprint plumbing.
+- [x] Tiny v8 materialization smoke completed
+  (`v8_v7_belief_slice_materialization_smoke_report.md`): 10-battle subset of
+  `diagnostic_300_manifest.json` materialized with `live-private-belief-v8` (3229D,
+  fingerprint `8ac51441…26053`) + `legal-action-v7` (552D, `956da3d2…1bf39d7`)
+  into a new dir. 10 valid / 0 failed, 576 states, 4276 candidates; all 19
+  validation checks pass (incl. `state_dim_3229`, `v7_prefix_preserved`); embedded
+  state names = `FEATURE_NAMES_V8` with the first 3208 = `FEATURE_NAMES_V7`; no
+  NaN/Inf; batch 7/8 action activity present; v8 belief slice fully active; live
+  defaults unchanged. A `--state-feature-version` flag was added to the
+  featuregen CLI (default v7 unchanged; full-manifest restricted to v7). No
+  training/checkpoint/live change; generated dataset unstaged.
+- [ ] 300-battle v8/v7 belief-slice materialization (frozen diagnostic_300
+  splits, new dir) + read-only quality audit, before any candidate/action v8
+  slice or durable v8 run.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

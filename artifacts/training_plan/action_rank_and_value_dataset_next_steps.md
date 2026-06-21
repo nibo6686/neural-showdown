@@ -605,3 +605,15 @@ step is a tiny approval-gated v8 materialization smoke (e.g. diagnostic_300 with
 `live-private-belief-v8`) to confirm featuregen/metadata/fingerprint plumbing
 before the candidate/action v8 slice or any durable v8 run. The separate
 value-dataset program remains independent and unaffected.
+
+Update 4: the tiny v8/v7 materialization smoke is done
+(`v8_v7_belief_slice_materialization_smoke_report.md`). A 10-battle
+`diagnostic_300` subset materialized with `live-private-belief-v8` (3229D,
+`8ac51441…26053`) + `legal-action-v7` (552D, `956da3d2…1bf39d7`): 10 valid / 0
+failed, 576 states, 4276 candidates, all 19 validation checks pass, v7 prefix
+preserved, no NaN/Inf, batch 7/8 and v8 belief slices active. A
+`--state-feature-version` featuregen flag was added (default v7 unchanged). The
+recommended next gated step is a 300-battle v8/v7 belief-slice materialization
+(frozen splits, new dir) + read-only quality audit, then the candidate/action v8
+slice; no training or durable run is approved. Value-dataset work remains
+independent.
