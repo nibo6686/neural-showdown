@@ -110,6 +110,15 @@
 - [x] Existing checked-in Gen 9 Randbats role/movepool data wrapped behind a
   deterministic pinned `MetaPriorSource`, with factorized quality, source
   SHA-256, explicit incompleteness warnings, and unknown tail mass.
+- [x] Randbats joint-set posterior fidelity audited
+  (`randbats_joint_set_posterior_fidelity_audit.md`): the factorized adapter
+  preserves all role↔move↔ability↔Tera correlation `sets.json` contains; missing
+  joint facts (exact sets, items, frequencies) are source-absent and need the
+  generator snapshot; the one fidelity gap (item reveal forcing false
+  contradiction) is a deferred posterior-conditioning fix, not an adapter change.
+- [ ] Posterior conditioning fix so source-absent reveals (items first) are
+  absorbed by the unknown tail instead of forcing `prior_contradiction`, then
+  re-run the public-prefix audit (before any v8 feature wiring).
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

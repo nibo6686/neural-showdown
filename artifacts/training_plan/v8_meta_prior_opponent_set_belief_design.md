@@ -829,6 +829,35 @@ Results:
 - Illusion segments: 1 observed, 0 failures;
 - reflected move rows: 2 observed, 0 attribution/pollution failures.
 
+## Joint set posterior fidelity audit result
+
+A focused audit (`randbats_joint_set_posterior_fidelity_audit.md`) confirmed that
+the current factorized adapter already preserves all joint correlation that
+`sets.json` contains. Each hypothesis is bundled per declared set
+(`role` + that set's movepool support + one ability + one Tera type), so a single
+move/ability/Tera reveal collapses the posterior to a coherent role rather than
+updating an independent marginal. This was verified live: a Clodsire `Curse`/
+`Spikes` reveal collapses to the matching role, a Gholdengo `Tera Fighting`
+reveal collapses to its set, and a `Water Absorb` reveal rules out `Unaware`.
+Source structure: 508 species / 877 sets; the only fields are role, movepool,
+abilities, teraTypes — no items, weights, or four-move sets. Role-specific moves
+exist in 299/304 multi-set species, role-varying Tera in 224/304, role-varying
+ability in 45/304.
+
+The richer joint facts the adapter cannot express (exact four-move sets with
+combo rules, items, frequencies) are **absent from `sets.json` entirely** and
+require the generator-sampled snapshot in §4 — no static adapter can recover
+them. The one genuine source-faithfulness gap is in the posterior, not the
+adapter: an item reveal (and any source-absent attribute) currently forces a
+false `prior_contradiction` instead of being absorbed by the unknown tail as a
+confirmed fact. The recommended pre-v8 fix is to make `OpponentSetBelief.update`
+distinguish "source-covered reveal contradicts all hypotheses" (real
+contradiction) from "source never carried this attribute" (confirm + tail), then
+re-run the public-prefix audit. Characterization tests are in
+`trainer/tests/test_randbats_joint_set_posterior_fidelity.py`.
+
+## Held-out public-prefix audit result
+
 Coverage misses are overwhelmingly public form/alias keys that have a plausible
 base source row but are intentionally not remapped by the current adapter.
 Ability/move/Tera support is strong as a binary declaration-support signal, but
