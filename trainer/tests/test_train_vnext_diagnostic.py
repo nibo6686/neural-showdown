@@ -585,6 +585,33 @@ class VNextActionRankOfflineEvalTest(unittest.TestCase):
         # Fixture's chosen candidate is always a "move".
         self.assertIn("move", summary["model_by_chosen_kind"])
 
+    def test_incompatible_checkpoint_probe_rejects_all_schema_identity_mutations(self):
+        from neural.evaluate_vnext_action_rank import (
+            verify_incompatible_checkpoint_rejections,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config_path = _write_fixture(root)
+            config = load_and_validate_diagnostic_config(config_path)
+            dataset = load_diagnostic_dataset(config)
+            checkpoint = build_vnext_checkpoint_metadata(dataset)
+            result = verify_incompatible_checkpoint_rejections(checkpoint, config)
+
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(
+            set(result["cases"]),
+            {
+                "state_schema",
+                "action_schema",
+                "state_dimension",
+                "action_dimension",
+                "state_fingerprint",
+                "action_fingerprint",
+            },
+        )
+        self.assertTrue(all(case["rejected"] for case in result["cases"].values()))
+
 
 if __name__ == "__main__":
     unittest.main()

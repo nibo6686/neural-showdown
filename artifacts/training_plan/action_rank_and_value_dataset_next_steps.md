@@ -405,3 +405,36 @@ step 10,070 checkpoint. Both have exact v7/v7 metadata, finite tensors, and
 
 No checkpoint is promoted. Browser/live shadow evaluation, live/default
 changes, production use, and v8 disposition remain separate approval gates.
+
+## Selected-checkpoint offline evaluation update
+
+The selected epoch-7 v7/v7 checkpoint now passes strict clean-command inference
+loading and full-test offline evaluation. Exact schema versions, dimensions, and
+ordered-name fingerprints validate; deliberate in-memory mutations of each
+state/action identity field are rejected.
+
+On 8,327 test groups, NLL/top-1/top-3/MRR are
+`1.181397 / 0.507626 / 0.886274 / 0.700131`, exactly reproducing the training
+report. Random legal reaches 16.6% top-1, max expected damage 38.0%, and the
+move type-prior 37.7%; the model is materially stronger. It also retains the
+documented improvement over v7/v5.
+
+The slice review changes the recommended ordering:
+
+1. a larger non-production rank experiment is technically supported by the
+   strict loader, held-out metrics, and baseline margin;
+2. targeted v8 possible-threat work should be designed before any
+   production-directed or durable candidate, because prevention interactions
+   are sparse/weak and v7 lacks explicit possible Magic Bounce / Good as Gold
+   threat identity;
+3. browser/live shadow preparation remains closed until recorded real-packet
+   slot/forced-switch parity and v8 disposition are complete and a display-only
+   run is separately approved;
+4. value-dataset work remains independent: this rank-only evaluation neither
+   validates nor blocks the separate larger value corpus.
+
+The largest rank mistakes are voluntary switches (31.6% top-1), chosen Tera
+moves (24.8%), and turns with more than 12 candidates (36.8%). Forced switches
+(61.2% top-1 / 99.3% top-3) and obvious revenge-kill proxies
+(74.6% / 97.4%) are substantially stronger. Full definitions and caveats are in
+`diagnostic_1000_v7_v7_rank_only_offline_eval_report.md`.

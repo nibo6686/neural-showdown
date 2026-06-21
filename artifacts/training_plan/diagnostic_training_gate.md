@@ -95,6 +95,9 @@
 - [x] Fix newly surfaced Magic Bounce reflected-move label/moveset contamination with targeted replay-backed reproduction and regression tests.
 - [x] Explicitly approve and run a fresh 1,000-battle v7/v7 rematerialization after the Magic Bounce fix, then pass re-audit before rank-only training.
 - [x] Separately approve and complete the 1,000-battle post-Magic-Bounce v7/v7 rank-only diagnostic training run.
+- [x] Selected post-Magic-Bounce v7/v7 rank-only checkpoint evaluated offline
+  on the full test split with strict inference loading, incompatible
+  schema/dimension/fingerprint rejection probes, baselines, and mistake slices.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).
 - [ ] Durable `legal-action-v7` training approved beyond the completed one-epoch smoke.
 - [ ] Mechanically stale v5 Rage Fist data/checkpoint disposition approved before further training.
@@ -1161,3 +1164,22 @@ retained final epoch 10 / step 10,070 checkpoint. See
 This closes the approved offline rank-only training gate only. Checkpoint
 promotion, browser/live shadow testing, production use, live/default changes,
 and v8 disposition remain separately closed.
+
+The selected checkpoint offline evaluation then passed strict loading and
+reproduced the 8,327-group test metrics exactly:
+NLL/top-1/top-3/MRR
+`1.181397 / 0.507626 / 0.886274 / 0.700131`. In-memory negative probes confirmed
+hard rejection of wrong state/action schemas, dimensions, and ordered-name
+fingerprints. The model beats max expected damage by 12.7 top-1 points and the
+best heuristic by 15.7 top-3 points. Strong slices include forced switches
+(61.2% / 99.3% top-1/top-3) and the revenge-kill proxy
+(74.6% / 97.4%); weaknesses remain voluntary switches
+(31.6% / 73.9%), chosen Tera moves (24.8% / 58.9%), more-than-12-candidate
+turns (36.8% / 76.9%), and the small prevention-interaction slice
+(41.2% / 76.5%). See
+`diagnostic_1000_v7_v7_rank_only_offline_eval_report.md`.
+
+This supports a separately approved larger non-production rank experiment and
+targeted v8 threat-awareness work. It does not authorize promotion, production,
+browser/live shadow, or live/default changes; real-packet slot parity and v8
+disposition remain open.

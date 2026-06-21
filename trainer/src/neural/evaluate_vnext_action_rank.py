@@ -6,6 +6,7 @@ split (default: validation). Does not train, tune, or write checkpoints.
 """
 
 import argparse
+import copy
 import json
 import math
 from pathlib import Path
@@ -15,11 +16,11 @@ import numpy as np
 import torch
 
 from .train_vnext_diagnostic import (
-    build_diagnostic_model,
     load_and_validate_diagnostic_config,
     load_diagnostic_dataset,
     validate_vnext_checkpoint_metadata,
 )
+from .vnext_inference import VNextActionRanker
 
 # legal-action-v5 column indices used by the baselines.
 COL_KIND_MOVE = 0
@@ -75,6 +76,102 @@ def _agg(ranks: Sequence[int]) -> Dict[str, float]:
     }
 
 
+def _feature_index(names: Sequence[str], name: str) -> int:
+    try:
+        return names.index(name)
+    except ValueError as exc:
+        raise ValueError(f"Offline evaluation requires feature {name!r}.") from exc
+
+
+def verify_incompatible_checkpoint_rejections(
+    checkpoint: Dict[str, Any], config: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Prove strict metadata checks reject common incompatible checkpoint cases."""
+    dataset_cfg = config["dataset"]
+    expected = {
+        "expected_state_version": str(dataset_cfg["state_feature_version"]),
+        "expected_action_version": str(dataset_cfg["action_feature_version"]),
+        "expected_state_dim": int(dataset_cfg["state_feature_dim"]),
+        "expected_action_dim": int(dataset_cfg["action_feature_dim"]),
+        "expected_state_feature_names_sha256": str(
+            dataset_cfg["state_feature_names_sha256"]
+        ),
+        "expected_action_feature_names_sha256": str(
+            dataset_cfg["action_feature_names_sha256"]
+        ),
+        "require_fingerprints": True,
+    }
+    mutations = {
+        "state_schema": ("state_feature_version", "incompatible-state-schema"),
+        "action_schema": ("action_feature_version", "incompatible-action-schema"),
+        "state_dimension": ("state_dim", int(dataset_cfg["state_feature_dim"]) - 1),
+        "action_dimension": ("action_dim", int(dataset_cfg["action_feature_dim"]) - 1),
+        "state_fingerprint": ("state_feature_names_sha256", "0" * 64),
+        "action_fingerprint": ("action_feature_names_sha256", "f" * 64),
+    }
+    results: Dict[str, Any] = {}
+    for name, (field, value) in mutations.items():
+        incompatible = copy.copy(checkpoint)
+        incompatible[field] = value
+        try:
+            validate_vnext_checkpoint_metadata(incompatible, **expected)
+        except ValueError as exc:
+            results[name] = {"rejected": True, "reason": str(exc)}
+        else:
+            results[name] = {"rejected": False, "reason": None}
+    if not all(result["rejected"] for result in results.values()):
+        failed = [name for name, result in results.items() if not result["rejected"]]
+        raise AssertionError(f"Incompatible checkpoint metadata was accepted: {failed}")
+    return {"status": "PASS", "cases": results}
+
+
+def _slice_metrics(records: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    ranks = [int(record["model_rank"]) for record in records]
+    maxdmg_ranks = [int(record["maxdmg_rank"]) for record in records]
+    result = {
+        **_agg(ranks),
+        "nll": float(np.mean([record["nll"] for record in records])) if records else 0.0,
+        "max_expected_damage_top1": (
+            float(np.mean(np.asarray(maxdmg_ranks) == 1)) if records else 0.0
+        ),
+        "top1_wrong_top3_contains": int(
+            sum(1 for rank in ranks if 1 < rank <= 3)
+        ),
+        "top3_miss": int(sum(1 for rank in ranks if rank > 3)),
+    }
+    chosen_to_pick: Dict[str, int] = {}
+    for record in records:
+        if record["model_rank"] == 1:
+            continue
+        key = f"{record['chosen_kind']}->{record['model_pick_kind']}"
+        chosen_to_pick[key] = chosen_to_pick.get(key, 0) + 1
+    result["top1_mistake_kind_pairs"] = dict(
+        sorted(chosen_to_pick.items(), key=lambda item: (-item[1], item[0]))[:5]
+    )
+    return result
+
+
+def _mechanic_replay_sets(config: Dict[str, Any], config_path: Path) -> Dict[str, set]:
+    """Find replay-level ability contexts without changing or rematerializing data."""
+    snapshot = Path(config["_resolved_metadata_path"]).parent / "source_manifest_snapshot.json"
+    result = {"magic_bounce_replay": set(), "good_as_gold_replay": set()}
+    if not snapshot.is_file():
+        return result
+    payload = json.loads(snapshot.read_text(encoding="utf-8"))
+    repo_root = Path(config_path).resolve().parent.parent
+    for entry in payload.get("entries", []):
+        replay_id = str(entry.get("replay_id") or "")
+        replay_path = repo_root / str(entry.get("path") or "")
+        if not replay_id or not replay_path.is_file():
+            continue
+        text = replay_path.read_text(encoding="utf-8", errors="ignore").lower()
+        if "ability: magic bounce" in text:
+            result["magic_bounce_replay"].add(replay_id)
+        if "ability: good as gold" in text:
+            result["good_as_gold_replay"].add(replay_id)
+    return result
+
+
 def evaluate(
     config_path: Path,
     checkpoint_path: Path,
@@ -85,15 +182,66 @@ def evaluate(
     config = load_and_validate_diagnostic_config(config_path)
     dataset = load_diagnostic_dataset(config)
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-    schema_validation = validate_vnext_checkpoint_metadata(
-        checkpoint,
-        expected_state_feature_names_sha256=dataset.validation["state_feature_names_sha256"],
-        expected_action_feature_names_sha256=dataset.validation["action_feature_names_sha256"],
-    )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = build_diagnostic_model(config).to(device)
-    model.load_state_dict(checkpoint["model_state_dict"])
-    model.eval()
+    ranker = VNextActionRanker.load(
+        config_path, checkpoint_path, device=device
+    )
+    schema_validation = ranker.metadata["schema_validation"]
+    rejection_checks = verify_incompatible_checkpoint_rejections(checkpoint, config)
+    mechanic_replays = _mechanic_replay_sets(config, config_path)
+
+    with np.load(config["_resolved_dataset_path"], allow_pickle=False) as loaded:
+        state_names = loaded["state_feature_names"].astype(str).tolist()
+        action_names = loaded["action_feature_names"].astype(str).tolist()
+        state_sides = (
+            loaded["state_sides"].astype(str)
+            if "state_sides" in loaded.files
+            else np.full(len(dataset.state_features), "p1")
+        )
+
+    required_state_slice_names = (
+        "own_remaining_count_norm",
+        "own_active_hp_fraction",
+        "tera_available_visible",
+        "own_current_type_is_tera",
+        "own_hazard_layers_norm",
+        "opp_hazard_layers_norm",
+        "recent_target_fainted_count_norm",
+        "own_active_displayed_species_uncertain",
+        "opponent_active_displayed_species_uncertain",
+        "own_active_illusion_revealed",
+        "opponent_active_illusion_revealed",
+        "p1_boost_sum_norm",
+        "p2_boost_sum_norm",
+        "own_force_switch",
+    )
+    required_action_slice_names = (
+        "current_active_low_hp",
+        "flag_setup",
+        "flag_hazard",
+        "move_id_flag_rapidspin",
+        "move_id_flag_defog",
+        "target_hp_fraction",
+        "impact_ko_chance",
+        "target_known_or_possible_ability_blocks_move_effect",
+        "may_fail_due_to_priority_prevention",
+        "effect_user_side_hazards_removed",
+        "effect_target_side_hazards_removed",
+        "cmd_forced_switch",
+    )
+    slice_features_available = all(
+        name in state_names for name in required_state_slice_names
+    ) and all(name in action_names for name in required_action_slice_names)
+    sidx = (
+        {name: _feature_index(state_names, name) for name in required_state_slice_names}
+        if slice_features_available
+        else {}
+    )
+    aidx = (
+        {name: _feature_index(action_names, name) for name in required_action_slice_names}
+        if slice_features_available
+        else {}
+    )
 
     groups = dataset.split_group_state_indices[split]
     baseline_names = list(_baseline_scores(np.zeros((1, dataset.action_features.shape[1]), np.float32)))
@@ -113,17 +261,17 @@ def evaluate(
             chosen = int(np.flatnonzero(labels == 1)[0])
             n = len(rows)
 
-            state = torch.from_numpy(
-                dataset.state_features[int(state_index)].astype(np.float32)
-            ).unsqueeze(0).to(device)
-            embedding = model.encode_states(state).expand(n, -1)
-            scores = model.rank_from_embeddings(
-                embedding, torch.from_numpy(af).to(device)
-            ).cpu().numpy()
+            state_vector = dataset.state_features[int(state_index)].astype(np.float32)
+            candidates = [
+                {"action_features": af[index], "kind": str(kinds[index])}
+                for index in range(n)
+            ]
+            scores = ranker.score(state_vector, candidates)
             m_rank = _rank_of_chosen(scores, chosen)
             model_ranks.append(m_rank)
             probs = torch.softmax(torch.from_numpy(scores), dim=0).numpy()
-            model_nll += -math.log(max(1e-8, float(probs[chosen])))
+            group_nll = -math.log(max(1e-8, float(probs[chosen])))
+            model_nll += group_nll
 
             bscores = _baseline_scores(af)
             for name, score in bscores.items():
@@ -139,20 +287,104 @@ def evaluate(
                 rmove_top1 += 1.0 / n_move
                 rmove_top3 += min(3, n_move) / n_move
 
+            tags = {
+                "high_candidate_count": n > 12,
+                "top1_wrong_top3_contains": 1 < m_rank <= 3,
+                "magic_bounce_replay": str(
+                    dataset.state_replay_ids[int(state_index)]
+                ) in mechanic_replays["magic_bounce_replay"],
+                "good_as_gold_replay": str(
+                    dataset.state_replay_ids[int(state_index)]
+                ) in mechanic_replays["good_as_gold_replay"],
+            }
+            if slice_features_available:
+                chosen_af = af[chosen]
+                own_boost = state_vector[
+                    sidx["p1_boost_sum_norm"]
+                    if state_sides[int(state_index)] == "p1"
+                    else sidx["p2_boost_sum_norm"]
+                ]
+                tags.update({
+                    "normal_move_choice": bool(
+                        kinds[chosen] in {"move", "move_tera"}
+                        and state_vector[sidx["own_force_switch"]] < 0.5
+                    ),
+                    "forced_switch": bool(
+                        kinds[chosen] == "switch"
+                        and (
+                            state_vector[sidx["own_force_switch"]] > 0.5
+                            or chosen_af[aidx["cmd_forced_switch"]] > 0.5
+                            or np.all(kinds == "switch")
+                        )
+                    ),
+                    "voluntary_switch": bool(
+                        kinds[chosen] == "switch"
+                        and state_vector[sidx["own_force_switch"]] < 0.5
+                        and chosen_af[aidx["cmd_forced_switch"]] < 0.5
+                        and np.any(kinds != "switch")
+                    ),
+                    "low_hp_or_endgame": bool(
+                        chosen_af[aidx["current_active_low_hp"]] > 0.5
+                        or state_vector[sidx["own_active_hp_fraction"]] <= 0.25
+                        or state_vector[sidx["own_remaining_count_norm"]] <= 0.5
+                    ),
+                    "tera_available": bool(
+                        state_vector[sidx["tera_available_visible"]] > 0.5
+                    ),
+                    "tera_used_or_chosen": bool(
+                        state_vector[sidx["own_current_type_is_tera"]] > 0.5
+                        or kinds[chosen] == "move_tera"
+                    ),
+                    "hazards_or_removal": bool(
+                        state_vector[sidx["own_hazard_layers_norm"]] > 0
+                        or state_vector[sidx["opp_hazard_layers_norm"]] > 0
+                        or chosen_af[aidx["flag_hazard"]] > 0.5
+                        or chosen_af[aidx["move_id_flag_rapidspin"]] > 0.5
+                        or chosen_af[aidx["move_id_flag_defog"]] > 0.5
+                        or chosen_af[aidx["effect_user_side_hazards_removed"]] > 0.5
+                        or chosen_af[aidx["effect_target_side_hazards_removed"]] > 0.5
+                    ),
+                    "setup_or_sweep": bool(
+                        chosen_af[aidx["flag_setup"]] > 0.5 or own_boost >= 0.15
+                    ),
+                    "obvious_revenge_kill_proxy": bool(
+                        state_vector[sidx["recent_target_fainted_count_norm"]] > 0
+                        and chosen_af[aidx["impact_ko_chance"]] >= 0.75
+                    ),
+                    "prevention_interaction": bool(
+                        np.any(
+                            af[:, aidx["target_known_or_possible_ability_blocks_move_effect"]]
+                            > 0.5
+                        )
+                        or np.any(
+                            af[:, aidx["may_fail_due_to_priority_prevention"]] > 0.5
+                        )
+                    ),
+                    "illusion_or_displayed_species_ambiguity": bool(
+                        state_vector[sidx["own_active_displayed_species_uncertain"]] > 0.5
+                        or state_vector[sidx["opponent_active_displayed_species_uncertain"]]
+                        > 0.5
+                        or state_vector[sidx["own_active_illusion_revealed"]] > 0.5
+                        or state_vector[sidx["opponent_active_illusion_revealed"]] > 0.5
+                    ),
+                })
             records.append(
                 {
                     "state_index": int(state_index),
+                    "replay_id": str(dataset.state_replay_ids[int(state_index)]),
                     "turn": int(dataset.state_turns[int(state_index)]),
                     "n": n,
                     "chosen_kind": str(kinds[chosen]),
                     "chosen_damaging": bool(af[chosen, COL_CLASS_DAMAGE] > 0.5),
                     "chosen_expected_damage": float(af[chosen, COL_EXPECTED_DAMAGE]),
                     "model_rank": m_rank,
+                    "nll": group_nll,
                     "maxdmg_rank": baseline_ranks["max_expected_damage"][-1],
                     "model_pick_kind": str(kinds[int(np.argmax(scores))]),
                     "model_pick_expected_damage": float(
                         af[int(np.argmax(scores)), COL_EXPECTED_DAMAGE]
                     ),
+                    "tags": sorted(name for name, active in tags.items() if active),
                 }
             )
 
@@ -161,7 +393,10 @@ def evaluate(
         "split": split,
         "matched_groups": total,
         "checkpoint_path": str(checkpoint_path),
+        "device": str(device),
         "schema_validation": schema_validation,
+        "incompatible_checkpoint_rejection": rejection_checks,
+        "slice_features_available": slice_features_available,
         "model": {**_agg(model_ranks), "nll": model_nll / max(1, total)},
         "baselines": {
             "random_legal": {
@@ -223,6 +458,28 @@ def evaluate(
         tbuckets.setdefault(_turn_bucket(rec["turn"]), []).append(rec["model_rank"])
     summary["model_by_turn_bucket"] = {
         k: _agg(tbuckets[k]) for k in ["1-5", "6-10", "11-20", ">20"] if k in tbuckets
+    }
+
+    slice_names = [
+        "normal_move_choice",
+        "forced_switch",
+        "voluntary_switch",
+        "low_hp_or_endgame",
+        "tera_available",
+        "tera_used_or_chosen",
+        "hazards_or_removal",
+        "setup_or_sweep",
+        "obvious_revenge_kill_proxy",
+        "prevention_interaction",
+        "magic_bounce_replay",
+        "good_as_gold_replay",
+        "illusion_or_displayed_species_ambiguity",
+        "high_candidate_count",
+        "top1_wrong_top3_contains",
+    ]
+    summary["slices"] = {
+        name: _slice_metrics([record for record in records if name in record["tags"]])
+        for name in slice_names
     }
 
     # Curated examples: model right where max-damage wrong, and vice versa.
