@@ -18,6 +18,7 @@ from neural.opponent_set_belief import (
 )
 from neural.opponent_set_belief_replay_adapter import build_replay_prefix_beliefs
 from neural.parse_replay_logs import parse_protocol_log
+from neural.randbats_meta_prior_audit import _classify_contradiction
 from neural.randbats_meta_prior_source import RandbatsMetaPriorSource
 
 FORMAT = "gen9randombattle"
@@ -235,6 +236,47 @@ class RandbatsJointSetPosteriorFidelityTest(unittest.TestCase):
         self.assertEqual(
             first.slots_for_species("Gholdengo")[0].belief.confirmed.item,
             "leftovers",
+        )
+
+
+class RandbatsContradictionClassifierTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = RandbatsMetaPriorSource()
+
+    def test_classifier_buckets_remaining_contradictions(self):
+        # Trace marker and Imposter/Trace-carrier displayed copies are dynamic
+        # copied state, not base-set facts.
+        self.assertEqual(
+            _classify_contradiction("bellossom", "ability_revealed", "trace", self.source),
+            "dynamic_or_copied_state",
+        )
+        self.assertEqual(
+            _classify_contradiction("gardevoir", "ability_revealed", "sapsipper", self.source),
+            "dynamic_or_copied_state",
+        )
+        self.assertEqual(
+            _classify_contradiction("ditto", "move_revealed", "closecombat", self.source),
+            "dynamic_or_copied_state",
+        )
+        # Forme/identity-tied abilities stored under the base forme key.
+        self.assertEqual(
+            _classify_contradiction("calyrexice", "ability_revealed", "asone", self.source),
+            "composite_or_forme_ability",
+        )
+        self.assertEqual(
+            _classify_contradiction("terapagos", "ability_revealed", "terashell", self.source),
+            "composite_or_forme_ability",
+        )
+        # Struggle is never a set move.
+        self.assertEqual(
+            _classify_contradiction("dragalge", "move_revealed", "struggle", self.source),
+            "universal_move_noise",
+        )
+        # A genuinely undeclared ability is a real source limitation.
+        self.assertEqual(
+            _classify_contradiction("leavanny", "ability_revealed", "pickpocket", self.source),
+            "true_source_limitation",
         )
 
 

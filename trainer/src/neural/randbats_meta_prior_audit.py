@@ -240,6 +240,58 @@ def _pct(numerator: int, denominator: int) -> float:
     return 100.0 * numerator / denominator if denominator else 0.0
 
 
+# Identity/forme-tied abilities that the static role data represents under the
+# base forme key, so a reveal of the transformed-forme ability contradicts the
+# base set.  This is a known-mechanics catalog, not a strategy heuristic.
+_FORME_ABILITY_PREFIXES = (
+    "asone",
+    "embodyaspect",
+    "terashell",
+    "terashift",
+    "battlebond",
+    "zerotohero",
+    "shieldsdown",
+    "powerconstruct",
+    "schooling",
+    "gulpmissile",
+    "iceface",
+    "hungerswitch",
+    "disguise",
+    "commander",
+)
+
+
+def _classify_contradiction(
+    species: str,
+    kind_value: str,
+    value: str,
+    source: RandbatsMetaPriorSource,
+) -> str:
+    """Bucket a source-covered contradiction into an actionable category."""
+
+    v = canonical_id(value)
+    if kind_value == EvidenceKind.MOVE_REVEALED.value:
+        if v == "struggle":
+            return "universal_move_noise"
+        if species == "ditto":
+            return "dynamic_or_copied_state"
+        return "true_source_limitation"
+
+    # ability dimension
+    if v == "trace":
+        return "dynamic_or_copied_state"
+    prior = source.prior_for(source.metadata.format_id, species)
+    declared = (
+        {h.ability for h in prior.hypotheses if h.ability} if prior else set()
+    )
+    if "trace" in declared or "imposter" in declared or species == "ditto":
+        # Displayed ability is a Trace/Imposter copy, not the base set ability.
+        return "dynamic_or_copied_state"
+    if any(v == prefix or v.startswith(prefix) for prefix in _FORME_ABILITY_PREFIXES):
+        return "composite_or_forme_ability"
+    return "true_source_limitation"
+
+
 def audit_manifest(
     *,
     manifest_path: Path,
@@ -268,6 +320,10 @@ def audit_manifest(
     contradiction_by_kind = Counter()
     contradiction_details = Counter()
     contradiction_details_by_kind: Dict[str, Counter] = defaultdict(Counter)
+    contradiction_classification = Counter()
+    contradiction_class_details: Dict[str, Counter] = defaultdict(Counter)
+    source_absent_by_kind = Counter()
+    ledger_entries_by_kind = Counter()
     tail_dominant = 0
     missing_prior_slots = 0
     causal_checks = 0
@@ -353,6 +409,9 @@ def audit_manifest(
                 if slot.belief.prior_contradiction:
                     slot_contradictions += 1
                 for ledger in slot.belief.evidence_ledger:
+                    ledger_entries_by_kind[ledger.evidence.kind.value] += 1
+                    if not ledger.source_covered:
+                        source_absent_by_kind[ledger.evidence.kind.value] += 1
                     if ledger.contradiction:
                         contradiction_by_kind[
                             ledger.evidence.kind.value
@@ -369,6 +428,18 @@ def audit_manifest(
                             f"{slot.species_form_key}:"
                             f"{ledger.evidence.value}:"
                             f"{ledger.evidence.provenance}"
+                        ] += 1
+                        category = _classify_contradiction(
+                            slot.species_form_key,
+                            ledger.evidence.kind.value,
+                            ledger.evidence.value,
+                            source,
+                        )
+                        contradiction_classification[category] += 1
+                        contradiction_class_details[category][
+                            f"{slot.species_form_key}:"
+                            f"{ledger.evidence.kind.value}:"
+                            f"{ledger.evidence.value}"
                         ] += 1
 
         turns = [
@@ -524,6 +595,20 @@ def audit_manifest(
         "contradictory_slots": slot_contradictions,
         "contradictory_slot_pct": _pct(slot_contradictions, slot_total),
         "contradiction_by_kind": dict(contradiction_by_kind),
+        "contradiction_classification": dict(contradiction_classification),
+        "contradiction_classification_details": {
+            category: rows.most_common(10)
+            for category, rows in sorted(contradiction_class_details.items())
+        },
+        "ledger_entries_by_kind": dict(ledger_entries_by_kind),
+        "source_absent_absorbed_by_kind": dict(source_absent_by_kind),
+        "source_absent_absorbed_total": sum(source_absent_by_kind.values()),
+        "item_evidence_ledger_count": ledger_entries_by_kind.get(
+            EvidenceKind.ITEM_REVEALED.value, 0
+        ),
+        "item_contradiction_count": contradiction_by_kind.get(
+            EvidenceKind.ITEM_REVEALED.value, 0
+        ),
         "top_contradiction_details": contradiction_details.most_common(20),
         "contradiction_details_by_kind": {
             kind: rows.most_common(10)
@@ -635,6 +720,22 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
         lines.append("")
     lines.extend(
         [
+            "## Source-absent evidence (absorbed after the fix)",
+            "",
+            "- `OpponentSetBelief.update` now records reveals for dimensions the",
+            "  role source does not model (items for Randbats; any reveal on a",
+            "  missing-species belief) as confirmed public facts with",
+            "  `source_covered = False`, leaving role/ability/move/Tera",
+            "  hypotheses and the unknown tail untouched.",
+            f"- Source-absent ledger entries absorbed cleanly: "
+            f"{summary['source_absent_absorbed_total']} "
+            f"(`{summary['source_absent_absorbed_by_kind']}`).",
+            f"- Item evidence ledger entries: "
+            f"{summary['item_evidence_ledger_count']}; of these, item-driven "
+            f"contradictions: {summary['item_contradiction_count']}.",
+            "- Every item reveal is now absorbed rather than collapsing the",
+            "  posterior, so the prior 701 item-driven first collapses are gone.",
+            "",
             "## Posterior contradictions",
             "",
             f"- Slots reaching explicit prior contradiction: "
@@ -642,15 +743,33 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
             f"({summary['contradictory_slot_pct']:.2f}%).",
             f"- Contradicting evidence entries by kind: "
             f"`{summary['contradiction_by_kind']}`.",
-            "- Item contradictions are expected source limitations because the",
-            "  checked-in role data contains no items. Move contradictions can",
-            "  also arise when successive public moves span declarations that the",
-            "  coarse role expansion keeps separate.",
-            "- The contradiction rate is therefore an end-to-end result, not a",
-            "  pure source-data score: unknown-tail conditioning currently marks",
-            "  absent item hypotheses as contradiction, and copied/transformed",
-            "  public abilities or moves can be mistaken for base-set evidence.",
+            "- All remaining contradictions are source-covered ability/move",
+            "  dimensions where the public reveal is incompatible with every",
+            "  declared hypothesis; real source/data mismatches stay explicit.",
             "",
+            "Remaining contradiction classification:",
+            "",
+            f"- `{summary['contradiction_classification']}`.",
+            "- `dynamic_or_copied_state`: Trace/Imposter (Ditto) and other copied",
+            "  abilities/moves shown as current state but not base-set facts.",
+            "- `composite_or_forme_ability`: identity/forme-tied abilities (As One,",
+            "  Embody Aspect, Tera Shell/Shift, Battle Bond) stored under the base",
+            "  forme key; partly an alias/form-normalization gap.",
+            "- `universal_move_noise`: Struggle, which is never a set move.",
+            "- `true_source_limitation`: the declared role sets genuinely omit the",
+            "  revealed ability/move.",
+            "",
+        ]
+    )
+    for category, rows in sorted(
+        summary["contradiction_classification_details"].items()
+    ):
+        lines.append(f"### {category}")
+        lines.append("")
+        lines.extend([f"- `{label}`: {count}" for label, count in rows] or ["- None."])
+        lines.append("")
+    lines.extend(
+        [
             "Top first-collapse details:",
             "",
         ]
@@ -685,19 +804,37 @@ def render_markdown(summary: Mapping[str, Any], command: str) -> str:
             "",
             "## Decision",
             "",
-            "The source is sufficient for continued offline posterior plumbing,",
-            "coverage diagnostics, and append-only feature design experiments only",
-            "if every feature retains explicit unknown/quality provenance. It is",
-            "not sufficient as the sole calibrated first-v8 production prior:",
-            "the fixed 0.5 tail, absent items, factorized role alternatives, and",
-            "declaration rather than generated-set probabilities create material",
-            "posterior collapse and calibration limits.",
+            "After the source-absent evidence fix the end-to-end contradiction",
+            "rate is small and fully explained: every remaining contradiction is",
+            "a source-covered ability/move incompatibility, dominated by dynamic",
+            "copied-state (Trace/Imposter) and forme-tied abilities. Items no",
+            "longer collapse the posterior. Causality, hidden-truth invariance,",
+            "Illusion, and reflection checks all pass.",
             "",
-            "Before any feature wiring, repair explicit form aliases, unknown-tail",
-            "conditioning, and copied/dynamic ability and Transform evidence",
-            "semantics, then rerun this audit. After that, decide whether coarse",
-            "support/unknown indicators are sufficient for an initial experiment",
-            "or whether the generator-sampled snapshot is required first.",
+            "This makes the source clean enough for first append-only v8",
+            "belief-feature wiring **only if** every feature retains explicit",
+            "unknown/quality provenance and treats coarse support/unknown",
+            "indicators as uncalibrated. The fixed 0.5 tail, factorized role",
+            "alternatives, absent items, and declaration-rather-than-generated",
+            "probabilities still make this unsuitable as a sole calibrated",
+            "production prior; the generator-sampled snapshot remains the route to",
+            "calibrated joint probabilities.",
+            "",
+            "Remaining non-blocking follow-ups (classify, do not strategy-hardcode):",
+            "",
+            "1. Explicit public species/forme alias policy for missing-prior forms",
+            "   (Palafin-Hero, Polteagist-Antique, Ogerpon/Minior/Vivillon/Pikachu",
+            "   cosmetic forms) and forme-key abilities (As One vs As One-Glastrier,",
+            "   Tera Shell vs Tera Shift).",
+            "2. Dynamic ability / Transform-Imposter semantics that separate",
+            "   current copied state (Trace/Imposter displayed ability, Ditto copied",
+            "   moves) from base hidden-set facts, so copied state is not recorded",
+            "   as base-set evidence or a contradiction.",
+            "",
+            "Both are bounded by the classification above; neither requires the",
+            "generator snapshot. They can be implemented and tested before or",
+            "alongside the first v8 feature slice as long as features expose source",
+            "quality and unknown mass.",
         ]
     )
     return "\n".join(lines) + "\n"

@@ -15,7 +15,7 @@
 - Revealed species appearances with a prior: 1562/1600 (97.62%).
 - Unique revealed species/forms with a prior: 463/487 (95.07%).
 - Public identity slots with missing priors: 38/1600.
-- Slots ending with dominant unknown tail (`other_mass > 0.5`): 1072/1600 (67.00%).
+- Slots ending with dominant unknown tail (`other_mass > 0.5`): 709/1600 (44.31%).
 
 Missing species/forms:
 
@@ -127,62 +127,99 @@ Top unsupported public labels:
 - `miniorviolet:ground:missing_prior`: 1
 - `pikachuunova:water:missing_prior`: 1
 
+## Source-absent evidence (absorbed after the fix)
+
+- `OpponentSetBelief.update` now records reveals for dimensions the
+  role source does not model (items for Randbats; any reveal on a
+  missing-species belief) as confirmed public facts with
+  `source_covered = False`, leaving role/ability/move/Tera
+  hypotheses and the unknown tail untouched.
+- Source-absent ledger entries absorbed cleanly: 2517 (`{'item_revealed': 2207, 'move_revealed': 266, 'ability_revealed': 35, 'tera_type_revealed': 9}`).
+- Item evidence ledger entries: 2207; of these, item-driven contradictions: 0.
+- Every item reveal is now absorbed rather than collapsing the
+  posterior, so the prior 701 item-driven first collapses are gone.
+
 ## Posterior contradictions
 
-- Slots reaching explicit prior contradiction: 724/1600 (45.25%).
-- Contradicting evidence entries by kind: `{'item_revealed': 701, 'ability_revealed': 17, 'move_revealed': 6}`.
-- Item contradictions are expected source limitations because the
-  checked-in role data contains no items. Move contradictions can
-  also arise when successive public moves span declarations that the
-  coarse role expansion keeps separate.
-- The contradiction rate is therefore an end-to-end result, not a
-  pure source-data score: unknown-tail conditioning currently marks
-  absent item hypotheses as contradiction, and copied/transformed
-  public abilities or moves can be mistaken for base-set evidence.
+- Slots reaching explicit prior contradiction: 28/1600 (1.75%).
+- Contradicting evidence entries by kind: `{'ability_revealed': 22, 'move_revealed': 6}`.
+- All remaining contradictions are source-covered ability/move
+  dimensions where the public reveal is incompatible with every
+  declared hypothesis; real source/data mismatches stay explicit.
+
+Remaining contradiction classification:
+
+- `{'composite_or_forme_ability': 9, 'dynamic_or_copied_state': 16, 'true_source_limitation': 2, 'universal_move_noise': 1}`.
+- `dynamic_or_copied_state`: Trace/Imposter (Ditto) and other copied
+  abilities/moves shown as current state but not base-set facts.
+- `composite_or_forme_ability`: identity/forme-tied abilities (As One,
+  Embody Aspect, Tera Shell/Shift, Battle Bond) stored under the base
+  forme key; partly an alias/form-normalization gap.
+- `universal_move_noise`: Struggle, which is never a set move.
+- `true_source_limitation`: the declared role sets genuinely omit the
+  revealed ability/move.
+
+### composite_or_forme_ability
+
+- `ogerponcornerstone:ability_revealed:embodyaspectcornerstone`: 2
+- `terapagos:ability_revealed:terashell`: 2
+- `calyrexice:ability_revealed:asone`: 2
+- `calyrexshadow:ability_revealed:asone`: 1
+- `greninja:ability_revealed:battlebond`: 1
+- `ogerpon:ability_revealed:embodyaspectteal`: 1
+
+### dynamic_or_copied_state
+
+- `bellossom:ability_revealed:trace`: 1
+- `farigiraf:ability_revealed:trace`: 1
+- `gardevoir:ability_revealed:sapsipper`: 1
+- `glalie:ability_revealed:trace`: 1
+- `gardevoir:ability_revealed:innerfocus`: 1
+- `ditto:move_revealed:bodypress`: 1
+- `ditto:move_revealed:closecombat`: 1
+- `ditto:move_revealed:toxic`: 1
+- `ditto:move_revealed:roar`: 1
+- `phione:ability_revealed:trace`: 1
+
+### true_source_limitation
+
+- `leavanny:ability_revealed:pickpocket`: 1
+- `beartic:ability_revealed:dryskin`: 1
+
+### universal_move_noise
+
+- `dragalge:move_revealed:struggle`: 1
 
 Top first-collapse details:
 
-- `dachsbun:item_revealed:leftovers:public_replay_named_item`: 7
-- `garganacl:item_revealed:leftovers:public_replay_named_item`: 6
-- `camerupt:item_revealed:leftovers:public_replay_named_item`: 6
-- `palossand:item_revealed:leftovers:public_replay_named_item`: 6
-- `dondozo:item_revealed:leftovers:public_replay_named_item`: 5
-- `electivire:item_revealed:lifeorb:public_replay_named_item`: 5
-- `screamtail:item_revealed:leftovers:public_replay_named_item`: 5
-- `exeggutor:item_revealed:sitrusberry:public_replay_item`: 5
-- `deoxysattack:item_revealed:lifeorb:public_replay_named_item`: 5
-- `banette:item_revealed:lifeorb:public_replay_named_item`: 5
-- `meganium:item_revealed:leftovers:public_replay_named_item`: 5
-- `sylveon:item_revealed:leftovers:public_replay_named_item`: 5
-- `misdreavus:item_revealed:eviolite:public_replay_item`: 4
-- `chimecho:item_revealed:leftovers:public_replay_named_item`: 4
-- `wigglytuff:item_revealed:leftovers:public_replay_named_item`: 4
+- `ogerponcornerstone:ability_revealed:embodyaspectcornerstone:public_replay_ability`: 2
+- `terapagos:ability_revealed:terashell:public_replay_activation`: 2
+- `calyrexice:ability_revealed:asone:public_replay_ability`: 2
+- `bellossom:ability_revealed:trace:public_replay_named_ability`: 1
+- `farigiraf:ability_revealed:trace:public_replay_named_ability`: 1
+- `gardevoir:ability_revealed:sapsipper:public_replay_ability`: 1
+- `calyrexshadow:ability_revealed:asone:public_replay_ability`: 1
+- `greninja:ability_revealed:battlebond:public_replay_ability`: 1
+- `glalie:ability_revealed:trace:public_replay_named_ability`: 1
+- `gardevoir:ability_revealed:innerfocus:public_replay_ability`: 1
+- `ogerpon:ability_revealed:embodyaspectteal:public_replay_ability`: 1
+- `ditto:move_revealed:bodypress:public_replay_move`: 1
+- `ditto:move_revealed:closecombat:public_replay_move`: 1
+- `ditto:move_revealed:toxic:public_replay_move`: 1
+- `leavanny:ability_revealed:pickpocket:public_replay_named_ability`: 1
 
 ### ability_revealed
 
 - `ogerponcornerstone:embodyaspectcornerstone:public_replay_ability`: 2
 - `terapagos:terashell:public_replay_activation`: 2
 - `calyrexice:asone:public_replay_ability`: 2
+- `bellossom:trace:public_replay_named_ability`: 1
+- `farigiraf:trace:public_replay_named_ability`: 1
 - `gardevoir:sapsipper:public_replay_ability`: 1
 - `calyrexshadow:asone:public_replay_ability`: 1
+- `greninja:battlebond:public_replay_ability`: 1
+- `glalie:trace:public_replay_named_ability`: 1
 - `gardevoir:innerfocus:public_replay_ability`: 1
-- `ogerpon:embodyaspectteal:public_replay_ability`: 1
-- `leavanny:pickpocket:public_replay_named_ability`: 1
-- `gardevoir:hydration:public_replay_ability`: 1
-- `ditto:drought:public_replay_named_ability`: 1
-
-### item_revealed
-
-- `dachsbun:leftovers:public_replay_named_item`: 7
-- `garganacl:leftovers:public_replay_named_item`: 6
-- `camerupt:leftovers:public_replay_named_item`: 6
-- `palossand:leftovers:public_replay_named_item`: 6
-- `dondozo:leftovers:public_replay_named_item`: 5
-- `electivire:lifeorb:public_replay_named_item`: 5
-- `screamtail:leftovers:public_replay_named_item`: 5
-- `exeggutor:sitrusberry:public_replay_item`: 5
-- `deoxysattack:lifeorb:public_replay_named_item`: 5
-- `banette:lifeorb:public_replay_named_item`: 5
 
 ### move_revealed
 
@@ -202,16 +239,34 @@ Top first-collapse details:
 
 ## Decision
 
-The source is sufficient for continued offline posterior plumbing,
-coverage diagnostics, and append-only feature design experiments only
-if every feature retains explicit unknown/quality provenance. It is
-not sufficient as the sole calibrated first-v8 production prior:
-the fixed 0.5 tail, absent items, factorized role alternatives, and
-declaration rather than generated-set probabilities create material
-posterior collapse and calibration limits.
+After the source-absent evidence fix the end-to-end contradiction
+rate is small and fully explained: every remaining contradiction is
+a source-covered ability/move incompatibility, dominated by dynamic
+copied-state (Trace/Imposter) and forme-tied abilities. Items no
+longer collapse the posterior. Causality, hidden-truth invariance,
+Illusion, and reflection checks all pass.
 
-Before any feature wiring, repair explicit form aliases, unknown-tail
-conditioning, and copied/dynamic ability and Transform evidence
-semantics, then rerun this audit. After that, decide whether coarse
-support/unknown indicators are sufficient for an initial experiment
-or whether the generator-sampled snapshot is required first.
+This makes the source clean enough for first append-only v8
+belief-feature wiring **only if** every feature retains explicit
+unknown/quality provenance and treats coarse support/unknown
+indicators as uncalibrated. The fixed 0.5 tail, factorized role
+alternatives, absent items, and declaration-rather-than-generated
+probabilities still make this unsuitable as a sole calibrated
+production prior; the generator-sampled snapshot remains the route to
+calibrated joint probabilities.
+
+Remaining non-blocking follow-ups (classify, do not strategy-hardcode):
+
+1. Explicit public species/forme alias policy for missing-prior forms
+   (Palafin-Hero, Polteagist-Antique, Ogerpon/Minior/Vivillon/Pikachu
+   cosmetic forms) and forme-key abilities (As One vs As One-Glastrier,
+   Tera Shell vs Tera Shift).
+2. Dynamic ability / Transform-Imposter semantics that separate
+   current copied state (Trace/Imposter displayed ability, Ditto copied
+   moves) from base hidden-set facts, so copied state is not recorded
+   as base-set evidence or a contradiction.
+
+Both are bounded by the classification above; neither requires the
+generator snapshot. They can be implemented and tested before or
+alongside the first v8 feature slice as long as features expose source
+quality and unknown mass.

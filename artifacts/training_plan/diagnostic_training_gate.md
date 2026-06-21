@@ -122,8 +122,18 @@
   records source-absent reveals as confirmed public facts with
   `source_covered = False` and no contradiction, and preserves explicit
   source-covered contradiction behavior; `EvidenceLedgerEntry.source_covered`
-  added, no schema/item-prior/live change. Re-running the public-prefix audit
-  with this fix remains open.
+  added, no schema/item-prior/live change.
+- [x] Held-out Randbats public-prefix audit re-run after the source-absent fix
+  (`randbats_meta_prior_public_prefix_audit.md`, 150-battle test split): explicit
+  contradiction rate fell 45.25% → **1.75%** (28/1600), all source-covered
+  ability/move (16 dynamic/copied-state, 9 forme, 2 true-source, 1 Struggle);
+  **0** item contradictions with 2,207 item reveals absorbed; 2,517 source-absent
+  ledger entries; tail-dominant 67.00% → 44.31%; coverage 97.62%/95.07%
+  unchanged; causality 300/300, hidden-truth 300/300, Illusion 1/0, reflection
+  2/0. Source is clean enough for first append-only v8 belief features that keep
+  explicit source-quality/unknown provenance. Two non-blocking follow-ups remain:
+  forme/alias normalization policy and dynamic-ability/Transform-Imposter
+  copied-state semantics.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

@@ -570,12 +570,17 @@ wiring. First implement and test:
 Then rerun the same audit. See
 `randbats_meta_prior_public_prefix_audit.md`.
 
-Update: item (2) is now implemented. `OpponentSetBelief.update` derives
-per-dimension source coverage and absorbs source-absent reveals (items for
-Randbats; any reveal on a missing-species belief) into the unknown tail as
-confirmed public facts without forcing `prior_contradiction`, while preserving
-explicit contradiction for source-covered dimensions. This should remove the
-item-driven first collapses; the alias policy (1) and dynamic-ability/Transform
-semantics (3) remain open. Rerunning the public-prefix audit to quantify the new
-contradiction rate is the recommended next step. See
-`randbats_joint_set_posterior_fidelity_audit.md`.
+Update: item (2) is now implemented and the audit has been re-run.
+`OpponentSetBelief.update` derives per-dimension source coverage and absorbs
+source-absent reveals (items for Randbats; any reveal on a missing-species
+belief) into the unknown tail as confirmed public facts without forcing
+`prior_contradiction`, while preserving explicit contradiction for source-covered
+dimensions. The re-run audit (150-battle test split) confirms the explicit
+contradiction rate fell 45.25% → **1.75%** with **0** item contradictions across
+2,207 item reveals; tail-dominant fell 67.00% → 44.31%. The 28 remaining
+contradictions are all source-covered: 16 dynamic/copied-state (Trace/Imposter),
+9 forme-tied abilities, 2 true source gaps, 1 Struggle. The source is now clean
+enough for a first append-only v8 belief-feature slice with explicit
+source-quality/unknown provenance; the alias policy (1) and
+dynamic-ability/Transform semantics (3) remain bounded, non-blocking follow-ups.
+See `randbats_meta_prior_public_prefix_audit.md`.

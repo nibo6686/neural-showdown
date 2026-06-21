@@ -866,7 +866,39 @@ no `meta_prior.py` change was required and no item prior was added. Tests are in
 source-neutral `SourceAbsentDimensionTest` in
 `trainer/tests/test_meta_prior_belief_contracts.py`.
 
-## Held-out public-prefix audit result
+## Public-prefix audit re-run after the source-absent fix
+
+The held-out audit was re-run on the 150-battle test split of the 1,000-battle
+manifest with the source-absent evidence fix in place
+(`randbats_meta_prior_public_prefix_audit.md`). The explicit contradiction rate
+fell from 45.25% to **1.75%** (28/1600). Item reveals no longer collapse the
+posterior: 2,207 item reveals are absorbed with **0** item-driven contradictions,
+and 2,517 source-absent ledger entries are recorded with `source_covered=False`.
+Tail-dominant slots fell from 67.00% to 44.31% (the residual is the fixed 0.5
+prior tail). Coverage (97.62% appearances / 95.07% unique forms), causality
+(300/300), hidden-truth invariance (300/300), Illusion (1/0), and reflection
+(2/0) are unchanged.
+
+The 28 remaining contradictions are all source-covered ability/move
+incompatibilities, classified data-driven by the audit:
+
+- `dynamic_or_copied_state` (16): Trace/Imposter copied state — Trace markers,
+  Trace-carrier displayed copies (Gardevoir), and Ditto copied moves/abilities;
+- `composite_or_forme_ability` (9): forme/identity-tied abilities stored under
+  the base forme key (As One, Embody Aspect, Tera Shell/Shift, Battle Bond) —
+  partly a forme-key normalization gap;
+- `true_source_limitation` (2): declared role sets genuinely omit the ability;
+- `universal_move_noise` (1): Struggle, never a set move.
+
+Decision: the source is clean enough for the **first append-only v8 belief-feature
+slice**, provided every feature exposes source-quality/unknown provenance and
+treats coarse support/unknown indicators as uncalibrated. Two bounded,
+non-blocking follow-ups remain and do not require the generator snapshot: a
+public species/forme alias policy and dynamic-ability/Transform-Imposter
+copied-state semantics. The generator-sampled snapshot remains the route to
+calibrated joint probabilities.
+
+## Held-out public-prefix audit result (pre-fix, historical)
 
 Coverage misses are overwhelmingly public form/alias keys that have a plausible
 base source row but are intentionally not remapped by the current adapter.
