@@ -17,6 +17,11 @@ from .build_replay_value_dataset import (
 from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_state import extract_private_side_state
 from .parse_replay_logs import parse_protocol_log
+from .v8_belief_features import (
+    V8_BELIEF_FEATURE_NAMES,
+    V8_BELIEF_FEATURE_VERSION,
+    v8_belief_slice_feature_vector,
+)
 from .tactical_state import (
     TACTICAL_STATE_FEATURE_NAMES,
     TACTICAL_FEATURE_VERSION,
@@ -390,6 +395,12 @@ V7_SLICE5_FEATURE_NAMES = (
 )
 FEATURE_NAMES_V7 = FEATURE_NAMES_V6 + V7_SLICE5_FEATURE_NAMES
 FEATURE_DIM_V7 = len(FEATURE_NAMES_V7)
+
+# --- Slice 6: append-only meta-prior opponent-belief summary (v8) ---
+FEATURE_VERSION_V8 = V8_BELIEF_FEATURE_VERSION
+V8_SLICE6_FEATURE_NAMES = list(V8_BELIEF_FEATURE_NAMES)
+FEATURE_NAMES_V8 = FEATURE_NAMES_V7 + V8_SLICE6_FEATURE_NAMES
+FEATURE_DIM_V8 = len(FEATURE_NAMES_V8)
 
 
 def _clip(value: float, low: float = 0.0, high: float = 1.0) -> float:
@@ -1212,6 +1223,48 @@ def trajectory_prefix(trajectory: Dict[str, Any], through_turn: int) -> Dict[str
     return prefixed
 
 
+def active_opponent_set_belief(
+    trajectory: Optional[Dict[str, Any]],
+    *,
+    player_side: Optional[str],
+    sets_path: Optional[str] = None,
+    through_turn: Optional[int] = None,
+):
+    """Active opponent ``OpponentSetBelief`` from the public prefix, or None.
+
+    Uses only the retained public protocol prefix and the pinned Randbats prior
+    source (lazily imported so the v7 path never loads the prior).  Returns None
+    when the side is unknown or no opponent slot is publicly active.
+    """
+    if player_side not in ("p1", "p2") or not isinstance(trajectory, dict):
+        return None
+    from .opponent_set_belief_replay_adapter import build_replay_prefix_beliefs
+    from .randbats_meta_prior_source import RandbatsMetaPriorSource
+
+    source = RandbatsMetaPriorSource(sets_path=sets_path) if sets_path else _randbats_prior_source()
+    snapshot = build_replay_prefix_beliefs(
+        trajectory,
+        source,
+        perspective_side=player_side,
+        through_turn=through_turn,
+    )
+    active = snapshot.active_slots
+    return active[0].belief if active else None
+
+
+_RANDBATS_PRIOR_SOURCE_CACHE: Dict[str, Any] = {}
+
+
+def _randbats_prior_source():
+    source = _RANDBATS_PRIOR_SOURCE_CACHE.get("default")
+    if source is None:
+        from .randbats_meta_prior_source import RandbatsMetaPriorSource
+
+        source = RandbatsMetaPriorSource()
+        _RANDBATS_PRIOR_SOURCE_CACHE["default"] = source
+    return source
+
+
 def build_live_private_feature_vector(
     *,
     public_features: np.ndarray,
@@ -1221,6 +1274,7 @@ def build_live_private_feature_vector(
     player_side: Optional[str] = None,
     tactical_state: Optional[Dict[str, Any]] = None,
     feature_version: str = FEATURE_VERSION,
+    opponent_set_belief: Optional[Any] = None,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     public = np.asarray(public_features, dtype=np.float32).reshape(-1)
     if public.shape[0] != len(PUBLIC_FEATURE_NAMES):
@@ -1289,12 +1343,25 @@ def build_live_private_feature_vector(
             ]
         ).astype(np.float32)
         feature_names = FEATURE_NAMES_V7
+    elif feature_version == FEATURE_VERSION_V8:
+        features = np.concatenate(
+            [
+                v2_features,
+                v3_slice1_feature_vector(tactical_state),
+                v4_slice2_feature_vector(tactical_state),
+                v5_slice3_feature_vector(tactical_state),
+                v6_slice4_feature_vector(tactical_state),
+                v7_slice5_feature_vector(tactical_state),
+                v8_belief_slice_feature_vector(opponent_set_belief),
+            ]
+        ).astype(np.float32)
+        feature_names = FEATURE_NAMES_V8
     else:
         raise ValueError(
             f"Unsupported live-private feature_version={feature_version!r}; "
             f"expected one of {FEATURE_VERSION!r}, {FEATURE_VERSION_V3!r}, "
             f"{FEATURE_VERSION_V4!r}, {FEATURE_VERSION_V5!r}, {FEATURE_VERSION_V6!r}, "
-            f"or {FEATURE_VERSION_V7!r}."
+            f"{FEATURE_VERSION_V7!r}, or {FEATURE_VERSION_V8!r}."
         )
     if features.shape[0] != len(feature_names):
         raise ValueError(
@@ -1362,6 +1429,13 @@ def build_features_from_live_payload(
     )
     tactical_state = snapshot_with_private_state(tactical_state, private_state)
     private_state["tactical_state"] = tactical_state
+    opponent_set_belief = None
+    if feature_version == FEATURE_VERSION_V8:
+        opponent_set_belief = active_opponent_set_belief(
+            trajectory,
+            player_side=player_side if player_side in ("p1", "p2") else None,
+            sets_path=sets_path,
+        )
     features, debug = build_live_private_feature_vector(
         public_features=public_features,
         private_state=private_state,
@@ -1370,6 +1444,7 @@ def build_features_from_live_payload(
         player_side=player_side if player_side in ("p1", "p2") else None,
         tactical_state=tactical_state,
         feature_version=feature_version,
+        opponent_set_belief=opponent_set_belief,
     )
     debug["tactical_snapshot"] = tactical_state
     debug.update(public_debug)
@@ -1403,6 +1478,10 @@ def feature_schema() -> Dict[str, Any]:
         "v7_feature_dim": FEATURE_DIM_V7,
         "v7_feature_names": FEATURE_NAMES_V7,
         "v7_slice5_feature_names": V7_SLICE5_FEATURE_NAMES,
+        "v8_feature_version": FEATURE_VERSION_V8,
+        "v8_feature_dim": FEATURE_DIM_V8,
+        "v8_feature_names": FEATURE_NAMES_V8,
+        "v8_slice6_feature_names": V8_SLICE6_FEATURE_NAMES,
         "v1_feature_version": FEATURE_VERSION_V1,
         "v1_feature_dim": FEATURE_DIM_V1,
         "v1_feature_names": FEATURE_NAMES_V1,

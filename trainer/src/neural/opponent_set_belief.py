@@ -146,6 +146,10 @@ class OpponentSetBelief:
     # Set when the prior was resolved through an explicit form-alias policy.
     prior_source_key: Optional[str] = None
     prior_alias_policy_version: Optional[str] = None
+    # Source-quality provenance copied from the originating ``SetPrior`` so that
+    # feature consumers can expose calibration/coverage caveats explicitly.
+    prior_joint_quality: Optional[str] = None
+    prior_coverage_warnings: Tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         total = sum(hypothesis.probability for hypothesis in self.hypotheses)
@@ -318,6 +322,8 @@ def initialize_belief(
         source_available=True,
         prior_source_key=prior.source_species_key,
         prior_alias_policy_version=prior.alias_policy_version,
+        prior_joint_quality=prior.joint_quality.value,
+        prior_coverage_warnings=prior.coverage_warnings,
     )
 
 

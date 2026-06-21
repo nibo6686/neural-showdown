@@ -593,3 +593,15 @@ enough for the first append-only v8 belief-feature slice (features must expose
 source-quality/unknown provenance and treat coarse support as uncalibrated); the
 generator-sampled snapshot remains the route to calibrated joint probabilities.
 See `randbats_meta_prior_public_prefix_audit.md`.
+
+Update 3: the first append-only v8 state belief slice is implemented
+(`v8_belief_feature_slice_report.md`). `live-private-belief-v8` (3229D,
+fingerprint `8ac51441…26053`) = frozen v7 (3208D, `0a697b42…e36fbf`, unchanged)
++ 21 opponent active-slot source-quality/belief-summary fields. It exposes
+source-quality/unknown provenance and coarse uncalibrated belief summaries only;
+candidate/action v8 threat features are deferred to the next slice. No training,
+full-rematerialization, checkpoint, or live-default change. The recommended next
+step is a tiny approval-gated v8 materialization smoke (e.g. diagnostic_300 with
+`live-private-belief-v8`) to confirm featuregen/metadata/fingerprint plumbing
+before the candidate/action v8 slice or any durable v8 run. The separate
+value-dataset program remains independent and unaffected.

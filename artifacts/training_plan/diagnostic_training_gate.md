@@ -147,6 +147,17 @@
   hidden-truth 300/300, Illusion 1/0, reflection 2/0. Source is clean enough for
   the first append-only v8 belief-feature slice (features must expose
   source-quality/unknown provenance). No v8 schema/features/training/live change.
+- [x] First append-only v8 belief feature slice implemented
+  (`v8_belief_feature_slice_report.md`): `live-private-belief-v8` (3229D,
+  fingerprint `8ac51441…26053`) = frozen v7 (3208D, `0a697b42…e36fbf`,
+  unchanged) + a 21-field opponent-active-slot belief slice (source-quality /
+  provenance + coarse belief summary; candidate/action v8 deferred). Pure
+  function of `OpponentSetBelief`; explicit unknown for missing prior; copied/
+  forme current-state and source-absent facts never contradict; true source
+  limitations stay visible. 14 no-leakage/append-only tests pass; public-prefix
+  audit unchanged. No training/full-rematerialization/live change.
+- [ ] Tiny approval-gated v8 materialization smoke (e.g. diagnostic_300 with
+  `live-private-belief-v8`) to confirm featuregen/metadata/fingerprint plumbing.
 - [ ] Pinned Randbats generator prior snapshot built and calibration/convergence
   audited before any v8 materialization.
 - [ ] Tiny rank-only training on fresh v7/v6 diagnostic_300 approved (plumbing/behavior comparison, exact-vs-INEXACT breakdowns).

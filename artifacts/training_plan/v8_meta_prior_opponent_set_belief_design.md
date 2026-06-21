@@ -866,6 +866,23 @@ no `meta_prior.py` change was required and no item prior was added. Tests are in
 source-neutral `SourceAbsentDimensionTest` in
 `trainer/tests/test_meta_prior_belief_contracts.py`.
 
+## First v8 belief feature slice implemented (current)
+
+The first append-only v8 state belief slice is now wired
+(`v8_belief_feature_slice_report.md`). `live-private-belief-v8` = frozen v7
+(3208D, fingerprint `0a697b42…e36fbf`, unchanged) plus a 21-field opponent
+active-slot slice (`FEATURE_DIM_V8 = 3229`, fingerprint `8ac51441…26053`). The
+slice (`trainer/src/neural/v8_belief_features.py`) is a pure function of
+`OpponentSetBelief` and carries only source-quality/provenance plus coarse belief
+summaries — matching this design's "expose semantic probabilities + source
+quality, not a guessed hidden set" contract. Per design §6 it is intentionally
+small; candidate/action interaction features are deferred to the next slice.
+`OpponentSetBelief` gained `prior_joint_quality` / `prior_coverage_warnings`
+provenance so quality flags derive from the prior's own declared warnings. The
+v7 path never loads the prior; the v8 belief is built from the public prefix via
+the replay adapter only when `feature_version == live-private-belief-v8`. 14
+append-only/no-leakage tests pass and the public-prefix audit is unchanged.
+
 ## Alias policy + copied-state semantics fix (current)
 
 The two non-source-data blockers are now implemented and the public-prefix audit
