@@ -7,10 +7,12 @@
 | Python/TypeScript slot mismatch | Wrong action execution | Cross-runtime parity fixtures | Action owner |
 | Seed lineage is incomplete | Non-reproducible search | Explicit transition metadata and repeatability tests | Simulation owner |
 | Existing features silently change | Model regression | Golden feature snapshots and schema fingerprints | Model owner |
-| Replay/private sources mix | Misleading metrics | Source lineage and battle-level splits | Data owner |
+| Replay/private sources mix | Misleading metrics | Accepted DATA-001 source/private lineage, source-specific reports, and battle/replay-disjoint splits | Data owner |
 | Missing local dependencies | Validation blocked | Record environment prerequisites; do not install in this phase | Orchestrator |
 | New adapter diverges from Showdown | Mechanics regression | Keep sim-core authority and differential tests | Simulation owner |
 | Missing raw replay fixtures are mistaken for a production failure | Misleading readiness signal | Mark replay tests, skip with an actionable reason, and keep acquisition opt-in | Orchestrator |
 | Python dependency policy is guessed from one host | Non-reproducible validation | Record the blocker; establish versions only after compatibility testing | Orchestrator |
 | Observable adapter is accidentally routed into current models | Silent model/input drift | Keep the adapter shadow-only and assert unchanged feature vectors before integration | State owner |
 | Prefix boundary is supplied at turn rather than record granularity | Future-information leakage | Require explicit normalized prefixes, deterministic hashes, and monotonic projector checks | State owner |
+| Dataset prefix hash is asserted without its source prefix | Future-information leakage | DATA-001 requires exact cursor/hash verification when the source prefix is available; unverifiable legacy records remain read-only | Data owner |
+| Legacy search uses turn-based trace cutoffs and unbound branch context | Future-event leakage or stale action mapping | SEARCH-001 documents that accepted exact-prefix/action/transition contracts are not current search inputs; require a separate scoped integration item before claiming those guarantees | Search owner |

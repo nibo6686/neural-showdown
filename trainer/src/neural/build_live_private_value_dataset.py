@@ -15,6 +15,7 @@ from .build_replay_value_dataset import (
     _safe_float,
     result_from_winner_side,
 )
+from .dataset_lineage import feature_schema_fingerprint, record_from_source_prefix, validate_records
 from .live_opponent_beliefs import build_opponent_beliefs
 from .live_private_features import (
     FEATURE_DIM,
@@ -661,6 +662,25 @@ def _examples_from_public_trajectory(
                 tactical_state=tactical_state,
             )
             tactical_report = tactical_report_from_state(tactical_state)
+            replay_id = str(trajectory.get("replay_id") or "")
+            lineage_record = record_from_source_prefix(
+                battle_id=replay_id,
+                replay_id=replay_id,
+                source_kind="replay",
+                source_ref=str(trajectory.get("source_path") or replay_id),
+                ruleset=str(trajectory.get("format") or "unknown"),
+                parser_version="parse_replay_logs/v1",
+                perspective=side,
+                protocol_prefix=prefix.get("protocol_log", []),
+                private_data_provenance="reconstructed_public_prefix",
+                feature_input_eligibility="acting_player_private",
+                schema_fingerprints={
+                    "observation": "replay-protocol-prefix/v1",
+                    "belief": None,
+                    "transition": None,
+                    "feature": feature_schema_fingerprint(FEATURE_VERSION, FEATURE_NAMES),
+                },
+            )
             example = {
                 "state": features,
                 "value_target": float(result),
@@ -670,6 +690,7 @@ def _examples_from_public_trajectory(
                 "source_id": str(trajectory.get("replay_id") or ""),
                 "missing_private_state": 0.0,
                 "tactical": tactical_report,
+                "lineage_record": lineage_record,
             }
             if include_debug_fields:
                 example["metadata_json"] = _metadata_json(
@@ -736,6 +757,24 @@ def _examples_from_trace_path(
             tactical_state=tactical_state,
         )
         tactical_report = tactical_report_from_state(tactical_state)
+        lineage_record = record_from_source_prefix(
+            battle_id=path.stem,
+            replay_id=path.stem,
+            source_kind="sim_core",
+            source_ref=str(path),
+            ruleset=str(trace.get("format") or DEFAULT_FORMAT),
+            parser_version="trace_protocol/v1",
+            perspective="p1",
+            protocol_prefix=protocol_history,
+            private_data_provenance="local_trace_private",
+            feature_input_eligibility="acting_player_private",
+            schema_fingerprints={
+                "observation": "replay-protocol-prefix/v1",
+                "belief": None,
+                "transition": None,
+                "feature": feature_schema_fingerprint(FEATURE_VERSION, FEATURE_NAMES),
+            },
+        )
         steps_to_terminal = max(0, len(steps) - ordinal - 1)
         example = {
             "state": features,
@@ -746,6 +785,7 @@ def _examples_from_trace_path(
             "source_id": str(path),
             "missing_private_state": 0.0,
             "tactical": tactical_report,
+            "lineage_record": lineage_record,
         }
         if include_debug_fields:
             example["metadata_json"] = _metadata_json(
@@ -822,6 +862,16 @@ def _stack_examples(examples: Sequence[Dict[str, Any]], *, include_debug_fields:
         "final_results": np.asarray([example["final_result"] for example in examples], dtype=np.float32),
         "turns": np.asarray([example["turn"] for example in examples], dtype=np.int16),
         "missing_private_state": np.asarray([example["missing_private_state"] for example in examples], dtype=np.float32),
+        "record_ids": np.asarray([example["lineage_record"]["record_id"] for example in examples]),
+        "dataset_splits": np.asarray([example["lineage_record"]["split"] for example in examples]),
+        "observation_cursors": np.asarray([example["lineage_record"]["observation_cursor"] for example in examples], dtype=np.int64),
+        # Preserve the legacy source labels consumed by existing loaders; the
+        # DATA-001 envelope uses the normalized source kind separately.
+        "source_kinds": np.asarray([example["source_kind"] for example in examples]),
+        "lineage_source_kinds": np.asarray([example["lineage_record"]["source_kind"] for example in examples]),
+        "lineage_records_json": np.asarray([
+            _metadata_json(example["lineage_record"]) for example in examples
+        ]),
     }
     arrays.update(_source_kind_encoding(examples))
     arrays.update(_tactical_flag_arrays(examples))
@@ -829,7 +879,6 @@ def _stack_examples(examples: Sequence[Dict[str, Any]], *, include_debug_fields:
         arrays.update(
             {
                 "legal_masks": np.zeros((len(examples), 13), dtype=np.float32),
-                "source_kinds": np.asarray([example["source_kind"] for example in examples]),
                 "source_ids": np.asarray([example["source_id"] for example in examples]),
                 "metadata_json": np.asarray([example.get("metadata_json", "") for example in examples]),
                 "tactical_json": np.asarray([_metadata_json(example.get("tactical", {})) for example in examples]),
@@ -903,6 +952,7 @@ def build_live_private_value_dataset(
         except Exception as exc:
             trace_failures.append({"path": str(path), "reason": str(exc)})
 
+    validate_records([example["lineage_record"] for example in examples])
     arrays = _stack_examples(examples, include_debug_fields=include_debug_fields)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     save_npz = np.savez_compressed if compressed else np.savez

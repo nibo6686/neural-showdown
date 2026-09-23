@@ -1,0 +1,134 @@
+{
+  "fixture_schema": "observable-state-fixtures/v1",
+  "schema_version": "observable-battle-state/v1",
+  "provenance": {
+    "source_kind": "sim_core",
+    "battle_id": "fixture-observable-1",
+    "description": "Deterministic protocol-prefix cutoffs for the accepted ObservableBattleState adapter"
+  },
+  "cases": [
+    {
+      "name": "decision-cutoff-redacts-private-request",
+      "input": {
+        "protocol_prefix": [
+          "|start",
+          "|turn|1",
+          "|request|{\"rqid\":7,\"side\":{\"pokemon\":[{\"moves\":[\"SecretMove\"],\"item\":\"SecretItem\"}]}}"
+        ],
+        "snapshot_phase": "pre_decision",
+        "private_request": {
+          "side": [{
+            "slot": 1,
+            "ident": "p1a: Pikachu",
+            "details": "Pikachu, L80",
+            "condition": "100/100",
+            "active": true,
+            "moves": ["SecretMove"],
+            "stats": {"hp": 100},
+            "base_ability": "SecretAbility",
+            "ability": "SecretAbility",
+            "item": "SecretItem",
+            "tera_type": "Water",
+            "terastallized": false
+          }],
+          "active": {
+            "moves": [{"slot": 1, "move": "SecretMove", "id": "secretmove", "pp": 10, "maxpp": 10, "target": "normal", "disabled": false, "type": "Normal", "category": "Physical", "base_power": 40, "accuracy": 100}],
+            "can_terastallize": true,
+            "tera_type": "Water",
+            "trapped": false,
+            "can_switch": true
+          }
+        }
+      },
+      "expected": {
+        "schema_version": "observable-battle-state/v1",
+        "source_kind": "sim_core",
+        "battle_id": "fixture-observable-1",
+        "perspective": "p1",
+        "snapshot_phase": "pre_decision",
+        "event_cursor": 3,
+        "protocol_prefix": ["|start", "|turn|1", "|request|{\"rqid\":7}"],
+        "decision_availability": {"available": true, "reason": "request", "legal_action_indices": [0]},
+        "request_assertions": {"player": "p1", "rqid": 7, "side_slot": 1, "private_move": "SecretMove", "private_item": "SecretItem", "private_ability": "SecretAbility", "active_move": "SecretMove"}
+      }
+    },
+    {
+      "name": "battle-events-preserve-ordered-prefix",
+      "input": {
+        "protocol_prefix": [
+          "|switch|p1a: Pikachu|Pikachu, L80|100/100",
+          "|replace|p2a: Eevee|Eevee, L80|100/100",
+          "|-damage|p1a: Pikachu|50/100",
+          "|-heal|p1a: Pikachu|75/100",
+          "|-status|p1a: Pikachu|brn",
+          "|-boost|p1a: Pikachu|atk|1",
+          "|-terastallize|p1a: Pikachu|Water",
+          "|-transform|p1a: Pikachu|p2a: Eevee",
+          "|-ability|p1a: Pikachu|Illusion",
+          "|faint|p2a: Eevee"
+        ],
+        "snapshot_phase": "post_resolution"
+      },
+      "expected": {
+        "schema_version": "observable-battle-state/v1",
+        "source_kind": "sim_core",
+        "battle_id": "fixture-observable-1",
+        "perspective": "p1",
+        "snapshot_phase": "post_resolution",
+        "event_cursor": 10,
+        "protocol_prefix": [
+          "|switch|p1a: Pikachu|Pikachu, L80|100/100",
+          "|replace|p2a: Eevee|Eevee, L80|100/100",
+          "|-damage|p1a: Pikachu|50/100",
+          "|-heal|p1a: Pikachu|75/100",
+          "|-status|p1a: Pikachu|brn",
+          "|-boost|p1a: Pikachu|atk|1",
+          "|-terastallize|p1a: Pikachu|Water",
+          "|-transform|p1a: Pikachu|p2a: Eevee",
+          "|-ability|p1a: Pikachu|Illusion",
+          "|faint|p2a: Eevee"
+        ],
+        "decision_availability": {"available": true, "reason": "request", "legal_action_indices": [0]},
+        "view_assertions": {"self_slots": [2, 4], "opponent_slots": [1, 3], "self_species": ["Zoroark", "Zoroark"], "opponent_species": ["Eevee", "Eevee"], "active": {"self": 2, "opponent": 3}, "self_status": "brn", "self_hp_ratio": 0.75, "self_tera_type": "Water", "self_transformed": true, "self_illusion_revealed": true, "opponent_fainted": true}
+      }
+    },
+    {
+      "name": "requestless-terminal-cutoff",
+      "input": {
+        "protocol_prefix": ["|win|p1"],
+        "snapshot_phase": "terminal",
+        "request": null,
+        "terminated": true,
+        "winner": "p1"
+      },
+      "expected": {
+        "schema_version": "observable-battle-state/v1",
+        "source_kind": "sim_core",
+        "battle_id": "fixture-observable-1",
+        "perspective": "p1",
+        "snapshot_phase": "terminal",
+        "event_cursor": 1,
+        "protocol_prefix": ["|win|p1"],
+        "decision_availability": {"available": false, "reason": "terminal", "legal_action_indices": null},
+        "request_assertions": null
+      }
+    }
+  ],
+  "sequences": [
+    {
+      "name": "exact-prefix-extension",
+      "prefixes": [
+        ["|turn|1"],
+        ["|turn|1", "|move|p1a: Pikachu|Tackle|p2a: Eevee"],
+        ["|turn|1", "|move|p1a: Pikachu|Tackle|p2a: Eevee", "|faint|p2a: Eevee"]
+      ],
+      "expected_cursors": [1, 2, 3],
+      "invalid_prefixes": [
+        ["|turn|1"],
+        ["|move|p1a: Pikachu|Tackle|p2a: Eevee", "|turn|1"],
+        ["|turn|1", "|faint|p2a: Eevee"],
+        ["|turn|1", "|move|p1a: Pikachu|Growl|p2a: Eevee"]
+      ]
+    }
+  ]
+}

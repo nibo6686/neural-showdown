@@ -3,6 +3,21 @@ import { cloneChoiceRequest, removeChoiceFromRequest } from './action_codec';
 import { HeuristicBaselineAgent } from './baselines/heuristic';
 import { RandomBaselineAgent } from './baselines/random';
 import { buildBeliefSnapshot, type BeliefForkMetadata } from './belief_fork';
+import { canonicalActionToChoice, type CanonicalAction } from './canonical_action';
+import {
+  buildSeededTransitionResult,
+  createSeededBattleSnapshot,
+  fingerprintSimulatorState,
+  toSeededSnapshotRef,
+  toSeededTransitionPublicResult,
+  validateSeededTransitionRequest,
+  type SeededBattleSnapshot,
+  type SeededSnapshotRef,
+  type SeededTransitionRequest,
+  type SeededTransitionPublicResult,
+  type SeededTransitionWireRequest,
+  type SeededTransitionResult,
+} from './transition';
 import { PlayerStateExtractor } from './state_extractor';
 import type {
   BaselineDecision,
@@ -131,6 +146,20 @@ class ManagedPlayer {
     this.pendingChoice = choice;
     void this.stream.write(choice);
     this.env.noteStateChange();
+  }
+
+  submitCanonicalAction(action: CanonicalAction): void {
+    if (!this.currentRequest) {
+      throw new Error(`Player ${this.player} does not have a pending request.`);
+    }
+    const request = this.currentRequest;
+    const choice = canonicalActionToChoice(action, {
+      player: this.player,
+      rqid: request.rqid,
+      force_switch: request.force_switch,
+      legal_actions: request.legal_actions,
+    });
+    this.submitExternalChoice(choice);
   }
 
   suggest(agent: ControllerType, requestOverride?: ChoiceRequestView): BaselineDecision {
@@ -310,7 +339,12 @@ export class LocalBattleEnv {
     ].join('\n');
 
     await this.streams.omniscient.write(payload);
-    return this.drainUntilExternalDecision(options);
+    const result = await this.drainUntilExternalDecision(options);
+    // Settle asynchronous spectator delivery before the next transition so
+    // setup records are not replayed as a transition log delta.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    this.logCursor = this.logLines.length;
+    return result;
   }
 
   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
@@ -325,7 +359,10 @@ export class LocalBattleEnv {
       battle: Battle | null;
       pushMessage: (type: string, data: string | string[]) => void;
     };
-    const battle = Battle.fromJSON(serialized);
+    // Battle.fromJSON may retain nested references from the supplied object;
+    // clone the simulator-only snapshot so exact branches cannot share mutable
+    // state with their source or siblings.
+    const battle = Battle.fromJSON(structuredClone(serialized));
     battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
     stream.battle = battle;
     battle.sentLogPos = 0;
@@ -335,7 +372,13 @@ export class LocalBattleEnv {
       if (side?.activeRequest) side.emitRequest(side.activeRequest);
     }
     await new Promise<void>(resolve => setImmediate(resolve));
-    return this.drainUntilExternalDecision(options);
+    const result = await this.drainUntilExternalDecision(options);
+    // Battle.restart emits the restored prefix asynchronously. Consume that
+    // setup prefix before the first transition so log_delta remains a
+    // transition delta rather than replaying restoration output.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    this.logCursor = this.logLines.length;
+    return result;
   }
 
   serializeBattle(): Record<string, unknown> {
@@ -389,6 +432,64 @@ export class LocalBattleEnv {
       this.players?.[player].submitExternalChoice(choice);
     }
     return this.drainUntilExternalDecision(options);
+  }
+
+  async stepWithCanonicalOptions(actions: Partial<Record<PlayerID, CanonicalAction>>, options?: StepResultOptions): Promise<StepResult> {
+    this.ensureReady();
+    for (const player of PLAYERS) {
+      const action = actions[player];
+      if (!action) {
+        continue;
+      }
+      this.players?.[player].submitCanonicalAction(action);
+    }
+    return this.drainUntilExternalDecision(options);
+  }
+
+  captureSeededSnapshot(parentBranchId: string | null = null): SeededBattleSnapshot {
+    this.ensureReady();
+    return createSeededBattleSnapshot(this.format, this.seed, this.serializeBattle(), parentBranchId);
+  }
+
+  getRequest(player: PlayerID): ChoiceRequestView | null {
+    this.ensureReady();
+    return this.players?.[player].getRequest() || null;
+  }
+
+  async stepSeededTransition(request: SeededTransitionRequest, options?: StepResultOptions): Promise<SeededTransitionResult> {
+    this.ensureReady();
+    validateSeededTransitionRequest(request);
+    const currentSnapshot = this.captureSeededSnapshot(null);
+    if (currentSnapshot.format !== request.snapshot.format || currentSnapshot.state_fingerprint !== request.snapshot.state_fingerprint) {
+      throw new Error('Seeded transition snapshot is stale or belongs to a different simulator state.');
+    }
+    if (JSON.stringify(currentSnapshot.root_seed) !== JSON.stringify(request.snapshot.root_seed)) {
+      throw new Error('Seeded transition root seed does not match the simulator.');
+    }
+    const pendingPlayers = PLAYERS.filter((player) => this.players?.[player].getRequest() !== null);
+    if (pendingPlayers.length !== 2 || pendingPlayers.some((player) => !request.actions[player])) {
+      throw new Error('Seeded transition requires exactly the currently pending joint requests.');
+    }
+    // Preflight every live request before forwarding any raw choice. This keeps
+    // mixed-validity joint actions atomic at the transition boundary.
+    for (const player of PLAYERS) {
+      const liveRequest = this.players?.[player].getRequest();
+      if (!liveRequest) throw new Error(`Seeded transition has no live request for ${player}.`);
+      canonicalActionToChoice(request.actions[player], {
+        player,
+        rqid: liveRequest.rqid,
+        force_switch: liveRequest.force_switch,
+        legal_actions: liveRequest.legal_actions,
+      });
+    }
+    const stepResult = await this.stepWithCanonicalOptions(request.actions, options);
+    const outputSnapshot = this.captureSeededSnapshot(request.snapshot.branch_id);
+    // Keep this explicit fingerprint check close to execution so a future
+    // simulator serialization change cannot silently weaken branch identity.
+    if (fingerprintSimulatorState(outputSnapshot.simulator_state) !== outputSnapshot.state_fingerprint) {
+      throw new Error('Seeded transition output fingerprint is inconsistent.');
+    }
+    return buildSeededTransitionResult(request, outputSnapshot, stepResult);
   }
 
   async close(): Promise<void> {
@@ -596,6 +697,10 @@ export class LocalBattleEnv {
     this.ensureReady();
     while (true) {
       if (this.isTerminated() || this.hasPendingExternalDecision()) {
+        // Player request delivery and spectator delivery are independent async
+        // consumers. Give the spectator one turn to publish the complete
+        // protocol delta before capturing the result metadata.
+        await new Promise<void>((resolve) => setImmediate(resolve));
         return this.buildStepResult(options);
       }
       await this.waitForStateChange();
@@ -605,7 +710,9 @@ export class LocalBattleEnv {
 
 export class EnvironmentManager {
   private readonly envs = new Map<string, LocalBattleEnv>();
+  private readonly snapshotHandles = new Map<string, { envId: string; snapshot: SeededBattleSnapshot }>();
   private nextId = 1;
+  private nextSnapshotHandle = 1;
 
   createEnv(format: string, seed?: number[], controllers?: Partial<Record<PlayerID, ControllerSpec>>): { env_id: string } {
     const envId = `env-${this.nextId++}`;
@@ -676,10 +783,55 @@ export class EnvironmentManager {
     return this.requireEnv(envId).stepWithOptions(choices, options);
   }
 
+  async stepCanonicalEnv(envId: string, actions: Partial<Record<PlayerID, CanonicalAction>>, options?: StepResultOptions): Promise<StepResult> {
+    return this.requireEnv(envId).stepWithCanonicalOptions(actions, options);
+  }
+
+  captureSeededSnapshotEnv(envId: string): SeededSnapshotRef {
+    const snapshot = this.requireEnv(envId).captureSeededSnapshot(null);
+    return toSeededSnapshotRef(snapshot, this.storeSnapshot(envId, snapshot));
+  }
+
+  async stepSeededTransitionEnv(envId: string, request: SeededTransitionWireRequest, options?: StepResultOptions): Promise<SeededTransitionPublicResult> {
+    const env = this.requireEnv(envId);
+    if (Object.prototype.hasOwnProperty.call(request.snapshot as object, 'simulator_state')) {
+      throw new Error('Seeded transition RPC snapshots must use an opaque server-managed handle.');
+    }
+    const stored = this.snapshotHandles.get(request.snapshot.snapshot_handle);
+    if (!stored || stored.envId !== envId) {
+      throw new Error('Unknown seeded transition snapshot handle.');
+    }
+    const snapshot = stored.snapshot;
+    if (
+      request.snapshot.schema_version !== snapshot.schema_version
+      || request.snapshot.format !== snapshot.format
+      || request.snapshot.root_seed.join(',') !== snapshot.root_seed.join(',')
+      || request.snapshot.state_fingerprint !== snapshot.state_fingerprint
+      || request.snapshot.parent_branch_id !== snapshot.parent_branch_id
+      || request.snapshot.transition_id !== snapshot.transition_id
+      || request.snapshot.branch_id !== snapshot.branch_id
+    ) {
+      throw new Error('Seeded transition snapshot handle metadata is inconsistent.');
+    }
+    const internalRequest: SeededTransitionRequest = {
+      schema_version: request.schema_version,
+      snapshot,
+      observations: request.observations,
+      actions: request.actions,
+      step_index: request.step_index,
+    };
+    const result = await env.stepSeededTransition(internalRequest, options);
+    const outputHandle = this.storeSnapshot(envId, result.output_snapshot);
+    return toSeededTransitionPublicResult(result, outputHandle);
+  }
+
   async closeEnv(envId: string): Promise<{ env_id: string; closed: true }> {
     const env = this.requireEnv(envId);
     await env.close();
     this.envs.delete(envId);
+    for (const [handle, stored] of this.snapshotHandles) {
+      if (stored.envId === envId) this.snapshotHandles.delete(handle);
+    }
     return { env_id: envId, closed: true };
   }
 
@@ -711,6 +863,13 @@ export class EnvironmentManager {
       await env.close();
     }
     this.envs.clear();
+    this.snapshotHandles.clear();
+  }
+
+  private storeSnapshot(envId: string, snapshot: SeededBattleSnapshot): string {
+    const handle = `snapshot-${this.nextSnapshotHandle++}`;
+    this.snapshotHandles.set(handle, { envId, snapshot: structuredClone(snapshot) });
+    return handle;
   }
 
   private requireEnv(envId: string): LocalBattleEnv {

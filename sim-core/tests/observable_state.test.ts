@@ -114,6 +114,18 @@ test('invalid perspectives, request-side mismatches, contradictions, and schemas
     /does not match perspective/,
   );
   assert.throws(
+    () => projectObservableBattleState(input({ view: { ...input().view, opponent: 'p1' } })),
+    /BattleView opponent must be the complement of perspective/,
+  );
+  assert.throws(
+    () => projectObservableBattleState(input({
+      perspective: 'p2',
+      view: { ...input().view, player: 'p2', opponent: 'p2' },
+      request: { ...input().request!, player: 'p2' },
+    })),
+    /BattleView opponent must be the complement of perspective/,
+  );
+  assert.throws(
     () => projectObservableBattleState(input({ contradictions: ['raw protocol disagrees with derived state'] })),
     /Observable state contradiction/,
   );
@@ -246,6 +258,40 @@ test('projector requires true exact prefix extension and rejects hash-only evide
   );
 });
 
+test('projector accepts repeated turn records as ordered prefix extension without deduplication', () => {
+  const projector = new ObservableStateProjector();
+  projector.project(input({ protocol_prefix: ['|turn|1'] }));
+  const extended = projector.project(input({
+    protocol_prefix: ['|turn|1', '|turn|2'],
+    view: { ...input().view, turn: 2 },
+  }));
+  assert.equal(extended.event_cursor, 2);
+  assert.deepEqual(extended.protocol_prefix, ['|turn|1', '|turn|2']);
+});
+
+test('terminal contradictions are order-independent and identical evidence is repeatable', () => {
+  const terminalView = { ...input().view, terminated: true, winner: 'p1' as const };
+  for (const records of [
+    ['|win|p1', '|tie|'],
+    ['|tie|', '|win|p1'],
+    ['|win|tie', '|tie|'],
+    ['|tie|', '|win|tie'],
+  ]) {
+    assert.throws(
+      () => projectObservableBattleState(input({ protocol_prefix: records, view: terminalView })),
+      /Raw terminal records disagree/,
+    );
+  }
+  assert.doesNotThrow(() => projectObservableBattleState(input({
+    protocol_prefix: ['|win|p1', '|win|p1'],
+    view: terminalView,
+  })));
+  assert.doesNotThrow(() => projectObservableBattleState(input({
+    protocol_prefix: ['|tie|', '|tie|'],
+    view: { ...terminalView, winner: 'tie' },
+  })));
+});
+
 test('raw protocol evidence is independently validated and incomplete evidence remains explicit', () => {
   assert.doesNotThrow(() => projectObservableBattleState(input({
     protocol_prefix: ['|gen|9', '|turn|1', '|request|{"rqid":7}'],
@@ -257,12 +303,58 @@ test('raw protocol evidence is independently validated and incomplete evidence r
   assert.doesNotThrow(() => projectObservableBattleState(input({
     protocol_prefix: ['|move|p1a: Pikachu|Tackle|p2a: Eevee'],
   })));
+  for (const malformedMove of [
+    '|move|p1a: Pikachu',
+    '|move|p1a: Pikachu||p2a: Eevee',
+    '|move|p123: Pikachu|Tackle|p2a: Eevee',
+    '|move|p1a: Pikachu|Tackle',
+  ]) {
+    assert.throws(
+      () => projectObservableBattleState(input({ protocol_prefix: [malformedMove] })),
+      /Malformed raw move record/,
+    );
+  }
+  assert.doesNotThrow(() => projectObservableBattleState(input({
+    protocol_prefix: ['|move|p1a: Pikachu|Tackle|p2a: Eevee|[from] item: Choice Band'],
+  })));
+  for (const validRecord of [
+    '|start',
+    '|start|',
+    '|-curestatus|p1a: Pikachu|par',
+    '|inactiveoff|Timer is off',
+    '|rated|Official match',
+    '|-crit|p1a: Pikachu',
+    '|-prepare|p1a: Pikachu|Dig',
+    '|-prepare|p1a: Pikachu|Dig|p2a: Eevee',
+    '|-immune|p1a: Pikachu|[from] ability: Sap Sipper',
+    '|-fail|p1a: Pikachu',
+    '|t:|1720000000',
+  ]) {
+    assert.doesNotThrow(() => projectObservableBattleState(input({ protocol_prefix: [validRecord] })));
+  }
+  for (const malformedRecord of [
+    '|-curestatus|p1a: Pikachu',
+    '|-crit|garbage',
+    '|-prepare|garbage',
+    '|-prepare|p1a: Pikachu|Dig|garbage',
+    '|t:|not-a-number',
+    '|c|Alice',
+  ]) {
+    assert.throws(
+      () => projectObservableBattleState(input({ protocol_prefix: [malformedRecord] })),
+      /Malformed raw/,
+    );
+  }
   assert.throws(
     () => projectObservableBattleState(input({ protocol_prefix: ['|turn|not-a-number'] })),
     /Malformed raw turn record/,
   );
   assert.throws(
     () => projectObservableBattleState(input({ protocol_prefix: ['|request|not-json'] })),
+    /Malformed raw request record/,
+  );
+  assert.throws(
+    () => projectObservableBattleState(input({ protocol_prefix: ['|request|[]'] })),
     /Malformed raw request record/,
   );
   assert.throws(
@@ -274,5 +366,48 @@ test('raw protocol evidence is independently validated and incomplete evidence r
       protocol_prefix: ['|request|{"rqid":8}'],
     })),
     /Raw evidence disagrees with request.rqid/,
+  );
+  assert.throws(
+    () => projectObservableBattleState(input({
+      protocol_prefix: ['|request|{"rqid":7,"side":{"id":"p2"}}'],
+    })),
+    /Raw request player disagrees with perspective/,
+  );
+  assert.throws(
+    () => projectObservableBattleState(input({
+      protocol_prefix: ['|win|p1'],
+      view: { ...input().view, winner: 'p1' },
+    })),
+    /Raw terminal evidence requires a terminated BattleView/,
+  );
+  assert.doesNotThrow(() => projectObservableBattleState(input({
+    protocol_prefix: ['|player|p1|tie', '|win|tie'],
+    view: {
+      ...input().view,
+      names: { p1: 'tie', p2: null },
+      terminated: true,
+      winner: 'p1',
+    },
+  })));
+});
+
+test('request records are sanitized before observable serialization and hashing', () => {
+  const privateRequest = '|request|{"rqid":7,"side":{"pokemon":[{"moves":["SecretMove"],"item":"SecretItem"}]}}';
+  const differentPrivateRequest = '|request|{"rqid":7,"side":{"pokemon":[{"moves":["DifferentMove"],"item":"DifferentItem"}]}}';
+  const first = projectObservableBattleState(input({ protocol_prefix: [privateRequest] }));
+  const second = projectObservableBattleState(input({ protocol_prefix: [differentPrivateRequest] }));
+  assert.deepEqual(first.protocol_prefix, ['|request|{"rqid":7}']);
+  assert.deepEqual(second.protocol_prefix, first.protocol_prefix);
+  assert.equal(second.protocol_prefix_hash, first.protocol_prefix_hash);
+  assert.equal(second.observation_id, first.observation_id);
+  assert.doesNotMatch(JSON.stringify(first), /SecretMove|SecretItem|DifferentMove|DifferentItem/);
+});
+
+test('embedded protocol records fail closed before request redaction', () => {
+  assert.throws(
+    () => projectObservableBattleState(input({
+      protocol_prefix: ['|move|p1a: Pikachu|Tackle|p2a: Eevee\n|request|{"side":{"pokemon":[{"moves":["SECRET"]}]}}'],
+    })),
+    /embedded protocol record separator/,
   );
 });

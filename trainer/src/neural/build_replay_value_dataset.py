@@ -11,6 +11,7 @@ import numpy as np
 
 from .logging_helper import print_line_safe
 from .parse_replay_logs import parse_replay_logs
+from .dataset_lineage import feature_schema_fingerprint, record_from_source_prefix, validate_records
 
 
 DEFAULT_FORMAT = "gen9randombattle"
@@ -70,6 +71,24 @@ def _load_trajectories(path: Path) -> List[Dict[str, Any]]:
             if isinstance(record, dict):
                 records.append(record)
     return records
+
+
+def _protocol_prefix_until_turn(trajectory: Dict[str, Any], through_turn: int) -> List[str]:
+    """Return the exact parsed protocol prefix through a turn boundary."""
+
+    prefix: List[str] = []
+    current_turn = 0
+    for raw_line in trajectory.get("protocol_log", []) if isinstance(trajectory.get("protocol_log"), list) else []:
+        line = str(raw_line)
+        parts = line.split("|")
+        if len(parts) >= 3 and parts[1] == "turn":
+            try:
+                current_turn = int(parts[2])
+            except ValueError:
+                current_turn = through_turn + 1
+        if current_turn <= through_turn:
+            prefix.append(line)
+    return prefix
 
 
 def result_from_winner_side(winner_side: Optional[str], perspective: str = "p1") -> Optional[float]:
@@ -263,6 +282,25 @@ def examples_from_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Dict[str,
             if isinstance(event, dict):
                 _apply_event(state, recent, event)
         features = _feature_vector(state, recent, turn_number)
+        replay_id = str(trajectory.get("replay_id") or "")
+        lineage_record = record_from_source_prefix(
+            battle_id=replay_id,
+            replay_id=replay_id,
+            source_kind="replay",
+            source_ref=str(trajectory.get("source_path") or replay_id),
+            ruleset=str(trajectory.get("format") or "unknown"),
+            parser_version="parse_replay_logs/v1",
+            perspective="p1",
+            protocol_prefix=_protocol_prefix_until_turn(trajectory, turn_number),
+            private_data_provenance="none",
+            feature_input_eligibility="public_only",
+            schema_fingerprints={
+                "observation": "replay-protocol-prefix/v1",
+                "belief": None,
+                "transition": None,
+                "feature": feature_schema_fingerprint(FEATURE_VERSION, FEATURE_NAMES),
+            },
+        )
         examples.append(
             {
                 "state": features,
@@ -271,6 +309,7 @@ def examples_from_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Dict[str,
                 "turn": turn_number,
                 "replay_id": str(trajectory.get("replay_id") or ""),
                 "format": str(trajectory.get("format") or ""),
+                "lineage_record": lineage_record,
                 "metadata_json": json.dumps(
                     {
                         "replay_id": trajectory.get("replay_id"),
@@ -308,6 +347,14 @@ def _stack_examples(examples: Sequence[Dict[str, Any]]) -> Dict[str, np.ndarray]
         "replay_ids": np.asarray([example["replay_id"] for example in examples]),
         "formats": np.asarray([example["format"] for example in examples]),
         "metadata_json": np.asarray([example["metadata_json"] for example in examples]),
+        "record_ids": np.asarray([example["lineage_record"]["record_id"] for example in examples]),
+        "dataset_splits": np.asarray([example["lineage_record"]["split"] for example in examples]),
+        "observation_cursors": np.asarray([example["lineage_record"]["observation_cursor"] for example in examples], dtype=np.int64),
+        "source_kinds": np.asarray([example["lineage_record"]["source_kind"] for example in examples]),
+        "lineage_records_json": np.asarray([
+            json.dumps(example["lineage_record"], sort_keys=True, separators=(",", ":"))
+            for example in examples
+        ]),
     }
 
 
@@ -353,6 +400,7 @@ def build_public_replay_value_dataset(
         turn_counts.append(turn_count)
         examples.extend(source_examples)
 
+    validate_records([example["lineage_record"] for example in examples])
     arrays = _stack_examples(examples)
     selected_output.parent.mkdir(parents=True, exist_ok=True)
     np.savez(

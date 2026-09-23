@@ -158,6 +158,9 @@ class PublicReplayParserTest(unittest.TestCase):
             with np.load(output) as data:
                 self.assertEqual(data["states"].shape[1], value_report["feature_dim"])
                 self.assertIn("public-replay-events-v1", str(data["feature_version"]))
+                self.assertEqual(len(data["record_ids"]), value_report["examples"])
+                self.assertEqual(set(data["source_kinds"].astype(str)), {"replay"})
+                self.assertIn("lineage_records_json", data.files)
 
     def test_policy_dataset_builder_stores_unmapped_labels(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -191,6 +194,11 @@ class PublicReplayParserTest(unittest.TestCase):
             self.assertIn("mapped_to_fixed_head", first)
             self.assertIn("mapping_confidence", first)
             self.assertIn("mapping_failure_reason", first)
+            self.assertEqual(first["dataset_record"]["source_kind"], "replay")
+            self.assertLessEqual(
+                first["dataset_record"]["feature_cursor"],
+                first["dataset_record"]["observation_cursor"],
+            )
 
 
 class PublicReplayLauncherTest(unittest.TestCase):

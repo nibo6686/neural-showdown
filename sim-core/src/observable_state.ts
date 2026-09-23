@@ -326,7 +326,331 @@ function normalizeProtocolPrefix(prefix: readonly string[]): string[] {
     }
     const normalized = record.replace(/\r\n?/g, '\n').trim();
     if (!normalized) throw new ObservableStateError(`Protocol record ${index} is empty.`);
+    if (normalized.includes('\n')) {
+      throw new ObservableStateError(`Protocol record ${index} contains an embedded protocol record separator.`);
+    }
     return normalized;
+  });
+}
+
+function requireRawField(parts: string[], index: number, command: string, label = 'field'): void {
+  if (typeof parts[index] !== 'string' || !parts[index].trim()) {
+    throw new ObservableStateError(`Malformed raw ${command} record: ${label} is required.`);
+  }
+}
+
+function requireRawPlayerIdent(parts: string[], index: number, command: string): void {
+  requireRawField(parts, index, command, 'pokemon identifier');
+  if (!/^p[12][a-z]:\s*[^|]+$/.test(parts[index].trim())) {
+    throw new ObservableStateError(`Malformed raw ${command} record: invalid pokemon identifier.`);
+  }
+}
+
+function requireRawTarget(parts: string[], index: number, command: string): void {
+  requireRawField(parts, index, command, 'target');
+  if (parts[index] !== '-' && !/^p[12][a-z]:\s*[^|]+$/.test(parts[index].trim())) {
+    throw new ObservableStateError(`Malformed raw ${command} record: invalid target.`);
+  }
+}
+
+function requireRawPlayer(parts: string[], index: number, command: string): void {
+  requireRawField(parts, index, command, 'player');
+  if (parts[index] !== 'p1' && parts[index] !== 'p2') {
+    throw new ObservableStateError(`Malformed raw ${command} record: invalid player.`);
+  }
+}
+
+function requireRawInteger(parts: string[], index: number, command: string, label: string): void {
+  requireRawField(parts, index, command, label);
+  if (!/^\d+$/.test(parts[index]) || !Number.isSafeInteger(Number(parts[index]))) {
+    throw new ObservableStateError(`Malformed raw ${command} record: ${label} must be a safe integer.`);
+  }
+}
+
+function parseRawRequestPayload(parts: string[]): Record<string, unknown> {
+  const payload = parts.slice(2).join('|');
+  if (!payload) throw new ObservableStateError('Malformed raw request record.');
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(payload);
+  } catch {
+    throw new ObservableStateError('Malformed raw request record.');
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new ObservableStateError('Malformed raw request record.');
+  }
+  const request = parsed as Record<string, unknown>;
+  if (request.rqid !== undefined && (!Number.isSafeInteger(request.rqid) || typeof request.rqid !== 'number')) {
+    throw new ObservableStateError('Malformed raw request rqid.');
+  }
+  return request;
+}
+
+function validateRawRecordShape(parts: string[], command: string): void {
+  const requireAtLeast = (length: number): void => {
+    if (parts.length < length) throw new ObservableStateError(`Malformed raw ${command} record.`);
+  };
+  const requireIdent = (index = 2): void => requireRawPlayerIdent(parts, index, command);
+  const noPayload = new Set([
+    'clearallboost', '-clearallboost', 'swapsideconditions', '-swapsideconditions',
+    'teampreview', 'clearpoke', 'done', 'upkeep', 'start', 'end', '-nothing',
+  ]);
+
+  if (noPayload.has(command)) {
+    if (!(parts.length === 2 || (parts.length === 3 && parts[2] === ''))) {
+      throw new ObservableStateError(`Malformed raw ${command} record.`);
+    }
+    return;
+  }
+
+  switch (command) {
+    case 'tie':
+      if (!(parts.length === 2 || (parts.length === 3 && parts[2] === ''))) {
+        throw new ObservableStateError(`Malformed raw ${command} record.`);
+      }
+      return;
+    case 'gen':
+    case 'turn':
+      parseIntegerRecord(parts, command);
+      return;
+    case 'player':
+      if (parts.length < 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireRawPlayer(parts, 2, command);
+      requireRawField(parts, 3, command, 'name');
+      return;
+    case 'teamsize':
+      if (parts.length !== 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireRawPlayer(parts, 2, command);
+      requireRawInteger(parts, 3, command, 'team size');
+      return;
+    case 'request':
+      requireAtLeast(3);
+      parseRawRequestPayload(parts);
+      return;
+    case 'move':
+      requireAtLeast(5);
+      requireIdent();
+      requireRawField(parts, 3, command, 'move');
+      requireRawTarget(parts, 4, command);
+      return;
+    case 'faint':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      return;
+    case 'switch':
+    case 'drag':
+    case 'replace':
+    case 'detailschange':
+      requireAtLeast(5);
+      requireIdent();
+      requireRawField(parts, 3, command, 'details');
+      requireRawField(parts, 4, command, 'condition');
+      return;
+    case 'poke':
+      requireAtLeast(4);
+      requireRawPlayer(parts, 2, command);
+      requireRawField(parts, 3, command, 'details');
+      return;
+    case 'formechange':
+    case '-formechange':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'species');
+      return;
+    case 'transform':
+    case '-transform':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'target');
+      return;
+    case 'damage':
+    case '-damage':
+    case 'heal':
+    case '-heal':
+    case 'sethp':
+    case '-sethp':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'condition');
+      return;
+    case 'status':
+    case '-status':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'status');
+      return;
+    case 'curestatus':
+    case '-curestatus':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'status');
+      return;
+    case 'boost':
+    case '-boost':
+    case 'unboost':
+    case '-unboost':
+    case 'setboost':
+    case '-setboost':
+      requireAtLeast(5);
+      requireIdent();
+      requireRawField(parts, 3, command, 'stat');
+      requireRawInteger(parts, 4, command, 'amount');
+      return;
+    case 'clearboost':
+    case '-clearboost':
+    case 'clearnegativeboost':
+    case '-clearnegativeboost':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      return;
+    case 'clearpositiveboost':
+    case '-clearpositiveboost':
+      requireAtLeast(5);
+      requireIdent();
+      requireRawPlayerIdent(parts, 3, command);
+      requireRawField(parts, 4, command, 'effect');
+      return;
+    case 'start':
+    case '-start':
+    case 'end':
+    case '-end':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'effect');
+      return;
+    case 'weather':
+    case '-weather':
+    case 'fieldstart':
+    case '-fieldstart':
+    case 'fieldend':
+    case '-fieldend':
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'effect');
+      return;
+    case 'sidestart':
+    case '-sidestart':
+    case 'sideend':
+    case '-sideend':
+      requireAtLeast(4);
+      if (!/^p[12](?::|$)/.test(parts[2])) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireRawField(parts, 3, command, 'condition');
+      return;
+    case 'item':
+    case '-item':
+    case 'enditem':
+    case '-enditem':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'item');
+      return;
+    case 'ability':
+    case '-ability':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'ability');
+      return;
+    case 'endability':
+    case '-endability':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      return;
+    case 'terastallize':
+    case '-terastallize':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'type');
+      return;
+    case 'win':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireRawField(parts, 2, command, 'winner');
+      return;
+    case 'block':
+    case '-block':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'effect');
+      return;
+    case 'miss':
+    case '-miss':
+      requireAtLeast(4);
+      requireIdent(2);
+      requireIdent(3);
+      return;
+    case 'hitcount':
+    case '-hitcount':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawInteger(parts, 3, command, 'count');
+      return;
+    case 'crit':
+    case '-crit':
+    case 'supereffective':
+    case '-supereffective':
+    case 'resisted':
+    case '-resisted':
+    case 'immune':
+    case '-immune':
+    case 'mustrecharge':
+    case '-mustrecharge':
+      if (parts.length < 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      return;
+    case 'fail':
+    case '-fail':
+      requireAtLeast(3);
+      requireIdent();
+      if (parts.length > 3) requireRawField(parts, 3, command, 'action');
+      return;
+    case 'prepare':
+    case '-prepare':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'move');
+      if (parts.length > 4) requireRawTarget(parts, 4, command);
+      return;
+    case 'inactive':
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'message');
+      return;
+    case 'inactiveoff':
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'message');
+      return;
+    case 'rated':
+      if (parts.length > 3 || (parts.length === 3 && !parts[2].trim())) {
+        throw new ObservableStateError(`Malformed raw ${command} record.`);
+      }
+      return;
+    case 't:':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireRawInteger(parts, 2, command, 'timestamp');
+      return;
+    case 'c':
+    case 'chat':
+      requireAtLeast(4);
+      requireRawField(parts, 2, command, 'user');
+      requireRawField(parts, 3, command, 'message');
+      return;
+    case 'error':
+    case 'gametype':
+    case 'rule':
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'payload');
+      return;
+    default:
+      if (parts.length < 3 || parts.slice(2).some((field) => !field.trim())) {
+        throw new ObservableStateError(`Malformed raw ${command} record.`);
+      }
+  }
+}
+
+function sanitizeProtocolPrefix(prefix: readonly string[]): string[] {
+  return prefix.map((record) => {
+    const parts = record.split('|');
+    if (parts[1] !== 'request') return record;
+    const request = parseRawRequestPayload(parts);
+    const sanitized = request.rqid === undefined ? {} : { rqid: request.rqid };
+    return `|request|${canonicalize(sanitized)}`;
   });
 }
 
@@ -367,6 +691,10 @@ function assertInput(input: ObservableStateInput): { snapshot_phase: ObservableS
   if (input.view.player !== input.perspective) {
     throw new ObservableStateContradictionError('BattleView player does not match perspective.');
   }
+  const expectedOpponent = input.perspective === 'p1' ? 'p2' : 'p1';
+  if (input.view.opponent !== expectedOpponent) {
+    throw new ObservableStateContradictionError('BattleView opponent must be the complement of perspective.');
+  }
   if (input.request && input.request.player !== input.perspective) {
     throw new ObservableStateContradictionError('ChoiceRequestView player does not match perspective.');
   }
@@ -405,6 +733,7 @@ type RawEvidence = {
   names: Partial<Record<PlayerID, string>>;
   team_size: Partial<Record<PlayerID, number>>;
   winner?: Winner;
+  terminal_kind?: 'win' | 'tie';
   winner_token?: string;
   request_rqid?: number;
 };
@@ -431,13 +760,13 @@ const SUPPORTED_RAW_COMMANDS = new Set([
 ]);
 
 function parseIntegerRecord(parts: string[], label: string): number {
-  if (parts.length !== 3 || !/^\d+$/.test(parts[2])) {
+  if (parts.length !== 3 || !/^\d+$/.test(parts[2]) || !Number.isSafeInteger(Number(parts[2]))) {
     throw new ObservableStateError(`Malformed raw ${label} record.`);
   }
   return Number(parts[2]);
 }
 
-function parseRawEvidence(prefix: readonly string[]): RawEvidence {
+function parseRawEvidence(prefix: readonly string[], perspective: PlayerID): RawEvidence {
   const evidence: RawEvidence = { names: {}, team_size: {} };
   for (const record of prefix) {
     if (!record.startsWith('|')) throw new ObservableStateError('Malformed raw protocol record.');
@@ -446,13 +775,16 @@ function parseRawEvidence(prefix: readonly string[]): RawEvidence {
     if (!command || !SUPPORTED_RAW_COMMANDS.has(command)) {
       throw new ObservableStateError(`Unsupported raw protocol event: ${command || '<empty>'}.`);
     }
+    validateRawRecordShape(parts, command);
     if (command === 'gen') {
       const value = parseIntegerRecord(parts, 'gen');
       if (evidence.gen !== undefined && evidence.gen !== value) throw new ObservableStateContradictionError('Raw gen records disagree.');
       evidence.gen = value;
     } else if (command === 'turn') {
       const value = parseIntegerRecord(parts, 'turn');
-      if (evidence.turn !== undefined && evidence.turn !== value) throw new ObservableStateContradictionError('Raw turn records disagree.');
+      // Turn records are ordered state observations. A later turn supersedes
+      // an earlier one; the full prefix remains available for cursor/hash
+      // integrity and is never deduplicated.
       evidence.turn = value;
     }
     else if (command === 'player') {
@@ -475,40 +807,45 @@ function parseRawEvidence(prefix: readonly string[]): RawEvidence {
       }
       evidence.team_size[player] = value;
     } else if (command === 'win') {
-      if (parts.length !== 3 || !parts[2]) throw new ObservableStateError('Malformed raw win record.');
-      if (evidence.winner === 'tie' && parts[2] !== 'tie') {
+      if (evidence.terminal_kind === 'tie') {
         throw new ObservableStateContradictionError('Raw terminal records disagree.');
       }
       if (evidence.winner_token !== undefined && evidence.winner_token !== parts[2]) {
-        throw new ObservableStateContradictionError('Raw win records disagree.');
-      }
-      evidence.winner_token = parts[2];
-    } else if (command === 'tie') {
-      if (parts.length !== 2) throw new ObservableStateError('Malformed raw tie record.');
-      if (evidence.winner !== undefined && evidence.winner !== 'tie') {
         throw new ObservableStateContradictionError('Raw terminal records disagree.');
       }
-      evidence.winner = 'tie';
-    } else if (command === 'request') {
-      const payload = parts.slice(2).join('|');
-      if (!payload) throw new ObservableStateError('Malformed raw request record.');
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(payload);
-      } catch {
-        throw new ObservableStateError('Malformed raw request record.');
+      evidence.terminal_kind = 'win';
+      evidence.winner_token = parts[2];
+    } else if (command === 'tie') {
+      if (evidence.terminal_kind === 'win') {
+        throw new ObservableStateContradictionError('Raw terminal records disagree.');
       }
-      if (!parsed || typeof parsed !== 'object') throw new ObservableStateError('Malformed raw request record.');
-      const rqid = (parsed as { rqid?: unknown }).rqid;
+      if (evidence.winner_token !== undefined && evidence.winner_token !== 'tie') {
+        throw new ObservableStateContradictionError('Raw terminal records disagree.');
+      }
+      evidence.terminal_kind = 'tie';
+      evidence.winner_token = 'tie';
+    } else if (command === 'request') {
+      const rawRequest = parseRawRequestPayload(parts);
+      const side = rawRequest.side;
+      if (side !== undefined && (!side || typeof side !== 'object' || Array.isArray(side))) {
+        throw new ObservableStateError('Malformed raw request side.');
+      }
+      const sideId = side && typeof side === 'object' ? (side as { id?: unknown }).id : undefined;
+      if (sideId !== undefined && sideId !== perspective) {
+        throw new ObservableStateContradictionError('Raw request player disagrees with perspective.');
+      }
+      if (rawRequest.player !== undefined && rawRequest.player !== perspective) {
+        throw new ObservableStateContradictionError('Raw request player disagrees with perspective.');
+      }
+      const rqid = rawRequest.rqid;
       if (rqid !== undefined) {
-        if (typeof rqid !== 'number' || !Number.isInteger(rqid)) {
-          throw new ObservableStateError('Malformed raw request rqid.');
-        }
-        evidence.request_rqid = rqid;
+        evidence.request_rqid = rqid as number;
       }
     }
   }
-  if (evidence.winner_token === 'p1' || evidence.winner_token === 'p2' || evidence.winner_token === 'tie') {
+  if (evidence.terminal_kind === 'tie') {
+    evidence.winner = 'tie';
+  } else if (evidence.winner_token === 'p1' || evidence.winner_token === 'p2') {
     evidence.winner = evidence.winner_token;
   } else if (evidence.winner_token && evidence.names.p1 === evidence.winner_token) {
     evidence.winner = 'p1';
@@ -518,8 +855,13 @@ function parseRawEvidence(prefix: readonly string[]): RawEvidence {
   return evidence;
 }
 
-function validateRawEvidence(prefix: readonly string[], view: BattleView, request: ChoiceRequestView | null): void {
-  const evidence = parseRawEvidence(prefix);
+function validateRawEvidence(
+  prefix: readonly string[],
+  view: BattleView,
+  request: ChoiceRequestView | null,
+  perspective: PlayerID,
+): void {
+  const evidence = parseRawEvidence(prefix, perspective);
   if (evidence.gen !== undefined && view.gen !== evidence.gen) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with view.gen.');
   }
@@ -537,6 +879,56 @@ function validateRawEvidence(prefix: readonly string[], view: BattleView, reques
   if (evidence.winner !== undefined && view.winner !== evidence.winner) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with view.winner.');
   }
+  if (evidence.terminal_kind !== undefined && !view.terminated) {
+    throw new ObservableStateContradictionError('Raw terminal evidence requires a terminated BattleView.');
+  }
+  if (evidence.request_rqid !== undefined && request && request.rqid !== evidence.request_rqid) {
+    throw new ObservableStateContradictionError('Raw evidence disagrees with request.rqid.');
+  }
+}
+
+/** Revalidates serialized observable prefixes at consumer boundaries. */
+export function validateObservableProtocolPrefix(
+  prefix: readonly string[],
+  perspective: PlayerID,
+  view?: Pick<ObservableBattleView, 'gen' | 'turn' | 'names' | 'team_size' | 'winner' | 'terminated'>,
+  request?: Pick<ObservableChoiceRequestView, 'rqid'> | null,
+): void {
+  const normalized = normalizeProtocolPrefix(prefix);
+  if (normalized.some((record, index) => record !== prefix[index])) {
+    throw new ObservableStateError('Observable protocol prefix must already be normalized.');
+  }
+  for (const record of normalized) {
+    if (!record.startsWith('|request|')) continue;
+    const parts = record.split('|');
+    const rawRequest = parseRawRequestPayload(parts);
+    if (Object.keys(rawRequest).some((key) => key !== 'rqid')
+      || canonicalize(rawRequest) !== parts.slice(2).join('|')) {
+      throw new ObservableStateError('Observable request prefix record is not sanitized.');
+    }
+  }
+  const evidence = parseRawEvidence(normalized, perspective);
+  if (!view) return;
+  if (evidence.gen !== undefined && view.gen !== evidence.gen) {
+    throw new ObservableStateContradictionError('Raw evidence disagrees with view.gen.');
+  }
+  if (evidence.turn !== undefined && view.turn !== evidence.turn) {
+    throw new ObservableStateContradictionError('Raw evidence disagrees with view.turn.');
+  }
+  for (const player of ['p1', 'p2'] as const) {
+    if (evidence.names[player] !== undefined && view.names[player] !== evidence.names[player]) {
+      throw new ObservableStateContradictionError(`Raw evidence disagrees with view.names.${player}.`);
+    }
+    if (evidence.team_size[player] !== undefined && view.team_size[player] !== evidence.team_size[player]) {
+      throw new ObservableStateContradictionError(`Raw evidence disagrees with view.team_size.${player}.`);
+    }
+  }
+  if (evidence.winner !== undefined && view.winner !== evidence.winner) {
+    throw new ObservableStateContradictionError('Raw evidence disagrees with view.winner.');
+  }
+  if (evidence.terminal_kind !== undefined && !view.terminated) {
+    throw new ObservableStateContradictionError('Raw terminal evidence requires a terminated view.');
+  }
   if (evidence.request_rqid !== undefined && request && request.rqid !== evidence.request_rqid) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with request.rqid.');
   }
@@ -551,8 +943,9 @@ function deepFreeze<T>(value: T): T {
 
 export function projectObservableBattleState(input: ObservableStateInput): ObservableBattleState {
   const phase = assertInput(input);
-  const protocolPrefix = normalizeProtocolPrefix(input.protocol_prefix);
-  validateRawEvidence(protocolPrefix, input.view, input.request);
+  const rawProtocolPrefix = normalizeProtocolPrefix(input.protocol_prefix);
+  validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective);
+  const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix);
   const view = cloneView(input.view);
   const request = input.request ? cloneRequest(input.request) : null;
   const decision_availability = decisionAvailability(input.view, input.request);

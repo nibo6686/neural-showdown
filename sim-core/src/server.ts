@@ -1,7 +1,9 @@
 import readline from 'node:readline';
 import { performance } from 'node:perf_hooks';
 import { estimateDamage, type DamageEstimateRequest } from './damage_calc';
+import type { CanonicalAction } from './canonical_action';
 import { EnvironmentManager } from './env_manager';
+import type { SeededTransitionWireRequest } from './transition';
 import type { ControllerSpec, ControllerType, PlayerID, StepResultOptions } from './types';
 
 type SingleRPCRequest =
@@ -31,6 +33,25 @@ type SingleRPCRequest =
       type: 'step';
       env_id: string;
       choices: Partial<Record<PlayerID, string>>;
+      options?: StepResultOptions;
+    }
+  | {
+      id: string;
+      type: 'step_canonical';
+      env_id: string;
+      actions: Partial<Record<PlayerID, CanonicalAction>>;
+      options?: StepResultOptions;
+    }
+  | {
+      id: string;
+      type: 'capture_seeded_snapshot';
+      env_id: string;
+    }
+  | {
+      id: string;
+      type: 'step_seeded_transition';
+      env_id: string;
+      transition: SeededTransitionWireRequest;
       options?: StepResultOptions;
     }
   | {
@@ -140,6 +161,13 @@ function summarizeRequest(request: RPCRequest | SingleRPCRequest): Record<string
     summary.choice_players = Object.keys(request.choices || {});
     summary.choices = request.choices;
   }
+  if (request.type === 'step_canonical') {
+    summary.action_players = Object.keys(request.actions || {});
+  }
+  if (request.type === 'step_seeded_transition') {
+    summary.transition_schema = request.transition.schema_version;
+    summary.transition_step = request.transition.step_index;
+  }
   if (request.type === 'fork_belief_env') {
     summary.source_env_id = request.source_env_id;
     summary.perspective = request.perspective;
@@ -235,6 +263,12 @@ async function handleSingleRequest(request: SingleRPCRequest): Promise<unknown> 
       );
     case 'step':
       return manager.stepEnv(request.env_id, request.choices || {}, request.options);
+    case 'step_canonical':
+      return manager.stepCanonicalEnv(request.env_id, request.actions || {}, request.options);
+    case 'capture_seeded_snapshot':
+      return manager.captureSeededSnapshotEnv(request.env_id);
+    case 'step_seeded_transition':
+      return manager.stepSeededTransitionEnv(request.env_id, request.transition, request.options);
     case 'close_env':
       return manager.closeEnv(request.env_id);
     case 'agent_action':

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { canonicalActionFromLegalAction } from '../src/canonical_action';
 import { EnvironmentManager } from '../src/env_manager';
 
 test('same seed produces the same initial self team state', async () => {
@@ -101,6 +102,37 @@ test('invalid external choices return the pending request instead of hanging', a
     assert.deepEqual(result.requests.p1?.legal_actions.available_indices, initial.requests.p1?.legal_actions.available_indices);
     const diagnostics = manager.describeEnv(envId);
     assert.match(JSON.stringify(diagnostics), /Invalid choice|Unavailable choice/);
+  } finally {
+    await manager.closeAll();
+  }
+});
+
+test('canonical submissions reject stale actions before raw choice forwarding', async () => {
+  const manager = new EnvironmentManager();
+  const envId = manager.createEnv('gen9randombattle', [31, 32, 33, 34], {
+    p1: { controller: 'external' },
+    p2: { controller: 'random' },
+  }).env_id;
+
+  try {
+    const initial = await manager.resetEnv(envId, {
+      view_players: ['p1'],
+      include_log_delta: false,
+      include_possible_roles: false,
+    });
+    const request = initial.requests.p1;
+    assert.ok(request);
+    const action = canonicalActionFromLegalAction(request, request.legal_actions.available_indices[0]);
+    await assert.rejects(
+      manager.stepCanonicalEnv(envId, { p1: { ...action, rqid: 999 } }),
+      /request ID does not match/,
+    );
+    const result = await manager.stepCanonicalEnv(envId, { p1: action }, {
+      view_players: ['p1'],
+      include_log_delta: false,
+      include_possible_roles: false,
+    });
+    assert.ok(result.views.p1);
   } finally {
     await manager.closeAll();
   }

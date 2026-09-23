@@ -15,10 +15,19 @@ schema or any consumer. The normative versioned contract, visibility rules,
 prefix cursor/hash semantics, request boundaries, and source mapping are in
 [`docs/contracts/OBSERVABLE_STATE.md`](contracts/OBSERVABLE_STATE.md).
 
+`BELIEF-001` defines a separate, perspective-owned `BeliefState` in
+`sim-core/src/belief_state.ts`. It stores candidates, evidence provenance,
+uncertainty, and optional transition lineage; it is never serialized as part of
+`ObservableBattleState`. Its normative schema and fail-closed lineage rules are
+in [`docs/contracts/BELIEF_STATE.md`](contracts/BELIEF_STATE.md).
+
 In particular, `log_delta` is a delta and is not itself an event cursor. An
 observable-state caller must provide the canonical protocol prefix through the
 observation boundary so that cursor units count normalized protocol records and
-the prefix hash can audit future-information boundaries.
+the prefix hash can audit future-information boundaries. Raw `|request|` JSON is
+validated as private input evidence and replaced in the observable prefix by a
+canonical request-ID-only record; private team data and moves are never retained
+or hashed there.
 
 `BattleView` includes:
 

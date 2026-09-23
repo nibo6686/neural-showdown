@@ -26,7 +26,8 @@ trainer Python
 AuthoritativeSimulatorState
   ├─ observe(state, perspective) -> ObservableBattleState
   ├─ legal_actions(observation) -> CanonicalActionSet
-  └─ transition(state, joint_action, rng) -> TransitionResult
+  └─ transition(ObservableBattleState, CanonicalAction[p1,p2], SeededSnapshotRef)
+       -> StepResult + SeededTransitionMetadata
 
 ObservableBattleState + raw event prefix
   └─ update_belief(...) -> BeliefState
@@ -36,4 +37,3 @@ Observation + BeliefState + CanonicalAction
 ```
 
 Existing adjacent documentation: [docs/architecture.md](../architecture.md) and [docs/state-schema.md](../state-schema.md). This map does not supersede them until implementation work is approved.
-

@@ -1,0 +1,271 @@
+import { createHash } from 'node:crypto';
+import {
+  canonicalActionToChoice,
+  type CanonicalAction,
+} from './canonical_action';
+import type { ObservableBattleState } from './observable_state';
+import type { PlayerID, StepResult } from './types';
+
+export const SEEDED_TRANSITION_SCHEMA_VERSION = 'seeded-transition/v1' as const;
+export const SIMULATOR_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
+export type RootSeed = [number, number, number, number];
+
+export interface SeededBattleSnapshot {
+  schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
+  format: string;
+  root_seed: RootSeed;
+  state_fingerprint: string;
+  parent_branch_id: string | null;
+  transition_id: string | null;
+  branch_id: string;
+  simulator_state: Record<string, unknown>;
+}
+
+export interface SeededSnapshotRef {
+  schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
+  snapshot_handle: string;
+  format: string;
+  root_seed: RootSeed;
+  state_fingerprint: string;
+  parent_branch_id: string | null;
+  transition_id: string | null;
+  branch_id: string;
+}
+
+export interface SeededTransitionRequest {
+  schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
+  snapshot: SeededBattleSnapshot;
+  observations: Record<PlayerID, ObservableBattleState>;
+  actions: Record<PlayerID, CanonicalAction>;
+  step_index: number;
+}
+
+export interface SeededTransitionWireRequest {
+  schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
+  snapshot: SeededSnapshotRef;
+  observations: Record<PlayerID, ObservableBattleState>;
+  actions: Record<PlayerID, CanonicalAction>;
+  step_index: number;
+}
+
+export interface SeededTransitionMetadata {
+  schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
+  transition_id: string;
+  parent_branch_id: string;
+  branch_id: string;
+  input_state_fingerprint: string;
+  output_state_fingerprint: string;
+  root_seed: RootSeed;
+  action_ids: Record<PlayerID, string>;
+  emitted_log_delta: string[];
+  simulator_revision: typeof SIMULATOR_REVISION;
+  step_index: number;
+}
+
+export interface SeededTransitionResult {
+  metadata: SeededTransitionMetadata;
+  step_result: StepResult;
+  output_snapshot: SeededBattleSnapshot;
+}
+
+export interface SeededTransitionPublicResult {
+  metadata: SeededTransitionMetadata;
+  step_result: StepResult;
+  output_snapshot: SeededSnapshotRef;
+}
+
+function canonicalSimulatorState(simulatorState: Record<string, unknown>): Record<string, unknown> {
+  const normalized = structuredClone(simulatorState);
+  if (Array.isArray(normalized.log)) {
+    normalized.log = normalized.log.map((record) => (
+      typeof record === 'string' && /^\|t:\|\d+$/.test(record) ? '|t:|<timestamp>' : record
+    ));
+  }
+  return normalized;
+}
+
+function canonicalize(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value as Record<string, unknown>).sort().map((key) => `${JSON.stringify(key)}:${canonicalize((value as Record<string, unknown>)[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function digest(value: unknown): string {
+  return createHash('sha256').update(canonicalize(value), 'utf8').digest('hex');
+}
+
+function assertSeed(seed: readonly number[]): asserts seed is RootSeed {
+  if (seed.length !== 4 || seed.some((value) => !Number.isSafeInteger(value))) {
+    throw new Error('Seeded transition root_seed must contain four safe integers.');
+  }
+}
+
+function deriveBranchId(
+  parentBranchId: string | null,
+  rootSeed: RootSeed,
+  stateFingerprint: string,
+  transitionId: string | null,
+): string {
+  return `branch-${digest({
+    schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
+    parent_branch_id: parentBranchId,
+    root_seed: [...rootSeed],
+    state_fingerprint: stateFingerprint,
+    transition_id: transitionId,
+  })}`;
+}
+
+function assertSnapshot(snapshot: SeededBattleSnapshot): void {
+  if (snapshot.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION) throw new Error('Unsupported seeded transition schema.');
+  if (!snapshot.format.trim()) throw new Error('Seeded transition snapshot format must not be empty.');
+  assertSeed(snapshot.root_seed);
+  if (!/^[a-f0-9]{64}$/.test(snapshot.state_fingerprint)) throw new Error('Seeded transition state fingerprint is invalid.');
+  if (!snapshot.branch_id.trim()) throw new Error('Seeded transition branch_id must not be empty.');
+  if (snapshot.transition_id !== null && !snapshot.transition_id.trim()) {
+    throw new Error('Seeded transition transition_id must be null or non-empty.');
+  }
+  if (!snapshot.simulator_state || typeof snapshot.simulator_state !== 'object' || Array.isArray(snapshot.simulator_state)) {
+    throw new Error('Seeded transition simulator_state must be an object.');
+  }
+  if (fingerprintSimulatorState(snapshot.simulator_state) !== snapshot.state_fingerprint) {
+    throw new Error('Seeded transition snapshot fingerprint does not match simulator_state.');
+  }
+  if (snapshot.branch_id !== deriveBranchId(snapshot.parent_branch_id, snapshot.root_seed, snapshot.state_fingerprint, snapshot.transition_id)) {
+    throw new Error('Seeded transition branch_id does not match authoritative snapshot lineage.');
+  }
+}
+
+export function fingerprintSimulatorState(simulatorState: Record<string, unknown>): string {
+  return digest(canonicalSimulatorState(simulatorState));
+}
+
+export function createSeededBattleSnapshot(
+  format: string,
+  rootSeed: readonly number[],
+  simulatorState: Record<string, unknown>,
+  parentBranchId: string | null,
+  transitionId: string | null = null,
+): SeededBattleSnapshot {
+  assertSeed(rootSeed);
+  const state_fingerprint = fingerprintSimulatorState(simulatorState);
+  const branch_id = deriveBranchId(parentBranchId, [...rootSeed], state_fingerprint, transitionId);
+  return {
+    schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
+    format,
+    root_seed: [...rootSeed],
+    state_fingerprint,
+    parent_branch_id: parentBranchId,
+    transition_id: transitionId,
+    branch_id,
+    simulator_state: structuredClone(simulatorState),
+  };
+}
+
+export function toSeededSnapshotRef(snapshot: SeededBattleSnapshot, snapshotHandle: string): SeededSnapshotRef {
+  assertSnapshot(snapshot);
+  if (!snapshotHandle.trim()) throw new Error('Seeded transition snapshot handle must not be empty.');
+  return {
+    schema_version: snapshot.schema_version,
+    snapshot_handle: snapshotHandle,
+    format: snapshot.format,
+    root_seed: [...snapshot.root_seed],
+    state_fingerprint: snapshot.state_fingerprint,
+    parent_branch_id: snapshot.parent_branch_id,
+    transition_id: snapshot.transition_id,
+    branch_id: snapshot.branch_id,
+  };
+}
+
+function exactPlayers(record: Record<PlayerID, unknown>, label: string): void {
+  const keys = Object.keys(record).sort();
+  if (keys.length !== 2 || keys[0] !== 'p1' || keys[1] !== 'p2') {
+    throw new Error(`Seeded transition ${label} must contain exactly p1 and p2.`);
+  }
+}
+
+export function validateSeededTransitionRequest(request: SeededTransitionRequest): void {
+  if (request.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION) throw new Error('Unsupported seeded transition schema.');
+  assertSnapshot(request.snapshot);
+  if (!Number.isSafeInteger(request.step_index) || request.step_index < 0) throw new Error('Seeded transition step_index is invalid.');
+  exactPlayers(request.observations, 'observations');
+  exactPlayers(request.actions, 'actions');
+  for (const player of ['p1', 'p2'] as const) {
+    const observation = request.observations[player];
+    const action = request.actions[player];
+    if (observation.perspective !== player || observation.request?.player !== player) {
+      throw new Error(`Seeded transition observation perspective mismatch for ${player}.`);
+    }
+    if (!observation.request || !observation.decision_availability.available) {
+      throw new Error(`Seeded transition ${player} request is not actionable.`);
+    }
+    if (!observation.decision_availability.legal_action_indices?.includes(action.index)) {
+      throw new Error(`Seeded transition action is unavailable for ${player}.`);
+    }
+    canonicalActionToChoice(action, {
+      player,
+      rqid: observation.request.rqid,
+      force_switch: observation.request.force_switch,
+      legal_actions: observation.request.legal_actions,
+    });
+  }
+}
+
+export function buildSeededTransitionResult(
+  request: SeededTransitionRequest,
+  outputSnapshot: SeededBattleSnapshot,
+  stepResult: StepResult,
+): SeededTransitionResult {
+  validateSeededTransitionRequest(request);
+  const action_ids = { p1: request.actions.p1.action_id, p2: request.actions.p2.action_id };
+  const transition_id = `transition-${digest({
+    schema_version: request.schema_version,
+    parent_branch_id: request.snapshot.branch_id,
+    input_state_fingerprint: request.snapshot.state_fingerprint,
+    output_state_fingerprint: outputSnapshot.state_fingerprint,
+    root_seed: request.snapshot.root_seed,
+    action_ids,
+    simulator_revision: SIMULATOR_REVISION,
+    step_index: request.step_index,
+  })}`;
+  const branch_id = deriveBranchId(
+    request.snapshot.branch_id,
+    request.snapshot.root_seed,
+    outputSnapshot.state_fingerprint,
+    transition_id,
+  );
+  const metadata: SeededTransitionMetadata = {
+    schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
+    transition_id,
+    parent_branch_id: request.snapshot.branch_id,
+    branch_id,
+    input_state_fingerprint: request.snapshot.state_fingerprint,
+    output_state_fingerprint: outputSnapshot.state_fingerprint,
+    root_seed: [...request.snapshot.root_seed],
+    action_ids,
+    emitted_log_delta: [...stepResult.log_delta],
+    simulator_revision: SIMULATOR_REVISION,
+    step_index: request.step_index,
+  };
+  const authoritativeOutputSnapshot = {
+    ...outputSnapshot,
+    transition_id,
+    branch_id: deriveBranchId(outputSnapshot.parent_branch_id, outputSnapshot.root_seed, outputSnapshot.state_fingerprint, transition_id),
+  };
+  if (authoritativeOutputSnapshot.branch_id !== branch_id) {
+    throw new Error('Seeded transition branch lineage derivation is inconsistent.');
+  }
+  return { metadata, step_result: stepResult, output_snapshot: authoritativeOutputSnapshot };
+}
+
+export function toSeededTransitionPublicResult(
+  result: SeededTransitionResult,
+  snapshotHandle: string,
+): SeededTransitionPublicResult {
+  return {
+    metadata: result.metadata,
+    step_result: result.step_result,
+    output_snapshot: toSeededSnapshotRef(result.output_snapshot, snapshotHandle),
+  };
+}

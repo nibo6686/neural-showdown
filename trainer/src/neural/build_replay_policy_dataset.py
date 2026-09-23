@@ -18,8 +18,10 @@ from .build_replay_value_dataset import (
     _initial_state,
     _load_trajectories,
     _new_recent,
+    _protocol_prefix_until_turn,
     result_from_winner_side,
 )
+from .dataset_lineage import feature_schema_fingerprint, record_from_source_prefix, validate_records
 from .logging_helper import print_line_safe
 
 
@@ -81,6 +83,25 @@ def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Di
                     actor_str = event.get("actor")
 
                 mapping_result = mapper.map_action(action_label, side, actor_str=actor_str)
+                replay_id = str(trajectory.get("replay_id") or "")
+                lineage_record = record_from_source_prefix(
+                    battle_id=replay_id,
+                    replay_id=replay_id,
+                    source_kind="replay",
+                    source_ref=str(trajectory.get("source_path") or replay_id),
+                    ruleset=str(trajectory.get("format") or "unknown"),
+                    parser_version="parse_replay_logs/v1",
+                    perspective=side,
+                    protocol_prefix=_protocol_prefix_until_turn(trajectory, turn_number),
+                    private_data_provenance="none",
+                    feature_input_eligibility="public_only",
+                    schema_fingerprints={
+                        "observation": "replay-protocol-prefix/v1",
+                        "belief": None,
+                        "transition": None,
+                        "feature": feature_schema_fingerprint(FEATURE_VERSION, FEATURE_NAMES),
+                    },
+                )
 
                 example = {
                     "source": "public_pokemon_showdown_replay",
@@ -107,6 +128,7 @@ def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Di
                         "feature_names": FEATURE_NAMES,
                         "feature_values": context.astype(float).tolist(),
                     },
+                    "dataset_record": lineage_record,
                 }
                 examples.append(example)
             _apply_event(state, recent, event)
@@ -139,32 +161,36 @@ def build_public_replay_policy_dataset(
     total_examples = 0
     mapped_examples = 0
 
-    with gzip.open(selected_output, "wt", encoding="utf-8") as handle:
-        for trajectory in trajectories:
-            source_examples, skip_reason = examples_from_policy_trajectory(trajectory)
-            if not source_examples:
-                skipped.append({
-                    "replay_id": trajectory.get("replay_id"),
-                    "reason": skip_reason or "no_policy_actions",
-                })
-                continue
-            for example in source_examples:
-                handle.write(json.dumps(example, sort_keys=True) + "\n")
-                total_examples += 1
-                action_counts[str(example.get("action_type"))] += 1
-                perspective_counts[str(example.get("perspective"))] += 1
+    all_examples: List[Dict[str, Any]] = []
+    for trajectory in trajectories:
+        source_examples, skip_reason = examples_from_policy_trajectory(trajectory)
+        if not source_examples:
+            skipped.append({
+                "replay_id": trajectory.get("replay_id"),
+                "reason": skip_reason or "no_policy_actions",
+            })
+            continue
+        all_examples.extend(source_examples)
 
-                # Track mapping statistics
-                if example.get("mapped_to_fixed_head", False):
-                    mapped_examples += 1
-                    mapping_type_counts["mapped"] = mapping_type_counts.get("mapped", 0) + 1
-                    map_type = example.get("mapping_type")
-                    if map_type:
-                        mapping_type_counts[map_type] = mapping_type_counts.get(map_type, 0) + 1
-                else:
-                    mapping_type_counts["unmapped"] = mapping_type_counts.get("unmapped", 0) + 1
-                    reason = example.get("mapping_failure_reason", "unknown_reason")
-                    failure_reasons[reason] += 1
+    validate_records([example["dataset_record"] for example in all_examples])
+    with gzip.open(selected_output, "wt", encoding="utf-8") as handle:
+        for example in all_examples:
+            handle.write(json.dumps(example, sort_keys=True) + "\n")
+            total_examples += 1
+            action_counts[str(example.get("action_type"))] += 1
+            perspective_counts[str(example.get("perspective"))] += 1
+
+            # Track mapping statistics
+            if example.get("mapped_to_fixed_head", False):
+                mapped_examples += 1
+                mapping_type_counts["mapped"] = mapping_type_counts.get("mapped", 0) + 1
+                map_type = example.get("mapping_type")
+                if map_type:
+                    mapping_type_counts[map_type] = mapping_type_counts.get(map_type, 0) + 1
+            else:
+                mapping_type_counts["unmapped"] = mapping_type_counts.get("unmapped", 0) + 1
+                reason = example.get("mapping_failure_reason", "unknown_reason")
+                failure_reasons[reason] += 1
 
     mapped_pct = (100.0 * mapped_examples / total_examples) if total_examples > 0 else 0.0
     report = {

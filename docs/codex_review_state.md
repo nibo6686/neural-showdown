@@ -582,3 +582,231 @@ The remaining blockers are unchanged in substance: raw replay fixtures are
 optional and absent, and Python dependency versions/lock strategy are not yet
 declared or established. No servers, training, live evaluation, dataset
 generation, package installation, or network replay acquisition was run.
+
+## 18. STATE-001 remediation acceptance — 2026-09-23
+
+The five required remediation findings were implemented in the additive
+observable-state adapter, focused tests, and contract documentation only.
+
+### Changes accepted
+
+- Ordered canonical prefix comparison now preserves repeated records, including
+  successive turn records, while rejecting rollback, replacement, reordering,
+  truncation, and altered earlier records.
+- Terminal event kind is tracked independently from winner identity, making win/
+  tie contradictions order-independent while allowing repeated identical
+  terminal evidence.
+- Allowlisted protocol records now receive command-specific shape validation,
+  including move targets, numeric records, optional engine tags, and request
+  payload structure.
+- Perspective validation requires the exact complementary opponent and rejects
+  invalid/self-opponent pairs.
+- Raw request JSON is validated as transient private evidence, reduced to a
+  request-ID-only canonical prefix record, and excluded from observable hashes,
+  serialization, and observation identity.
+
+### Acceptance evidence
+
+- Separate read-only acceptance review verdict: `ACCEPT`; no remaining gaps.
+- `npm test --prefix sim-core`: 48 passed, 0 failed.
+- `node --test sim-core/dist/tests/observable_state.test.js`: 13 passed, 0 failed.
+- Replay-independent focused Python tests: 131 passed, 0 failed.
+- Replay-marked parity selection: 1 skipped, 5 deselected because raw replay
+  fixtures are absent; no replay acquisition was run.
+- `git diff --check`: passed.
+
+`STATE-001` is accepted. `ACTION-001` is unblocked but not started in this
+checkpoint. `ENV-001` remains `BLOCKED_WITH_REMEDIATION` for its independent
+dependency-policy and replay-fixture blockers.
+
+## 19. ACTION-001 canonical-action acceptance — 2026-09-23
+
+ACTION-001 was implemented after the STATE-001 acceptance gate and separately
+reviewed. The accepted slice adds a versioned, request-bound CanonicalAction
+contract with shared TypeScript/Python parity fixtures, deterministic IDs and
+serialization, explicit legal-action provenance, fail-closed validation, and
+an additive `step_canonical` ingress. The existing raw choice path remains the
+runtime authority for legacy callers.
+
+### Acceptance evidence
+
+- Separate ACTION-001 review verdict: `ACCEPT`; required-changes list empty.
+- Shared corpus: `tests/fixtures/canonical_action_v1.json`.
+- `npm test --prefix sim-core`: 53 passed, 0 failed.
+- Relevant Python tests from `trainer/tests`: 20 passed, 2 skipped for existing
+  environment-dependent cases.
+- `git diff --check`: passed.
+
+### Boundaries and rollback
+
+Targeted moves, multi-active commands, pass, and skip remain outside v1. Wait
+and team-preview expose no canonical action; forced-switch exhaustion preserves
+the existing synthesized default fallback. Rollback removes only the
+canonical-action modules, fixtures/tests, contract, and additive ingress;
+legacy action codec and raw-choice submission remain intact.
+
+## 20. FIXTURE-001 and FIXTURE-002 acceptance — 2026-09-23
+
+Both fixture work items were completed after ACTION-001 acceptance and
+separately reviewed.
+
+- FIXTURE-001 verdict: `ACCEPT`.
+- FIXTURE-002 verdict: `ACCEPT`.
+- Protocol-prefix corpus: `tests/fixtures/observable_state_v1.json`, covering
+  decision cutoffs, redaction, event families, repeated/non-contiguous slots,
+  terminal requestless state, and exact-prefix acceptance/rejection.
+- Action parity corpus: `tests/fixtures/canonical_action_v1.json`, covering
+  complete masks/action arrays, labels, choices, slots, deterministic IDs,
+  byte-identical TypeScript/Python serialization, and multi-action requests.
+- Validation: sim-core 55/55 passed; relevant Python replay-independent suite
+  135 passed; focused FIXTURE-001 tests 2/2 passed; focused FIXTURE-002 tests
+  4/4 in both runtimes; `git diff --check` passed.
+- No replay data or network acquisition was used, and no adapter or simulator
+  semantics were changed.
+
+## 21. TRANS-001 seeded-transition acceptance — 2026-09-23
+
+TRANS-001 was implemented after STATE-001, ACTION-001, FIXTURE-001, and
+FIXTURE-002 acceptance and separately reviewed twice. The first review returned
+`REQUIRED CHANGES`; the remediation kept the slice additive and addressed the
+three concrete gaps: raw simulator snapshots now stay behind server-managed
+opaque handles, snapshot lineage and simulator revision are authoritative, and
+the golden transition captures a non-empty ordered event delta.
+
+### Acceptance evidence
+
+- Separate remediation review verdict: `ACCEPT`; no blocking findings.
+- `npm test --prefix sim-core`: 59 passed, 0 failed.
+- Focused transition suite: 4 passed, 0 failed.
+- Relevant Python replay-independent suite: 135 passed, 0 failed.
+- Fixture JSON parse and `git diff --check`: passed.
+- Event evidence preserves raw `|t:|<integer>` records while normalizing only
+  for deterministic fingerprints/fixture comparison; moves, damage, upkeep, and
+  turn advancement are asserted in order.
+- RPC evidence: `capture_seeded_snapshot` returns a `SeededSnapshotRef`, raw
+  `simulator_state` is rejected at the transition boundary, and output returns
+  only an opaque snapshot reference. Legacy step/canonical ingress remains
+  additive and the ENV-001 blocker is unchanged.
+
+### Boundaries and rollback
+
+The accepted v1 boundary supports complete two-player request-bound canonical
+actions and rejects stale, unavailable, wait/team-preview, forced-invalid, and
+mixed-validity inputs atomically. Targeted/multi-active/pass/skip semantics,
+search redesign, retraining, replay acquisition, and live-default changes are
+out of scope. Rollback removes only the transition module, fixtures/tests,
+contract, and additive RPC/method while retaining legacy step, restore, and
+belief-fork behavior.
+
+## 22. BELIEF-001 separate BeliefState acceptance — 2026-09-23
+
+BELIEF-001 adds a separate, versioned, perspective-owned belief snapshot beside
+ObservableBattleState. The v1 schema records candidates, explicit evidence,
+unresolved uncertainty, canonical identity, immutable snapshots, and
+observation/transition/simulator-snapshot histories. It does not define
+probability or confidence values, propagate beliefs, or change existing
+consumers.
+
+### Acceptance evidence
+
+- Final separate read-only review verdict: `ACCEPT`; no blocking findings.
+- Shared fixture: `tests/fixtures/belief_state_v1.json`.
+- Focused BeliefState tests: 9 passed, 0 failed. They cover deterministic
+  serialization/order, immutability, exact lineage, imported-parent validation,
+  malformed and contradictory observation prefixes, requestless availability,
+  derived evidence dependencies, contradictions, open-world uncertainty, and
+  simulator-only truth isolation across transitions.
+- `npm test --prefix sim-core`: 68 passed, 0 failed, including STATE-001,
+  ACTION-001, FIXTURE-001/FIXTURE-002, and TRANS-001 regressions.
+- Scoped Python suites: 194 passed, 10 skipped, 7 failed. All seven failures
+  are in existing `test_live_private_value.py` checkpoint-loading paths and
+  report `_pickle.UnpicklingError: invalid load key, 'v'`; no Python source or
+  checkpoint was changed by BELIEF-001.
+- Fixture JSON parsing and `git diff --check`: passed.
+- ENV-001 remains independently blocked; BELIEF-001 did not change dependency
+  policy or acquire replay fixtures.
+
+### Boundaries and rollback
+
+The BELIEF projector is not connected to accepted observation, action,
+transition, runtime, feature, search, or training paths. Legacy possible_*
+fields, Python posterior APIs, and belief-fork behavior remain unchanged.
+Rollback removes only the BeliefState module, fixture/tests, contract, and
+documentation links.
+
+## 23. DATA-001 dataset-lineage acceptance — 2026-09-23
+
+DATA-001 was implemented after STATE-001 and BELIEF-001 acceptance and passed
+a separate read-only acceptance review.
+
+### Changes accepted
+
+- Added `docs/contracts/DATASET_LINEAGE.md` defining the additive
+  `dataset-record/v1` envelope for battle/replay identity, source/private
+  provenance, schema fingerprints, observation/feature cursors, exact prefix
+  hash verification, deterministic identity, and battle/replay-disjoint splits.
+- Added `trainer/src/neural/dataset_lineage.py` with fail-closed validation,
+  deterministic serialization and record IDs, prefix validation, split
+  assignment/collection checks, and source-specific metric reports.
+- Added lineage metadata and complete-collection validation before writes in
+  the public replay value/policy and live-private value builders. Existing
+  feature vectors and legacy source labels remain unchanged.
+- Added the synthetic fixture `tests/fixtures/dataset_lineage_v1.json` and
+  focused coverage for valid/malformed/unsupported records, future and
+  mismatched prefixes, privacy exclusion, duplicate identities, battle/replay
+  split collisions, deterministic identity, and source metrics.
+
+### Acceptance evidence
+
+- Separate read-only review verdict: `ACCEPT`; no required changes remain.
+- Focused DATA/replay/private selection: 21 passed, 21 deselected.
+- `npm test --prefix sim-core`: 68 passed, 0 failed.
+- `git diff --check`: passed.
+- The known checkpoint-loading baseline remains separate: 194 passed, 10
+  skipped, and 7 existing failures in `test_live_private_value.py`; no
+  checkpoint or source workaround was made.
+- No replay data, network acquisition, training, live evaluation, package
+  installation, search redesign, or ENV-001 change was performed.
+
+### Boundaries and rollback
+
+Legacy datasets remain read-only until migrated to complete envelopes. Current
+records without canonical belief or seeded-transition joins retain null fields;
+the DATA-001 slice does not invent evidence, calibration, confidence, or model
+inputs. Rollback removes the additive contract/module/fixture/tests and builder
+metadata/validation while preserving legacy dataset files and consumers.
+
+## 7. SEARCH-001 rollout/search semantics — 2026-09-23
+
+### Scope and review
+
+- Implemented the authoritative work item as a documentation-only record in
+  `docs/contracts/SEARCH_SEMANTICS.md`.
+- Three bounded read-only inspections covered rollout/evaluator architecture,
+  accepted-contract integration, and determinism/privacy/test evidence.
+- A separate read-only acceptance review returned `ACCEPT`, including a
+  follow-up after two clarifications to the final document.
+
+### Confirmed boundaries
+
+- Exact replay rollout, approximate synthetic scoring, one-turn branching, and
+  two-ply/belief branching are distinct current paths, not one shared mode set.
+- Existing search does not consume ObservableBattleState, CanonicalAction,
+  BeliefState, or SeededTransition. Canonical stale-action rejection and
+  exact-prefix lineage guarantees do not automatically apply at the legacy
+  search boundary.
+- Approximate protocol context is cut at turn granularity; exact replay scoring
+  combines branch records with the selected trace step's view/request context.
+  Search-level future-event isolation and stable shared node identity remain
+  unresolved and are stated as such.
+- Existing feature vectors, checkpoints, live defaults, simulator mechanics,
+  and search behavior are unchanged. Any search integration needs a separate
+  scoped work item.
+
+### Validation
+
+- `npm test --prefix sim-core`: 68 passed, 0 failed.
+- Focused Python search suites: 19 passed, 10 skipped.
+- `git diff --check`: passed.
+- The existing broader checkpoint-loading baseline of 194 passed, 10 skipped,
+  and 7 existing failures was not re-run or altered; it remains separate.

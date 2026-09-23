@@ -27,21 +27,28 @@ caller intentionally supplies that value.
 ## Normative invariants
 
 1. `perspective` is exactly `p1` or `p2`. Any other value fails closed.
-2. `BattleView.player`, `ChoiceRequestView.player`, and `perspective` must agree.
-   A request-side mismatch is an explicit contradiction error.
+2. `BattleView.player`, `BattleView.opponent`, `ChoiceRequestView.player`, and
+   `perspective` must agree. `view.opponent` must be the exact complement of
+   `perspective` (`p1`/`p2`); self-opponents and invalid values are explicit
+   contradictions.
 3. `event_cursor` is the count of normalized protocol records in
    `protocol_prefix`; it is not a turn number.
 4. Normalization converts CRLF/CR to LF, trims record boundaries, and rejects
-   empty records. The hash input is the canonical JSON array of the normalized
-   records. `protocol_prefix_hash` is SHA-256 of that canonical array.
+   empty records. Supported raw commands are shape-validated before projection;
+   malformed supported events fail closed just like unknown commands. The hash
+   input is the canonical JSON array of the sanitized observable records.
+   `protocol_prefix_hash` is SHA-256 of that canonical array.
 5. `observation_id` is deterministic: it is `obs-` plus SHA-256 of the canonical
    schema/source/battle/perspective/cursor/hash/phase/request/decision/view
    identity payload.
 6. Snapshots own cloned data and are recursively frozen. Later protocol records
    cannot mutate an earlier snapshot. `ObservableStateProjector` retains the
-   canonical normalized records and accepts a later observation only when the
-   complete earlier record sequence is an exact prefix; rollback, replacement,
-   reordering, altered earlier records, and hash-only claims fail closed.
+   complete canonical observable record sequence and accepts a later observation
+   only when the complete earlier sequence is an exact ordered prefix. Repeated
+   records, including successive `|turn|N` records, remain distinct cursor
+   entries and are never deduplicated by command name. Rollback, replacement,
+   truncation, reordering, altered earlier records, and hash-only claims fail
+   closed.
 7. A request-less state uses `request: null`, reports `available: false`, and
    uses `legal_action_indices: null`; it never fabricates legal actions.
 8. `pre_decision`, `post_resolution`, `forced_switch`, and `terminal` are
@@ -51,11 +58,17 @@ caller intentionally supplies that value.
    terminal phase requires a terminated view.
 9. Raw protocol evidence has precedence over derived fields. The adapter
    independently parses supported raw records and compares available raw-derived
-   `gen`, `turn`, player names, team sizes, winner, and request `rqid` values to
-   the projected sources. Matching evidence is accepted, incomplete evidence is
-   not invented, malformed or unsupported evidence errors, and contradictions
-   raise `ObservableStateContradictionError`. Caller-provided contradiction
-   messages are not a substitute for this validation.
+   `gen`, the latest ordered `turn`, player names, team sizes, winner, and request
+   `rqid` values to the projected sources. Matching evidence is accepted,
+   incomplete evidence is not invented, malformed or unsupported evidence
+   errors, and contradictions raise `ObservableStateContradictionError`.
+   Terminal event kind is tracked separately from its winner token, so `|win|X`
+   and `|tie|` in either order contradict (including `|win|tie`), while repeated
+   identical terminal records are explicitly valid. Terminal evidence also
+   requires a terminated view. Raw request `side.id`/`player` values, when
+   present, must match `perspective` before request redaction.
+   Caller-provided contradiction messages are not a substitute for this
+   validation.
 10. Hypotheses are separate from observations. Belief samples, possible roles,
     inferred opponent sets, and simulator-only hidden state require a separate
     contract and cannot be added to this object.
@@ -79,12 +92,31 @@ adapter.
 | `perspective` | `p1 \| p2`, non-null | derived_observable | caller | validated and matched to view/request | invalid/mismatch errors | orientation metadata |
 | `event_cursor` | non-negative integer, non-null | derived_observable | normalized `protocol_prefix` length | count records, not turns | rollback or same-cursor hash change errors in projector | audit only |
 | `observation_id` | string, non-null | derived_observable | adapter identity payload | deterministic `obs-` SHA-256 | identity mismatch is an error | lineage only |
-| `protocol_prefix_hash` | 64-char SHA-256 string, non-null | derived_observable | raw protocol prefix | canonical normalized record array | raw prefix errors; never silently repaired | audit only |
+| `protocol_prefix_hash` | 64-char SHA-256 string, non-null | derived_observable | sanitized observable protocol prefix | canonical sanitized record array | raw prefix/shape errors; never silently repaired | audit only |
 | `snapshot_phase` | `pre_decision \| post_resolution \| forced_switch \| terminal \| other`, non-null | derived_observable | caller decision boundary | supported token preserved; unknown well-formed token normalized to `other` | malformed token or impossible phase/request errors | timing metadata |
 | `other_phase` | string or null | derived_observable | original unsupported phase token | retained only when `snapshot_phase=other` | mismatch or malformed token errors | timing metadata |
 | `request` | `ObservableChoiceRequestView \| null` | public + acting_player_private | `ChoiceRequestView`, excluding `raw` | deep clone and redaction | side/perspective mismatch errors | eligible only for acting-player consumers |
 | `decision_availability` | object, non-null | derived_observable | request + terminal state | no legal-action invention | mask/index contradictions error | action masking only; not current model input |
-| `protocol_prefix` | string array, non-null | public evidence | raw protocol records | normalize, clone, freeze | empty/non-string records error | audit/feature source only with explicit cutoff |
+| `protocol_prefix` | string array, non-null | public evidence | raw protocol records | normalize, validate shapes, and replace every raw `\|request\|JSON` record with canonical `\|request\|{"rqid":N}` or `\|request\|{}`; clone and freeze | empty/non-string/malformed records error; raw request payload is never retained | audit/feature source only with explicit cutoff |
+
+The adapter may receive a raw request record as private simulator evidence, but
+that payload is transient and never crosses the observable serialization or hash
+boundary. Only the nullable request ID is retained in the canonical prefix
+record. Private team data, private moves, items, stats, and other request fields
+remain available only through the separately classified acting-player-private
+`request` projection when the caller has a legitimate request; they are not
+copied into `protocol_prefix`.
+
+An array element containing an embedded LF/CR record separator is malformed and
+is rejected before command parsing or redaction; each cursor entry therefore
+represents exactly one canonical protocol record.
+
+Raw shape validation follows the existing Showdown protocol and
+`PlayerStateExtractor` handlers. In particular, a `move` record requires a
+valid Pokémon identifier and non-empty move field (with the protocol target and
+optional tags preserved as record text), while `switch`, `faint`, request,
+terminal, numeric, and status/effect records validate their required fields and
+types. A command is not accepted merely because its name is allowlisted.
 
 ### Battle view projection
 

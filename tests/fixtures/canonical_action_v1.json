@@ -1,0 +1,53 @@
+{
+  "fixture_schema": "canonical-action-fixtures/v1",
+  "cases": [
+    {
+      "name": "move-slot-1",
+      "request": {"player": "p1", "rqid": 7, "force_switch": false},
+      "legal_action": {"index": 0, "kind": "move", "choice": "move 1", "label": "move:Tackle", "move": "Tackle", "slot": 1},
+      "legal_action_set": {"mask": [true, true, false, false, false, false, false, false, false, false, false, false, false], "available_indices": [0, 1], "actions": [{"index": 0, "kind": "move", "choice": "move 1", "label": "move:Tackle", "move": "Tackle", "slot": 1}, {"index": 1, "kind": "move", "choice": "move 2", "label": "move:Growl", "move": "Growl", "slot": 2}, null, null, null, null, null, null, null, null, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-66a63da6575ba0ddbc073265529d585e8d201d8c2e7cc81be3c2c4f84acb4587", "source": "request_legal_action", "player": "p1", "rqid": 7, "kind": "move", "index": 0, "move_slot": 1, "switch_slot": null, "target": null, "choice": "move 1"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-66a63da6575ba0ddbc073265529d585e8d201d8c2e7cc81be3c2c4f84acb4587\",\"source\":\"request_legal_action\",\"player\":\"p1\",\"rqid\":7,\"kind\":\"move\",\"index\":0,\"move_slot\":1,\"switch_slot\":null,\"target\":null,\"choice\":\"move 1\"}"
+    },
+    {
+      "name": "tera-move-slot-2",
+      "request": {"player": "p1", "rqid": 7, "force_switch": false},
+      "legal_action": {"index": 5, "kind": "move_tera", "choice": "move 2 terastallize", "label": "move_tera:Thunderbolt", "move": "Thunderbolt", "slot": 2},
+      "legal_action_set": {"mask": [false, false, false, false, false, true, false, false, false, false, false, false, false], "available_indices": [5], "actions": [null, null, null, null, null, {"index": 5, "kind": "move_tera", "choice": "move 2 terastallize", "label": "move_tera:Thunderbolt", "move": "Thunderbolt", "slot": 2}, null, null, null, null, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-32464338456b77bcb2b17aa0782c3f04bc76216187c2fe48fa6106ecaf8252f4", "source": "request_legal_action", "player": "p1", "rqid": 7, "kind": "move_tera", "index": 5, "move_slot": 2, "switch_slot": null, "target": null, "choice": "move 2 terastallize"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-32464338456b77bcb2b17aa0782c3f04bc76216187c2fe48fa6106ecaf8252f4\",\"source\":\"request_legal_action\",\"player\":\"p1\",\"rqid\":7,\"kind\":\"move_tera\",\"index\":5,\"move_slot\":2,\"switch_slot\":null,\"target\":null,\"choice\":\"move 2 terastallize\"}"
+    },
+    {
+      "name": "switch-noncontiguous-team-slot",
+      "request": {"player": "p1", "rqid": 8, "force_switch": false},
+      "legal_action": {"index": 9, "kind": "switch", "choice": "switch 4", "label": "switch:Latias", "slot": 4},
+      "legal_action_set": {"mask": [false, false, false, false, false, false, false, false, false, true, false, false, false], "available_indices": [9], "actions": [null, null, null, null, null, null, null, null, null, {"index": 9, "kind": "switch", "choice": "switch 4", "label": "switch:Latias", "slot": 4}, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-477e00d6bfdffe2658c632ddc1bf7f9d300d19848b93dd1137a5f4431bff4574", "source": "request_legal_action", "player": "p1", "rqid": 8, "kind": "switch", "index": 9, "move_slot": null, "switch_slot": 4, "target": null, "choice": "switch 4"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-477e00d6bfdffe2658c632ddc1bf7f9d300d19848b93dd1137a5f4431bff4574\",\"source\":\"request_legal_action\",\"player\":\"p1\",\"rqid\":8,\"kind\":\"switch\",\"index\":9,\"move_slot\":null,\"switch_slot\":4,\"target\":null,\"choice\":\"switch 4\"}"
+    },
+    {
+      "name": "forced-switch",
+      "request": {"player": "p2", "rqid": 11, "force_switch": true},
+      "legal_action": {"index": 8, "kind": "switch", "choice": "switch 2", "label": "switch:Blastoise", "slot": 2},
+      "legal_action_set": {"mask": [false, false, false, false, false, false, false, false, true, false, false, false, false], "available_indices": [8], "actions": [null, null, null, null, null, null, null, null, {"index": 8, "kind": "switch", "choice": "switch 2", "label": "switch:Blastoise", "slot": 2}, null, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-39be904f6b01390efa5c2ba239f11d490cd0fc8898fcb5933c794c38a4c3a0d4", "source": "request_legal_action", "player": "p2", "rqid": 11, "kind": "switch", "index": 8, "move_slot": null, "switch_slot": 2, "target": null, "choice": "switch 2"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-39be904f6b01390efa5c2ba239f11d490cd0fc8898fcb5933c794c38a4c3a0d4\",\"source\":\"request_legal_action\",\"player\":\"p2\",\"rqid\":11,\"kind\":\"switch\",\"index\":8,\"move_slot\":null,\"switch_slot\":2,\"target\":null,\"choice\":\"switch 2\"}"
+    },
+    {
+      "name": "forced-switch-default-fallback",
+      "request": {"player": "p2", "rqid": 12, "force_switch": true},
+      "legal_action": {"index": 0, "kind": "move", "choice": "default", "label": "default", "move": null, "slot": null},
+      "legal_action_set": {"mask": [true, false, false, false, false, false, false, false, false, false, false, false, false], "available_indices": [0], "actions": [{"index": 0, "kind": "move", "choice": "default", "label": "default", "move": null, "slot": null}, null, null, null, null, null, null, null, null, null, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-ac37fbc7849fe43dcb0b5c347df907f478e061c203add471a32a9cc74609f6ad", "source": "request_legal_action", "player": "p2", "rqid": 12, "kind": "default", "index": 0, "move_slot": null, "switch_slot": null, "target": null, "choice": "default"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-ac37fbc7849fe43dcb0b5c347df907f478e061c203add471a32a9cc74609f6ad\",\"source\":\"request_legal_action\",\"player\":\"p2\",\"rqid\":12,\"kind\":\"default\",\"index\":0,\"move_slot\":null,\"switch_slot\":null,\"target\":null,\"choice\":\"default\"}"
+    },
+    {
+      "name": "legacy-default-fallback",
+      "request": {"player": "p1", "rqid": null, "force_switch": false},
+      "legal_action": {"index": 0, "kind": "move", "choice": "default", "label": "default", "move": null, "slot": null},
+      "legal_action_set": {"mask": [true, false, false, false, false, false, false, false, false, false, false, false, false], "available_indices": [0], "actions": [{"index": 0, "kind": "move", "choice": "default", "label": "default", "move": null, "slot": null}, null, null, null, null, null, null, null, null, null, null, null, null]},
+      "canonical_action": {"schema_version": "canonical-action/v1", "action_id": "act-64d072b3b8928ceebee2aa30fe578343c488d475a91a50b6ff601782fc8f29da", "source": "request_legal_action", "player": "p1", "rqid": null, "kind": "default", "index": 0, "move_slot": null, "switch_slot": null, "target": null, "choice": "default"},
+      "serialized": "{\"schema_version\":\"canonical-action/v1\",\"action_id\":\"act-64d072b3b8928ceebee2aa30fe578343c488d475a91a50b6ff601782fc8f29da\",\"source\":\"request_legal_action\",\"player\":\"p1\",\"rqid\":null,\"kind\":\"default\",\"index\":0,\"move_slot\":null,\"switch_slot\":null,\"target\":null,\"choice\":\"default\"}"
+    }
+  ]
+}
