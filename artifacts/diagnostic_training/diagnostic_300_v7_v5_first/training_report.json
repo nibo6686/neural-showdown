@@ -1,0 +1,283 @@
+{
+  "status": "completed",
+  "training_launched": true,
+  "config_path": "C:\\Users\\cloud\\Downloads\\neural\\final\\configs\\diagnostic_300_v7_v5.first.windows.json",
+  "dataset_validation": {
+    "dataset_path": "C:\\Users\\cloud\\Downloads\\neural\\final\\artifacts\\training_plan\\datasets\\diagnostic_300_v7_v5\\diagnostic_300_v7_v5.npz",
+    "metadata_path": "C:\\Users\\cloud\\Downloads\\neural\\final\\artifacts\\training_plan\\datasets\\diagnostic_300_v7_v5\\feature_metadata.json",
+    "materialization_report_path": "C:\\Users\\cloud\\Downloads\\neural\\final\\artifacts\\training_plan\\datasets\\diagnostic_300_v7_v5\\materialization_report.json",
+    "state_count": 25396,
+    "action_candidate_count": 189957,
+    "state_dim": 3208,
+    "action_dim": 318,
+    "state_dtype_on_disk": "float16",
+    "action_dtype_on_disk": "float16",
+    "battle_split_counts": {
+      "train": 210,
+      "validation": 45,
+      "test": 45
+    },
+    "state_split_counts": {
+      "train": 20713,
+      "validation": 2255,
+      "test": 2428
+    },
+    "matched_action_group_split_counts": {
+      "train": 19944,
+      "validation": 2254,
+      "test": 2426
+    },
+    "included_action_groups": 24624,
+    "ignored_zero_positive_action_groups": 0,
+    "unmatched_actions_reported": 772,
+    "skipped_initial_deployments_reported": 600,
+    "action_value_label_count": 0,
+    "state_feature_version": "live-private-belief-v7",
+    "action_feature_version": "legal-action-v5",
+    "state_feature_names_sha256": "0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf",
+    "action_feature_names_sha256": "20bbfc25b2ace639831c132cb1c1f6d3b7701d4750fd9b95d6bfb423e17ac9a8",
+    "state_vectors_duplicated_per_candidate": false
+  },
+  "device": "cuda",
+  "epochs_completed": 10,
+  "global_step": 3120,
+  "runtime_sec": 124.32791609999549,
+  "overfit_check": {
+    "enabled": true,
+    "passed": true,
+    "steps": 200,
+    "state_examples": 128,
+    "action_groups": 64,
+    "value_train_mse": 0.00017780470079742372,
+    "action_rank_train_nll": 0.37881845235824585,
+    "action_rank_train_top1": 0.953125
+  },
+  "training_history": [
+    {
+      "epoch": 1,
+      "value_train_mse": 0.384413893851969,
+      "action_rank_train_nll": 1.633854472866425,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.2921414375305176,
+        "sign_accuracy": 0.5454545454545454,
+        "prediction_mean": 0.4173007011413574,
+        "prediction_std": 0.5217806100845337,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.4813934544424872,
+        "top1": 0.37710736468500444,
+        "top3": 0.8061224489795918,
+        "mrr": 0.6044332282131747
+      },
+      "global_step": 312
+    },
+    {
+      "epoch": 2,
+      "value_train_mse": 0.09496244480028565,
+      "action_rank_train_nll": 1.4892386885789723,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.4781501293182373,
+        "sign_accuracy": 0.5374722838137472,
+        "prediction_mean": 0.5796935558319092,
+        "prediction_std": 0.5326555371284485,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.394481316640714,
+        "top1": 0.419698314108252,
+        "top3": 0.8247559893522627,
+        "mrr": 0.6355994985986115
+      },
+      "global_step": 624
+    },
+    {
+      "epoch": 3,
+      "value_train_mse": 0.04185245714989709,
+      "action_rank_train_nll": 1.4153849994524932,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.628325343132019,
+        "sign_accuracy": 0.5157427937915743,
+        "prediction_mean": 0.7139201164245605,
+        "prediction_std": 0.47704920172691345,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.329049521727816,
+        "top1": 0.44986690328305234,
+        "top3": 0.854924578527063,
+        "mrr": 0.6596382445317666
+      },
+      "global_step": 936
+    },
+    {
+      "epoch": 4,
+      "value_train_mse": 0.033814850723209944,
+      "action_rank_train_nll": 1.380026400853426,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.407787561416626,
+        "sign_accuracy": 0.5680709534368071,
+        "prediction_mean": 0.1482722908258438,
+        "prediction_std": 0.7693578600883484,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.312963226022449,
+        "top1": 0.45607808340727596,
+        "top3": 0.857586512866016,
+        "mrr": 0.6645149364093459
+      },
+      "global_step": 1248
+    },
+    {
+      "epoch": 5,
+      "value_train_mse": 0.01306609006276653,
+      "action_rank_train_nll": 1.3572401297398102,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.4400771856307983,
+        "sign_accuracy": 0.5658536585365853,
+        "prediction_mean": 0.020654967054724693,
+        "prediction_std": 0.8038604855537415,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.320192543867374,
+        "top1": 0.4582963620230701,
+        "top3": 0.862910381543922,
+        "mrr": 0.6657899184518519
+      },
+      "global_step": 1560
+    },
+    {
+      "epoch": 6,
+      "value_train_mse": 0.00907002776907182,
+      "action_rank_train_nll": 1.339673604338597,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.4622893333435059,
+        "sign_accuracy": 0.564079822616408,
+        "prediction_mean": 0.2347468137741089,
+        "prediction_std": 0.7763100862503052,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.299753267943688,
+        "top1": 0.4538598047914818,
+        "top3": 0.862910381543922,
+        "mrr": 0.6647462711792786
+      },
+      "global_step": 1872
+    },
+    {
+      "epoch": 7,
+      "value_train_mse": 0.007961149669516786,
+      "action_rank_train_nll": 1.3186139139609458,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.4637361764907837,
+        "sign_accuracy": 0.5627494456762749,
+        "prediction_mean": 0.07502333074808121,
+        "prediction_std": 0.8131111860275269,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.2812977049617722,
+        "top1": 0.4640638864241349,
+        "top3": 0.8669032830523514,
+        "mrr": 0.6692594118392691
+      },
+      "global_step": 2184
+    },
+    {
+      "epoch": 8,
+      "value_train_mse": 0.0065432198627357495,
+      "action_rank_train_nll": 1.3049124039900608,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.4728294610977173,
+        "sign_accuracy": 0.5623059866962306,
+        "prediction_mean": -0.02208767831325531,
+        "prediction_std": 0.8162639737129211,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.27849038262861,
+        "top1": 0.4556344276841171,
+        "top3": 0.8655723158828749,
+        "mrr": 0.6642878269320147
+      },
+      "global_step": 2496
+    },
+    {
+      "epoch": 9,
+      "value_train_mse": 0.005228391341163696,
+      "action_rank_train_nll": 1.2905926692944307,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.5097389221191406,
+        "sign_accuracy": 0.5458980044345898,
+        "prediction_mean": 0.27472683787345886,
+        "prediction_std": 0.7820213437080383,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.2983896481158577,
+        "top1": 0.45918367346938777,
+        "top3": 0.8513753327417923,
+        "mrr": 0.6639677610174505
+      },
+      "global_step": 2808
+    },
+    {
+      "epoch": 10,
+      "value_train_mse": 0.004599062192690686,
+      "action_rank_train_nll": 1.2785690885323744,
+      "value_validation": {
+        "count": 2255.0,
+        "mse": 1.509385108947754,
+        "sign_accuracy": 0.5476718403547672,
+        "prediction_mean": -0.02739431895315647,
+        "prediction_std": 0.8174165487289429,
+        "constant_baseline_mse": 0.9999904632568359
+      },
+      "action_rank_validation": {
+        "group_count": 2254.0,
+        "nll": 1.2904799077090936,
+        "top1": 0.45962732919254656,
+        "top3": 0.8642413487133984,
+        "mrr": 0.6670802171800394
+      },
+      "global_step": 3120
+    }
+  ],
+  "test_value": {
+    "count": 2428.0,
+    "mse": 1.452271580696106,
+    "sign_accuracy": 0.5564250411861614,
+    "prediction_mean": -0.08639436215162277,
+    "prediction_std": 0.800591766834259,
+    "constant_baseline_mse": 0.9999992251396179
+  },
+  "test_action_rank": {
+    "group_count": 2426.0,
+    "nll": 1.351146345996532,
+    "top1": 0.4356966199505359,
+    "top3": 0.8301731244847486,
+    "mrr": 0.6452234183788165
+  },
+  "production_eligible": false
+}

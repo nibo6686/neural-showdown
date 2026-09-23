@@ -1,0 +1,904 @@
+{
+  "baselines": {
+    "best_damage_move_no_switch": {
+      "groups": 8327,
+      "mrr": 0.5520724465212276,
+      "top1": 0.380449141347424,
+      "top3": 0.6722709259036868
+    },
+    "max_accuracy_damaging": {
+      "groups": 8327,
+      "mrr": 0.5299834684216814,
+      "top1": 0.3465834033865738,
+      "top3": 0.6673471838597334
+    },
+    "max_base_power": {
+      "groups": 8327,
+      "mrr": 0.5275209302259861,
+      "top1": 0.3411792962651615,
+      "top3": 0.6673471838597334
+    },
+    "max_expected_damage": {
+      "groups": 8327,
+      "mrr": 0.5520724465212276,
+      "top1": 0.380449141347424,
+      "top3": 0.6722709259036868
+    },
+    "max_ko_chance": {
+      "groups": 8327,
+      "mrr": 0.5363060354774057,
+      "top1": 0.3554701573195629,
+      "top3": 0.6721508346343221
+    },
+    "random_legal": {
+      "groups": 8327,
+      "mrr": 0.390227999489194,
+      "top1": 0.16593047412669984,
+      "top3": 0.4790571843592267
+    },
+    "random_move": {
+      "groups": 8327,
+      "top1": 0.21739807968341837,
+      "top3": 0.5239367633687315
+    },
+    "type_prior_move": {
+      "groups": 8327,
+      "mrr": 0.5783635706326952,
+      "top1": 0.3768464032664825,
+      "top3": 0.7289540050438333
+    }
+  },
+  "checkpoint_path": "artifacts\\diagnostic_training\\diagnostic_1000_action_rank_v7_v7_post_magic_bounce_rank_only\\model.best.pt",
+  "device": "cuda",
+  "examples_model_bad": [
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.08251953125,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 7,
+      "n": 12,
+      "nll": 3.072330429977311,
+      "replay_id": "gen9randombattle-2588282378",
+      "state_index": 72798,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 18
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.1353759765625,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 7,
+      "n": 11,
+      "nll": 3.8891860083243994,
+      "replay_id": "gen9randombattle-2592799527",
+      "state_index": 77848,
+      "tags": [
+        "normal_move_choice",
+        "setup_or_sweep",
+        "tera_available"
+      ],
+      "turn": 16
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.1353759765625,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 7,
+      "n": 11,
+      "nll": 3.6204142328502527,
+      "replay_id": "gen9randombattle-2592799527",
+      "state_index": 77850,
+      "tags": [
+        "normal_move_choice",
+        "setup_or_sweep",
+        "tera_available"
+      ],
+      "turn": 17
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.08251953125,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 6,
+      "n": 12,
+      "nll": 2.5405036563361802,
+      "replay_id": "gen9randombattle-2588282378",
+      "state_index": 72800,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 20
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.045379638671875,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 6,
+      "n": 12,
+      "nll": 2.288188001347256,
+      "replay_id": "gen9randombattle-2588282378",
+      "state_index": 72803,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 21
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.1256103515625,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 6,
+      "n": 10,
+      "nll": 2.2784484933296736,
+      "replay_id": "gen9randombattle-2589680731",
+      "state_index": 75029,
+      "tags": [
+        "low_hp_or_endgame",
+        "normal_move_choice",
+        "setup_or_sweep",
+        "tera_available"
+      ],
+      "turn": 20
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 6,
+      "n": 10,
+      "nll": 2.8313830712706185,
+      "replay_id": "gen9randombattle-2590278898",
+      "state_index": 75373,
+      "tags": [
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 8
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.4599609375,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 6,
+      "n": 12,
+      "nll": 2.6225298314390235,
+      "replay_id": "gen9randombattle-2590666971",
+      "state_index": 75630,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 18
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.133544921875,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 6,
+      "n": 7,
+      "nll": 2.5458328905123766,
+      "replay_id": "gen9randombattle-2590701339",
+      "state_index": 75901,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "setup_or_sweep"
+      ],
+      "turn": 37
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.2017822265625,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "move",
+      "model_rank": 6,
+      "n": 11,
+      "nll": 2.7942459692623256,
+      "replay_id": "gen9randombattle-2592799527",
+      "state_index": 77846,
+      "tags": [
+        "normal_move_choice",
+        "setup_or_sweep",
+        "tera_available"
+      ],
+      "turn": 15
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.13818359375,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 6,
+      "n": 10,
+      "nll": 3.5374879040710256,
+      "replay_id": "gen9randombattle-2592799527",
+      "state_index": 77867,
+      "tags": [
+        "low_hp_or_endgame",
+        "normal_move_choice",
+        "setup_or_sweep",
+        "tera_available"
+      ],
+      "turn": 25
+    },
+    {
+      "chosen_damaging": true,
+      "chosen_expected_damage": 0.2454833984375,
+      "chosen_kind": "move",
+      "maxdmg_rank": 1,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 5,
+      "n": 6,
+      "nll": 4.76786887733723,
+      "replay_id": "gen9randombattle-2588126048",
+      "state_index": 72346,
+      "tags": [
+        "hazards_or_removal",
+        "normal_move_choice",
+        "tera_available"
+      ],
+      "turn": 8
+    }
+  ],
+  "examples_model_good": [
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 11,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 1.0512207629379675,
+      "replay_id": "gen9randombattle-2594449777",
+      "state_index": 80140,
+      "tags": [
+        "high_candidate_count",
+        "low_hp_or_endgame",
+        "setup_or_sweep",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 15
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 11,
+      "nll": 0.50496843513226,
+      "replay_id": "gen9randombattle-2588126048",
+      "state_index": 72382,
+      "tags": [
+        "hazards_or_removal",
+        "low_hp_or_endgame",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 25
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 0.7529675786305379,
+      "replay_id": "gen9randombattle-2588412029",
+      "state_index": 73081,
+      "tags": [
+        "high_candidate_count",
+        "low_hp_or_endgame",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 12
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 1.521872115131195,
+      "replay_id": "gen9randombattle-2588524850",
+      "state_index": 73162,
+      "tags": [
+        "high_candidate_count",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 11
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 11,
+      "nll": 1.1189002512916868,
+      "replay_id": "gen9randombattle-2588524850",
+      "state_index": 73186,
+      "tags": [
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 21
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 10,
+      "nll": 0.40857205340530584,
+      "replay_id": "gen9randombattle-2588548495",
+      "state_index": 73297,
+      "tags": [
+        "hazards_or_removal",
+        "low_hp_or_endgame",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 21
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 11,
+      "nll": 1.0011077673355178,
+      "replay_id": "gen9randombattle-2588911639",
+      "state_index": 73867,
+      "tags": [
+        "low_hp_or_endgame",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 14
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 12,
+      "nll": 0.5742059955592483,
+      "replay_id": "gen9randombattle-2589395677",
+      "state_index": 74420,
+      "tags": [
+        "hazards_or_removal",
+        "low_hp_or_endgame",
+        "magic_bounce_replay",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 9
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 1.1679079720485663,
+      "replay_id": "gen9randombattle-2590898786",
+      "state_index": 76224,
+      "tags": [
+        "high_candidate_count",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 10
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 0.8943438531227496,
+      "replay_id": "gen9randombattle-2592157223",
+      "state_index": 77246,
+      "tags": [
+        "hazards_or_removal",
+        "high_candidate_count",
+        "low_hp_or_endgame",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 20
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 13,
+      "nll": 1.5110210032785378,
+      "replay_id": "gen9randombattle-2592205604",
+      "state_index": 77381,
+      "tags": [
+        "high_candidate_count",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 4
+    },
+    {
+      "chosen_damaging": false,
+      "chosen_expected_damage": 0.0,
+      "chosen_kind": "switch",
+      "maxdmg_rank": 10,
+      "model_pick_expected_damage": 0.0,
+      "model_pick_kind": "switch",
+      "model_rank": 1,
+      "n": 10,
+      "nll": 0.5602844775496535,
+      "replay_id": "gen9randombattle-2592799527",
+      "state_index": 77869,
+      "tags": [
+        "low_hp_or_endgame",
+        "setup_or_sweep",
+        "tera_available",
+        "voluntary_switch"
+      ],
+      "turn": 25
+    }
+  ],
+  "incompatible_checkpoint_rejection": {
+    "cases": {
+      "action_dimension": {
+        "reason": "vNext checkpoint action dimension mismatch: expected 552, got 551.",
+        "rejected": true
+      },
+      "action_fingerprint": {
+        "reason": "vNext checkpoint action_feature_names_sha256 mismatch: expected '956da3d225ba9a22e05cfe774f6fa21efcbb77fa88267a8f96b1291701bf39d7', got 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'.",
+        "rejected": true
+      },
+      "action_schema": {
+        "reason": "vNext checkpoint action schema mismatch: expected 'legal-action-v7', got 'incompatible-action-schema'.",
+        "rejected": true
+      },
+      "state_dimension": {
+        "reason": "vNext checkpoint state dimension mismatch: expected 3208, got 3207.",
+        "rejected": true
+      },
+      "state_fingerprint": {
+        "reason": "vNext checkpoint state_feature_names_sha256 mismatch: expected '0a697b427d64c4487e7513ae8a35d76387af6824f6f4404f62bac218a5e36fbf', got '0000000000000000000000000000000000000000000000000000000000000000'.",
+        "rejected": true
+      },
+      "state_schema": {
+        "reason": "vNext checkpoint state schema mismatch: expected 'live-private-belief-v7', got 'incompatible-state-schema'.",
+        "rejected": true
+      }
+    },
+    "status": "PASS"
+  },
+  "matched_groups": 8327,
+  "maxdmg_beats_model_count": 864,
+  "model": {
+    "groups": 8327,
+    "mrr": 0.7001313855673169,
+    "nll": 1.181397193628491,
+    "top1": 0.5076257956046596,
+    "top3": 0.8862735679116128
+  },
+  "model_beats_maxdmg_count": 1923,
+  "model_by_candidate_count": {
+    "5-8": {
+      "groups": 4033,
+      "mrr": 0.7119165692560188,
+      "top1": 0.5192164641705926,
+      "top3": 0.9010662038184974
+    },
+    "9-12": {
+      "groups": 2572,
+      "mrr": 0.636254752030413,
+      "top1": 0.4237947122861586,
+      "top3": 0.8304821150855366
+    },
+    "<=4": {
+      "groups": 1401,
+      "mrr": 0.808945990958839,
+      "top1": 0.6602426837972877,
+      "top3": 0.9728765167737331
+    },
+    ">12": {
+      "groups": 321,
+      "mrr": 0.5889531721307422,
+      "top1": 0.367601246105919,
+      "top3": 0.7694704049844237
+    }
+  },
+  "model_by_chosen_damaging": {
+    "damaging": {
+      "groups": 4126,
+      "mrr": 0.7776465926490163,
+      "top1": 0.6100339311682016,
+      "top3": 0.9522539990305381
+    },
+    "non_damaging": {
+      "groups": 4201,
+      "mrr": 0.6240000491190685,
+      "top1": 0.4070459414425137,
+      "top3": 0.821471078314687
+    }
+  },
+  "model_by_chosen_kind": {
+    "move": {
+      "groups": 5770,
+      "mrr": 0.7636399961486617,
+      "top1": 0.5878682842287695,
+      "top3": 0.9507798960138648
+    },
+    "move_tera": {
+      "groups": 202,
+      "mrr": 0.46920281313845674,
+      "top1": 0.24752475247524752,
+      "top3": 0.5891089108910891
+    },
+    "switch": {
+      "groups": 2355,
+      "mrr": 0.5643364337950324,
+      "top1": 0.3333333333333333,
+      "top3": 0.7537154989384289
+    }
+  },
+  "model_by_turn_bucket": {
+    "1-5": {
+      "groups": 1588,
+      "mrr": 0.7314744012634442,
+      "top1": 0.5535264483627204,
+      "top3": 0.9061712846347607
+    },
+    "11-20": {
+      "groups": 2723,
+      "mrr": 0.6900030020577211,
+      "top1": 0.49798016893132574,
+      "top3": 0.87146529562982
+    },
+    "6-10": {
+      "groups": 1551,
+      "mrr": 0.6699233981148875,
+      "top1": 0.46034816247582205,
+      "top3": 0.8678272082527402
+    },
+    ">20": {
+      "groups": 2465,
+      "mrr": 0.7101352265043948,
+      "top1": 0.5184584178498985,
+      "top3": 0.901419878296146
+    }
+  },
+  "schema_validation": {
+    "action_dim": 552,
+    "action_feature_version": "legal-action-v7",
+    "action_fingerprint_status": "validated",
+    "fingerprints_complete": true,
+    "state_dim": 3208,
+    "state_feature_version": "live-private-belief-v7",
+    "state_fingerprint_status": "validated",
+    "status": "PASS"
+  },
+  "slice_features_available": true,
+  "slices": {
+    "forced_switch": {
+      "groups": 139,
+      "max_expected_damage_top1": 0.5179856115107914,
+      "mrr": 0.7859712230215827,
+      "nll": 0.7750987892179269,
+      "top1": 0.6115107913669064,
+      "top1_mistake_kind_pairs": {
+        "switch->switch": 54
+      },
+      "top1_wrong_top3_contains": 53,
+      "top3": 0.9928057553956835,
+      "top3_miss": 1
+    },
+    "good_as_gold_replay": {
+      "groups": 36,
+      "max_expected_damage_top1": 0.3055555555555556,
+      "mrr": 0.6669312169312168,
+      "nll": 1.3746317397790584,
+      "top1": 0.5,
+      "top1_mistake_kind_pairs": {
+        "move->move": 12,
+        "move_tera->move": 1,
+        "switch->move": 5
+      },
+      "top1_wrong_top3_contains": 12,
+      "top3": 0.8333333333333334,
+      "top3_miss": 6
+    },
+    "hazards_or_removal": {
+      "groups": 3398,
+      "max_expected_damage_top1": 0.379635079458505,
+      "mrr": 0.710106084811794,
+      "nll": 1.1680145665108073,
+      "top1": 0.5244261330194232,
+      "top1_mistake_kind_pairs": {
+        "move->move": 892,
+        "move->switch": 66,
+        "move_tera->move": 49,
+        "switch->move": 348,
+        "switch->switch": 230
+      },
+      "top1_wrong_top3_contains": 1240,
+      "top3": 0.8893466745144203,
+      "top3_miss": 376
+    },
+    "high_candidate_count": {
+      "groups": 321,
+      "max_expected_damage_top1": 0.29906542056074764,
+      "mrr": 0.5889531721307422,
+      "nll": 1.6303592585603421,
+      "top1": 0.367601246105919,
+      "top1_mistake_kind_pairs": {
+        "move->move": 135,
+        "move->switch": 11,
+        "move_tera->move": 4,
+        "switch->move": 44,
+        "switch->switch": 7
+      },
+      "top1_wrong_top3_contains": 129,
+      "top3": 0.7694704049844237,
+      "top3_miss": 74
+    },
+    "illusion_or_displayed_species_ambiguity": {
+      "groups": 5,
+      "max_expected_damage_top1": 0.6,
+      "mrr": 0.7,
+      "nll": 0.8537495710397067,
+      "top1": 0.4,
+      "top1_mistake_kind_pairs": {
+        "move->switch": 1,
+        "switch->switch": 2
+      },
+      "top1_wrong_top3_contains": 3,
+      "top3": 1.0,
+      "top3_miss": 0
+    },
+    "low_hp_or_endgame": {
+      "groups": 4164,
+      "max_expected_damage_top1": 0.37103746397694526,
+      "mrr": 0.7314661383285302,
+      "nll": 1.0462226922787474,
+      "top1": 0.5453890489913544,
+      "top1_mistake_kind_pairs": {
+        "move->move": 959,
+        "move->switch": 65,
+        "move_tera->move": 59,
+        "switch->move": 293,
+        "switch->switch": 484
+      },
+      "top1_wrong_top3_contains": 1582,
+      "top3": 0.925312199807877,
+      "top3_miss": 311
+    },
+    "magic_bounce_replay": {
+      "groups": 160,
+      "max_expected_damage_top1": 0.35,
+      "mrr": 0.6615426587301587,
+      "nll": 1.2939037272849554,
+      "top1": 0.43125,
+      "top1_mistake_kind_pairs": {
+        "move->move": 56,
+        "move->move_tera": 3,
+        "move_tera->move": 2,
+        "switch->move": 18,
+        "switch->switch": 12
+      },
+      "top1_wrong_top3_contains": 76,
+      "top3": 0.90625,
+      "top3_miss": 15
+    },
+    "normal_move_choice": {
+      "groups": 5972,
+      "max_expected_damage_top1": 0.5184192900200938,
+      "mrr": 0.7536808014118799,
+      "nll": 0.9916672823559077,
+      "top1": 0.5763563295378432,
+      "top1_mistake_kind_pairs": {
+        "move->move": 2126,
+        "move->move_tera": 45,
+        "move->switch": 207,
+        "move_tera->move": 128,
+        "move_tera->switch": 14
+      },
+      "top1_wrong_top3_contains": 2163,
+      "top3": 0.9385465505693235,
+      "top3_miss": 367
+    },
+    "obvious_revenge_kill_proxy": {
+      "groups": 1097,
+      "max_expected_damage_top1": 0.8231540565177757,
+      "mrr": 0.8571124712419151,
+      "nll": 0.743255531356928,
+      "top1": 0.7456700091157703,
+      "top1_mistake_kind_pairs": {
+        "move->move": 211,
+        "move->move_tera": 13,
+        "move->switch": 20,
+        "move_tera->move": 31,
+        "move_tera->move_tera": 2
+      },
+      "top1_wrong_top3_contains": 250,
+      "top3": 0.9735642661804923,
+      "top3_miss": 29
+    },
+    "prevention_interaction": {
+      "groups": 17,
+      "max_expected_damage_top1": 0.29411764705882354,
+      "mrr": 0.6162464985994397,
+      "nll": 1.5210484083447295,
+      "top1": 0.4117647058823529,
+      "top1_mistake_kind_pairs": {
+        "move->move": 7,
+        "switch->move": 2,
+        "switch->switch": 1
+      },
+      "top1_wrong_top3_contains": 6,
+      "top3": 0.7647058823529411,
+      "top3_miss": 4
+    },
+    "setup_or_sweep": {
+      "groups": 2478,
+      "max_expected_damage_top1": 0.47296206618240516,
+      "mrr": 0.7366796059290006,
+      "nll": 1.0537526746460828,
+      "top1": 0.5500403551251009,
+      "top1_mistake_kind_pairs": {
+        "move->move": 834,
+        "move->switch": 63,
+        "move_tera->move": 20,
+        "switch->move": 100,
+        "switch->switch": 77
+      },
+      "top1_wrong_top3_contains": 933,
+      "top3": 0.9265536723163842,
+      "top3_miss": 182
+    },
+    "tera_available": {
+      "groups": 5580,
+      "max_expected_damage_top1": 0.3727598566308244,
+      "mrr": 0.693139827615634,
+      "nll": 1.2212371731035245,
+      "top1": 0.5014336917562724,
+      "top1_mistake_kind_pairs": {
+        "move->move": 1303,
+        "move->switch": 162,
+        "move_tera->move": 128,
+        "switch->move": 690,
+        "switch->switch": 413
+      },
+      "top1_wrong_top3_contains": 2083,
+      "top3": 0.874731182795699,
+      "top3_miss": 699
+    },
+    "tera_used_or_chosen": {
+      "groups": 1061,
+      "max_expected_damage_top1": 0.33270499528746467,
+      "mrr": 0.6423963616235058,
+      "nll": 1.3594057728640656,
+      "top1": 0.43072573044297835,
+      "top1_mistake_kind_pairs": {
+        "move->move": 288,
+        "move->switch": 19,
+        "move_tera->move": 128,
+        "switch->move": 84,
+        "switch->switch": 61
+      },
+      "top1_wrong_top3_contains": 425,
+      "top3": 0.8312912346842601,
+      "top3_miss": 179
+    },
+    "top1_wrong_top3_contains": {
+      "groups": 3153,
+      "max_expected_damage_top1": 0.25023786869647957,
+      "mrr": 0.4441801458928005,
+      "nll": 1.4946397540107537,
+      "top1": 0.0,
+      "top1_mistake_kind_pairs": {
+        "move->move": 1924,
+        "move->switch": 127,
+        "move_tera->move": 61,
+        "switch->move": 458,
+        "switch->switch": 527
+      },
+      "top1_wrong_top3_contains": 3153,
+      "top3": 1.0,
+      "top3_miss": 0
+    },
+    "voluntary_switch": {
+      "groups": 2216,
+      "max_expected_damage_top1": 0.0,
+      "mrr": 0.5504342516188184,
+      "nll": 1.7181943544285587,
+      "top1": 0.315884476534296,
+      "top1_mistake_kind_pairs": {
+        "switch->move": 937,
+        "switch->move_tera": 17,
+        "switch->switch": 562
+      },
+      "top1_wrong_top3_contains": 937,
+      "top3": 0.7387184115523465,
+      "top3_miss": 579
+    }
+  },
+  "split": "test"
+}

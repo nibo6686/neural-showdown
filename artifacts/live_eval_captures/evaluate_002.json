@@ -1,0 +1,401 @@
+{
+  "room_id": "captured-room",
+  "url": "captured://showdown-battle",
+  "player": "p1",
+  "turn": 1,
+  "decision_phase": "move",
+  "request": {
+    "active": [
+      {
+        "moves": [
+          {
+            "move": "Psychic Noise",
+            "id": "psychicnoise",
+            "pp": 16,
+            "maxpp": 16,
+            "target": "normal",
+            "disabled": false
+          },
+          {
+            "move": "Fake Out",
+            "id": "fakeout",
+            "pp": 16,
+            "maxpp": 16,
+            "target": "normal",
+            "disabled": false
+          },
+          {
+            "move": "Sludge Wave",
+            "id": "sludgewave",
+            "pp": 16,
+            "maxpp": 16,
+            "target": "allAdjacent",
+            "disabled": false
+          },
+          {
+            "move": "U-turn",
+            "id": "uturn",
+            "pp": 32,
+            "maxpp": 32,
+            "target": "normal",
+            "disabled": false
+          }
+        ],
+        "canTerastallize": "Dark"
+      }
+    ],
+    "side": {
+      "name": "redacted-player",
+      "id": "p1",
+      "pokemon": [
+        {
+          "ident": "p1: Munkidori",
+          "details": "Munkidori, L79, M",
+          "condition": "269/269",
+          "active": true,
+          "stats": {
+            "atk": 164,
+            "def": 150,
+            "spa": 251,
+            "spd": 188,
+            "spe": 213
+          },
+          "moves": [
+            "psychicnoise",
+            "fakeout",
+            "sludgewave",
+            "uturn"
+          ],
+          "baseAbility": "toxicchain",
+          "item": "assaultvest",
+          "pokeball": "pokeball",
+          "ability": "toxicchain",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Dark",
+          "terastallized": "",
+          "canGmax": false,
+          "name": "Munkidori",
+          "speciesForme": "Munkidori",
+          "level": 79,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p1: Munkidori|Munkidori, L79, M",
+          "hpcolor": "",
+          "hp": 269,
+          "maxhp": 269,
+          "status": "",
+          "calcdexId": "7903e666-4dae-5e7f-8d87-9b2d025ec046"
+        },
+        {
+          "ident": "p1: Primarina",
+          "details": "Primarina, L83, M",
+          "condition": "268/268",
+          "active": false,
+          "stats": {
+            "atk": 127,
+            "def": 171,
+            "spa": 257,
+            "spd": 240,
+            "spe": 147
+          },
+          "moves": [
+            "drainingkiss",
+            "psychic",
+            "calmmind",
+            "sparklingaria"
+          ],
+          "baseAbility": "torrent",
+          "item": "leftovers",
+          "pokeball": "pokeball",
+          "ability": "torrent",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Steel",
+          "terastallized": "",
+          "name": "Primarina",
+          "speciesForme": "Primarina",
+          "level": 83,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p1: Primarina|Primarina, L83, M",
+          "hpcolor": "",
+          "hp": 268,
+          "maxhp": 268,
+          "status": "",
+          "calcdexId": "b3c6d6b4-3333-50b3-908f-d2c41e2a12c6"
+        },
+        {
+          "ident": "p1: Rhydon",
+          "details": "Rhydon, L85, F",
+          "condition": "317/317",
+          "active": false,
+          "stats": {
+            "atk": 270,
+            "def": 253,
+            "spa": 125,
+            "spd": 125,
+            "spe": 117
+          },
+          "moves": [
+            "stoneedge",
+            "stealthrock",
+            "megahorn",
+            "earthquake"
+          ],
+          "baseAbility": "lightningrod",
+          "item": "eviolite",
+          "pokeball": "pokeball",
+          "ability": "lightningrod",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Water",
+          "terastallized": "",
+          "name": "Rhydon",
+          "speciesForme": "Rhydon",
+          "level": 85,
+          "shiny": false,
+          "gender": "F",
+          "searchid": "p1: Rhydon|Rhydon, L85, F",
+          "hpcolor": "",
+          "hp": 317,
+          "maxhp": 317,
+          "status": "",
+          "calcdexId": "32d9ec4a-8013-5358-a90c-e0ff7a0e80be"
+        },
+        {
+          "ident": "p1: Cramorant",
+          "details": "Cramorant, L86, M",
+          "condition": "261/261",
+          "active": false,
+          "stats": {
+            "atk": 195,
+            "def": 144,
+            "spa": 195,
+            "spd": 213,
+            "spe": 195
+          },
+          "moves": [
+            "defog",
+            "bravebird",
+            "surf",
+            "roost"
+          ],
+          "baseAbility": "gulpmissile",
+          "item": "heavydutyboots",
+          "pokeball": "pokeball",
+          "ability": "gulpmissile",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Ground",
+          "terastallized": "",
+          "name": "Cramorant",
+          "speciesForme": "Cramorant",
+          "level": 86,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p1: Cramorant|Cramorant, L86, M",
+          "hpcolor": "",
+          "hp": 261,
+          "maxhp": 261,
+          "status": "",
+          "calcdexId": "4d26497f-34ea-5a76-aa30-76c0ef1a6949"
+        },
+        {
+          "ident": "p1: Glimmora",
+          "details": "Glimmora, L75, M",
+          "condition": "248/248",
+          "active": false,
+          "stats": {
+            "atk": 87,
+            "def": 179,
+            "spa": 239,
+            "spd": 165,
+            "spe": 173
+          },
+          "moves": [
+            "earthpower",
+            "powergem",
+            "sludgewave",
+            "spikes"
+          ],
+          "baseAbility": "toxicdebris",
+          "item": "airballoon",
+          "pokeball": "pokeball",
+          "ability": "toxicdebris",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Ground",
+          "terastallized": "",
+          "name": "Glimmora",
+          "speciesForme": "Glimmora",
+          "level": 75,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p1: Glimmora|Glimmora, L75, M",
+          "hpcolor": "",
+          "hp": 248,
+          "maxhp": 248,
+          "status": "",
+          "calcdexId": "fbb91770-4722-55aa-91db-169c2b91a0f0"
+        },
+        {
+          "ident": "p1: Ditto",
+          "details": "Ditto, L87",
+          "condition": "225/225",
+          "active": false,
+          "stats": {
+            "atk": 133,
+            "def": 133,
+            "spa": 133,
+            "spd": 133,
+            "spe": 133
+          },
+          "moves": [
+            "transform"
+          ],
+          "baseAbility": "imposter",
+          "item": "choicescarf",
+          "pokeball": "pokeball",
+          "ability": "imposter",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Steel",
+          "terastallized": "",
+          "name": "Ditto",
+          "speciesForme": "Ditto",
+          "level": 87,
+          "shiny": false,
+          "gender": "",
+          "searchid": "p1: Ditto|Ditto, L87",
+          "hpcolor": "",
+          "hp": 225,
+          "maxhp": 225,
+          "status": "",
+          "calcdexId": "5dbbc156-c57f-5f12-a471-772171e6144e"
+        }
+      ]
+    },
+    "rqid": 2,
+    "requestType": "move"
+  },
+  "log": [
+    "|j|\u2606onebusaway",
+    "",
+    "|j|\u2606johnding",
+    "|t:|1781923597",
+    "|gametype|singles",
+    "|player|p1|redacted-p1|lucas|",
+    "|player|p2|redacted-p2|101|",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1781923597",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|start",
+    "|switch|p1a: Munkidori|Munkidori, L79, M|269/269",
+    "|switch|p2a: Slowking|Slowking-Galar, L85, M|100/100",
+    "|turn|1",
+    "|inactive|Battle timer is ON: inactive players will automatically lose when time's up. (requested by onebusaway)",
+    "|inactive|Time left: 300 sec this turn | 300 sec total | 60 sec grace",
+    "|inactiveoff|Battle timer is now OFF."
+  ],
+  "legal_actions": [
+    {
+      "kind": "move",
+      "label": "Psychic Noise",
+      "slot": 1,
+      "index": 0,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Psychic Noise (Tera)",
+      "slot": 1,
+      "index": 4,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "Fake Out",
+      "slot": 2,
+      "index": 1,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Fake Out (Tera)",
+      "slot": 2,
+      "index": 5,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "Sludge Wave",
+      "slot": 3,
+      "index": 2,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Sludge Wave (Tera)",
+      "slot": 3,
+      "index": 6,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "U-turn",
+      "slot": 4,
+      "index": 3,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "U-turn (Tera)",
+      "slot": 4,
+      "index": 7,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Primarina, L83, M",
+      "slot": 2,
+      "index": 8,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Rhydon, L85, F",
+      "slot": 3,
+      "index": 9,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Cramorant, L86, M",
+      "slot": 4,
+      "index": 10,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Glimmora, L75, M",
+      "slot": 5,
+      "index": 11,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Ditto, L87",
+      "slot": 6,
+      "index": 12,
+      "disabled": false
+    }
+  ]
+}

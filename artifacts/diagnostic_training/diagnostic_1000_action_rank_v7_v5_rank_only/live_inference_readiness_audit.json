@@ -1,0 +1,70 @@
+{
+  "all_selected_candidates_serializable": true,
+  "blockers_before_private_match": [
+    "Live path has no vNext support: it loads ActionRankerMLP with v2 state / v3 action features and pad/truncates; it cannot load the VNextDiagnosticMLP checkpoint.",
+    "Live candidate generation (legal_action_candidates) emits only move/switch and no move_tera candidates, so Tera actions cannot be scored or selected live.",
+    "Live path does not build live-private-belief-v7 state or legal-action-v5 action features (no resolve_action_impact per candidate), so live features would not match training schema/order.",
+    "No candidate->Showdown choice serializer exists for vNext candidates (move / move terastallize / switch) wired to model selection."
+  ],
+  "checkpoint_path": "artifacts\\diagnostic_training\\diagnostic_1000_action_rank_v7_v5_rank_only\\model.best.pt",
+  "command_serialization_failures": [],
+  "config_path": "configs\\diagnostic_1000_action_rank_v7_v5.rank_only.windows.json",
+  "device": "cuda",
+  "live_defaults_changed": false,
+  "live_path_scan": {
+    "any_live_file_references_vnext": false,
+    "files": {
+      "trainer/src/neural/live_action_recommender.py": {
+        "exists": true,
+        "legacy_marker_hits": {
+          "ActionRankerMLP": 5,
+          "build_action_feature_vector(": 1,
+          "np.pad": 2
+        },
+        "vnext_marker_hits": {}
+      },
+      "trainer/src/neural/live_eval_server.py": {
+        "exists": true,
+        "legacy_marker_hits": {
+          "move_tera": 1
+        },
+        "vnext_marker_hits": {}
+      }
+    }
+  },
+  "model_parameter_count": 218786,
+  "model_scoring_latency_ms": {
+    "groups": 300,
+    "max": 90.65620000183117,
+    "mean": 0.9084849998180289,
+    "note": "Model scoring only; excludes live feature generation (state v7 + per-candidate resolve_action_impact), which dominates real live latency.",
+    "p95": 1.2617549960850745
+  },
+  "offline_scorer_parity": {
+    "audit_recomputed_top1": 0.4625833228524714,
+    "groups": 7951,
+    "offline_evaluator_top1": 0.4625833228524714,
+    "top1_match": true
+  },
+  "private_matches_run": false,
+  "sampled_groups": 300,
+  "schema_validation": {
+    "action_dim": 318,
+    "action_feature_version": "legal-action-v5",
+    "action_fingerprint_status": "validated",
+    "fingerprints_complete": true,
+    "state_dim": 3208,
+    "state_feature_version": "live-private-belief-v7",
+    "state_fingerprint_status": "validated",
+    "status": "PASS"
+  },
+  "scoring_determinism_ok": true,
+  "selected_candidate_kind_counts": {
+    "move": 271,
+    "move_tera": 1,
+    "switch": 28
+  },
+  "split": "validation",
+  "tera_command_distinct_from_move": true,
+  "tera_commands_seen": 1
+}

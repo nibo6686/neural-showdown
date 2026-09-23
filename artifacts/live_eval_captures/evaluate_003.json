@@ -1,0 +1,405 @@
+{
+  "room_id": "captured-room",
+  "url": "captured://showdown-battle",
+  "player": "p2",
+  "turn": 1,
+  "decision_phase": "move",
+  "request": {
+    "active": [
+      {
+        "moves": [
+          {
+            "move": "Surf",
+            "id": "surf",
+            "pp": 24,
+            "maxpp": 24,
+            "target": "allAdjacent",
+            "disabled": false
+          },
+          {
+            "move": "Sludge Bomb",
+            "id": "sludgebomb",
+            "pp": 16,
+            "maxpp": 16,
+            "target": "normal",
+            "disabled": false
+          },
+          {
+            "move": "Fire Blast",
+            "id": "fireblast",
+            "pp": 8,
+            "maxpp": 8,
+            "target": "normal",
+            "disabled": false
+          },
+          {
+            "move": "Psychic Noise",
+            "id": "psychicnoise",
+            "pp": 16,
+            "maxpp": 16,
+            "target": "normal",
+            "disabled": false
+          }
+        ],
+        "canTerastallize": "Water"
+      }
+    ],
+    "side": {
+      "name": "redacted-player",
+      "id": "p2",
+      "pokemon": [
+        {
+          "ident": "p2: Slowking",
+          "details": "Slowking-Galar, L85, M",
+          "condition": "300/300",
+          "active": true,
+          "stats": {
+            "atk": 115,
+            "def": 185,
+            "spa": 236,
+            "spd": 236,
+            "spe": 100
+          },
+          "moves": [
+            "surf",
+            "sludgebomb",
+            "fireblast",
+            "psychicnoise"
+          ],
+          "baseAbility": "regenerator",
+          "item": "assaultvest",
+          "pokeball": "pokeball",
+          "ability": "regenerator",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Water",
+          "terastallized": "",
+          "canGmax": false,
+          "name": "Slowking",
+          "speciesForme": "Slowking-Galar",
+          "level": 85,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p2: Slowking|Slowking-Galar, L85, M",
+          "hpcolor": "",
+          "hp": 300,
+          "maxhp": 300,
+          "status": "",
+          "calcdexId": "cfe8606a-062e-5bae-81c2-ff239e4cb9a6"
+        },
+        {
+          "ident": "p2: Ho-Oh",
+          "details": "Ho-Oh, L71",
+          "condition": "268/268",
+          "active": false,
+          "stats": {
+            "atk": 226,
+            "def": 169,
+            "spa": 198,
+            "spd": 260,
+            "spe": 169
+          },
+          "moves": [
+            "recover",
+            "bravebird",
+            "earthquake",
+            "sacredfire"
+          ],
+          "baseAbility": "regenerator",
+          "item": "heavydutyboots",
+          "pokeball": "pokeball",
+          "ability": "regenerator",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Steel",
+          "terastallized": "",
+          "name": "Ho-Oh",
+          "speciesForme": "Ho-Oh",
+          "level": 71,
+          "shiny": false,
+          "gender": "",
+          "searchid": "p2: Ho-Oh|Ho-Oh, L71",
+          "hpcolor": "",
+          "hp": 268,
+          "maxhp": 268,
+          "status": "",
+          "calcdexId": "b1033c42-02fb-5199-8f67-f50e8def022a"
+        },
+        {
+          "ident": "p2: Meowstic",
+          "details": "Meowstic, L89, M",
+          "condition": "277/277",
+          "active": false,
+          "stats": {
+            "atk": 90,
+            "def": 186,
+            "spa": 199,
+            "spd": 195,
+            "spe": 236
+          },
+          "moves": [
+            "thunderwave",
+            "lightscreen",
+            "reflect",
+            "psychicnoise"
+          ],
+          "baseAbility": "prankster",
+          "item": "lightclay",
+          "pokeball": "pokeball",
+          "ability": "prankster",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Fairy",
+          "terastallized": "",
+          "name": "Meowstic",
+          "speciesForme": "Meowstic",
+          "level": 89,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p2: Meowstic|Meowstic, L89, M",
+          "hpcolor": "",
+          "hp": 277,
+          "maxhp": 277,
+          "status": "",
+          "calcdexId": "c4f54600-0db7-52e2-b7d8-98e00530e8e4"
+        },
+        {
+          "ident": "p2: Whimsicott",
+          "details": "Whimsicott, L84, F",
+          "condition": "238/238",
+          "active": false,
+          "stats": {
+            "atk": 117,
+            "def": 191,
+            "spa": 178,
+            "spd": 174,
+            "spe": 243
+          },
+          "moves": [
+            "substitute",
+            "leechseed",
+            "moonblast",
+            "encore"
+          ],
+          "baseAbility": "prankster",
+          "item": "leftovers",
+          "pokeball": "pokeball",
+          "ability": "prankster",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Poison",
+          "terastallized": "",
+          "name": "Whimsicott",
+          "speciesForme": "Whimsicott",
+          "level": 84,
+          "shiny": false,
+          "gender": "F",
+          "searchid": "p2: Whimsicott|Whimsicott, L84, F",
+          "hpcolor": "",
+          "hp": 238,
+          "maxhp": 238,
+          "status": "",
+          "calcdexId": "953e7f3f-b35f-5572-a8e4-2bdb6df88a21"
+        },
+        {
+          "ident": "p2: Passimian",
+          "details": "Passimian, L83, F",
+          "condition": "302/302",
+          "active": false,
+          "stats": {
+            "atk": 247,
+            "def": 197,
+            "spa": 114,
+            "spd": 147,
+            "spe": 180
+          },
+          "moves": [
+            "closecombat",
+            "knockoff",
+            "gunkshot",
+            "uturn"
+          ],
+          "baseAbility": "defiant",
+          "item": "choicescarf",
+          "pokeball": "pokeball",
+          "ability": "defiant",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Dark",
+          "terastallized": "",
+          "name": "Passimian",
+          "speciesForme": "Passimian",
+          "level": 83,
+          "shiny": false,
+          "gender": "F",
+          "searchid": "p2: Passimian|Passimian, L83, F",
+          "hpcolor": "",
+          "hp": 302,
+          "maxhp": 302,
+          "status": "",
+          "calcdexId": "1ae792c8-d8dd-558b-ba45-0282d84cefd2"
+        },
+        {
+          "ident": "p2: Cacturne",
+          "details": "Cacturne, L92, M",
+          "condition": "278/278",
+          "active": false,
+          "stats": {
+            "atk": 264,
+            "def": 163,
+            "spa": 264,
+            "spd": 163,
+            "spe": 154
+          },
+          "moves": [
+            "leafstorm",
+            "spikes",
+            "suckerpunch",
+            "knockoff"
+          ],
+          "baseAbility": "waterabsorb",
+          "item": "lifeorb",
+          "pokeball": "pokeball",
+          "ability": "waterabsorb",
+          "commanding": false,
+          "reviving": false,
+          "teraType": "Dark",
+          "terastallized": "",
+          "name": "Cacturne",
+          "speciesForme": "Cacturne",
+          "level": 92,
+          "shiny": false,
+          "gender": "M",
+          "searchid": "p2: Cacturne|Cacturne, L92, M",
+          "hpcolor": "",
+          "hp": 278,
+          "maxhp": 278,
+          "status": "",
+          "calcdexId": "0efa86d9-cca8-58a0-ba12-3fe147088611"
+        }
+      ]
+    },
+    "rqid": 3,
+    "requestType": "move"
+  },
+  "log": [
+    "|j|\u2606onebusaway",
+    "|j|\u2606johnding",
+    "",
+    "|t:|1781923597",
+    "|gametype|singles",
+    "|player|p1|redacted-p1|lucas|",
+    "|player|p2|redacted-p2|101|",
+    "|gen|9",
+    "|tier|[Gen 9] Random Battle",
+    "|rule|Species Clause: Limit one of each Pok\u00e9mon",
+    "|rule|HP Percentage Mod: HP is shown in percentages",
+    "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+    "|rule|Illusion Level Mod: Illusion disguises the Pok\u00e9mon's true level",
+    "|",
+    "|t:|1781923597",
+    "|teamsize|p1|6",
+    "|teamsize|p2|6",
+    "|start",
+    "|switch|p1a: Munkidori|Munkidori, L79, M|100/100",
+    "|switch|p2a: Slowking|Slowking-Galar, L85, M|300/300",
+    "|turn|1",
+    "|inactive|Battle timer is ON: inactive players will automatically lose when time's up. (requested by onebusaway)",
+    "|inactive|Time left: 300 sec this turn | 300 sec total | 60 sec grace",
+    "|inactiveoff|Battle timer is now OFF.",
+    "|l|\u2606onebusaway"
+  ],
+  "legal_actions": [
+    {
+      "kind": "move",
+      "label": "Surf",
+      "slot": 1,
+      "index": 0,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Surf (Tera)",
+      "slot": 1,
+      "index": 4,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "Sludge Bomb",
+      "slot": 2,
+      "index": 1,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Sludge Bomb (Tera)",
+      "slot": 2,
+      "index": 5,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "Fire Blast",
+      "slot": 3,
+      "index": 2,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Fire Blast (Tera)",
+      "slot": 3,
+      "index": 6,
+      "disabled": false
+    },
+    {
+      "kind": "move",
+      "label": "Psychic Noise",
+      "slot": 4,
+      "index": 3,
+      "disabled": false
+    },
+    {
+      "kind": "move_tera",
+      "label": "Psychic Noise (Tera)",
+      "slot": 4,
+      "index": 7,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Ho-Oh, L71",
+      "slot": 2,
+      "index": 8,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Meowstic, L89, M",
+      "slot": 3,
+      "index": 9,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Whimsicott, L84, F",
+      "slot": 4,
+      "index": 10,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Passimian, L83, F",
+      "slot": 5,
+      "index": 11,
+      "disabled": false
+    },
+    {
+      "kind": "switch",
+      "label": "Cacturne, L92, M",
+      "slot": 6,
+      "index": 12,
+      "disabled": false
+    }
+  ]
+}

@@ -33,6 +33,11 @@ data/value/*
 !data/raw/.gitkeep
 !data/shards/.gitkeep
 
+# Large training datasets (GB-scale, never commit)
+artifacts/training_plan/datasets/diagnostic_*/
+artifacts/training_plan/datasets/tiny_*/
+artifacts/training_plan/datasets/_mat1000.log
+
 # Large generated ML artifacts
 data/policy/*.npz
 data/value/*.npz
