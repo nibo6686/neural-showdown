@@ -62,6 +62,9 @@ pipeline is trusted — not maximizing training volume. As of the latest update:
 - `scripts/run_windows.ps1`: Windows launcher that sets `PYTHONPATH`, resolves
   native Node/WSL sim-core mode, injects sim-core process environment variables,
   and runs the common workflows.
+- `scripts/start_live_eval_macos.sh`: macOS/Linux POSIX launcher for the live
+  evaluator. It assumes dependencies are already installed and never installs
+  packages automatically.
 
 ## Prerequisites
 
@@ -104,6 +107,36 @@ $env:NEURAL_SIM_CORE_COMMAND_JSON = ConvertTo-Json @('node', $serverJs) -Compres
 ```
 
 The Windows launcher does this environment setup for you.
+
+### macOS/Linux launch
+
+The canonical POSIX setup and launch commands are independent of the shell's
+current directory. Run them from the repository root; `npm ci` is an explicit
+one-time setup step and is not performed by a launcher:
+
+```bash
+npm ci --prefix sim-core
+npm run build --prefix sim-core
+./scripts/smoke_test_sim_core.sh
+./scripts/start_live_eval_macos.sh
+```
+
+The POSIX launcher uses `python3`, `node`, and `npm` by default. Override the
+executables without changing the launcher when needed:
+
+```bash
+PYTHON_BIN=/path/to/python NODE_BIN=/path/to/node NPM_BIN=/path/to/npm \
+  ./scripts/start_live_eval_macos.sh
+```
+
+It exports `PYTHONPATH`, `NEURAL_SIM_CORE_CWD`, and
+`NEURAL_SIM_CORE_COMMAND_JSON`, then runs the existing healthcheck before
+starting the local HTTP server. It preserves the live evaluator's Python
+defaults and keeps sim-core stdout (NDJSON) separate from stderr diagnostics.
+
+The smoke test does not start the HTTP server, training, replay acquisition, or
+any network service. It runs the existing non-replay sim-core parity inputs
+through the Python/Node subprocess boundary.
 
 ## Quickstart
 
