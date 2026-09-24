@@ -131,3 +131,74 @@ lineage so callers do not inherit guarantees from accepted but unconsumed
 contracts. Existing search, feature vectors, checkpoints, and live defaults
 remain unchanged. Any search integration requires a separately scoped work
 item and review.
+
+## D-015 — Existing model checkpoints are abandoned for the new pipeline
+
+Status: Current project decision (2026-09-24).
+
+Existing legacy and vNext checkpoints are intentionally abandoned for the
+refactored approach. Their availability, quality, or LFS state is not a blocker
+to defining or training a new model. Do not load, fetch, or promote them as part
+of this pipeline work. This decision does not change historical reports or
+legacy runtime documentation that describes older interfaces.
+
+## D-016 — Simulator coverage is reviewed with explicit gaps
+
+Status: Review evidence recorded (2026-09-24); PIPELINE-001 and FEATURE-001
+remain unaccepted.
+
+SIM-COVERAGE-001 pins its audit to `pokemon-showdown@0.11.10` and
+`gen9randombattle`, records the state/protocol inventory and drift checker, and
+retains unknown or raw-only cases as explicit blockers. Registry and token
+counts are inventory measurements, not proof that every state lifecycle is
+projected. Unknown scoped protocol records stop collection pending review.
+
+## D-017 — Do not generate refactored features before FEATURE-001 acceptance
+
+Status: Current project gate (2026-09-24).
+
+The PIPELINE-001 implementation candidate records lineage with the
+`features-not-produced/v1` sentinel. No feature dimensions, targets, reward,
+horizon, or model input/output interface are inferred from legacy, v7, or v8
+systems. FEATURE-001 must be versioned, shared by collection and inference, and
+reviewed before bulk feature extraction or new dataset generation.
+
+## D-018 — Keep controller randomness separate from simulator randomness
+
+Status: Focused test-control implementation recorded (2026-09-24); no change to
+the legacy random-controller default.
+
+The simulator's four-word seed continues to own Showdown mechanics and team
+generation RNG. `RandomBaselineAgent` still defaults to `Math.random()` unless
+an explicit per-player `ControllerSpec.random_seed` is supplied. Explicit
+controller seeds are independent unsigned 32-bit streams, one per player, and
+are not part of the simulator snapshot or transition lineage. Reproducing a
+random-agent scenario requires the simulator seed, controller seeds, format,
+controller types, and decision order. This test-control change and its protocol
+tests remain subject to separate semantic digest review.
+
+## D-019 — Stop unresolved protocol aliases before pipeline publication
+
+Status: Focused implementation recorded (2026-09-24); pipeline acceptance
+remains pending.
+
+`clearstatus`, `-clearstatus`, and `nothing` remain unknown scoped aliases and
+stop at both pipeline protocol projection entry points with a structured
+diagnostic. `-nothing` is a distinct no-payload raw-only event emitted by the
+pinned Gen 9 Splash source. Move target validation follows the pinned Showdown
+identifier and tag grammar; `[notarget]` is metadata, never an ordinary target.
+This documents runtime behavior and does not accept SIM-COVERAGE-001 or
+PIPELINE-001.
+
+## D-020 — Complete episode boundaries require a separate progression contract
+
+Status: Requirements registered in PIPELINE-002 (2026-09-24); implementation
+not started.
+
+PIPELINE-001 v1 fails closed on one-sided forced-switch, waiting, and
+requestless boundaries. A future complete-episode collector must use actual
+current requests, must not synthesize pass/default actions for non-actionable
+players, and must report terminal completion or an explicit truncation with
+last committed cursor and reason. No episode may be silently dropped as if
+complete. PIPELINE-002 requires real simulator progression tests and separate
+review before full-episode claims.

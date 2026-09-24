@@ -1,10 +1,44 @@
 # Refactor Readiness Status
 
+## Current project status — 2026-09-24
+
+Current authoritative summary: [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+
+- Workspace: branch `refactor/state-001-observable-state`, HEAD
+  `b9b3eb06d362963bb1fa2da21d7c471a84df262c`.
+- Documentation preparation and the accepted contracts through SEARCH-001 are
+  complete. This is not a claim that data collection, model training, or live
+  evaluation is ready.
+- `ENV-001` remains `BLOCKED_WITH_REMEDIATION`.
+- `SIM-COVERAGE-001` has a pinned-source inventory and drift checker, with
+  explicit lifecycle gaps still requiring disposition. The listed local
+  parser/pipeline digest now has a scoped semantic-review attestation and both
+  drift checks pass; this does not establish full lifecycle coverage.
+- `PIPELINE-001` is accepted for its explicit v1 joint-actionable scope. A
+  source-backed hidden Magnet Pull rejection passes action preflight, is
+  rejected by Showdown, and preserves committed state and lineage. Complete
+  episode progression remains PIPELINE-002.
+- `PIPELINE-002` now records concrete complete-episode acceptance criteria for
+  one-sided forced-switch, waiting, and requestless boundaries; implementation
+  has not started.
+- `FEATURE-001` remains unresolved and unaccepted. Do not generate features or
+  targets from an implied schema.
+- No new dataset or model has been produced for this refactored approach.
+  Existing checkpoints are intentionally abandoned and non-blocking.
+
 ## Gate status
 
-`READY_FOR_REFACTOR: YES`
+`DOCUMENTATION_PREPARATION: COMPLETE`
 
-This status is set by the documentation readiness gate after all requested documents exist, all work-item fields are present, cross-references validate, and the documentation diff is confirmed clean.
+`NEW_DATASET_PIPELINE_READY: NO`
+
+`NEW_MODEL_TRAINING_READY: NO`
+
+`NEW_MODEL_LIVE_EVALUATION_READY: NO`
+
+The earlier `READY_FOR_REFACTOR` value referred only to completion of the
+initial documentation-preparation gate. It must not be read as readiness to
+construct a new dataset, train a model, or evaluate a live route.
 
 ## Gate evidence
 
@@ -24,6 +58,9 @@ Prepare a controlled refactor while keeping Showdown/sim-core as the authoritati
 
 ## Baseline
 
+The following values record the original preparation baseline, not the current
+workspace branch or HEAD.
+
 - Branch: `main`
 - Baseline tag: `v1-live-eval-51-gc4477b6`
 - Baseline commit: `c4477b6151885b35847da71110729867d9e48d5d`
@@ -37,7 +74,9 @@ Prepare a controlled refactor while keeping Showdown/sim-core as the authoritati
 - The bare `python` and direct `pytest` commands are not on PATH; use `/Library/Developer/CommandLineTools/usr/bin/python3` and `python3 -m pytest`, or add `/Users/nbolger/Library/Python/3.9/bin` to PATH.
 - Python packages are installed and importable from `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`.
 - Node/npm are available through `/Users/nbolger/.nvm/versions/node/v24.21.0/bin`; sim-core packages and compiled server are present.
-- Remaining blockers are dependency reproducibility metadata and missing raw replay fixtures under `data/replays/raw/gen9randombattle`.
+- Remaining blockers are runtime/dependency reproducibility policy and
+  clean-environment validation. Raw replay fixtures are optional for the first
+  simulator-only milestone and remain required only for replay-specific claims.
 
 ## Current readiness constraints
 
@@ -46,7 +85,9 @@ Prepare a controlled refactor while keeping Showdown/sim-core as the authoritati
 - Production state/model refactoring begins only after `STATE-001` is reviewed.
 - `STATE-001` review result: `ACCEPT` (2026-09-23).
 - `ENV-001` result remains `BLOCKED_WITH_REMEDIATION`; contract acceptance is
-  still pending the documented dependency policy and replay-fixture condition.
+  still pending the documented dependency/runtime policy, lock strategy, and
+  clean-environment smoke. Missing raw replay fixtures do not block the first
+  simulator-only milestone.
 - ENV-001 Node validation: PASS (40/40 full sim-core tests, including five new
   observable-state tests; 11/11 focused state/env-manager tests). Python
   replay-independent validation is 131/131 passed. Replay-backed selection is
@@ -79,7 +120,50 @@ Prepare a controlled refactor while keeping Showdown/sim-core as the authoritati
   inputs, checkpoints, legacy source labels, and consumers remain unchanged.
 - The orchestrator is the only writer of aggregate status files.
 
-## Current prepared item
+## SIM-COVERAGE / PIPELINE / FEATURE current gate
+
+- `SIM-COVERAGE-001`: inventory and checker status are recorded in
+  [`../contracts/SIMULATOR_COVERAGE.md`](../contracts/SIMULATOR_COVERAGE.md)
+  and [`SIM-COVERAGE-001_PROGRESS.md`](SIM-COVERAGE-001_PROGRESS.md). Review
+  evidence includes 142 classified condition/effect IDs, 111 parser tokens,
+  and 86 package-wide literal emitter tokens. The counts are not completeness
+  evidence. The pipeline now rejects the three unknown generic aliases before
+  publication, but their semantics, private lifecycle state, side-condition
+  expiry, and protocol paths outside the scoped format remain review gaps.
+- `PIPELINE-001`: accepted for explicit v1 joint-actionable boundaries after
+  source review and fresh validation on 2026-09-24: 42 focused TypeScript and
+  18 focused Python tests passed. The seeded natural hidden-trap rejection,
+  injected rejection, protocol stops, and lineage preservation are covered.
+  Raw-only evidence is not typed feature state; out-of-scope boundaries remain
+  explicit failures.
+- `PIPELINE-002`: concrete complete-episode requirements are documented for
+  one-sided forced switch, waiting, and requestless boundaries; implementation
+  and real progression tests remain future work.
+- `FEATURE-001`: no accepted feature schema, target definition, reward/horizon
+  contract, or stable training/runtime model interface exists. Do not change
+  legacy/v7/v8 dimensions to fill this gap.
+- The next review is disposition of the remaining SIM-COVERAGE lifecycle gaps
+  that constrain PIPELINE-002. ENV-001 remediation proceeds in parallel;
+  dataset generation and training remain gated by environment, feature, target,
+  and episode-policy acceptance. The full current sequence is in
+  [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
+## Current focused verification — 2026-09-24
+
+- `npm run build --prefix sim-core`: passed.
+- Focused TypeScript selection including coverage, state extraction, observable
+  state, action codec, and pipeline integration: 41 passed, 0 failed.
+- `PYTHONPATH="$PWD/trainer/src" python3 -m pytest
+  trainer/tests/test_pipeline_record.py trainer/tests/test_dataset_lineage.py
+  -q`: 18 passed.
+- Simulator coverage self-test assertions: all six passed; both checker
+  commands exit 1 because the local reviewed-source digest differs after the
+  new parser/pipeline/test edits. No reviewed digest was refreshed.
+- `git diff --check`: passed after final code and documentation edits.
+- Task-specific command/results and remaining acceptance work are in
+  [`PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md`](PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md).
+
+## Accepted preparation scope as of 2026-09-23
 
 `STATE-001` has an accepted shadow slice, `ACTION-001` has an accepted
 request-bound canonical-action slice, FIXTURE-001/FIXTURE-002 have accepted

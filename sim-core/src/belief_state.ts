@@ -6,8 +6,10 @@ import {
 } from './observable_state';
 import {
   SEEDED_TRANSITION_SCHEMA_VERSION,
+  SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+  assertForcedSwitchRoles,
   type SeededSnapshotRef,
-  type SeededTransitionMetadata,
+  type PipelineTransitionMetadata,
 } from './transition';
 import type { PlayerID } from './types';
 
@@ -143,7 +145,7 @@ export interface BeliefState {
 }
 
 export interface BeliefTransitionInput {
-  metadata: SeededTransitionMetadata;
+  metadata: PipelineTransitionMetadata;
   input_observation_id: string;
   output_observation_id: string;
   output_snapshot: SeededSnapshotRef;
@@ -687,12 +689,13 @@ function normalizeTransition(
   if (!isRecord(transition)) throw new BeliefStateError('Belief transition input is malformed.');
   exactKeys(transition, ['metadata', 'input_observation_id', 'output_observation_id', 'output_snapshot'], 'Belief transition input');
   if (!isRecord(transition.metadata)) throw new BeliefStateError('Seeded transition metadata is malformed.');
-  const metadata = transition.metadata as unknown as SeededTransitionMetadata;
+  const metadata = transition.metadata as unknown as PipelineTransitionMetadata;
   exactKeys(metadata as unknown as Record<string, unknown>, [
     'schema_version', 'transition_id', 'parent_branch_id', 'branch_id', 'input_state_fingerprint',
     'output_state_fingerprint', 'root_seed', 'action_ids', 'emitted_log_delta', 'simulator_revision', 'step_index',
+    ...(metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION ? ['acting_player', 'waiting_player'] : []),
   ], 'Seeded transition metadata');
-  if (metadata.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION) {
+  if (metadata.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION && metadata.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION) {
     throw new BeliefStateError('Unsupported seeded transition schema for BeliefState.');
   }
   if (typeof transition.input_observation_id !== 'string' || !/^obs-[a-f0-9]{64}$/.test(transition.input_observation_id)
@@ -710,9 +713,15 @@ function normalizeTransition(
     throw new BeliefStateError('Seeded transition root_seed is malformed.');
   }
   if (!isRecord(metadata.action_ids)) throw new BeliefStateError('Seeded transition action_ids are malformed.');
-  exactKeys(metadata.action_ids, ['p1', 'p2'], 'Seeded transition action_ids');
-  assertNonEmptyString(metadata.action_ids.p1, 'Seeded transition p1 action ID');
-  assertNonEmptyString(metadata.action_ids.p2, 'Seeded transition p2 action ID');
+  if (metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION) {
+    assertForcedSwitchRoles(metadata);
+    exactKeys(metadata.action_ids, [metadata.acting_player], 'Forced-switch action_ids');
+    assertNonEmptyString(metadata.action_ids[metadata.acting_player], 'Forced-switch actor action ID');
+  } else {
+    exactKeys(metadata.action_ids, ['p1', 'p2'], 'Seeded transition action_ids');
+    assertNonEmptyString(metadata.action_ids.p1, 'Seeded transition p1 action ID');
+    assertNonEmptyString(metadata.action_ids.p2, 'Seeded transition p2 action ID');
+  }
   if (!Array.isArray(metadata.emitted_log_delta) || metadata.emitted_log_delta.some((record) => typeof record !== 'string')) {
     throw new BeliefStateError('Seeded transition emitted_log_delta is malformed.');
   }

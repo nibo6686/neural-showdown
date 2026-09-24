@@ -1,6 +1,7 @@
 import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
 import { projectBeliefState, serializeBeliefState, type BeliefState } from './belief_state';
 import { LocalBattleEnv } from './env_manager';
+import type { SettlingOptions } from './settling';
 import {
   OBSERVABLE_STATE_SCHEMA_VERSION,
   projectStepResult,
@@ -8,9 +9,12 @@ import {
 } from './observable_state';
 import {
   SEEDED_TRANSITION_SCHEMA_VERSION,
+  SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+  assertOrdinaryForcedSwitch,
+  type ForcedSwitchRoles,
+  type PipelineTransitionMetadata,
   toSeededSnapshotRef,
   type SeededBattleSnapshot,
-  type SeededTransitionMetadata,
 } from './transition';
 import type { ChoiceRequestView, PlayerID, StepResult } from './types';
 import { PLAYERS } from './types';
@@ -18,13 +22,24 @@ import { PLAYERS } from './types';
 export const PIPELINE_INTEGRATION_SCHEMA_VERSION = 'pipeline-integration/v1' as const;
 export const PIPELINE_BUNDLE_SCHEMA_VERSION = 'pipeline-linked-record/v1' as const;
 export const PIPELINE_TRANSITION_REFERENCE_SCHEMA_VERSION = 'pipeline-transition-reference/v1' as const;
+export const PIPELINE_FORCED_SWITCH_BUNDLE_VERSION = 'pipeline-forced-switch-record/v1' as const;
+export const PIPELINE_FORCED_SWITCH_REFERENCE_VERSION = 'pipeline-forced-switch-reference/v1' as const;
 export const PIPELINE_PREFIX_POLICY_VERSION = 'sim-core-observable-prefix/v1' as const;
 
 const OPTIONS = {
   view_players: [...PLAYERS],
   include_log_delta: true,
   include_possible_roles: false,
+  include_wait_requests: true,
 };
+
+export type PipelineRequestState =
+  | 'actionable'
+  | 'forced_switch'
+  | 'waiting'
+  | 'requestless'
+  | 'terminal'
+  | 'no_legal_actions';
 
 export type PipelineBoundaryKind =
   | 'joint_actionable'
@@ -81,19 +96,69 @@ export interface PipelineStepResult {
   record_bundles: Record<PlayerID, PipelineLinkedRecordBundle>;
 }
 
+export interface PipelineForcedSwitchReference extends Omit<PipelineTransitionReference, 'schema_version'>, ForcedSwitchRoles {
+  schema_version: typeof PIPELINE_FORCED_SWITCH_REFERENCE_VERSION;
+}
+
+export interface PipelineForcedSwitchRecordBundle extends Omit<PipelineLinkedRecordBundle, 'schema_version' | 'transition'> {
+  schema_version: typeof PIPELINE_FORCED_SWITCH_BUNDLE_VERSION;
+  transition: PipelineForcedSwitchReference;
+}
+
+export interface PipelineForcedSwitchStepResult extends ForcedSwitchRoles {
+  boundary: PipelineBoundary;
+  transition_id: string;
+  record_bundles: Partial<Record<PlayerID, PipelineForcedSwitchRecordBundle>>;
+}
+
 export interface PipelineIntegrationOptions {
+  settling?: SettlingOptions;
   battle_id: string;
   format: string;
   seed: readonly number[];
 }
 
+export interface PipelineDiagnostic {
+  schema_version: 'pipeline-diagnostic/v1';
+  code: string;
+  detail: string;
+  record_index?: number;
+  record_command?: string;
+}
+
+export interface PipelineDiagnosticContext {
+  record_index?: number;
+  record_command?: string;
+}
+
 export class PipelineIntegrationError extends Error {
   readonly code: string;
+  readonly diagnostic: PipelineDiagnostic;
 
-  constructor(code: string, detail: string) {
+  constructor(code: string, detail: string, context: PipelineDiagnosticContext = {}) {
     super(`${code}: ${detail}`);
     this.code = code;
+    this.diagnostic = {
+      schema_version: 'pipeline-diagnostic/v1',
+      code,
+      detail,
+      ...(context.record_index === undefined ? {} : { record_index: context.record_index }),
+      ...(context.record_command === undefined ? {} : { record_command: context.record_command }),
+    };
   }
+}
+
+const UNRESOLVED_PROTOCOL_ALIASES = new Set(['clearstatus', '-clearstatus', 'nothing']);
+
+function assertNoUnresolvedProtocolAlias(record: string, recordIndex: number): void {
+  if (!record.startsWith('|')) return;
+  const command = record.slice(1).split('|', 1)[0];
+  if (!UNRESOLVED_PROTOCOL_ALIASES.has(command)) return;
+  throw new PipelineIntegrationError(
+    'pipeline/v1/unresolved-protocol-alias',
+    `unresolved protocol alias "${command}" cannot enter a published boundary`,
+    { record_index: recordIndex, record_command: command },
+  );
 }
 
 function freeze<T>(value: T): T {
@@ -111,12 +176,13 @@ function freeze<T>(value: T): T {
  */
 export function projectPipelineProtocolPrefix(records: readonly string[]): string[] {
   const projected: string[] = [];
-  for (const raw of records) {
+  for (const [recordIndex, raw] of records.entries()) {
     const line = raw.replace(/\r\n?/g, '\n').trim();
     if (!line || line === '|') continue;
     if (!line.startsWith('|')) {
       throw new PipelineIntegrationError('pipeline/v1/unsupported-protocol-record', 'spectator output contained a non-protocol line');
     }
+    assertNoUnresolvedProtocolAlias(line, recordIndex);
     if (line.startsWith('|request|')) continue;
     if (line.startsWith('|tier|')) continue;
     projected.push(line.replace(/^\|t:\|\d+$/, '|t:|0'));
@@ -124,19 +190,38 @@ export function projectPipelineProtocolPrefix(records: readonly string[]): strin
   return projected;
 }
 
+/** Classify only this perspective's request; never inspect the opponent's request. */
+export function classifyPipelineRequestState(observation: ObservableBattleState): PipelineRequestState {
+  if (observation.view.terminated) return 'terminal';
+  if (!observation.request) return 'requestless';
+  if (observation.request.wait) return 'waiting';
+  if (!observation.decision_availability.available
+    || !observation.request.legal_actions.available_indices.length) return 'no_legal_actions';
+  return observation.request.force_switch ? 'forced_switch' : 'actionable';
+}
+
 export function classifyPipelineBoundary(
   observations: Record<PlayerID, ObservableBattleState>,
 ): PipelineBoundaryKind {
-  if (observations.p1.view.terminated || observations.p2.view.terminated) return 'terminal';
-  const p1 = observations.p1.decision_availability.available;
-  const p2 = observations.p2.decision_availability.available;
+  const states = {
+    p1: classifyPipelineRequestState(observations.p1),
+    p2: classifyPipelineRequestState(observations.p2),
+  };
+  if (states.p1 === 'terminal' || states.p2 === 'terminal') return 'terminal';
+  for (const player of PLAYERS) {
+    if (states[player] === 'no_legal_actions') {
+      throw new PipelineIntegrationError('pipeline/v1/no-legal-actions', `${player} has a non-waiting request without available legal actions`);
+    }
+  }
+  const p1 = states.p1 === 'actionable' || states.p1 === 'forced_switch';
+  const p2 = states.p2 === 'actionable' || states.p2 === 'forced_switch';
   if (p1 && p2) return 'joint_actionable';
   if (p1 !== p2) {
-    const actionable = p1 ? observations.p1 : observations.p2;
-    return actionable.request?.force_switch ? 'one_sided_forced_switch' : 'one_sided_requestless';
+    const actionable = p1 ? states.p1 : states.p2;
+    if (actionable === 'forced_switch') return 'one_sided_forced_switch';
+    return (p1 ? states.p2 : states.p1) === 'waiting' ? 'waiting' : 'one_sided_requestless';
   }
-  if (observations.p1.decision_availability.reason === 'waiting'
-    || observations.p2.decision_availability.reason === 'waiting') return 'waiting';
+  if (states.p1 === 'waiting' || states.p2 === 'waiting') return 'waiting';
   return 'requestless';
 }
 
@@ -145,6 +230,9 @@ export function projectPipelineStepResult(
   battleId: string,
   protocolPrefix: string[],
 ): Record<PlayerID, ObservableBattleState> {
+  for (const [recordIndex, record] of protocolPrefix.entries()) {
+    assertNoUnresolvedProtocolAlias(record, recordIndex);
+  }
   try {
     const states = {} as Record<PlayerID, ObservableBattleState>;
     for (const player of PLAYERS) {
@@ -160,6 +248,7 @@ export function projectPipelineStepResult(
     }
     return states;
   } catch (error) {
+    if (error instanceof PipelineIntegrationError) throw error;
     const detail = error instanceof Error ? error.message : 'observable projection failed';
     const code = detail.startsWith('Unsupported raw protocol event:') || detail.startsWith('Malformed raw ')
       ? 'pipeline/v1/unsupported-observable-protocol'
@@ -184,12 +273,13 @@ function phaseFor(result: StepResult, player: PlayerID): string {
   const view = result.views[player];
   const request = result.requests[player] ?? null;
   if (view?.terminated) return 'terminal';
+  if (request?.wait) return 'post_resolution';
   if (request?.force_switch) return 'forced_switch';
   if (request) return 'pre_decision';
   return 'post_resolution';
 }
 
-function transitionReference(metadata: SeededTransitionMetadata, actionId: string): PipelineTransitionReference {
+function transitionReference(metadata: PipelineTransitionMetadata, actionId: string): PipelineTransitionReference {
   return {
     schema_version: PIPELINE_TRANSITION_REFERENCE_SCHEMA_VERSION,
     transition_id: metadata.transition_id,
@@ -229,6 +319,8 @@ export class PipelineIntegrationSession {
   private rawPrefix: string[];
   private currentBoundaryValue: PipelineBoundary | null;
   private closed: boolean;
+  private readonly settlingOptions: SettlingOptions;
+  private readonly retiredEnvironments = new Set<LocalBattleEnv>();
 
   private constructor(options: PipelineIntegrationOptions) {
     if (!options.battle_id.trim()) throw new PipelineIntegrationError('pipeline/v1/invalid-battle-id', 'battle_id must not be empty');
@@ -239,6 +331,7 @@ export class PipelineIntegrationSession {
     this.battle_id = options.battle_id;
     this.format = options.format;
     this.seed = [...options.seed];
+    this.settlingOptions = { ...options.settling };
     this.environment = this.newEnvironment('initial');
     this.snapshot = null;
     this.rawPrefix = [];
@@ -266,16 +359,48 @@ export class PipelineIntegrationSession {
     return this.currentBoundaryValue;
   }
 
+  /** Episode-only scope guard; never projects the private revival request flag. */
+  assertOrdinaryForcedSwitchRequests(): void {
+    this.ensureOpen();
+    for (const player of PLAYERS) {
+      const request = this.environment.getRequest(player);
+      if (request?.force_switch) assertOrdinaryForcedSwitch(request);
+    }
+  }
+
   async step(actions?: Record<PlayerID, CanonicalAction>): Promise<PipelineStepResult> {
     this.ensureOpen();
+    assertPipelineTransitionSupported(this.boundary.kind);
+    return this.executeTransition(actions) as Promise<PipelineStepResult>;
+  }
+
+  async stepForcedSwitch(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
+    this.ensureOpen();
+    const acting_player = action.player;
+    if (acting_player !== 'p1' && acting_player !== 'p2') throw new PipelineIntegrationError('pipeline/v1/invalid-forced-switch-role', 'invalid acting player');
+    const waiting_player = acting_player === 'p1' ? 'p2' : 'p1';
+    if (classifyPipelineRequestState(this.boundary.perspectives[acting_player].observation) !== 'forced_switch'
+      || classifyPipelineRequestState(this.boundary.perspectives[waiting_player].observation) !== 'waiting') {
+      throw new PipelineIntegrationError('pipeline/v1/unsupported-forced-switch-boundary', 'requires one forced-switch player and one waiting player');
+    }
+    const live = this.environment.getRequest(acting_player);
+    if (!live) throw new PipelineIntegrationError('pipeline/v1/request-boundary-changed', 'forced-switch actor has no pending request');
+    assertOrdinaryForcedSwitch(live);
+    return this.executeTransition({ [acting_player]: action }, { acting_player, waiting_player }) as Promise<PipelineForcedSwitchStepResult>;
+  }
+
+  private async executeTransition(
+    actions?: Partial<Record<PlayerID, CanonicalAction>>,
+    roles?: ForcedSwitchRoles,
+  ): Promise<PipelineStepResult | PipelineForcedSwitchStepResult> {
     const inputBoundary = this.boundary;
-    assertPipelineTransitionSupported(inputBoundary.kind);
+    const actors = roles ? [roles.acting_player] : PLAYERS;
     const inputSnapshot = this.snapshot;
     if (!inputSnapshot) throw new PipelineIntegrationError('pipeline/v1/not-initialized', 'current simulator snapshot is missing');
 
     const canonicalActions: Record<PlayerID, CanonicalAction> = { p1: undefined as never, p2: undefined as never };
     const liveRequests: Record<PlayerID, ChoiceRequestView> = { p1: undefined as never, p2: undefined as never };
-    for (const player of PLAYERS) {
+    for (const player of actors) {
       const request = this.environment.getRequest(player);
       if (!request || request.wait || request.team_preview) {
         throw new PipelineIntegrationError('pipeline/v1/request-boundary-changed', `no actionable live request for ${player}`);
@@ -295,8 +420,8 @@ export class PipelineIntegrationSession {
         throw new PipelineIntegrationError('pipeline/v1/stale-observation', `observable request for ${player} is stale`);
       }
     }
-    if (actions && (Object.keys(actions).sort().join(',') !== 'p1,p2')) {
-      throw new PipelineIntegrationError('pipeline/v1/joint-action-required', 'canonical actions must contain exactly p1 and p2');
+    if (actions && (Object.keys(actions).sort().join(',') !== [...actors].sort().join(','))) {
+      throw new PipelineIntegrationError('pipeline/v1/joint-action-required', 'canonical actions must match the acting players');
     }
 
     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
@@ -308,23 +433,29 @@ export class PipelineIntegrationSession {
         || JSON.stringify(candidateSnapshot.root_seed) !== JSON.stringify(inputSnapshot.root_seed)) {
         throw new PipelineIntegrationError('pipeline/v1/restore-mismatch', 'restored candidate does not match authoritative input snapshot');
       }
-      for (const player of PLAYERS) {
+      for (const player of actors) {
         const restoredRequest = candidate.getRequest(player);
         if (!restoredRequest || restoredRequest.rqid !== liveRequests[player].rqid) {
           throw new PipelineIntegrationError('pipeline/v1/restore-request-mismatch', `restored request for ${player} does not match input`);
         }
       }
 
-      const transitionResult = await candidate.stepSeededTransition({
-        schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
+      const common = {
         snapshot: inputSnapshot,
         observations: {
           p1: inputBoundary.perspectives.p1.observation,
           p2: inputBoundary.perspectives.p2.observation,
         },
-        actions: canonicalActions,
         step_index: inputBoundary.step_index,
-      }, OPTIONS);
+      };
+      const transitionResult = roles
+        ? await candidate.stepSeededForcedSwitch({
+          ...common, ...roles, schema_version: SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+          actions: { [roles.acting_player]: canonicalActions[roles.acting_player] },
+        }, OPTIONS)
+        : await candidate.stepSeededTransition({
+          ...common, schema_version: SEEDED_TRANSITION_SCHEMA_VERSION, actions: canonicalActions,
+        }, OPTIONS);
       const choiceErrors = simulatorChoiceErrors(candidate);
       if (choiceErrors.length) {
         throw new PipelineIntegrationError('pipeline/v1/rejected-action', choiceErrors.join('; '));
@@ -378,10 +509,10 @@ export class PipelineIntegrationSession {
         },
       } satisfies PipelineBoundary);
 
-      const bundles = {} as Record<PlayerID, PipelineLinkedRecordBundle>;
-      for (const player of PLAYERS) {
+      const bundles: Partial<Record<PlayerID, PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle>> = {};
+      for (const player of actors) {
         bundles[player] = freeze({
-          schema_version: PIPELINE_BUNDLE_SCHEMA_VERSION,
+          schema_version: roles ? PIPELINE_FORCED_SWITCH_BUNDLE_VERSION : PIPELINE_BUNDLE_SCHEMA_VERSION,
           battle_id: this.battle_id,
           source_ref: `sim-core://${this.battle_id}`,
           ruleset: this.format,
@@ -389,10 +520,13 @@ export class PipelineIntegrationSession {
           input_observation: inputBoundary.perspectives[player].observation,
           input_belief: inputBoundary.perspectives[player].belief,
           action: canonicalActions[player],
-          transition: transitionReference(transitionResult.metadata, canonicalActions[player].action_id),
+          transition: roles ? {
+            ...transitionReference(transitionResult.metadata, canonicalActions[player].action_id),
+            ...roles, schema_version: PIPELINE_FORCED_SWITCH_REFERENCE_VERSION,
+          } : transitionReference(transitionResult.metadata, canonicalActions[player].action_id),
           successor_observation: nextObservations[player],
           successor_belief: nextBeliefs[player],
-        } satisfies PipelineLinkedRecordBundle);
+        } as PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle);
       }
 
       const previousEnvironment = this.environment;
@@ -400,8 +534,16 @@ export class PipelineIntegrationSession {
       this.rawPrefix = nextRawPrefix;
       this.snapshot = transitionResult.output_snapshot;
       this.currentBoundaryValue = nextBoundary;
-      await previousEnvironment.close();
-      return { boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles };
+      // Publication is complete. A disposal error must not report a rejected
+      // candidate after changing committed lineage; retain it for close() retry.
+      this.retiredEnvironments.add(previousEnvironment);
+      try {
+        await previousEnvironment.close();
+        this.retiredEnvironments.delete(previousEnvironment);
+      } catch {
+        // Retried explicitly when the session is closed.
+      }
+      return { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
     } catch (error) {
       await candidate.close();
       throw error;
@@ -412,6 +554,10 @@ export class PipelineIntegrationSession {
     if (this.closed) return;
     this.closed = true;
     await this.environment.close();
+    for (const retired of this.retiredEnvironments) {
+      await retired.close();
+      this.retiredEnvironments.delete(retired);
+    }
   }
 
   private buildInitialBoundary(result: StepResult, snapshot: SeededBattleSnapshot): PipelineBoundary {
@@ -447,6 +593,7 @@ export class PipelineIntegrationSession {
       this.format,
       this.seed,
       { p1: { controller: 'external' }, p2: { controller: 'external' } },
+      this.settlingOptions,
     );
   }
 

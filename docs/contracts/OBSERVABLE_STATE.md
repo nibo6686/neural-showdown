@@ -113,10 +113,21 @@ represents exactly one canonical protocol record.
 
 Raw shape validation follows the existing Showdown protocol and
 `PlayerStateExtractor` handlers. In particular, a `move` record requires a
-valid Pokémon identifier and non-empty move field (with the protocol target and
-optional tags preserved as record text), while `switch`, `faint`, request,
-terminal, numeric, and status/effect records validate their required fields and
-types. A command is not accepted merely because its name is allowlisted.
+valid Pokémon identifier and non-empty move field; its protocol target is
+optional for self-targeting moves, and a present non-empty target must be a
+valid Pokémon identifier or `-`. `-singleturn` requires a valid Pokémon
+identifier and non-empty effect. Optional tags and accepted records are
+preserved as text. `switch`, `faint`, request, terminal, numeric, and
+status/effect records validate their required fields and types. A command is
+not accepted merely because its name is allowlisted.
+
+The current parser also shape-validates `cant`, `-hitcount`, `-fieldactivate`,
+`-message`, `detailschange`, and `activate` variants as raw evidence. These
+records are not all projected into typed state. In particular, `-singleturn`
+is raw-only rather than persistent volatile state, and unclassified generic
+aliases remain explicit blockers. See
+[`SIMULATOR_COVERAGE.md`](SIMULATOR_COVERAGE.md) for the pinned-format inventory
+and current projection limits.
 
 ### Battle view projection
 
@@ -151,6 +162,49 @@ whole-`PokemonView` copy is permitted at this boundary. Arrays and maps are
 cloned, and the omitted `possible_*` fields are hypothesis fields. A private
 field supplied in an opponent `BattleView` is therefore omitted rather than
 silently exposed.
+
+### Public lifecycle and Illusion — scoped acceptance
+
+The extractor clears boosts and battle volatiles on ordinary departure, drag,
+faint and re-entry. It retains permanent status/item evidence where attributed,
+keeps Illusion `replace` distinct, and preserves the pinned Eternamax/Dynamax
+exception without expanding supported-format coverage. A successful switch tagged
+`[from] Shed Tail` copies only the outgoing public Substitute, not boosts or other
+volatiles. Ordinary Substitute and failed Shed Tail do not imply transfer.
+
+An active position, its displayed identity and its confirmed roster identity are
+distinct. Public position events update an appearance object independently of any
+request. A fresh appearance does not inherit its displayed teammate's move/item
+history. The prior entry is retained separately so public reveal can restore it
+and reconcile current evidence to the real identity. A repeat reveal reuses the
+already revealed entry rather than creating a duplicate. Earlier observations are
+cloned/frozen snapshots; reveal never edits their state, identity or protocol prefix.
+Without public reveal, opponent appearance identity remains uncertain.
+
+Own observations combine public active evidence with the latest legitimate
+own-player request at observation time. Requests never mutate public history or
+supply identity to the opponent. The addressed active roster member receives the
+boosts/volatiles, while inactive uncertain aliases cannot contaminate the bench.
+Private move sets come from that member's request. This makes the tested live and
+snapshot-restored observations equivalent despite different request delivery history.
+Perspective allowlists remain unchanged, including omission of opponent boosts,
+private moves, stats and abilities. No simulator-only counters or copy flags are read.
+
+`replace` accepts the pinned conditionless `|replace|IDENT|DETAILS` form. Legacy
+condition-bearing records remain supported with validated HP/status syntax; missing
+fields, invalid player identity, malformed/empty conditions and excess fields reject.
+It preserves existing health/status/boost/volatile evidence when no condition is
+provided. Switch/drag still require conditions. The public Illusion Level Mod
+`-hint` record emitted on reveal is validated and retained verbatim as raw evidence;
+its text produces no typed state. Other unknown commands remain fail-closed.
+
+These corrections preserve schema versions and change content-derived identities
+where field values are corrected. The two reproduced Illusion blockers now pass
+real both-actor regressions, but acceptance/coverage attestation remain separate.
+Other switch/faint fields, linked effects, broader transfers, Revival Blessing and
+expiry/layer/field semantics remain open. Keep `faithful_complete_episode:false`.
+The [checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md) records the
+exact review scope, hashes and validation.
 
 `ObservableFieldView` contains `weather: string | null`,
 `terrain: string | null`, `pseudo_weather: string[]`, and
@@ -264,8 +318,116 @@ The adapter's exact input/output mapping for the other sources is:
 
 ## Rollback and review boundary
 
-Rollback is to remove `sim-core/src/observable_state.ts`, its focused tests, and
-this contract revision. Existing `BattleView`, `ChoiceRequestView`,
-`StepResult`, Python observations, feature vectors, checkpoints, live defaults,
-and search remain intact. `ACTION-001` remains blocked until this contract is
-reviewed and accepted.
+STATE-001 and ACTION-001 are accepted. Any implementation rollback requires a
+separate scoped review; it must not erase this accepted contract or its review
+history. Existing `BattleView`, `ChoiceRequestView`, `StepResult`, Python
+observations, feature vectors, checkpoints, live defaults, and search remain
+intact. This contract does not assert complete simulator-state reconstruction; see
+[`SIMULATOR_COVERAGE.md`](SIMULATOR_COVERAGE.md) for volatile, field-lifecycle,
+and raw-only protocol gaps. PIPELINE-001 and FEATURE-001 remain separate,
+unaccepted work.
+
+Combined review (2026-09-24): original Illusion regressions pass, but fresh switch
+appearances lose public Tera: explicit `tera:Fire` re-entry produces opponent
+`terastallized:false`/Normal types. This violates retained public state; own requests
+mask it only for the owner. Correct explicit Tera projection and verify mirrored
+replay/publication before acceptance. This is distinct from deferred faint Tera reset.
+
+Tera follow-up implementation (2026-09-24): fresh switch/drag appearances now derive
+Terastallized state from explicit public `tera:TYPE` details before resolving types.
+This restores public typing without treating displayed identity as confirmed roster
+identity. An untagged entry does not inherit the displaced appearance's Tera; reveal
+retains the current appearance's Tera. Mirrored switch/drag, restoration and Python
+publication checks pass. Combined semantic acceptance remains pending.
+
+Combined semantic acceptance (2026-09-24) supersedes the pending/blocked dispositions
+above only for ordinary boost/volatile clearing, Shed Tail Substitute transfer,
+Illusion evidence ownership/reveal, conditionless replace/raw-only hint and non-Stellar
+public Tera re-entry. Mirrored Fire fixtures establish switch/drag, restoration,
+privacy, immutable prefixes and deterministic publication. Faint Tera reset is next;
+Stellar defensive typing and other listed lifecycle fields remain unaccepted.
+`faithful_complete_episode:false` is unchanged.
+
+Non-Stellar faint Tera implementation (2026-09-24; review pending): public faint
+clears the active Terastallized flag and resolves non-Tera species/appearance typing,
+retaining known Tera type. Own projection cannot reassert the flag from an older
+request. Unrevealed Illusion remains uncertain to the opponent; private owner data
+cannot alter its identity. Terminal private request history is retained in opaque
+versioned snapshots for exact restoration, never in public prefixes or legal actions.
+This does not resolve Stellar or other temporary-form/type lifecycle gaps.
+
+### Faint/terminal-history review — blocked, 2026-09-24
+
+Pinned non-Stellar faint semantics and normal mirrored privacy/Illusion/teammate/
+immutable-history checks pass. All four source/test hashes match; reuse build134/full157
+TS and prior20 Python evidence. Fresh16 Illusion/Tera tests pass including Python
+publication. No production changes or acceptance/attestation in this review.
+
+Blocker: env_manager.ts:55-83 validates the request envelope and roster array but not
+its entries. A real terminal snapshot with requests.p1.side.pokemon[0].ident = 7
+passes validation, destroys prior state at line441, then throws in selfFromRequest.
+Numeric details/condition also reject late; null entries and string stats succeed
+as corrupt own observations. Parent confirmed the independent probe:
+/tmp/neural-terminal-history-nested-probe.cjs and
+/tmp/neural-faint-review-confirmed-probe.json.
+
+The raw request also contains unused active/action and roster fields. Next task:
+minimize and recursively validate restoration history before destructive reset,
+with mirrored rejection tests preserving fingerprint, observations and usability.
+Valid history creates no actions and raw metadata stays out of logs/records; only
+its existing opaque snapshot commitment enters lineage. Legacy compatibility limits
+remain documented. Four changed files already covered; manifest/list/attestation
+unchanged. Both coverage commands fail only digest drift; six self-tests pass.
+Current digest300cfa84ccf97db8fb54653a02fe45c657c6c7ce45a4676448bfa60fcf7c0c02;
+prior reviewed3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2.
+Stellar and wider lifecycle gaps remain; faithful_complete_episode:false unchanged.
+
+### Terminal-history validation correction — implementation, 2026-09-24
+
+Nested consumed fields are now validated before teardown, with structured
+TerminalRequestHistoryValidationError code/path/reason and no private error values.
+Minimal v1 writers retain only the own-roster fields consumed during restoration;
+historical raw-v1 readers validate then drop unused action/roster data and canonicalize
+Tera markers. Old raw-v1 fingerprints may migrate once; canonical round trips remain
+stable. Missing-metadata legacy behavior remains. Valid history creates no actions
+or raw public records. Faint semantics unchanged; separate acceptance remains pending.
+
+Only env_manager.ts and illusion.test.ts changed. Parent build136 relevant TS tests
+pass, including Python publication; prior20 Python evidence reused. Original five
+malformed probes reject with unchanged fingerprints. Nested cases cover both owners,
+live-state/branch preservation and continued request execution versus a twin; valid
+migration/restoration tests preserve observations. Diff checks pass. Checkpoint has
+source hashes and /tmp/neural-history-validation-* evidence.
+
+Manifest/list/attestation untouched; existing list covers all affected source/tests.
+Checker commands fail only on digest9a05263276c0f17e7c2f3b6baf77b874c48c07c0967b3858eb91d1fdd4a29016;
+six synthetic self-tests pass. Next: review corrected minimal-v1 validation and
+migration with the pending faint slice, then separately attest. Wider lifecycle
+prerequisites and faithful_complete_episode:false remain unchanged.
+
+### Faint/minimal-v1 restoration acceptance — 2026-09-24
+
+Scoped acceptance closes the pending non-Stellar faint and terminal restoration
+slice. Faint deactivates Tera while retaining known type and restoring observable
+non-Tera typing; Illusion privacy and teammate/earlier-observation preservation hold.
+Minimal-v1 validates consumed nested fields before teardown, returns structured
+errors and preserves state/fingerprint/branch/continued choices on rejection.
+Only necessary owner-roster fields persist. Terminal restoration creates no actions
+or public raw history. Historical raw-v1 normalization may change identity: recapture
+references and preserve historical records; old-reference/normalized-state pairing
+rejects. Canonical round trips are deterministic and idempotent.
+
+Four input hashes match. Reused build136 TS/prior20 Python and faint evidence;
+fresh build18 Illusion tests (including Python publication) and3 coverage tests pass.
+Independent review found one wall-clock-only flaky comparator; test-only normalization
+now matches existing identity rules, with exact per-run prefix checks unchanged.
+No production correction. Lineage probe and logs are in the current checkpoint.
+
+Existing24-file list covers extractor, environment, helper and regressions; no
+inclusion changes needed. Updated computed/reviewed digest:
+`6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70`.
+Removed resolved faint-Tera known gap; coverage checker and six self-tests pass.
+This supersedes earlier pending/blocked dispositions only for this scoped slice.
+Next: Stellar defensive typing correction with mirrored lifecycle/restore/publication
+checks. Other fields, linked effects, Revival Blessing and broader episode fidelity
+remain open. Keep faithful_complete_episode:false.

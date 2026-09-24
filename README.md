@@ -5,7 +5,21 @@ TypeScript Pokemon Showdown simulator service with Python tooling for data
 collection, replay ingestion, featurization, model training, evaluation, action
 ranking, and live battle evaluation.
 
-The current repository is centered on four related loops:
+> **Current project status (2026-09-24):** The active effort is a refactored,
+> checkpoint-free data/model pipeline. State, action, transition, belief, and
+> DATA-001 lineage contracts are accepted; ENV-001 remains blocked. The pinned
+> simulator coverage review has documented gaps, PIPELINE-001 remains an
+> unaccepted implementation candidate, and FEATURE-001 has no accepted feature
+> schema. No new dataset has been generated and no new model has been trained.
+> Existing model checkpoints are intentionally abandoned for the new approach
+> and are non-blocking. The legacy replay, training, checkpoint, and live-eval
+> instructions below describe retained project capabilities, not current
+> readiness or authorization.
+
+See [Current Project Status](docs/PROJECT_STATUS.md) for gates, blockers, and
+the next work sequence.
+
+The repository retains four legacy/historical workflow areas:
 
 - Local simulator experiments: collect self-play or baseline-vs-baseline games,
   train policy/value models, and evaluate checkpoints.
@@ -14,7 +28,7 @@ The current repository is centered on four related loops:
 - Live evaluation: serve a local `/evaluate` endpoint that scores the current
   battle state and ranks legal actions using live request data, opponent beliefs,
   damage diagnostics, rollout estimates, and action rankers.
-- vNext diagnostic program: a newer, frozen-schema research track
+- vNext diagnostic program: an earlier frozen-schema research track
   (`live-private-belief-v7` state + `legal-action-v5` action) that materializes
   battle-level diagnostic datasets, trains isolated value / action-rank heads,
   validates representation quality offline, and prepares the action-rank model
@@ -26,19 +40,13 @@ you run them from the repository root.
 
 ### Current focus and status
 
-The active priority is **representation correctness and dataset quality** for the
-vNext program, then training models for private-match testing once the diagnostic
-pipeline is trusted — not maximizing training volume. As of the latest update:
-
-- The action-rank track is the promising one: the `diagnostic_1000` rank-only
-  model beats simple offline baselines (validation top-1/top-3 0.463/0.858).
-- The state-value head is weak on the diagnostic data and is paused.
-- The live `/evaluate` defaults remain intentionally **old and stable**
-  (`live-private-belief-v2` / `legal-action-v3`). The vNext v7/v5 work is
-  **diagnostic-only**: no vNext checkpoint is promoted, and the live bot path is
-  unchanged. Promotion is tracked by a closed gate
-  (`artifacts/training_plan/diagnostic_training_gate.md`).
-- No private or public matches have been run with vNext models.
+The active priority is to close the simulator-coverage and checkpoint-free
+pipeline review gaps, then define and review FEATURE-001 before any new feature
+extraction. The v7/v8 and vNext program descriptions elsewhere in this README
+are historical records of earlier experiments; their dimensions, datasets,
+labels, and checkpoints do not define the new input contract. No model-quality
+claim is made here for those earlier models. The old checkpoints are abandoned
+for the new approach and are not a readiness dependency.
 
 ## Repository Layout
 
@@ -64,6 +72,12 @@ pipeline is trusted — not maximizing training volume. As of the latest update:
   and runs the common workflows.
 
 ## Prerequisites
+
+The environment instructions and commands in this README document existing
+legacy workflows. They are not a reproducibility declaration for the new
+pipeline: ENV-001 remains blocked on dependency policy and clean-environment
+validation. Do not treat dataset/training examples below as authorization for
+the current refactored work.
 
 Runtime pieces:
 
@@ -286,7 +300,7 @@ Live action rankers are action-conditioned models. They score each legal action
 from a concatenation of live state features and action features, rather than
 only choosing from the fixed policy head.
 
-Current **live-default** action feature schema:
+Existing legacy `/evaluate` action feature schema (not FEATURE-001):
 
 - Feature version: `legal-action-v3`
 - Feature dimension: `165`
@@ -305,7 +319,7 @@ different feature domains.
 
 ### Behavior Cloning Policy
 
-Default checkpoint examples:
+Legacy checkpoint examples (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_bc.dev.pt`
 - `artifacts/checkpoints/gen9randombattle_bc.pt`
@@ -325,7 +339,7 @@ Primary modules:
 
 ### Local Trace Value Model
 
-Default checkpoint:
+Legacy checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_value.pt`
 
@@ -341,7 +355,7 @@ Primary modules:
 
 ### Public Replay Value and Policy Models
 
-Default checkpoints:
+Legacy checkpoint paths (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_replay_value.pt`
 - `artifacts/checkpoints/gen9randombattle_replay_policy.pt`
@@ -367,11 +381,11 @@ Primary modules:
 
 ### Live Private-Belief Value Model
 
-Current default checkpoint:
+Legacy `/evaluate` code default checkpoint (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
 
-Current feature domain:
+Existing legacy feature domain (not the new model contract):
 
 - Feature version: `live-private-belief-v2`
 - Feature dimension: `115`
@@ -403,19 +417,19 @@ Build and train:
 
 ### Action Rankers
 
-Current action-rank dataset:
+Legacy action-rank dataset path:
 
 - `data/policy/gen9randombattle_action_rank_v2.npz`
 
-Current action-ranker checkpoint:
+Legacy action-ranker checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt`
 
-Current action-value dataset:
+Legacy action-value dataset path:
 
 - `data/policy/gen9randombattle_action_value_rank_v2.npz`
 
-Current action-value ranker checkpoint:
+Legacy action-value ranker checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt`
 
@@ -520,7 +534,11 @@ configs, and checkpoints record these fingerprints, and loaders refuse mismatche
    `NEURAL_VNEXT_INFERENCE`; **not imported by the default live path**. It consumes
    precomputed v7/v5 features — live feature generation is not yet wired.
 
-### Current datasets and checkpoints
+### Historical datasets and checkpoints
+
+The paths and metrics below document an earlier diagnostic program. They are
+not inputs or gates for the refactored pipeline, and their presence is not
+assumed.
 
 - `artifacts/training_plan/datasets/diagnostic_300_v7_v5/` — 300 battles
   (210/45/45), 25,396 states, 189,957 candidates.
@@ -528,7 +546,7 @@ configs, and checkpoints record these fingerprints, and loaders refuse mismatche
   battles (700/150/150), 80,899 states, 606,770 candidates, 79,525 action-rank
   positives.
 - `artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v5_rank_only/model.best.pt`
-  — current best vNext action-rank checkpoint (epoch 8; validation top-1/top-3
+  — historical vNext action-rank checkpoint (epoch 8; reported validation top-1/top-3
   0.4626/0.8576, test top-1 0.4608). **Not promoted; not live.**
 
 ### Reports and the gate

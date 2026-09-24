@@ -4,9 +4,10 @@ import {
   type CanonicalAction,
 } from './canonical_action';
 import type { ObservableBattleState } from './observable_state';
-import type { PlayerID, StepResult } from './types';
+import type { ChoiceRequestView, PlayerID, StepResult } from './types';
 
 export const SEEDED_TRANSITION_SCHEMA_VERSION = 'seeded-transition/v1' as const;
+export const SEEDED_FORCED_SWITCH_SCHEMA_VERSION = 'seeded-forced-switch/v1' as const;
 export const SIMULATOR_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
 export type RootSeed = [number, number, number, number];
 
@@ -66,6 +67,44 @@ export interface SeededTransitionResult {
   metadata: SeededTransitionMetadata;
   step_result: StepResult;
   output_snapshot: SeededBattleSnapshot;
+}
+
+export interface ForcedSwitchRoles {
+  acting_player: PlayerID;
+  waiting_player: PlayerID;
+}
+
+export interface SeededForcedSwitchRequest extends ForcedSwitchRoles {
+  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION;
+  snapshot: SeededBattleSnapshot;
+  observations: Record<PlayerID, ObservableBattleState>;
+  actions: Partial<Record<PlayerID, CanonicalAction>>;
+  step_index: number;
+}
+
+export interface SeededForcedSwitchMetadata extends Omit<SeededTransitionMetadata, 'schema_version' | 'action_ids'>, ForcedSwitchRoles {
+  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION;
+  action_ids: Partial<Record<PlayerID, string>>;
+}
+
+export interface SeededForcedSwitchResult extends Omit<SeededTransitionResult, 'metadata'> {
+  metadata: SeededForcedSwitchMetadata;
+}
+
+export type PipelineTransitionMetadata = SeededTransitionMetadata | SeededForcedSwitchMetadata;
+
+export function assertForcedSwitchRoles(roles: ForcedSwitchRoles): void {
+  if (!['p1', 'p2'].includes(roles.acting_player) || !['p1', 'p2'].includes(roles.waiting_player)
+    || roles.acting_player === roles.waiting_player) throw new Error('Forced-switch roles must identify distinct p1/p2 players.');
+}
+
+/** Read only the acting player's simulator-provided request, never hidden counters. */
+export function assertOrdinaryForcedSwitch(request: ChoiceRequestView): void {
+  if (!request.force_switch || request.wait || request.team_preview) throw new Error('An ordinary forced-switch request is required.');
+  const raw = request.raw as { side?: { pokemon?: { reviving?: boolean }[] } } | null;
+  if (raw?.side?.pokemon?.some((pokemon) => pokemon.reviving)) {
+    throw new Error('seeded-forced-switch/v1/unsupported-revival-blessing');
+  }
 }
 
 export interface SeededTransitionPublicResult {
@@ -267,5 +306,83 @@ export function toSeededTransitionPublicResult(
     metadata: result.metadata,
     step_result: result.step_result,
     output_snapshot: toSeededSnapshotRef(result.output_snapshot, snapshotHandle),
+  };
+}
+
+export function validateSeededForcedSwitchRequest(request: SeededForcedSwitchRequest): void {
+  if (request.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION) throw new Error('Unsupported forced-switch transition schema.');
+  if (Object.keys(request).sort().join(',') !== 'acting_player,actions,observations,schema_version,snapshot,step_index,waiting_player') {
+    throw new Error('Forced-switch transition fields are not exact.');
+  }
+  assertSnapshot(request.snapshot);
+  assertForcedSwitchRoles(request);
+  if (request.snapshot.format !== 'gen9randombattle') throw new Error('Forced-switch transition only supports gen9randombattle.');
+  if (!Number.isSafeInteger(request.step_index) || request.step_index < 0) throw new Error('Forced-switch step_index is invalid.');
+  exactPlayers(request.observations, 'observations');
+  if (Object.keys(request.actions).join(',') !== request.acting_player) throw new Error('Forced-switch actions must contain only the acting player.');
+  const actor = request.observations[request.acting_player];
+  const waiting = request.observations[request.waiting_player];
+  for (const player of ['p1', 'p2'] as const) {
+    const observation = request.observations[player];
+    if (observation.perspective !== player || observation.request?.player !== player
+      || observation.view.player !== player || observation.source_kind !== 'sim_core'
+      || observation.view.terminated || observation.view.format !== request.snapshot.format) {
+      throw new Error('Forced-switch observation does not match its live perspective/format.');
+    }
+  }
+  if (actor.battle_id !== waiting.battle_id) throw new Error('Forced-switch observations belong to different battles.');
+  if (!actor.request?.force_switch || actor.request.wait || actor.request.team_preview
+    || !actor.decision_availability.available || actor.decision_availability.reason !== 'request'
+    || actor.snapshot_phase !== 'forced_switch') {
+    throw new Error('Forced-switch actor observation must have an actionable forced-switch request.');
+  }
+  if (!waiting.request?.wait || waiting.request.force_switch || waiting.request.team_preview
+    || waiting.decision_availability.available || waiting.decision_availability.reason !== 'waiting'
+    || waiting.snapshot_phase !== 'post_resolution'
+    || waiting.request.legal_actions.available_indices.length
+    || waiting.request.legal_actions.mask.some(Boolean) || waiting.request.legal_actions.actions.some(Boolean)) {
+    throw new Error('Forced-switch partner must have a genuine wait request without actions.');
+  }
+  const action = request.actions[request.acting_player]!;
+  if (action.kind !== 'switch' || !actor.decision_availability.legal_action_indices?.includes(action.index)) {
+    throw new Error('Forced-switch action must be an available switch.');
+  }
+  canonicalActionToChoice(action, {
+    player: request.acting_player, rqid: actor.request.rqid,
+    force_switch: true, legal_actions: actor.request.legal_actions,
+  });
+}
+
+export function buildSeededForcedSwitchResult(
+  request: SeededForcedSwitchRequest,
+  outputSnapshot: SeededBattleSnapshot,
+  stepResult: StepResult,
+): SeededForcedSwitchResult {
+  validateSeededForcedSwitchRequest(request);
+  assertSnapshot(outputSnapshot);
+  if (outputSnapshot.parent_branch_id !== request.snapshot.branch_id
+    || outputSnapshot.format !== request.snapshot.format
+    || canonicalize(outputSnapshot.root_seed) !== canonicalize(request.snapshot.root_seed)) {
+    throw new Error('Forced-switch output snapshot lineage is inconsistent.');
+  }
+  const identity = {
+    schema_version: SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+    acting_player: request.acting_player,
+    waiting_player: request.waiting_player,
+    parent_branch_id: request.snapshot.branch_id,
+    input_state_fingerprint: request.snapshot.state_fingerprint,
+    output_state_fingerprint: outputSnapshot.state_fingerprint,
+    root_seed: [...request.snapshot.root_seed] as RootSeed,
+    action_ids: { [request.acting_player]: request.actions[request.acting_player]!.action_id },
+    simulator_revision: SIMULATOR_REVISION,
+    step_index: request.step_index,
+  };
+  const transition_id = `transition-${digest(identity)}`;
+  const output = createSeededBattleSnapshot(outputSnapshot.format, outputSnapshot.root_seed,
+    outputSnapshot.simulator_state, request.snapshot.branch_id, transition_id);
+  return {
+    metadata: { ...identity, transition_id, branch_id: output.branch_id, emitted_log_delta: [...stepResult.log_delta] },
+    step_result: stepResult,
+    output_snapshot: output,
   };
 }

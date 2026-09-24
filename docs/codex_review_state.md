@@ -1,5 +1,11 @@
 # Codex Review State
 
+> **Current status index:** This file is an append-only review history. Earlier
+> “blocked”, “not started”, or readiness statements describe their dated
+> checkpoints and may be superseded by later sections. The current project gate
+> summary is [`PROJECT_STATUS.md`](PROJECT_STATUS.md); the latest review entry is
+> at the end of this file.
+
 ## 1. Findings H1-H5 and M1-M8
 
 ### H1. Legacy live inference permits schema-mismatched models to run
@@ -403,7 +409,8 @@ Summary:
 
 ### Result
 
-- `READY_FOR_REFACTOR: YES`.
+- Historical documentation-preparation gate: `READY_FOR_REFACTOR: YES` (this
+  did not mean dataset, training, or live-model readiness).
 - Created the requested documentation tree under `docs/refactor`, `docs/contracts`, `docs/testing`, `docs/data`, and `docs/models`.
 - Verified all 15 requested files exist.
 - Verified `CTRL-001`, `STATE-001`, `BELIEF-001`, `ACTION-001`, `FIXTURE-001`, `FIXTURE-002`, `TRANS-001`, `DATA-001`, and `SEARCH-001` are present.
@@ -810,3 +817,534 @@ metadata/validation while preserving legacy dataset files and consumers.
 - `git diff --check`: passed.
 - The existing broader checkpoint-loading baseline of 194 passed, 10 skipped,
   and 7 existing failures was not re-run or altered; it remains separate.
+
+## 8. Current pipeline readiness update — 2026-09-24
+
+This entry is the latest current-state summary and supersedes earlier
+preparation-stage statements where they differ. It does not rewrite prior
+acceptance evidence.
+
+### Accepted lower-level work
+
+STATE-001, ACTION-001, FIXTURE-001, FIXTURE-002, TRANS-001, BELIEF-001,
+DATA-001, and SEARCH-001 remain accepted as recorded above and in
+[`refactor/WORK_ITEMS.md`](refactor/WORK_ITEMS.md). DATA-001's normative
+contract was accepted on 2026-09-23; its contract header is synchronized to
+that status.
+
+### Current blockers and scope
+
+- ENV-001 remains `BLOCKED_WITH_REMEDIATION`. The pinned Node simulator
+  declaration, lock entry, and installed version agree, but that does not
+  resolve Python dependency/lock policy or clean-environment validation.
+- SIM-COVERAGE-001 records the pinned `pokemon-showdown@0.11.10` /
+  `gen9randombattle` inventory and a fail-closed source/registry/token checker.
+  It has explicit lifecycle and generic-protocol gaps; it is not a completeness
+  claim and does not accept PIPELINE-001 or FEATURE-001.
+- PIPELINE-001 remains an implementation candidate, not accepted. Focused
+  evidence covers real transitions, both perspectives, successor lineage,
+  deterministic cross-process identities, Python DATA-001 validation, and
+  rejected-candidate preservation. A naturally occurring simulator rejection
+  has not yet been covered.
+- FEATURE-001 remains unresolved. The feature schema, target, reward/horizon,
+  privacy/information regime, and training/runtime interface are not accepted.
+- No new refactored-model dataset has been generated and no new model has been
+  trained. Existing legacy/vNext checkpoints are intentionally abandoned and
+  non-blocking. No claim is made that the real `/evaluate` route is verified
+  for a future model.
+
+### Current validation and next step
+
+On 2026-09-24, `npm run build` passed; 38 focused TypeScript tests passed;
+`npm run check:simulator-coverage`, its synthetic drift self-tests, and
+`git diff --check` passed. These are focused contract/mechanics and drift
+checks, not model-quality, dataset-quality, or live-route evidence.
+
+Next: disposition the SIM-COVERAGE gaps, complete the PIPELINE-001 acceptance
+slice including natural simulator rejection, then design FEATURE-001 before
+any bulk extraction or new dataset generation. Resolve ENV-001 before claiming
+reproducible generation/training readiness. The current concise gate table is
+[`PROJECT_STATUS.md`](PROJECT_STATUS.md).
+
+## 2026-09-24 focused protocol correction and milestone update
+
+This is an additive current verification record. It does not rewrite or
+supersede earlier dated pass counts and does not accept PIPELINE-001,
+SIM-COVERAGE-001, ENV-001, or FEATURE-001.
+
+### Repository state and changes
+
+- Branch: `refactor/state-001-observable-state`.
+- HEAD: `b9b3eb06d362963bb1fa2da21d7c471a84df262c`; substantial pre-existing
+  worktree edits remain and were preserved.
+- Random-controller action selection accepts an injected RNG while retaining
+  `Math.random()` as the legacy default. Optional per-player uint32 controller
+  seeds use streams separate from Showdown's four-word simulator seed.
+- Move target validation now follows pinned `pokemon-showdown@0.11.10` source:
+  active actor identifiers remain active-position forms; targets may identify
+  active or non-active Pokémon (`p1a: ...` or `p1: ...`); target may be omitted
+  or empty; literal `null` is accepted only with the exact trailing
+  `[notarget]` tag, matching `BattleActions.useMoveInner`. Trailing bracket
+  tags are never interpreted as targets.
+- Pipeline prefix and step-result projection stop `clearstatus`,
+  `-clearstatus`, and `nothing` with
+  `pipeline/v1/unresolved-protocol-alias` and a structured diagnostic. A
+  candidate carrying an unresolved alias cannot replace the committed boundary
+  or its observation/belief lineage.
+- `-nothing` remains a distinct, supported no-payload raw-only record; the
+  pinned Gen 9 Splash callback emits it in `data/moves.ts:18380-18384`.
+- `docs/refactor/WORK_ITEMS.md` defines PIPELINE-002 requirements for complete
+  episode progression. It is not implemented.
+
+### Fresh verification
+
+- `npm run build --prefix sim-core`: passed.
+- `node --test sim-core/dist/tests/simulator_coverage.test.js
+  sim-core/dist/tests/state_extractor.test.js
+  sim-core/dist/tests/observable_state.test.js
+  sim-core/dist/tests/action_codec.test.js
+  sim-core/dist/tests/pipeline_integration.test.js`: 41 passed, 0 failed.
+  Terminal repeatability used simulator seed `[101, 202, 303, 404]`, p1 random
+  controller seed `0x51a7`, p2 random controller seed `0xc0de`, and compared two
+  complete normalized protocol traces.
+- `PYTHONPATH="$PWD/trainer/src" python3 -m pytest
+  trainer/tests/test_pipeline_record.py trainer/tests/test_dataset_lineage.py
+  -q`: 18 passed. Pipeline integration also validated both perspective records
+  in fresh Python subprocesses.
+- `npm run check:simulator-coverage --prefix sim-core`: exit 1,
+  `Local coverage source digest changed:
+  a9e4ec60254e5cc89672777cb98611279e2b7da3fca4a9c57a233ea0ea07b8af`.
+- `node sim-core/scripts/check-simulator-coverage.cjs --self-test`: all six
+  synthetic drift assertions passed; command then exited 1 on the same changed
+  local-source digest.
+  The reviewed digest was not updated. Separate semantic review is required
+  before attestation.
+- Bounded post-preflight simulator-rejection probe: format
+  `gen9randombattle`, simulator seed `[101, 202, 303, 404]`, all 169 legal joint
+  pairs from each side's 13-entry initial action index space. Outcome: 169
+  accepted transitions, 0 natural `pipeline/v1/rejected-action` results. This
+  bounded single-seed result is not proof of impossibility. Existing injected
+  rejection remains labeled injected; acceptance decision remains unresolved.
+- No clean install/environment, package acquisition, network, replay, dataset,
+  feature-extraction, training, or checkpoint operation was performed.
+
+### Current sequence and open decisions
+
+1. Deterministic protocol and stopping-behavior fixes.
+2. SIM-COVERAGE gap disposition and complete-episode boundary requirements.
+3. PIPELINE acceptance with explicit supported scope and rejection guarantees.
+4. ENV reproducibility remediation in parallel.
+5. Training objective/information regime together with FEATURE-001 and the
+   model interface.
+6. Feature extraction, bounded collector, and validated pilot dataset.
+7. New-model training and held-out evaluation.
+8. Live/search integration and operational hardening.
+
+Optional raw replay fixtures are not required for the first simulator-only
+milestone; replay-specific claims still require them. Dataset, model, and
+product-release gates are separate in `docs/PROJECT_STATUS.md`. The evidence
+index in `docs/refactor/WEST_MONROE_REVIEW_EVIDENCE.md` makes no compliance
+claim: no West Monroe internal standard was supplied. Exact source notes,
+commands, and continuation actions are in
+`docs/refactor/PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md`.
+## Scoped PIPELINE-001 review — 2026-09-24
+
+- Accepted PIPELINE-001 for explicit v1 joint-actionable requests, including
+  joint forced switches. Complete-episode one-sided switch, waiting, and
+  requestless progression remain PIPELINE-002.
+- Source review established a natural post-preflight rejection path: Gen 9
+  Random Battle sets provide trapping abilities; Showdown may expose a hidden
+  trap as `maybeTrapped` while request-derived actions still offer a switch;
+  `Side.chooseSwitch` rejects it. A deterministic real-simulator regression
+  proves candidate discard and committed lineage preservation.
+- Attested listed local coverage-source digest
+  `479a096563318af86addd64dd39d445c56e8c5b4d9c8ba0a1c0e100b3c3861d2` after
+  focused semantic review. This is not acceptance of all SIM-COVERAGE
+  lifecycles or FEATURE-001.
+- Fresh verification: build passed; focused TypeScript 42/42; Python
+  record/lineage 18/18; coverage checker and six synthetic self-tests passed.
+- Next task: disposition the remaining SIM-COVERAGE lifecycle gaps that
+  constrain PIPELINE-002. No compliance claim is made.
+
+## PIPELINE-002 request-reporting semantic review — 2026-09-24
+
+- Accepted the reporting slice only: opt-in wait requests preserve legacy
+  defaults; per-player classification distinguishes actionable, forced switch,
+  waiting, absence and terminal; restoration suppresses consumed requests while
+  retaining private facts; perspective privacy and joint-only guards remain.
+- Reviewed the unchanged three-source/two-test diff against pinned Showdown
+  request/choice semantics. Reused the matching passing build, 53 TypeScript
+  tests and 18 Python tests; no production correction or runtime probe needed.
+- Added reviewed `tests/env_manager.test.ts` to local coverage hashing and
+  attested `3d4f9c1a5d41aef6ed8047dfc5faad87ddf86176f1022f7744b963fee042bab2`.
+  Fresh coverage checker and all six self-tests passed. Simulator digest is
+  unchanged; no blanket lifecycle, full typed-view or feature acceptance.
+- PIPELINE-001 scoped acceptance stands; full PIPELINE-002 remains unaccepted.
+  Next implementation: versioned one-sided forced-switch transitions with
+  actor-only records and atomic two-perspective successor lineage. See
+  `docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md` for current evidence.
+
+## PIPELINE-002 ordinary forced-switch implementation — 2026-09-24
+
+- Implemented additive `seeded-forced-switch/v1` with distinct actor/waiting
+  roles and one canonical switch; legacy joint API/identity remains unchanged.
+  Both successor observations/beliefs update, but only the actor receives a
+  `pipeline-forced-switch-record/v1` bundle/reference for Python validation.
+- Real p2 KO and p1 U-turn regressions prove repeatability, actor-only records,
+  both belief joins, resumed joint play and rollback after candidate failures.
+  Revival exclusion is source-shaped synthetic coverage, not natural execution.
+  Post-commit cleanup failures retry at close instead of reporting rejection.
+- Build passed; focused TypeScript 67/67 and Python record/lineage 20/20 passed.
+  Coverage checker and self-test command stop solely on local digest
+  `5dd07856eaf1de8754e5ee39e5878b73caa67a42b56b6b6d932ec0ee3cd8add3`;
+  all six synthetic checks pass. Previous attestation is unchanged.
+- No semantic acceptance of the new execution slice. Single next task: separate
+  review of transition/record versions, live guards, both beliefs, privacy,
+  ordinary/revival scope and publication/cleanup, including Python validation
+  and new tests, before digest attestation. Checkpoint:
+  `docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md`.
+
+## PIPELINE-002 ordinary forced-switch semantic review — 2026-09-24
+
+- Accepted only ordinary `gen9randombattle` forced-switch-plus-wait execution.
+  No blocking findings or source corrections. Reviewed transition/record schema
+  pairing, live requests, actor-only submission/publication, both successor belief
+  joins/privacy, deterministic TypeScript/Python identity and atomic rollback.
+  Post-commit disposal cannot masquerade as rejection; session operations are serial.
+- Real p2 KO and p1 U-turn cases resume joint play. Revival Blessing is explicitly
+  excluded using the pinned request-provided `reviving` flag; its exclusion test
+  is synthetic. No complete-episode, chained-hazard or full typed-view acceptance.
+- Independently matched the implementation digest, reused build/67 TypeScript
+  evidence, and freshly passed 5 forced-switch plus 20 Python record/lineage tests.
+- Added `tests/forced_switch.test.ts`, `../trainer/src/neural/pipeline_record.py`,
+  `../trainer/tests/test_pipeline_record.py` to local hashing (relative to sim-core).
+  Four implementation files were already hashed. Attested recomputed digest
+  `b37c9b26a82b8a389042cdf84f107788baaaf63624f4bc9a167625542adc2bf2`.
+  Coverage checker and all six self-tests pass; simulator digest unchanged.
+- Single next implementation: bounded decision/terminal settling with explicit
+  stall/error/stream-close handling and committed-lineage preservation. Exact
+  scope, evidence and remaining gaps: `docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md`.
+
+## PIPELINE-002 bounded settling implementation — 2026-09-24
+
+- Added source-emission/consumer-acknowledgement barrier for pinned Showdown
+  fan-out. Decision waits for all addressed/public deliveries; terminal also
+  requires source end and matching player views. Intermediate requestless output
+  never invents actions. Buffered terminal output can drain after source EOF.
+- Defaults: 5,000 ms per wait, 100,000 messages since previous settled boundary.
+  In-process clock/scheduler controls support signal-driven tests. Structured
+  settling-failure/v1 errors distinguish timeout, message-limit, simulator-error,
+  stream-closed and cancelled. Failure releases waiters/timers/consumer tasks;
+  coalesced destruction handles close/failure races. Candidate failures preserve
+  committed lineage and publish nothing. No successful schema/identity changes.
+- Changed env_manager.ts and pipeline_integration.ts; new settling.ts and
+  tests/settling.test.ts. Build and 85 TypeScript/20 Python checks pass, including
+  all 67 prior tests and 18 new controlled lifecycle regressions. Coverage commands
+  exit 1 only for listed-source digest
+  `0273358b808f31162574d05a8cc9b113cc5b45ecc50770490e972f14493b6a3e`;
+  six drift self-tests pass. Prior attestation remains unchanged.
+- Implementation only: no semantic acceptance of settling. Single next task is
+  separate lifecycle/digest review, including inclusion of the new source/tests.
+  Prior joint and ordinary forced-switch acceptance stands; full episodes,
+  revival support and typed-state lifecycle completeness remain open. Current
+  checkpoint: `docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md`.
+
+## PIPELINE-002 settling semantic review — 2026-09-24
+
+- Accepted bounded settling for pinned Showdown and serialized session operations.
+  No blocking findings or source corrections. Verified synchronous source emission
+  versus asynchronous fan-out acknowledgements, terminal/end/EOF order, fixed
+  limits, resource cleanup, sticky failure and candidate rollback. No successful
+  schema/identity changes; synchronous simulator calls cannot be preempted.
+- Matched all four checkpoint file hashes and prior listed-source implementation
+  digest. Reused build/85 TypeScript/20 Python evidence; freshly passed 18 settling
+  tests and two controlled review probes (progress cannot reset budgets; late
+  output cannot publish and next transition still equals untouched control).
+- Added src/settling.ts and tests/settling.test.ts to coverage hashing. Attested
+  `ffc9091735e5838b66a1d29cda6afcc973a9953bf01fcbb72132217335bff1b2`.
+  Coverage checker and all six self-tests pass; simulator digest unchanged.
+- Single next task: bounded episode executor with explicit completed/truncated/failed
+  outcomes and finite rejection recovery, as specified in the checkpoint. Public
+  switch/faint/Shed Tail lifecycle fidelity is a prerequisite for faithful complete
+  episode publication; Revival Blessing and unsupported boundaries truncate until
+  implemented. Complete-episode readiness remains a separate acceptance milestone.
+
+## PIPELINE-002 bounded episode implementation — 2026-09-24
+
+- Added pipeline_episode.ts, episode regressions and PIPELINE_EPISODE contract;
+  pipeline_integration.ts adds a private-request scope preflight for all forced
+  requests, including joint boundaries. Existing transition schemas/APIs unchanged.
+- pipeline-episode/v1 reports completed/truncated/failed, normalized budgets,
+  segment origin/final committed boundary, counts, ordered transition IDs and
+  committed per-player bundles. Owns/closes sessions; default 256 commits/512
+  attempts/three rejected candidates per boundary. Only explicit choice rejection
+  retries, excluding tried tuples from current committed requests. Cancellation
+  is observed between commits. Revival and unsupported boundaries truncate.
+- Real default seed [101,202,303,404] completes repeatably in 55 commits with
+  both forced-switch actor paths. Natural Arena Trap retry and controlled budgets,
+  cap exhaustion, protocol/revival/cancellation/failure/cleanup paths pass. Build,
+  102 TypeScript (85 prior + 17 new) and 20 Python tests pass. Runtime completion
+  always retains faithful_complete_episode:false; typed lifecycle fixes remain.
+- Coverage commands exit 1 solely on listed-source digest
+  `df2e893485475552f19e808603be2f3a4e9ca3e342ee2efaa2ef5a9c780b349c`; all six drift checks pass.
+  Prior attestation unchanged; runner/tests not yet in the hashed list. No semantic
+  acceptance of this implementation. Next: separate runner/preflight and coverage
+  inclusion review, preserving complete-publication exclusions. Checkpoint:
+  docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md.
+
+## PIPELINE-002 bounded episode semantic review — 2026-09-24
+
+- Accepted pipeline-episode/v1 orchestration for exclusive serialized-session ownership;
+  no blocking findings or production corrections. All three checkpoint hashes match.
+  Distinct outcomes, 256/512/3 counting/reset/limit semantics, committed-request tuple
+  exclusion and explicit-choice-rejection-only recovery match the contract. Actor-only
+  records append once after commit; partial lineage/final boundary survive stops.
+  Cooperative cancellation, cleanup and unsupported/revival truncation are explicit.
+- Reused matching 102 TypeScript/20 Python evidence (real repeatable 55-commit completion,
+  Arena Trap recovery). Fresh build and 17 runner regressions pass. Two review probes
+  pass: terminal at both exact limits plus simultaneous cancellation; one synthetic
+  legal tuple exhausted after one rejection with no publication. Evidence paths in
+  docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md.
+- Added runner source/tests to hashing (22 files). Attested
+  `4cb99bbc935da7db2edf70568099a19e4876eba049301d459481a0c27077d1c1`.
+  Checker and six self-tests pass; simulator digest unchanged. No new Python schema.
+- Next task: public boost/volatile switch/drag/faint/re-entry clearing plus supported
+  Shed Tail Substitute transfer, with both-perspective/restoration/record checks and
+  separate semantic review. Keep faithful_complete_episode:false; runner acceptance
+  does not establish faithful complete-episode publication or broader lifecycle scope.
+
+## PIPELINE-002 public boost/volatile lifecycle implementation — 2026-09-24
+
+- Corrected extractor switch/drag/faint/re-entry clearing with source-supported
+  retained evidence and Eternamax exception; actual Shed Tail switch tags copy only
+  Substitute. No private effect counters or observation/record schema additions.
+- Public occupancy is separate from request active flags; self request merging uses
+  addressed identity because Showdown reorders slots. Canonical self move IDs fix
+  live/replay display-name duplication revealed by new tests. Raw event order and
+  perspective privacy are unchanged. Broader lifecycle fields remain separate.
+- Added 15 regressions across state extractor, environment and forced-switch tests,
+  with a shared constructed-team helper. Real simulator moves cover both actors:
+  ordinary switch/re-entry, drag, faint/replacement, successful/failed Shed Tail;
+  replay equality, both beliefs, actor-only repeatable records and Python validation.
+  Build, 117 TypeScript and 20 Python tests pass; git diff --check passes.
+- Listed-source digest d231c19ccde9feed1454315418b2eeb56f8bc63ea00ffab27a01af09788db6fc
+  now differs from prior attestation; both checker commands exit 1 solely on drift,
+  six synthetic self-tests pass. Manifest/attestation untouched. Separate semantic
+  review must also consider adding tests/helpers/state_lifecycle.ts to hashing.
+- Checkpoint: docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md. Next task is
+  semantic review of this slice. Other switch/faint fields, linked effects, broader
+  transfers, Revival Blessing and wider lifecycle coverage still need disposition;
+  faithful_complete_episode:false remains mandatory. No full-publication acceptance.
+
+## PIPELINE-002 boost/volatile lifecycle review — blocked 2026-09-24
+
+- Matched all five checkpoint hashes; reviewed ordinary clearing/retention and Shed
+  Tail against pinned simulator source and actual tags. Reused 117 TypeScript/20
+  Python evidence; fresh build and 16 focused tests pass. No source/test changes.
+- Real constructed-team Illusion probes for both actors expose blockers. Zoroark
+  Fox disguised as bench Snorlax Mask uses Nasty Plot; owner state places spa:2 and
+  nastyplot on inactive Mask, not active Fox. Snapshot replay removes Mask's erroneous
+  move/reveal entries, changing observation identity. Name matching/public occupancy
+  and replacement reconciliation need Illusion-aware roster binding.
+- Pinned abilities.ts:2022-2024 emits conditionless replace. observable_state.ts:511-518
+  incorrectly requires a condition, rejecting valid reveal with unsupported-observable-
+  protocol/Malformed raw replace record. Existing fixture neither changes identity nor
+  uses the real grammar. These latent gaps block the requested slice acceptance.
+- Attestation/list untouched. Changed sources/tests already listed; new shared fixture
+  helper belongs in hashing after correction/review. Both coverage commands still exit
+  1 solely on d231c19ccde9feed1454315418b2eeb56f8bc63ea00ffab27a01af09788db6fc drift;
+  six self-tests pass. Evidence/probe paths and next-task criteria in
+  docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md.
+- Highest-priority next correction: Illusion alias/roster binding and source-backed
+  reveal grammar with both-perspective, restore, privacy and deterministic publication
+  regressions. Other fields, linked effects and Revival Blessing remain separate;
+  faithful_complete_episode:false is unchanged. No faithful-publication acceptance.
+
+## PIPELINE-002 Illusion correction implementation — 2026-09-24
+
+- Reproduced blockers corrected in extractor/observable validator. Public appearances
+  accumulate position evidence independently of private requests; own observations
+  bind it to the addressed actual roster member at projection time. Inactive uncertain
+  aliases do not contaminate the bench. Reveal restores the prior displayed entry and
+  reconciles evidence to the actual/reused identity without rewriting old observations.
+- Conditionless replace has separate strict grammar; valid legacy condition records
+  remain supported. Real reveal additionally emits a public Illusion Level Mod -hint:
+  validated raw-only retention added without deriving state from prose or exposing
+  private identities. Existing schemas/visibility and faithful=false remain unchanged.
+- Build, 126 TypeScript and 20 Python tests pass. Eight new constructed-team real
+  simulator tests cover both actors, known/unseen teammates, unrevealed departure,
+  boosts/Substitute, reveal/re-entry/faint, exact prefixes/privacy, full replay equality,
+  deterministic beliefs/records and Python validation. One parser regression covers
+  valid/malformed replace/hint. Original probes now pass. Prior 117 tests remain green.
+- Manifest/attestation unchanged. Checker and self-test exit 1 on listed-source digest
+  8e74d9cf02e2d920c4131bfbb040d4167b05c62c612e8df445d6d08a5fd8d713 and -hint token
+  classification drift; six synthetic tests pass. Next: separate semantic review of
+  combined boost/volatile/Illusion corrections, helper/new test hashing, and raw-only
+  hint inventory/classification before attestation. Exact scope/hashes/evidence in
+  docs/refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md. Other lifecycle fields,
+  linked effects, Revival Blessing and faithful complete-episode publication remain open.
+
+### Combined lifecycle/Illusion review — blocked, 2026-09-24
+
+The original identity contamination and conditionless replace failures pass the
+scoped review. Pinned Illusion.onEnd/Battle.hint support conditionless replace and
+raw-only hint; malformed-input guards remain. Existing mirrored tests verify
+ownership, privacy, immutable prefixes, replay and deterministic publication.
+However, fresh appearances at state_extractor.ts:406-448 discard public Tera on
+re-entry: both-actor real probes emit tera:Fire while opponent views report
+Normal/false and owner views Fire/true. Combined acceptance is blocked.
+
+Eight checkpoint hashes match; fresh build and 43 focused tests pass; matching
+126 TypeScript/20 Python evidence reused. Existing source/test coverage inclusion
+is appropriate; helper and Illusion tests must also be hashed after correction.
+Manifest, token classifications and attestations remain untouched. Both checker
+commands fail digest and added -hint drift; all six synthetic self-tests pass.
+Checkpoint contains exact digest, reproduction and completion criteria. Next:
+correct explicit public Tera re-entry without alias leakage, then semantic review.
+Other fields, linked effects and Revival Blessing remain outstanding;
+faithful_complete_episode:false remains mandatory.
+
+### Public Tera re-entry correction — implementation, 2026-09-24
+
+Fresh switch/drag appearances now set their Terastallized flag from public tera:TYPE
+before resolving types, matching pinned getFullDetails for both emitters and Illusion
+without importing private identity. Only state_extractor.ts, illusion.test.ts and the
+shared lifecycle helper changed in source/tests. Four real mirrored switch/drag cases
+cover both perspectives, no-tag teammate isolation, hidden identity/reveal, restoration,
+immutable prefixes, repeatable records/beliefs and Python record validation.
+
+Fresh build/130 TypeScript tests/diff checks pass; prior 20 Python tests reused.
+Original ordinary Snorlax reproduction passes. Combined acceptance remains pending;
+manifest/list/classifications/attestation unchanged. Listed digest is now
+5e69a24866f9142cd0414b38f5d7ec2e70ca440f8a8986b52d56eca6737cfa5a;
+checker commands reject digest and -hint drift, six synthetic self-tests pass.
+Next: combined semantic review, then helper/Illusion test inclusion and raw-only hint
+classification/inventory before recomputing/attesting. Checkpoint records exact scope,
+hashes and evidence. Broader fields/linked effects/Revival Blessing remain open;
+faithful_complete_episode:false remains.
+
+### Combined lifecycle/Illusion/Tera acceptance — 2026-09-24
+
+Scoped acceptance: ordinary boost/volatile switch/drag/faint/re-entry clearing,
+Shed Tail Substitute-only transfer, Illusion appearance/own-request ownership and
+reveal reconciliation, conditionless replace/raw-only hint, and explicit non-Stellar
+public Tera switch/drag re-entry. Existing Eternamax retention exception does not
+expand supported formats. Pinned source and mirrored constructed-team Fire tests
+support both perspectives, restore/reveal, immutable prefixes, privacy and repeatable
+Python-validated records. No production corrections during review.
+
+Eight hashes match; passing build/130 TS/prior 20 Python evidence reused. Fresh
+29 Illusion/observable tests pass, including new Python publication checks. Added
+shared lifecycle helper and Illusion/Tera tests to hashing (24 files), classified
+-hint raw-only, reconciled its inventory/exclusion and corrected replace grammar.
+Computed and attested local digest: `3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2`.
+Pinned simulator digest remains unchanged. Coverage checker and six synthetic
+self-tests pass. Evidence and exact source hashes are in the current checkpoint.
+
+This supersedes earlier pending/blocked dispositions only for the accepted scope.
+Next bounded prerequisite: public Tera reset on faint with mirrored real KO,
+privacy/prefix/restoration and publication checks. Stellar defensive typing,
+other fields, linked effects, wider transfers, Revival Blessing and faithful
+complete-episode publication remain separate gates. Keep faithful_complete_episode:false.
+
+### Faint Tera and terminal restoration implementation — 2026-09-24
+
+Non-Stellar faint now deactivates Tera and restores observable non-Tera typing while
+retaining known Tera type. Own projection overrides stale pre-faint request flags.
+Unrevealed Illusion Explosion preserves opponent uncertainty and bench teammate data.
+Exact terminal restoration exposed missing legitimate own-request history: optional
+terminal-only terminal-request-history/v1 metadata now stores addressed side-bearing
+requests behind opaque snapshots. No public records or actions are created; malformed
+version/side/roster/nonterminal metadata rejects before replacing current state.
+Outer schemas unchanged; terminal fingerprints include metadata. Bare legacy terminal
+JSON lacks historical private data and cannot provide exact observation restoration.
+
+Changed: state_extractor.ts, env_manager.ts, shared lifecycle helper, illusion.test.ts.
+Parent build/134 relevant TS tests pass; delegated full suite157 passes; prior20 Python
+tests reused and new records validated through Python. Mirrored terminal/Illusion KO
+cases verify both perspectives, replay, immutable prefixes, teammate privacy and
+repeatable records/beliefs. Diff checks pass. Checkpoint contains hashes and logs.
+
+Implementation only; separate semantic review/attestation required. Four changed
+files already hashed. Manifest untouched; both checker commands fail solely on digest
+300cfa84ccf97db8fb54653a02fe45c657c6c7ce45a4676448bfa60fcf7c0c02;
+six synthetic self-tests pass. Prior accepted digest remains
+3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2.
+Next: review this correction and terminal metadata compatibility/privacy, then attest.
+Stellar and broader lifecycle gaps remain; faithful_complete_episode:false unchanged.
+
+### Faint/terminal-history review — blocked, 2026-09-24
+
+Pinned non-Stellar faint semantics and normal mirrored privacy/Illusion/teammate/
+immutable-history checks pass. All four source/test hashes match; reuse build134/full157
+TS and prior20 Python evidence. Fresh16 Illusion/Tera tests pass including Python
+publication. No production changes or acceptance/attestation in this review.
+
+Blocker: env_manager.ts:55-83 validates the request envelope and roster array but not
+its entries. A real terminal snapshot with requests.p1.side.pokemon[0].ident = 7
+passes validation, destroys prior state at line441, then throws in selfFromRequest.
+Numeric details/condition also reject late; null entries and string stats succeed
+as corrupt own observations. Parent confirmed the independent probe:
+/tmp/neural-terminal-history-nested-probe.cjs and
+/tmp/neural-faint-review-confirmed-probe.json.
+
+The raw request also contains unused active/action and roster fields. Next task:
+minimize and recursively validate restoration history before destructive reset,
+with mirrored rejection tests preserving fingerprint, observations and usability.
+Valid history creates no actions and raw metadata stays out of logs/records; only
+its existing opaque snapshot commitment enters lineage. Legacy compatibility limits
+remain documented. Four changed files already covered; manifest/list/attestation
+unchanged. Both coverage commands fail only digest drift; six self-tests pass.
+Current digest300cfa84ccf97db8fb54653a02fe45c657c6c7ce45a4676448bfa60fcf7c0c02;
+prior reviewed3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2.
+Stellar and wider lifecycle gaps remain; faithful_complete_episode:false unchanged.
+
+### Terminal-history validation correction — implementation, 2026-09-24
+
+Nested consumed fields are now validated before teardown, with structured
+TerminalRequestHistoryValidationError code/path/reason and no private error values.
+Minimal v1 writers retain only the own-roster fields consumed during restoration;
+historical raw-v1 readers validate then drop unused action/roster data and canonicalize
+Tera markers. Old raw-v1 fingerprints may migrate once; canonical round trips remain
+stable. Missing-metadata legacy behavior remains. Valid history creates no actions
+or raw public records. Faint semantics unchanged; separate acceptance remains pending.
+
+Only env_manager.ts and illusion.test.ts changed. Parent build136 relevant TS tests
+pass, including Python publication; prior20 Python evidence reused. Original five
+malformed probes reject with unchanged fingerprints. Nested cases cover both owners,
+live-state/branch preservation and continued request execution versus a twin; valid
+migration/restoration tests preserve observations. Diff checks pass. Checkpoint has
+source hashes and /tmp/neural-history-validation-* evidence.
+
+Manifest/list/attestation untouched; existing list covers all affected source/tests.
+Checker commands fail only on digest9a05263276c0f17e7c2f3b6baf77b874c48c07c0967b3858eb91d1fdd4a29016;
+six synthetic self-tests pass. Next: review corrected minimal-v1 validation and
+migration with the pending faint slice, then separately attest. Wider lifecycle
+prerequisites and faithful_complete_episode:false remain unchanged.
+
+### Faint/minimal-v1 restoration acceptance — 2026-09-24
+
+Scoped acceptance closes the pending non-Stellar faint and terminal restoration
+slice. Faint deactivates Tera while retaining known type and restoring observable
+non-Tera typing; Illusion privacy and teammate/earlier-observation preservation hold.
+Minimal-v1 validates consumed nested fields before teardown, returns structured
+errors and preserves state/fingerprint/branch/continued choices on rejection.
+Only necessary owner-roster fields persist. Terminal restoration creates no actions
+or public raw history. Historical raw-v1 normalization may change identity: recapture
+references and preserve historical records; old-reference/normalized-state pairing
+rejects. Canonical round trips are deterministic and idempotent.
+
+Four input hashes match. Reused build136 TS/prior20 Python and faint evidence;
+fresh build18 Illusion tests (including Python publication) and3 coverage tests pass.
+Independent review found one wall-clock-only flaky comparator; test-only normalization
+now matches existing identity rules, with exact per-run prefix checks unchanged.
+No production correction. Lineage probe and logs are in the current checkpoint.
+
+Existing24-file list covers extractor, environment, helper and regressions; no
+inclusion changes needed. Updated computed/reviewed digest:
+`6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70`.
+Removed resolved faint-Tera known gap; coverage checker and six self-tests pass.
+This supersedes earlier pending/blocked dispositions only for this scoped slice.
+Next: Stellar defensive typing correction with mirrored lifecycle/restore/publication
+checks. Other fields, linked effects, Revival Blessing and broader episode fidelity
+remain open. Keep faithful_complete_episode:false.

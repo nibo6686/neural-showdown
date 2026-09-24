@@ -12,7 +12,7 @@ import hashlib
 import json
 import re
 import sys
-from typing import Any, Dict, Mapping, Sequence
+from typing import Any, Dict, Mapping, Optional, Sequence
 
 from neural.canonical_action import validate_canonical_action
 from neural.dataset_lineage import (
@@ -29,6 +29,8 @@ from neural.dataset_lineage import (
 
 PIPELINE_BUNDLE_SCHEMA = "pipeline-linked-record/v1"
 PIPELINE_TRANSITION_SCHEMA = "pipeline-transition-reference/v1"
+FORCED_SWITCH_BUNDLE_SCHEMA = "pipeline-forced-switch-record/v1"
+FORCED_SWITCH_TRANSITION_SCHEMA = "pipeline-forced-switch-reference/v1"
 SIMULATOR_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.10"
 _ID_RE = {
     "observation": re.compile(r"^obs-[0-9a-f]{64}$"),
@@ -50,10 +52,15 @@ _FORBIDDEN_KEYS = frozenset({
     "simulator_state", "rng_seed", "root_seed", "emitted_log_delta", "raw_log_delta",
     "raw_request", "private_team", "opponent_private", "future_events", "omniscient",
 })
+_UNRESOLVED_PROTOCOL_ALIASES = frozenset({"clearstatus", "-clearstatus", "nothing"})
 
 
 class PipelineRecordError(ValueError):
     """Raised when a pipeline record's cross-object joins cannot be proven."""
+
+    def __init__(self, message: str, diagnostic: Optional[Mapping[str, Any]] = None):
+        super().__init__(message)
+        self.diagnostic = dict(diagnostic) if diagnostic is not None else None
 
 
 def _object(value: Any, label: str) -> Mapping[str, Any]:
@@ -107,7 +114,21 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
         raise PipelineRecordError(f"{label} protocol prefix is malformed")
     if isinstance(observation.get("event_cursor"), bool) or observation.get("event_cursor") != len(prefix):
         raise PipelineRecordError(f"{label} event cursor does not match its protocol prefix")
-    for line in prefix:
+    for record_index, line in enumerate(prefix):
+        if line.startswith("|"):
+            command = line[1:].split("|", 1)[0]
+            if command in _UNRESOLVED_PROTOCOL_ALIASES:
+                detail = f'{label} protocol prefix has unresolved alias "{command}" at record {record_index}'
+                raise PipelineRecordError(
+                    detail,
+                    {
+                        "schema_version": "pipeline-diagnostic/v1",
+                        "code": "pipeline/v1/unresolved-protocol-alias",
+                        "detail": detail,
+                        "record_index": record_index,
+                        "record_command": command,
+                    },
+                )
         if line.startswith("|request|"):
             try:
                 request_payload = json.loads(line[len("|request|"):])
@@ -156,7 +177,8 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
     _object(bundle, "pipeline bundle")
     _reject_private_payload(bundle, "pipeline bundle")
     _exact_keys(bundle, _BUNDLE_KEYS, "pipeline bundle")
-    if bundle.get("schema_version") != PIPELINE_BUNDLE_SCHEMA:
+    forced_switch = bundle.get("schema_version") == FORCED_SWITCH_BUNDLE_SCHEMA
+    if bundle.get("schema_version") not in {PIPELINE_BUNDLE_SCHEMA, FORCED_SWITCH_BUNDLE_SCHEMA}:
         raise PipelineRecordError("unsupported pipeline bundle schema")
     battle_id = _nonempty(bundle.get("battle_id"), "battle_id")
     perspective = bundle.get("perspective")
@@ -173,9 +195,21 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
     transition = _object(bundle.get("transition"), "transition reference")
     successor_observation = _object(bundle.get("successor_observation"), "successor observation")
     successor_belief = _object(bundle.get("successor_belief"), "successor belief")
-    _exact_keys(transition, _TRANSITION_KEYS, "transition reference")
-    if transition.get("schema_version") != PIPELINE_TRANSITION_SCHEMA:
+    _exact_keys(transition, _TRANSITION_KEYS | ({"acting_player", "waiting_player"} if forced_switch else set()), "transition reference")
+    expected_transition_schema = FORCED_SWITCH_TRANSITION_SCHEMA if forced_switch else PIPELINE_TRANSITION_SCHEMA
+    if transition.get("schema_version") != expected_transition_schema:
         raise PipelineRecordError("unsupported transition reference schema")
+    if forced_switch:
+        if (transition.get("acting_player") != perspective
+                or transition.get("waiting_player") != ("p2" if perspective == "p1" else "p1")):
+            raise PipelineRecordError("forced-switch record must belong only to the acting player with a distinct waiting player")
+        actor_request = _object(input_observation.get("request"), "forced-switch request")
+        if (ruleset != "gen9randombattle" or actor_request.get("force_switch") is not True
+                or actor_request.get("wait") is not False or actor_request.get("team_preview") is not False
+                or input_observation.get("snapshot_phase") != "forced_switch"
+                or _object(input_observation.get("view"), "input view").get("terminated") is not False
+                or action.get("kind") != "switch"):
+            raise PipelineRecordError("forced-switch bundle requires an ordinary actionable forced-switch input")
 
     for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
         if observation.get("schema_version") != "observable-battle-state/v1":
@@ -285,7 +319,7 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
         schema_fingerprints={
             "observation": "observable-battle-state/v1",
             "belief": "belief-state/v1",
-            "transition": "seeded-transition/v1",
+            "transition": "seeded-forced-switch/v1" if forced_switch else "seeded-transition/v1",
             "feature": feature_schema_fingerprint("features-not-produced/v1", []),
         },
         split_seed=DEFAULT_SPLIT_SEED,
@@ -308,7 +342,14 @@ def main() -> int:
         sys.stdout.write(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
         return 0
     except (json.JSONDecodeError, DatasetLineageError, PipelineRecordError, TypeError, ValueError) as exc:
-        sys.stderr.write(f"pipeline-record validation failed: {exc}\n")
+        diagnostic = getattr(exc, "diagnostic", None)
+        if diagnostic is not None:
+            sys.stderr.write(json.dumps({
+                "error": "pipeline-record validation failed",
+                "diagnostic": diagnostic,
+            }, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
+        else:
+            sys.stderr.write(f"pipeline-record validation failed: {exc}\n")
         return 2
 
 

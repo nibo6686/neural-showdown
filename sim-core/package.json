@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
     "test": "npm run build && node --test dist/tests/*.test.js",
-    "test:soak": "npm run build && node dist/tests/soak.js"
+    "test:soak": "npm run build && node dist/tests/soak.js",
+    "check:simulator-coverage": "node scripts/check-simulator-coverage.cjs"
   },
   "dependencies": {
     "@smogon/calc": "0.11.0",

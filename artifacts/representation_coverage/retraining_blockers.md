@@ -1,5 +1,11 @@
 # Retraining Blockers
 
+> **Historical representation audit.** These findings describe legacy and
+> vNext feature/checkpoint paths at the time of the audit. They are not the
+> current FEATURE-001 contract or an assessment of the abandoned checkpoints.
+> The new model's feature schema remains unresolved; current gates are in
+> [`../../docs/PROJECT_STATUS.md`](../../docs/PROJECT_STATUS.md).
+
 **Decision:** Do **not** rebuild the full dataset or retrain production models on
 the current schemas.
 

@@ -1,8 +1,15 @@
 # Dataset Lineage
 
-Initial contract placeholder for `DATA-001`.
+**Status:** This page is a navigation stub. The normative contract is
+[`../contracts/DATASET_LINEAGE.md`](../contracts/DATASET_LINEAGE.md), which
+defines the accepted DATA-001 `dataset-record/v1` envelope and battle/replay
+split lineage.
 
-Every example should retain battle/replay ID, source kind, perspective, observation/event cursor, raw-prefix hash, private-information provenance, state/action/feature schema fingerprints, split assignment, and parent example identity. Train/validation/test assignment must occur at battle/replay group level before row or decision expansion.
+DATA-001 acceptance does not mean the refactored pipeline is ready to generate a
+new dataset. PIPELINE-001 remains an unaccepted implementation candidate,
+FEATURE-001 has no accepted schema, and the candidate record currently uses the
+`features-not-produced/v1` sentinel. Current gates are in
+[`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-Replay-reconstructed private data and locally captured private data must remain distinguishable in both training and evaluation reports.
-
+Earlier wording on this page was an initial contract placeholder and has been
+superseded by the normative contract; it is not a separate requirement set.

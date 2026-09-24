@@ -353,6 +353,55 @@ function requireRawTarget(parts: string[], index: number, command: string): void
   }
 }
 
+function requireRawMoveTarget(parts: string[], index: number): void {
+  requireRawField(parts, index, 'move', 'target');
+  // Pokemon.toString() emits an active-position ident for active Pokemon and
+  // a side ident for non-active Pokemon, including side-target move records.
+  if (!/^p[12](?:[a-f])?:\s*[^|]+$/.test(parts[index].trim())) {
+    throw new ObservableStateError('Malformed raw move record: invalid target.');
+  }
+}
+
+function requireRawMoveNullTarget(parts: string[], index: number): void {
+  // BattleActions.useMoveInner interpolates a null target into the move line,
+  // includes optional source tags, then adds [notarget] before returning.
+  const tags = parts.slice(index + 1);
+  const sourceTags = tags.slice(0, -1);
+  const isFromTag = (tag: string) => /^\[from\]\s+.+$/.test(tag);
+  const isAnimTag = (tag: string) => /^\[anim\].+$/.test(tag);
+  const validSourceTagOrder = sourceTags.length <= 1
+    ? sourceTags.every((tag) => isFromTag(tag) || isAnimTag(tag))
+    : sourceTags.length === 2 && isAnimTag(sourceTags[0]) && isFromTag(sourceTags[1]);
+  if (
+    parts[index] !== 'null'
+    || tags.at(-1) !== '[notarget]'
+    || tags.filter((tag) => tag === '[notarget]').length !== 1
+    || !validSourceTagOrder
+  ) {
+    throw new ObservableStateError('Malformed raw move record: invalid target.');
+  }
+}
+
+function isSupportedRawMoveTag(tag: string): boolean {
+  return tag === '[still]' || tag === '[miss]' || tag === '[notarget]' || tag === '[zeffect]'
+    || /^\[from\]\s+.+$/.test(tag)
+    || /^\[anim\].+$/.test(tag)
+    || /^\[spread\]\s+p[12][a-f](?:,p[12][a-f])+$/.test(tag);
+}
+
+function requireRawMoveTags(parts: string[]): void {
+  const tags = parts.slice(5);
+  if (tags.filter((tag) => tag === '[notarget]').length > 1
+    || (tags.includes('[notarget]') && tags.at(-1) !== '[notarget]')) {
+    throw new ObservableStateError('Malformed raw move record: invalid tag.');
+  }
+  for (const tag of tags) {
+    if (!isSupportedRawMoveTag(tag)) {
+      throw new ObservableStateError('Malformed raw move record: invalid tag.');
+    }
+  }
+}
+
 function requireRawPlayer(parts: string[], index: number, command: string): void {
   requireRawField(parts, index, command, 'player');
   if (parts[index] !== 'p1' && parts[index] !== 'p2') {
@@ -428,10 +477,32 @@ function validateRawRecordShape(parts: string[], command: string): void {
       parseRawRequestPayload(parts);
       return;
     case 'move':
-      requireAtLeast(5);
+      requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'move');
-      requireRawTarget(parts, 4, command);
+      // Showdown may omit the target or clear it for [still]. Tags are separate
+      // fields: [notarget] is metadata and is never a target identifier.
+      if (parts.length > 4 && parts[4] !== '') {
+        if (parts[4] === 'null') requireRawMoveNullTarget(parts, 4);
+        else requireRawMoveTarget(parts, 4);
+      }
+      requireRawMoveTags(parts);
+      return;
+    case '-singleturn':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'effect');
+      return;
+    case 'cant':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'reason');
+      if (parts.length > 4) requireRawField(parts, 4, command, 'move');
+      return;
+    case '-hitcount':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawInteger(parts, 3, command, 'hit count');
       return;
     case 'faint':
       if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
@@ -439,12 +510,27 @@ function validateRawRecordShape(parts: string[], command: string): void {
       return;
     case 'switch':
     case 'drag':
-    case 'replace':
     case 'detailschange':
       requireAtLeast(5);
       requireIdent();
       requireRawField(parts, 3, command, 'details');
       requireRawField(parts, 4, command, 'condition');
+      return;
+    case 'replace':
+      // Illusion.onEnd emits ident + details only. Legacy HP-bearing records
+      // remain valid, but arbitrary trailing fields/conditions are not accepted.
+      if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError('Malformed raw replace record.');
+      requireIdent();
+      requireRawField(parts, 3, command, 'details');
+      if (parts.length === 5 && !/^(?:0 fnt|\d+(?:\/[1-9]\d*)?(?: (?:brn|par|slp|psn|tox|frz))?)$/.test(parts[4])) {
+        throw new ObservableStateError('Malformed raw replace condition.');
+      }
+      return;
+    case '-hint':
+      // Public Illusion Level Mod explanation emitted by Battle.hint. No typed
+      // state is inferred from prose; retain the original record in the prefix.
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'message');
       return;
     case 'poke':
       requireAtLeast(4);
@@ -524,8 +610,19 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case '-fieldstart':
     case 'fieldend':
     case '-fieldend':
+    case '-fieldactivate':
       requireAtLeast(3);
       requireRawField(parts, 2, command, 'effect');
+      return;
+    case '-message':
+      requireAtLeast(3);
+      requireRawField(parts, 2, command, 'message');
+      return;
+    case 'activate':
+    case '-activate':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawField(parts, 3, command, 'effect');
       return;
     case 'sidestart':
     case '-sidestart':
@@ -744,16 +841,16 @@ type RawEvidence = {
 const SUPPORTED_RAW_COMMANDS = new Set([
   'ability', '-ability', 'block', '-block', 'boost', '-boost', 'clearallboost', '-clearallboost',
   'clearnegativeboost', '-clearnegativeboost', 'clearpositiveboost', '-clearpositiveboost',
-  'curestatus', '-curestatus', 'damage', '-damage', 'drag', 'end', '-end', 'endability',
+  'curestatus', '-curestatus', 'damage', '-damage', 'drag', 'detailschange', 'end', '-end', 'endability',
   '-endability', 'enditem', '-enditem', 'faint', 'fieldend', '-fieldend', 'fieldstart',
   '-fieldstart', 'formechange', '-formechange', 'gen', 'heal', '-heal', 'hitcount',
-  'immune', '-immune', 'item', '-item', 'miss', '-miss', 'move', 'nothing', '-nothing',
-  'player', 'poke', 'replace', 'request', 'resisted', '-resisted', 'rule', 'sidestart',
+  'immune', '-immune', 'item', '-item', 'miss', '-miss', 'move', 'nothing', '-nothing', '-singleturn', 'cant', '-hitcount',
+  'player', 'poke', 'replace', 'request', 'resisted', '-resisted', 'rule', 'sidestart', '-hint',
   '-sidestart', 'sideend', '-sideend', 'start', '-start', 'status', '-status', 'switch',
   'teamsize', 'terastallize', '-terastallize', 'turn', 'unboost', '-unboost', 'upkeep',
   'weather', '-weather', 'win', 'tie', 'transform', '-transform', 'setboost', '-setboost',
   'sethp', '-sethp', 'swapsideconditions', '-swapsideconditions', 'crit', '-crit',
-  'supereffective', '-supereffective', 'fail', '-fail', 'activate', '-activate', 'prepare',
+  'supereffective', '-supereffective', 'fail', '-fail', 'activate', '-activate', '-fieldactivate', '-message', 'prepare',
   '-prepare', 'mustrecharge', '-mustrecharge', 'clearboost', '-clearboost', 'clearstatus',
   '-clearstatus', 'c', 'chat', 'error', 'gametype', 'rated',
   'teampreview', 'clearpoke', 'done', 'inactive', 'inactiveoff', 't:',

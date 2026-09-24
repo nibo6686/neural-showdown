@@ -1,5 +1,10 @@
 # Schema Freeze Verification
 
+> **Historical schema snapshot dated 2026-06-19.** The listed legacy/v7/v8
+> dimensions are not the proposed FEATURE-001 schema and must not be carried
+> forward by default. Existing checkpoints are abandoned and non-blocking for
+> the new approach. See [`../../docs/PROJECT_STATUS.md`](../../docs/PROJECT_STATUS.md).
+
 **Date:** 2026-06-19  
 **Result:** PASS
 

@@ -77,6 +77,13 @@ export class PlayerStateExtractor {
 
   private view: BattleView;
   private currentRequest: ChoiceRequestView | null;
+  // Public positions are appearances, not confirmed roster names. Requests never
+  // mutate this protocol state, so replay with only the latest request is equivalent.
+  private readonly publicActive: Partial<Record<PlayerID, {
+    pokemon: PokemonView;
+    prior?: PokemonView;
+  }>> = {};
+  private ownRequestData: any = null;
 
   constructor(envId: string, format: string, player: PlayerID) {
     this.envId = envId;
@@ -98,11 +105,13 @@ export class PlayerStateExtractor {
   }
 
   getView(): BattleView {
+    const selfTeam = this.ownRequestData ? this.selfFromRequest(this.ownRequestData) : this.view.self_team;
+    const selfActive = selfTeam.findIndex((pokemon) => pokemon.active);
     return {
       ...this.view,
       names: { ...this.view.names },
       team_size: { ...this.view.team_size },
-      active: { ...this.view.active },
+      active: { ...this.view.active, self: selfActive < 0 ? null : selfActive },
       field: {
         weather: this.view.field.weather,
         terrain: this.view.field.terrain,
@@ -112,7 +121,7 @@ export class PlayerStateExtractor {
           opponent: { ...this.view.field.side_conditions.opponent },
         },
       },
-      self_team: this.view.self_team.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
+      self_team: selfTeam.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
       opponent_team: this.view.opponent_team.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
     };
   }
@@ -131,6 +140,18 @@ export class PlayerStateExtractor {
         available_indices: [...this.currentRequest.legal_actions.available_indices],
       },
     } : null;
+  }
+
+  /**
+   * The last addressed side request is private restoration evidence. It never
+   * appears in a public protocol prefix or becomes a pending choice by itself.
+   */
+  getOwnRequestData(): unknown | null {
+    return this.ownRequestData ? structuredClone(this.ownRequestData) : null;
+  }
+
+  restoreOwnRequestData(rawRequest: unknown): void {
+    this.ownRequestData = structuredClone(rawRequest);
   }
 
   private consumeLine(line: string): void {
@@ -249,19 +270,34 @@ export class PlayerStateExtractor {
   private handleRequest(rawJson: string): void {
     const rawRequest = JSON.parse(rawJson);
     this.currentRequest = normalizeRequest(this.player, rawRequest);
-    this.syncSelfFromRequest(rawRequest);
+    if (Array.isArray(rawRequest?.side?.pokemon)) this.ownRequestData = rawRequest;
   }
 
-  private syncSelfFromRequest(rawRequest: any): void {
+  private selfFromRequest(rawRequest: any): PokemonView[] {
     const requestSide = Array.isArray(rawRequest?.side?.pokemon) ? rawRequest.side.pokemon : [];
-    const previousBySlot = new Map<number, PokemonView>(this.view.self_team.map((pokemon) => [pokemon.slot, pokemon]));
 
-    this.view.self_team = requestSide.map((pokemon: any, index: number) => {
+    return requestSide.map((pokemon: any, index: number) => {
       const slot = index + 1;
-      const previous = previousBySlot.get(slot);
+      // Showdown swaps party positions on switch. A request slot is not a stable
+      // identity, and copying its former occupant can lose a transferred effect.
+      const ident = parseIdent(pokemon?.ident || '');
+      const named = this.view.self_team.find((entry) => {
+        const prior = parseIdent(entry.ident);
+        return ident.player === prior.player && ident.name !== '' && ident.name === prior.name;
+      });
+      // Only the addressed player's request can bind an unrevealed appearance
+      // to a real roster member. Never apply its evidence to the bench disguise.
+      const appearance = this.publicActive[this.player]?.pokemon;
+      const previous = pokemon?.active ? appearance || named
+        : named && named !== appearance && !named.displayed_species_uncertain ? named : undefined;
       const parsedDetails = parseDetails(pokemon?.details || '');
       const parsedCondition = parseCondition(pokemon?.condition || '');
-      const terastallized = !!pokemon?.terastallized;
+      // A terminal battle has no following request. In that case the most
+      // recent own request can still describe a live Terastallized Pokemon,
+      // while the public faint record has already reset its active Tera form.
+      // Keep the known Tera type as historical evidence, but let the public
+      // faint state win for the live flag and displayed typing.
+      const terastallized = !parsedCondition.fainted && !previous?.fainted && !!pokemon?.terastallized;
       const teraType = pokemon?.teraType || parsedDetails.teraType || previous?.tera_type || null;
 
       return {
@@ -273,7 +309,7 @@ export class PlayerStateExtractor {
         current_species: previous?.transformed
           ? previous.current_species
           : parsedDetails.species || previous?.current_species || previous?.species || null,
-        displayed_species: previous?.transformed
+        displayed_species: previous && (previous.transformed || pokemon?.active)
           ? previous.displayed_species
           : parsedDetails.species || previous?.displayed_species || previous?.species || null,
         species_source: 'request',
@@ -281,10 +317,10 @@ export class PlayerStateExtractor {
         displayed_species_uncertain: false,
         illusion_revealed: previous?.illusion_revealed || false,
         details: pokemon?.details || previous?.details || '',
-        active: !!pokemon?.active,
-        fainted: parsedCondition.fainted,
-        hp_text: parsedCondition.hpText,
-        hp_ratio: parsedCondition.hpRatio,
+        active: !!pokemon?.active && !previous?.fainted,
+        fainted: parsedCondition.fainted || !!previous?.fainted,
+        hp_text: previous?.fainted || this.view.terminated ? previous?.hp_text ?? parsedCondition.hpText : parsedCondition.hpText,
+        hp_ratio: previous?.fainted || this.view.terminated ? previous?.hp_ratio ?? parsedCondition.hpRatio : parsedCondition.hpRatio,
         status: parsedCondition.status,
         status_source: 'request',
         status_started_turn: parsedCondition.status
@@ -322,8 +358,6 @@ export class PlayerStateExtractor {
         possible_tera_types: previous?.possible_tera_types ? [...previous.possible_tera_types] : [],
       };
     });
-
-    this.updateActiveIndices();
   }
 
   private handlePlayer(parts: string[]): void {
@@ -367,13 +401,34 @@ export class PlayerStateExtractor {
     }
 
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
-    const pokemon = this.findOrCreatePokemon(team, ident, details);
+    const outgoing = this.publicActive[parsedIdent.player]?.pokemon;
+    // switchIn emits the actual switch cause, including after snapshot replay.
+    // copyVolatileFrom(..., 'shedtail') copies Substitute only, never boosts.
+    const shedTail = parts[1] === 'switch' && parts.slice(5).some((part) =>
+      part.startsWith('[from] ') && normalizeEffectId(part.slice(7)) === 'shedtail');
+    const transferSubstitute = shedTail && outgoing && !outgoing.fainted
+      && outgoing.volatiles.includes('substitute');
+    const oldLength = team.length;
+    const prior = this.findOrCreatePokemon(team, ident, details, false);
+    const priorIndex = team.indexOf(prior);
     const parsedDetails = parseDetails(details);
     const parsedCondition = parseCondition(condition);
 
     for (const member of team) {
+      if (member === outgoing) this.clearSwitchState(member);
       member.active = false;
     }
+    // Preserve the earlier roster entry separately in case this is its imposter.
+    // A fresh appearance must not inherit that teammate's move/item evidence.
+    const pokemon = createPokemonView(prior.slot, ident, details);
+    if (prior.item === 'has-item') pokemon.item = 'has-item';
+    if (parsedDetails.species === 'Eternatus-Eternamax' && prior.volatiles.includes('dynamax')) {
+      pokemon.volatiles = ['dynamax'];
+    }
+    team[priorIndex] = pokemon;
+    if (transferSubstitute) pokemon.volatiles = upsertUnique(pokemon.volatiles, 'substitute');
+    this.publicActive[parsedIdent.player] = { pokemon,
+      ...(priorIndex < oldLength ? { prior: clonePokemon(prior) } : {}) };
 
     pokemon.ident = ident;
     pokemon.name = parsedIdent.name || parsedDetails.species;
@@ -383,7 +438,7 @@ export class PlayerStateExtractor {
     pokemon.displayed_species = parsedDetails.species || pokemon.displayed_species;
     pokemon.species_source = 'protocol';
     pokemon.transformed = false;
-    pokemon.displayed_species_uncertain = parsedIdent.player !== this.player;
+    pokemon.displayed_species_uncertain = true;
     pokemon.illusion_revealed = false;
     pokemon.details = details;
     pokemon.active = true;
@@ -395,10 +450,22 @@ export class PlayerStateExtractor {
     pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
     pokemon.gender = parsedDetails.gender;
     pokemon.level = parsedDetails.level;
+    // getFullDetails() publishes `tera:TYPE` only while the current appearance
+    // is Terastallized. This is public state of that appearance, including an
+    // Illusion display, and must not be inferred from the displaced roster entry.
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
+    pokemon.terastallized = !!parsedDetails.teraType;
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
     pokemon.item_suppressed = this.view.field.pseudo_weather.includes('magicroom');
     this.updateActiveIndices();
+  }
+
+  private clearSwitchState(pokemon: PokemonView): void {
+    pokemon.boosts = {};
+    // Pinned Pokemon.clearVolatile retains only Eternamax's Dynamax. Do not
+    // erase permanent status, item/reveal evidence, or other nonvolatile fields.
+    pokemon.volatiles = pokemon.volatiles.filter((effect) =>
+      effect === 'dynamax' && pokemon.current_species === 'Eternatus-Eternamax');
   }
 
   private handleDetailsChange(parts: string[]): void {
@@ -432,7 +499,24 @@ export class PlayerStateExtractor {
     const ident = parts[2] || '';
     const details = parts[3] || '';
     const team = parseIdent(ident).player === this.player ? this.view.self_team : this.view.opponent_team;
-    const pokemon = team.find((entry) => entry.active) || this.findOrCreatePokemon(team, ident, details);
+    const player = parseIdent(ident).player;
+    const appearance = player ? this.publicActive[player] : undefined;
+    const pokemon = appearance?.pokemon || this.findOrCreatePokemon(team, ident, details);
+    const index = team.indexOf(pokemon);
+    const confirmed = team.find((entry) => entry !== pokemon && parseIdent(entry.ident).name === parseIdent(ident).name);
+    if (appearance?.prior && parseIdent(appearance.prior.ident).name !== parseIdent(ident).name) {
+      team[index] = appearance.prior;
+      if (!confirmed) { pokemon.slot = team.length + 1; team.push(pokemon); }
+    } else if (confirmed) {
+      team.splice(index, 1);
+    }
+    if (confirmed) {
+      pokemon.slot = confirmed.slot;
+      pokemon.revealed_moves = [...new Set([...confirmed.revealed_moves, ...pokemon.revealed_moves])];
+      pokemon.item ??= confirmed.item;
+      pokemon.ability ??= confirmed.ability;
+      team[team.indexOf(confirmed)] = pokemon;
+    }
     const displayed = pokemon.displayed_species || pokemon.current_species || pokemon.species;
     const parsedDetails = parseDetails(details);
     const parsedCondition = parseCondition(parts[4] || '');
@@ -451,6 +535,8 @@ export class PlayerStateExtractor {
     pokemon.displayed_species_uncertain = false;
     pokemon.illusion_revealed = true;
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    if (player) this.publicActive[player] = { pokemon };
+    this.updateActiveIndices();
   }
 
   private handleFormeChange(parts: string[]): void {
@@ -502,7 +588,7 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
-    pokemon.revealed_moves = upsertUnique(pokemon.revealed_moves, move);
+    pokemon.revealed_moves = upsertUnique(pokemon.revealed_moves, parsedIdent.player === this.player ? toID(move) : move);
     pokemon.possible_moves = upsertUnique(pokemon.possible_moves, move);
     if (parsedIdent.player === this.player && !pokemon.moves.includes(toID(move))) {
       pokemon.moves.push(toID(move));
@@ -517,6 +603,14 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
+    this.clearSwitchState(pokemon);
+    // Battle.faintMessages clears volatile state and then deletes
+    // `terastallized`; the configured teraType remains known. Resolve the
+    // displayed base types only after clearing the public active-Tera flag.
+    // For an unrevealed Illusion this intentionally uses the appearance, not
+    // the hidden roster identity.
+    pokemon.terastallized = false;
+    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, false);
     pokemon.fainted = true;
     pokemon.active = false;
     pokemon.hp_ratio = 0;
@@ -768,9 +862,13 @@ export class PlayerStateExtractor {
     return null;
   }
 
-  private findOrCreatePokemon(team: PokemonView[], ident: string, details: string): PokemonView {
+  private findOrCreatePokemon(team: PokemonView[], ident: string, details: string, usePosition = true): PokemonView {
     const parsedIdent = parseIdent(ident);
     const parsedDetails = parseDetails(details);
+    if (usePosition && parsedIdent.player && /^p[12][a-f]:/.test(ident)) {
+      const appearance = this.publicActive[parsedIdent.player];
+      if (appearance) return appearance.pokemon;
+    }
 
     let found = team.find((pokemon) => ident && pokemon.ident === ident);
     if (found) {

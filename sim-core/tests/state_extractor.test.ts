@@ -2,6 +2,46 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PlayerStateExtractor } from '../src/state_extractor';
 
+for (const player of ['p1', 'p2'] as const) {
+  test(`lifecycle clearing preserves permanent evidence and Illusion replacement for ${player}`, () => {
+    const extractor = new PlayerStateExtractor('retention', 'gen9randombattle', player);
+    extractor.consumeChunk([
+      '|switch|p1a: Zoroark|Zoroark, L80|100/100',
+      '|-status|p1a: Zoroark|brn',
+      '|-item|p1a: Zoroark|Leftovers',
+      '|-boost|p1a: Zoroark|atk|2',
+      '|-start|p1a: Zoroark|Substitute',
+      '|replace|p1a: Zoroark|Zoroark, L80|100/100 brn',
+    ].join('\n'));
+    const team = () => player === 'p1' ? extractor.getView().self_team : extractor.getView().opponent_team;
+    assert.deepEqual(team()[0].boosts, { atk: 2 });
+    assert.deepEqual(team()[0].volatiles, ['substitute']);
+    extractor.consumeChunk('|switch|p1a: Snorlax|Snorlax, L80|100/100');
+    assert.deepEqual(team()[0].boosts, {});
+    assert.deepEqual(team()[0].volatiles, []);
+    assert.equal(team()[0].status, 'brn');
+    assert.equal(team()[0].item, 'leftovers');
+    extractor.consumeChunk('|switch|p1a: Zoroark|Zoroark, L80|100/100 brn');
+    assert.deepEqual(team()[0].boosts, {});
+    assert.deepEqual(team()[0].volatiles, []);
+    assert.equal(team()[0].status, 'brn');
+  });
+}
+
+test('clearVolatile exception preserves only publicly known Eternamax Dynamax (outside random-battle scope)', () => {
+  const extractor = new PlayerStateExtractor('eternamax-retention', 'gen9customgame', 'p1');
+  extractor.consumeChunk([
+    '|switch|p2a: Eternatus|Eternatus-Eternamax|100/100',
+    '|-start|p2a: Eternatus|Dynamax',
+    '|-start|p2a: Eternatus|Substitute',
+    '|-boost|p2a: Eternatus|atk|2',
+    '|faint|p2a: Eternatus',
+  ].join('\n'));
+  const pokemon = extractor.getView().opponent_team[0];
+  assert.deepEqual(pokemon.volatiles, ['dynamax']);
+  assert.deepEqual(pokemon.boosts, {});
+});
+
 test('state extractor keeps player views public on the opponent side', () => {
   const extractor = new PlayerStateExtractor('env-1', 'gen9randombattle', 'p1');
   extractor.consumeChunk([
@@ -178,4 +218,33 @@ test('state extractor exposes Tera and named field state with perspective-normal
   assert.equal(p2View.field.side_conditions.opponent.reflect, 1);
   assert.equal(p2View.field.side_conditions.opponent.tailwind, 1);
   assert.equal(p2View.field.side_conditions.opponent.spikes, 2);
+});
+
+test('volatile start/end records preserve confusion lifecycle for both perspectives without leaking requests', () => {
+  const p1 = new PlayerStateExtractor('volatile-p1', 'gen9randombattle', 'p1');
+  const p2 = new PlayerStateExtractor('volatile-p2', 'gen9randombattle', 'p2');
+  const publicPrefix = [
+    '|teamsize|p1|6', '|teamsize|p2|6',
+    '|poke|p2|Pikachu', '|poke|p2|Gholdengo', '|switch|p2a: Pikachu|Pikachu, L80|100/100',
+    '|-start|p2a: Pikachu|confusion',
+    '|-start|p2a: Pikachu|substitute',
+  ].join('\n');
+  p1.consumeChunk(publicPrefix);
+  p2.consumeChunk(publicPrefix);
+  p1.consumeChunk('|-end|p2a: Pikachu|confusion');
+  p2.consumeChunk('|-end|p2a: Pikachu|confusion');
+
+  assert.deepEqual(p1.getView().opponent_team[0].volatiles, ['substitute']);
+  assert.deepEqual(p2.getView().self_team[0].volatiles, ['substitute']);
+  assert.equal(p1.getView().opponent_team.length, 2);
+  assert.equal(p1.getView().team_size.p2, 6);
+  assert.equal(p1.getView().opponent_team[0].status, null);
+  assert.equal(p1.getView().opponent_team[0].status_source, 'protocol');
+  assert.equal(p1.getView().opponent_team[1].status, null);
+  assert.equal(p1.getView().opponent_team[1].status_source, 'unknown');
+
+  const request = new PlayerStateExtractor('volatile-request', 'gen9randombattle', 'p1');
+  request.consumeChunk('|request|{"active":[],"side":{"id":"p1","pokemon":[{"ident":"p1: Pikachu","details":"Pikachu, L80","condition":"100/100","active":true,"moves":[],"stats":{}}]}}');
+  assert.equal(request.getView().self_team[0].status, null);
+  assert.equal(request.getView().self_team[0].status_source, 'request');
 });

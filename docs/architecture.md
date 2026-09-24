@@ -19,6 +19,29 @@ The simulator never exposes hidden opponent information in `views.p1` or `views.
 
 The only state authority is the local Showdown simulator.
 
+## Current refactor boundary
+
+The versioned `ObservableBattleState`, `BeliefState`, `CanonicalAction`,
+`SeededTransition`, and `dataset-record/v1` lineage contracts are accepted and
+additive. Their current implementation status does not make the complete
+feature/data/model pipeline ready: the checkpoint-free PIPELINE-001 path is
+still an unaccepted candidate, FEATURE-001 has no accepted schema, and ENV-001
+remains blocked. The pinned simulator coverage inventory documents state and
+protocol projection gaps. See [PROJECT_STATUS.md](PROJECT_STATUS.md),
+[`contracts/SIMULATOR_COVERAGE.md`](contracts/SIMULATOR_COVERAGE.md), and
+[`contracts/PIPELINE_INTEGRATION.md`](contracts/PIPELINE_INTEGRATION.md).
+
+The 2026-09-24 focused correction adds independent optional random-controller
+seeds for reproducible test scenarios, source-backed move target/tag validation,
+and pipeline stopping for unresolved protocol aliases. The change is not yet
+covered by a separate semantic-digest review. PIPELINE-001 remains unaccepted;
+PIPELINE-002 documents the future requirements for complete episode progression
+through one-sided forced-switch, waiting, and requestless boundaries.
+
+The lower diagram's `features(...) -> ModelInput` edge is a target architecture,
+not an implemented or accepted interface. No new feature extraction, dataset
+generation, or model training is authorized by this architecture description.
+
 Research belief branches can fork the current battle through the pinned
 Showdown `Battle.toJSON()` / `Battle.fromJSON()` state API. Before restoration,
 the opponent's unrevealed set fields are replaced by deterministic Gen 9

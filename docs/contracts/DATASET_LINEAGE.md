@@ -1,6 +1,7 @@
 # Dataset Lineage and Battle-Level Split Contract
 
-Status: DATA-001 additive v1 contract; not yet accepted.
+Status: DATA-001 accepted (2026-09-23); additive lineage contract. New feature
+schema and model-pipeline acceptance remain separate gates.
 
 ## Scope
 

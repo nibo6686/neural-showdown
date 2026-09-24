@@ -14,6 +14,8 @@ Each `StepResult` contains:
 schema or any consumer. The normative versioned contract, visibility rules,
 prefix cursor/hash semantics, request boundaries, and source mapping are in
 [`docs/contracts/OBSERVABLE_STATE.md`](contracts/OBSERVABLE_STATE.md).
+Pinned simulator state/protocol coverage and known projection gaps are recorded
+in [`docs/contracts/SIMULATOR_COVERAGE.md`](contracts/SIMULATOR_COVERAGE.md).
 
 `BELIEF-001` defines a separate, perspective-owned `BeliefState` in
 `sim-core/src/belief_state.ts`. It stores candidates, evidence provenance,
@@ -44,3 +46,7 @@ or hashed there.
 - the active move list when available
 - side team snapshot from the latest request
 - `legal_actions` with fixed-size action mask and concrete Showdown choices
+
+The fixed 13-entry mask is the current action codec contract, not a finalized
+model feature schema. FEATURE-001 has not established the shape, ordering, or
+normalization of new model inputs.

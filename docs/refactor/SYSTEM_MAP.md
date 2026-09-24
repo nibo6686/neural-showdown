@@ -37,3 +37,13 @@ Observation + BeliefState + CanonicalAction
 ```
 
 Existing adjacent documentation: [docs/architecture.md](../architecture.md) and [docs/state-schema.md](../state-schema.md). This map does not supersede them until implementation work is approved.
+
+## Current status
+
+The accepted lower-level contracts are implemented as additive boundaries.
+The diagram above showing `features(...) -> ModelInput` is still a target
+design only: PIPELINE-001 remains unaccepted, FEATURE-001 is unresolved, and
+the runtime does not consume these interfaces for new-model inference. The
+current simulator state/protocol inventory is
+[`../contracts/SIMULATOR_COVERAGE.md`](../contracts/SIMULATOR_COVERAGE.md).
+Current readiness gates are summarized in [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).

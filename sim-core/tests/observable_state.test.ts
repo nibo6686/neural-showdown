@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
 import {
   OBSERVABLE_STATE_SCHEMA_VERSION,
@@ -53,6 +55,19 @@ function input(overrides: Partial<ObservableStateInput> = {}): ObservableStateIn
   };
 }
 
+test('Illusion replace has its own strict conditionless grammar and retains public hint evidence', () => {
+  for (const replace of ['|replace|p1a: Fox|Zoroark, M', '|replace|p1a: Fox|Zoroark, M|100/100 brn']) {
+    const prefix = [replace, '|-hint|Illusion Level Mod is active, so this Pokémon\'s true level was hidden.'];
+    assert.deepEqual(projectObservableBattleState(input({ protocol_prefix: prefix })).protocol_prefix, prefix);
+  }
+  for (const record of [
+    '|replace', '|replace|p1a: Fox', '|replace|p1a: Fox|', '|replace|p3a: Fox|Zoroark',
+    '|replace||Zoroark', '|replace|p1a: Fox|Zoroark|', '|replace|p1a: Fox|Zoroark|garbage',
+    '|replace|p1a: Fox|Zoroark|100/0', '|replace|p1a: Fox|Zoroark|100/100|extra',
+    '|-hint', '|-hint|', '|switch|p1a: Fox|Zoroark', '|drag|p1a: Fox|Zoroark',
+  ]) assert.throws(() => projectObservableBattleState(input({ protocol_prefix: [record] })), /Malformed raw/);
+});
+
 test('observable state hashes normalized protocol prefixes deterministically', () => {
   const first = projectObservableBattleState(input({ protocol_prefix: [' |turn|1\n', '|request|{"rqid":7}'] }));
   const second = projectObservableBattleState(input({ protocol_prefix: ['|turn|1', '|request|{"rqid":7}'] }));
@@ -60,6 +75,105 @@ test('observable state hashes normalized protocol prefixes deterministically', (
   assert.equal(first.protocol_prefix_hash, second.protocol_prefix_hash);
   assert.equal(first.observation_id, second.observation_id);
   assert.equal(first.schema_version, OBSERVABLE_STATE_SCHEMA_VERSION);
+});
+
+test('public singleturn and self-target move records are accepted and retained verbatim', () => {
+  const fixture = JSON.parse(fs.readFileSync(
+    path.resolve(__dirname, '../../../tests/fixtures/observable_protocol_terminal_v1.json'),
+    'utf8',
+  )) as { fixture_schema: string; records: Array<{ name: string; record: string }> };
+  assert.equal(fixture.fixture_schema, 'observable-protocol-terminal-fixture/v1');
+  const records = Object.fromEntries(fixture.records.map(({ name, record }) => [name, record]));
+  for (const name of ['self-target-move-with-omitted-target', 'self-target-move-with-empty-target']) {
+    const prefix = [records[name], records['singleturn-public-effect']];
+    const state = projectObservableBattleState(input({ protocol_prefix: prefix }));
+    assert.deepEqual(state.protocol_prefix, prefix);
+    assert.equal(state.event_cursor, 2);
+    assert.doesNotMatch(JSON.stringify(state), /secret|raw|possible_roles/);
+  }
+
+  assert.throws(
+    () => projectObservableBattleState(input({
+      protocol_prefix: ['|move|p1a: Pikachu|Protect|not-a-target'],
+    })),
+    /invalid target/,
+  );
+  assert.throws(
+    () => projectObservableBattleState(input({
+      protocol_prefix: ['|-singleturn|p1a: Pikachu|'],
+    })),
+    /effect is required/,
+  );
+});
+
+test('move protocol distinguishes active and non-active targets from trailing tags', () => {
+  const validMoves = [
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee',
+    '|move|p2a: Ting-Lu|Spikes|p1: Phione',
+    '|move|p1a: Pikachu|Protect',
+    '|move|p1a: Pikachu|Protect|',
+    '|move|p1a: Basculegion|Ice Beam|p2: Mienshao|[notarget]',
+    '|move|p1a: Pikachu|Tackle|null|[notarget]',
+    '|move|p1a: Pikachu|Metronome|null|[from] move: Metronome|[notarget]',
+    '|move|p1a: Pikachu|Metronome|null|[anim]Stored Power|[from] move: Metronome|[notarget]',
+    '|move|p1a: Pikachu|Protect||[still]',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|[miss]|[from] ability: Static',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|[spread] p2a,p2b|[anim]Thunderbolt',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|[zeffect]',
+  ];
+  for (const record of validMoves) {
+    const state = projectObservableBattleState(input({ protocol_prefix: [record] }));
+    assert.deepEqual(state.protocol_prefix, [record]);
+  }
+
+  const malformedMoves = [
+    '|move|p1: Pikachu|Tackle|p2a: Eevee',
+    '|move|p1a: Pikachu|Tackle|p123: Eevee',
+    '|move|p1a: Pikachu|Tackle|p3a: Eevee',
+    '|move|p1a: Pikachu|Tackle|p1a:',
+    '|move|p1a: Pikachu|Tackle|-',
+    '|move|p1a: Pikachu|Tackle|null',
+    '|move|p1a: Pikachu|Tackle|null|[miss]',
+    '|move|p1a: Pikachu|Tackle|null|[miss]|[notarget]',
+    '|move|p1a: Pikachu|Tackle|null|[notarget]|[from] move: Metronome',
+    '|move|p1a: Pikachu|Tackle|null|[from] move: Metronome|[notarget]|[notarget]',
+    '|move|p1a: Pikachu|Tackle|[notarget]',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|not-a-tag',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|[invented]',
+    '|move|p1a: Pikachu|Tackle|p2a: Eevee|',
+  ];
+  for (const record of malformedMoves) {
+    assert.throws(
+      () => projectObservableBattleState(input({ protocol_prefix: [record] })),
+      /Malformed raw move record/,
+      record,
+    );
+  }
+});
+
+test('known Gen 9 outcome and field records have explicit shapes and remain raw evidence', () => {
+  const records = [
+    '|cant|p1a: Snorlax|slp|Rest',
+    '|-hitcount|p2a: Pikachu|3',
+    '|-fieldactivate|Delta Stream',
+    '|-message|Sleep Clause Mod activated.',
+    '|-nothing',
+    '|detailschange|p2a: Zoroark|Zoroark, L80, M|100/100',
+    '|-activate|p2a: Snorlax|move: Protect|[of] p1a: Mew',
+  ];
+  const state = projectObservableBattleState(input({ protocol_prefix: records }));
+  assert.deepEqual(state.protocol_prefix, records);
+  assert.equal(state.event_cursor, records.length);
+
+  for (const record of [
+    '|cant|invalid|slp',
+    '|-hitcount|p2a: Pikachu|three',
+    '|-fieldactivate|',
+    '|-message|',
+    '|-activate|p2a: Snorlax|',
+  ]) {
+    assert.throws(() => projectObservableBattleState(input({ protocol_prefix: [record] })), /Malformed raw/);
+  }
 });
 
 test('observable state projector rejects cursor rollback and same-cursor hash changes', () => {
@@ -307,7 +421,6 @@ test('raw protocol evidence is independently validated and incomplete evidence r
     '|move|p1a: Pikachu',
     '|move|p1a: Pikachu||p2a: Eevee',
     '|move|p123: Pikachu|Tackle|p2a: Eevee',
-    '|move|p1a: Pikachu|Tackle',
   ]) {
     assert.throws(
       () => projectObservableBattleState(input({ protocol_prefix: [malformedMove] })),
@@ -316,6 +429,9 @@ test('raw protocol evidence is independently validated and incomplete evidence r
   }
   assert.doesNotThrow(() => projectObservableBattleState(input({
     protocol_prefix: ['|move|p1a: Pikachu|Tackle|p2a: Eevee|[from] item: Choice Band'],
+  })));
+  assert.doesNotThrow(() => projectObservableBattleState(input({
+    protocol_prefix: ['|move|p1a: Pikachu|Tackle'],
   })));
   for (const validRecord of [
     '|start',

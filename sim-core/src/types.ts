@@ -8,6 +8,8 @@ export type ActionKind = 'move' | 'move_tera' | 'switch';
 
 export interface ControllerSpec {
   controller: ControllerType;
+  /** Optional uint32 seed for this player's random controller only; independent of the simulator seed. */
+  random_seed?: number;
 }
 
 export interface BeliefForkOptions {
@@ -159,6 +161,8 @@ export interface StepResultOptions {
   view_players?: PlayerID[];
   include_log_delta?: boolean;
   include_possible_roles?: boolean;
+  /** Report current wait requests without making them actionable. Defaults to false. */
+  include_wait_requests?: boolean;
 }
 
 export interface StepResult {

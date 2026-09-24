@@ -2,6 +2,20 @@
 
 Status: `BLOCKED_WITH_REMEDIATION`
 
+Current disposition as of 2026-09-24: ENV-001 remains independently blocked.
+The later pinned-simulator package check confirms the local Node declaration,
+lock entry, and installed version agree for `pokemon-showdown@0.11.10`; it does
+not resolve the Python dependency/lock policy or clean-environment validation
+gaps recorded here. Existing model checkpoints are abandoned for the new
+pipeline and are not part of the environment gate. See
+[`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
+Replay-fixture absence is not a prerequisite for the first simulator-only
+milestone. The `-m replay` checks remain opt-in and may be recorded as skipped
+when no `.log` fixtures exist. Replay assets are required only for replay
+parity or a replay-sourced data milestone. ENV-001 remains blocked by runtime,
+dependency/lock, and clean-environment policy until those are resolved.
+
 `READY_FOR_CONTRACT_IMPLEMENTATION: NO`
 
 This document records reproducible Python/Node validation requirements. The
@@ -64,6 +78,24 @@ Standard-library imports are not listed. No imports requiring pandas, SciPy, sci
 No Python dependency versions are declared in `trainer/pyproject.toml` or a
 Python lock/constraint file. The import scan establishes package roles, not a
 reproducible version policy.
+
+### First simulator-only milestone dependency scope
+
+The `neural.pipeline_record`, `neural.canonical_action`, and
+`neural.dataset_lineage` path used by the PIPELINE bridge imports only Python
+standard-library modules. The TypeScript simulator uses the exact package-lock
+dependencies (`pokemon-showdown@0.11.10` and `@smogon/calc@0.11.0`); TypeScript
+and Node typings are development dependencies. `pytest` is needed only to run
+Python tests. NumPy, PyTorch, FastAPI, Pydantic, Uvicorn, and PyYAML belong to
+the broader trainer/runtime surface, not to this one-shot simulator-record
+validator. This narrows the initial smoke scope but does not close ENV-001 for
+the full training/live project.
+
+No raw replay fixtures are needed to verify seeded Showdown transitions,
+observable protocol projection, Python record validation, or TypeScript/Python
+record joins. Those checks must run without replay files. Replay-marked parity
+selection should report the explicit skip when the configured fixture directory
+is empty; do not treat that skip as simulator-only pipeline failure.
 
 ## 3. Manifest and lock decision
 
@@ -172,9 +204,10 @@ Remaining blockers are:
 3. Select and commit a Python lock or constraints strategy with exact, verified
    versions; inventing versions is not an acceptable remediation.
 4. Re-run the clean-environment smoke procedure using that metadata.
-5. Keep raw replay fixtures opt-in under the policy in
-   [REPLAY_FIXTURES.md](REPLAY_FIXTURES.md); the directory is currently absent or
-   empty.
+5. Keep replay fixtures opt-in under the policy in
+   [REPLAY_FIXTURES.md](REPLAY_FIXTURES.md). Their absence is not a blocker for
+   the first simulator-only milestone, but replay-specific parity and data
+   claims remain unverified without them.
 
 ## 9. Validation evidence
 
@@ -199,16 +232,18 @@ Current continuation validation on 2026-09-22:
   evaluation, or dataset generation was run.
 
 The TypeScript portion is validated for the current environment. The Python
-environment is operational, but ENV-001 remains blocked by the missing replay
-fixture/data prerequisite and the absence of a committed Python dependency
-policy. The current host package versions are evidence for this run only and are
-not a lock.
+environment is operational, but ENV-001 remains blocked by the absence of a
+committed Python dependency/runtime policy and clean-environment proof. The
+missing replay fixtures block only replay-specific checks, not the first
+simulator-only milestone. The current host package versions are evidence for
+those runs only and are not a lock.
 
 ## Remediation required
 
 ENV-001 becomes ready only after the dependency policy is approved, Python
 dependencies are declared and locked/constrained, a supported Python/Node/npm
-matrix is recorded, sim-core builds in a clean environment, the optional
-replay-fixture policy is either satisfied or explicitly accepted as an absent
-fixture condition, and both Python and TypeScript focused commands complete
-successfully.
+matrix is recorded, sim-core builds in a clean environment, and focused
+replay-independent Python and TypeScript commands complete successfully. The
+replay-fixture policy must be explicit; an absent fixture directory is allowed
+for simulator-only acceptance, while replay-specific claims still require
+fixtures.

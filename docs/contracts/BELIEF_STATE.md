@@ -150,6 +150,14 @@ consistently. The current TRANS-001 metadata does not itself carry observation
 IDs; this explicit join is caller-supplied lineage, not an engine attestation.
 BeliefState v1 does not alter TRANS-001 behavior.
 
+The separately accepted PIPELINE-002 ordinary forced-switch slice also accepts internal
+`seeded-forced-switch/v1` metadata. It validates distinct acting/waiting roles
+and an actor-only action-ID map, then projects the same existing per-perspective
+lineage fields for both successor beliefs. Roles, action IDs and simulator seed
+are not copied into player beliefs. The serialized belief schema remains v1;
+this input extension passed separate semantic review on 2026-09-24 alongside the
+[transition contract](SEEDED_TRANSITION.md), within its ordinary forced-switch scope.
+
 The latest transition may precede the current observation when an exact
 observation-only child is added. Its output observation remains in
 observation_history; transition_history and simulator_snapshot_history must
