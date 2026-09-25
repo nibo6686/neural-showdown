@@ -10,6 +10,41 @@ The exact scope is `gen9randombattle`: the installed format metadata identifies 
 
 The durable machine inventory is [pokemon-showdown-0.11.10-gen9randombattle.json](/Users/nbolger/Desktop/neural-showdown/sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json). It binds both TypeScript source and active compiled runtime directories (`sim`, `data`, `dist/sim`, `dist/data`) to SHA-256 digests. It also hashes the local parser, projection, action, transition, pipeline and focused-test files. Separate reviewed digests are required for simulator and local coverage sources: refreshing either digest alone fails the checker and does not attest review.
 
+### Remaining-mechanics assessment — 2026-09-25
+
+The [assessment and gap register](../refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md)
+traces reachable mechanics through raw extraction, perspective projection,
+restoration and TypeScript/Python publication. It found that the checker does
+not enumerate nested move/ability/item conditions or slot/self effects, does
+not bind operative format configuration, and does not establish indirect
+generated-team callback closure. Reachable `-singlemove` emitters now have an
+explicit recognized-but-unsupported disposition; the episode runner truncates
+before commit, while Destiny Bond/Glaive Rush/other lifecycle semantics remain
+unaccepted.
+
+The shared protocol contract at
+[`protocol_contract.json`](../../trainer/src/neural/protocol_contract.json)
+now drives TypeScript and Python command acceptance. The fully rehashed unknown
+command bypass was reproduced: identity and joins verify, then publication
+rejects with no output. A table-driven matrix covers 113 supported token
+records, recognized aliases/stops, malformed shapes and unknown tokens across
+both observation versions, both perspectives and input/successor prefixes
+(112 rehashed rejection cases).
+The scoped base Topsy-Turvy semantics and exact canonical event grammar are
+reviewed. The shared TypeScript/Python publication boundary is implemented but
+its batch review is blocked by rehashed cross-runtime acceptance, source-shape
+rejection, loader-schema and pre-filter gaps recorded in the assessment and
+PIPELINE-002 checkpoint. Its local coverage digest and final attestation remain
+pending; the final checker computes
+`9793ca11d6ac3c696794027e0cab4150fe970bc52ee1c5fce59dcf124102b140` against the
+preserved stored/reviewed digest
+`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`. The prior
+Psych Up attestation is unchanged. Scanner expansion,
+nested-effect modeling and operative format-digest coverage remain the next
+separate implementation batch after this boundary is corrected, with newly
+found effects classified before implementation. `faithful_complete_episode:false`
+remains required.
+
 ## Classification vocabulary
 
 - **represented:** the current wrapper exposes a typed value from the relevant record or request. This can still be coarse; group notes specify loss of precision.
@@ -56,20 +91,20 @@ Confusion is a public volatile with `-start|target|confusion` and `-end|target|c
 
 ## Protocol inventory and reconciliation
 
-The manifest contains:
+The manifest and shared protocol contract currently contain:
 
-- **111 parser allowlist tokens**, each mapped to a grammar group and assigned a coverage disposition; three generic unknown aliases remain rejected by the PIPELINE publication boundary;
+- **113 supported command entries**, each mapped to a grammar group and coverage disposition; six recognized-but-unsupported command spellings are listed separately;
 - **86 literal emitter tokens** found by the package-wide source scan, each with source-file references and an explicit scope disposition;
 - separate emission-path descriptions for `Battle.add`, `addSplit`, `addMove`/`attrLastMove`, private `Side.emitRequest`/choice errors, and `BattleStream` routing;
 - the computed `msg` family for `-boost`, `-unboost`, and `-setboost`.
 
-The 86 tokens are package-wide across generations and formats, not a Gen 9 execution trace. The 111 parser allowlist tokens include adapter-only/request/diagnostic forms and the three generic unknown aliases that pipeline publication now blocks. Their set difference is expected and is documented in each manifest entry; neither count alone proves coverage. `Battle.add` supports computed arguments/functions, `addSplit` has per-side visibility, move lines may be post-mutated, and requests/errors are side-private channels rather than ordinary public battle-log records. Five callback sites construct volatile arguments dynamically; the digest guard covers these source paths.
+The 86 emitter tokens are package-wide across generations and formats, not a Gen 9 execution trace. Supported commands include adapter-only, request and diagnostic forms; package emitter presence does not imply format reachability or mechanic support. The shared TypeScript/Python command contract is `trainer/src/neural/protocol_contract.json`. It keeps unresolved aliases and `-singlemove` outside the accepted command set. The parser/emitter set difference is documented in manifest entries; neither count proves coverage. `Battle.add` supports computed arguments/functions, `addSplit` has per-side visibility, move lines may be post-mutated, and requests/errors are side-private channels rather than ordinary public battle-log records. Five callback sites construct volatile arguments dynamically; the digest guard covers these source paths.
 
-The parser now explicitly validates and retains these common raw-only Gen 9 records which were previously rejected: `cant|target|reason|move?`, `-hitcount|target|integer`, `-fieldactivate|effect|tags?`, and `-message|text`. None is projected as feature state. A `cant` or `-hitcount` outcome does not define the next legal-action set. Existing parser behavior rejects any unlisted command; malformed listed forms also fail closed. Request JSON is transient and private, then sanitized to an `rqid` marker in the observable prefix.
+The shared grammar validates and retains raw-only records such as `cant|target|reason|move?`, `-hitcount|target|integer`, `-fieldactivate|effect|tags?`, `message|text` and `-message|text`. None is projected as typed state. A `cant` or `-hitcount` outcome does not define the next legal-action set. Unknown commands and malformed supported forms fail closed. Request JSON is transient and private, then sanitized to an `rqid` marker in the observable prefix.
 
 Other relevant grammar groups and their required/optional fields are in `protocol.grammar_groups` and per-token `record_grammar`/support entries in the machine manifest. Examples include switch/drag/replace (`target|details|condition|tags?`), move (`active source|name|target?|tags*`), start/end (`target|effect|tags?`), field/weather (`effect|tags?`), side conditions (`side|effect|tags?`), and status/boost/HP records. For moves, a target may be an active or non-active Pokémon reference (`p1a: ...` or `p1: ...`), or may be omitted/empty. The literal `null` requires exactly one final `[notarget]`; preceding metadata is limited to source-generated `[from]` or `[anim]` fields, matching `useMoveInner` (`sim/battle-actions.ts:446-462`). Accepted move tag forms are pinned emitter tags `[from]`, `[anim]`, `[still]`, `[spread]`, `[miss]`, `[notarget]`, and `[zeffect]` with source-shaped payloads; arbitrary bracket names fail closed. Trailing bracket tags are metadata fields; `[notarget]` is a tag and cannot satisfy the target field. Target meaning is token-specific; an omitted self-target field is not rewritten to an opponent target. The source basis is `sim/battle-actions.ts:412-462,545,590-640,1512-1516`, `sim/battle.ts:3046-3067`, `sim/pokemon.ts:504-512`, and `sim/SIM-PROTOCOL.md:240-252`.
 
-Three generic allowlist aliases (`clearstatus`, `-clearstatus`, `nothing`) still have no supported-format emitter path or reliable state semantics established by the source audit. Their parser shape check is not grammar acceptance for collection: current PIPELINE projection stops them with `pipeline/v1/unresolved-protocol-alias` and a structured `pipeline-diagnostic/v1` containing the record index and command. This guard runs while building the protocol prefix, at direct step-result projection, and in the Python record validator before it constructs a DATA-001 record. They remain **unknown**, not supported raw-only events; any observation must stop publication pending classification.
+Six recognized-but-unsupported spellings remain outside the accepted command set: unresolved `clearstatus`, `-clearstatus`, `nothing`; internal `copyboost`/`invertboost` helper aliases; and `-singlemove`. Unresolved aliases stop with `pipeline/v1/unresolved-protocol-alias`; the internal aliases reject as unsupported raw events. `-singlemove` stops the candidate and truncates the episode. Python validates both input and successor prefixes before DATA-001 conversion. These explicit stops do not establish the semantics of the associated moves/effects.
 
 Keep `-nothing` separate. It is a supported no-payload raw-only record with a pinned Gen 9 emitter: `data/moves.ts:18380-18384` emits `this.add('-nothing')` in Splash's `onHit` callback. The parser and pipeline retain `-nothing` unchanged. Its existence does not establish grammar or meaning for `nothing`.
 
@@ -447,3 +482,115 @@ f0893ed149ee786be29a8a3a03f3ae820a62dce0d5611637573e4095cd6bef1b;
 checker commands fail digest drift, six synthetic self-tests pass. Prior attestation
 6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70 remains.
 Broader lifecycle prerequisites and faithful_complete_episode:false are unchanged.
+
+### Bounded bench revival review — scoped acceptance, 2026-09-25
+
+Accepted single living reviver plus waiting partner, at most six roster members,
+fainted non-active target selection, owner-only reviving evidence, current-roster
+fingerprint/slot binding, additive action/transition/record versions, actor-only
+commit and both successor lineages. Pinned source confirms source-qualified bench
+-heal with split HP, cleared status/fainting and unchanged active healer. Ordinary
+schemas/identities remain compatible; no production fixes needed in review.
+
+All14 checkpoint hashes matched. Reused154 TS/27 Python evidence; fresh build/seven
+revival tests, seven Python rejection probes and two exact HP/privacy probes pass.
+Added both canonical codecs/tests, their shared identity fixture and revival test
+(34 total hashed files). Updated -heal grammar and status/target classification.
+Computed/reviewed digest: `39ab09c90a564eaa80a3da3ff8275b8dcf01a7fbd79dcdece1b3945b68753ec8`.
+Coverage checker, ten drift self-tests and three coverage tests pass.
+
+Supersedes historical revival exclusions only for this bounded bench scope.
+Active/fainted revivers, active-target instaswitch, multi-active/simultaneous variants,
+public temporary-type/linked-effect/field reconstruction and faithful complete-episode
+publication remain unaccepted. `faithful_complete_episode:false` is required.
+
+### Soak defensive typing semantic review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both file hashes and
+prior 34-file computed digest match. Source establishes public appearance ownership,
+request-independent temporary typing, Illusion reveal retention, switch/drag/faint
+reset and Fire/Stellar precedence. Reused184 relevant tests/prior27 Python evidence;
+fresh build/30 Soak cases and16 Python publication bundles pass. Added soak.test.ts
+(35 hashed files), qualified protocol classifications without accepting generic
+end semantics or other temporary types. Computed/reviewed digest:
+`1a853d3a5266fad988027a8ee0609700cbd9f7a18a06ca71dc7991e9ba14e4b1`.
+Checker, ten drift self-tests and three coverage tests pass. Pinned source unchanged.
+Next: public added-type composition/lifecycle; real Soak then Forest's Curse gives
+simulator/opponent Water+Grass but owner Water. This previously excluded gap remains
+outside Soak acceptance. Checkpoint records reproduction and bounded next criteria.
+Broader lifecycle and faithful publication remain open; faithful_complete_episode:false.
+
+### Public added-type composition review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and35-file
+computed digest match. Pinned semantics support separate replacement/one added slot,
+ordering/repetition, reset/Tera behavior and Illusion appearance ownership. Reused204
+relevant tests/prior27 Python evidence; fresh build20 added-type cases including20
+Python publication validations pass. Three-type arrays survive observation cloning
+and JSON bundle/identity validation; Python DATA-001 output references observations,
+not a new feature tensor. Legacy two-slot training/live consumers remain excluded.
+Added added_types.test.ts (36 hashed files); qualified protocol classifications.
+Computed/reviewed digest:
+`8dca73b1b49f2dc8a8d5a2e3e1a4b7d43f2e976a64e36f2dde3192561bb0dc09`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+Transform public copied typing/refresh/restoration. Fresh pinned probe gives Mew
+Fire/Flying/Grass in simulator/opponent but Psychic in owner view after copying
+Grass-added Charizard. Checkpoint has reproduction and source anchors. Copy/expiry
+and broader lifecycle remain unaccepted; faithful_complete_episode:false.
+
+### Transform defensive typing review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and36-file
+computed digest match; reused226 relevant tests/prior27 Python evidence. Fresh
+build22 mirrored Transform cases including16 Python publication validations pass.
+Pinned copy boundary, ordinary/added isolation, request/replay persistence,
+identity/reset, caller/target Tera and privacy reviewed. Three-type arrays survive
+serialization/identity checks. Added transform_types.test.ts (37 hashed files);
+qualified -transform/lifecycle classifications without accepting unrelated fields.
+Computed/reviewed digest:
+`79a83f372d28e8c83ca32a00df8d44eb2479a15d1fd7cac4bd9ca5e66a33f804`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public Transform boost copying. Fresh pinned probe copies +2 Attack in simulator
+but both caller views report empty boosts; checkpoint gives exact steps/source.
+This excluded non-typing correction is separate from current scoped acceptance.
+Broader lifecycle/features remain unaccepted; faithful_complete_episode:false.
+
+### Public Transform boost copying review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and37-file
+computed digest match. Pinned all-stage assignment, sparse/explicit zeros, negative
+stages, event order, independent maps, request/replay and clearing reviewed. Reused244
+relevant tests/prior27 Python evidence; fresh build18 cases/20 Python validations pass.
+Both raw views correct; caller-self published stages preserved. Opponent publication
+omits stages: representation limitation, not privacy requirement. Corrected contract
+wording without changing v1 serialization. Added transform_boosts.test.ts (38 files)
+and qualified -transform classification. Computed/reviewed digest:
+`16819a7d19f47b6a412a8a9ed540cde284ac524df290cc5ac52d4293082eaab7`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public opponent-stage publication under explicit version/identity compatibility,
+with no blanket private-field copying. Feature/faithful-publication acceptance
+requires closing that representation gap; other semantic gaps remain separate.
+faithful_complete_episode:false.
+
+
+### Selective clear review — 2026-09-25
+
+Selective positive/negative clearing is scoped represented in raw/self and opt-in v2
+public-prefix stages. Opposite signs, zero and conservative nulls persist. Exact White
+Herb/Z tags and narrow Spectral Thief raw-only animation are reviewed; no broader animation
+or format legality claim. Added tests/selective_boosts.test.ts to coverage (45 files).
+Computed/reviewed digest: `15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9`.
+Checker, ten drift self-tests and three coverage tests pass. Historical v1 omission and
+identities remain unchanged. Psych Up stage copying is the next bounded prerequisite;
+features and faithful complete-episode publication remain gated.
+
+
+### Combined Psych Up review — 2026-09-25
+
+Bounded canonical Psych Up stage copying and Python grammar/alias corrections are scoped
+accepted. Exact command/tag/identifier gates precede reconstruction; private identity,
+critical-hit volatile copying, Costar and other mechanics remain excluded. Added two
+Psych Up tests and seven consumed JSON fixtures to hashing (54 files); implementation
+sources already included. Reviewed digest `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
+Checker, ten drift self-tests and three coverage tests pass. This does not establish
+faithful complete-episode or feature readiness.

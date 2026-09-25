@@ -180,17 +180,23 @@ test('source-shaped Revival Blessing flag at a real force/wait boundary truncate
   } finally { LocalBattleEnv.prototype.getRequest = getRequest; await session.close(); }
 });
 
-for (const record of ['|nothing|', '|turn|broken']) {
-  test(`controlled ${record} candidate output stops with no uncommitted records`, async () => {
+for (const testCase of [
+  { record: '|nothing|', status: 'truncated', stop: 'episode/v1/unsupported-protocol' },
+  { record: '|-singlemove|p1a: Pikachu|Destiny Bond', status: 'truncated', stop: 'episode/v1/unsupported-protocol' },
+  { record: '|futuremechanic|opaque', status: 'truncated', stop: 'episode/v1/unsupported-protocol' },
+  { record: '|turn|broken', status: 'failed', stop: 'episode/v1/execution-failed' },
+  { record: '|-boost|bad ident|atk|1', status: 'failed', stop: 'episode/v1/execution-failed' },
+] as const) {
+  test(`controlled ${testCase.record} candidate output stops with no uncommitted records`, async () => {
     const session = await createPipelineIntegrationSession(CONFIG);
     const original = LocalBattleEnv.prototype.stepSeededTransition;
     try {
       LocalBattleEnv.prototype.stepSeededTransition = async function (r, o) {
-        const result = await original.call(this, r, o); result.metadata.emitted_log_delta.push(record); return result;
+        const result = await original.call(this, r, o); result.metadata.emitted_log_delta.push(testCase.record); return result;
       };
       const r = await continuePipelineEpisode(session);
-      assert.equal(r.status, record === '|nothing|' ? 'truncated' : 'failed');
-      assert.equal(r.stop.code, record === '|nothing|' ? 'episode/v1/unsupported-protocol' : 'episode/v1/execution-failed');
+      assert.equal(r.status, testCase.status);
+      assert.equal(r.stop.code, testCase.stop);
       assert.equal(r.counts.attempts, 1); assert.equal(r.counts.rejected_candidates, 0);
       assert.deepEqual(r.initial_boundary, r.final_boundary); assertRecords(r);
     } finally { LocalBattleEnv.prototype.stepSeededTransition = original; await session.close(); }

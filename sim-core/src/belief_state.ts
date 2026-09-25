@@ -1,12 +1,13 @@
+import { opponentPublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
 import {
-  OBSERVABLE_STATE_SCHEMA_VERSION,
+  OBSERVABLE_STATE_SCHEMA_VERSION, PUBLIC_STAGES_SCHEMA_VERSION, isObservableSchema, type ObservableSchemaVersion,
   validateObservableProtocolPrefix,
   type ObservableBattleState,
 } from './observable_state';
 import {
   SEEDED_TRANSITION_SCHEMA_VERSION,
-  SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+  SEEDED_FORCED_SWITCH_SCHEMA_VERSION, SEEDED_REVIVAL_SCHEMA_VERSION,
   assertForcedSwitchRoles,
   type SeededSnapshotRef,
   type PipelineTransitionMetadata,
@@ -24,7 +25,7 @@ export class BeliefStateError extends Error {}
 export class BeliefStateContradictionError extends BeliefStateError {}
 
 export interface BeliefObservationReference {
-  schema_version: typeof OBSERVABLE_STATE_SCHEMA_VERSION;
+  schema_version: ObservableSchemaVersion;
   observation_id: string;
   source_kind: ObservableBattleState['source_kind'];
   event_cursor: number;
@@ -281,7 +282,7 @@ function assertSanitizedProtocolPrefix(prefix: unknown, label: string): asserts 
   }
 }
 
-function assertObservablePokemon(value: unknown, visibility: 'self' | 'opponent'): void {
+function assertObservablePokemon(value: unknown, visibility: 'self' | 'opponent', version: ObservableSchemaVersion): void {
   if (!isRecord(value)) throw new BeliefStateError('Observation Pokémon view must be an object.');
   const base = [
     'slot', 'ident', 'name', 'species', 'base_species', 'current_species', 'displayed_species',
@@ -294,7 +295,7 @@ function assertObservablePokemon(value: unknown, visibility: 'self' | 'opponent'
     'ability_suppressed', 'moves', 'revealed_moves', 'tera_type', 'stats', 'boosts',
   ];
   const optional = visibility === 'self' ? ['item', ...selfOnly] : ['item'];
-  const allowed = [...base, ...optional];
+  const allowed = [...base, ...optional, ...(visibility === 'opponent' && version === PUBLIC_STAGES_SCHEMA_VERSION ? ['public_boosts'] : [])];
   if (base.some((key) => !(key in value)) || Object.keys(value).some((key) => !allowed.includes(key))) {
     throw new BeliefStateError('Observation Pokémon view does not match the supported public schema.');
   }
@@ -361,7 +362,7 @@ function assertObservableRequest(request: unknown, perspective: PlayerID): void 
     if (!isRecord(pokemon)) throw new BeliefStateError('Observation request side Pokémon is malformed.');
     exactKeys(pokemon, [
       'slot', 'ident', 'details', 'condition', 'active', 'moves', 'stats', 'base_ability', 'ability',
-      'item', 'tera_type', 'terastallized',
+      'item', 'tera_type', 'terastallized', ...(pokemon.reviving === true ? ['reviving'] : []),
     ], 'Observation request side Pokémon');
     assertStringArray(pokemon.moves, 'Request Pokémon moves');
     assertNumberRecord(pokemon.stats, 'Request Pokémon stats');
@@ -385,8 +386,17 @@ function observationReference(observation: ObservableBattleState): BeliefObserva
 }
 
 function assertObservation(observation: ObservableBattleState): void {
-  if (!isRecord(observation) || observation.schema_version !== OBSERVABLE_STATE_SCHEMA_VERSION) {
+  if (!isRecord(observation) || !isObservableSchema(observation.schema_version)) {
     throw new BeliefStateError('Unsupported observable schema for BeliefState.');
+  }
+  if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
+    && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {
+    for (const pokemon of observation.view.opponent_team) {
+      if (!isRecord(pokemon) || typeof pokemon.ident !== 'string'
+        || canonicalize(pokemon.public_boosts) !== canonicalize(opponentPublicBoosts(observation.protocol_prefix, pokemon.ident))) {
+        throw new BeliefStateError('Public opponent stages disagree with exact prefix.');
+      }
+    }
   }
   exactKeys(observation, [
     'schema_version', 'source_kind', 'battle_id', 'perspective', 'event_cursor', 'observation_id',
@@ -455,8 +465,8 @@ function assertObservation(observation: ObservableBattleState): void {
   if (!Array.isArray(view.self_team) || !Array.isArray(view.opponent_team)) {
     throw new BeliefStateError('Observation teams must be arrays.');
   }
-  view.self_team.forEach((pokemon) => assertObservablePokemon(pokemon, 'self'));
-  view.opponent_team.forEach((pokemon) => assertObservablePokemon(pokemon, 'opponent'));
+  view.self_team.forEach((pokemon) => assertObservablePokemon(pokemon, 'self', observation.schema_version));
+  view.opponent_team.forEach((pokemon) => assertObservablePokemon(pokemon, 'opponent', observation.schema_version));
   assertObservableRequest(observation.request, observation.perspective);
   if (!isRecord(observation.decision_availability)) throw new BeliefStateError('Observation decision availability is malformed.');
   exactKeys(observation.decision_availability, ['available', 'reason', 'legal_action_indices'], 'Observation decision availability');
@@ -693,9 +703,9 @@ function normalizeTransition(
   exactKeys(metadata as unknown as Record<string, unknown>, [
     'schema_version', 'transition_id', 'parent_branch_id', 'branch_id', 'input_state_fingerprint',
     'output_state_fingerprint', 'root_seed', 'action_ids', 'emitted_log_delta', 'simulator_revision', 'step_index',
-    ...(metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION ? ['acting_player', 'waiting_player'] : []),
+    ...((metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION || metadata.schema_version === SEEDED_REVIVAL_SCHEMA_VERSION) ? ['acting_player', 'waiting_player'] : []),
   ], 'Seeded transition metadata');
-  if (metadata.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION && metadata.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION) {
+  if (metadata.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION && metadata.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION && metadata.schema_version !== SEEDED_REVIVAL_SCHEMA_VERSION) {
     throw new BeliefStateError('Unsupported seeded transition schema for BeliefState.');
   }
   if (typeof transition.input_observation_id !== 'string' || !/^obs-[a-f0-9]{64}$/.test(transition.input_observation_id)
@@ -713,7 +723,7 @@ function normalizeTransition(
     throw new BeliefStateError('Seeded transition root_seed is malformed.');
   }
   if (!isRecord(metadata.action_ids)) throw new BeliefStateError('Seeded transition action_ids are malformed.');
-  if (metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION) {
+  if ((metadata.schema_version === SEEDED_FORCED_SWITCH_SCHEMA_VERSION || metadata.schema_version === SEEDED_REVIVAL_SCHEMA_VERSION)) {
     assertForcedSwitchRoles(metadata);
     exactKeys(metadata.action_ids, [metadata.acting_player], 'Forced-switch action_ids');
     assertNonEmptyString(metadata.action_ids[metadata.acting_player], 'Forced-switch actor action ID');
@@ -889,8 +899,8 @@ function assertParent(parent: BeliefState): void {
   exactKeys(parent.observation, [
     'schema_version', 'observation_id', 'source_kind', 'event_cursor', 'protocol_prefix_hash', 'snapshot_phase',
   ], 'Parent observation reference');
-  if (parent.observation.schema_version !== OBSERVABLE_STATE_SCHEMA_VERSION
-    || typeof parent.observation.observation_id !== 'string' || !/^obs-[a-f0-9]{64}$/.test(parent.observation.observation_id)
+  if (!isObservableSchema(parent.observation.schema_version)
+    || typeof parent.observation.observation_id !== 'string' || parent.observation.observation_id.length !== 68 || !/^obs-[a-f0-9]{64}$/.test(parent.observation.observation_id)
     || !['sim_core', 'replay', 'live'].includes(parent.observation.source_kind)
     || !isSafeInteger(parent.observation.event_cursor) || parent.observation.event_cursor < 0
     || !['pre_decision', 'post_resolution', 'forced_switch', 'terminal', 'other'].includes(parent.observation.snapshot_phase)) {
@@ -913,10 +923,10 @@ function assertParent(parent: BeliefState): void {
     exactKeys(reference, [
       'schema_version', 'observation_id', 'source_kind', 'event_cursor', 'protocol_prefix_hash', 'snapshot_phase',
     ], 'Parent observation history entry');
-    if (reference.schema_version !== OBSERVABLE_STATE_SCHEMA_VERSION
-      || typeof reference.observation_id !== 'string' || !/^obs-[a-f0-9]{64}$/.test(reference.observation_id)
+    if (reference.schema_version !== parent.observation.schema_version || !isObservableSchema(reference.schema_version)
+      || typeof reference.observation_id !== 'string' || reference.observation_id.length !== 68 || !/^obs-[a-f0-9]{64}$/.test(reference.observation_id)
       || !['sim_core', 'replay', 'live'].includes(reference.source_kind)
-      || !isSafeInteger(reference.event_cursor) || reference.event_cursor < previousCursor
+      || !isSafeInteger(reference.event_cursor) || reference.event_cursor < 0 || reference.event_cursor < previousCursor
       || reference.event_cursor > parent.source_protocol_prefix.length
       || !['pre_decision', 'post_resolution', 'forced_switch', 'terminal', 'other'].includes(reference.snapshot_phase)
       || observationIds.has(reference.observation_id)) {
@@ -1140,6 +1150,7 @@ export function projectBeliefState(input: BeliefStateInput): BeliefState {
   }
   if (parent) {
     assertParent(parent);
+    if (parent.observation.schema_version !== input.observation.schema_version) throw new BeliefStateError('Cross-version belief continuation requires independent regeneration.');
     if (input.information_regime !== undefined && input.information_regime !== parent.information_regime) {
       throw new BeliefStateError('Child belief information_regime must match parent belief.');
     }

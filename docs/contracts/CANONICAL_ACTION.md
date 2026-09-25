@@ -43,3 +43,20 @@ An action is valid only when its index, kind, slot fields, choice text, player, 
 ## Rollback and adoption
 
 The existing `step_canonical` ingress is additive and opt-in: it validates a caller-supplied action against the pending request, converts it to the canonical raw choice, and then uses the existing raw choice forwarding and retry path. The legacy `step` path remains unchanged and authoritative by default; no controller, search, replay, live-control, or checkpoint path is switched over. The codec's derivation and adoption remain shadow-only for those existing paths. The additive ingress can be rolled back without changing simulator behavior. Any future default-path replacement must first pass request-bound invalid-choice tests, Python/TypeScript parity, focused suites, and a separate ACTION-001 review.
+
+## Bounded revival selection — scoped acceptance, 2026-09-25
+
+`canonical-revival/v1` is additive and only supports `kind:revive`. It uses the
+same core fields and hash ordering as CanonicalAction plus a required
+`request_fingerprint`; its distinct schema, kind and fingerprint enter the action ID. `switch_slot` is the one-based current request-party
+position; wire choice is `switch N`, `move_slot` and `target` are null. Eligible
+non-active fainted targets in request order occupy indices8..12; no new action
+slots or default action are invented. The current force-switch legal mask, kind,
+choice, slot, player and rqid must match. Ordinary move/switch/default actions
+retain `canonical-action/v1` unchanged. TypeScript and Python mirror this dispatch.
+`request_fingerprint` is SHA-256 of compact UTF-8 JSON for the addressed roster,
+in request order, each entry `[slot, ident, details, condition, active, reviving===true]`.
+It is required only on revival actions and revalidated against the current request
+in both languages. Changed roster identity/condition rejects even when rqid is null
+and slot/choice recur. An exactly identical later request is not a distinct epoch;
+snapshot/observation lineage remains the transition freshness authority.

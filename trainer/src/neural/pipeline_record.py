@@ -15,6 +15,9 @@ import sys
 from typing import Any, Dict, Mapping, Optional, Sequence
 
 from neural.canonical_action import validate_canonical_action
+from neural.public_boosts import validate_public_boosts
+from neural.protocol_contract import ProtocolRecordError, validate_protocol_record
+from neural.ts_identity import verify_bundle_identities
 from neural.dataset_lineage import (
     DATASET_RECORD_SCHEMA,
     DatasetLineageError,
@@ -29,6 +32,8 @@ from neural.dataset_lineage import (
 
 PIPELINE_BUNDLE_SCHEMA = "pipeline-linked-record/v1"
 PIPELINE_TRANSITION_SCHEMA = "pipeline-transition-reference/v1"
+REVIVAL_BUNDLE_SCHEMA = "pipeline-revival-record/v1"
+REVIVAL_TRANSITION_SCHEMA = "pipeline-revival-reference/v1"
 FORCED_SWITCH_BUNDLE_SCHEMA = "pipeline-forced-switch-record/v1"
 FORCED_SWITCH_TRANSITION_SCHEMA = "pipeline-forced-switch-reference/v1"
 SIMULATOR_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.10"
@@ -52,9 +57,6 @@ _FORBIDDEN_KEYS = frozenset({
     "simulator_state", "rng_seed", "root_seed", "emitted_log_delta", "raw_log_delta",
     "raw_request", "private_team", "opponent_private", "future_events", "omniscient",
 })
-_UNRESOLVED_PROTOCOL_ALIASES = frozenset({"clearstatus", "-clearstatus", "nothing"})
-
-
 class PipelineRecordError(ValueError):
     """Raised when a pipeline record's cross-object joins cannot be proven."""
 
@@ -115,10 +117,11 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
     if isinstance(observation.get("event_cursor"), bool) or observation.get("event_cursor") != len(prefix):
         raise PipelineRecordError(f"{label} event cursor does not match its protocol prefix")
     for record_index, line in enumerate(prefix):
-        if line.startswith("|"):
-            command = line[1:].split("|", 1)[0]
-            if command in _UNRESOLVED_PROTOCOL_ALIASES:
-                detail = f'{label} protocol prefix has unresolved alias "{command}" at record {record_index}'
+        try:
+            validate_protocol_record(line)
+        except ProtocolRecordError as exc:
+            if exc.kind == "unresolved_alias":
+                detail = f'{label} protocol prefix has unresolved alias "{exc.command}" at record {record_index}'
                 raise PipelineRecordError(
                     detail,
                     {
@@ -126,9 +129,10 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
                         "code": "pipeline/v1/unresolved-protocol-alias",
                         "detail": detail,
                         "record_index": record_index,
-                        "record_command": command,
+                        "record_command": exc.command,
                     },
-                )
+                ) from exc
+            raise PipelineRecordError(f"{label} {exc}") from exc
         if line.startswith("|request|"):
             try:
                 request_payload = json.loads(line[len("|request|"):])
@@ -168,6 +172,7 @@ def _request_for_action(observation: Mapping[str, Any], perspective: str) -> Map
         "rqid": request.get("rqid"),
         "force_switch": request.get("force_switch"),
         "legal_actions": legal,
+        "side": request.get("side"),
     }
 
 
@@ -177,8 +182,9 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
     _object(bundle, "pipeline bundle")
     _reject_private_payload(bundle, "pipeline bundle")
     _exact_keys(bundle, _BUNDLE_KEYS, "pipeline bundle")
-    forced_switch = bundle.get("schema_version") == FORCED_SWITCH_BUNDLE_SCHEMA
-    if bundle.get("schema_version") not in {PIPELINE_BUNDLE_SCHEMA, FORCED_SWITCH_BUNDLE_SCHEMA}:
+    revival = bundle.get("schema_version") == REVIVAL_BUNDLE_SCHEMA
+    forced_switch = revival or bundle.get("schema_version") == FORCED_SWITCH_BUNDLE_SCHEMA
+    if bundle.get("schema_version") not in {PIPELINE_BUNDLE_SCHEMA, FORCED_SWITCH_BUNDLE_SCHEMA, REVIVAL_BUNDLE_SCHEMA}:
         raise PipelineRecordError("unsupported pipeline bundle schema")
     battle_id = _nonempty(bundle.get("battle_id"), "battle_id")
     perspective = bundle.get("perspective")
@@ -196,7 +202,7 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
     successor_observation = _object(bundle.get("successor_observation"), "successor observation")
     successor_belief = _object(bundle.get("successor_belief"), "successor belief")
     _exact_keys(transition, _TRANSITION_KEYS | ({"acting_player", "waiting_player"} if forced_switch else set()), "transition reference")
-    expected_transition_schema = FORCED_SWITCH_TRANSITION_SCHEMA if forced_switch else PIPELINE_TRANSITION_SCHEMA
+    expected_transition_schema = REVIVAL_TRANSITION_SCHEMA if revival else (FORCED_SWITCH_TRANSITION_SCHEMA if forced_switch else PIPELINE_TRANSITION_SCHEMA)
     if transition.get("schema_version") != expected_transition_schema:
         raise PipelineRecordError("unsupported transition reference schema")
     if forced_switch:
@@ -208,19 +214,69 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
                 or actor_request.get("wait") is not False or actor_request.get("team_preview") is not False
                 or input_observation.get("snapshot_phase") != "forced_switch"
                 or _object(input_observation.get("view"), "input view").get("terminated") is not False
-                or action.get("kind") != "switch"):
+                or action.get("kind") != ("revive" if revival else "switch")):
             raise PipelineRecordError("forced-switch bundle requires an ordinary actionable forced-switch input")
 
+    request_side = _object(input_observation.get("request"), "input request").get("side", [])
+    if not isinstance(request_side, list):
+        raise PipelineRecordError("input request side must be a list")
+    if revival and any(not isinstance(p, Mapping) or not isinstance(p.get("condition"), str)
+                       or not isinstance(p.get("active"), bool)
+                       or ("reviving" in p and p["reviving"] is not True) for p in request_side):
+        raise PipelineRecordError("revival request roster is malformed")
+    revivers = [p for p in request_side if isinstance(p, Mapping) and p.get("reviving") is True]
+    if revival:
+        targets = [p for p in request_side if isinstance(p, Mapping) and p.get("active") is False and str(p.get("condition", "")).endswith(" fnt")]
+        if (len(revivers) != 1 or revivers[0].get("active") is not True
+                or str(revivers[0].get("condition", "")).endswith(" fnt")
+                or len(request_side) > 6 or not targets
+                or sum(p.get("active") is True for p in request_side if isinstance(p, Mapping)) != 1):
+            raise PipelineRecordError("unsupported revival request")
+        legal = _object(input_observation["request"].get("legal_actions"), "revival legal actions")
+        if (any(not isinstance(p, Mapping) or p.get("slot") != i + 1 for i, p in enumerate(request_side))
+                or legal.get("available_indices") != list(range(8, 8 + len(targets)))):
+            raise PipelineRecordError("revival request slots or indices are inconsistent")
+        actions = legal.get("actions")
+        mask = legal.get("mask")
+        if (not isinstance(actions, list) or len(actions) != 13
+                or not isinstance(mask, list) or len(mask) != 13
+                or mask != [8 <= i < 8 + len(targets) for i in range(13)]
+                or any(entry is not None for i, entry in enumerate(actions) if not mask[i])):
+            raise PipelineRecordError("revival legal action mask is inconsistent")
+        for offset, target in enumerate(targets):
+            entry = legal.get("actions", [])[8 + offset]
+            if (not isinstance(entry, Mapping) or entry.get("kind") != "revive"
+                    or entry.get("slot") != target.get("slot") or entry.get("choice") != f"switch {target.get('slot')}"):
+                raise PipelineRecordError("revival legal action does not match fainted target")
+        index = action.get("index")
+        if not isinstance(index, int) or not 0 <= index - 8 < len(targets):
+            raise PipelineRecordError("revival target index is invalid")
+        target = targets[index - 8]
+        if target.get("slot") != request_side.index(target) + 1 or action.get("switch_slot") != target.get("slot"):
+            raise PipelineRecordError("revival target must match a fainted request slot")
+    elif revivers or action.get("kind") == "revive":
+        raise PipelineRecordError("revival requires the versioned revival record contract")
+
     for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
-        if observation.get("schema_version") != "observable-battle-state/v1":
+        if observation.get("schema_version") not in ("observable-battle-state/v1", "observable-battle-state/v2"):
             raise PipelineRecordError(f"{label} schema is unsupported")
         if observation.get("source_kind") != "sim_core" or observation.get("battle_id") != battle_id:
             raise PipelineRecordError(f"{label} source or battle identity disagrees")
         if observation.get("perspective") != perspective:
             raise PipelineRecordError(f"{label} perspective disagrees with record")
         _identifier(observation.get("observation_id"), "observation", f"{label} ID")
+    if input_observation['schema_version'] != successor_observation['schema_version']:
+        raise PipelineRecordError('Mixed observation schemas require independent regeneration')
     input_prefix = _prefix(input_observation, "input observation")
     successor_prefix = _prefix(successor_observation, "successor observation")
+    for observation in (input_observation, successor_observation):
+        if observation['schema_version'] == 'observable-battle-state/v2':
+            try:
+                validate_public_boosts(observation)
+            except (ValueError, KeyError, TypeError, IndexError) as exc:
+                raise PipelineRecordError('Invalid public-stage evidence: ' + str(exc)) from exc
+        elif any('public_boosts' in p for p in observation.get('view', {}).get('opponent_team', [])):
+            raise PipelineRecordError('Version-one observations cannot contain public_boosts')
     if len(successor_prefix) < len(input_prefix) or list(successor_prefix[:len(input_prefix)]) != list(input_prefix):
         raise PipelineRecordError("successor protocol prefix is not an exact extension")
 
@@ -290,6 +346,11 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
             or output_snapshot.get("state_fingerprint") != transition["output_state_fingerprint"]):
         raise PipelineRecordError("successor belief snapshot does not match transition output")
 
+    try:
+        verify_bundle_identities(bundle)
+    except (ValueError, KeyError, TypeError, IndexError, OverflowError) as exc:
+        raise PipelineRecordError('Invalid content identity: ' + str(exc)) from exc
+
     request = _request_for_action(input_observation, perspective)
     try:
         validate_canonical_action(action, request, perspective)
@@ -317,9 +378,9 @@ def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
         private_data_provenance="acting_player_request",
         feature_input_eligibility="acting_player_private",
         schema_fingerprints={
-            "observation": "observable-battle-state/v1",
+            "observation": input_observation["schema_version"],
             "belief": "belief-state/v1",
-            "transition": "seeded-forced-switch/v1" if forced_switch else "seeded-transition/v1",
+            "transition": "seeded-revival/v1" if revival else ("seeded-forced-switch/v1" if forced_switch else "seeded-transition/v1"),
             "feature": feature_schema_fingerprint("features-not-produced/v1", []),
         },
         split_seed=DEFAULT_SPLIT_SEED,

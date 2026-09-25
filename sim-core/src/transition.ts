@@ -3,11 +3,12 @@ import {
   canonicalActionToChoice,
   type CanonicalAction,
 } from './canonical_action';
-import type { ObservableBattleState } from './observable_state';
+import { isObservableSchema, type ObservableBattleState } from './observable_state';
 import type { ChoiceRequestView, PlayerID, StepResult } from './types';
 
 export const SEEDED_TRANSITION_SCHEMA_VERSION = 'seeded-transition/v1' as const;
 export const SEEDED_FORCED_SWITCH_SCHEMA_VERSION = 'seeded-forced-switch/v1' as const;
+export const SEEDED_REVIVAL_SCHEMA_VERSION = 'seeded-revival/v1' as const;
 export const SIMULATOR_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
 export type RootSeed = [number, number, number, number];
 
@@ -75,7 +76,7 @@ export interface ForcedSwitchRoles {
 }
 
 export interface SeededForcedSwitchRequest extends ForcedSwitchRoles {
-  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION;
+  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION | typeof SEEDED_REVIVAL_SCHEMA_VERSION;
   snapshot: SeededBattleSnapshot;
   observations: Record<PlayerID, ObservableBattleState>;
   actions: Partial<Record<PlayerID, CanonicalAction>>;
@@ -83,7 +84,7 @@ export interface SeededForcedSwitchRequest extends ForcedSwitchRoles {
 }
 
 export interface SeededForcedSwitchMetadata extends Omit<SeededTransitionMetadata, 'schema_version' | 'action_ids'>, ForcedSwitchRoles {
-  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION;
+  schema_version: typeof SEEDED_FORCED_SWITCH_SCHEMA_VERSION | typeof SEEDED_REVIVAL_SCHEMA_VERSION;
   action_ids: Partial<Record<PlayerID, string>>;
 }
 
@@ -104,6 +105,28 @@ export function assertOrdinaryForcedSwitch(request: ChoiceRequestView): void {
   const raw = request.raw as { side?: { pokemon?: { reviving?: boolean }[] } } | null;
   if (raw?.side?.pokemon?.some((pokemon) => pokemon.reviving)) {
     throw new Error('seeded-forced-switch/v1/unsupported-revival-blessing');
+  }
+}
+
+/** Only a live singles reviver and one or more fainted, non-active targets. */
+export function assertRevivalSelection(request: Pick<ChoiceRequestView, 'force_switch' | 'wait' | 'team_preview' | 'side' | 'legal_actions'>): void {
+  const revivers = request.side.filter(p => p.reviving === true);
+  const targets = request.side.filter(p => !p.active && /(?:^| )fnt$/.test(p.condition));
+  if (!request.force_switch || request.wait || request.team_preview || request.side.length > 6
+    || revivers.length !== 1 || !revivers[0].active || /(?:^| )fnt$/.test(revivers[0].condition)
+    || request.side.filter(p => p.active).length !== 1 || !targets.length
+    || request.side.some((p, index) => p.slot !== index + 1)
+    || request.legal_actions.actions.length !== 13 || request.legal_actions.mask.length !== 13
+    || request.legal_actions.mask.filter(Boolean).length !== targets.length
+    || request.legal_actions.actions.filter(Boolean).length !== targets.length
+    || request.legal_actions.available_indices.length !== targets.length) {
+    throw new Error('seeded-revival/v1/unsupported-request');
+  }
+  for (const [offset, target] of targets.entries()) {
+    const action = request.legal_actions.actions[8 + offset];
+    if (target.slot !== request.side.indexOf(target) + 1 || !request.legal_actions.mask[8 + offset]
+      || action?.kind !== 'revive' || action.slot !== target.slot || action.choice !== `switch ${target.slot}`
+      || request.legal_actions.available_indices[offset] !== 8 + offset) throw new Error('seeded-revival/v1/unsupported-request');
   }
 }
 
@@ -225,6 +248,8 @@ function exactPlayers(record: Record<PlayerID, unknown>, label: string): void {
 }
 
 export function validateSeededTransitionRequest(request: SeededTransitionRequest): void {
+  if (!request.observations || !isObservableSchema(request.observations.p1?.schema_version)
+    || request.observations.p1.schema_version !== request.observations.p2?.schema_version) throw new Error('Unsupported or mixed observation schemas.');
   if (request.schema_version !== SEEDED_TRANSITION_SCHEMA_VERSION) throw new Error('Unsupported seeded transition schema.');
   assertSnapshot(request.snapshot);
   if (!Number.isSafeInteger(request.step_index) || request.step_index < 0) throw new Error('Seeded transition step_index is invalid.');
@@ -233,6 +258,7 @@ export function validateSeededTransitionRequest(request: SeededTransitionRequest
   for (const player of ['p1', 'p2'] as const) {
     const observation = request.observations[player];
     const action = request.actions[player];
+    if (action.kind === 'revive' || observation.request?.side.some(p => p.reviving)) throw new Error('Revival requires seeded-revival/v1.');
     if (observation.perspective !== player || observation.request?.player !== player) {
       throw new Error(`Seeded transition observation perspective mismatch for ${player}.`);
     }
@@ -246,7 +272,7 @@ export function validateSeededTransitionRequest(request: SeededTransitionRequest
       player,
       rqid: observation.request.rqid,
       force_switch: observation.request.force_switch,
-      legal_actions: observation.request.legal_actions,
+      legal_actions: observation.request.legal_actions, side: observation.request.side,
     });
   }
 }
@@ -310,7 +336,9 @@ export function toSeededTransitionPublicResult(
 }
 
 export function validateSeededForcedSwitchRequest(request: SeededForcedSwitchRequest): void {
-  if (request.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION) throw new Error('Unsupported forced-switch transition schema.');
+  if (!request.observations || !isObservableSchema(request.observations.p1?.schema_version)
+    || request.observations.p1.schema_version !== request.observations.p2?.schema_version) throw new Error('Unsupported or mixed observation schemas.');
+  if (request.schema_version !== SEEDED_FORCED_SWITCH_SCHEMA_VERSION && request.schema_version !== SEEDED_REVIVAL_SCHEMA_VERSION) throw new Error('Unsupported forced-switch transition schema.');
   if (Object.keys(request).sort().join(',') !== 'acting_player,actions,observations,schema_version,snapshot,step_index,waiting_player') {
     throw new Error('Forced-switch transition fields are not exact.');
   }
@@ -343,13 +371,16 @@ export function validateSeededForcedSwitchRequest(request: SeededForcedSwitchReq
     || waiting.request.legal_actions.mask.some(Boolean) || waiting.request.legal_actions.actions.some(Boolean)) {
     throw new Error('Forced-switch partner must have a genuine wait request without actions.');
   }
+  const revival = actor.request.side.some(p => p.reviving);
+  if (revival !== (request.schema_version === SEEDED_REVIVAL_SCHEMA_VERSION)) throw new Error('Revival transition schema does not match request.');
+  if (revival) assertRevivalSelection(actor.request);
   const action = request.actions[request.acting_player]!;
-  if (action.kind !== 'switch' || !actor.decision_availability.legal_action_indices?.includes(action.index)) {
+  if (action.kind !== (request.schema_version === SEEDED_REVIVAL_SCHEMA_VERSION ? 'revive' : 'switch') || !actor.decision_availability.legal_action_indices?.includes(action.index)) {
     throw new Error('Forced-switch action must be an available switch.');
   }
   canonicalActionToChoice(action, {
     player: request.acting_player, rqid: actor.request.rqid,
-    force_switch: true, legal_actions: actor.request.legal_actions,
+    force_switch: true, legal_actions: actor.request.legal_actions, side: actor.request.side,
   });
 }
 
@@ -366,7 +397,7 @@ export function buildSeededForcedSwitchResult(
     throw new Error('Forced-switch output snapshot lineage is inconsistent.');
   }
   const identity = {
-    schema_version: SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
+    schema_version: request.schema_version,
     acting_player: request.acting_player,
     waiting_player: request.waiting_player,
     parent_branch_id: request.snapshot.branch_id,

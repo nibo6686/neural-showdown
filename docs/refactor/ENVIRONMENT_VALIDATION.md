@@ -2,7 +2,9 @@
 
 Status: `BLOCKED_WITH_REMEDIATION`
 
-Current disposition as of 2026-09-24: ENV-001 remains independently blocked.
+Current disposition as of 2026-09-25: existing-machine simulator validation and
+selected cross-platform comparison pass; ENV-001 fresh-machine recreation remains
+independently pending.
 The later pinned-simulator package check confirms the local Node declaration,
 lock entry, and installed version agree for `pokemon-showdown@0.11.10`; it does
 not resolve the Python dependency/lock policy or clean-environment validation
@@ -16,7 +18,8 @@ when no `.log` fixtures exist. Replay assets are required only for replay
 parity or a replay-sourced data milestone. ENV-001 remains blocked by runtime,
 dependency/lock, and clean-environment policy until those are resolved.
 
-`READY_FOR_CONTRACT_IMPLEMENTATION: NO`
+Historical preparation flag `READY_FOR_CONTRACT_IMPLEMENTATION: NO` is superseded
+by the accepted contract work in PROJECT_STATUS; it is not a current simulator-validation failure.
 
 This document records reproducible Python/Node validation requirements. The
 dependency remediation record is separate from `STATE-001`: it records
@@ -24,13 +27,131 @@ environment evidence and packaging blockers without changing the observable-
 state contract. The original audit did not install packages or run commands;
 subsequent user-reported validation results are recorded below.
 
+## Verified existing environments — 2026-09-25
+
+Use this section for simulator-record validation on the existing machines. Later
+sections retain the broader environment audit and historical evidence.
+
+| Status | Disposition |
+| --- | --- |
+| Existing-machine simulator validation | Passed on macOS and Windows. |
+| Cross-platform comparison | Passed for six selected scenarios at source commit `117df85`; two fresh macOS runs were byte-identical, with zero actionable Windows differences. |
+| Fresh-machine recreation from repository specifications | Pending: Python dependency/lock and supported-runtime policy are not established. |
+| Training/data readiness | Separately gated by feature/target contracts, collection and lifecycle acceptance; `faithful_complete_episode:false`. |
+
+| Recorded working setup | macOS | Windows |
+| --- | --- | --- |
+| Platform | Darwin 25.6.0, arm64 | Windows 11 Home, 10.0.26200, x64; PowerShell 7.1.4 |
+| Python | 3.9.6, terminal `python3` | 3.11.14, existing `neuralgpu` Conda environment |
+| Exact interpreter | `/Library/Developer/CommandLineTools/usr/bin/python3` | `D:\Anaconda\envs\neuralgpu\python.exe` |
+| Node / npm | v24.21.0 / 11.19.0 | v24.15.0 / 11.12.1 |
+| pytest | 8.4.2 (directly verified) | 9.0.3 (Windows checkpoint) |
+
+macOS interpreter selection was rechecked directly and through Node's
+`spawnSync(process.env.PYTHON, ...)`; both returned the path above and 3.9.6.
+Windows values are recorded evidence, not a new Windows run. Exact Conda version,
+environment creation recipe and complete Windows package inventory are unrecorded.
+These are successful host versions, not an approved compatibility range.
+
+### Dependencies for this scope
+
+- Node build/runtime: existing `sim-core/node_modules` matching
+  `sim-core/package-lock.json`: Showdown 0.11.10, @smogon/calc 0.11.0,
+  TypeScript 5.9.3 and @types/node 18.19.130, plus locked transitive dependencies.
+- Python record bridge (`neural.pipeline_record`, canonical actions and lineage):
+  standard library only. Focused Python regression tests additionally need `pytest`.
+  `PYTHONPATH` selects the repository package; no editable install is required.
+- Training/feature workflows use NumPy, PyTorch and PyYAML; live-server workflows
+  additionally use FastAPI, Pydantic and Uvicorn. Those broader packages, GPU/CUDA,
+  model checkpoints and replay fixtures are not needed for the commands below.
+
+Preserve the existing environments; no Conda creation, environment-manager change
+or package installation is part of this procedure. If Node dependencies are missing,
+restore them separately with the committed lock (`npm ci --prefix sim-core`).
+Do not substitute `npm install` or infer a reproducible Python specification from
+whatever is already installed.
+
+### macOS: run from the repository root
+
+```bash
+cd /Users/nbolger/Desktop/neural-showdown
+export PYTHON="$(python3 -c 'import sys; print(sys.executable)')"
+# Recorded result: /Library/Developer/CommandLineTools/usr/bin/python3
+export PYTHONPATH="$PWD/trainer/src"
+"$PYTHON" -c 'import sys, pytest; print(sys.executable, sys.version); print(pytest.__version__)'
+node -e 'const r=require("node:child_process").spawnSync(process.env.PYTHON,["-c","import sys; print(sys.executable)"],{stdio:"inherit"}); process.exit(r.status ?? 1)'
+node --version
+npm --version
+npm run build --prefix sim-core
+node --test sim-core/dist/tests/{transition,forced_switch,settling,pipeline_integration,pipeline_episode,simulator_coverage,illusion}.test.js
+"$PYTHON" -m pytest trainer/tests/test_pipeline_record.py trainer/tests/test_dataset_lineage.py -q
+npm run check:simulator-coverage --prefix sim-core
+node sim-core/scripts/check-simulator-coverage.cjs --self-test
+```
+
+If terminal Python resolves differently, select the recorded executable explicitly
+before running. Exported `PYTHON` is essential: Node's Python bridge/test subprocesses
+use it; setting only `PYTHONPATH` or a shell alias does not select an interpreter.
+Check each command's exit status; stop and diagnose any failure.
+
+### Windows: PowerShell in the repository root
+
+Use the existing `neuralgpu` interpreter directly; Conda activation is optional for
+this scope. If activating with `conda activate neuralgpu`, still verify the exact
+executable used by Node. The following sets it explicitly:
+
+```powershell
+$env:PYTHON = 'D:\Anaconda\envs\neuralgpu\python.exe'
+$env:PYTHONPATH = (Resolve-Path .\trainer\src).Path
+& $env:PYTHON -c 'import sys, pytest; print(sys.executable, sys.version); print(pytest.__version__)'
+node -e 'const r=require("node:child_process").spawnSync(process.env.PYTHON,["-c","import sys; print(sys.executable)"],{stdio:"inherit"}); process.exit(r.status ?? 1)'
+node --version
+npm.cmd --version
+npm.cmd run build --prefix sim-core
+$tests = @('transition','forced_switch','settling','pipeline_integration','pipeline_episode','simulator_coverage','illusion') | ForEach-Object { "sim-core/dist/tests/$_.test.js" }
+node --test $tests
+& $env:PYTHON -m pytest trainer/tests/test_pipeline_record.py trainer/tests/test_dataset_lineage.py -q
+npm.cmd run check:simulator-coverage --prefix sim-core
+node sim-core/scripts/check-simulator-coverage.cjs --self-test
+```
+
+Check `$LASTEXITCODE` after each native command; a later success does not erase an
+earlier failure. `node`/`npm.cmd` must resolve to the intended installation; record
+`Get-Command node,npm.cmd` if they differ from the versions above.
+
+### Evidence and comparison reproduction
+
+See the [Windows checkpoint](WINDOWS-SIMULATOR-RECORD-VALIDATION-2026-09-25.md)
+and [macOS checkpoint](MACOS-SIMULATOR-RECORD-COMPARISON-2026-09-25.md).
+The reviewed 28-file digest is
+`14dff114f66482bbdf5cb10bd0bc3579f339da2af878395b7b74c2f7913f71b0`.
+The macOS checkpoint records exact bundle/reference hashes, commands and the nine
+declared environment differences. Equality covers joint transitions, forced
+switches, trap rejection/recovery, terminal restoration, Unicode records and a
+bounded episode; it does not prove arbitrary battle or environment equivalence.
+
+The historical `validate_windows_simulator_record.ps1` runs `npm ci` and checks
+HEAD against `3ddc5fc`; the bundle generator also requires that base and the original
+review patch. They are not ordinary current-checkout smoke commands. For historical
+bundle regeneration, follow the isolated base-plus-exact-117df85-tree procedure in
+the macOS checkpoint; do not change source attestations to bypass provenance guards.
+The direct commands above work independently of that historical HEAD constraint.
+
+**Next substantive pipeline task:** implement bounded Revival Blessing request
+handling: retain the `reviving` signal, enumerate fainted eligible targets and
+validate actor-only execution, both successor perspectives and Python publication.
+Until accepted, keep explicit unsupported-boundary truncation. Fresh-machine
+recreation remains a separate environment gate, not a reason to replace these
+working environments.
+
+
 ## 1. Supported versions
 
 ### Python
 
 - Declared minimum: Python `>=3.8` in `trainer/pyproject.toml`.
 - Declared maximum: none.
-- Repository-tested version: none established.
+- Recorded successful host versions: Python 3.9.6 (macOS) and 3.11.14 (Windows); no general support matrix established.
 - Current host: `Python 3.9.6` via `python3`; the `python` command is unavailable.
 - Executable: `/Library/Developer/CommandLineTools/usr/bin/python3`
 - User-site packages: `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`
@@ -50,7 +171,7 @@ compatibility matrix is tested.
 - Locked TypeScript `5.9.3` declares `node >=14.17`.
 - Exact supported Node line is not declared; Node `>=16` is an evidence-based minimum, not a complete support policy.
 - npm version is not declared. `package-lock.json` uses lockfile version 3.
-- Current host: Node `v24.21.0`, npm `11.19.0`; compatibility is not yet validated.
+- Current host: Node `v24.21.0`, npm `11.19.0`; scoped simulator validation passed.
 - Node executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node`
 - npm executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/npm`
 - Local sim-core packages: `/Users/nbolger/Desktop/neural-showdown/sim-core/node_modules`
@@ -111,12 +232,12 @@ used by focused validation. The Node side should continue using the committed
 in `package.json`; TypeScript and Node type development entries use semver ranges
 there but resolve to exact versions in the lockfile.
 
-The repository does not provide enough evidence to choose exact Python versions,
-so none are recorded here.
+Successful host versions are recorded above; they do not yet define a
+fresh-machine dependency specification.
 
 ## 4. sim-core build and test commands
 
-After environment approval, from the repository root:
+For dependency restoration when needed (the existing-machine commands above reuse installed packages), from the repository root:
 
 ```bash
 npm ci --prefix sim-core

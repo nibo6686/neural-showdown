@@ -1,4 +1,6 @@
+import { opponentPublicBoosts, type PublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
+import { RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
 import type {
   BattleView,
   ChoiceRequestView,
@@ -15,6 +17,11 @@ import type {
 } from './types';
 
 export const OBSERVABLE_STATE_SCHEMA_VERSION = 'observable-battle-state/v1' as const;
+export const PUBLIC_STAGES_SCHEMA_VERSION = 'observable-battle-state/v2' as const;
+export type ObservableSchemaVersion = typeof OBSERVABLE_STATE_SCHEMA_VERSION | typeof PUBLIC_STAGES_SCHEMA_VERSION;
+export function isObservableSchema(value: unknown): value is ObservableSchemaVersion {
+  return value === OBSERVABLE_STATE_SCHEMA_VERSION || value === PUBLIC_STAGES_SCHEMA_VERSION;
+}
 
 export type ObservableSourceKind = 'sim_core' | 'replay' | 'live';
 export type ObservableSnapshotPhase =
@@ -28,6 +35,7 @@ export class ObservableStateError extends Error {}
 export class ObservableStateContradictionError extends ObservableStateError {}
 
 export interface ObservablePokemonView {
+  public_boosts?: PublicBoosts;
   slot: number;
   ident: string;
   name: string;
@@ -109,6 +117,7 @@ export interface ObservableRequestMoveView {
 }
 
 export interface ObservableRequestSidePokemonView {
+  reviving?: true;
   slot: number;
   ident: string;
   details: string;
@@ -150,7 +159,7 @@ export interface ObservableDecisionAvailability {
 }
 
 export interface ObservableBattleState {
-  schema_version: typeof OBSERVABLE_STATE_SCHEMA_VERSION;
+  schema_version: ObservableSchemaVersion;
   source_kind: ObservableSourceKind;
   battle_id: string;
   perspective: PlayerID;
@@ -232,8 +241,8 @@ function clonePokemon(pokemon: PokemonView, visibility: 'self' | 'opponent'): Ob
       boosts: cloneRecord(pokemon.boosts),
     };
   }
-  // Opponent-private fields are omitted, rather than copied as nulls. The only
-  // item signal crossing this boundary is the already-public presence marker.
+  // Unselected opponent fields are omitted. V2 stages are reconstructed separately
+  // from public evidence; the only item signal here is its public presence marker.
   if (pokemon.item === 'has-item') return { ...publicFields, item: 'has-item' };
   return publicFields;
 }
@@ -409,9 +418,9 @@ function requireRawPlayer(parts: string[], index: number, command: string): void
   }
 }
 
-function requireRawInteger(parts: string[], index: number, command: string, label: string): void {
+function requireRawInteger(parts: string[], index: number, command: string, label: string, signed = false): void {
   requireRawField(parts, index, command, label);
-  if (!/^\d+$/.test(parts[index]) || !Number.isSafeInteger(Number(parts[index]))) {
+  if (!(signed ? /^-?\d+$/ : /^\d+$/).test(parts[index]) || !Number.isSafeInteger(Number(parts[index]))) {
     throw new ObservableStateError(`Malformed raw ${command} record: ${label} must be a safe integer.`);
   }
 }
@@ -526,6 +535,27 @@ function validateRawRecordShape(parts: string[], command: string): void {
         throw new ObservableStateError('Malformed raw replace condition.');
       }
       return;
+    case '-invertboost':
+      if (parts.length !== 4 || parts[3] !== '[from] move: Topsy-Turvy') {
+        throw new ObservableStateError(`Unsupported raw ${command} record.`);
+      }
+      requireIdent();
+      return;
+    case '-copyboost':
+      if (parts.length !== 5 || parts[4] !== '[from] move: Psych Up') {
+        throw new ObservableStateError(`Unsupported raw ${command} record.`);
+      }
+      requireIdent();
+      requireRawPlayerIdent(parts, 3, command);
+      return;
+    case '-anim':
+      // Spectral Thief announces animation after its separate stage events.
+      if (parts.length !== 5 || parts[3] !== 'Spectral Thief') {
+        throw new ObservableStateError(`Unsupported raw ${command} record.`);
+      }
+      requireIdent();
+      requireRawPlayerIdent(parts, 4, command);
+      return;
     case '-hint':
       // Public Illusion Level Mod explanation emitted by Battle.hint. No typed
       // state is inferred from prose; retain the original record in the prefix.
@@ -556,7 +586,10 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case 'sethp':
     case '-sethp':
       requireAtLeast(4);
-      requireIdent();
+      // Revival publicly heals a benched Pokémon using p1:/p2:, not an active position.
+      if (!(command === '-heal' && parts.length === 5
+        && parts[4] === '[from] move: Revival Blessing'
+        && /^p[12]:\s*[^|]+$/.test(parts[2]))) requireIdent();
       requireRawField(parts, 3, command, 'condition');
       return;
     case 'status':
@@ -580,13 +613,18 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(5);
       requireIdent();
       requireRawField(parts, 3, command, 'stat');
-      requireRawInteger(parts, 4, command, 'amount');
+      requireRawInteger(parts, 4, command, 'amount', command === 'setboost' || command === '-setboost');
       return;
     case 'clearboost':
     case '-clearboost':
+      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      return;
     case 'clearnegativeboost':
     case '-clearnegativeboost':
-      if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      if (parts.length < 3 || parts.length > 4 || (parts.length === 4 && !['[silent]', '[zeffect]'].includes(parts[3]))) {
+        throw new ObservableStateError(`Malformed raw ${command} record.`);
+      }
       requireIdent();
       return;
     case 'clearpositiveboost':
@@ -614,6 +652,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(3);
       requireRawField(parts, 2, command, 'effect');
       return;
+    case 'message':
     case '-message':
       requireAtLeast(3);
       requireRawField(parts, 2, command, 'message');
@@ -774,7 +813,7 @@ function normalizePhase(input: ObservableStateInput): { snapshot_phase: Observab
 }
 
 function assertInput(input: ObservableStateInput): { snapshot_phase: ObservableSnapshotPhase; other_phase: string | null } {
-  if (input.schema_version !== OBSERVABLE_STATE_SCHEMA_VERSION) {
+  if (!isObservableSchema(input.schema_version)) {
     throw new ObservableStateError(`Unsupported observable state schema: ${input.schema_version}`);
   }
   if (input.perspective !== 'p1' && input.perspective !== 'p2') {
@@ -835,26 +874,19 @@ type RawEvidence = {
   request_rqid?: number;
 };
 
-// This is intentionally a protocol-record allowlist, not a permissive parser.
-// Unknown records are rejected so an adapter caller cannot smuggle unvalidated
-// evidence through the observable boundary.
-const SUPPORTED_RAW_COMMANDS = new Set([
-  'ability', '-ability', 'block', '-block', 'boost', '-boost', 'clearallboost', '-clearallboost',
-  'clearnegativeboost', '-clearnegativeboost', 'clearpositiveboost', '-clearpositiveboost',
-  'curestatus', '-curestatus', 'damage', '-damage', 'drag', 'detailschange', 'end', '-end', 'endability',
-  '-endability', 'enditem', '-enditem', 'faint', 'fieldend', '-fieldend', 'fieldstart',
-  '-fieldstart', 'formechange', '-formechange', 'gen', 'heal', '-heal', 'hitcount',
-  'immune', '-immune', 'item', '-item', 'miss', '-miss', 'move', 'nothing', '-nothing', '-singleturn', 'cant', '-hitcount',
-  'player', 'poke', 'replace', 'request', 'resisted', '-resisted', 'rule', 'sidestart', '-hint',
-  '-sidestart', 'sideend', '-sideend', 'start', '-start', 'status', '-status', 'switch',
-  'teamsize', 'terastallize', '-terastallize', 'turn', 'unboost', '-unboost', 'upkeep',
-  'weather', '-weather', 'win', 'tie', 'transform', '-transform', 'setboost', '-setboost',
-  'sethp', '-sethp', 'swapsideconditions', '-swapsideconditions', 'crit', '-crit',
-  'supereffective', '-supereffective', 'fail', '-fail', 'activate', '-activate', '-fieldactivate', '-message', 'prepare',
-  '-prepare', 'mustrecharge', '-mustrecharge', 'clearboost', '-clearboost', 'clearstatus',
-  '-clearstatus', 'c', 'chat', 'error', 'gametype', 'rated',
-  'teampreview', 'clearpoke', 'done', 'inactive', 'inactiveoff', 't:',
-]);
+/** Validate one supported record before any event-specific state routing. */
+export function validateRawProtocolRecord(record: string): void {
+  if (!record.startsWith('|')) throw new ObservableStateError('Malformed raw protocol record.');
+  const parts = record.split('|');
+  const command = parts[1];
+  if (!command || (!SUPPORTED_RAW_COMMANDS.has(command) && !RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command))) {
+    throw new ObservableStateError(`Unsupported raw protocol event: ${command || '<empty>'}.`);
+  }
+  if (RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command)) {
+    throw new ObservableStateError(`Unsupported raw protocol event: ${command}.`);
+  }
+  validateRawRecordShape(parts, command);
+}
 
 function parseIntegerRecord(parts: string[], label: string): number {
   if (parts.length !== 3 || !/^\d+$/.test(parts[2]) || !Number.isSafeInteger(Number(parts[2]))) {
@@ -866,13 +898,9 @@ function parseIntegerRecord(parts: string[], label: string): number {
 function parseRawEvidence(prefix: readonly string[], perspective: PlayerID): RawEvidence {
   const evidence: RawEvidence = { names: {}, team_size: {} };
   for (const record of prefix) {
-    if (!record.startsWith('|')) throw new ObservableStateError('Malformed raw protocol record.');
+    validateRawProtocolRecord(record);
     const parts = record.split('|');
     const command = parts[1];
-    if (!command || !SUPPORTED_RAW_COMMANDS.has(command)) {
-      throw new ObservableStateError(`Unsupported raw protocol event: ${command || '<empty>'}.`);
-    }
-    validateRawRecordShape(parts, command);
     if (command === 'gen') {
       const value = parseIntegerRecord(parts, 'gen');
       if (evidence.gen !== undefined && evidence.gen !== value) throw new ObservableStateContradictionError('Raw gen records disagree.');
@@ -1044,11 +1072,14 @@ export function projectObservableBattleState(input: ObservableStateInput): Obser
   validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective);
   const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix);
   const view = cloneView(input.view);
+  if (input.schema_version === PUBLIC_STAGES_SCHEMA_VERSION) {
+    for (const pokemon of view.opponent_team) pokemon.public_boosts = opponentPublicBoosts(protocolPrefix, pokemon.ident);
+  }
   const request = input.request ? cloneRequest(input.request) : null;
   const decision_availability = decisionAvailability(input.view, input.request);
   const protocol_prefix_hash = sha256(protocolPrefix);
   const identity = {
-    schema_version: OBSERVABLE_STATE_SCHEMA_VERSION,
+    schema_version: input.schema_version as ObservableSchemaVersion,
     source_kind: input.source_kind,
     battle_id: input.battle_id,
     perspective: input.perspective,

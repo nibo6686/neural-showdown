@@ -326,7 +326,7 @@ test('unresolved protocol aliases stop pipeline projection while known raw-only 
   }
 });
 
-test('an unresolved alias cannot replace a committed pipeline boundary or lineage', async () => {
+test('rejected protocol candidates preserve committed state, lineage and the next transition', async () => {
   const session = await createPipelineIntegrationSession({ battle_id: 'pipeline-alias-atomicity-v1', format: 'gen9randombattle', seed: SEED });
   const committed = session.boundary;
   const committedLineage = {
@@ -343,6 +343,7 @@ test('an unresolved alias cannot replace a committed pipeline boundary or lineag
     })),
   };
   const originalStepSeededTransition = LocalBattleEnv.prototype.stepSeededTransition;
+  let injectedRecord = '|clearstatus|legacy-token';
   try {
     LocalBattleEnv.prototype.stepSeededTransition = async function (request, options) {
       const result = await originalStepSeededTransition.call(this, request, options);
@@ -350,28 +351,35 @@ test('an unresolved alias cannot replace a committed pipeline boundary or lineag
         ...result,
         metadata: {
           ...result.metadata,
-          emitted_log_delta: [...result.metadata.emitted_log_delta, '|clearstatus|legacy-token'],
+          emitted_log_delta: [...result.metadata.emitted_log_delta, injectedRecord],
         },
       };
     };
-    await assert.rejects(session.step(), (error: Error) => error instanceof PipelineIntegrationError
-      && error.code === 'pipeline/v1/unresolved-protocol-alias'
-      && error.diagnostic.record_command === 'clearstatus');
+    for (const testCase of [
+      { record: '|clearstatus|legacy-token', code: 'pipeline/v1/unresolved-protocol-alias' },
+      { record: '|futuremechanic|opaque', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singlemove|p1a: Pikachu|Destiny Bond', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-boost|bad ident|atk|1', code: 'pipeline/v1/unsupported-observable-protocol' },
+    ]) {
+      injectedRecord = testCase.record;
+      await assert.rejects(session.step(), (error: Error) => error instanceof PipelineIntegrationError
+        && error.code === testCase.code);
+      assert.equal(session.boundary, committed);
+      assert.deepEqual({
+        step_index: session.boundary.step_index,
+        branch_id: session.boundary.branch_id,
+        state_fingerprint: session.boundary.state_fingerprint,
+        perspectives: Object.fromEntries(['p1', 'p2'].map((player) => {
+          const state = session.boundary.perspectives[player as PlayerID];
+          return [player, {
+            observation_id: state.observation.observation_id,
+            belief_id: state.belief.belief_id,
+            event_cursor: state.observation.event_cursor,
+          }];
+        })),
+      }, committedLineage);
+    }
     LocalBattleEnv.prototype.stepSeededTransition = originalStepSeededTransition;
-    assert.equal(session.boundary, committed);
-    assert.deepEqual({
-      step_index: session.boundary.step_index,
-      branch_id: session.boundary.branch_id,
-      state_fingerprint: session.boundary.state_fingerprint,
-      perspectives: Object.fromEntries(['p1', 'p2'].map((player) => {
-        const state = session.boundary.perspectives[player as PlayerID];
-        return [player, {
-          observation_id: state.observation.observation_id,
-          belief_id: state.belief.belief_id,
-          event_cursor: state.observation.event_cursor,
-        }];
-      })),
-    }, committedLineage);
     const control = await createPipelineIntegrationSession({
       battle_id: 'pipeline-alias-atomicity-v1',
       format: 'gen9randombattle',

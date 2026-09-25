@@ -26,6 +26,7 @@ function normalizeSidePokemon(pokemon: any, slot: number): RequestSidePokemonVie
     details: pokemon?.details || '',
     condition: pokemon?.condition || '',
     active: !!pokemon?.active,
+    ...(pokemon?.reviving === true ? { reviving: true as const } : {}),
     moves: Array.isArray(pokemon?.moves) ? [...pokemon.moves] : [],
     stats: { ...(pokemon?.stats || {}) },
     base_ability: pokemon?.baseAbility || null,
@@ -105,6 +106,22 @@ export function buildLegalActionSet(rawRequest: any): LegalActionSet {
     : [];
 
   if (Array.isArray(rawRequest.forceSwitch) && rawRequest.forceSwitch.some(Boolean)) {
+    if (sidePokemon.some((pokemon: RequestSidePokemonView) => pokemon.reviving)) {
+      // Bounded singles revival: never turn a malformed/unsupported request into default.
+      const revivers = sidePokemon.filter((p: RequestSidePokemonView) => p.reviving);
+      if (rawRequest.forceSwitch.length === 1 && rawRequest.forceSwitch[0] === true
+        && sidePokemon.length <= 6 && revivers.length === 1 && revivers[0].active
+        && !isFainted(revivers[0].condition) && sidePokemon.filter((p: RequestSidePokemonView) => p.active).length === 1) {
+        const targets = sidePokemon.filter((p: RequestSidePokemonView) => !p.active && isFainted(p.condition));
+        for (const [offset, pokemon] of targets.entries()) {
+          const index = 8 + offset;
+          set.mask[index] = true;
+          set.actions[index] = { index, kind: 'revive', choice: `switch ${pokemon.slot}`, slot: pokemon.slot, label: `revive:${pokemon.details}` };
+        }
+      }
+      set.available_indices = set.mask.flatMap((enabled, index) => enabled ? [index] : []);
+      return set;
+    }
     buildSwitchActions(sidePokemon, set);
     ensureNonEmptyActionSet(set);
     return set;

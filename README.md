@@ -5,16 +5,16 @@ TypeScript Pokemon Showdown simulator service with Python tooling for data
 collection, replay ingestion, featurization, model training, evaluation, action
 ranking, and live battle evaluation.
 
-> **Current project status (2026-09-24):** The active effort is a refactored,
-> checkpoint-free data/model pipeline. State, action, transition, belief, and
-> DATA-001 lineage contracts are accepted; ENV-001 remains blocked. The pinned
-> simulator coverage review has documented gaps, PIPELINE-001 remains an
-> unaccepted implementation candidate, and FEATURE-001 has no accepted feature
-> schema. No new dataset has been generated and no new model has been trained.
-> Existing model checkpoints are intentionally abandoned for the new approach
-> and are non-blocking. The legacy replay, training, checkpoint, and live-eval
-> instructions below describe retained project capabilities, not current
-> readiness or authorization.
+> **Current project status (2026-09-25):** The active effort is a refactored,
+> checkpoint-free data/model pipeline. Scoped state/action/transition/belief,
+> DATA-001 lineage, and PIPELINE-001 work are accepted. Existing-machine checks
+> on macOS and Windows passed for selected scenarios; fresh-environment
+> reproducibility remains open. Bounded Topsy-Turvy semantics are reviewed, but
+> the shared protocol publication boundary is blocked pending parity, schema,
+> source-shape, and pre-filter fixes. FEATURE-001 has no accepted schema; no new
+> dataset or model training has started, and `faithful_complete_episode:false`
+> remains required. Legacy instructions below describe retained capabilities,
+> not current readiness or authorization.
 
 See [Current Project Status](docs/PROJECT_STATUS.md) for gates, blockers, and
 the next work sequence.
@@ -78,6 +78,13 @@ legacy workflows. They are not a reproducibility declaration for the new
 pipeline: ENV-001 remains blocked on dependency policy and clean-environment
 validation. Do not treat dataset/training examples below as authorization for
 the current refactored work.
+
+For the refactored simulator-record path, use the
+[verified macOS and Windows environment instructions](docs/refactor/ENVIRONMENT_VALIDATION.md#verified-existing-environments--2026-09-25).
+Existing-machine validation and selected cross-platform comparison passed at
+`117df85`. Python's standard library plus pytest for tests is sufficient for that
+scope; the training/live dependencies below are broader. Fresh-machine recreation
+and training/data readiness remain separately gated; `faithful_complete_episode:false`.
 
 Runtime pieces:
 

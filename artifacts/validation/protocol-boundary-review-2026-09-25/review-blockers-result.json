@@ -1,0 +1,245 @@
+{
+  "scope": "review findings only; no implementation acceptance",
+  "runtime_matrix": [
+    {
+      "record": "|turn|١",
+      "typescript_accepts": false,
+      "python_accepts": true
+    },
+    {
+      "record": "|request|{\"rqid\":null}",
+      "typescript_accepts": false,
+      "python_accepts": true
+    },
+    {
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77",
+      "typescript_accepts": false,
+      "python_accepts": false
+    },
+    {
+      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
+      "typescript_accepts": false,
+      "python_accepts": false
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|garbage",
+      "typescript_accepts": true,
+      "python_accepts": true
+    },
+    {
+      "record": "|-boost|p1a: Pikachu|banana|1000",
+      "typescript_accepts": true,
+      "python_accepts": true
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|opaque|arbitrary",
+      "typescript_accepts": true,
+      "python_accepts": true
+    }
+  ],
+  "fully_rehashed_publication": {
+    "candidate_count": 16,
+    "published_candidates": 16,
+    "rejected_candidates": 0,
+    "cases": [
+      {
+        "record": "|turn|١",
+        "version": "v1",
+        "perspective": "p1",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1325
+      },
+      {
+        "record": "|turn|١",
+        "version": "v1",
+        "perspective": "p1",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1325
+      },
+      {
+        "record": "|turn|١",
+        "version": "v1",
+        "perspective": "p2",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|turn|١",
+        "version": "v1",
+        "perspective": "p2",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|turn|١",
+        "version": "v2",
+        "perspective": "p1",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1326
+      },
+      {
+        "record": "|turn|١",
+        "version": "v2",
+        "perspective": "p1",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1326
+      },
+      {
+        "record": "|turn|١",
+        "version": "v2",
+        "perspective": "p2",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|turn|١",
+        "version": "v2",
+        "perspective": "p2",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v1",
+        "perspective": "p1",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1325
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v1",
+        "perspective": "p1",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1325
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v1",
+        "perspective": "p2",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v1",
+        "perspective": "p2",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v2",
+        "perspective": "p1",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1326
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v2",
+        "perspective": "p1",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1326
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v2",
+        "perspective": "p2",
+        "prefix": "input",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      },
+      {
+        "record": "|request|{\"rqid\":null}",
+        "version": "v2",
+        "perspective": "p2",
+        "prefix": "successor",
+        "identity_joins_verified": true,
+        "cli_status": 0,
+        "stdout_bytes": 1331
+      }
+    ]
+  },
+  "source_shape_false_rejections": [
+    {
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77",
+      "typescript_rejects": true,
+      "python_rejects": true
+    },
+    {
+      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
+      "typescript_rejects": true,
+      "python_rejects": true
+    }
+  ],
+  "permissive_shapes_accepted_by_both": [
+    "|-damage|p1a: Pikachu|garbage",
+    "|-boost|p1a: Pikachu|banana|1000",
+    "|-singleturn|p1a: Pikachu|opaque|arbitrary"
+  ],
+  "pre_filter_bypass": {
+    "malformed_request_projection": [],
+    "unclassified_tier_projection": []
+  },
+  "fixture_label_mismatches": [
+    {
+      "fixture_token": "ability",
+      "record_token": "-ability",
+      "record": "|-ability|p1a: Pikachu|Static"
+    }
+  ],
+  "loader_asset_probes": {
+    "missing": {
+      "python_exit": 1,
+      "python_stdout": "",
+      "python_error": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/tmp1jl9387f/python/neural/protocol_contract.json'",
+      "typescript_exit": 1,
+      "typescript_stdout": "",
+      "typescript_error": "Error: Shared trainer/src/neural/protocol_contract.json was not found."
+    },
+    "invalid_json": {
+      "python_exit": 1,
+      "python_stdout": "",
+      "python_error": "json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+      "typescript_exit": 1,
+      "typescript_stdout": "",
+      "typescript_error": "SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)"
+    },
+    "wrong_shape": {
+      "python_exit": 0,
+      "python_stdout": "4",
+      "python_error": "",
+      "typescript_exit": 0,
+      "typescript_stdout": "{\"hasM\":true,\"size\":4}",
+      "typescript_error": ""
+    }
+  }
+}

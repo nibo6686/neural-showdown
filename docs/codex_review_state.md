@@ -1389,3 +1389,415 @@ excluded; faithful_complete_episode:false. PROJECT_STATUS stale rows reconciled.
 Next: separate Windows ENV-001 validation using implementation commit
 3ddc5fc3060e8da287425e4d08a71a2ffd77184a plus review-only manifest/docs changes;
 checkpoint defines handoff. This is not complete-episode or environment acceptance.
+
+### Working environment instructions — 2026-09-25
+
+Documented successful macOS terminal Python3.9.6/Node24.21.0/npm11.19.0 and
+recorded Windows neuralgpu Python3.11.14/Node24.15.0/npm11.12.1. Direct macOS
+and Node-child checks resolve /Library/Developer/CommandLineTools/usr/bin/python3;
+pytest8.4.2 is present. Windows pytest9.0.3 remains recorded evidence.
+ENVIRONMENT_VALIDATION now separates stdlib/pytest simulator-record scope from
+training/server dependencies, includes existing-environment commands, and explains
+historical wrapper HEAD/install constraints. README links the instructions and
+PROJECT_STATUS distinguishes existing-host success, selected cross-platform success,
+fresh-machine recreation pending and separate training/data gates. No packages,
+environment managers, source or attestations changed. Next substantive pipeline task:
+bounded Revival Blessing request/target handling with scoped acceptance; retain
+unsupported truncation until then and faithful_complete_episode:false. Fresh-machine
+specification remains an independent pending gate.
+
+### Bounded Revival Blessing implementation — 2026-09-25; review pending
+
+Preserves addressed revival request evidence and fainted current-slot selection;
+additive action/transition/record versions distinguish revival from switching.
+Mirrored real Pawmot/Rabsca fixtures verify actor-only committed records, both
+successor beliefs, restore/privacy/identity, public burn clearing and resumed play.
+Build154 relevant TypeScript and27 Python checks pass; final focused7 revival
+checks pass. Ordinary compatibility checks pass. No semantic acceptance issued;
+coverage manifest unchanged and expected drift remains (ten synthetic self-tests pass).
+Checkpoint lists hashes, source anchors, unsupported variants and required coverage
+inclusion. Next: bounded revival semantic review; faithful_complete_episode:false.
+
+### Bounded bench revival semantic review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test corrections. All14 hashes matched; pinned
+revival request/choice/execution, slot/fingerprint binding, schema disjointness,
+owner privacy, public HP/status and candidate commitment reviewed. Reused154 TS/27
+Python evidence; fresh build/seven revival regressions, seven Python rejection
+probes and two exact split-HP probes pass. Both perspectives restore/replay and
+advance beliefs; actor-only records publish after commitment; variants truncate.
+Added both canonical codecs/tests, shared identity fixture and revival tests to
+coverage (34 files); reconciled -heal bench grammar and source-qualified status clear.
+Digest: 39ab09c90a564eaa80a3da3ff8275b8dcf01a7fbd79dcdece1b3945b68753ec8.
+Checker, ten synthetic drift self-tests and three coverage tests pass. Historical
+Windows/macOS comparison does not establish equality of this changed source.
+Next: public temporary defensive-type lifecycle, starting with Soak/typechange.
+Other lifecycle/linked/field gaps and unsupported revival variants remain;
+faithful_complete_episode:false and separate training/data gates are unchanged.
+
+### Soak public temporary defensive typing — implementation, 2026-09-25
+
+Public typechange now persists across own-request refresh and Illusion reveal;
+source-backed switch/drag/faint resets clear it. Stellar retains ordinary Water,
+non-Stellar Tera takes precedence; already-Tera/Arceus/Silvally Soak failures do not
+invent evidence. Private appearance map is rebuilt from protocol, with no schema
+change or private simulator state exposure. Build and184 relevant tests pass,
+including30 new mirrored Soak regressions and16 Python-validated record bundles.
+Prior27 Python evidence reused for unchanged validators. Exact hashes/source anchors
+and logs are in PIPELINE-002 checkpoint. Coverage checker fails expected source
+drift; ten synthetic drift self-tests pass. Manifest/attestation unchanged; review
+must include new soak.test.ts and shared typechange classification. Separate semantic
+acceptance pending. Broader temporary typing remains open; faithful_complete_episode:false.
+
+### Soak defensive typing semantic review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both file hashes and
+prior 34-file computed digest match. Source establishes public appearance ownership,
+request-independent temporary typing, Illusion reveal retention, switch/drag/faint
+reset and Fire/Stellar precedence. Reused184 relevant tests/prior27 Python evidence;
+fresh build/30 Soak cases and16 Python publication bundles pass. Added soak.test.ts
+(35 hashed files), qualified protocol classifications without accepting generic
+end semantics or other temporary types. Computed/reviewed digest:
+`1a853d3a5266fad988027a8ee0609700cbd9f7a18a06ca71dc7991e9ba14e4b1`.
+Checker, ten drift self-tests and three coverage tests pass. Pinned source unchanged.
+Next: public added-type composition/lifecycle; real Soak then Forest's Curse gives
+simulator/opponent Water+Grass but owner Water. This previously excluded gap remains
+outside Soak acceptance. Checkpoint records reproduction and bounded next criteria.
+Broader lifecycle and faithful publication remain open; faithful_complete_episode:false.
+
+### Public added-type composition — implementation, 2026-09-25
+
+Separate appearance-bound ordinary replacement and added slot now compose both
+views across requests/replay. Added slot replaces instead of accumulating; Soak and
+Tera remove it. Switch/drag/faint clearing and Illusion ownership/privacy tested.
+Build/204 relevant TypeScript tests pass, including 20 new mirrored cases and20 new
+Python-validated publication bundles. Prior27 Python tests reused for unchanged
+validators. No schema migration. Manifest unchanged; checker reports expected drift
+398a3ad465e0b55ebf6a35974feb673c216647e5048cd37083bf733c2d3c059b;
+ten synthetic self-tests pass. Review must hash added_types.test.ts and reconcile
+classification before attestation. Checkpoint contains exact hashes and source
+anchors. Generic expiry/copy effects and older two-type training/live consumers
+remain excluded. faithful_complete_episode:false; next is scoped semantic review.
+
+### Public added-type composition review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and35-file
+computed digest match. Pinned semantics support separate replacement/one added slot,
+ordering/repetition, reset/Tera behavior and Illusion appearance ownership. Reused204
+relevant tests/prior27 Python evidence; fresh build20 added-type cases including 20
+Python publication validations pass. Three-type arrays survive observation cloning
+and JSON bundle/identity validation; Python DATA-001 output references observations,
+not a new feature tensor. Legacy two-slot training/live consumers remain excluded.
+Added added_types.test.ts (36 hashed files); qualified protocol classifications.
+Computed/reviewed digest:
+`8dca73b1b49f2dc8a8d5a2e3e1a4b7d43f2e976a64e36f2dde3192561bb0dc09`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+Transform public copied typing/refresh/restoration. Fresh pinned probe gives Mew
+Fire/Flying/Grass in simulator/opponent but Psychic in owner view after copying
+Grass-added Charizard. Checkpoint has reproduction and source anchors. Copy/expiry
+and broader lifecycle remain unaccepted; faithful_complete_episode:false.
+
+### Transform defensive typing — implementation, 2026-09-25
+
+Copies public ordinary and added types separately at -transform, preserving caller
+Tera and original roster identity without mutable target links. Requests/restoration
+retain copy; switch/drag/faint restore original species. Build226 relevant tests pass,
+including22 new mirrored cases and16 Python publication bundles. Prior27 Python
+validator evidence reused. No schemas/private metadata added. Non-typing Transform,
+Type-event/Roost and legacy two-type training/live consumers remain excluded.
+Manifest unchanged; expected drift bee7b0975b2a8afc4cabfc8f1fd2b7e5858eeb615ec6699f81209564ac4d738b.
+Ten synthetic drift self-tests pass. Checkpoint records hashes and review criteria;
+next is scoped semantic review and transform_types.test.ts hashing/attestation.
+faithful_complete_episode:false remains.
+
+### Transform defensive typing review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and36-file
+computed digest match; reused226 relevant tests/prior27 Python evidence. Fresh
+build22 mirrored Transform cases including16 Python publication validations pass.
+Pinned copy boundary, ordinary/added isolation, request/replay persistence,
+identity/reset, caller/target Tera and privacy reviewed. Three-type arrays survive
+serialization/identity checks. Added transform_types.test.ts (37 hashed files);
+qualified -transform/lifecycle classifications without accepting unrelated fields.
+Computed/reviewed digest:
+`79a83f372d28e8c83ca32a00df8d44eb2479a15d1fd7cac4bd9ca5e66a33f804`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public Transform boost copying. Fresh pinned probe copies +2 Attack in simulator
+but both caller views report empty boosts; checkpoint gives exact steps/source.
+This excluded non-typing correction is separate from current scoped acceptance.
+Broader lifecycle/features remain unaccepted; faithful_complete_episode:false.
+
+### Transform public boost copying — implementation, 2026-09-25
+
+Fresh target public-stage map replaces caller stages at -transform; absent target
+keys zero stale caller stages and explicit zeros remain. No mutable links or synthetic
+deltas. Existing request/replay/reset paths preserved. Build244 relevant tests pass,
+including18 new mirrored cases, exact-prefix Intimidate ordering and20 new Python
+publication validations. Prior27 Python evidence reused. Both raw views corrected;
+self records publish copied stages, accepted opponent omission unchanged. Manifest
+unchanged; expected drift c5fb1527cf0d1d2f8da8f1ab61c423fa3a6333918e53dfb89a289b13cc183288.
+Ten synthetic drift checks pass. Checkpoint has exact hashes/review criteria.
+Next scoped review/test hashing/attestation; selective clear and unrelated Transform
+mechanics remain excluded. faithful_complete_episode:false.
+
+### Public Transform boost copying review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and37-file
+computed digest match. Pinned all-stage assignment, sparse/explicit zeros, negative
+stages, event order, independent maps, request/replay and clearing reviewed. Reused244
+relevant tests/prior27 Python evidence; fresh build18 cases/20 Python validations pass.
+Both raw views correct; caller-self published stages preserved. Opponent publication
+omits stages: representation limitation, not privacy requirement. Corrected contract
+wording without changing v1 serialization. Added transform_boosts.test.ts (38 files)
+and qualified -transform classification. Computed/reviewed digest:
+`16819a7d19f47b6a412a8a9ed540cde284ac524df290cc5ac52d4293082eaab7`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public opponent-stage publication under explicit version/identity compatibility,
+with no blanket private-field copying. Feature/faithful-publication acceptance
+requires closing that representation gap; other semantic gaps remain separate.
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — Public opponent-stage v2 implementation; review pending
+
+Opt-in observable v2 adds exact-prefix opponent public_boosts with explicit unknown/zero
+semantics. V1 default and original identities remain unchanged. Nested versions flow
+through beliefs, transitions and Python schema fingerprints; mixed/unknown versions
+reject. Historical v1 missing reference versions remain compatible. No in-place
+migration; new evidence-backed representation creates new observation/belief/record
+identities, while simulator trajectory IDs may remain shared. Helpers reconstruct
+public evidence independently in TS/Python; unsupported operations fail closed.
+Build and 265 relevant TS/27 Python pass;21 new tests include 20 actual v2 Python bundles
+and 10 invalid-bundle rejections. Accepted raw extraction/typing behavior unchanged.
+See checkpoint for exact hashes, commands, privacy/restoration and Illusion evidence.
+Checker detects expected drift (653051a2ad2dcf9778c4df63a6dc92aefbfc361a441278430ad9dff48be7575c); ten synthetic self-tests pass. Manifest
+and attestation unchanged: add new helpers/tests and review bounded classifications
+before recomputing/attesting. Read-only consumer review used requested gpt-6-astra/high;
+effective settings unavailable; no delegated edits. Next: scoped v2 semantic review.
+Selective clears and broader faithful publication remain open; faithful_complete_episode:false.
+
+
+## 2026-09-25 — Public opponent-stage v2 review blocked
+
+Nine checkpoint hashes match; reused 265 TS/27 Python evidence, fresh build and 21
+public-stage tests pass (20 Python publications/10 invalid-bundle checks). Default v1,
+explicit v2, prefix evidence and bounded lifecycle/restoration checks remain sound in
+tested paths, but publication acceptance is blocked. A real one-transition v2 bundle
+can be relabeled v1 with public_boosts removed and stale observation/belief IDs retained:
+Python accepts; TS rejects. Repairing observation IDs alone still lets stale belief
+IDs through Python. See checkpoint and artifacts/validation/v2-public-stages-review-2026-09-25
+for executable reproduction/output. Require content-identity checks for observations
+and beliefs across publication versions with explicit bounded historical compatibility;
+do not rewrite old IDs. No production or manifest changes; no attestation. Computed
+digest 653051a2ad2dcf9778c4df63a6dc92aefbfc361a441278430ad9dff48be7575c remains
+unattested. Checker detects drift; ten synthetic self-tests pass. Hashing must add both
+public_boosts helpers, public_stages tests and changed belief_state tests after correction.
+Next: fix downgrade loophole, then repeat review. faithful_complete_episode:false.
+
+
+## 2026-09-25 — Python content identity correction implemented; review pending
+
+Both previously reproduced downgrade paths now reject before record creation. Shared
+Python TS-compatible canonicalization verifies input/successor observation and belief
+IDs independent of schema labels; checks nested candidate/evidence IDs and reference
+joins. Valid v1/v2 records retain supplied identities. Legacy references may omit only
+the v1 schema version; omission is hashed as absent. ID-only/partial references and
+arbitrary synthetic IDs have no production exemption; unit fixtures now use consistent
+content IDs. No historical records/lineage rewritten. DATA-001 hashes unchanged.
+Build and 268 relevant TS/28 Python pass, including cross-runtime real v1/v2 bundles,
+both downgrade cases, nested tampering, Unicode/number/absence/null parity and existing
+lifecycle publication. Independent 99948-number probe has zero mismatches. Checkpoint
+records exact hashes/commands and bounded historical-content limitation. New helpers/tests
+require coverage inclusion; manifest untouched and checker detects expected drift. Ten
+synthetic self-tests pass. Next: separate semantic review of correction and combined v2
+publication; faithful_complete_episode:false.
+
+
+## 2026-09-25 — Combined identity/v2 review: historical reference domain blocker
+
+Hashes match; reused 268 TS/28 Python evidence; fresh build/24 focused tests pass. Both
+original downgrade reproductions independently reject before publication. Fully rehashed
+false public stages reject, so hashes do not bypass prefix evidence. Legacy exception
+remains narrow: omitted version only for otherwise supported v1 references; no supplied
+identities are repaired. New bounded blocker: older observation_history reference
+source_kind/snapshot_phase values are not domain-validated in Python. On a real second
+transition, set either field to invalid in both beliefs and rehash outer IDs; Python
+publishes, TS rejects. Durable reproduction/output under
+artifacts/validation/identity-history-review-2026-09-25/. Correct the Python history
+domains to match TS and add two-transition regressions, retaining v1 omission compatibility.
+No production/manifest corrections or attestation. Expected digest drift remains; ten
+synthetic self-tests pass. Next: bounded historical reference domain correction, then
+combined review. faithful_complete_episode:false.
+
+
+## 2026-09-25 — Historical-reference fields corrected; combined review pending
+
+Shared Python current/history validation enforces exact keys, supported homogeneous
+versions, strict ID/hash strings, source/phase domains, non-boolean safe nonnegative
+cursors and prefix/history joins. Removed unsafe preliminary version-only loop. Legacy
+v1 omission remains explicit and hash-preserving; no values coerced or repaired. TS
+closes first-history -1 and trailing-newline ID edges within the same object contract.
+Both original domain failures now reject before publication. Build/78 targeted TS/28
+Python pass; table-driven two-transition v1/v2 cases exercise every reference position,
+invalid field types/domains/joins, valid domains, legacy omission and unchanged IDs.
+Matching prior 268-test unaffected evidence reused. Checkpoint records source hashes and
+commands. No manifest update or attestation; expected digest drift and ten passing
+synthetic self-tests. Next: separate combined reference/identity/v2 review.
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — Combined historical-reference/identity/v2 publication accepted
+
+No blocking findings or production/test corrections. All checkpoint hashes match;
+fresh build/26 identity/public-stage cases pass. Independently reproduced both malformed
+historical fields with recomputed outer hashes: reject before publication in both
+runtimes; valid control passes. Both stale-ID downgrade paths and fully rehashed false
+stages reject. Complete six-field/current/history joins and strict cursor/ID guards
+reviewed; v1 default and narrow Python-only omitted-version legacy compatibility retain
+valid identities. Matching 78 TS/28 Python and prior 268 unaffected evidence reused.
+Added both public-stage helpers, Python identity helper and three TS tests to hashing
+(44 files); qualified boost/Transform publication and excluded selective clearing.
+Computed/reviewed digest 96e85e8903e00b681ce029b58d69d72c284595102bc1ffee855894779fcee11d.
+Checker, ten self-tests, three coverage tests and diff checks pass. Historical pending/
+blocked dispositions are superseded within this scope only. Checkpoint binds HEAD plus
+local changes, documents review evidence and the next bounded task: selective positive/
+negative stage clearing. No feature or faithful-publication readiness claim;
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — selective stage clearing implementation (review pending)
+
+Raw and TS/Python v2 public replay now clear only the selected sign, preserving opposite
+signs/zero/unknown. White Herb tags and narrow Spectral Thief raw-only animation supported.
+Build, 92 relevant TS tests, 28 Python tests and diff checks pass; new tests include 36
+actual Python publication checks. Coverage flags changed digest and added `-anim`;
+ten synthetic self-tests pass. No attestation/classification changes. Review exact file
+hashes, compatibility and next action in the PIPELINE-002 current checkpoint. Keep
+`faithful_complete_episode:false`; prior accepted evidence is retained below that checkpoint.
+
+
+## 2026-09-25 — selective stage clearing scoped accepted
+
+Six hashes match; no source/test correction. Raw and TS/Python v2 selected-sign clearing,
+conservative unknowns, exact White Herb/Z tags and narrow raw-only Spectral Thief animation
+reviewed against pinned source. V1 default/identities unchanged; no historical migration.
+Fresh build17 focused cases, valid publication and correctly rehashed false-stage rejection
+pass both runtimes. Matching92 TS/28 Python evidence reused. Added selective regression
+hashing (45 files), reviewed classifications and attested digest `15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next: bounded
+Psych Up stage copying, excluding its critical-hit volatiles and other boost mechanics.
+Current PIPELINE-002 checkpoint holds exact reviewed state/evidence. faithful_complete_episode:false.
+
+
+## 2026-09-25 — bounded Psych Up stage implementation; review pending
+
+First copyboost identifier receives second's independent public stage snapshot; replace
+all evidence, preserve unknowns, accept exact Psych Up tag only. Raw and TS/Python v2
+implemented; Costar, other boost mechanics and critical-hit volatile changes remain
+excluded. Build/101 TS/28 Python pass, including28 new Python publication checks and20
+fully rehashed false-stage rejections. Coverage/source token drift expected; ten drift
+self-tests pass. No attestation update. Exact files/hashes, commands and review scope in
+current PIPELINE-002 checkpoint. faithful_complete_episode:false.
+
+
+## 2026-09-25 — Psych Up review blocked; attestation withheld
+
+All five hashes match. Valid stage semantics pass build/nine tests,28 publication/20
+false-stage rejection checks and six fresh mirrored lifecycle/restoration probes.
+But missing, garbage and empty-name copy recipients bypass evidence-helper grammar;
+Python publishes fully rehashed actual v2 bundles while TS rejects. Reproduction:
+artifacts/validation/psych-up-review-2026-09-25/reproduce.py (control/artifacts/results
+alongside). Fix both helper grammar guards before player-side filtering, including both
+full identifiers and exact tag/count, then add publication regressions. No source/test
+or manifest edits; new test hashing/classification deferred. Expected coverage drift;
+ten self-tests pass. Current checkpoint contains exact locations/evidence.
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — Psych Up pre-filter grammar corrected; review pending
+
+TS/Python evidence helpers validate exact Psych Up count/tag and both complete identifiers
+before side routing. Python v1/v2 publication uses the shared guard; valid v1 identities
+unchanged. Valid unresolved roster identities retain unknown semantics. Build39 focused
+TS/28 Python pass;200 rehashed malformed cases verify identities then reject, and three
+original artifacts reject before CLI output. Existing simulator/publication/false-stage
+evidence refreshed. No copying/identity/snapshot changes; critical-hit volatiles excluded.
+Manifest/attestation untouched; expected token/digest drift and ten passing self-tests.
+Current checkpoint records hashes, fixtures and combined review scope.
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — Psych Up combined review blocked by publication alias
+
+Canonical guards pass; independent original3 failures now reject with verified identities
+and no output. Fresh build13 tests pass (200 rehashed matrix,28 publications,20 false-stage
+rejections); matching39 TS/28 Python reused. Bare copyboost still bypasses Python v1 guard
+and normalizes in v2, whereas TS rejects; both versions reproduced publishing fully
+rehashed alias bundles. Evidence: artifacts/validation/psych-up-alias-review-2026-09-25/.
+Next reject unsupported publication alias in both versions and extend matrix. No source,
+test, classification or attestation edits. Expected coverage drift; ten self-tests pass.
+faithful_complete_episode:false; critical-hit volatiles excluded.
+
+
+## 2026-09-25 — bare copyboost publication guard fixed; review pending
+
+Python prefix validation rejects bare copyboost in v1/v2 before stage reconstruction.
+Canonical token/grammar, helper aliases, unresolved evidence and historical identities
+unchanged. Build19 TS/28 Python pass;408 rehashed rejection matrix,12 supported matrix
+controls, original canonical3 and alias2 CLI failures now reject without output. Valid
+saved controls retain IDs. Five unchanged source/test hashes match prior copying evidence.
+Only pipeline_record.py and psych_up_validation.test.ts changed in code/tests. Manifest
+and attestation untouched; expected drift, ten passing self-tests. Current checkpoint
+contains exact hashes/logs/review scope. faithful_complete_episode:false.
+
+
+## 2026-09-25 — combined Psych Up stages/grammar scoped accepted
+
+No blockers or production/test corrections. Seven hashes match. Fresh build14 cases
+pass including408 rehashed rejects,12 controls,28 publications,20 false-stage rejects;
+matching19 TS/28 Python and prior lifecycle evidence reused. Independently five saved
+failures verify IDs then reject without output; v1/v2 controls retain identities.
+Canonical copy direction/replacement/unknowns and pre-filter grammar reviewed; bare
+alias rejected at publication, internal aliases unchanged. Added2 tests/7 fixtures
+(54 files) and attested `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Critical-hit
+volatiles/Costar/other boost mechanics excluded. Next: bounded Topsy-Turvy inversion.
+Current checkpoint binds exact reviewed state and evidence. faithful_complete_episode:false.
+
+
+## 2026-09-25 — bounded Topsy-Turvy inversion implemented; review pending
+
+Pinned target-only nonzero negation implemented raw and TS/Python v2; zero/unknown remain
+distinct. Exact grammar validates before routing; bare alias rejects in both publication
+versions. Build79 TS/28 Python pass, including28 new publications,232 fully rehashed
+malformed/alias rejects and4 false-stage rejections. Historical valid controls unchanged.
+Five sources/two tests changed; manifest untouched, expected token/digest drift, ten
+self-tests pass. Current checkpoint records hashes/source/probes and separate review
+scope. Rigged Dice, swap/Baton Pass/critical-hit volatiles excluded.
+faithful_complete_episode:false.
+
+
+## 2026-09-25 — protocol validation/publication boundary review blocked
+
+On macOS, the independent review reproduced fully rehashed Python publications
+for `|turn|١` and `|request|{"rqid":null}` in all 16 v1/v2, p1/p2, input/
+successor combinations; TypeScript rejects both. Both loaders accept a
+structurally malformed shared contract, both reject source-emitted
+`detailschange`/extended `-endability` forms, and the TS projector drops
+malformed `request` plus unclassified `tier` before validation. Grammar remains
+permissive for several supported commands, and a fixture token label is wrong.
+The rehashed unknown-command case still rejects after identity joins with no
+output; targeted rollback, raw-only/privacy, historical-reference and
+`-singlemove` stop regressions pass. Bounded Topsy-Turvy remains limited to its
+reviewed base semantics and exact tag.
+
+The shared boundary is not accepted. Preserved stored/reviewed digest
+`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`; current
+unreviewed local digest is
+`9793ca11d6ac3c696794027e0cab4150fe970bc52ee1c5fce59dcf124102b140`. Coverage
+drift self-tests pass; the checker exits on the expected unreviewed digest
+change. See the current [PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md),
+[mechanics assessment](refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md),
+and `artifacts/validation/protocol-boundary-review-2026-09-25/`. Keep
+`faithful_complete_episode:false`; remediate this boundary before scanner
+expansion and operative format coverage.

@@ -2,11 +2,14 @@ import { createHash } from 'node:crypto';
 import type { ChoiceRequestView, LegalAction, PlayerID } from './types';
 
 export const CANONICAL_ACTION_SCHEMA_VERSION = 'canonical-action/v1' as const;
-export type CanonicalActionKind = 'move' | 'move_tera' | 'switch' | 'default';
+export const CANONICAL_REVIVAL_SCHEMA_VERSION = 'canonical-revival/v1' as const;
+export type CanonicalActionKind = 'move' | 'move_tera' | 'switch' | 'revive' | 'default';
 
 export interface CanonicalAction {
-  schema_version: typeof CANONICAL_ACTION_SCHEMA_VERSION;
+  schema_version: typeof CANONICAL_ACTION_SCHEMA_VERSION | typeof CANONICAL_REVIVAL_SCHEMA_VERSION;
   action_id: string;
+  /** Revival-only binding to the addressed roster evidence. */
+  request_fingerprint?: string;
   source: 'request_legal_action';
   player: PlayerID;
   rqid: number | null;
@@ -23,6 +26,7 @@ export interface CanonicalActionRequestContext {
   rqid: number | null;
   force_switch?: boolean;
   legal_actions: ChoiceRequestView['legal_actions'];
+  side?: ChoiceRequestView['side'];
 }
 
 type ActionFields = Omit<CanonicalAction, 'action_id'>;
@@ -44,6 +48,7 @@ function stableFields(fields: ActionFields): ActionFields {
     switch_slot: fields.switch_slot,
     target: fields.target,
     choice: fields.choice,
+    ...(fields.kind === 'revive' ? { request_fingerprint: fields.request_fingerprint } : {}),
   };
 }
 
@@ -63,6 +68,12 @@ function isSafeInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isSafeInteger(value);
 }
 
+function revivalRequestFingerprint(request: CanonicalActionRequestContext): string {
+  if (!request.side) throw new Error('Revival requires addressed roster evidence.');
+  return createHash('sha256').update(JSON.stringify(request.side.map(p =>
+    [p.slot, p.ident, p.details, p.condition, p.active, p.reviving === true])), 'utf8').digest('hex');
+}
+
 function expectedLegalAction(request: CanonicalActionRequestContext, action: CanonicalAction): LegalAction {
   const legal = request.legal_actions.actions[action.index];
   if (!request.legal_actions.mask[action.index] || !legal) {
@@ -73,11 +84,11 @@ function expectedLegalAction(request: CanonicalActionRequestContext, action: Can
 
 function assertActionShape(action: CanonicalAction, request: CanonicalActionRequestContext, perspective: PlayerID): void {
   const actualKeys = Object.keys(action).sort();
-  const expectedKeys = [...CANONICAL_ACTION_KEYS].sort();
+  const expectedKeys = [...CANONICAL_ACTION_KEYS, ...(action.kind === 'revive' ? ['request_fingerprint'] : [])].sort();
   if (actualKeys.length !== expectedKeys.length || actualKeys.some((key, index) => key !== expectedKeys[index])) {
     throw new Error('Canonical action fields are not exact.');
   }
-  if (action.schema_version !== CANONICAL_ACTION_SCHEMA_VERSION) throw new Error('Unsupported canonical action schema.');
+  if (action.schema_version !== (action.kind === 'revive' ? CANONICAL_REVIVAL_SCHEMA_VERSION : CANONICAL_ACTION_SCHEMA_VERSION)) throw new Error('Unsupported canonical action schema.');
   if (!isPlayer(action.player) || action.player !== perspective || action.player !== request.player) {
     throw new Error('Canonical action player does not match perspective/request.');
   }
@@ -87,7 +98,9 @@ function assertActionShape(action: CanonicalAction, request: CanonicalActionRequ
   if (!isSafeInteger(action.index) || action.index < 0 || action.index >= 13) throw new Error('Canonical action index is invalid.');
   if (action.target !== null) throw new Error('Canonical target semantics are unsupported in v1.');
   const legal = expectedLegalAction(request, action);
-  if (request.force_switch && action.kind !== 'switch' && !(action.kind === 'default' && legal.choice === 'default')) {
+  if (action.kind === 'revive' && action.request_fingerprint !== revivalRequestFingerprint(request)) throw new Error('Revival request fingerprint is stale.');
+  if (action.kind === 'revive' && request.force_switch !== true) throw new Error('Revival requires a current force-switch request.');
+  if (request.force_switch && action.kind !== 'switch' && action.kind !== 'revive' && !(action.kind === 'default' && legal.choice === 'default')) {
     throw new Error('Forced-switch requests accept switch actions or the legacy default fallback.');
   }
   if (action.kind === 'default') {
@@ -102,7 +115,7 @@ function assertActionShape(action: CanonicalAction, request: CanonicalActionRequ
     const expectedIndex = action.kind === 'move' ? action.move_slot - 1 : action.move_slot + 3;
     const expectedChoice = action.kind === 'move' ? `move ${action.move_slot}` : `move ${action.move_slot} terastallize`;
     if (action.index !== expectedIndex || action.choice !== expectedChoice) throw new Error('Canonical move fields are inconsistent.');
-  } else if (action.kind === 'switch') {
+  } else if (action.kind === 'switch' || action.kind === 'revive') {
     if (!isSafeInteger(action.switch_slot) || action.switch_slot < 1 || action.switch_slot > 6 || action.move_slot !== null) {
       throw new Error('Canonical switch slot fields are invalid.');
     }
@@ -131,16 +144,17 @@ export function canonicalActionFromLegalAction(
   const isDefault = legal.choice === 'default';
   const kind = isDefault ? 'default' : legal.kind as CanonicalActionKind;
   const fields: ActionFields = {
-    schema_version: CANONICAL_ACTION_SCHEMA_VERSION,
+    schema_version: kind === 'revive' ? CANONICAL_REVIVAL_SCHEMA_VERSION : CANONICAL_ACTION_SCHEMA_VERSION,
     source: 'request_legal_action',
     player: request.player,
     rqid: request.rqid,
     kind,
     index: actionIndex,
     move_slot: kind === 'move' || kind === 'move_tera' ? legal.slot ?? null : null,
-    switch_slot: kind === 'switch' ? legal.slot ?? null : null,
+    switch_slot: kind === 'switch' || kind === 'revive' ? legal.slot ?? null : null,
     target: null,
     choice: legal.choice,
+    ...(kind === 'revive' ? { request_fingerprint: revivalRequestFingerprint(request) } : {}),
   };
   const action = { ...stableFields(fields), action_id: actionId(fields) } as CanonicalAction;
   assertActionShape(action, request, perspective);
@@ -164,6 +178,7 @@ export function serializeCanonicalAction(action: CanonicalAction, request: Canon
     switch_slot: action.switch_slot,
     target: action.target,
     choice: action.choice,
+    ...(action.kind === 'revive' ? { request_fingerprint: action.request_fingerprint } : {}),
   });
 }
 

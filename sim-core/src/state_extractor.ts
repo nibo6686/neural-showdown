@@ -83,7 +83,19 @@ export class PlayerStateExtractor {
     pokemon: PokemonView;
     prior?: PokemonView;
   }>> = {};
+  // Protocol-derived ordinary typing belongs to the active appearance, not its
+  // displayed roster alias. Replay reconstructs this map without private state.
+  private readonly publicTypeChanges = new WeakMap<PokemonView, string[]>();
+  private readonly publicAddedTypes = new WeakMap<PokemonView, string>();
   private ownRequestData: any = null;
+
+  private defensiveTypes(pokemon: PokemonView | undefined, species: string, teraType: string | null, terastallized: boolean): string[] {
+    if (terastallized && teraType && teraType !== 'Stellar') return [teraType];
+    const publicTypes = pokemon && this.publicTypeChanges.get(pokemon);
+    const ordinary = publicTypes ? [...publicTypes] : resolveTypes(species, teraType, terastallized);
+    const added = pokemon && this.publicAddedTypes.get(pokemon);
+    return added ? [...new Set([...ordinary, added])] : ordinary;
+  }
 
   constructor(envId: string, format: string, player: PlayerID) {
     this.envId = envId;
@@ -193,6 +205,12 @@ export class PlayerStateExtractor {
         break;
       case '-formechange':
         this.handleFormeChange(parts);
+        break;
+      case '-invertboost':
+        this.handleInvertBoosts(parts);
+        break;
+      case '-copyboost':
+        this.handleCopyBoosts(parts);
         break;
       case '-transform':
         this.handleTransform(parts);
@@ -343,7 +361,7 @@ export class PlayerStateExtractor {
         revealed_moves: Array.isArray(pokemon?.moves)
           ? [...pokemon.moves]
           : previous?.revealed_moves || [],
-        types: resolveTypes(parsedDetails.species || previous?.species || 'Unknown', teraType, terastallized),
+        types: this.defensiveTypes(previous, parsedDetails.species || previous?.species || 'Unknown', teraType, terastallized),
         tera_type: teraType,
         terastallized,
         stats: {
@@ -461,6 +479,20 @@ export class PlayerStateExtractor {
   }
 
   private clearSwitchState(pokemon: PokemonView): void {
+    // clearVolatile calls setSpecies(baseSpecies), resetting ordinary types while
+    // preserving active Tera until faintMessages explicitly removes that flag.
+    if (pokemon.transformed) {
+      // Transform changes the appearance, not the original roster species.
+      pokemon.species = pokemon.base_species || pokemon.species;
+      pokemon.current_species = pokemon.species;
+      pokemon.displayed_species = pokemon.species;
+      pokemon.transformed = false;
+    }
+    const hadReplacement = this.publicTypeChanges.delete(pokemon);
+    const hadAdded = this.publicAddedTypes.delete(pokemon);
+    if (hadReplacement || hadAdded) {
+      pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    }
     pokemon.boosts = {};
     // Pinned Pokemon.clearVolatile retains only Eternamax's Dynamax. Do not
     // erase permanent status, item/reveal evidence, or other nonvolatile fields.
@@ -492,6 +524,8 @@ export class PlayerStateExtractor {
     pokemon.status = parsedCondition.status ?? pokemon.status;
     pokemon.fainted = parsedCondition.fainted;
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
+    this.publicTypeChanges.delete(pokemon);
+    this.publicAddedTypes.delete(pokemon);
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
   }
 
@@ -534,7 +568,7 @@ export class PlayerStateExtractor {
     pokemon.transformed = false;
     pokemon.displayed_species_uncertain = false;
     pokemon.illusion_revealed = true;
-    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    pokemon.types = this.defensiveTypes(pokemon, pokemon.species, pokemon.tera_type, pokemon.terastallized);
     if (player) this.publicActive[player] = { pokemon };
     this.updateActiveIndices();
   }
@@ -552,7 +586,34 @@ export class PlayerStateExtractor {
     pokemon.current_species = species;
     pokemon.displayed_species = species;
     pokemon.species_source = 'protocol';
+    this.publicTypeChanges.delete(pokemon);
+    this.publicAddedTypes.delete(pokemon);
     pokemon.types = resolveTypes(species, pokemon.tera_type, pokemon.terastallized);
+  }
+
+  private handleInvertBoosts(parts: string[]): void {
+    if (parts.length !== 4 || parts[3] !== '[from] move: Topsy-Turvy'
+      || !/^p[12][a-z]:\s*[^|]+$/.test((parts[2] || '').trim())) return;
+    const player = parseIdent(parts[2]).player;
+    if (!player) return;
+    const team = player === this.player ? this.view.self_team : this.view.opponent_team;
+    const pokemon = this.findOrCreatePokemon(team, parts[2], '');
+    pokemon.boosts = Object.fromEntries(Object.entries(pokemon.boosts).map(([stat, value]) =>
+      [stat, value === 0 ? 0 : -value]));
+  }
+
+  private handleCopyBoosts(parts: string[]): void {
+    if (parts.length !== 5 || parts[4] !== '[from] move: Psych Up') return;
+    const recipientIdent = parseIdent(parts[2]);
+    const donorIdent = parseIdent(parts[3]);
+    if (!recipientIdent.player || !donorIdent.player) return;
+    const recipientTeam = recipientIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const donorTeam = donorIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
+    const recipient = this.findOrCreatePokemon(recipientTeam, parts[2], '');
+    const donor = donorTeam.find(p => p.active) || donorTeam.find(p => p.ident === parts[3]);
+    // First protocol identifier receives the second's public stages at this instant.
+    // Replace, never merge; absent sparse evidence stays absent (v2 tracks null).
+    recipient.boosts = { ...donor?.boosts };
   }
 
   private handleTransform(parts: string[]): void {
@@ -576,7 +637,17 @@ export class PlayerStateExtractor {
     pokemon.species = currentSpecies;
     pokemon.species_source = 'protocol';
     pokemon.transformed = true;
-    pokemon.types = target?.types ? [...target.types] : resolveTypes(currentSpecies, null, false);
+    // Transform assigns every stage, rather than applying boost deltas. A fresh
+    // public map also removes stale caller stages (absent entries mean zero).
+    pokemon.boosts = { ...target?.boosts };
+    // Transform copies ordinary types (ignoring target Tera) and the added slot
+    // at this instant. Copy only public evidence and never alias either map.
+    const ordinary = target && this.publicTypeChanges.get(target);
+    this.publicTypeChanges.set(pokemon, ordinary ? [...ordinary] : resolveTypes(currentSpecies, null, false));
+    const added = target && this.publicAddedTypes.get(target);
+    if (added) this.publicAddedTypes.set(pokemon, added);
+    else this.publicAddedTypes.delete(pokemon);
+    pokemon.types = this.defensiveTypes(pokemon, currentSpecies, pokemon.tera_type, pokemon.terastallized);
   }
 
   private handleMove(parts: string[]): void {
@@ -631,6 +702,12 @@ export class PlayerStateExtractor {
     pokemon.hp_text = parsedCondition.hpText;
     pokemon.hp_ratio = parsedCondition.hpRatio;
     pokemon.status = parsedCondition.status ?? pokemon.status;
+    if (parts[1] === '-heal' && parts.includes('[from] move: Revival Blessing')) {
+      pokemon.status = parsedCondition.status;
+      pokemon.status_source = 'protocol';
+      pokemon.status_started_turn = null;
+      pokemon.status_turns_public = null;
+    }
     pokemon.fainted = parsedCondition.fainted;
   }
 
@@ -681,7 +758,13 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
-    pokemon.boosts = {};
+    if (parts[1] === '-clearboost') {
+      pokemon.boosts = {};
+    } else {
+      const positive = parts[1] === '-clearpositiveboost';
+      pokemon.boosts = Object.fromEntries(Object.entries(pokemon.boosts).map(([stat, stage]) =>
+        [stat, (positive ? stage > 0 : stage < 0) ? 0 : stage]));
+    }
   }
 
   private handleClearAllBoosts(): void {
@@ -704,15 +787,19 @@ export class PlayerStateExtractor {
 
     if (effect === 'typechange' || effect === 'typeadd') {
       if (parts[1] === '-end') {
-        pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
-        return;
-      }
-      const changedTypes = (parts[4] || '').split('/').map((value) => value.trim()).filter(Boolean);
-      if (effect === 'typechange') {
-        pokemon.types = changedTypes.slice(0, 2);
+        if (effect === 'typechange') this.publicTypeChanges.delete(pokemon);
+        this.publicAddedTypes.delete(pokemon);
+      } else if (effect === 'typechange') {
+        const changedTypes = (parts[4] || '').split('/').map(value => value.trim()).filter(Boolean);
+        this.publicTypeChanges.set(pokemon, changedTypes.slice(0, 2));
+        // Pokemon.setType replaces ordinary types and removes any added type.
+        this.publicAddedTypes.delete(pokemon);
       } else {
-        pokemon.types = [...new Set([...pokemon.types, ...changedTypes])].slice(0, 2);
+        // Pokemon.addType has one replaceable slot, not an accumulating list.
+        const added = (parts[4] || '').trim();
+        if (added) this.publicAddedTypes.set(pokemon, added);
       }
+      pokemon.types = this.defensiveTypes(pokemon, pokemon.species, pokemon.tera_type, pokemon.terastallized);
       return;
     }
 
@@ -838,9 +925,11 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
+    // Terastallization clears addedType even when Stellar keeps ordinary types.
+    this.publicAddedTypes.delete(pokemon);
     pokemon.terastallized = true;
     pokemon.tera_type = teraType;
-    pokemon.types = resolveTypes(pokemon.species, teraType, true);
+    pokemon.types = this.defensiveTypes(pokemon, pokemon.species, teraType, true);
   }
 
   private handleWinner(name: string | null): void {

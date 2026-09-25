@@ -1,0 +1,2329 @@
+{
+  "schema_version": "showdown-protocol-contract/v1",
+  "simulator": {
+    "package": "pokemon-showdown",
+    "version": "0.11.10",
+    "format": "gen9randombattle",
+    "mod": "gen9",
+    "game_type": "singles"
+  },
+  "source_basis": [
+    "Supported raw command inventory is reconciled from sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json protocol.commands and the current TypeScript observable parser; package-wide emitter scans are not reachability closure.",
+    "Per-record validation logic is checked by the shared accepted-record and rejection fixture matrix in both runtimes.",
+    "Signed -setboost is supported from pinned pokemon-showdown@0.11.10 sim/battle.ts:1941-1942; a Contrary plus Belly Drum callback emits the resulting negative stage.",
+    "Bounded -invertboost is accepted for the scoped base Topsy-Turvy contract at data/moves.ts:20427-20436; Gen9SSB Rigged Dice remains excluded."
+  ],
+  "supported_commands": [
+    "ability",
+    "-ability",
+    "block",
+    "-block",
+    "boost",
+    "-boost",
+    "clearallboost",
+    "-clearallboost",
+    "clearnegativeboost",
+    "-clearnegativeboost",
+    "clearpositiveboost",
+    "-clearpositiveboost",
+    "curestatus",
+    "-curestatus",
+    "damage",
+    "-damage",
+    "drag",
+    "detailschange",
+    "end",
+    "-end",
+    "endability",
+    "-endability",
+    "enditem",
+    "-enditem",
+    "faint",
+    "fieldend",
+    "-fieldend",
+    "fieldstart",
+    "-fieldstart",
+    "formechange",
+    "-formechange",
+    "gen",
+    "heal",
+    "-heal",
+    "hitcount",
+    "immune",
+    "-immune",
+    "item",
+    "-item",
+    "miss",
+    "-miss",
+    "move",
+    "-nothing",
+    "-singleturn",
+    "cant",
+    "-hitcount",
+    "player",
+    "poke",
+    "replace",
+    "request",
+    "resisted",
+    "-resisted",
+    "rule",
+    "sidestart",
+    "-hint",
+    "-anim",
+    "-copyboost",
+    "-invertboost",
+    "-sidestart",
+    "sideend",
+    "-sideend",
+    "start",
+    "-start",
+    "status",
+    "-status",
+    "switch",
+    "teamsize",
+    "terastallize",
+    "-terastallize",
+    "turn",
+    "unboost",
+    "-unboost",
+    "upkeep",
+    "weather",
+    "-weather",
+    "win",
+    "tie",
+    "transform",
+    "-transform",
+    "setboost",
+    "-setboost",
+    "sethp",
+    "-sethp",
+    "swapsideconditions",
+    "-swapsideconditions",
+    "crit",
+    "-crit",
+    "supereffective",
+    "-supereffective",
+    "fail",
+    "-fail",
+    "activate",
+    "-activate",
+    "-fieldactivate",
+    "-message",
+    "prepare",
+    "-prepare",
+    "mustrecharge",
+    "-mustrecharge",
+    "clearboost",
+    "-clearboost",
+    "c",
+    "chat",
+    "error",
+    "gametype",
+    "rated",
+    "teampreview",
+    "clearpoke",
+    "done",
+    "inactive",
+    "inactiveoff",
+    "t:",
+    "message"
+  ],
+  "recognized_unsupported_commands": [
+    {
+      "token": "clearstatus",
+      "kind": "unresolved_alias",
+      "reason": "unresolved legacy token; not accepted in a published prefix"
+    },
+    {
+      "token": "-clearstatus",
+      "kind": "unresolved_alias",
+      "reason": "unresolved legacy token; not accepted in a published prefix"
+    },
+    {
+      "token": "nothing",
+      "kind": "unresolved_alias",
+      "reason": "unresolved bare alias; use exact raw-only -nothing record"
+    },
+    {
+      "token": "copyboost",
+      "kind": "internal_alias",
+      "reason": "internal helper spelling; only canonical -copyboost is publishable"
+    },
+    {
+      "token": "invertboost",
+      "kind": "internal_alias",
+      "reason": "internal helper spelling; only canonical -invertboost is publishable"
+    },
+    {
+      "token": "-singlemove",
+      "kind": "unsupported_stop",
+      "source": "pokemon-showdown@0.11.10 data/moves.ts:3619,6896,8176,15098",
+      "reason": "reachable candidate emitters are identified; lifecycle semantics are not accepted"
+    }
+  ],
+  "record_fixtures": [
+    {
+      "token": "ability",
+      "record": "|-ability|p1a: Pikachu|Static",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "ability event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, ability",
+        "optional": "tags",
+        "shape": "ability event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Pikachu|Static",
+      "inventory_classification": "represented",
+      "grammar_summary": "ability event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, ability",
+        "optional": "tags",
+        "shape": "ability event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/items.ts",
+        "data/mods/gen3/abilities.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen5/abilities.ts",
+        "data/mods/gen7pokebilities/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/rulesets.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/partnersincrime/abilities.ts",
+        "data/mods/pokebilities/abilities.ts",
+        "data/mods/pokemoves/abilities.ts",
+        "data/mods/sharedpower/abilities.ts",
+        "data/moves.ts",
+        "sim/battle.ts",
+        "sim/field.ts"
+      ]
+    },
+    {
+      "token": "block",
+      "record": "|block|p1a: Pikachu|Protect",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "block evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, effect",
+        "optional": "tags",
+        "shape": "block evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-block",
+      "record": "|-block|p1a: Pikachu|Protect",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "block evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, effect",
+        "optional": "tags",
+        "shape": "block evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/items.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/partnersincrime/abilities.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "boost",
+      "record": "|boost|p1a: Pikachu|atk|1",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
+    },
+    {
+      "token": "-boost",
+      "record": "|-boost|p1a: Pikachu|atk|1",
+      "inventory_classification": "represented",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts",
+      "pinned_dynamic_emitter_source": "sim/battle.ts:1942-1970"
+    },
+    {
+      "token": "clearallboost",
+      "record": "|clearallboost",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
+    },
+    {
+      "token": "-clearallboost",
+      "record": "|-clearallboost",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen2stadium2/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "clearnegativeboost",
+      "record": "|clearnegativeboost|p1a: Pikachu",
+      "inventory_classification": "represented",
+      "grammar_summary": "selective sign clear",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "one [silent] or [zeffect] tag; untagged legacy accepted",
+        "shape": "selective sign clear"
+      },
+      "fixture_reference": "tests/selective_boosts.test.ts"
+    },
+    {
+      "token": "-clearnegativeboost",
+      "record": "|-clearnegativeboost|p1a: Pikachu",
+      "inventory_classification": "represented",
+      "grammar_summary": "selective sign clear",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "one [silent] or [zeffect] tag; untagged legacy accepted",
+        "shape": "selective sign clear"
+      },
+      "fixture_reference": "tests/selective_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "data/items.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "clearpositiveboost",
+      "record": "|clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "inventory_classification": "represented",
+      "grammar_summary": "selective sign clear",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, source ident, effect",
+        "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+        "shape": "selective sign clear"
+      },
+      "fixture_reference": "tests/selective_boosts.test.ts"
+    },
+    {
+      "token": "-clearpositiveboost",
+      "record": "|-clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "inventory_classification": "represented",
+      "grammar_summary": "selective sign clear",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, source ident, effect",
+        "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+        "shape": "selective sign clear"
+      },
+      "fixture_reference": "tests/selective_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "curestatus",
+      "record": "|curestatus|p1a: Pikachu|brn",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "status record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, status",
+        "optional": "tags",
+        "shape": "status record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Pikachu|brn",
+      "inventory_classification": "represented",
+      "grammar_summary": "status record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, status",
+        "optional": "tags",
+        "shape": "status record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "damage",
+      "record": "|damage|p1a: Pikachu|50/100",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "health record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-damage",
+      "record": "|-damage|p1a: Pikachu|50/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "health record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen9ssb/abilities.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "drag",
+      "record": "|drag|p1a: Pikachu|Pikachu, L50|100/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "roster/active record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, details, condition",
+        "optional": "tags",
+        "shape": "roster/active record"
+      },
+      "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts; tests/transform_types.test.ts"
+    },
+    {
+      "token": "detailschange",
+      "record": "|detailschange|p1a: Pikachu|Pikachu, L50|100/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact details-change record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, details, condition",
+        "optional": "none",
+        "shape": "exact details-change record"
+      },
+      "fixture_reference": "sim-core/tests/state_extractor.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen7pokebilities/scripts.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/pokebilities/scripts.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "end",
+      "record": "|end",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-end",
+      "record": "|-end|p1a: Pikachu|confusion",
+      "inventory_classification": "represented",
+      "grammar_summary": "generic effect lifecycle",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, effect",
+        "optional": "effect-specific fields/tags",
+        "shape": "generic effect lifecycle"
+      },
+      "fixture_reference": "tests/state_extractor.test.ts; tests/soak.test.ts (Soak implicit lifecycle reset, not generic end acceptance)",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/items.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1jpn/moves.ts",
+        "data/mods/gen1stadium/conditions.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen2/conditions.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2doubles/moves.ts",
+        "data/mods/gen2stadium2/conditions.ts",
+        "data/mods/gen3/conditions.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen4/conditions.ts",
+        "data/mods/gen4/items.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/abilities.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/abilities.ts",
+        "data/mods/gen8/moves.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen9dlc1/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/partnersincrime/abilities.ts",
+        "data/mods/passiveaggressive/conditions.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/mods/pokebilities/abilities.ts",
+        "data/mods/pokemoves/abilities.ts",
+        "data/mods/sharedpower/abilities.ts",
+        "data/mods/thecardgame/abilities.ts",
+        "data/moves.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "endability",
+      "record": "|endability|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "ability end",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "none",
+        "shape": "ability end"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-endability",
+      "record": "|-endability|p1a: Pikachu",
+      "inventory_classification": "represented",
+      "grammar_summary": "ability end",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "none",
+        "shape": "ability end"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen7pokebilities/moves.ts",
+        "data/mods/partnersincrime/moves.ts",
+        "data/mods/partnersincrime/scripts.ts",
+        "data/mods/pokebilities/moves.ts",
+        "data/mods/pokemoves/moves.ts",
+        "data/mods/sharedpower/moves.ts",
+        "data/moves.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "enditem",
+      "record": "|enditem|p1a: Pikachu|Leftovers",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "item event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, item",
+        "optional": "tags",
+        "shape": "item event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Pikachu|Leftovers",
+      "inventory_classification": "represented",
+      "grammar_summary": "item event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, item",
+        "optional": "tags",
+        "shape": "item event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/items.ts",
+        "data/mods/gen4/items.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/sharingiscaring/items.ts",
+        "data/mods/sharingiscaring/scripts.ts",
+        "data/mods/thecardgame/items.ts",
+        "data/moves.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "faint",
+      "record": "|faint|p1a: Pikachu",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact faint record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "none",
+        "shape": "exact faint record"
+      },
+      "fixture_reference": "state_extractor; tests/illusion.test.ts; tests/transform_types.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "fieldend",
+      "record": "|fieldend|RainDance",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-fieldend",
+      "record": "|-fieldend|RainDance",
+      "inventory_classification": "represented",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "fieldstart",
+      "record": "|fieldstart|move: Trick Room",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-fieldstart",
+      "record": "|-fieldstart|move: Trick Room",
+      "inventory_classification": "represented",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "formechange",
+      "record": "|formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "form record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, species/details",
+        "optional": "condition/tags",
+        "shape": "form record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-formechange",
+      "record": "|-formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "inventory_classification": "represented",
+      "grammar_summary": "form record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, species/details",
+        "optional": "condition/tags",
+        "shape": "form record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen7pokebilities/scripts.ts",
+        "data/mods/pokebilities/scripts.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "gen",
+      "record": "|gen|9",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact scalar integer",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "integer",
+        "optional": "none",
+        "shape": "exact scalar integer"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/mixandmega/scripts.ts",
+        "data/mods/randomroulette/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "heal",
+      "record": "|heal|p1a: Pikachu|100/100",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "health record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p1a: Pikachu|100/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "health record; active-position ident normally required; bench p1:/p2: ident accepted only with exactly condition and [from] move: Revival Blessing",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record; active-position ident normally required; bench p1:/p2: ident accepted only with exactly condition and [from] move: Revival Blessing"
+      },
+      "fixture_reference": "state_extractor; tests/revival.test.ts mirrored Pawmot/Rabsca bench revival and strict source-tag grammar",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/mixandmega/scripts.ts",
+        "data/mods/partnersincrime/moves.ts",
+        "data/moves.ts",
+        "data/rulesets.ts",
+        "sim/battle-actions.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "hitcount",
+      "record": "|hitcount|p1a: Pikachu|2",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "hit-count outcome",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, integer count",
+        "optional": "none",
+        "shape": "hit-count outcome"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "immune",
+      "record": "|immune|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-immune",
+      "record": "|-immune|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/abilities.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen4/scripts.ts",
+        "data/mods/gen5/abilities.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen7/abilities.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/littlecolosseum/abilities.ts",
+        "data/mods/littlecolosseum/scripts.ts",
+        "data/mods/thecardgame/abilities.ts",
+        "data/mods/thecardgame/scripts.ts",
+        "data/moves.ts",
+        "sim/battle-actions.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "item",
+      "record": "|item|p1a: Pikachu|Leftovers",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "item event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, item",
+        "optional": "tags",
+        "shape": "item event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-item",
+      "record": "|-item|p1a: Pikachu|Leftovers",
+      "inventory_classification": "represented",
+      "grammar_summary": "item event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, item",
+        "optional": "tags",
+        "shape": "item event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/items.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen5/abilities.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/littlecolosseum/abilities.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "miss",
+      "record": "|miss|p1a: Pikachu|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "miss evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "source ident, target ident",
+        "optional": "tags",
+        "shape": "miss evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-miss",
+      "record": "|-miss|p1a: Pikachu|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "miss evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "source ident, target ident",
+        "optional": "tags",
+        "shape": "miss evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1jpn/moves.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen4/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/moves.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "move",
+      "record": "|move|p1a: Pikachu|Thunderbolt|p2a: Gengar",
+      "inventory_classification": "represented",
+      "grammar_summary": "self-target may omit/empty target; present target validated",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "source ident, move name",
+        "optional": "target ident or -, source tags",
+        "shape": "self-target may omit/empty target; present target validated"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-nothing",
+      "record": "|-nothing",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "accepted_protocol_contract",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen2/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Protect",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "one-turn public effect event",
+      "evidence": "accepted_protocol_contract",
+      "inventory_grammar": {
+        "required": "target ident, effect",
+        "optional": "tags",
+        "shape": "one-turn public effect event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/mods/thecardgame/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "cant",
+      "record": "|cant|p1a: Pikachu|move: Disable",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "move prevention outcome",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, reason",
+        "optional": "move",
+        "shape": "move prevention outcome"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1stadium/conditions.ts",
+        "data/mods/gen2/conditions.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2stadium2/conditions.ts",
+        "data/mods/gen3/abilities.ts",
+        "data/mods/gen3/conditions.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen4/conditions.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen8linked/conditions.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen8linked/scripts.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/trademarked/scripts.ts",
+        "data/moves.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p1a: Pikachu|2",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "hit-count outcome",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, integer count",
+        "optional": "none",
+        "shape": "hit-count outcome"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/passiveaggressive/scripts.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "player",
+      "record": "|player|p1|Alice|avatar",
+      "inventory_classification": "represented",
+      "grammar_summary": "player record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side, name",
+        "optional": "avatar, rating, trailing metadata",
+        "shape": "player record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "poke",
+      "record": "|poke|p1|Pikachu, L50",
+      "inventory_classification": "represented",
+      "grammar_summary": "team preview record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side, details",
+        "optional": "item marker",
+        "shape": "team preview record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen4/rulesets.ts",
+        "data/mods/gen5/rulesets.ts",
+        "data/mods/gen7/rulesets.ts",
+        "data/mods/gen8/rulesets.ts",
+        "data/rulesets.ts"
+      ]
+    },
+    {
+      "token": "replace",
+      "record": "|replace|p1a: Pikachu|Pikachu, L50",
+      "inventory_classification": "represented",
+      "grammar_summary": "Illusion identity reveal, distinct from switch; pinned onEnd emits no condition",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, details",
+        "optional": "one validated legacy HP/status condition; no trailing tags",
+        "shape": "Illusion identity reveal, distinct from switch; pinned onEnd emits no condition"
+      },
+      "fixture_reference": "tests/illusion.test.ts; tests/observable_state.test.ts; tests/soak.test.ts; tests/added_types.test.ts",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts"
+      ]
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":7}",
+      "inventory_classification": "represented",
+      "grammar_summary": "parse JSON object; raw body is transient/private",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "JSON object",
+        "optional": "rqid and request-variant fields",
+        "shape": "parse JSON object; raw body is transient/private"
+      },
+      "fixture_reference": "state_extractor/action_codec"
+    },
+    {
+      "token": "resisted",
+      "record": "|resisted|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-resisted",
+      "record": "|-resisted|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2doubles/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "rule",
+      "record": "|rule|Species Clause",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "format/rule metadata",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "text payload",
+        "optional": "suffix fields",
+        "shape": "format/rule metadata"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/rulesets.ts",
+        "data/mods/gen2stadium2/rulesets.ts",
+        "data/mods/gen7/rulesets.ts",
+        "data/mods/gen8/rulesets.ts",
+        "data/rulesets.ts"
+      ]
+    },
+    {
+      "token": "sidestart",
+      "record": "|sidestart|p1: Alice|move: Stealth Rock",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "side-condition event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side ident, condition",
+        "optional": "tags",
+        "shape": "side-condition event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-hint",
+      "record": "|-hint|Illusion ended",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "public diagnostic text; raw-only",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "text payload",
+        "optional": "further text fields",
+        "shape": "public diagnostic text; raw-only"
+      },
+      "fixture_reference": "tests/observable_state.test.ts; tests/illusion.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/thecardgame/moves.ts",
+        "data/mods/trademarked/scripts.ts",
+        "data/moves.ts",
+        "sim/battle-actions.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Spectral Thief|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "-anim|source|Spectral Thief|target",
+      "evidence": "accepted_protocol_contract",
+      "inventory_grammar": {
+        "required": "source ident, literal Spectral Thief, target ident",
+        "optional": "none",
+        "shape": "-anim|source|Spectral Thief|target"
+      },
+      "fixture_reference": "tests/selective_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/littlecolosseum/moves.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "-copyboost",
+      "record": "|-copyboost|p1a: Pikachu|p2a: Gengar|[from] move: Psych Up",
+      "inventory_classification": "represented",
+      "grammar_summary": "-copyboost|RECIPIENT|DONOR|[from] move: Psych Up",
+      "evidence": "accepted_protocol_contract",
+      "inventory_grammar": {
+        "required": "recipient ident, donor ident, literal [from] move: Psych Up",
+        "optional": "none",
+        "shape": "-copyboost|RECIPIENT|DONOR|[from] move: Psych Up"
+      },
+      "fixture_reference": "tests/psych_up.test.ts; tests/psych_up_validation.test.ts; consumed psych-up review JSON fixtures",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/mods/gen5/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "-invertboost",
+      "record": "|-invertboost|p2a: Gengar|[from] move: Topsy-Turvy",
+      "inventory_classification": "represented (bounded Topsy-Turvy)",
+      "grammar_summary": "bounded Topsy-Turvy inversion record",
+      "evidence": "bounded base Topsy-Turvy accepted after scoped semantic review",
+      "inventory_grammar": {
+        "required": "target ident, literal [from] move: Topsy-Turvy",
+        "optional": "none",
+        "shape": "|-invertboost|TARGET|[from] move: Topsy-Turvy"
+      },
+      "fixture_reference": "tests/topsy_turvy.test.ts; tests/topsy_turvy_validation.test.ts; trainer/src/neural/protocol_contract.json",
+      "pinned_emitter_sources": [
+        "data/moves.ts:20427-20436"
+      ]
+    },
+    {
+      "token": "-sidestart",
+      "record": "|-sidestart|p1: Alice|move: Stealth Rock",
+      "inventory_classification": "represented",
+      "grammar_summary": "side-condition event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side ident, condition",
+        "optional": "tags",
+        "shape": "side-condition event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen8/moves.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/littlecolosseum/moves.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "sideend",
+      "record": "|sideend|p1: Alice|move: Stealth Rock",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "side-condition event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side ident, condition",
+        "optional": "tags",
+        "shape": "side-condition event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-sideend",
+      "record": "|-sideend|p1: Alice|move: Stealth Rock",
+      "inventory_classification": "represented",
+      "grammar_summary": "side-condition event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side ident, condition",
+        "optional": "tags",
+        "shape": "side-condition event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "start",
+      "record": "|start",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/gen8linked/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/mixandmega/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "-start",
+      "record": "|-start|p1a: Pikachu|confusion",
+      "inventory_classification": "represented",
+      "grammar_summary": "generic effect lifecycle; typechange emits ordinary public type list and removes added slot; typeadd emits one public type (Forest's Curse or fixture-only Trick-or-Treat source tag)",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, effect",
+        "optional": "effect-specific fields/tags",
+        "shape": "generic effect lifecycle; typechange emits ordinary public type list and removes added slot; typeadd emits one public type (Forest's Curse or fixture-only Trick-or-Treat source tag)"
+      },
+      "fixture_reference": "tests/state_extractor.test.ts; tests/soak.test.ts; tests/added_types.test.ts",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1jpn/moves.ts",
+        "data/mods/gen1stadium/conditions.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen2/conditions.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2doubles/moves.ts",
+        "data/mods/gen2stadium2/conditions.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/abilities.ts",
+        "data/mods/gen7pokebilities/scripts.ts",
+        "data/mods/gen8/abilities.ts",
+        "data/mods/gen8/moves.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen9dlc1/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/littlecolosseum/abilities.ts",
+        "data/mods/mixandmega/items.ts",
+        "data/mods/mixandmega/scripts.ts",
+        "data/mods/partnersincrime/moves.ts",
+        "data/mods/partnersincrime/scripts.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/mods/pokebilities/scripts.ts",
+        "data/mods/pokemoves/moves.ts",
+        "data/mods/thecardgame/abilities.ts",
+        "data/mods/thecardgame/moves.ts",
+        "data/mods/trademarked/scripts.ts",
+        "data/moves.ts",
+        "data/rulesets.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "status",
+      "record": "|status|p1a: Pikachu|brn",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "status record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, status",
+        "optional": "tags",
+        "shape": "status record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Pikachu|brn",
+      "inventory_classification": "represented",
+      "grammar_summary": "status record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, status",
+        "optional": "tags",
+        "shape": "status record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/conditions.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1stadium/conditions.ts",
+        "data/mods/gen2/conditions.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2stadium2/conditions.ts",
+        "data/mods/gen3/conditions.ts",
+        "data/mods/gen4/conditions.ts"
+      ]
+    },
+    {
+      "token": "switch",
+      "record": "|switch|p1a: Pikachu|Pikachu, L50|100/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "roster/active record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, details, condition",
+        "optional": "tags",
+        "shape": "roster/active record"
+      },
+      "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts; tests/transform_types.test.ts"
+    },
+    {
+      "token": "teamsize",
+      "record": "|teamsize|p1|6",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact teamsize record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "side, non-negative integer",
+        "optional": "none",
+        "shape": "exact teamsize record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/mods/mixandmega/scripts.ts",
+        "data/mods/randomroulette/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "terastallize",
+      "record": "|terastallize|p1a: Pikachu|Electric",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "tera event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, type",
+        "optional": "none",
+        "shape": "tera event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-terastallize",
+      "record": "|-terastallize|p1a: Pikachu|Electric",
+      "inventory_classification": "represented",
+      "grammar_summary": "tera event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, type",
+        "optional": "none",
+        "shape": "tera event"
+      },
+      "fixture_reference": "tests/illusion.test.ts; tests/soak.test.ts; tests/added_types.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/mixandmega/scripts.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "turn",
+      "record": "|turn|1",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact scalar integer",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "integer",
+        "optional": "none",
+        "shape": "exact scalar integer"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/partnersincrime/scripts.ts",
+        "data/mods/trademarked/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "unboost",
+      "record": "|unboost|p1a: Pikachu|atk|1",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
+    },
+    {
+      "token": "-unboost",
+      "record": "|-unboost|p1a: Pikachu|atk|1",
+      "inventory_classification": "represented",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts",
+      "pinned_dynamic_emitter_source": "sim/battle.ts:1942-1970"
+    },
+    {
+      "token": "upkeep",
+      "record": "|upkeep",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen8linked/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/mixandmega/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "weather",
+      "record": "|weather|SunnyDay",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-weather",
+      "record": "|-weather|SunnyDay",
+      "inventory_classification": "represented",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/conditions.ts",
+        "data/mods/gen9ssb/conditions.ts"
+      ]
+    },
+    {
+      "token": "win",
+      "record": "|win|Alice",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact winner record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "winner name",
+        "optional": "none",
+        "shape": "exact winner record"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "tie",
+      "record": "|tie",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact terminal tie",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "empty trailing field only",
+        "shape": "exact terminal tie"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "transform",
+      "record": "|transform|p1a: Pikachu|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "transform record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, source target",
+        "optional": "tags",
+        "shape": "transform record"
+      },
+      "fixture_reference": "state_extractor; tests/public_stages.test.ts; tests/record_identity.test.ts"
+    },
+    {
+      "token": "-transform",
+      "record": "|-transform|p1a: Pikachu|p2a: Gengar",
+      "inventory_classification": "represented",
+      "grammar_summary": "transform record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, source target",
+        "optional": "tags",
+        "shape": "transform record"
+      },
+      "fixture_reference": "tests/transform_types.test.ts; tests/state_extractor.test.ts; tests/transform_boosts.test.ts; tests/public_stages.test.ts; tests/record_identity.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen7pokebilities/scripts.ts",
+        "data/mods/partnersincrime/scripts.ts",
+        "data/mods/pokebilities/scripts.ts",
+        "data/mods/trademarked/scripts.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "setboost",
+      "record": "|setboost|p1a: Pikachu|atk|6",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
+    },
+    {
+      "token": "-setboost",
+      "record": "|-setboost|p1a: Pikachu|atk|-6|[from] move: Belly Drum",
+      "inventory_classification": "represented",
+      "grammar_summary": "stage record",
+      "evidence": "pinned_source sim/battle.ts:1941-1942; negative stage observed via Contrary and Belly Drum probe",
+      "inventory_grammar": {
+        "required": "target ident, stat, integer amount",
+        "optional": "tags",
+        "shape": "stage record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "sim/battle.ts"
+      ],
+      "pinned_dynamic_emitter_source": "sim/battle.ts:1941-1942"
+    },
+    {
+      "token": "sethp",
+      "record": "|sethp|p1a: Pikachu|50/100",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "health record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-sethp",
+      "record": "|-sethp|p1a: Pikachu|50/100",
+      "inventory_classification": "represented",
+      "grammar_summary": "health record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, condition/HP",
+        "optional": "tags",
+        "shape": "health record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "swapsideconditions",
+      "record": "|swapsideconditions",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "state_extractor"
+    },
+    {
+      "token": "-swapsideconditions",
+      "record": "|-swapsideconditions",
+      "inventory_classification": "represented",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "crit",
+      "record": "|crit|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-crit",
+      "record": "|-crit|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2doubles/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "supereffective",
+      "record": "|supereffective|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-supereffective",
+      "record": "|-supereffective|p2a: Gengar",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2doubles/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/scripts.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "sim/battle-actions.ts"
+      ]
+    },
+    {
+      "token": "fail",
+      "record": "|fail|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "failure evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "action and tags",
+        "shape": "failure evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-fail",
+      "record": "|-fail|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "failure evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "action and tags",
+        "shape": "failure evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/items.ts",
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen1stadium/scripts.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen3/scripts.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/sharingiscaring/conditions.ts",
+        "data/moves.ts",
+        "sim/battle-actions.ts",
+        "sim/field.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "activate",
+      "record": "|activate|p1a: Pikachu|ability: Static",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "at least target and effect fields; target is an ident or protocol effect subject",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target|effect",
+        "optional": "additional source-specific tags",
+        "shape": "at least target and effect fields; target is an ident or protocol effect subject"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-activate",
+      "record": "|-activate|p1a: Pikachu|ability: Static",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "at least target and effect fields; target is an ident or protocol effect subject",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target|effect",
+        "optional": "additional source-specific tags",
+        "shape": "at least target and effect fields; target is an ident or protocol effect subject"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/conditions.ts",
+        "data/items.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen1jpn/moves.ts",
+        "data/mods/gen1stadium/conditions.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen2/conditions.ts",
+        "data/mods/gen2/items.ts",
+        "data/mods/gen2/moves.ts",
+        "data/mods/gen2/scripts.ts",
+        "data/mods/gen2doubles/scripts.ts",
+        "data/mods/gen2stadium2/conditions.ts",
+        "data/mods/gen2stadium2/scripts.ts",
+        "data/mods/gen3/moves.ts",
+        "data/mods/gen4/abilities.ts",
+        "data/mods/gen4/conditions.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen5/conditions.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen6/abilities.ts",
+        "data/mods/gen6/conditions.ts",
+        "data/mods/gen6/moves.ts",
+        "data/mods/gen7/abilities.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen7pokebilities/abilities.ts",
+        "data/mods/gen8/abilities.ts",
+        "data/mods/gen8/moves.ts",
+        "data/mods/gen8bdsp/items.ts",
+        "data/mods/gen8dlc1/abilities.ts",
+        "data/mods/gen8linked/conditions.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/gen8linked/scripts.ts",
+        "data/mods/gen9dlc1/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/items.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/mods/partnersincrime/items.ts",
+        "data/mods/partnersincrime/moves.ts",
+        "data/mods/passiveaggressive/moves.ts",
+        "data/mods/pokebilities/abilities.ts",
+        "data/mods/thecardgame/abilities.ts",
+        "data/moves.ts",
+        "data/rulesets.ts",
+        "sim/battle-actions.ts",
+        "sim/battle.ts",
+        "sim/pokemon.ts"
+      ]
+    },
+    {
+      "token": "-fieldactivate",
+      "record": "|-fieldactivate|move: Trick Room",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "field/weather event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "effect",
+        "optional": "tags",
+        "shape": "field/weather event"
+      },
+      "fixture_reference": "state_extractor",
+      "pinned_emitter_sources": [
+        "data/conditions.ts",
+        "data/mods/gen4/moves.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/thecardgame/conditions.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "-message",
+      "record": "|-message|battle message",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "public diagnostic text; raw-only",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "text payload",
+        "optional": "further text fields",
+        "shape": "public diagnostic text; raw-only"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/mods/gen1/conditions.ts",
+        "data/mods/gen1jpn/conditions.ts",
+        "data/mods/gen1stadium/moves.ts",
+        "data/mods/gen4/items.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/conditions.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/mods/gen9ssb/rulesets.ts",
+        "data/mods/gen9ssb/scripts.ts",
+        "data/rulesets.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "prepare",
+      "record": "|prepare|p1a: Pikachu|Dig",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "move preparation",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, move",
+        "optional": "target location/tags",
+        "shape": "move preparation"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-prepare",
+      "record": "|-prepare|p1a: Pikachu|Dig",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "move preparation",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident, move",
+        "optional": "target location/tags",
+        "shape": "move preparation"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen1/moves.ts",
+        "data/mods/gen5/moves.ts",
+        "data/mods/gen7/moves.ts",
+        "data/mods/gen8/moves.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "mustrecharge",
+      "record": "|mustrecharge|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "-mustrecharge",
+      "record": "|-mustrecharge|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "outcome/effect evidence",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target/source ident",
+        "optional": "effect/tags",
+        "shape": "outcome/effect evidence"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/conditions.ts",
+        "data/mods/gen1/scripts.ts",
+        "data/mods/gen1stadium/scripts.ts"
+      ]
+    },
+    {
+      "token": "clearboost",
+      "record": "|clearboost|p1a: Pikachu",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "clear boost record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "none",
+        "shape": "clear boost record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
+    },
+    {
+      "token": "-clearboost",
+      "record": "|-clearboost|p1a: Pikachu",
+      "inventory_classification": "represented",
+      "grammar_summary": "clear boost record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "target ident",
+        "optional": "none",
+        "shape": "clear boost record"
+      },
+      "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts",
+      "pinned_emitter_sources": [
+        "data/abilities.ts",
+        "data/mods/gen9ssb/abilities.ts",
+        "data/mods/gen9ssb/moves.ts",
+        "data/moves.ts"
+      ]
+    },
+    {
+      "token": "c",
+      "record": "|c|Alice|hello",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "chat record; not model state",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "user, message",
+        "optional": "none",
+        "shape": "chat record; not model state"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "chat",
+      "record": "|chat|Alice|hello",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "chat record; not model state",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "user, message",
+        "optional": "none",
+        "shape": "chat record; not model state"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "error",
+      "record": "|error|[Invalid choice]",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "private choice error or stream error; caller must retain addressed side",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "text payload",
+        "optional": "channel-specific suffix",
+        "shape": "private choice error or stream error; caller must retain addressed side"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "gametype",
+      "record": "|gametype|singles",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "format/rule metadata",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "text payload",
+        "optional": "suffix fields",
+        "shape": "format/rule metadata"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "rated",
+      "record": "|rated",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "rating metadata",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "none or nonempty rating",
+        "optional": "single text value",
+        "shape": "rating metadata"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/mixandmega/scripts.ts",
+        "data/mods/randomroulette/scripts.ts",
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "teampreview",
+      "record": "|teampreview",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "clearpoke",
+      "record": "|clearpoke",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "data/mods/gen4/rulesets.ts",
+        "data/mods/gen5/rulesets.ts",
+        "data/mods/gen7/rulesets.ts",
+        "data/mods/gen8/rulesets.ts",
+        "data/rulesets.ts"
+      ]
+    },
+    {
+      "token": "done",
+      "record": "|done",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact no-payload record",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "no fields",
+        "optional": "none",
+        "shape": "exact no-payload record"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "inactive",
+      "record": "|inactive|Alice is inactive",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "inactivity event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "message",
+        "optional": "tags",
+        "shape": "inactivity event"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "inactiveoff",
+      "record": "|inactiveoff|Alice is active",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "inactivity event",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "message",
+        "optional": "tags",
+        "shape": "inactivity event"
+      },
+      "fixture_reference": "observable_state"
+    },
+    {
+      "token": "t:",
+      "record": "|t:|123",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact timestamp",
+      "evidence": "pinned_source_and_current_adapter_grammar",
+      "inventory_grammar": {
+        "required": "integer timestamp",
+        "optional": "none",
+        "shape": "exact timestamp"
+      },
+      "fixture_reference": "observable_state",
+      "pinned_emitter_sources": [
+        "sim/battle.ts"
+      ]
+    },
+    {
+      "token": "message",
+      "record": "|message|Pok\u00e9mon",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "public message text",
+      "evidence": "pinned_source sim/battle.ts:1393 turn-limit announcement; diagnostic is preserved raw-only",
+      "inventory_grammar": {
+        "required": "public message text",
+        "optional": "additional text fields",
+        "shape": "|message|TEXT"
+      },
+      "fixture_reference": "sim/battle.ts:1393; trainer/src/neural/protocol_contract.json",
+      "pinned_emitter_sources": [
+        "sim/battle.ts:1393"
+      ]
+    }
+  ],
+  "rejection_fixtures": [
+    {
+      "record": "|futuremechanic|opaque",
+      "kind": "unknown"
+    },
+    {
+      "record": "|clearstatus|p1a: Pikachu",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|-clearstatus|p1a: Pikachu",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|nothing|audit",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|copyboost|p1a: Pikachu|p2a: Gengar|[from] move: Psych Up",
+      "kind": "internal_alias"
+    },
+    {
+      "record": "|invertboost|p2a: Gengar|[from] move: Topsy-Turvy",
+      "kind": "internal_alias"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
+      "kind": "unsupported_stop"
+    },
+    {
+      "record": "|-boost|bad ident|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-setboost|p1a: Pikachu|atk|not-an-integer",
+      "kind": "malformed"
+    },
+    {
+      "record": "|move|p1a: Pikachu|Thunderbolt|not-a-target",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|[]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|move|p1a: Pikachu",
+      "kind": "malformed"
+    },
+    {
+      "record": "not-a-protocol-record",
+      "kind": "malformed"
+    },
+    {
+      "record": "|",
+      "kind": "unknown"
+    }
+  ],
+  "disposition_rules": {
+    "supported": "Accept only the exact command token with its grouped record validator. Raw-only records are retained verbatim and do not imply typed state support.",
+    "recognized_unsupported": "Reject before side routing or publication. Aliases carry an unresolved-alias diagnostic; -singlemove truncates the episode before commit.",
+    "malformed_supported": "Reject before side routing and publication. Episode handling classifies malformed evidence as failed; it is not a supported mechanic.",
+    "unknown": "Reject before side routing and publication; episode handling truncates on unsupported protocol.",
+    "privacy": "Requests remain private; only the sanitized rqid record is allowed in a public prefix. All other request JSON is rejected at publication."
+  }
+}

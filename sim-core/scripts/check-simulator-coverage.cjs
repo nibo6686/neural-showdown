@@ -169,14 +169,23 @@ try {
 const emittedDiff = setDiff(staticEmitterTokens(), (manifest.protocol?.emitted_static_tokens || []).map((item) => item.token));
 if (emittedDiff.added.length || emittedDiff.removed.length) errors.push(`Static emitter inventory drift: ${JSON.stringify(emittedDiff)}`);
 
-const parser = fs.readFileSync(path.join(root, 'src/observable_state.ts'), 'utf8');
-const allowlist = parser.match(/const SUPPORTED_RAW_COMMANDS = new Set\(\[([\s\S]*?)\]\);/);
-if (!allowlist) errors.push('Could not locate observable parser token allowlist.');
-else {
-  const actual = [...allowlist[1].matchAll(/'([^']+)'/g)].map((item) => item[1]);
+const protocolContractPath = path.resolve(root, '../trainer/src/neural/protocol_contract.json');
+try {
+  const protocolContract = JSON.parse(fs.readFileSync(protocolContractPath, 'utf8'));
+  const actual = protocolContract.supported_commands;
   const expected = (manifest.protocol?.commands || []).map((item) => item.token);
-  const mismatch = setDiff(actual, expected);
-  if (mismatch.added.length || mismatch.removed.length) errors.push(`Parser token classification drift: ${JSON.stringify(mismatch)}`);
+  if (!Array.isArray(actual) || new Set(actual).size !== actual.length) {
+    errors.push('Shared protocol contract command list is malformed or contains duplicates.');
+  } else {
+    const mismatch = setDiff(actual, expected);
+    if (mismatch.added.length || mismatch.removed.length) errors.push(`Parser token classification drift: ${JSON.stringify(mismatch)}`);
+  }
+  const contractUnsupported = (protocolContract.recognized_unsupported_commands || []).map((item) => item.token);
+  const manifestUnsupported = (manifest.protocol?.recognized_unsupported_commands || []).map((item) => item.token);
+  const unsupportedDiff = setDiff(contractUnsupported, manifestUnsupported);
+  if (unsupportedDiff.added.length || unsupportedDiff.removed.length) errors.push(`Recognized unsupported protocol classification drift: ${JSON.stringify(unsupportedDiff)}`);
+} catch (error) {
+  errors.push(`Could not read the shared protocol contract: ${error.message}`);
 }
 
 if (process.argv.includes('--self-test')) {

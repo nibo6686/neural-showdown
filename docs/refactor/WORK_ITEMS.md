@@ -16,7 +16,7 @@ All items are documentation/preparation work unless explicitly marked otherwise.
 | SEARCH-001 | Document current rollout/search semantics | Accepted | Search owner | STATE-001, TRANS-001, BELIEF-001 |
 | SIM-COVERAGE-001 | Pinned simulator state and protocol coverage | Review complete with documented gaps; not accepted | Simulation owner | ENV-001, STATE-001, BELIEF-001, ACTION-001 |
 | PIPELINE-001 | Checkpoint-free transition integration | Accepted for explicit v1 joint-actionable scope | Simulation/data owners | SIM-COVERAGE-001, STATE-001, ACTION-001, TRANS-001, BELIEF-001, DATA-001 |
-| PIPELINE-002 | Complete-episode boundary progression | Prior slices and scoped lifecycle/Illusion/Tera corrections accepted | Simulation/data owners | Review Stellar defensive typing and hash inclusion; faint/restoration accepted |
+| PIPELINE-002 | Complete-episode boundary progression | V2 publication and reference/identity validation scoped accepted | Simulation/data owners | Review bounded Topsy-Turvy inversion; coverage pending |
 | FEATURE-001 | Shared model feature contract | Unresolved; contract not accepted | Model/data owners | SIM-COVERAGE-001, PIPELINE-001, ENV-001 |
 
 ## CTRL-001 — Refactor control documents and baseline tag
@@ -248,6 +248,13 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
 
 ## PIPELINE-002 — Complete-episode boundary progression
 
+- Current checkpoint (2026-09-25): bounded Topsy-Turvy inversion implemented in raw
+  and TS/Python v2 stages; exact pre-filter grammar and publication alias rejection.
+  Build79 relevant TS/28 Python pass, including28 new publications,232 rehashed grammar
+  cases and4 false-stage cases. Next: separate semantic review, token classification
+  and two-test coverage inclusion. Rigged Dice/other mechanics excluded; no attestation.
+  Keep faithful_complete_episode:false; source hashes/evidence in current checkpoint.
+
 - Status: Request-state reporting slice separately reviewed and accepted
   2026-09-24. Ordinary one-sided forced-switch slice separately accepted under
   additive schemas with expanded coverage attestation. Bounded settling separately
@@ -415,8 +422,17 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
   battle_helpers.ts to25-file hashing; checker/six self-tests pass. Attested digest:
   4db82b9bc57984bf051f03b201bf022e0744ba03c8840239adeded5d362f33c3.
   Temporary-type and offensive Stellar mechanics excluded; faithful=false.
-- Single next task: Windows ENV-001 validation at the exact implementation commit
-  and review manifest identified in the checkpoint. Broader lifecycle fidelity open.
+- Windows validation and selected macOS comparison subsequently passed at117df85;
+  see platform checkpoints. Broader lifecycle fidelity remains open.
+- Bounded bench revival accepted (2026-09-25): all14 hashes matched, no corrections.
+  Reused154 TS/27 Python; fresh build/seven revival tests, seven Python rejection
+  probes and two exact split-HP/status probes pass. Added canonical codecs/tests,
+  identity fixture and revival tests to34-file hashing; -heal classification updated.
+  Checker/ten self-tests/three coverage tests pass; attested digest:
+  39ab09c90a564eaa80a3da3ff8275b8dcf01a7fbd79dcdece1b3945b68753ec8.
+  Unsupported revival variants remain explicit; faithful_complete_episode:false.
+  Next prerequisite: public temporary defensive typing, starting with Soak/typechange
+  across request refresh and lifecycle/restoration; see checkpoint.
 - Rollback: Keep v1's explicit fail-closed boundary behavior; remove only a
   separately reviewed PIPELINE-002 progression implementation if rejected.
 

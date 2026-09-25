@@ -75,8 +75,8 @@ function terminal(boundary: PipelineBoundary): boolean {
 function actingPlayers(boundary: PipelineBoundary): PlayerID[] | null {
   const states = PLAYERS.map((p) => classifyPipelineRequestState(boundary.perspectives[p].observation));
   if (boundary.kind === 'joint_actionable' && states.every((s) => s === 'actionable' || s === 'forced_switch')) return [...PLAYERS];
-  if (boundary.kind === 'one_sided_forced_switch') {
-    const actor = states.indexOf('forced_switch');
+  if (boundary.kind === 'one_sided_forced_switch' || boundary.kind === 'one_sided_revival') {
+    const actor = states.indexOf(boundary.kind === 'one_sided_revival' ? 'revival_selection' : 'forced_switch');
     if (actor >= 0 && states[1 - actor] === 'waiting') return [PLAYERS[actor]];
   }
   return null;
@@ -99,8 +99,8 @@ function tupleKey(actions: Partial<Record<PlayerID, CanonicalAction>>): string {
   return PLAYERS.map((p) => actions[p]?.action_id ?? '').join(':');
 }
 function classifyError(error: unknown): { status: 'truncated' | 'failed'; stop: PipelineEpisodeResult['stop'] } {
-  if (error instanceof Error && error.message === 'seeded-forced-switch/v1/unsupported-revival-blessing') {
-    return { status: 'truncated', stop: { code: 'episode/v1/unsupported-revival-blessing', reason: 'Revival Blessing is outside the supported transition scope.' } };
+  if (error instanceof Error && (error.message === 'seeded-forced-switch/v1/unsupported-revival-blessing' || error.message === 'seeded-revival/v1/unsupported-request')) {
+    return { status: 'truncated', stop: { code: 'episode/v1/unsupported-revival-blessing', reason: 'Revival request variant is outside the supported singles selection scope.' } };
   }
   if (error instanceof PipelineIntegrationError && (error.code === 'pipeline/v1/unresolved-protocol-alias'
     || error.code === 'pipeline/v1/unsupported-protocol-record'
@@ -153,7 +153,7 @@ async function executeEpisode(
       if (result.counts.attempts >= result.limits.max_attempts) { stop('attempt-budget', 'The total candidate-attempt budget is exhausted.'); break; }
       const actors = actingPlayers(boundary);
       if (!actors) { stop('unsupported-boundary', 'No supported transition exists for the committed request states.'); break; }
-      session.assertOrdinaryForcedSwitchRequests();
+      session.assertSupportedSelectionRequests();
       const actions = actionTuples(boundary, actors, options).find((a) => !attempted.has(tupleKey(a)));
       if (!actions) { stop('action-exhausted', 'Every request-derived action combination at this boundary was rejected.'); break; }
       attempted.add(tupleKey(actions));
@@ -161,7 +161,9 @@ async function executeEpisode(
       try {
         const committed = actors.length === 2
           ? await session.step(actions as Record<PlayerID, CanonicalAction>)
-          : await session.stepForcedSwitch(actions[actors[0]]!);
+          : actions[actors[0]]!.kind === 'revive'
+            ? await session.stepRevival(actions[actors[0]]!)
+            : await session.stepForcedSwitch(actions[actors[0]]!);
         // The accepted session validates lineage and publishes atomically before returning.
         // Accumulate once, synchronously, before observing cancellation or another budget.
         boundary = committed.boundary;

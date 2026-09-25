@@ -12,7 +12,7 @@ from typing import Any, Dict, Mapping, Optional
 
 
 CANONICAL_ACTION_SCHEMA_VERSION = "canonical-action/v1"
-_KINDS = {"move", "move_tera", "switch", "default"}
+_KINDS = {"move", "move_tera", "switch", "revive", "default"}
 _CANONICAL_ACTION_KEYS = {
     "schema_version", "action_id", "source", "player", "rqid", "kind", "index",
     "move_slot", "switch_slot", "target", "choice",
@@ -35,6 +35,7 @@ def _fields(action: Mapping[str, Any]) -> Dict[str, Any]:
         "switch_slot": action.get("switch_slot"),
         "target": action.get("target"),
         "choice": action.get("choice"),
+        **({"request_fingerprint": action.get("request_fingerprint")} if action.get("kind") == "revive" else {}),
     }
 
 
@@ -46,15 +47,23 @@ def _is_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
+def _revival_request_fingerprint(request: Mapping[str, Any]) -> str:
+    side = request.get("side")
+    if not isinstance(side, list):
+        raise ValueError("revival requires addressed roster evidence")
+    evidence = [[p.get("slot"), p.get("ident"), p.get("details"), p.get("condition"), p.get("active"), p.get("reviving") is True] for p in side]
+    return hashlib.sha256(_json(evidence).encode("utf-8")).hexdigest()
+
+
 def validate_canonical_action(
     action: Mapping[str, Any],
     request: Mapping[str, Any],
     perspective: Optional[str] = None,
 ) -> None:
     perspective = request.get("player") if perspective is None else perspective
-    if set(action) != _CANONICAL_ACTION_KEYS:
+    if set(action) != _CANONICAL_ACTION_KEYS | ({"request_fingerprint"} if action.get("kind") == "revive" else set()):
         raise ValueError("canonical action fields are not exact")
-    if action.get("schema_version") != CANONICAL_ACTION_SCHEMA_VERSION:
+    if action.get("schema_version") != ("canonical-revival/v1" if action.get("kind") == "revive" else CANONICAL_ACTION_SCHEMA_VERSION):
         raise ValueError("unsupported canonical action schema")
     if action.get("source") != "request_legal_action":
         raise ValueError("unsupported canonical action source")
@@ -73,7 +82,11 @@ def validate_canonical_action(
     if legal is None:
         raise ValueError("canonical action is not legal for current request")
     kind = action.get("kind")
-    if request.get("force_switch") and kind != "switch" and not (kind == "default" and legal.get("choice") == "default"):
+    if kind == "revive" and action.get("request_fingerprint") != _revival_request_fingerprint(request):
+        raise ValueError("revival request fingerprint is stale")
+    if kind == "revive" and request.get("force_switch") is not True:
+        raise ValueError("revival requires a current force-switch request")
+    if request.get("force_switch") and kind not in {"switch", "revive"} and not (kind == "default" and legal.get("choice") == "default"):
         raise ValueError("forced-switch requests accept switch actions or the legacy default fallback")
     if kind not in _KINDS:
         raise ValueError("unsupported canonical action kind")
@@ -106,7 +119,7 @@ def canonical_action_from_legal_action(
     perspective: Optional[str] = None,
 ) -> Dict[str, Any]:
     action = {
-        "schema_version": CANONICAL_ACTION_SCHEMA_VERSION,
+        "schema_version": "canonical-revival/v1" if legal_action.get("kind") == "revive" else CANONICAL_ACTION_SCHEMA_VERSION,
         "action_id": None,
         "source": "request_legal_action",
         "player": request.get("player"),
@@ -114,10 +127,12 @@ def canonical_action_from_legal_action(
         "kind": "default" if legal_action.get("choice") == "default" else legal_action.get("kind"),
         "index": legal_action.get("index"),
         "move_slot": legal_action.get("slot") if legal_action.get("kind") in {"move", "move_tera"} else None,
-        "switch_slot": legal_action.get("slot") if legal_action.get("kind") == "switch" else None,
+        "switch_slot": legal_action.get("slot") if legal_action.get("kind") in {"switch", "revive"} else None,
         "target": None,
         "choice": legal_action.get("choice"),
     }
+    if action["kind"] == "revive":
+        action["request_fingerprint"] = _revival_request_fingerprint(request)
     action["action_id"] = _action_id(action)
     validate_canonical_action(action, request, perspective)
     return action

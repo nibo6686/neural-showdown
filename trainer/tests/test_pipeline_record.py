@@ -1,10 +1,13 @@
 import hashlib
 import io
 import json
+import copy
 import unittest
 from unittest.mock import patch
 
+from neural.ts_identity import observation_digest, belief_digest, REFERENCE_KEYS, verify_bundle_identities
 from neural.canonical_action import canonical_action_from_legal_action
+from neural.protocol_contract import RECORD_FIXTURES, REJECTION_FIXTURES, SUPPORTED_COMMANDS, ProtocolRecordError, validate_protocol_record
 from neural.pipeline_record import (
     PipelineRecordError,
     main,
@@ -17,10 +20,10 @@ def _typescript_hash(value):
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
-def _observation(battle_id, perspective, observation_id, prefix, rqid):
+def _observation(battle_id, perspective, observation_id, prefix, rqid, version="v1"):
     legal = {"index": 0, "kind": "move", "slot": 1, "choice": "move 1", "label": "Move 1"}
     return {
-        "schema_version": "observable-battle-state/v1",
+        "schema_version": f"observable-battle-state/{version}",
         "source_kind": "sim_core",
         "battle_id": battle_id,
         "perspective": perspective,
@@ -42,7 +45,7 @@ def _observation(battle_id, perspective, observation_id, prefix, rqid):
         },
         "decision_availability": {"available": True, "reason": "request", "legal_action_indices": [0]},
         "protocol_prefix": prefix,
-        "view": {"terminated": False},
+        "view": {"terminated": False, **({"self_team": [], "opponent_team": []} if version == "v2" else {})},
         "observation_id": observation_id,
     }
 
@@ -62,21 +65,41 @@ def _belief(battle_id, perspective, belief_id, observation_id, prefix, snapshot,
     }
 
 
-def _bundle(unicode_prefix=False):
-    battle_id = "pipeline-python-fixture"
+def _seal_bundle(bundle):
+    # Synthetic fixtures use actual content identities, not historical repeated-digit IDs.
+    references = []
+    for which in ('input', 'successor'):
+        obs = bundle[which + '_observation']
+        obs['observation_id'] = observation_digest(obs)
+        ref = {k: obs[k] for k in REFERENCE_KEYS}
+        references.append(ref)
+        belief = bundle[which + '_belief']
+        belief['observation'] = dict(ref)
+        belief['observation_history'] = list(references)
+        belief['evidence'] = []; belief['candidates'] = []
+        if which == 'successor':
+            belief['parent_belief_id'] = bundle['input_belief']['belief_id']
+            belief['transition_lineage']['input_observation_id'] = bundle['input_observation']['observation_id']
+            belief['transition_lineage']['output_observation_id'] = obs['observation_id']
+        belief['belief_id'] = belief_digest(belief)
+    return bundle
+
+
+def _bundle(unicode_prefix=False, perspective="p1", version="v1"):
+    battle_id = f"pipeline-python-fixture-{perspective}-{version}"
     prefix = ["|gen|9", "|turn|1"]
     if unicode_prefix:
         prefix.append("|message|Pokémon")
     successor_prefix = prefix + ["|move|p1a: Pikachu|Tackle|p2a: Eevee", "|turn|2"]
-    input_observation = _observation(battle_id, "p1", "obs-" + "1" * 64, prefix, 12)
-    successor_observation = _observation(battle_id, "p1", "obs-" + "2" * 64, successor_prefix, 13)
+    input_observation = _observation(battle_id, perspective, "obs-" + "1" * 64, prefix, 12, version)
+    successor_observation = _observation(battle_id, perspective, "obs-" + "2" * 64, successor_prefix, 13, version)
     request = {
-        "player": "p1",
+        "player": perspective,
         "rqid": 12,
         "force_switch": False,
         "legal_actions": {"0": {"index": 0, "kind": "move", "slot": 1, "choice": "move 1", "label": "Move 1"}},
     }
-    action = canonical_action_from_legal_action(request["legal_actions"]["0"], request, "p1")
+    action = canonical_action_from_legal_action(request["legal_actions"]["0"], request, perspective)
     transition_id = "transition-" + "5" * 64
     input_belief_id = "belief-" + "3" * 64
     successor_belief_id = "belief-" + "4" * 64
@@ -86,7 +109,7 @@ def _bundle(unicode_prefix=False):
     output_fingerprint = "b" * 64
     input_belief = _belief(
         battle_id,
-        "p1",
+        perspective,
         input_belief_id,
         input_observation["observation_id"],
         prefix,
@@ -116,7 +139,7 @@ def _bundle(unicode_prefix=False):
     }
     successor_belief = _belief(
         battle_id,
-        "p1",
+        perspective,
         successor_belief_id,
         successor_observation["observation_id"],
         successor_prefix,
@@ -124,19 +147,38 @@ def _bundle(unicode_prefix=False):
         parent_id=input_belief_id,
         lineage=lineage,
     )
-    return {
+    return _seal_bundle({
         "schema_version": "pipeline-linked-record/v1",
         "battle_id": battle_id,
         "source_ref": f"sim-core://{battle_id}",
         "ruleset": "gen9randombattle",
-        "perspective": "p1",
+        "perspective": perspective,
         "input_observation": input_observation,
         "input_belief": input_belief,
         "action": action,
         "transition": transition,
         "successor_observation": successor_observation,
         "successor_belief": successor_belief,
-    }
+    })
+
+
+def _rehashed_protocol_candidate(bundle, where, record):
+    candidate = copy.deepcopy(bundle)
+    input_prefix = candidate["input_observation"]["protocol_prefix"]
+    successor_prefix = candidate["successor_observation"]["protocol_prefix"]
+    if where == "input":
+        at = len(input_prefix)
+        input_prefix.append(record)
+        successor_prefix.insert(at, record)
+    else:
+        successor_prefix.append(record)
+    for which in ("input", "successor"):
+        observation = candidate[which + "_observation"]
+        prefix = observation["protocol_prefix"]
+        observation["event_cursor"] = len(prefix)
+        observation["protocol_prefix_hash"] = _typescript_hash(prefix)
+        candidate[which + "_belief"]["source_protocol_prefix"] = list(prefix)
+    return _seal_bundle(candidate)
 
 
 def _forced_switch_bundle():
@@ -160,10 +202,102 @@ def _forced_switch_bundle():
         "action_id": bundle["action"]["action_id"],
         "acting_player": "p1", "waiting_player": "p2",
     })
-    return bundle
+    return _seal_bundle(bundle)
+
+
+def _revival_bundle():
+    bundle = _forced_switch_bundle()
+    request = bundle["input_observation"]["request"]
+    request["side"] = [
+        {"slot": 1, "active": True, "condition": "100/100", "reviving": True},
+        {"slot": 2, "active": False, "condition": "0 fnt"},
+        {"slot": 3, "active": False, "condition": "100/100"},
+    ]
+    legal = request["legal_actions"]["actions"][8]
+    legal["kind"] = "revive"
+    context = {"player": "p1", "rqid": request["rqid"], "force_switch": True, "legal_actions": {"8": legal}, "side": request["side"]}
+    bundle["action"] = canonical_action_from_legal_action(legal, context)
+    bundle["transition"]["action_id"] = bundle["action"]["action_id"]
+    bundle["schema_version"] = "pipeline-revival-record/v1"
+    bundle["transition"]["schema_version"] = "pipeline-revival-reference/v1"
+    return _seal_bundle(bundle)
 
 
 class PipelineRecordTest(unittest.TestCase):
+    def test_shared_protocol_contract_fixtures_cover_every_supported_command(self):
+        self.assertEqual({fixture["token"] for fixture in RECORD_FIXTURES}, SUPPORTED_COMMANDS)
+        self.assertEqual(len(RECORD_FIXTURES), len(SUPPORTED_COMMANDS))
+        for fixture in RECORD_FIXTURES:
+            with self.subTest(token=fixture["token"]):
+                validate_protocol_record(fixture["record"])
+        for fixture in REJECTION_FIXTURES:
+            with self.subTest(record=fixture["record"]):
+                with self.assertRaises(ProtocolRecordError) as caught:
+                    validate_protocol_record(fixture["record"])
+                self.assertEqual(caught.exception.kind, fixture["kind"])
+
+    def test_rehashed_protocol_rejections_cover_versions_perspectives_and_prefixes(self):
+        original_controls = {}
+        cases = 0
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                original = _bundle(perspective=perspective, version=version)
+                original_controls[(version, perspective)] = validate_pipeline_bundle(original)
+                for where in ("input", "successor"):
+                    for fixture in REJECTION_FIXTURES:
+                        candidate = _rehashed_protocol_candidate(original, where, fixture["record"])
+                        verify_bundle_identities(candidate)
+                        with self.subTest(version=version, perspective=perspective, where=where, kind=fixture["kind"]):
+                            stdout = io.StringIO()
+                            stderr = io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                result = main()
+                            self.assertEqual(result, 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                        cases += 1
+                self.assertEqual(validate_pipeline_bundle(original), original_controls[(version, perspective)])
+        self.assertEqual(cases, len(REJECTION_FIXTURES) * 8)
+
+    def test_fully_rehashed_unknown_command_regression(self):
+        bundle = _bundle(version="v2")
+        candidate = _rehashed_protocol_candidate(bundle, "input", "|futuremechanic|opaque")
+        verify_bundle_identities(candidate)
+        with self.assertRaisesRegex(PipelineRecordError, "(?i)unsupported raw protocol event: futuremechanic"):
+            validate_pipeline_bundle(candidate)
+
+    def test_integral_float_cursors_preserve_javascript_number_identities(self):
+        bundle = _bundle()
+        original = validate_pipeline_bundle(bundle)
+        for which in ('input', 'successor'):
+            bundle[which + '_observation']['event_cursor'] = float(bundle[which + '_observation']['event_cursor'])
+            belief = bundle[which + '_belief']
+            for ref in [belief['observation']] + belief['observation_history']:
+                ref['event_cursor'] = float(ref['event_cursor'])
+        self.assertEqual(validate_pipeline_bundle(bundle), original)
+
+
+    def test_revival_identity_and_target_validation(self):
+        bundle = _revival_bundle()
+        record = validate_pipeline_bundle(bundle)
+        self.assertEqual(record, validate_pipeline_bundle(bundle))
+        self.assertEqual(bundle["action"]["schema_version"], "canonical-revival/v1")
+        self.assertEqual(record["schema_fingerprints"]["transition"], "seeded-revival/v1")
+        mutations = [
+            lambda b: b["input_observation"]["request"].update(side=None),
+            lambda b: b["input_observation"]["request"]["side"][1].update(condition=123),
+            lambda b: b["input_observation"]["request"]["side"][1].update(condition="100/100"),
+            lambda b: b["input_observation"]["request"]["side"][1].update(slot=3),
+            lambda b: b["input_observation"]["request"]["side"][0].update(reviving=False),
+            lambda b: b["action"].update(schema_version="canonical-action/v1"),
+            lambda b: b["transition"].update(waiting_player="p1"),
+            lambda b: b.update(schema_version="pipeline-forced-switch-record/v1"),
+        ]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                bad = _revival_bundle(); mutate(bad)
+                with self.assertRaises(PipelineRecordError):
+                    validate_pipeline_bundle(bad)
+
     def test_forced_switch_bundle_preserves_identity_and_uses_distinct_transition_schema(self):
         bundle = _forced_switch_bundle()
         record = validate_pipeline_bundle(bundle)
@@ -265,7 +399,7 @@ class PipelineRecordTest(unittest.TestCase):
         bundle["input_belief"]["source_protocol_prefix"] = input_prefix
         bundle["successor_belief"]["source_protocol_prefix"] = successor_prefix
 
-        record = validate_pipeline_bundle(bundle)
+        record = validate_pipeline_bundle(_seal_bundle(bundle))
         self.assertEqual(record["observation_cursor"], len(input_prefix))
         self.assertEqual(bundle["input_observation"]["protocol_prefix"][-1], "|-nothing")
 
@@ -307,7 +441,7 @@ class PipelineRecordTest(unittest.TestCase):
             result = main()
 
         self.assertEqual(result, 0, stderr.getvalue())
-        self.assertEqual(json.loads(stdout.getvalue())["observation_id"], "obs-" + "1" * 64)
+        self.assertEqual(json.loads(stdout.getvalue())["observation_id"], bundle["input_observation"]["observation_id"])
 
     def test_cli_reports_malformed_bytes_and_json_without_a_traceback(self):
         for encoded in (b'{"prefix":"\xff"}', b"{"):

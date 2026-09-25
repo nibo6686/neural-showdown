@@ -2,7 +2,7 @@
 
 **Current as of:** 2026-09-25
 **Branch:** `refactor/state-001-observable-state`
-**Reviewed implementation HEAD:** `3ddc5fc3060e8da287425e4d08a71a2ffd77184a` (plus review-only manifest/documentation changes; see PIPELINE-002 checkpoint)
+**Reviewed implementation state:** HEAD `117df85247846548fe99ee7e3d60a26d827fc05c` plus the current local changes. The prior 54-file digest remains the accepted Psych Up state. Bounded base Topsy-Turvy semantics are reviewed; the shared protocol boundary review is blocked and its computed local digest is unreviewed. See the [mechanics assessment](refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md) and [PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
 
 This page is the current status summary for the project. Detailed contract
 requirements and historical review evidence remain in their linked documents.
@@ -12,10 +12,10 @@ requirements and historical review evidence remain in their linked documents.
 | Gate | Status | Meaning |
 |---|---|---|
 | Refactor contract preparation | Complete for accepted items through SEARCH-001 | STATE-001, ACTION-001, FIXTURE-001/002, TRANS-001, BELIEF-001, DATA-001, and SEARCH-001 have recorded acceptance. |
-| ENV-001 reproducibility | Blocked with remediation | Python dependency/lock and tested-runtime policy plus clean-environment validation remain unresolved. Optional raw replay fixtures are not required for the first simulator-only milestone. |
-| SIM-COVERAGE-001 | Scoped attestation current; broader gaps remain | Ordinary Stellar defensive typing reviewed; 25-file digest attested. Coverage checker, six drift self-tests and three coverage tests pass. Temporary types and offensive Stellar mechanics excluded. |
+| ENV-001 reproducibility | Existing-machine validation passed; fresh-machine recreation pending | macOS terminal Python and Windows neuralgpu validation passed; selected scenarios matched at `117df85`. Dependency/lock/runtime policy and clean recreation remain pending. See ENVIRONMENT_VALIDATION for working commands. |
+| SIM-COVERAGE-001 | Prior Psych Up attestation preserved; shared protocol review blocked | Bounded base Topsy-Turvy semantics are reviewed. The shared boundary has confirmed parity, schema-validation, source-shape, fixture, and pre-filter gaps; no new coverage attestation was granted. |
 | PIPELINE-001 | Accepted for explicit v1 joint-actionable scope | Natural hidden-trap simulator rejection and injected rejection both preserve committed state/lineage. Focused TypeScript tests pass 42/42; Python record/lineage tests pass 18/18. Complete episodes remain PIPELINE-002. |
-| PIPELINE-002 | Bounded execution and scoped lifecycle corrections accepted | Illusion, non-Stellar Tera, faint/private restoration and ordinary Stellar defensive typing reviewed. 146 relevant TypeScript evidence reused; fresh build/16 targeted checks pass. faithful_complete_episode:false remains required; broader lifecycle completeness open. |
+| PIPELINE-002 | Prior scopes retained; shared protocol boundary blocked | Bounded Topsy-Turvy semantics are reviewed. Protocol parity/schema/source-shape/filter gaps must be corrected before coverage attestation. `faithful_complete_episode:false`. |
 | FEATURE-001 | Unresolved; no accepted feature contract | Feature schema, extraction semantics, privacy/information regime, target, reward, and model interface are not finalized. |
 | New dataset generation | Not ready / not performed | DATA-001 defines lineage; PIPELINE-001 records use the `features-not-produced/v1` sentinel. No new refactored-model dataset has been generated. |
 | New model training | Not ready / not performed | Training objective, feature schema, and reproducibility gates are unresolved. |
@@ -29,16 +29,13 @@ or vNext checkpoint.
 ## Current work sequence
 
 1. Complete deterministic protocol and stopping-behavior fixes. **Complete.**
-2. Disposition SIM-COVERAGE gaps and define complete-episode boundary
-   requirements. **Reporting, ordinary one-sided progression and bounded settling
-   separately accepted. Bounded episode execution/outcomes and rejection recovery
-   are accepted and attested. State corrections and fixes for the reproduced Illusion
-   roster/replace and non-Stellar Tera re-entry corrections are now accepted and
-   attested within their scoped evidence. Faint Tera and terminal-history restoration
-   and minimal-v1 validation/restoration are now accepted and attested.
-   Ordinary Stellar defensive typing is now accepted and attested.
-   Separate Windows ENV-001 validation is next; see the exact-state checkpoint.
-   Faithful publication and other lifecycle gaps remain unaccepted.**
+2. Disposition remaining SIM-COVERAGE gaps and define the faithful transition
+   boundary. **Scoped identity/type/stage and progression work remains as
+   accepted in its cited reviews; bounded Topsy-Turvy semantics are reviewed.
+   First remediate and review the shared protocol boundary. Then continue with
+   scanner expansion, operative format/provenance coverage, and shared
+   effect-lifecycle batches. Faithful complete-episode publication remains
+   unaccepted.**
 3. Review PIPELINE-001 with an explicit supported scope and rejection
    guarantees. **Accepted for v1 scope.**
 4. Remediate ENV-001 reproducibility in parallel.
@@ -85,6 +82,7 @@ is authorized by this status page.
 - [Work-item register](refactor/WORK_ITEMS.md)
 - [Environment blocker](refactor/ENVIRONMENT_VALIDATION.md)
 - [Pinned simulator state/protocol coverage](contracts/SIMULATOR_COVERAGE.md)
+- [Remaining mechanics assessment and implementation plan](refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md)
 - [PIPELINE contract and accepted reporting scope](contracts/PIPELINE_INTEGRATION.md)
 - [Current PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md)
 - [Accepted observation contract](contracts/OBSERVABLE_STATE.md)

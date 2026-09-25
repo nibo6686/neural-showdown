@@ -186,3 +186,77 @@ search integration, or model-input changes.
 Rollback removes the BeliefState module, fixture/tests, this contract, and
 their documentation links. Legacy BattleView fields, Python belief APIs,
 belief-fork behavior, and all accepted work items remain intact.
+
+
+### Public-stage observation compatibility — implementation, review pending (2026-09-25)
+
+`belief-state/v1` may reference explicitly versioned observable v1 or v2. Its
+observation/history references retain the actual version. TS validates v2 stage maps
+against the exact public prefix and observation identity. Parent continuation across
+versions rejects; regenerate a separate belief lineage from original evidence. V1
+identity/serialization remains unchanged. See OBSERVABLE_STATE's v2 compatibility
+section for historical Python reference normalization and regeneration requirements.
+
+
+### Python identity correction — implementation, review pending (2026-09-25)
+
+Python publication now verifies input/successor observation and belief content hashes
+unconditionally for observable v1/v2, plus nested evidence/candidate IDs and reference
+joins. It rejects stale IDs without repairing records. TS-compatible serialization
+uses UTF-16 key ordering, JSON Unicode/surrogate escaping, binary64 numbers and distinct
+absent/null fields. DATA-001's separate canonicalization remains unchanged.
+
+Supported legacy v1 references may omit only schema_version while retaining all other
+reference fields and valid content identities/history. Omission stays absent in hashing;
+null/unknown versions, ID-only references and arbitrary IDs do not qualify. Full v2
+references remain explicit. Historical records and lineage are never rewritten. Prior
+Python synthetic unit fixtures now use content-bound IDs; they were not historical data.
+Historical observation payloads cannot be recovered from references alone: validation
+checks anchored prefix/history consistency, not unseen content. See the checkpoint for
+new cross-runtime regressions and exact hashes. The prior downgrade blockers are
+corrected in implementation; combined v2 acceptance/coverage attestation remain pending.
+
+
+Review disposition (2026-09-25): the prior Python observation/belief identity failures
+now reject, but combined v2 acceptance remains blocked. Historical reference source_kind
+and snapshot_phase values must match TS's supported domains; Python currently accepts
+invalid values for older entries when outer belief hashes are recomputed. See the
+PIPELINE-002 checkpoint's two-transition reproduction. This does not expand the legacy
+omitted-v1-version exception or establish broader publication readiness.
+
+
+### Historical-reference field correction — implementation, review pending (2026-09-25)
+
+Python validates the current reference and every history entry with one six-field
+validator: exact keys, supported homogeneous observation version, strict observation
+ID, source/phase domains, safe nonnegative cursor, and lowercase prefix digest bound
+to that exact cursor. Histories remain nonempty, ordered, unique by observation ID,
+anchored to supplied observations, and unchanged across the input/successor join.
+The final entry must equal the current reference canonically. No coercion or repair.
+
+Only otherwise complete v1 references may omit schema_version; hashes preserve actual
+absence. V2 omission/null/unknown versions reject. Historical source/phase domains are
+validated without requiring equality to current values. Valid records retain their
+identities. TS additionally closes its first-history negative-cursor edge and requires
+exact observation-ID length, preventing a trailing newline from matching a regex end
+anchor. No valid producer output changes. Both previously accepted malformed-history
+reproductions now reject. Combined v2 acceptance and attestation remain separate.
+
+
+### Combined v2 publication acceptance — scoped (2026-09-25)
+
+This verdict supersedes the preceding pending/blocked v2, Python identity and historical
+reference dispositions only for their stated scope. Opt-in v2 public opponent stages,
+content-bound observation/belief identities and complete six-field reference checks
+are accepted. Default v1 and valid historical identities remain unchanged; only Python
+supported v1 references may omit schema_version, without injecting it into hashes.
+Negative first cursors and trailing-newline IDs reject as malformed. Rehashed false
+stages still reject against public-prefix evidence; hashes alone are insufficient.
+
+The 44-file coverage digest is attested:
+`96e85e8903e00b681ce029b58d69d72c284595102bc1ffee855894779fcee11d`.
+Fresh build/26 focused cases, independent original reproductions, coverage checker, ten
+drift self-tests and three coverage tests pass; matching broader evidence is retained.
+See the PIPELINE-002 checkpoint for exact scope and identities. Selective stage clears,
+other excluded effects, feature extraction and broader lifecycle completeness remain
+separate gates. `faithful_complete_episode:false` remains required.

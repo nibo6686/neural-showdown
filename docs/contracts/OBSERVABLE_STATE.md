@@ -7,7 +7,8 @@ model, checkpoint, live-default, or search call sites.
 
 ## Version and visibility
 
-The only supported schema version is `observable-battle-state/v1`. An unknown
+Supported schemas are `observable-battle-state/v1` (unchanged default) and opt-in
+`observable-battle-state/v2` (scoped public opponent stages; accepted). An unknown
 version is an explicit error. Every field is classified as one of:
 
 - `public`: visible in the protocol to a spectator/player;
@@ -153,7 +154,7 @@ and current projection limits.
 `active`, `fainted`, `hp_text`, `hp_ratio`, `status`, `status_source`,
 `status_started_turn`, `status_turns_public`, `gender`, `level`, `types`,
 `terastallized`, and `volatiles`. These fields are copied for both teams.
-Acting-player `self_team` additionally receives the explicit private allowlist
+Acting-player `self_team` additionally receives the explicit self-only allowlist
 `item`, `last_item`, `item_state`, `item_suppressed`, `ability`, `base_ability`,
 `ability_state`, `ability_suppressed`, `moves`, `revealed_moves`, `tera_type`,
 `stats`, and `boosts`. `opponent_team` omits those fields by default; the only
@@ -162,6 +163,13 @@ whole-`PokemonView` copy is permitted at this boundary. Arrays and maps are
 cloned, and the omitted `possible_*` fields are hypothesis fields. A private
 field supplied in an opponent `BattleView` is therefore omitted rather than
 silently exposed.
+
+This self-only grouping mixes private fields with omitted public evidence. In
+particular, protocol-derived `boosts` are public stat stages, not private base stats.
+Their omission from opponent observations is a v1 representation limitation, not a
+privacy requirement. Do not interpret omission as known zero. Before feature or
+faithful-publication acceptance, define an explicit contract/identity-compatible
+extension for public opponent stages while retaining protection for private fields.
 
 ### Public lifecycle and Illusion — scoped acceptance
 
@@ -456,3 +464,276 @@ f0893ed149ee786be29a8a3a03f3ae820a62dce0d5611637573e4095cd6bef1b;
 checker commands fail digest drift, six synthetic self-tests pass. Prior attestation
 6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70 remains.
 Broader lifecycle prerequisites and faithful_complete_episode:false are unchanged.
+
+### Bounded revival evidence — scoped acceptance, 2026-09-25
+
+Own request roster entries gain optional `reviving:true`, copied only from the
+addressed simulator request. It is omitted when false/absent and never copied to
+BattleView or the shared prefix. This is an additive optional request extension
+under observable-battle-state/v1, used with separately versioned revival actions
+and records; old ordinary observations are unchanged. The strict belief request
+validator accepts only the true-valued optional field.
+
+Pinned revival emits `|-heal|p1: Name|condition|[from] move: Revival Blessing` for
+a benched target. The parser allows the bench identifier only for this exact
+source-tagged -heal form; unrelated bench heals remain rejected. Existing active
+identifier grammar is unchanged. The source-qualified heal clears fainted/status
+and obsolete status timing evidence while setting public HP on the named target.
+The active healer remains active. This follows battle.ts revival execution and
+avoids retaining a burned/poisoned fainted target's old status after revival.
+
+### Public Soak defensive typing — scoped acceptance (2026-09-25)
+
+Public `-start|TARGET|typechange|Water` establishes an ordinary defensive-type
+override on the active appearance. Own-request species refresh does not erase it;
+Illusion reveal preserves it without transferring evidence to the impersonated
+teammate. Public switch/drag/faint lifecycle resets it to the appropriate known
+species typing; faint also clears active Tera while retaining known Tera type.
+Non-Stellar Tera overrides defensive typing, while Stellar retains the ordinary
+public override. Already-Terastallized targets reject Soak in the simulator.
+
+The override is reconstructed from protocol replay, not private simulator state.
+No new observation field or version; existing species/displayed identity and
+tera_type/terastallized remain distinct. This is bounded Soak behavior plus shared
+typechange replacement plumbing, not acceptance of other temporary-type effects.
+Exact hashes, passing review checks and coverage attestation are in the PIPELINE-002 checkpoint.
+At the Soak review, added-type composition remained excluded. The subsequent
+implementation below corrects owner projection and is now separately accepted.
+
+### Public added-type composition — scoped acceptance (2026-09-25)
+
+The public typeadd slot is distinct from ordinary typechange evidence. Both views
+compose ordinary types followed by the added type, without the former two-entry cap.
+New additions replace that single slot; typechange removes it. Requests do not
+supersede protocol evidence. Switch/drag/faint/species resets clear both components;
+Tera activation clears the addition, with Stellar retaining ordinary typing.
+Illusion reveal retains appearance evidence; own identity never reaches the opponent.
+Protocol replay restores the same composition. No schema/snapshot migration.
+
+Forest's Curse plus Soak and fixture-only Trick-or-Treat replacement are tested.
+Generic expiry, Transform/Reflect Type and legacy training/live consumers are not
+accepted by this change. Exact source hashes, validation and completed coverage
+attestation are in the PIPELINE-002 checkpoint; faithful_complete_episode:false remains.
+
+Three entries survive observation cloning and serialized publication bundles, whose
+identities Python validates without truncating types. The resulting DATA-001 record
+references those observations; it does not produce a three-type feature tensor.
+Legacy two-slot training/live consumers require separate compatibility work.
+Transform copying remains a reproduced gap: a Mew copying Grass-added Charizard
+shows Psychic to its owner instead of Fire/Flying/Grass. This is the next bounded
+public-state correction, outside the accepted added-slot application scope.
+
+### Transform defensive typing — scoped acceptance (2026-09-25)
+
+A public -transform snapshots the target's publicly established ordinary typing
+and separate added slot. Target Tera defensive type is not copied; caller Tera
+keeps precedence. Later changes to either Pokemon do not mutate the other's copy.
+Owner requests preserve the original roster species while current/displayed species
+and effective typing describe the transformation. Switch/drag/faint restores original
+appearance typing; faint also clears active Tera. Replay restores the public maps.
+No public schema or private snapshot metadata is added. Three-type record bundles
+remain intact through Python validation. Hidden Illusion target failures expose no
+identity. General Type hooks/Roost and non-typing Transform mechanics remain excluded.
+Exact hashes, reviewed scope and coverage attestation are in PIPELINE-002.
+Transform copied boosts remain a reproduced separate gap: target +2 Attack copies
+in the simulator but is absent from both caller observations. Other Transform
+mechanics and legacy two-type feature consumers are not accepted by this review.
+
+### Transform public boost copying — scoped acceptance (2026-09-25)
+
+At successful public -transform, raw BattleView caller boosts are replaced by a
+fresh target-public-map copy. Sparse absent stages mean zero; explicit zeros remain.
+Later stage events apply once and independently; existing request refresh, replay
+and lifecycle resets preserve these semantics. No private simulator stages are read.
+
+The existing observation allowlist is unchanged: self_team publishes boosts;
+opponent_team omits them. Both raw perspectives reflect the public copy, and mirrored
+caller-self records preserve the stages without widening opponent publication.
+No schema migration. The PIPELINE-002 checkpoint records hashes, validation and the
+completed semantic/coverage review. Selective clear and other Transform fields remain
+separate gaps; faithful_complete_episode:false.
+
+The boost-copy review accepts both raw perspectives and existing caller-self records,
+not complete opponent-stage publication. The next task is an explicit public-stage
+representation/compatibility change, with mirrored prefix, restoration and Python
+identity checks. Existing v1 records remain immutable; genuinely private fields must
+not be added through a blanket raw-view copy.
+
+
+### Version-two public opponent stages — scoped accepted (2026-09-25)
+
+V2 adds only `view.opponent_team[].public_boosts`: exactly seven keys `atk`, `def`,
+`spa`, `spd`, `spe`, `accuracy`, `evasion`, each an integer -6..6 or null. Zero means
+public evidence establishes zero; null means this prefix has not established that
+stage. V1 continues to omit opponent stages; omitted v1 maps never mean known zero.
+Self `boosts` remains the existing sparse map. Private stats, abilities, moves and
+simulator-only values are not added. Features are not produced or expanded.
+
+`public_boosts` is reconstructed from the exact sanitized public prefix, independently
+of supplied raw boost maps or owner requests. Ordinary switch/drag, faint, clearboost
+and clearallboost establish/reset zero; setboost establishes its named stage.
+Boost/unboost apply effective public deltas (up to 12 across -6..6); an unknown baseline
+stays unknown. Transform replaces stages with an independent copy of the public target
+at that event. Illusion stages belong to the displayed active appearance until replace;
+reveal reconciles that evidence and restores the impersonated teammate's prior map.
+Earlier observations remain immutable. Snapshot restoration uses the same prefix.
+
+This is a bounded singles implementation. Selective positive/negative clears now
+zero only known stages of the selected sign, preserving opposite signs, known zero and
+unknown null. Raw extraction preserves sparse absent entries. This correction is
+scoped accepted (2026-09-25); no schema or identity migration is made.
+Negative clearing accepts untagged legacy records and pinned `[silent]`/`[zeffect]` tags.
+Spectral Thief's five-field `-anim` is raw-only: its separate boost events alone update
+the recipient. Other animation forms reject. Psych Up stage copying is implemented pending review
+as described below. Other copying, swap/inversion and Baton Pass
+anywhere in the prefix fail explicitly, including when later reset; they must not
+silently inherit unresolved raw semantics. Non-singles gametype also rejects. Standard protocol aliases have the same
+stage meaning. Broader lifecycle correctness remains separately gated.
+
+Select via `observation_schema_version: 'observable-battle-state/v2'` on a pipeline
+session/episode, or the explicit projector schema argument. Unknown versions reject.
+Belief and transition inputs cannot mix observation versions. V2 requires explicit
+matching versions on belief references/history. Python preserves historically accepted
+v1 references lacking a version, interpreting those as v1 only.
+
+There is no in-place migration. V1 serialization, IDs and reference interpretation
+remain unchanged. Regeneration requires the original exact public prefixes and legitimate
+perspective inputs; it builds new v2 observations, beliefs and dataset record identities.
+Do not relabel an old payload or rewrite historical references. Simulator snapshot and
+transition identities may remain identical for identical state/actions: those identify
+execution, independently of the observation representation. Existing outer bundle,
+belief, transition and dataset container versions remain valid because their nested
+observation version is explicit; dataset `schema_fingerprints.observation` reports it.
+TS and Python validate v2 stages against the prefix; Python additionally verifies the
+v2 observation content identity. No feature or faithful-publication acceptance follows;
+`faithful_complete_episode:false` remains.
+
+
+Review disposition (2026-09-25): v2 acceptance is blocked by Python content-identity
+validation. Relabeling v2 as v1 can retain stale observation/belief IDs; TS rejects
+the same payload. The normative no-relabeling rule above is not yet fully enforced
+in the Python publication boundary. See the PIPELINE-002 checkpoint reproduction.
+No coverage attestation or faithful-publication acceptance is implied.
+
+
+### Python identity correction — implementation, review pending (2026-09-25)
+
+Python publication now verifies input/successor observation and belief content hashes
+unconditionally for observable v1/v2, plus nested evidence/candidate IDs and reference
+joins. It rejects stale IDs without repairing records. TS-compatible serialization
+uses UTF-16 key ordering, JSON Unicode/surrogate escaping, binary64 numbers and distinct
+absent/null fields. DATA-001's separate canonicalization remains unchanged.
+
+Supported legacy v1 references may omit only schema_version while retaining all other
+reference fields and valid content identities/history. Omission stays absent in hashing;
+null/unknown versions, ID-only references and arbitrary IDs do not qualify. Full v2
+references remain explicit. Historical records and lineage are never rewritten. Prior
+Python synthetic unit fixtures now use content-bound IDs; they were not historical data.
+Historical observation payloads cannot be recovered from references alone: validation
+checks anchored prefix/history consistency, not unseen content. See the checkpoint for
+new cross-runtime regressions and exact hashes. The prior downgrade blockers are
+corrected in implementation; combined v2 acceptance/coverage attestation remain pending.
+
+
+### Combined v2 publication acceptance — scoped (2026-09-25)
+
+This verdict supersedes the preceding pending/blocked v2, Python identity and historical
+reference dispositions only for their stated scope. Opt-in v2 public opponent stages,
+content-bound observation/belief identities and complete six-field reference checks
+are accepted. Default v1 and valid historical identities remain unchanged; only Python
+supported v1 references may omit schema_version, without injecting it into hashes.
+Negative first cursors and trailing-newline IDs reject as malformed. Rehashed false
+stages still reject against public-prefix evidence; hashes alone are insufficient.
+
+The prior accepted 44-file coverage digest is attested (current selective-clear changes
+remain pending a new review):
+`96e85e8903e00b681ce029b58d69d72c284595102bc1ffee855894779fcee11d`.
+Fresh build/26 focused cases, independent original reproductions, coverage checker, ten
+drift self-tests and three coverage tests pass; matching broader evidence is retained.
+See the PIPELINE-002 checkpoint for exact scope and identities. Selective stage clears,
+other excluded effects, feature extraction and broader lifecycle completeness remain
+separate gates. `faithful_complete_episode:false` remains required.
+
+
+### Selective stage clearing review (2026-09-25)
+
+Scoped accepted: first-target sign-only zeroing, opposite/zero/null retention, independent
+ordered recipient deltas and exact negative tags/narrow Spectral Thief animation. The
+existing positive-clear grammar remains broader than its reviewed pinned emitter; no
+general animation or format expansion is implied. Correctly rehashed false stage values
+still reject against prefix evidence. Historical identities are not rewritten; newly
+corrected raw/self projections may differ for formerly incorrect trajectories.
+45-file digest attested: `15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9`.
+Coverage checker, ten drift self-tests and three coverage tests pass. Copy/swap/inversion,
+Baton Pass, features and broader lifecycle fidelity remain excluded.
+
+
+### Bounded Psych Up stages — implementation pending review (2026-09-25)
+
+Only `|-copyboost|RECIPIENT|DONOR|[from] move: Psych Up` is newly supported: replace the
+recipient's seven public stages with an independent donor snapshot at that event.
+Unknown donor stages remain null in v2 and absent in raw sparse evidence; stale
+recipient stages are removed. No type/species/private-stat copying is implied. V1
+remains default; opponent stages remain v2-only. Existing identities are not migrated.
+Missing/extra fields, other tags (including Costar), swap/inversion and Baton Pass
+remain unsupported. Exact-prefix evidence validation remains mandatory even with valid
+content hashes. Psych Up's critical-hit volatile removal/copying is not inferred from
+this event; ordinary emitted records retain existing handling, while silent/layered
+changes remain unresolved. Stage-only support does not claim full Psych Up support.
+Coverage classification/hash inclusion and semantic acceptance remain pending.
+
+
+Psych Up review (2026-09-25) remains blocked: malformed recipient identifiers bypass
+TS/Python evidence-helper grammar and Python can publish correctly rehashed invalid
+prefixes, although TS observable parsing rejects. Validate both full identifiers and
+exact copy grammar before player-side filtering. See the current PIPELINE-002 checkpoint
+and durable reproduction; no semantic acceptance or new coverage attestation is granted.
+
+
+Psych Up grammar correction (2026-09-25), pending review: both evidence helpers check
+exact field count/tag and both identifiers before side filtering. Identifier syntax
+matches the existing trimmed observable grammar; roster presence is not required and
+unresolved donor stages remain null. Python's shared publication prefix validation also
+applies this guard to v1, closing the label bypass without changing valid v1 records,
+defaults or identities. Three original malformed bundles now reject before output;
+200 rehashed cross-runtime cases pass. Combined acceptance/coverage remain pending.
+
+
+Combined Psych Up review (2026-09-25): canonical pre-filter correction passes, but
+attestation remains blocked. Bare `copyboost` is not a supported observable command;
+Python v1 can bypass the canonical guard and Python v2 normalizes the alias. Both can
+publish fully rehashed bundles rejected by TS. Reject unsupported spelling at publication
+entry independently of internal helper alias handling; preserve canonical/v1 identities.
+Durable reproductions and next correction are in the current PIPELINE-002 checkpoint.
+
+
+Bare-alias correction implemented (2026-09-25), review pending: Python v1/v2 publication
+rejects bare `copyboost` before stage reconstruction, matching TypeScript's command
+allowlist. Canonical `-copyboost` and internal helper alias behavior are unchanged.
+Valid identities are preserved; expanded rehashed matrix verifies protocol rejection.
+No new semantic acceptance or coverage attestation; critical-hit volatiles stay excluded.
+
+
+### Combined Psych Up scoped acceptance — 2026-09-25
+
+The preceding pending/blocked Psych Up dispositions are superseded within this scope.
+Canonical exact-tag stage copying and pre-filter grammar are accepted; bare copyboost
+rejects in Python/TS publication for both versions. Internal helper aliases do not expand
+publishable grammar. Independent replacement, zero/null semantics, original failures,
+fully rehashed false-stage rejection and unchanged valid historical IDs are verified.
+Critical-hit volatiles, Costar, swap/inversion/Baton Pass and broader identity routing
+remain excluded. V1 default and opt-in v2 are unchanged.54-file digest attested:
+`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`. Checker/self-tests/coverage tests pass.
+`faithful_complete_episode:false` remains required.
+
+
+### Bounded Topsy-Turvy inversion — implementation pending review (2026-09-25)
+
+Canonical `|-invertboost|TARGET|[from] move: Topsy-Turvy` negates target public known
+nonzero stages at the event; known zero stays zero and unknown stays null in v2 (absent
+in sparse raw maps). All-zero simulator failure emits no inversion. Both evidence helpers
+validate exact tag/count/target before routing. Python v1/v2 publication rejects bare
+invertboost before reconstruction; internal helper aliases do not expand grammar.
+V1 defaults, historical identities and schemas are unchanged. Rigged Dice and other
+mod/tag variants remain unsupported. Semantic classification/coverage review pending;
+faithful_complete_episode:false remains required.

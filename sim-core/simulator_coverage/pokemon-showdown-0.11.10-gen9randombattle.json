@@ -29,14 +29,15 @@
     "mod": "gen9",
     "game_type": "singles",
     "team": "random",
-    "team_size_assumption": "six generated Pok\u00e9mon; battle teamsize protocol is authoritative per battle; verify generated roster count at runtime"
+    "team_size_assumption": "six generated Pokémon; battle teamsize protocol is authoritative per battle; verify generated roster count at runtime"
   },
   "contracts": {
     "observable_state": "observable-battle-state/v1",
     "belief_state": "belief-state/v1",
     "canonical_action": "canonical-action/v1",
     "seeded_transition": "seeded-transition/v1",
-    "dataset_lineage": "dataset-record/v1"
+    "dataset_lineage": "dataset-record/v1",
+    "observable_state_opt_in": "observable-battle-state/v2"
   },
   "conditions": [
     {
@@ -206,7 +207,7 @@
     }
   ],
   "protocol": {
-    "source": "parser allowlist in sim-core/src/observable_state.ts; command syntax originates in pinned simulator stream but this inventory classifies adapter tokens, not every upstream message/chat token",
+    "source": "trainer/src/neural/protocol_contract.json is shared by the TypeScript observable boundary and Python publisher; grammar fixtures are reconciled with this pinned-source inventory.",
     "commands": [
       {
         "token": "-ability",
@@ -219,7 +220,7 @@
           "optional": "tags",
           "shape": "ability event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "ability evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -237,12 +238,30 @@
           "optional": "additional source-specific tags",
           "shape": "at least target and effect fields; target is an ident or protocol effect subject"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "resolved/failure evidence, not menu",
         "fixture_reference": "observable_state"
+      },
+      {
+        "token": "-anim",
+        "grammar_group": "metadata_or_raw",
+        "classification": "raw-only",
+        "parser_support": "exact five split fields, Spectral Thief literal, two player Pokémon identifiers",
+        "review_status": "reviewed_with_documented_gaps",
+        "record_grammar": {
+          "required": "source ident, literal Spectral Thief, target ident",
+          "optional": "none",
+          "shape": "-anim|source|Spectral Thief|target"
+        },
+        "target_semantics": "first source; second target; neither changes from animation",
+        "visibility": "public reviewed BattleActions.hitStepStealBoosts emission",
+        "authoritative_state_effect": "none; raw-only animation, no implicit boost/steal or broader animation support",
+        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
+        "legal_action_effect": "none",
+        "fixture_reference": "tests/selective_boosts.test.ts"
       },
       {
         "token": "-block",
@@ -255,7 +274,7 @@
           "optional": "tags",
           "shape": "block evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -273,12 +292,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "-clearallboost",
@@ -291,12 +310,12 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "-clearboost",
@@ -309,66 +328,66 @@
           "optional": "none",
           "shape": "clear boost record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "-clearnegativeboost",
         "grammar_group": "boost",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "explicit target/field validation; negative permits only pinned tags; positive retains existing target/source/effect grammar",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "target ident",
-          "optional": "none",
-          "shape": "clear boost record"
+          "optional": "one [silent] or [zeffect] tag; untagged legacy accepted",
+          "shape": "selective sign clear"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "Only first identifier is cleared; source stage changes require separate public boost records",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "Clear known negative stages to zero; preserve opposite sign, zero and unknown. Raw/self represented; opponent exact-prefix public_boosts only in opt-in v2. No interval inference for unknown stages.",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/selective_boosts.test.ts"
       },
       {
         "token": "-clearpositiveboost",
         "grammar_group": "boost",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "explicit target/field validation; negative permits only pinned tags; positive retains existing target/source/effect grammar",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "target ident, source ident, effect",
-          "optional": "none",
-          "shape": "clear-positive boost record"
+          "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+          "shape": "selective sign clear"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "Only first identifier is cleared; source stage changes require separate public boost records",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "Clear known positive stages to zero; preserve opposite sign, zero and unknown. Raw/self represented; opponent exact-prefix public_boosts only in opt-in v2. No interval inference for unknown stages.",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/selective_boosts.test.ts"
       },
       {
-        "token": "-clearstatus",
-        "grammar_group": "status",
-        "classification": "unknown",
-        "parser_support": "generic boundary validation only; source emitter not established in scoped Gen 9 execution",
+        "token": "-copyboost",
+        "grammar_group": "boost",
+        "classification": "represented",
+        "parser_support": "exact five fields, both complete trimmed identifiers and literal Psych Up tag; validate before side filtering. Bare copyboost rejected at publication in v1/v2.",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "at least one nonempty payload field",
-          "optional": "token-specific trailing tags only when present",
-          "shape": "accepted generic boundary form; no supported-format emitter semantics established"
+          "required": "recipient ident, donor ident, literal [from] move: Psych Up",
+          "optional": "none",
+          "shape": "-copyboost|RECIPIENT|DONOR|[from] move: Psych Up"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "First identifier receives the second active side public stages at the event; no private roster identity inference.",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "major status",
+        "authoritative_state_effect": "Replace all seven public stages with an independent donor snapshot; raw sparse absence and v2 null preserve unknowns. Raw/self represented; opponent public_boosts only in opt-in v2. Critical-hit volatile removal/copying, Costar and other copy tags excluded.",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
-        "legal_action_effect": "execution effects; request authority",
-        "fixture_reference": "state_extractor"
+        "legal_action_effect": "outcomes/order",
+        "fixture_reference": "tests/psych_up.test.ts; tests/psych_up_validation.test.ts; consumed psych-up review JSON fixtures"
       },
       {
         "token": "-crit",
@@ -381,7 +400,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -399,7 +418,7 @@
           "optional": "tags",
           "shape": "status record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "major status",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -417,7 +436,7 @@
           "optional": "tags",
           "shape": "health record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
         "authoritative_state_effect": "HP/fainting",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -435,12 +454,12 @@
           "optional": "effect-specific fields/tags",
           "shape": "generic effect lifecycle"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
-        "authoritative_state_effect": "volatile effect",
+        "authoritative_state_effect": "volatile removal; typechange end clears ordinary override and added slot, typeadd end clears only added slot; generic end/expiry remains unaccepted (no base-source typeadd end established); switch/drag/faint reset both without type end emission",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "varies; request authoritative",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/state_extractor.test.ts; tests/soak.test.ts (Soak implicit lifecycle reset, not generic end acceptance)"
       },
       {
         "token": "-endability",
@@ -453,7 +472,7 @@
           "optional": "none",
           "shape": "ability end"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "ability evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -471,7 +490,7 @@
           "optional": "tags",
           "shape": "item event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "item evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -489,7 +508,7 @@
           "optional": "action and tags",
           "shape": "failure evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -507,7 +526,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -525,7 +544,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -543,7 +562,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -561,7 +580,7 @@
           "optional": "condition/tags",
           "shape": "form record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
         "authoritative_state_effect": "species/form/tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -577,14 +596,14 @@
         "record_grammar": {
           "required": "target ident, condition/HP",
           "optional": "tags",
-          "shape": "health record"
+          "shape": "health record; active-position ident normally required; bench p1:/p2: ident accepted only with exactly condition and [from] move: Revival Blessing"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "public target ident; bounded revival bench target matched by public identity, never by private opponent request",
         "visibility": "public/split-dependent",
-        "authoritative_state_effect": "HP/fainting",
+        "authoritative_state_effect": "HP/fainting; source-qualified Revival Blessing additionally clears major status and stale status timing",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "switch/survival",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "state_extractor; tests/revival.test.ts mirrored Pawmot/Rabsca bench revival and strict source-tag grammar"
       },
       {
         "token": "-hint",
@@ -597,7 +616,7 @@
           "optional": "further text fields",
           "shape": "public diagnostic text; raw-only"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent; reviewed Illusion Level Mod call is public; stream routing governs side-specific hints",
         "authoritative_state_effect": "none; explanatory prose is raw-only",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -615,7 +634,7 @@
           "optional": "none",
           "shape": "hit-count outcome"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -633,12 +652,30 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "resolved/failure evidence, not menu",
         "fixture_reference": "observable_state"
+      },
+      {
+        "token": "-invertboost",
+        "grammar_group": "boost",
+        "classification": "represented",
+        "parser_support": "exact four fields, complete target ident and literal Topsy-Turvy tag; validate before side routing; bare alias rejected",
+        "review_status": "reviewed_with_documented_gaps",
+        "record_grammar": {
+          "required": "target ident, literal [from] move: Topsy-Turvy",
+          "optional": "none",
+          "shape": "|-invertboost|TARGET|[from] move: Topsy-Turvy"
+        },
+        "target_semantics": "Only the event target is inverted; Gen9SSB Rigged Dice is excluded.",
+        "visibility": "public when emitted",
+        "authoritative_state_effect": "Negate every nonzero public stage and preserve zero; all-zero failure emits no inversion record. Raw/self and opt-in v2 public-prefix opponent stages only.",
+        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
+        "legal_action_effect": "outcomes/order",
+        "fixture_reference": "tests/topsy_turvy.test.ts; tests/topsy_turvy_validation.test.ts; trainer/src/neural/protocol_contract.json"
       },
       {
         "token": "-item",
@@ -651,7 +688,7 @@
           "optional": "tags",
           "shape": "item event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "item evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -669,7 +706,7 @@
           "optional": "further text fields",
           "shape": "public diagnostic text; raw-only"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -687,7 +724,7 @@
           "optional": "tags",
           "shape": "miss evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -705,7 +742,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -723,7 +760,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -741,7 +778,7 @@
           "optional": "target location/tags",
           "shape": "move preparation"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -759,7 +796,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -777,12 +814,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "-sethp",
@@ -795,7 +832,7 @@
           "optional": "tags",
           "shape": "health record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
         "authoritative_state_effect": "HP/fainting",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -849,7 +886,7 @@
           "optional": "tags",
           "shape": "one-turn public effect event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
         "authoritative_state_effect": "volatile effect",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -865,14 +902,14 @@
         "record_grammar": {
           "required": "target ident, effect",
           "optional": "effect-specific fields/tags",
-          "shape": "generic effect lifecycle"
+          "shape": "generic effect lifecycle; typechange emits ordinary public type list and removes added slot; typeadd emits one public type (Forest's Curse or fixture-only Trick-or-Treat source tag)"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
-        "authoritative_state_effect": "volatile effect",
+        "authoritative_state_effect": "volatile presence; scoped ordinary typechange override plus one replaceable added-type slot on active appearance; compose through owner requests/reveal/restoration without a two-type cap; other effect-specific typing remains unaccepted",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "varies; request authoritative",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/state_extractor.test.ts; tests/soak.test.ts; tests/added_types.test.ts"
       },
       {
         "token": "-status",
@@ -885,7 +922,7 @@
           "optional": "tags",
           "shape": "status record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "major status",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -903,7 +940,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -939,12 +976,12 @@
           "optional": "none",
           "shape": "tera event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
-        "authoritative_state_effect": "species/form/tera",
+        "authoritative_state_effect": "public active Tera and known type; non-Stellar overrides defensive types, Stellar preserves ordinary public typing including scoped Soak; private offensive counters excluded; every Tera activation clears added type, including Stellar",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "may alter moves",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/illusion.test.ts; tests/soak.test.ts; tests/added_types.test.ts"
       },
       {
         "token": "-transform",
@@ -957,12 +994,12 @@
           "optional": "tags",
           "shape": "transform record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
-        "authoritative_state_effect": "species/form/tera",
+        "authoritative_state_effect": "copied current/displayed species with original roster base identity retained; snapshot public ordinary and added typing separately, ignore target Tera defensive override and retain caller Tera; owner refresh/replay preserves independent copy; copy all publicly established boost stages by replacement at this event into independent caller map (both raw views); caller-self publication includes stages; legacy v1 omits opponent stages, while opt-in v2 publishes independently copied public stages reconstructed at the exact event boundary; stats/moves/PP/abilities and broader Type events remain unaccepted",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "may alter moves",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/transform_types.test.ts; tests/state_extractor.test.ts; tests/transform_boosts.test.ts; tests/public_stages.test.ts; tests/record_identity.test.ts"
       },
       {
         "token": "-unboost",
@@ -975,12 +1012,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "-weather",
@@ -993,7 +1030,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1011,7 +1048,7 @@
           "optional": "tags",
           "shape": "ability event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "ability evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1029,7 +1066,7 @@
           "optional": "additional source-specific tags",
           "shape": "at least target and effect fields; target is an ident or protocol effect subject"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1047,7 +1084,7 @@
           "optional": "tags",
           "shape": "block evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1065,12 +1102,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "c",
@@ -1083,7 +1120,7 @@
           "optional": "none",
           "shape": "chat record; not model state"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1101,7 +1138,7 @@
           "optional": "move",
           "shape": "move prevention outcome"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1119,7 +1156,7 @@
           "optional": "none",
           "shape": "chat record; not model state"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1137,12 +1174,12 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "clearboost",
@@ -1155,30 +1192,30 @@
           "optional": "none",
           "shape": "clear boost record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "clearnegativeboost",
         "grammar_group": "boost",
-        "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "classification": "represented",
+        "parser_support": "explicit target/field validation; negative permits only pinned tags; positive retains existing target/source/effect grammar",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "target ident",
-          "optional": "none",
-          "shape": "clear boost record"
+          "optional": "one [silent] or [zeffect] tag; untagged legacy accepted",
+          "shape": "selective sign clear"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "Only first identifier is cleared; source stage changes require separate public boost records",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "Clear known negative stages to zero; preserve opposite sign, zero and unknown. Raw/self represented; opponent exact-prefix public_boosts only in opt-in v2. No interval inference for unknown stages.",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/selective_boosts.test.ts"
       },
       {
         "token": "clearpoke",
@@ -1191,7 +1228,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1201,38 +1238,20 @@
       {
         "token": "clearpositiveboost",
         "grammar_group": "boost",
-        "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "classification": "represented",
+        "parser_support": "explicit target/field validation; negative permits only pinned tags; positive retains existing target/source/effect grammar",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "target ident, source ident, effect",
-          "optional": "none",
-          "shape": "clear-positive boost record"
+          "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+          "shape": "selective sign clear"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "Only first identifier is cleared; source stage changes require separate public boost records",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "Clear known positive stages to zero; preserve opposite sign, zero and unknown. Raw/self represented; opponent exact-prefix public_boosts only in opt-in v2. No interval inference for unknown stages.",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
-      },
-      {
-        "token": "clearstatus",
-        "grammar_group": "status",
-        "classification": "unknown",
-        "parser_support": "generic boundary validation only; source emitter not established in scoped Gen 9 execution",
-        "review_status": "reviewed_with_documented_gaps",
-        "record_grammar": {
-          "required": "at least one nonempty payload field",
-          "optional": "token-specific trailing tags only when present",
-          "shape": "accepted generic boundary form; no supported-format emitter semantics established"
-        },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
-        "visibility": "public when emitted",
-        "authoritative_state_effect": "major status",
-        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
-        "legal_action_effect": "execution effects; request authority",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/selective_boosts.test.ts"
       },
       {
         "token": "crit",
@@ -1245,7 +1264,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1263,7 +1282,7 @@
           "optional": "tags",
           "shape": "status record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "major status",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1281,7 +1300,7 @@
           "optional": "tags",
           "shape": "health record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
         "authoritative_state_effect": "HP/fainting",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1299,7 +1318,7 @@
           "optional": "none",
           "shape": "exact details-change record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident",
+        "target_semantics": "field is a protocol Pokémon ident",
         "visibility": "public when emitted",
         "authoritative_state_effect": "updates revealed identity/details",
         "belief_effect": "no direct belief mutation",
@@ -1317,7 +1336,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1335,12 +1354,12 @@
           "optional": "tags",
           "shape": "roster/active record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "fresh public active appearance; explicit tera:TYPE restores Terastallized state; ordinary boost/volatile clearing and supported Shed Tail transfer, identity uncertainty retained",
+        "authoritative_state_effect": "fresh public active appearance; explicit tera:TYPE restores Terastallized state; ordinary boost/volatile clearing and supported Shed Tail transfer, identity uncertainty retained; departure clears transformed typing and restores original species while retaining active Tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "forced switch/request effects; request authoritative",
-        "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts"
+        "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts; tests/transform_types.test.ts"
       },
       {
         "token": "end",
@@ -1353,7 +1372,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
         "authoritative_state_effect": "volatile effect",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1371,7 +1390,7 @@
           "optional": "none",
           "shape": "ability end"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "ability evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1389,7 +1408,7 @@
           "optional": "tags",
           "shape": "item event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "item evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1407,7 +1426,7 @@
           "optional": "channel-specific suffix",
           "shape": "private choice error or stream error; caller must retain addressed side"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1425,7 +1444,7 @@
           "optional": "action and tags",
           "shape": "failure evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1443,12 +1462,12 @@
           "optional": "none",
           "shape": "exact faint record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "roster/active/HP identity",
+        "authoritative_state_effect": "public faint/HP state; clear temporary ordinary/added/Transform typing and active Tera, restore observable original species typing while retaining known Tera type; other faint mechanics remain separately scoped",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "forced switch/request effects; request authoritative",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "state_extractor; tests/illusion.test.ts; tests/transform_types.test.ts"
       },
       {
         "token": "fieldend",
@@ -1461,7 +1480,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1479,7 +1498,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1497,7 +1516,7 @@
           "optional": "condition/tags",
           "shape": "form record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
         "authoritative_state_effect": "species/form/tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1515,7 +1534,7 @@
           "optional": "suffix fields",
           "shape": "format/rule metadata"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1533,7 +1552,7 @@
           "optional": "none",
           "shape": "exact scalar integer"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1551,7 +1570,7 @@
           "optional": "tags",
           "shape": "health record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
         "authoritative_state_effect": "HP/fainting",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1569,7 +1588,7 @@
           "optional": "none",
           "shape": "hit-count outcome"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1587,7 +1606,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1605,7 +1624,7 @@
           "optional": "tags",
           "shape": "inactivity event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1623,7 +1642,7 @@
           "optional": "tags",
           "shape": "inactivity event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "channel-dependent, request/error private",
         "authoritative_state_effect": "not durable state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1641,12 +1660,30 @@
           "optional": "tags",
           "shape": "item event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
         "authoritative_state_effect": "item evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "mechanic effects",
         "fixture_reference": "state_extractor"
+      },
+      {
+        "token": "message",
+        "grammar_group": "metadata_or_raw",
+        "classification": "raw-only",
+        "parser_support": "at least one nonempty public text field; retained without typed-state projection",
+        "review_status": "reviewed_with_documented_gaps",
+        "record_grammar": {
+          "required": "public message text",
+          "optional": "additional text fields",
+          "shape": "|message|TEXT"
+        },
+        "target_semantics": "no Pokémon target",
+        "visibility": "public",
+        "authoritative_state_effect": "raw-only public diagnostic text; no typed state or belief effect",
+        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
+        "legal_action_effect": "none",
+        "fixture_reference": "sim/battle.ts:1393; trainer/src/neural/protocol_contract.json"
       },
       {
         "token": "miss",
@@ -1659,7 +1696,7 @@
           "optional": "tags",
           "shape": "miss evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1695,29 +1732,11 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "resolved/failure evidence, not menu",
-        "fixture_reference": "observable_state"
-      },
-      {
-        "token": "nothing",
-        "grammar_group": "metadata_or_raw",
-        "classification": "unknown",
-        "parser_support": "generic boundary validation only; source emitter not established in scoped Gen 9 execution",
-        "review_status": "reviewed_with_documented_gaps",
-        "record_grammar": {
-          "required": "at least one nonempty payload field",
-          "optional": "token-specific trailing tags only when present",
-          "shape": "accepted generic boundary form; no supported-format emitter semantics established"
-        },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
-        "visibility": "per token/source channel",
-        "authoritative_state_effect": "raw evidence unless explicit handler",
-        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
-        "legal_action_effect": "do not infer legal mask",
         "fixture_reference": "observable_state"
       },
       {
@@ -1731,7 +1750,7 @@
           "optional": "avatar, rating, trailing metadata",
           "shape": "player record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "roster/active/HP identity",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1749,7 +1768,7 @@
           "optional": "item marker",
           "shape": "team preview record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "roster/active/HP identity",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1767,7 +1786,7 @@
           "optional": "target location/tags",
           "shape": "move preparation"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1785,7 +1804,7 @@
           "optional": "single text value",
           "shape": "rating metadata"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1803,12 +1822,12 @@
           "optional": "one validated legacy HP/status condition; no trailing tags",
           "shape": "Illusion identity reveal, distinct from switch; pinned onEnd emits no condition"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "reconcile active appearance with revealed roster identity; preserve accumulated HP/status/boost/volatile/Tera evidence",
+        "authoritative_state_effect": "reconcile active appearance with revealed roster identity; preserve accumulated HP/status/boost/volatile/Tera evidence and scoped Soak defensive override and added-type slot",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "none directly; current request remains authoritative",
-        "fixture_reference": "tests/illusion.test.ts; tests/observable_state.test.ts"
+        "fixture_reference": "tests/illusion.test.ts; tests/observable_state.test.ts; tests/soak.test.ts; tests/added_types.test.ts"
       },
       {
         "token": "request",
@@ -1821,7 +1840,7 @@
           "optional": "rqid and request-variant fields",
           "shape": "parse JSON object; raw body is transient/private"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "addressed side only",
         "authoritative_state_effect": "own roster/request",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1839,7 +1858,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1857,7 +1876,7 @@
           "optional": "suffix fields",
           "shape": "format/rule metadata"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1875,12 +1894,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "sethp",
@@ -1893,7 +1912,7 @@
           "optional": "tags",
           "shape": "health record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
         "authoritative_state_effect": "HP/fainting",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1947,7 +1966,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
         "authoritative_state_effect": "volatile effect",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1965,7 +1984,7 @@
           "optional": "tags",
           "shape": "status record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "major status",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -1983,7 +2002,7 @@
           "optional": "effect/tags",
           "shape": "outcome/effect evidence"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public or split-dependent",
         "authoritative_state_effect": "event evidence",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2019,12 +2038,12 @@
           "optional": "tags",
           "shape": "roster/active record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "fresh public active appearance; explicit tera:TYPE restores Terastallized state; ordinary boost/volatile clearing and supported Shed Tail transfer, identity uncertainty retained",
+        "authoritative_state_effect": "fresh public active appearance; explicit tera:TYPE restores Terastallized state; ordinary boost/volatile clearing and supported Shed Tail transfer, identity uncertainty retained; departure clears transformed typing and restores original species while retaining active Tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "forced switch/request effects; request authoritative",
-        "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts"
+        "fixture_reference": "tests/state_extractor.test.ts; tests/env_manager.test.ts; tests/forced_switch.test.ts; tests/illusion.test.ts; tests/helpers/state_lifecycle.ts; tests/transform_types.test.ts"
       },
       {
         "token": "t:",
@@ -2037,7 +2056,7 @@
           "optional": "none",
           "shape": "exact timestamp"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2055,7 +2074,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2073,7 +2092,7 @@
           "optional": "none",
           "shape": "exact teamsize record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
         "authoritative_state_effect": "roster/active/HP identity",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2091,7 +2110,7 @@
           "optional": "none",
           "shape": "tera event"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
         "authoritative_state_effect": "species/form/tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2109,7 +2128,7 @@
           "optional": "empty trailing field only",
           "shape": "exact terminal tie"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public",
         "authoritative_state_effect": "terminal winner",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2127,12 +2146,12 @@
           "optional": "tags",
           "shape": "transform record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted; private fields filtered",
         "authoritative_state_effect": "species/form/tera",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "may alter moves",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "state_extractor; tests/public_stages.test.ts; tests/record_identity.test.ts"
       },
       {
         "token": "turn",
@@ -2145,7 +2164,7 @@
           "optional": "none",
           "shape": "exact scalar integer"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2163,12 +2182,12 @@
           "optional": "tags",
           "shape": "stage record"
         },
-        "target_semantics": "field is a protocol Pok\u00e9mon ident when required",
+        "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
-        "authoritative_state_effect": "boosts",
+        "authoritative_state_effect": "public stage updates in raw/self views; legacy observable v1 omits opponent stages; opt-in v2 independently reconstructs seven integer/null opponent stages from exact public prefix, distinguishing known zero from unknown",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
         "legal_action_effect": "outcomes/order",
-        "fixture_reference": "state_extractor"
+        "fixture_reference": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts"
       },
       {
         "token": "upkeep",
@@ -2181,7 +2200,7 @@
           "optional": "none",
           "shape": "exact no-payload record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
         "authoritative_state_effect": "raw evidence unless explicit handler",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2199,7 +2218,7 @@
           "optional": "tags",
           "shape": "field/weather event"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public when emitted",
         "authoritative_state_effect": "field effects",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2217,7 +2236,7 @@
           "optional": "none",
           "shape": "exact winner record"
         },
-        "target_semantics": "no Pok\u00e9mon target or token-specific",
+        "target_semantics": "no Pokémon target or token-specific",
         "visibility": "public",
         "authoritative_state_effect": "terminal winner",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
@@ -2315,11 +2334,12 @@
         "source_files": [
           "data/mods/gen9ssb/abilities.ts",
           "data/mods/gen9ssb/moves.ts",
-          "data/mods/littlecolosseum/moves.ts"
+          "data/mods/littlecolosseum/moves.ts",
+          "sim/battle-actions.ts"
         ],
         "review_status": "reviewed_with_documented_gaps",
         "scope": "package-wide literal scan; not format filtered",
-        "classification": "source-reviewed; see exclusion inventory"
+        "classification": "raw-only for exact Spectral Thief addMove emission in sim/battle-actions.ts; broader animations excluded"
       },
       {
         "token": "-block",
@@ -2402,7 +2422,7 @@
         ],
         "review_status": "reviewed_with_documented_gaps",
         "scope": "package-wide literal scan; not format filtered",
-        "classification": "source-reviewed; see exclusion inventory"
+        "classification": "represented selective-sign raw/self and opt-in v2 public stages; unknown retained; see scoped command grammar"
       },
       {
         "token": "-clearpositiveboost",
@@ -2411,7 +2431,7 @@
         ],
         "review_status": "reviewed_with_documented_gaps",
         "scope": "package-wide literal scan; not format filtered",
-        "classification": "source-reviewed; see exclusion inventory"
+        "classification": "represented selective-sign raw/self and opt-in v2 public stages; unknown retained; see scoped command grammar"
       },
       {
         "token": "-combine",
@@ -2432,7 +2452,7 @@
         ],
         "review_status": "reviewed_with_documented_gaps",
         "scope": "package-wide literal scan; not format filtered",
-        "classification": "source-reviewed; see exclusion inventory"
+        "classification": "represented only for exact Psych Up stage-copy emission data/moves.ts:14575; critical-hit volatiles, Costar and other mod emissions excluded"
       },
       {
         "token": "-crit",
@@ -3509,9 +3529,9 @@
       "boost": {
         "grammar": "target|stat|integer|optional tags",
         "visibility": "public when emitted",
-        "state": "boosts",
+        "state": "ordinary/set/full/selective clears, bounded Psych Up copying and base Topsy-Turvy inversion are represented in raw/self and opt-in v2 public-prefix opponent stages; other copying, swaps and Baton Pass remain unsupported.",
         "legal": "outcomes/order",
-        "fixture": "state_extractor"
+        "fixture": "tests/public_stages.test.ts; tests/record_identity.test.ts; tests/transform_boosts.test.ts; tests/selective_boosts.test.ts; tests/psych_up.test.ts; tests/psych_up_validation.test.ts"
       },
       "field": {
         "grammar": "effect or weather|optional tags",
@@ -3591,8 +3611,8 @@
         "fixture": "observable_state"
       }
     },
-    "accepted_count": 112,
-    "parser_token_fingerprint": "125ab5a925ababcdda097a5188a7851899c192302d0556f434d39f92f52f1607",
+    "accepted_count": 113,
+    "parser_token_fingerprint": "4aec23988cf33abd84ff7b165b32748f9b77a6e3363b5db4e803d248f8079b53",
     "emission_paths": [
       {
         "name": "Battle.add",
@@ -3635,7 +3655,6 @@
     "reconciliation": {
       "accepted_tokens_without_packagewide_static_literal": [
         "-boost",
-        "-clearstatus",
         "-unboost",
         "ability",
         "activate",
@@ -3647,7 +3666,6 @@
         "clearboost",
         "clearnegativeboost",
         "clearpositiveboost",
-        "clearstatus",
         "crit",
         "curestatus",
         "damage",
@@ -3670,7 +3688,6 @@
         "miss",
         "move",
         "mustrecharge",
-        "nothing",
         "prepare",
         "request",
         "resisted",
@@ -3689,14 +3706,11 @@
         "weather"
       ],
       "literal_emitter_tokens_not_accepted": [
-        "-anim",
         "-burst",
         "-candynamax",
         "-center",
         "-combine",
-        "-copyboost",
         "-cureteam",
-        "-invertboost",
         "-mega",
         "-notarget",
         "-ohko",
@@ -3711,14 +3725,52 @@
         "custom",
         "debug",
         "j",
-        "message",
         "showteam",
         "swap",
         "tier",
         "updatepoke"
       ],
       "disposition": "See token classification and source path. Parser-only boundary aliases/diagnostics are not claimed simulator emissions; static emitter-only tokens are package-wide and may be other-mod, specialized format, or diagnostic. Supported-format state records missing from parser were added only where source audit established common Gen 9 use."
-    }
+    },
+    "contract": {
+      "schema_version": "showdown-protocol-contract/v1",
+      "source": "../trainer/src/neural/protocol_contract.json",
+      "final_coverage_attestation": "pending separate review of shared boundary implementation",
+      "review_scope": "Supported raw-only and represented records, unresolved aliases, recognized unsupported stops, malformed shapes, and unknown commands."
+    },
+    "recognized_unsupported_commands": [
+      {
+        "token": "clearstatus",
+        "kind": "unresolved_alias",
+        "reason": "unresolved legacy token; not accepted in a published prefix"
+      },
+      {
+        "token": "-clearstatus",
+        "kind": "unresolved_alias",
+        "reason": "unresolved legacy token; not accepted in a published prefix"
+      },
+      {
+        "token": "nothing",
+        "kind": "unresolved_alias",
+        "reason": "unresolved bare alias; use exact raw-only -nothing record"
+      },
+      {
+        "token": "copyboost",
+        "kind": "internal_alias",
+        "reason": "internal helper spelling; only canonical -copyboost is publishable"
+      },
+      {
+        "token": "invertboost",
+        "kind": "internal_alias",
+        "reason": "internal helper spelling; only canonical -invertboost is publishable"
+      },
+      {
+        "token": "-singlemove",
+        "kind": "unsupported_stop",
+        "source": "pokemon-showdown@0.11.10 data/moves.ts:3619,6896,8176,15098",
+        "reason": "reachable candidate emitters are identified; lifecycle semantics are not accepted"
+      }
+    ]
   },
   "condition_inventory": [
     {
@@ -6540,12 +6592,16 @@
       "targeted and multi-active request grammar outside CanonicalAction v1",
       "dynamic callback-derived volatile effect parameters not represented as typed FEATURE-001 fields",
       "-singleturn remains raw-only (one-turn effect expiry is not reconstructed)",
-      "Temporary-type/Type-event reconstruction and Stellar offensive STAB/counters remain outside ordinary defensive-typing acceptance"
+      "Temporary typing beyond scoped Soak/typechange and added-slot composition (including Reflect Type and Type-event/Roost expiry; ordinary Transform typing now scoped accepted), and Stellar offensive STAB/counters remain unaccepted",
+      "Revival active-target instaswitch, active/fainted revivers, multi-active and simultaneous-selection variants remain outside bounded bench-revival acceptance",
+      "Legacy two-type training/live feature and tactical consumers do not support the three-type observation contract; separate readiness gate",
+      "Transform mechanics beyond accepted public typing and stage copying/publication remain unaccepted; copying beyond bounded Psych Up stages (including critical-hit volatiles/Costar), swap/inversion and Baton Pass remain excluded from v2.",
+      "Default observable v1 omits opponent stages; opt-in v2 bounded public-stage publication is accepted. Feature consumers and broader observation/lifecycle completeness remain separate gates."
     ],
     "unknowns": [
       {
         "question": "Which private counters or durations, if any, should future features model?",
-        "evidence": "EffectState fields live in simulator-private Pok\u00e9mon/Side/Field state; public records expose only selected effect IDs.",
+        "evidence": "EffectState fields live in simulator-private Pokémon/Side/Field state; public records expose only selected effect IDs.",
         "blocking_consequence": "FEATURE-001 must choose presence-only or evidence-only semantics; cannot encode private duration as player observation."
       },
       {
@@ -6572,41 +6628,76 @@
   },
   "local_coverage_sources": {
     "files": [
-      "scripts/check-simulator-coverage.cjs",
-      "src/observable_state.ts",
-      "src/state_extractor.ts",
-      "src/action_codec.ts",
-      "src/types.ts",
-      "src/belief_state.ts",
-      "src/transition.ts",
-      "src/pipeline_integration.ts",
-      "src/env_manager.ts",
-      "tests/observable_state.test.ts",
-      "tests/state_extractor.test.ts",
-      "tests/action_codec.test.ts",
-      "tests/env_manager.test.ts",
-      "tests/pipeline_integration.test.ts",
-      "tests/simulator_coverage.test.ts",
-      "tests/forced_switch.test.ts",
+      "../artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_review_blockers.py",
+      "../artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_unknown_command.py",
+      "../artifacts/validation/protocol-boundary-review-2026-09-25/review-blockers-result.json",
+      "../artifacts/validation/protocol-boundary-review-2026-09-25/unknown-command-result.json",
+      "../artifacts/validation/psych-up-alias-review-2026-09-25/alias-v1.json",
+      "../artifacts/validation/psych-up-alias-review-2026-09-25/alias-v2.json",
+      "../artifacts/validation/psych-up-alias-review-2026-09-25/valid-v1.json",
+      "../artifacts/validation/psych-up-alias-review-2026-09-25/valid-v2.json",
+      "../artifacts/validation/psych-up-review-2026-09-25/malformed-43.json",
+      "../artifacts/validation/psych-up-review-2026-09-25/malformed-48.json",
+      "../artifacts/validation/psych-up-review-2026-09-25/malformed-50.json",
+      "../scripts/generate_cross_platform_simulator_record.ps1",
+      "../scripts/validate_windows_simulator_record.ps1",
+      "../tests/fixtures/canonical_action_v1.json",
+      "../trainer/pyproject.toml",
+      "../trainer/src/neural/canonical_action.py",
       "../trainer/src/neural/pipeline_record.py",
+      "../trainer/src/neural/protocol_contract.json",
+      "../trainer/src/neural/protocol_contract.py",
+      "../trainer/src/neural/public_boosts.py",
+      "../trainer/src/neural/ts_identity.py",
+      "../trainer/tests/test_canonical_action.py",
       "../trainer/tests/test_pipeline_record.py",
-      "src/settling.ts",
-      "tests/settling.test.ts",
+      "scripts/check-simulator-coverage.cjs",
+      "scripts/simulator-record-comparison.cjs",
+      "src/action_codec.ts",
+      "src/battle_helpers.ts",
+      "src/belief_state.ts",
+      "src/canonical_action.ts",
+      "src/env_manager.ts",
+      "src/observable_state.ts",
       "src/pipeline_episode.ts",
-      "tests/pipeline_episode.test.ts",
+      "src/pipeline_integration.ts",
+      "src/protocol_contract.ts",
+      "src/public_boosts.ts",
+      "src/settling.ts",
+      "src/state_extractor.ts",
+      "src/transition.ts",
+      "src/types.ts",
+      "tests/action_codec.test.ts",
+      "tests/added_types.test.ts",
+      "tests/belief_state.test.ts",
+      "tests/canonical_action.test.ts",
+      "tests/env_manager.test.ts",
+      "tests/forced_switch.test.ts",
       "tests/helpers/state_lifecycle.ts",
       "tests/illusion.test.ts",
-      "src/battle_helpers.ts",
-      "../scripts/validate_windows_simulator_record.ps1",
-      "scripts/simulator-record-comparison.cjs",
-      "../scripts/generate_cross_platform_simulator_record.ps1"
+      "tests/observable_state.test.ts",
+      "tests/pipeline_episode.test.ts",
+      "tests/pipeline_integration.test.ts",
+      "tests/protocol_contract_validation.test.ts",
+      "tests/psych_up.test.ts",
+      "tests/psych_up_validation.test.ts",
+      "tests/public_stages.test.ts",
+      "tests/record_identity.test.ts",
+      "tests/revival.test.ts",
+      "tests/selective_boosts.test.ts",
+      "tests/settling.test.ts",
+      "tests/simulator_coverage.test.ts",
+      "tests/soak.test.ts",
+      "tests/state_extractor.test.ts",
+      "tests/transform_boosts.test.ts",
+      "tests/transform_types.test.ts"
     ],
-    "sha256": "14dff114f66482bbdf5cb10bd0bc3579f339da2af878395b7b74c2f7913f71b0",
-    "reviewed_sha256": "14dff114f66482bbdf5cb10bd0bc3579f339da2af878395b7b74c2f7913f71b0",
-    "prior_reviewed_sha256": "4db82b9bc57984bf051f03b201bf022e0744ba03c8840239adeded5d362f33c3",
+    "sha256": "d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3",
+    "reviewed_sha256": "d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3",
+    "prior_reviewed_sha256": "15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9",
     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
     "portability_review_scope": "Windows review on 2026-09-25 accepted binary UTF-8 stdin decoding for the Python record bridge, including Unicode identity preservation and fail-closed malformed UTF-8/JSON behavior. Local coverage hashing now requires valid UTF-8 and normalizes CRLF pairs to LF while retaining lone CR and all substantive text changes as identity-bearing. Added the reusable Windows validator to hashing; it verifies base/patch identity and reports named step and aggregate failures. Native Windows focused evidence passed 85 TypeScript tests and 22 Python tests plus 22 subtests before attestation; the expected pre-attestation coverage failure identified digest 56578c01b9d641aa4a6598d5a78bd60bea3088a996a1f7ed73d246d611c39380. This review extends only portability and validation evidence; prior simulator semantic scope and faithful_complete_episode:false remain unchanged.",
     "comparison_bundle_review_scope": "Cross-platform preparation review on 2026-09-25 added a portable generator/comparator and Windows wrapper to hashing (28 files). The bundle reuses accepted deterministic scenarios for joint transition, one-sided KO replacement, natural Arena Trap rejection/recovery, terminal restoration, Unicode record validation and a bounded episode. It records canonical inputs, outputs and identities; normalizes only protocol timestamps and line endings under the documented policy; retains an explicit machine-specific field list; and never serializes private simulator snapshots. Two fresh Windows generations were byte-identical and self-comparison passed. Cross-platform equality remains pending a macOS candidate.",
-    "review_scope": "Semantic review completed 2026-09-24 for the listed parser/projection/action/pipeline sources and focused tests. Prior joint-action and opt-in wait-reporting acceptances stand. A separate review accepted ordinary gen9randombattle forced-switch-plus-wait execution: explicit actor/waiting roles, actor-only submission and records, both perspective-specific successor belief/observation joins, additive seeded-forced-switch/v1 and paired record/reference schemas, deterministic TypeScript/Python identities, live request validation, Revival Blessing exclusion, candidate rollback and post-commit cleanup. Added tests/forced_switch.test.ts and ../trainer/{src/neural/pipeline_record.py,tests/test_pipeline_record.py} to bind cross-language publication and its regressions. Reused matching passing build and 67 TypeScript tests; freshly passed 5 forced-switch regressions and 20 Python record/lineage tests. The accepted real cases are p2 KO and p1 U-turn with resumed joint play. This attests only the listed source digest; complete episodes, chained-hazard coverage, general requestless progression, Revival Blessing support, full typed-state reconstruction and blanket simulator/feature completeness remain unaccepted. Separate 2026-09-24 review accepted bounded settling for serialized sessions against pinned synchronous emission and asynchronous fan-out: source-counted complete player/spectator delivery; terminal end signal, matching views and buffered EOF ordering; fixed per-wait deadline and per-boundary message budget; timeout/message-limit/error/closure/cancellation cleanup; sticky failure and candidate rollback despite late output. Added src/settling.ts and tests/settling.test.ts to hashing. All four implementation-checkpoint hashes matched; reused passing build, 85 TypeScript tests and 20 Python tests; freshly passed 18 settling regressions and controlled non-resetting-budget/late-output probes. No production corrections. Limits cannot preempt synchronous simulator calls. This is not acceptance of complete-episode execution/outcomes, rejection recovery, Revival Blessing, or full typed-state reconstruction. Subsequent 2026-09-24 review accepts bounded pipeline-episode/v1 orchestration for exclusively owned serialized sessions, superseding the preceding exclusion of bounded execution/outcomes and rejection recovery only. Verified distinct outcomes, 256 committed-transition/512 attempt/three boundary-rejection defaults, exact limit/reset accounting, current committed-request tuple exclusion, explicit-choice-rejection-only recovery, actor-only committed publication, partial lineage/final boundary, cooperative cancellation, scope preflight and cleanup. Added src/pipeline_episode.ts and tests/pipeline_episode.test.ts to hashing. All three checkpoint hashes matched; reused 102 TypeScript and 20 Python passing evidence, freshly passed build and 17 runner regressions, and passed controlled action-exhaustion and real terminal-at-both-limits/cancellation probes. No production corrections or schema changes. Runtime completion always preserves faithful_complete_episode:false. Switch/faint boost and volatile clearing, Shed Tail transfer, Revival Blessing, broader lifecycle reconstruction and faithful complete-episode publication remain unaccepted. Combined lifecycle/Illusion/Tera semantic review accepted 2026-09-24 within constructed-team pinned Gen9 evidence: ordinary switch/drag/faint boost and volatile clearing, retained Eternamax exception without format expansion, Shed Tail Substitute-only transfer, request-independent public appearances and own roster binding, conditionless replace reconciliation, immutable prefixes and privacy, raw-only -hint, and explicit non-Stellar public Tera switch/drag re-entry with restore/reveal and deterministic Python-validated publication. Supersedes earlier exclusions only for these corrections. All eight checkpoint hashes matched; reused passing build/130 TypeScript tests/prior 20 Python tests, freshly passed 29 Illusion/observable tests including new record validation. Added shared lifecycle helper and Illusion/Tera tests to hashing; reconciled replace grammar and hint inventory/classification. No production changes in review. Faint Tera reset, Stellar defensive typing, other temporary forms/types/abilities, linked effects, wider transfers, Revival Blessing, field/layer/expiry completeness and faithful complete-episode publication remain unaccepted; faithful_complete_episode:false remains required. Separate 2026-09-24 scoped review accepts non-Stellar faint Tera deactivation with retained known type and observable non-Tera typing, stale-own-request guard, unrevealed Illusion privacy, and terminal-request-history/v1 minimal private restoration. Recursive consumed-field validation and canonical construction precede teardown; structured errors preserve the existing actionable environment, fingerprint, branch, requests and subsequent execution. Historical raw-v1 extras and string Tera markers normalize to minimal-v1; migration can change fingerprints/branch IDs and requires new references, while old references/records remain immutable and mismatched references fail closed. Canonical round trips are deterministic/idempotent, terminal requests remain absent, raw history never enters public logs/records, and only existing opaque snapshot commitments enter lineage. Missing-history legacy terminal JSON remains readable without exact private-observation recovery. All four pre-review hashes matched; reused build/136 TypeScript/prior20 Python and faint evidence, freshly passed build/18 Illusion tests including Python records and focused lineage/migration probe. Corrected only a test comparator to normalize independent-run wall-clock records per the existing identity contract; per-run exact prefixes remain asserted. Coverage list already includes all four changed files; no inclusion change needed. This supersedes the earlier faint-Tera exclusion only. Stellar typing, other temporary forms/types/abilities, linked effects, Revival Blessing and faithful complete-episode publication remain unaccepted; faithful_complete_episode:false remains required. Separate 2026-09-25 review accepts ordinary Stellar defensive typing: shared resolveTypes retains species/displayed defensive types while preserving active Terastallization and known Tera type. Pinned Pokemon.getTypes and all extractor/heuristic callers reviewed. Both actors/perspectives cover activation, Illusion reveal, switch/drag, faint, immutable prefixes, restoration and deterministic Python-validated publication. All three implementation hashes match; reused build/146 relevant TypeScript/28 Illusion and prior20 Python evidence, freshly passed build and16 targeted Tera lifecycle checks. Added src/battle_helpers.ts to hashing (25 files); fixture helper and regressions already included. No production or schema changes. Supersedes the ordinary Stellar defensive-typing exclusion only: temporary types/Type events, offensive STAB/counters, broader lifecycle and faithful complete-episode publication remain excluded; faithful_complete_episode:false remains mandatory."
+    "review_scope": "Semantic review completed 2026-09-24 for the listed parser/projection/action/pipeline sources and focused tests. Prior joint-action and opt-in wait-reporting acceptances stand. A separate review accepted ordinary gen9randombattle forced-switch-plus-wait execution: explicit actor/waiting roles, actor-only submission and records, both perspective-specific successor belief/observation joins, additive seeded-forced-switch/v1 and paired record/reference schemas, deterministic TypeScript/Python identities, live request validation, Revival Blessing exclusion, candidate rollback and post-commit cleanup. Added tests/forced_switch.test.ts and ../trainer/{src/neural/pipeline_record.py,tests/test_pipeline_record.py} to bind cross-language publication and its regressions. Reused matching passing build and 67 TypeScript tests; freshly passed 5 forced-switch regressions and 20 Python record/lineage tests. The accepted real cases are p2 KO and p1 U-turn with resumed joint play. This attests only the listed source digest; complete episodes, chained-hazard coverage, general requestless progression, Revival Blessing support, full typed-state reconstruction and blanket simulator/feature completeness remain unaccepted. Separate 2026-09-24 review accepted bounded settling for serialized sessions against pinned synchronous emission and asynchronous fan-out: source-counted complete player/spectator delivery; terminal end signal, matching views and buffered EOF ordering; fixed per-wait deadline and per-boundary message budget; timeout/message-limit/error/closure/cancellation cleanup; sticky failure and candidate rollback despite late output. Added src/settling.ts and tests/settling.test.ts to hashing. All four implementation-checkpoint hashes matched; reused passing build, 85 TypeScript tests and 20 Python tests; freshly passed 18 settling regressions and controlled non-resetting-budget/late-output probes. No production corrections. Limits cannot preempt synchronous simulator calls. This is not acceptance of complete-episode execution/outcomes, rejection recovery, Revival Blessing, or full typed-state reconstruction. Subsequent 2026-09-24 review accepts bounded pipeline-episode/v1 orchestration for exclusively owned serialized sessions, superseding the preceding exclusion of bounded execution/outcomes and rejection recovery only. Verified distinct outcomes, 256 committed-transition/512 attempt/three boundary-rejection defaults, exact limit/reset accounting, current committed-request tuple exclusion, explicit-choice-rejection-only recovery, actor-only committed publication, partial lineage/final boundary, cooperative cancellation, scope preflight and cleanup. Added src/pipeline_episode.ts and tests/pipeline_episode.test.ts to hashing. All three checkpoint hashes matched; reused 102 TypeScript and 20 Python passing evidence, freshly passed build and 17 runner regressions, and passed controlled action-exhaustion and real terminal-at-both-limits/cancellation probes. No production corrections or schema changes. Runtime completion always preserves faithful_complete_episode:false. Switch/faint boost and volatile clearing, Shed Tail transfer, Revival Blessing, broader lifecycle reconstruction and faithful complete-episode publication remain unaccepted. Combined lifecycle/Illusion/Tera semantic review accepted 2026-09-24 within constructed-team pinned Gen9 evidence: ordinary switch/drag/faint boost and volatile clearing, retained Eternamax exception without format expansion, Shed Tail Substitute-only transfer, request-independent public appearances and own roster binding, conditionless replace reconciliation, immutable prefixes and privacy, raw-only -hint, and explicit non-Stellar public Tera switch/drag re-entry with restore/reveal and deterministic Python-validated publication. Supersedes earlier exclusions only for these corrections. All eight checkpoint hashes matched; reused passing build/130 TypeScript tests/prior 20 Python tests, freshly passed 29 Illusion/observable tests including new record validation. Added shared lifecycle helper and Illusion/Tera tests to hashing; reconciled replace grammar and hint inventory/classification. No production changes in review. Faint Tera reset, Stellar defensive typing, other temporary forms/types/abilities, linked effects, wider transfers, Revival Blessing, field/layer/expiry completeness and faithful complete-episode publication remain unaccepted; faithful_complete_episode:false remains required. Separate 2026-09-24 scoped review accepts non-Stellar faint Tera deactivation with retained known type and observable non-Tera typing, stale-own-request guard, unrevealed Illusion privacy, and terminal-request-history/v1 minimal private restoration. Recursive consumed-field validation and canonical construction precede teardown; structured errors preserve the existing actionable environment, fingerprint, branch, requests and subsequent execution. Historical raw-v1 extras and string Tera markers normalize to minimal-v1; migration can change fingerprints/branch IDs and requires new references, while old references/records remain immutable and mismatched references fail closed. Canonical round trips are deterministic/idempotent, terminal requests remain absent, raw history never enters public logs/records, and only existing opaque snapshot commitments enter lineage. Missing-history legacy terminal JSON remains readable without exact private-observation recovery. All four pre-review hashes matched; reused build/136 TypeScript/prior20 Python and faint evidence, freshly passed build/18 Illusion tests including Python records and focused lineage/migration probe. Corrected only a test comparator to normalize independent-run wall-clock records per the existing identity contract; per-run exact prefixes remain asserted. Coverage list already includes all four changed files; no inclusion change needed. This supersedes the earlier faint-Tera exclusion only. Stellar typing, other temporary forms/types/abilities, linked effects, Revival Blessing and faithful complete-episode publication remain unaccepted; faithful_complete_episode:false remains required. Separate 2026-09-25 review accepts ordinary Stellar defensive typing: shared resolveTypes retains species/displayed defensive types while preserving active Terastallization and known Tera type. Pinned Pokemon.getTypes and all extractor/heuristic callers reviewed. Both actors/perspectives cover activation, Illusion reveal, switch/drag, faint, immutable prefixes, restoration and deterministic Python-validated publication. All three implementation hashes match; reused build/146 relevant TypeScript/28 Illusion and prior20 Python evidence, freshly passed build and16 targeted Tera lifecycle checks. Added src/battle_helpers.ts to hashing (25 files); fixture helper and regressions already included. No production or schema changes. Supersedes the ordinary Stellar defensive-typing exclusion only: temporary types/Type events, offensive STAB/counters, broader lifecycle and faithful complete-episode publication remain excluded; faithful_complete_episode:false remains mandatory. Separate 2026-09-25 review accepts bounded Revival Blessing bench selection for gen9randombattle singles: one living active reviver, a waiting partner, at most six roster entries, fainted non-active targets. Owner-only optional reviving flag and request-order slots; canonical-revival/v1 roster fingerprint rejects changed target identity/condition with null rqid; seeded-revival/v1 and pipeline-revival-record/reference v1 retain actor-only publication, both successor lineages and candidate rollback. Ordinary schemas/identities remain unchanged. Source-qualified public bench -heal clears faint/status and stale status timing while preserving split HP privacy. All14 implementation hashes matched; reused build154 TypeScript/27 Python evidence, freshly passed build/seven mirrored revival tests, seven Python rejection probes and two exact HP/status/privacy probes. No production or regression corrections. Added both canonical codecs, both canonical test files, shared canonical_action_v1 fixture and revival tests (34 hashed files). Supersedes prior blanket revival exclusion only within this bounded scope. Active/fainted revivers, active-target instaswitch, multi-active/simultaneous revival variants, broader lifecycle reconstruction and faithful complete-episode publication remain unaccepted; faithful_complete_episode:false remains required. Separate 2026-09-25 scoped review accepts Soak public defensive typing and shared typechange replacement: appearance-bound public evidence survives owner requests, Illusion reveal and protocol-replay restoration; switch/drag/faint resets and Fire/Stellar precedence match pinned source. Both file hashes and the prior 34-file computed digest matched implementation evidence. Reused184 relevant TypeScript/prior27 Python evidence; fresh build and30 mirrored Soak tests pass, including16 Python-validated committed bundles, immutable observations and repeatable identities. Added tests/soak.test.ts (35 hashed files); extractor was already included. No production/test/schema corrections. Classification remains reviewed with documented gaps: other temporary types, Transform copying, added types, Type-event expiry and private Stellar offensive counters are excluded. faithful_complete_episode:false remains required. Separate 2026-09-25 scoped review accepts public added-type composition for Forest's Curse and shared-slot fixture mechanics: ordinary replacement and one added type remain separate; owner refresh and restoration preserve up to three defensive types; repeated applications fail without erasure, new added effects replace the slot, typechange and Tera clear it, lifecycle resets and Illusion ownership preserve privacy. Both source/test hashes and35-file pre-review digest matched; reused204 relevant TypeScript/prior27 Python evidence, fresh build20 added-type cases including20 Python publication validations pass. Added tests/added_types.test.ts (36 files). Full arrays survive observation cloning, JSON bundle serialization and identity validation; Python DATA-001 output is a reference record, not a feature tensor. No production/test/schema corrections. Trick-or-Treat is Past and used only in constructed fixtures; no format expansion. Generic end/expiry, Transform/Reflect Type copying, other Type events and legacy two-type training/live consumers remain excluded. faithful_complete_episode:false remains required. Separate 2026-09-25 scoped review accepts Transform defensive typing: copy public ordinary and added components at -transform without mutable links, retain through original-species requests/replay, preserve caller Tera while ignoring target Tera for ordinary copy, restore original species typing at switch/drag/faint. Hidden Illusion failure exposes no target identity. Both file hashes and36-file computed digest match; reused226 relevant TypeScript/prior27 Python evidence, fresh build22 Transform cases including16 Python publication validations pass. Full three-type arrays survive publication/identity validation. Added tests/transform_types.test.ts (37 files); extractor already included. No production/test/schema changes. This does not accept other Transform mechanics, special-species behavior, general Type hooks/Roost, Reflect Type or legacy two-type training/live consumers. Public Transform boost copying is separately reproduced as a next-task gap, not part of this typing acceptance. faithful_complete_episode:false remains required. Separate 2026-09-25 scoped review accepts public Transform boost copying in raw BattleViews and caller-self publication: replace caller stages with a fresh target public-stage map at -transform; absent sparse keys mean zero, explicit zero/negative values persist, later stage events apply once without shared mutation. Requests, replay and departure/faint resets preserve this correction. Both hashes and37-file digest match; reused244 relevant TypeScript/prior27 Python evidence, fresh build18 mirrored tests including20 Python validations pass. Added tests/transform_boosts.test.ts (38 files). No production/test/schema corrections. Published opponent boosts remain omitted under the unchanged v1 contract: this is a public-state representation limitation, not a privacy requirement. Public opponent-stage publication requires separate contract/identity compatibility work before faithful-publication/feature acceptance. Selective clears and other boost/Transform mechanics remain excluded. faithful_complete_episode:false remains required. Separate 2026-09-25 combined scoped review accepts opt-in observable-battle-state/v2 public opponent stages and Python observation/belief identity plus historical-reference validation. V1 remains default and unchanged; v2 publishes seven exact-prefix integer/null stages, preserving known-zero versus unknown, Transform event order, Illusion ownership, lifecycle resets, privacy and restoration. Unsupported selective clears/copy/swap/inversion/Baton Pass remain rejected in v2. Both old relabeling/stale-ID failures reject, and fully rehashed false public stages still reject against evidence. All six historical-reference fields and joins are validated at every position; both runtimes reject negative first cursors and trailing-newline IDs. Only Python supported v1 references may omit the schema version, with actual absence retained in content hashes; no relabeling or repair. Matching 78 TypeScript/28 Python evidence reused, fresh build and26 identity/public-stage cases pass; original historical-domain reproductions reject with recomputed outer hashes. Added six sources/tests (44 files), including both public-stage replayers, Python identity helper and relevant TS regressions. No broader inference, feature, unsupported mechanics or complete-episode fidelity acceptance; faithful_complete_episode:false remains required. Separate 2026-09-25 review accepts selective positive/negative stage clearing: first-target sign-only zeroing, opposite/zero/null retention, ordered separate thief boosts, raw extraction and TS/Python v2 parity, exact White Herb/Z tags and raw-only Spectral Thief animation. Matching six source/test hashes and 92 TS/28 Python evidence reused; fresh build17 selective/identity tests including36 Python publications pass, independently fully rehashed false selective-stage record rejects both runtimes against prefix evidence. Added tests/selective_boosts.test.ts (45 files); no source/test corrections or historical identity migration. Scalar unknowns remain conservative, without interval inference. Constructed Past Spectral Thief fixture does not expand random-team format legality. Copy/swap/inversion, Baton Pass, features and broader faithful publication remain excluded; faithful_complete_episode:false. Separate 2026-09-25 combined scoped review accepts bounded Psych Up stage copying and Python pre-filter grammar/publication alias corrections. First recipient receives independent all-stage public snapshot at exact event; null/absent evidence preserved. Both identifiers/count/exact Psych Up tag validate before routing; publication rejects bare copyboost in both v1/v2 before stage reconstruction. Internal helper aliases do not authorize published protocol. V1 defaults, valid IDs and historical references unchanged. Seven source/test hashes match; reused19 TS/28 Python and prior lifecycle evidence, fresh build14 tests pass including408 rehashed rejects,12 controls,28 Python publications and20 false-stage rejects. Independently five stored failures verify identities then reject with no output; valid v1/v2 controls retain IDs. Added two tests and seven consumed JSON fixtures (54 files); validation sources already hashed. No production/test corrections in review. Critical-hit volatile effects, Costar, other copying, swap/inversion, Baton Pass, features and faithful complete-episode publication excluded; faithful_complete_episode:false."
   }
 }

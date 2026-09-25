@@ -197,3 +197,21 @@ Existing fingerprint checks reject pairing old references with normalized state.
 Newly emitted minimal-v1 round trips are stable. No terminal action is resurrected.
 The opaque snapshot commitment remains part of lineage; raw history remains private.
 This acceptance does not establish faithful complete-episode publication.
+
+## Bounded revival: `seeded-revival/v1` — scoped acceptance, 2026-09-25
+
+The new schema reuses the actor/waiting roles, exact request fields, candidate
+execution and lineage derivation of the one-sided path. The schema itself enters
+the transition digest. Only `canonical-revival/v1` actor actions are accepted;
+ordinary forced-switch and joint schemas reject revival. Existing snapshot refs
+remain `seeded-transition/v1`; no snapshot migration is required.
+
+Scope: gen9randombattle singles, one living active reviver, a genuine waiting
+partner, at most six roster entries, and at least one fainted non-active target.
+Normalized target indices and request slots must agree. Both observed and restored
+live requests are validated before submission. This implementation shares the
+internal stepSeededForcedSwitch machinery but selects behavior by explicit schema.
+The pipeline owns candidate isolation: any failed validation, simulator rejection,
+projection or belief join discards the candidate without changing committed state.
+Active/fainted revivers, active-target instaswitch, multi-active selection and
+simultaneous selections are unsupported variants.

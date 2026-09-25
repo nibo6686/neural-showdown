@@ -509,7 +509,7 @@ test('simulator-only truth is separately scoped and never enters an observable p
 test('unsupported belief and observation schemas fail closed', () => {
   const observation = observe();
   assert.throws(() => projectBeliefState({
-    observation: { ...observation, schema_version: 'observable-battle-state/v2' } as unknown as ObservableBattleState,
+    observation: { ...observation, schema_version: 'observable-battle-state/v999' } as unknown as ObservableBattleState,
   }), /Unsupported observable schema/);
   assert.throws(() => projectBeliefState({
     observation,

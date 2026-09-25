@@ -4,7 +4,7 @@ export const ACTION_SPACE_SIZE = 13;
 export type PlayerID = typeof PLAYERS[number];
 export type Winner = PlayerID | 'tie' | null;
 export type ControllerType = 'external' | 'random' | 'heuristic';
-export type ActionKind = 'move' | 'move_tera' | 'switch';
+export type ActionKind = 'move' | 'move_tera' | 'switch' | 'revive';
 
 export interface ControllerSpec {
   controller: ControllerType;
@@ -47,6 +47,8 @@ export interface RequestMoveView {
 }
 
 export interface RequestSidePokemonView {
+  /** Present only on the addressed active Revival Blessing requester. */
+  reviving?: true;
   slot: number;
   ident: string;
   details: string;

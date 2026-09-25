@@ -9,6 +9,8 @@ import {
   buildSeededForcedSwitchResult,
   validateSeededForcedSwitchRequest,
   assertOrdinaryForcedSwitch,
+  assertRevivalSelection,
+  SEEDED_REVIVAL_SCHEMA_VERSION,
   type SeededForcedSwitchRequest,
   type SeededForcedSwitchResult,
   createSeededBattleSnapshot,
@@ -417,7 +419,7 @@ class ManagedPlayer {
       player: this.player,
       rqid: request.rqid,
       force_switch: request.force_switch,
-      legal_actions: request.legal_actions,
+      legal_actions: request.legal_actions, side: request.side,
     });
     this.submitExternalChoice(choice);
   }
@@ -816,10 +818,11 @@ export class LocalBattleEnv {
     }
     const actor = this.getRequest(request.acting_player);
     if (!actor || this.getRequest(request.waiting_player)) throw new Error('Forced-switch pending players are inconsistent.');
-    assertOrdinaryForcedSwitch(actor);
+    if (request.schema_version === SEEDED_REVIVAL_SCHEMA_VERSION) assertRevivalSelection(actor);
+    else assertOrdinaryForcedSwitch(actor);
     const action = request.actions[request.acting_player]!;
     canonicalActionToChoice(action, {
-      player: request.acting_player, rqid: actor.rqid, force_switch: true, legal_actions: actor.legal_actions,
+      player: request.acting_player, rqid: actor.rqid, force_switch: true, legal_actions: actor.legal_actions, side: actor.side,
     });
     const result = await this.stepWithCanonicalOptions(request.actions, { ...options, include_wait_requests: true });
     return buildSeededForcedSwitchResult(request, this.captureSeededSnapshot(request.snapshot.branch_id), result);
@@ -848,7 +851,7 @@ export class LocalBattleEnv {
         player,
         rqid: liveRequest.rqid,
         force_switch: liveRequest.force_switch,
-        legal_actions: liveRequest.legal_actions,
+        legal_actions: liveRequest.legal_actions, side: liveRequest.side,
       });
     }
     const stepResult = await this.stepWithCanonicalOptions(request.actions, options);

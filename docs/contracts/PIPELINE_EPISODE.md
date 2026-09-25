@@ -126,3 +126,16 @@ are implemented pending separate semantic review. Other switch/faint fields,
 Revival Blessing support and broader lifecycle coverage remain unresolved. A real
 terminal result proves execution completion only. Exact validation, review hashes
 and remaining gaps are in the [checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
+
+## Bounded revival extension — scoped acceptance, 2026-09-25
+
+The runner dispatches a supported `one_sided_revival` boundary to `stepRevival`.
+It preserves existing budgets, explicit-choice-rejection-only retry policy and
+commit-only actor record accounting. Revival consumes one transition on commit;
+resumed joint play again publishes both actor records. Supported requests are
+checked before action enumeration. Unsupported variants retain explicit
+`episode/v1/unsupported-revival-blessing` truncation with no fabricated actions;
+other unsupported paired request states retain unsupported-boundary truncation.
+Natural mirrored Pawmot and Rabsca fixtures now supplement the prior synthetic
+exclusion checks. Separate 2026-09-25 review accepts and attests this scope;
+`faithful_complete_episode:false` is unchanged.
