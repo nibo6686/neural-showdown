@@ -156,9 +156,26 @@ test('terminal request history migrates historical v1 data to a minimal determin
 
 for (const actor of ['p1', 'p2'] as const) {
   const other = actor === 'p1' ? 'p2' : 'p1';
-  for (const reentry of ['switch', 'drag'] as const) {
-    test(`public Tera survives ${actor} ${reentry} re-entry without resolving Illusion`, async () => {
-      const battle = teraIllusionBattle(actor);
+
+  test(`pinned Showdown keeps ${actor} Stellar Tera defensive types`, () => {
+    const battle = teraFaintBattle(actor, 'Stellar');
+    try {
+      const choices = lifecycleChoices(actor, 'move 1 terastallize', 'move 1');
+      battle.makeChoices(choices.p1, choices.p2);
+      const pokemon = battle.sides[actor === 'p1' ? 0 : 1]!.active[0]!;
+      assert.equal(pokemon.terastallized, 'Stellar');
+      assert.deepEqual(pokemon.getTypes(), ['Dark']);
+    } finally {
+      battle.destroy();
+    }
+  });
+
+  for (const teraType of ['Fire', 'Stellar'] as const) {
+    const ownTeraTypes = teraType === 'Stellar' ? ['Dark'] : [teraType];
+    const displayedTeraTypes = teraType === 'Stellar' ? ['Normal'] : [teraType];
+    for (const reentry of ['switch', 'drag'] as const) {
+      test(`public ${teraType} Tera survives ${actor} ${reentry} re-entry without resolving Illusion`, async () => {
+      const battle = teraIllusionBattle(actor, teraType);
       const env = new LocalBattleEnv(`tera-${actor}-${reentry}`, 'gen9randombattle', SEED);
       const deterministic = new LocalBattleEnv(`tera-${actor}-${reentry}-repeat`, 'gen9randombattle', SEED);
       const restored = new LocalBattleEnv(`tera-${actor}-${reentry}-restored`, 'gen9randombattle', SEED);
@@ -203,10 +220,10 @@ for (const actor of ['p1', 'p2'] as const) {
 
         await step('move 1 terastallize', 'move 1');
         assert.equal(ownFox().terastallized, true);
-        assert.equal(ownFox().tera_type, 'Fire');
-        assert.deepEqual(ownFox().types, ['Fire']);
+        assert.equal(ownFox().tera_type, teraType);
+        assert.deepEqual(ownFox().types, ownTeraTypes);
         assert.equal(publicActive().terastallized, true);
-        assert.deepEqual(publicActive().types, ['Fire']);
+        assert.deepEqual(publicActive().types, displayedTeraTypes);
         assert.ok(observations[other].view.opponent_team.every((pokemon) => pokemon.name !== 'Fox' && pokemon.species !== 'Zoroark'));
 
         if (reentry === 'switch') {
@@ -222,16 +239,16 @@ for (const actor of ['p1', 'p2'] as const) {
           assert.deepEqual(publicActive().types, ['Normal']);
           await step('move 1', 'move 2');
         }
-        assert.ok(result.log_delta.some((line) => line.startsWith(`|${reentry}|${actor}a: Mask|Snorlax, F, tera:Fire|`)));
+        assert.ok(result.log_delta.some((line) => line.startsWith(`|${reentry}|${actor}a: Mask|Snorlax, F, tera:${teraType}|`)));
         assert.equal(ownFox().terastallized, true);
-        assert.equal(ownFox().tera_type, 'Fire');
-        assert.deepEqual(ownFox().types, ['Fire']);
+        assert.equal(ownFox().tera_type, teraType);
+        assert.deepEqual(ownFox().types, ownTeraTypes);
         assert.equal(publicActive().terastallized, true);
-        assert.deepEqual(publicActive().types, ['Fire']);
+        assert.deepEqual(publicActive().types, displayedTeraTypes);
         assert.ok(observations[other].view.opponent_team.every((pokemon) => pokemon.name !== 'Fox' && pokemon.species !== 'Zoroark'));
         const ownMask = observations[actor].view.self_team.find((pokemon) => pokemon.name === 'Mask')!;
         assert.equal(ownMask.terastallized, false);
-        assert.notEqual(ownMask.tera_type, 'Fire');
+        assert.notEqual(ownMask.tera_type, teraType);
 
         const replay = await restored.resetFromSerialized(env.serializeBattle(), OPTIONS);
         assert.deepEqual(projectPipelineStepResult(replay, 'tera-reentry', projectPipelineProtocolPrefix(replay.log_delta)), observations);
@@ -239,7 +256,7 @@ for (const actor of ['p1', 'p2'] as const) {
         const revealed = observations[other].view.opponent_team.find((pokemon) => pokemon.name === 'Fox')!;
         assert.equal(revealed.illusion_revealed, true);
         assert.equal(revealed.terastallized, true);
-        assert.deepEqual(revealed.types, ['Fire']);
+        assert.deepEqual(revealed.types, ownTeraTypes);
         const afterReveal = await restored.resetFromSerialized(env.serializeBattle(), OPTIONS);
         assert.deepEqual(projectPipelineStepResult(afterReveal, 'tera-reentry', projectPipelineProtocolPrefix(afterReveal.log_delta)), observations);
         const original = LocalBattleEnv.prototype.resetWithOptions;
@@ -279,17 +296,17 @@ for (const actor of ['p1', 'p2'] as const) {
             if (index === 2) {
               const published = outputs[0].boundary.perspectives[other].observation.view.opponent_team.find((pokemon) => pokemon.active)!;
               assert.equal(published.terastallized, true);
-              assert.deepEqual(published.types, ['Fire']);
+              assert.deepEqual(published.types, displayedTeraTypes);
             }
           }
         } finally { for (const session of sessions) await session.close(); }
         for (const prior of immutable) assert.equal(JSON.stringify(prior.observations), prior.json);
       } finally { battle.destroy(); await env.close(); await deterministic.close(); await restored.close(); }
-    });
-  }
+      });
+    }
 
-  test(`public Tera resets to native type after terminal ${actor} faint without losing known type`, async () => {
-    const battle = teraFaintBattle(actor);
+  test(`public ${teraType} Tera resets to native type after terminal ${actor} faint without losing known type`, async () => {
+    const battle = teraFaintBattle(actor, teraType);
     const env = new LocalBattleEnv(`tera-faint-${actor}`, 'gen9randombattle', SEED);
     const twin = new LocalBattleEnv(`tera-faint-${actor}-repeat`, 'gen9randombattle', SEED);
     const restored = new LocalBattleEnv(`tera-faint-${actor}-restored`, 'gen9randombattle', SEED);
@@ -322,8 +339,8 @@ for (const actor of ['p1', 'p2'] as const) {
       const liveJson = JSON.stringify(live);
       const ownLive = live[actor].view.self_team.find((pokemon) => pokemon.name === 'Flare')!;
       const publicLive = live[other].view.opponent_team.find((pokemon) => pokemon.name === 'Flare')!;
-      assert.equal(ownLive.terastallized, true); assert.deepEqual(ownLive.types, ['Fire']);
-      assert.equal(publicLive.terastallized, true); assert.deepEqual(publicLive.types, ['Fire']);
+      assert.equal(ownLive.terastallized, true); assert.deepEqual(ownLive.types, ownTeraTypes);
+      assert.equal(publicLive.terastallized, true); assert.deepEqual(publicLive.types, ownTeraTypes);
       const middleSnapshot = env.serializeBattle() as Record<string, unknown>;
       assert.equal(middleSnapshot.__neural_terminal_request_history, undefined);
       const middleReplay = await restored.resetFromSerialized(middleSnapshot, OPTIONS);
@@ -342,7 +359,7 @@ for (const actor of ['p1', 'p2'] as const) {
         assert.equal(pokemon.fainted, true); assert.equal(pokemon.terastallized, false);
         assert.deepEqual(pokemon.types, ['Dark']);
       }
-      assert.equal(ownFainted.tera_type, 'Fire');
+      assert.equal(ownFainted.tera_type, teraType);
       assert.equal('tera_type' in publicFainted, false);
       for (const player of ['p1', 'p2'] as const) {
         assert.ok(observations[player].protocol_prefix.every((line) => !line.startsWith('|request|')));
@@ -414,8 +431,8 @@ for (const actor of ['p1', 'p2'] as const) {
     }
   });
 
-  test(`unrevealed Illusion ${actor} faint resets public Tera without changing its teammate`, async () => {
-    const battle = teraIllusionBattle(actor);
+  test(`unrevealed Illusion ${actor} ${teraType} faint resets public Tera without changing its teammate`, async () => {
+    const battle = teraIllusionBattle(actor, teraType);
     const env = new LocalBattleEnv(`tera-illusion-faint-${actor}`, 'gen9randombattle', SEED);
     const twin = new LocalBattleEnv(`tera-illusion-faint-${actor}-repeat`, 'gen9randombattle', SEED);
     const restored = new LocalBattleEnv(`tera-illusion-faint-${actor}-restored`, 'gen9randombattle', SEED);
@@ -446,7 +463,7 @@ for (const actor of ['p1', 'p2'] as const) {
       await advance('move 1 terastallize', 'move 1');
       const teraObservation = observations;
       const teraJson = JSON.stringify(teraObservation);
-      assert.deepEqual(teraObservation[other].view.opponent_team.find((pokemon) => pokemon.active)!.types, ['Fire']);
+      assert.deepEqual(teraObservation[other].view.opponent_team.find((pokemon) => pokemon.active)!.types, displayedTeraTypes);
       await advance('move 2', 'move 1');
       assert.ok(result.log_delta.some((line) => line === `|faint|${actor}a: Mask`));
       assert.ok(prefix.every((line) => !line.startsWith(`|replace|${actor}a: Fox|`)));
@@ -454,9 +471,9 @@ for (const actor of ['p1', 'p2'] as const) {
       const ownMask = observations[actor].view.self_team.find((pokemon) => pokemon.name === 'Mask')!;
       const publicMask = observations[other].view.opponent_team.find((pokemon) => pokemon.name === 'Mask')!;
       assert.equal(ownFox.fainted, true); assert.equal(ownFox.terastallized, false);
-      assert.equal(ownFox.tera_type, 'Fire'); assert.deepEqual(ownFox.types, ['Dark']);
+      assert.equal(ownFox.tera_type, teraType); assert.deepEqual(ownFox.types, ['Dark']);
       assert.equal(ownMask.fainted, false); assert.equal(ownMask.terastallized, false);
-      assert.notEqual(ownMask.tera_type, 'Fire');
+      assert.notEqual(ownMask.tera_type, teraType);
       assert.equal(publicMask.fainted, true); assert.equal(publicMask.terastallized, false);
       assert.deepEqual(publicMask.types, ['Normal']);
       assert.ok(observations[other].view.opponent_team.every((pokemon) => pokemon.name !== 'Fox' && pokemon.species !== 'Zoroark'));
@@ -497,6 +514,8 @@ for (const actor of ['p1', 'p2'] as const) {
       for (const session of sessions) await session.close();
     }
   });
+
+  }
 
   test(`Illusion ${actor} can depart unrevealed without contaminating its impersonated teammate`, async () => {
     const battle = illusionBattle(actor);

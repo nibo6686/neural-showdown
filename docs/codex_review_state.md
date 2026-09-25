@@ -1348,3 +1348,28 @@ This supersedes earlier pending/blocked dispositions only for this scoped slice.
 Next: Stellar defensive typing correction with mirrored lifecycle/restore/publication
 checks. Other fields, linked effects, Revival Blessing and broader episode fidelity
 remain open. Keep faithful_complete_episode:false.
+
+### Stellar defensive typing implementation — 2026-09-25; review pending
+
+Pinned Pokemon.getTypes excludes Stellar from replacement defensive typing. Shared
+resolveTypes now follows that distinction for ordinary species/Illusion projection,
+keeping known Tera type and active flag separate. Own hidden Zoroark retains Dark;
+opponent displayed Snorlax retains Normal until reveal, without leaking identity.
+Public Stellar protocol evidence remains; opponent-private tera_type stays omitted.
+No schema change. Temporary-type/Type-event reconstruction and private Stellar
+attack counters remain outside this correction's scope.
+
+Changed: battle_helpers.ts, tests/helpers/state_lifecycle.ts, tests/illusion.test.ts.
+Parent build146 relevant TypeScript tests pass; focused28 Illusion tests pass. New
+cases cover both actors, direct simulator types, Stellar activation, switch/drag,
+reveal/faint, both-perspective privacy, exact immutable prefixes, restoration and
+repeatable Python-validated publication. Existing Fire cases remain green; prior20
+Python evidence reused. No semantic acceptance/attestation issued. Checkpoint has hashes.
+
+Next: scoped review, then add battle_helpers.ts to the current24-file coverage list
+and recompute/attest only if accepted. Helper/Illusion test files already hashed.
+Manifest untouched. Current listed digest (excluding battle_helpers) is
+f0893ed149ee786be29a8a3a03f3ae820a62dce0d5611637573e4095cd6bef1b;
+checker commands fail digest drift, six synthetic self-tests pass. Prior attestation
+6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70 remains.
+Broader lifecycle prerequisites and faithful_complete_episode:false are unchanged.

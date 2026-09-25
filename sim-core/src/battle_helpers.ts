@@ -115,7 +115,10 @@ export function upsertUnique(values: string[], value: string): string[] {
 }
 
 export function resolveTypes(species: string, teraType: string | null, terastallized: boolean): string[] {
-  if (terastallized && teraType) {
+  // Pokemon.getTypes() only substitutes a Tera type when it is not Stellar.
+  // Stellar is still a public Tera state, but leaves defensive typing at the
+  // species' current types (and has separate offensive rules in Showdown).
+  if (terastallized && teraType && teraType !== 'Stellar') {
     return [teraType];
   }
 

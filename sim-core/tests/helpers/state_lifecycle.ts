@@ -77,11 +77,11 @@ Ability: Immunity
 }
 
 /** Tera stays on the public Illusion appearance until an explicit reveal. */
-export function teraIllusionBattle(actor: PlayerID): Battle {
+export function teraIllusionBattle(actor: PlayerID, teraType = 'Fire'): Battle {
   const battle = new Battle({ formatid: 'gen9randombattle', seed: '1,2,3,4' });
   const teraTeam = Teams.import(`Fox (Zoroark) @ Heavy-Duty Boots
 Ability: Illusion
-Tera Type: Fire
+Tera Type: ${teraType}
 - Splash
 - Explosion
 
@@ -105,11 +105,11 @@ Ability: Natural Cure
 }
 
 /** A one-Pokémon battle leaves the last pre-faint request stale at terminal. */
-export function teraFaintBattle(actor: PlayerID): Battle {
+export function teraFaintBattle(actor: PlayerID, teraType = 'Fire'): Battle {
   const battle = new Battle({ formatid: 'gen9randombattle', seed: '1,2,3,4' });
   const teraTeam = Teams.import(`Flare (Zoroark) @ Heavy-Duty Boots
 Ability: Illusion
-Tera Type: Fire
+Tera Type: ${teraType}
 - Splash
 `)!;
   const watcher = Teams.import(`Watcher (Skarmory) @ Heavy-Duty Boots

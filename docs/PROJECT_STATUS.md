@@ -36,7 +36,7 @@ or vNext checkpoint.
    roster/replace and non-Stellar Tera re-entry corrections are now accepted and
    attested within their scoped evidence. Faint Tera and terminal-history restoration
    and minimal-v1 validation/restoration are now accepted and attested.
-   Correct Stellar defensive typing next.
+   Stellar defensive typing is implemented; its scoped semantic/digest review is next.
    Faithful publication and other lifecycle gaps remain unaccepted.**
 3. Review PIPELINE-001 with an explicit supported scope and rejection
    guarantees. **Accepted for v1 scope.**

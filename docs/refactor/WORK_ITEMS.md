@@ -16,7 +16,7 @@ All items are documentation/preparation work unless explicitly marked otherwise.
 | SEARCH-001 | Document current rollout/search semantics | Accepted | Search owner | STATE-001, TRANS-001, BELIEF-001 |
 | SIM-COVERAGE-001 | Pinned simulator state and protocol coverage | Review complete with documented gaps; not accepted | Simulation owner | ENV-001, STATE-001, BELIEF-001, ACTION-001 |
 | PIPELINE-001 | Checkpoint-free transition integration | Accepted for explicit v1 joint-actionable scope | Simulation/data owners | SIM-COVERAGE-001, STATE-001, ACTION-001, TRANS-001, BELIEF-001, DATA-001 |
-| PIPELINE-002 | Complete-episode boundary progression | Prior slices and scoped lifecycle/Illusion/Tera corrections accepted | Simulation/data owners | Correct Stellar defensive typing; faint/restoration accepted |
+| PIPELINE-002 | Complete-episode boundary progression | Prior slices and scoped lifecycle/Illusion/Tera corrections accepted | Simulation/data owners | Review Stellar defensive typing and hash inclusion; faint/restoration accepted |
 | FEATURE-001 | Shared model feature contract | Unresolved; contract not accepted | Model/data owners | SIM-COVERAGE-001, PIPELINE-001, ENV-001 |
 
 ## CTRL-001 — Refactor control documents and baseline tag
@@ -404,9 +404,15 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
   Reused136 TS/prior20 Python evidence; fresh build18 Illusion and3 coverage tests
   pass. All four files already hashed; checker/six self-tests pass. Attested digest:
   6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70.
-- Single next task: correct Stellar defensive typing in battle_helpers.resolveTypes,
-  with mirrored lifecycle/Illusion/restoration/publication checks. Other lifecycle
-  fields, linked effects and Revival Blessing remain open; faithful=false.
+- Stellar implementation (2026-09-25): shared resolveTypes excludes Stellar from
+  replacement defensive typing while preserving Tera type/active flag. Both-actor
+  source, switch/drag, reveal, ordinary/unrevealed faint, restoration and deterministic
+  Python-publication tests pass; Fire behavior remains green. Parent build146 relevant
+  tests and diff checks pass; focused Illusion28. No schema/privacy expansion.
+- Single next task: scoped Stellar semantic review. Add battle_helpers.ts to coverage
+  hashing (currently absent); fixture helper/tests already included. Manifest untouched,
+  checker fails listed digest drift, six self-tests pass. Temporary-type effects and
+  private offensive counters remain excluded; faithful=false. Checkpoint has hashes.
 - Rollback: Keep v1's explicit fail-closed boundary behavior; remove only a
   separately reviewed PIPELINE-002 progression implementation if rejected.
 
