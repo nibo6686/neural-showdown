@@ -1,8 +1,8 @@
 # Project Status
 
-**Current as of:** 2026-09-24
+**Current as of:** 2026-09-25
 **Branch:** `refactor/state-001-observable-state`
-**Workspace HEAD:** `b9b3eb06d362963bb1fa2da21d7c471a84df262c`
+**Reviewed implementation HEAD:** `3ddc5fc3060e8da287425e4d08a71a2ffd77184a` (plus review-only manifest/documentation changes; see PIPELINE-002 checkpoint)
 
 This page is the current status summary for the project. Detailed contract
 requirements and historical review evidence remain in their linked documents.
@@ -13,9 +13,9 @@ requirements and historical review evidence remain in their linked documents.
 |---|---|---|
 | Refactor contract preparation | Complete for accepted items through SEARCH-001 | STATE-001, ACTION-001, FIXTURE-001/002, TRANS-001, BELIEF-001, DATA-001, and SEARCH-001 have recorded acceptance. |
 | ENV-001 reproducibility | Blocked with remediation | Python dependency/lock and tested-runtime policy plus clean-environment validation remain unresolved. Optional raw replay fixtures are not required for the first simulator-only milestone. |
-| SIM-COVERAGE-001 | Corrected lifecycle implementation awaits review | Prior attestation unchanged; checker reports digest and new -hint classification drift, six self-tests pass. Review combined changes and include helper/Illusion tests before attesting. |
+| SIM-COVERAGE-001 | Scoped attestation current; broader gaps remain | Ordinary Stellar defensive typing reviewed; 25-file digest attested. Coverage checker, six drift self-tests and three coverage tests pass. Temporary types and offensive Stellar mechanics excluded. |
 | PIPELINE-001 | Accepted for explicit v1 joint-actionable scope | Natural hidden-trap simulator rejection and injected rejection both preserve committed state/lineage. Focused TypeScript tests pass 42/42; Python record/lineage tests pass 18/18. Complete episodes remain PIPELINE-002. |
-| PIPELINE-002 | Prior slices accepted; Illusion corrections implemented pending review | Both reproduced failures corrected; real ownership/reveal/restoration/publication tests pass. Build, 126 TypeScript and 20 Python tests pass. Combined semantic review next; faithful publication remains unaccepted. |
+| PIPELINE-002 | Bounded execution and scoped lifecycle corrections accepted | Illusion, non-Stellar Tera, faint/private restoration and ordinary Stellar defensive typing reviewed. 146 relevant TypeScript evidence reused; fresh build/16 targeted checks pass. faithful_complete_episode:false remains required; broader lifecycle completeness open. |
 | FEATURE-001 | Unresolved; no accepted feature contract | Feature schema, extraction semantics, privacy/information regime, target, reward, and model interface are not finalized. |
 | New dataset generation | Not ready / not performed | DATA-001 defines lineage; PIPELINE-001 records use the `features-not-produced/v1` sentinel. No new refactored-model dataset has been generated. |
 | New model training | Not ready / not performed | Training objective, feature schema, and reproducibility gates are unresolved. |
@@ -36,7 +36,8 @@ or vNext checkpoint.
    roster/replace and non-Stellar Tera re-entry corrections are now accepted and
    attested within their scoped evidence. Faint Tera and terminal-history restoration
    and minimal-v1 validation/restoration are now accepted and attested.
-   Stellar defensive typing is implemented; its scoped semantic/digest review is next.
+   Ordinary Stellar defensive typing is now accepted and attested.
+   Separate Windows ENV-001 validation is next; see the exact-state checkpoint.
    Faithful publication and other lifecycle gaps remain unaccepted.**
 3. Review PIPELINE-001 with an explicit supported scope and rejection
    guarantees. **Accepted for v1 scope.**

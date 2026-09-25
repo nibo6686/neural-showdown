@@ -337,7 +337,10 @@ def main() -> int:
     """Validate exactly one JSON bundle from stdin; emit its DATA-001 record."""
 
     try:
-        bundle = json.load(sys.stdin)
+        # Node writes UTF-8 JSON to this bridge.  Reading the underlying bytes lets
+        # json detect UTF-8 itself instead of using Windows' locale text encoding.
+        input_stream = getattr(sys.stdin, "buffer", sys.stdin)
+        bundle = json.load(input_stream)
         record = validate_pipeline_bundle(bundle)
         sys.stdout.write(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
         return 0

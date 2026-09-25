@@ -409,10 +409,14 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
   source, switch/drag, reveal, ordinary/unrevealed faint, restoration and deterministic
   Python-publication tests pass; Fire behavior remains green. Parent build146 relevant
   tests and diff checks pass; focused Illusion28. No schema/privacy expansion.
-- Single next task: scoped Stellar semantic review. Add battle_helpers.ts to coverage
-  hashing (currently absent); fixture helper/tests already included. Manifest untouched,
-  checker fails listed digest drift, six self-tests pass. Temporary-type effects and
-  private offensive counters remain excluded; faithful=false. Checkpoint has hashes.
+- Stellar review accepted (2026-09-25): all three hashes match; pinned source and
+  extractor/heuristic callers reviewed. Reused146 TS/28 Illusion/prior20 Python
+  evidence; fresh build16 targeted lifecycle and3 coverage tests pass. Added
+  battle_helpers.ts to25-file hashing; checker/six self-tests pass. Attested digest:
+  4db82b9bc57984bf051f03b201bf022e0744ba03c8840239adeded5d362f33c3.
+  Temporary-type and offensive Stellar mechanics excluded; faithful=false.
+- Single next task: Windows ENV-001 validation at the exact implementation commit
+  and review manifest identified in the checkpoint. Broader lifecycle fidelity open.
 - Rollback: Keep v1's explicit fail-closed boundary behavior; remove only a
   separately reviewed PIPELINE-002 progression implementation if rejected.
 

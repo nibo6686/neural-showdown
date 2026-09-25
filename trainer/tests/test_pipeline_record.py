@@ -296,6 +296,34 @@ class PipelineRecordTest(unittest.TestCase):
         self.assertNotEqual(record["observation_prefix_hash"], observable_hash)
         self.assertEqual(record["observation_cursor"], len(bundle["input_observation"]["protocol_prefix"]))
 
+    def test_cli_reads_node_json_as_utf8_independent_of_windows_text_encoding(self):
+        bundle = _bundle(unicode_prefix=True)
+        encoded = json.dumps(bundle, ensure_ascii=False).encode("utf-8")
+        stdin = io.TextIOWrapper(io.BytesIO(encoded), encoding="cp1252")
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+
+        with patch("sys.stdin", stdin), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+            result = main()
+
+        self.assertEqual(result, 0, stderr.getvalue())
+        self.assertEqual(json.loads(stdout.getvalue())["observation_id"], "obs-" + "1" * 64)
+
+    def test_cli_reports_malformed_bytes_and_json_without_a_traceback(self):
+        for encoded in (b'{"prefix":"\xff"}', b"{"):
+            with self.subTest(encoded=encoded):
+                stdin = io.TextIOWrapper(io.BytesIO(encoded), encoding="cp1252")
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+
+                with patch("sys.stdin", stdin), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                    result = main()
+
+                self.assertEqual(result, 2)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertTrue(stderr.getvalue().startswith("pipeline-record validation failed:"))
+                self.assertNotIn("Traceback", stderr.getvalue())
+
     def test_simulator_truth_and_swapped_perspective_fail_closed(self):
         research = _bundle()
         research["successor_belief"]["information_regime"] = "simulator_research"

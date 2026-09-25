@@ -49,12 +49,18 @@ function sourceInventory() {
   return { roots: rootDigests, digest: combined.digest('hex') };
 }
 
+function normalizedTextBytes(bytes) {
+  const text = bytes.toString('utf8');
+  if (!Buffer.from(text, 'utf8').equals(bytes)) throw new Error('Local coverage source is not valid UTF-8.');
+  return Buffer.from(text.replace(/\r\n/g, '\n'), 'utf8');
+}
+
 function localSourceDigest(files) {
   const hash = crypto.createHash('sha256');
   for (const name of [...files].sort()) {
     const full = path.join(root, name);
     if (!fs.existsSync(full) || !fs.statSync(full).isFile()) throw new Error(`Missing local coverage source: ${name}`);
-    hash.update(name).update('\0').update(fs.readFileSync(full)).update('\0');
+    hash.update(name).update('\0').update(normalizedTextBytes(fs.readFileSync(full))).update('\0');
   }
   return hash.digest('hex');
 }
@@ -175,6 +181,15 @@ else {
 
 if (process.argv.includes('--self-test')) {
   const tests = [];
+  tests.push(['local source digest is CRLF-invariant',
+    Buffer.compare(Buffer.from('a\nb\n'), normalizedTextBytes(Buffer.from('a\r\nb\r\n'))) === 0]);
+  tests.push(['lone CR remains identity-bearing',
+    Buffer.compare(Buffer.from('a\nb\n'), normalizedTextBytes(Buffer.from('a\rb\n'))) !== 0]);
+  tests.push(['substantive text changes remain identity-bearing',
+    Buffer.compare(normalizedTextBytes(Buffer.from('alpha\n')), normalizedTextBytes(Buffer.from('alpHa\n'))) !== 0]);
+  let invalidUtf8Rejected = false;
+  try { normalizedTextBytes(Buffer.from([0xff])); } catch { invalidUtf8Rejected = true; }
+  tests.push(['invalid UTF-8 source is rejected', invalidUtf8Rejected]);
   tests.push(['new condition ID', setDiff(['known', '__new_condition__'], ['known']).added.includes('__new_condition__')]);
   tests.push(['new protocol token', setDiff(['known', '__new_protocol__'], ['known']).added.includes('__new_protocol__')]);
   tests.push(['new emitter token', setDiff(['known', '__new_emitter__'], ['known']).added.includes('__new_emitter__')]);

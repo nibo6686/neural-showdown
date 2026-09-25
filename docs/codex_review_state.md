@@ -1373,3 +1373,19 @@ f0893ed149ee786be29a8a3a03f3ae820a62dce0d5611637573e4095cd6bef1b;
 checker commands fail digest drift, six synthetic self-tests pass. Prior attestation
 6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70 remains.
 Broader lifecycle prerequisites and faithful_complete_episode:false are unchanged.
+
+### Ordinary Stellar defensive typing review — 2026-09-25; scoped acceptance
+
+No blocking findings or production edits. Verified pinned getTypes and all shared
+resolver callers. Both actors/perspectives cover activation, Illusion reveal,
+switch/drag, faint, immutable prefixes, private identity and deterministic restoration/
+Python publication. All three checkpoint hashes match; reused146 relevant TS/28
+Illusion/prior20 Python evidence; fresh build16 targeted lifecycle checks pass.
+Added battle_helpers.ts to25-file hashing; fixture helper/regressions already covered.
+Computed/reviewed digest: 4db82b9bc57984bf051f03b201bf022e0744ba03c8840239adeded5d362f33c3.
+Coverage checker, six drift self-tests and3 coverage tests pass. No schema change.
+Temporary-type/Type-event reconstruction and Stellar offensive STAB/counters remain
+excluded; faithful_complete_episode:false. PROJECT_STATUS stale rows reconciled.
+Next: separate Windows ENV-001 validation using implementation commit
+3ddc5fc3060e8da287425e4d08a71a2ffd77184a plus review-only manifest/docs changes;
+checkpoint defines handoff. This is not complete-episode or environment acceptance.
