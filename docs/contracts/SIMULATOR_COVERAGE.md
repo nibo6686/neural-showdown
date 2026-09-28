@@ -22,28 +22,50 @@ explicit recognized-but-unsupported disposition; the episode runner truncates
 before commit, while Destiny Bond/Glaive Rush/other lifecycle semantics remain
 unaccepted.
 
-The shared protocol contract at
+### Shared protocol boundary review — blocked (2026-09-28)
+
+The shared `showdown-protocol-contract/v2` at
 [`protocol_contract.json`](../../trainer/src/neural/protocol_contract.json)
-now drives TypeScript and Python command acceptance. The fully rehashed unknown
-command bypass was reproduced: identity and joins verify, then publication
-rejects with no output. A table-driven matrix covers 113 supported token
-records, recognized aliases/stops, malformed shapes and unknown tokens across
-both observation versions, both perspectives and input/successor prefixes
-(112 rehashed rejection cases).
-The scoped base Topsy-Turvy semantics and exact canonical event grammar are
-reviewed. The shared TypeScript/Python publication boundary is implemented but
-its batch review is blocked by rehashed cross-runtime acceptance, source-shape
-rejection, loader-schema and pre-filter gaps recorded in the assessment and
-PIPELINE-002 checkpoint. Its local coverage digest and final attestation remain
-pending; the final checker computes
-`9793ca11d6ac3c696794027e0cab4150fe970bc52ee1c5fce59dcf124102b140` against the
-preserved stored/reviewed digest
-`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`. The prior
-Psych Up attestation is unchanged. Scanner expansion,
-nested-effect modeling and operative format-digest coverage remain the next
-separate implementation batch after this boundary is corrected, with newly
-found effects classified before implementation. `faithful_complete_episode:false`
-remains required.
+has 114 supported-command fixtures, 43 valid-record controls, 107 rejection
+fixtures and six recognized-but-unsupported spellings. The shared validators
+require exact `: ` player-ident separators. `Pokemon.fullname`/`toString()`
+produces the source spelling (`sim/pokemon.ts:325,504-512`); validated teams
+pass names through `Dex.getName()` before emission (`sim/dex.ts:193-225`,
+`sim/team-validator.ts:576`). Punctuation and embedded colons such as
+`Mr: Mime` and `Farfetch'd` are preserved; edge whitespace is rejected rather
+than repaired. The contract still permits a broader opaque nonempty display
+name than the full Showdown nickname sanitizer.
+
+The terminal-actor repair recorded in the older review is corrected: direct
+TypeScript/Python validation and TypeScript projection reject
+`'|faint|p1a: Pikachu\x20'`, while the valid source spelling is preserved. The
+active `-transform` target rule also matches its Pokémon-object emitter.
+
+The remaining field-specific blocker is Helping Hand `[of]`: pinned source
+emits `[of] ${source}` (`data/moves.ts:8885-8891`) for the active move source
+(`battle.ts:2648-2650`). Both validators currently accept
+`|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee`. A fully rehashed v2
+candidate passed Python bundle validation and produced DATA-001 output. The
+field map and minimal reproduction are recorded in the
+[PIPELINE-002 review checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md#raw-player-identifier-review--blocked-2026-09-28).
+
+The differential matrix exercises 224 added valid controls and rejects 856
+fully rehashed candidates across v1/v2, p1/p2 and input/successor prefixes. The
+focused build, 35 TypeScript tests and 20 Python tests pass, but the matrix omits
+the source-incompatible Helping Hand form. The stored/reviewed local digest
+remains
+`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`; no new
+digest or coverage attestation was made. Direct random-set evidence remains
+limited to Beak Blast, Focus Punch, Protect and Roost. Instruct, HP-tag ordering,
+scanner expansion and operative format coverage remain deferred. `-singleturn`
+is raw-only, `-singlemove` remains an enforced stop, and
+`faithful_complete_episode:false` remains unchanged.
+
+Scanner expansion, nested-effect modeling and operative format-digest coverage
+remain the next separate implementation batch, with newly found effects
+classified before implementation. Clean-environment recreation remains
+incomplete; it is separate from semantic transition fidelity. Neither status
+establishes the other. `faithful_complete_episode:false` remains required.
 
 ## Classification vocabulary
 
@@ -93,7 +115,7 @@ Confusion is a public volatile with `-start|target|confusion` and `-end|target|c
 
 The manifest and shared protocol contract currently contain:
 
-- **113 supported command entries**, each mapped to a grammar group and coverage disposition; six recognized-but-unsupported command spellings are listed separately;
+- **114 supported command entries**, each mapped to a grammar group and coverage disposition; six recognized-but-unsupported command spellings are listed separately;
 - **86 literal emitter tokens** found by the package-wide source scan, each with source-file references and an explicit scope disposition;
 - separate emission-path descriptions for `Battle.add`, `addSplit`, `addMove`/`attrLastMove`, private `Side.emitRequest`/choice errors, and `BattleStream` routing;
 - the computed `msg` family for `-boost`, `-unboost`, and `-setboost`.
@@ -102,7 +124,7 @@ The 86 emitter tokens are package-wide across generations and formats, not a Gen
 
 The shared grammar validates and retains raw-only records such as `cant|target|reason|move?`, `-hitcount|target|integer`, `-fieldactivate|effect|tags?`, `message|text` and `-message|text`. None is projected as typed state. A `cant` or `-hitcount` outcome does not define the next legal-action set. Unknown commands and malformed supported forms fail closed. Request JSON is transient and private, then sanitized to an `rqid` marker in the observable prefix.
 
-Other relevant grammar groups and their required/optional fields are in `protocol.grammar_groups` and per-token `record_grammar`/support entries in the machine manifest. Examples include switch/drag/replace (`target|details|condition|tags?`), move (`active source|name|target?|tags*`), start/end (`target|effect|tags?`), field/weather (`effect|tags?`), side conditions (`side|effect|tags?`), and status/boost/HP records. For moves, a target may be an active or non-active Pokémon reference (`p1a: ...` or `p1: ...`), or may be omitted/empty. The literal `null` requires exactly one final `[notarget]`; preceding metadata is limited to source-generated `[from]` or `[anim]` fields, matching `useMoveInner` (`sim/battle-actions.ts:446-462`). Accepted move tag forms are pinned emitter tags `[from]`, `[anim]`, `[still]`, `[spread]`, `[miss]`, `[notarget]`, and `[zeffect]` with source-shaped payloads; arbitrary bracket names fail closed. Trailing bracket tags are metadata fields; `[notarget]` is a tag and cannot satisfy the target field. Target meaning is token-specific; an omitted self-target field is not rewritten to an opponent target. The source basis is `sim/battle-actions.ts:412-462,545,590-640,1512-1516`, `sim/battle.ts:3046-3067`, `sim/pokemon.ts:504-512`, and `sim/SIM-PROTOCOL.md:240-252`.
+Other relevant grammar groups and their required/optional fields are in `protocol.grammar_groups` and per-token `record_grammar`/support entries in the machine manifest. Current strict groups include switch/drag health plus at most one `[from]` tag, conditionless or legacy condition-bearing detailschange, HP/status ratios, seven boost stats and stage ranges, `-singleturn` arity plus an allowed tag vocabulary, and JSON request IDs. `-singleturn` effect/tag combinations and HP-event tag dependencies/order remain permissive and fail this source review. Dynamic effect/source labels are checked as trimmed text but remain open values. Other tokens retain the documented per-entry grammar and may still have permissive optional-field/order rules; this batch does not claim a complete grammar for all commands. For moves, a target may be an active or non-active Pokémon reference (`p1a: ...` or `p1: ...`), or may be omitted/empty. The literal `null` requires exactly one final `[notarget]`; preceding metadata is limited to source-generated `[from]` or `[anim]` fields, matching `useMoveInner` (`sim/battle-actions.ts:446-462`). Accepted move tag forms are pinned emitter tags `[from]`, `[anim]`, `[still]`, `[spread]`, `[miss]`, `[notarget]`, and `[zeffect]` with source-shaped payloads; arbitrary bracket names fail closed. Trailing bracket tags are metadata fields; `[notarget]` is a tag and cannot satisfy the target field. Target meaning is token-specific; an omitted self-target field is not rewritten to an opponent target. The source basis is `sim/battle-actions.ts:412-462,545,590-640,1512-1516`, `sim/battle.ts:3046-3067`, `sim/pokemon.ts:504-512`, and `sim/SIM-PROTOCOL.md:240-252`.
 
 Six recognized-but-unsupported spellings remain outside the accepted command set: unresolved `clearstatus`, `-clearstatus`, `nothing`; internal `copyboost`/`invertboost` helper aliases; and `-singlemove`. Unresolved aliases stop with `pipeline/v1/unresolved-protocol-alias`; the internal aliases reject as unsupported raw events. `-singlemove` stops the candidate and truncates the episode. Python validates both input and successor prefixes before DATA-001 conversion. These explicit stops do not establish the semantics of the associated moves/effects.
 

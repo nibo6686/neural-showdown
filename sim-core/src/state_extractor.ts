@@ -1,4 +1,6 @@
 import { Dex, toID } from 'pokemon-showdown';
+import { isCanonicalPlayerIdent, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
+import { validateRawProtocolRecord } from './observable_state';
 import { normalizeRequest } from './action_codec';
 import {
   createEmptyBattleView,
@@ -108,9 +110,17 @@ export class PlayerStateExtractor {
 
   consumeChunk(chunk: string): void {
     for (const rawLine of chunk.split('\n')) {
-      const line = rawLine.trim();
-      if (!line) {
+      const line = rawLine.replace(/\r$/, '');
+      if (line === '') {
         continue;
+      }
+      if (line.startsWith('|')) {
+        const command = line.split('|')[1];
+        if (command && SUPPORTED_RAW_COMMANDS.has(command)) validateRawProtocolRecord(line);
+      } else if (/^\s*\|/.test(line)) {
+        // Detect a protocol record with leading whitespace without repairing
+        // it; the validator must see and reject the original line.
+        validateRawProtocolRecord(line);
       }
       this.consumeLine(line);
     }
@@ -519,10 +529,12 @@ export class PlayerStateExtractor {
     pokemon.details = details || pokemon.details;
     pokemon.level = parsedDetails.level ?? pokemon.level;
     pokemon.gender = parsedDetails.gender ?? pokemon.gender;
-    pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
-    pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
-    pokemon.status = parsedCondition.status ?? pokemon.status;
-    pokemon.fainted = parsedCondition.fainted;
+    if (parts.length > 4) {
+      pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
+      pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
+      pokemon.status = parsedCondition.status ?? pokemon.status;
+      pokemon.fainted = parsedCondition.fainted;
+    }
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
     this.publicTypeChanges.delete(pokemon);
     this.publicAddedTypes.delete(pokemon);
@@ -593,7 +605,7 @@ export class PlayerStateExtractor {
 
   private handleInvertBoosts(parts: string[]): void {
     if (parts.length !== 4 || parts[3] !== '[from] move: Topsy-Turvy'
-      || !/^p[12][a-z]:\s*[^|]+$/.test((parts[2] || '').trim())) return;
+      || !isCanonicalPlayerIdent(parts[2], true)) return;
     const player = parseIdent(parts[2]).player;
     if (!player) return;
     const team = player === this.player ? this.view.self_team : this.view.opponent_team;
@@ -604,6 +616,7 @@ export class PlayerStateExtractor {
 
   private handleCopyBoosts(parts: string[]): void {
     if (parts.length !== 5 || parts[4] !== '[from] move: Psych Up') return;
+    if (!isCanonicalPlayerIdent(parts[2], true) || !isCanonicalPlayerIdent(parts[3], true)) return;
     const recipientIdent = parseIdent(parts[2]);
     const donorIdent = parseIdent(parts[3]);
     if (!recipientIdent.player || !donorIdent.player) return;
@@ -912,6 +925,14 @@ export class PlayerStateExtractor {
     }
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
+    if (parts.length === 5) {
+      // A move-source record says the old ability ended during a change; the
+      // target-only form below is the supported public suppression signal.
+      pokemon.ability = null;
+      pokemon.ability_state = 'unknown';
+      pokemon.ability_suppressed = false;
+      return;
+    }
     pokemon.ability_state = 'suppressed';
     pokemon.ability_suppressed = true;
   }

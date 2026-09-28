@@ -140,6 +140,10 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
                 raise PipelineRecordError(f"{label} protocol prefix contains a raw request") from exc
             if not isinstance(request_payload, dict) or set(request_payload) - {"rqid"}:
                 raise PipelineRecordError(f"{label} protocol prefix contains a private request")
+        if line.startswith("|tier|"):
+            raise PipelineRecordError(f"{label} protocol prefix contains filtered ruleset metadata")
+        if line == "|":
+            raise PipelineRecordError(f"{label} protocol prefix contains filtered framing metadata")
     # ObservableState hashes strings with JavaScript's literal-Unicode JSON.
     # DATA-001 separately uses ensure_ascii=True; these are distinct hashes.
     ts_hash = hashlib.sha256(

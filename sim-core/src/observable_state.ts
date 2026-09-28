@@ -1,6 +1,6 @@
 import { opponentPublicBoosts, type PublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
-import { RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
+import { isCanonicalPlayerIdent, isCanonicalSideOnlyPlayerIdent, PROTOCOL_CONTRACT, RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
 import type {
   BattleView,
   ChoiceRequestView,
@@ -333,11 +333,18 @@ function normalizeProtocolPrefix(prefix: readonly string[]): string[] {
     if (typeof record !== 'string') {
       throw new ObservableStateError(`Protocol record ${index} is not a string.`);
     }
-    const normalized = record.replace(/\r\n?/g, '\n').trim();
+    // A single final line delimiter belongs to transport framing. Do not
+    // normalize any other bytes before protocol validation.
+    const normalized = record.endsWith('\r\n')
+      ? record.slice(0, -2)
+      : record.endsWith('\n') || record.endsWith('\r')
+        ? record.slice(0, -1)
+        : record;
     if (!normalized) throw new ObservableStateError(`Protocol record ${index} is empty.`);
-    if (normalized.includes('\n')) {
+    if (normalized.includes('\n') || normalized.includes('\r')) {
       throw new ObservableStateError(`Protocol record ${index} contains an embedded protocol record separator.`);
     }
+    validateRawProtocolRecord(normalized);
     return normalized;
   });
 }
@@ -350,14 +357,14 @@ function requireRawField(parts: string[], index: number, command: string, label 
 
 function requireRawPlayerIdent(parts: string[], index: number, command: string): void {
   requireRawField(parts, index, command, 'pokemon identifier');
-  if (!/^p[12][a-z]:\s*[^|]+$/.test(parts[index].trim())) {
+  if (!isCanonicalPlayerIdent(parts[index], true)) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid pokemon identifier.`);
   }
 }
 
 function requireRawTarget(parts: string[], index: number, command: string): void {
   requireRawField(parts, index, command, 'target');
-  if (parts[index] !== '-' && !/^p[12][a-z]:\s*[^|]+$/.test(parts[index].trim())) {
+  if (parts[index] !== '-' && !isCanonicalPlayerIdent(parts[index], true)) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid target.`);
   }
 }
@@ -366,7 +373,7 @@ function requireRawMoveTarget(parts: string[], index: number): void {
   requireRawField(parts, index, 'move', 'target');
   // Pokemon.toString() emits an active-position ident for active Pokemon and
   // a side ident for non-active Pokemon, including side-target move records.
-  if (!/^p[12](?:[a-f])?:\s*[^|]+$/.test(parts[index].trim())) {
+  if (!isCanonicalPlayerIdent(parts[index])) {
     throw new ObservableStateError('Malformed raw move record: invalid target.');
   }
 }
@@ -420,9 +427,52 @@ function requireRawPlayer(parts: string[], index: number, command: string): void
 
 function requireRawInteger(parts: string[], index: number, command: string, label: string, signed = false): void {
   requireRawField(parts, index, command, label);
-  if (!(signed ? /^-?\d+$/ : /^\d+$/).test(parts[index]) || !Number.isSafeInteger(Number(parts[index]))) {
+  const pattern = signed ? /^(?:0|[1-9][0-9]*|-[1-9][0-9]*)$/ : /^(?:0|[1-9][0-9]*)$/;
+  if (!pattern.test(parts[index]) || !Number.isSafeInteger(Number(parts[index]))) {
     throw new ObservableStateError(`Malformed raw ${command} record: ${label} must be a safe integer.`);
   }
+}
+
+function isRawHealthCondition(value: string): boolean {
+  const rules = PROTOCOL_CONTRACT.validation_rules.health_condition;
+  if (value === rules.fainted) return true;
+  const match = /^([1-9][0-9]*)\/([1-9][0-9]*)(?: ([a-z]+))?$/.exec(value);
+  if (!match) return false;
+  const numerator = Number(match[1]);
+  const denominator = Number(match[2]);
+  if (!Number.isSafeInteger(numerator) || !Number.isSafeInteger(denominator) || numerator > denominator) return false;
+  return match[3] === undefined || rules.statuses.includes(match[3]);
+}
+
+function requireRawHealthCondition(parts: string[], index: number, command: string): void {
+  requireRawField(parts, index, command, 'condition');
+  if (!isRawHealthCondition(parts[index])) throw new ObservableStateError(`Malformed raw ${command} record: invalid health condition.`);
+}
+
+function requireRawEventTags(parts: string[], start: number, command: string, rules: readonly string[]): void {
+  const tags = parts.slice(start);
+  if (new Set(tags).size !== tags.length) throw new ObservableStateError(`Malformed raw ${command} record: duplicate tag.`);
+  for (const tag of tags) {
+    const accepted = rules.some((rule) => {
+      if (rule === tag) return true;
+      const space = rule.indexOf(' ');
+      if (space < 0) return false;
+      const prefix = `${rule.slice(0, space)} `;
+      const value = tag.startsWith(prefix) ? tag.slice(prefix.length) : '';
+      if (!value) return false;
+      if (rule.slice(space + 1) === 'trimmed-nonempty-text') return value === value.trim();
+      if (rule.slice(space + 1) === 'player-ident') return isCanonicalPlayerIdent(value);
+      return false;
+    });
+    if (!accepted) throw new ObservableStateError(`Malformed raw ${command} record: invalid tag.`);
+  }
+}
+
+function hasOnlyFiniteJsonNumbers(value: unknown): boolean {
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (Array.isArray(value)) return value.every(hasOnlyFiniteJsonNumbers);
+  if (value !== null && typeof value === 'object') return Object.values(value).every(hasOnlyFiniteJsonNumbers);
+  return true;
 }
 
 function parseRawRequestPayload(parts: string[]): Record<string, unknown> {
@@ -434,11 +484,11 @@ function parseRawRequestPayload(parts: string[]): Record<string, unknown> {
   } catch {
     throw new ObservableStateError('Malformed raw request record.');
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !hasOnlyFiniteJsonNumbers(parsed)) {
     throw new ObservableStateError('Malformed raw request record.');
   }
   const request = parsed as Record<string, unknown>;
-  if (request.rqid !== undefined && (!Number.isSafeInteger(request.rqid) || typeof request.rqid !== 'number')) {
+  if (Object.hasOwn(request, 'rqid') && (typeof request.rqid !== 'number' || !Number.isSafeInteger(request.rqid))) {
     throw new ObservableStateError('Malformed raw request rqid.');
   }
   return request;
@@ -498,9 +548,25 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireRawMoveTags(parts);
       return;
     case '-singleturn':
-      requireAtLeast(4);
+      if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'effect');
+      const rules = PROTOCOL_CONTRACT.validation_rules.singleturn;
+      if (parts.length === 5) {
+        const effect = parts[3];
+        const tag = parts[4];
+        const matchingForm = rules.tagged_forms.find((form) => form.effect === effect
+          && (form.tag_value === 'none' ? tag === form.tag : tag.startsWith(`${form.tag} `)));
+        if (!matchingForm) throw new ObservableStateError(`Malformed raw ${command} record: unsupported effect/tag combination.`);
+        if (matchingForm.tag_value === 'player-ident') {
+          const sourceIdent = tag.slice(matchingForm.tag.length + 1);
+          if (!isCanonicalPlayerIdent(sourceIdent, matchingForm.ident_role === 'active')) {
+            throw new ObservableStateError(`Malformed raw ${command} record: invalid single-turn source ident.`);
+          }
+        }
+      } else if (!rules.untagged_effects.includes(parts[3])) {
+        throw new ObservableStateError(`Malformed raw ${command} record: unsupported untagged effect.`);
+      }
       return;
     case 'cant':
       requireAtLeast(4);
@@ -519,11 +585,25 @@ function validateRawRecordShape(parts: string[], command: string): void {
       return;
     case 'switch':
     case 'drag':
-    case 'detailschange':
-      requireAtLeast(5);
+      if (parts.length !== 5 && parts.length !== 6) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'details');
-      requireRawField(parts, 4, command, 'condition');
+      requireRawHealthCondition(parts, 4, command);
+      if (parts.length === 6) {
+        const rule = PROTOCOL_CONTRACT.validation_rules.switch_drag.optional_tag;
+        const tagPrefix = `${rule.slice(0, rule.indexOf(' '))} `;
+        const sourceName = parts[5].slice(tagPrefix.length);
+        if (!parts[5].startsWith(tagPrefix) || !sourceName || sourceName !== sourceName.trim()) {
+          throw new ObservableStateError(`Malformed raw ${command} record: invalid source tag.`);
+        }
+      }
+      if (parts.length > 6) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      return;
+    case 'detailschange':
+      if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
+      requireIdent();
+      requireRawField(parts, 3, command, 'details');
+      if (parts.length === 5) requireRawHealthCondition(parts, 4, command);
       return;
     case 'replace':
       // Illusion.onEnd emits ident + details only. Legacy HP-bearing records
@@ -531,7 +611,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError('Malformed raw replace record.');
       requireIdent();
       requireRawField(parts, 3, command, 'details');
-      if (parts.length === 5 && !/^(?:0 fnt|\d+(?:\/[1-9]\d*)?(?: (?:brn|par|slp|psn|tox|frz))?)$/.test(parts[4])) {
+      if (parts.length === 5 && !isRawHealthCondition(parts[4])) {
         throw new ObservableStateError('Malformed raw replace condition.');
       }
       return;
@@ -574,10 +654,14 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireRawField(parts, 3, command, 'species');
       return;
     case 'transform':
-    case '-transform':
       requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'target');
+      return;
+    case '-transform':
+      requireAtLeast(4);
+      requireIdent();
+      requireRawPlayerIdent(parts, 3, command);
       return;
     case 'damage':
     case '-damage':
@@ -587,10 +671,12 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case '-sethp':
       requireAtLeast(4);
       // Revival publicly heals a benched Pokémon using p1:/p2:, not an active position.
-      if (!(command === '-heal' && parts.length === 5
-        && parts[4] === '[from] move: Revival Blessing'
-        && /^p[12]:\s*[^|]+$/.test(parts[2]))) requireIdent();
-      requireRawField(parts, 3, command, 'condition');
+      const revivalBlessingBench = command === '-heal' && parts.length === 5
+        && parts[4] === '[from] move: Revival Blessing' && isCanonicalSideOnlyPlayerIdent(parts[2]);
+      if (!revivalBlessingBench) requireIdent();
+      requireRawHealthCondition(parts, 3, command);
+      const tagGroup = command.replace(/^-/, '') as 'damage' | 'heal' | 'sethp';
+      requireRawEventTags(parts, 4, command, PROTOCOL_CONTRACT.validation_rules.health_event_tags[tagGroup]);
       return;
     case 'status':
     case '-status':
@@ -613,7 +699,19 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(5);
       requireIdent();
       requireRawField(parts, 3, command, 'stat');
+      if (!PROTOCOL_CONTRACT.validation_rules.boost_event.stats.includes(parts[3])) {
+        throw new ObservableStateError(`Malformed raw ${command} record: invalid stat.`);
+      }
       requireRawInteger(parts, 4, command, 'amount', command === 'setboost' || command === '-setboost');
+      {
+        const rules = PROTOCOL_CONTRACT.validation_rules.boost_event;
+        const amount = Number(parts[4]);
+        const [minimum, maximum] = command === 'setboost' || command === '-setboost'
+          ? [rules.set_min, rules.set_max]
+          : [rules.delta_min, rules.delta_max];
+        if (amount < minimum || amount > maximum) throw new ObservableStateError(`Malformed raw ${command} record: amount is outside the supported stage range.`);
+      }
+      requireRawEventTags(parts, 5, command, PROTOCOL_CONTRACT.validation_rules.boost_event.tags);
       return;
     case 'clearboost':
     case '-clearboost':
@@ -687,8 +785,24 @@ function validateRawRecordShape(parts: string[], command: string): void {
       return;
     case 'endability':
     case '-endability':
+      if (command === '-endability' && parts.length === 5) {
+        requireIdent();
+        requireRawField(parts, 3, command, 'old ability');
+        const sourceTag = PROTOCOL_CONTRACT.validation_rules.endability.move_source_tag;
+        const moveName = parts[4].slice(sourceTag.length);
+        if (!parts[4].startsWith(sourceTag) || !moveName || moveName !== moveName.trim()) {
+          throw new ObservableStateError(`Malformed raw ${command} record: invalid move-source tag.`);
+        }
+        return;
+      }
       if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
+      return;
+    case 'tier':
+      if (parts.length !== PROTOCOL_CONTRACT.validation_rules.tier.payload_fields + 2) {
+        throw new ObservableStateError(`Malformed raw ${command} record.`);
+      }
+      requireRawField(parts, 2, command, 'format label');
       return;
     case 'terastallize':
     case '-terastallize':
@@ -781,13 +895,19 @@ function validateRawRecordShape(parts: string[], command: string): void {
 }
 
 function sanitizeProtocolPrefix(prefix: readonly string[]): string[] {
-  return prefix.map((record) => {
+  const sanitized: string[] = [];
+  for (const record of prefix) {
     const parts = record.split('|');
-    if (parts[1] !== 'request') return record;
+    if (record === PROTOCOL_CONTRACT.framing_only_records[0].record || parts[1] === 'tier') continue;
+    if (parts[1] !== 'request') {
+      sanitized.push(record);
+      continue;
+    }
     const request = parseRawRequestPayload(parts);
-    const sanitized = request.rqid === undefined ? {} : { rqid: request.rqid };
-    return `|request|${canonicalize(sanitized)}`;
-  });
+    const publicRequest = Object.hasOwn(request, 'rqid') ? { rqid: request.rqid } : {};
+    sanitized.push(`|request|${canonicalize(publicRequest)}`);
+  }
+  return sanitized;
 }
 
 const SUPPORTED_PHASES = new Set(['pre_decision', 'post_resolution', 'forced_switch', 'terminal']);
@@ -876,7 +996,8 @@ type RawEvidence = {
 
 /** Validate one supported record before any event-specific state routing. */
 export function validateRawProtocolRecord(record: string): void {
-  if (!record.startsWith('|')) throw new ObservableStateError('Malformed raw protocol record.');
+  if (!record.startsWith('|') || record.includes('\n') || record.includes('\r')) throw new ObservableStateError('Malformed raw protocol record.');
+  if (record === PROTOCOL_CONTRACT.framing_only_records[0].record) return;
   const parts = record.split('|');
   const command = parts[1];
   if (!command || (!SUPPORTED_RAW_COMMANDS.has(command) && !RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command))) {
@@ -889,7 +1010,7 @@ export function validateRawProtocolRecord(record: string): void {
 }
 
 function parseIntegerRecord(parts: string[], label: string): number {
-  if (parts.length !== 3 || !/^\d+$/.test(parts[2]) || !Number.isSafeInteger(Number(parts[2]))) {
+  if (parts.length !== 3 || !/^(?:0|[1-9][0-9]*)$/.test(parts[2]) || !Number.isSafeInteger(Number(parts[2]))) {
     throw new ObservableStateError(`Malformed raw ${label} record.`);
   }
   return Number(parts[2]);

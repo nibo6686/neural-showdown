@@ -1,19 +1,16 @@
 """Version-two stage evidence reconstructed only from the supplied public prefix."""
 import re
+from neural.protocol_contract import _is_player_ident
 
 KEYS = ('atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion')
 
-# Match JavaScript String.trim used by observable_state's identifier contract.
-_JS_TRIM = "\u0009\u000a\u000b\u000c\u000d\u0020\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000\ufeff"
-
 def validate_copy_boost_record(parts):
     if len(parts) != 5 or parts[4] != '[from] move: Psych Up' or any(
-            not re.fullmatch(r'p[12][a-z]:[^|]+', ident.strip(_JS_TRIM)) for ident in parts[2:4]):
+            not _is_player_ident(ident, active_required=True) for ident in parts[2:4]):
         raise ValueError('Unsupported or malformed public boost copy evidence')
 
 def validate_invert_boost_record(parts):
-    if len(parts) != 4 or parts[3] != '[from] move: Topsy-Turvy' or not re.fullmatch(
-            r'p[12][a-z]:[^|]+', parts[2].strip(_JS_TRIM)):
+    if len(parts) != 4 or parts[3] != '[from] move: Topsy-Turvy' or not _is_player_ident(parts[2], active_required=True):
         raise ValueError('Unsupported or malformed public stage inversion evidence')
 
 def public_boost_evidence(prefix):
@@ -23,6 +20,11 @@ def public_boost_evidence(prefix):
     def side(ident):
         match = re.match(r'^(p[12])[a-f]:', ident)
         return match[1] if match else None
+    actor_commands = {
+        'switch', 'drag', 'replace', 'faint', '-boost', '-unboost', '-setboost',
+        '-clearboost', '-clearnegativeboost', '-clearpositiveboost', '-copyboost',
+        '-invertboost', '-transform',
+    }
     for line in prefix:
         p = line.split('|')
         cmd = p[1] if len(p) > 1 else ''
@@ -33,6 +35,12 @@ def public_boost_evidence(prefix):
         if cmd == '-copyboost': validate_copy_boost_record(p)
         if cmd == '-invertboost': validate_invert_boost_record(p)
         ident = p[2] if len(p) > 2 else ''
+        if cmd in actor_commands and not _is_player_ident(ident, active_required=True):
+            raise ValueError('Malformed public boost player identifier')
+        if cmd == '-transform' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True)):
+            raise ValueError('Malformed public boost transform target identifier')
+        if cmd == '-clearpositiveboost' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True)):
+            raise ValueError('Malformed public boost source identifier')
         player = side(ident)
         if cmd == '-swapboost' or (cmd == 'move' and len(p) > 3 and p[3] == 'Baton Pass'):
             raise ValueError('Unsupported public boost evidence: ' + cmd)

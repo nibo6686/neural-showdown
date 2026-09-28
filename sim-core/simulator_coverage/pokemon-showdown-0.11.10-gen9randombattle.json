@@ -285,12 +285,12 @@
         "token": "-boost",
         "grammar_group": "boost",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, ASCII canonical integer delta 0..12",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -429,12 +429,12 @@
         "token": "-damage",
         "grammar_group": "hp",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
@@ -465,12 +465,12 @@
         "token": "-endability",
         "grammar_group": "ability",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact target-only or exact move-source shape; source form is accepted raw evidence with current ability reset to unknown",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident",
-          "optional": "none",
-          "shape": "ability end"
+          "required": "target ident for suppression; target plus old ability for change",
+          "optional": "exact [from] move: TEXT tag only for move-source form",
+          "shape": "target-only suppression form or five-field move-source ability-change form; source form clears current knowledge without suppression inference"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "reveal/split-dependent",
@@ -591,12 +591,12 @@
         "token": "-heal",
         "grammar_group": "hp",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record; active-position ident normally required; bench p1:/p2: ident accepted only with exactly condition and [from] move: Revival Blessing"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "public target ident; bounded revival bench target matched by public identity, never by private opponent request",
         "visibility": "public/split-dependent",
@@ -807,12 +807,12 @@
         "token": "-setboost",
         "grammar_group": "boost",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, resulting stage -6..6",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -825,12 +825,12 @@
         "token": "-sethp",
         "grammar_group": "hp",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
@@ -879,12 +879,12 @@
         "token": "-singleturn",
         "grammar_group": "volatile",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact field count and pinned literal/template allowlist; unknown effects and arbitrary suffixes reject",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, effect",
-          "optional": "tags",
-          "shape": "one-turn public effect event"
+          "required": "target ident, pinned untagged effect literal or tagged effect template",
+          "optional": "only the source-backed [zeffect] or [of] player-ident template suffix",
+          "shape": "exact four/five fields; one-turn effect is raw-only and unknown forms stop before publication"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when shared",
@@ -1005,12 +1005,12 @@
         "token": "-unboost",
         "grammar_group": "boost",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, ASCII canonical integer delta 0..12",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -1041,19 +1041,19 @@
         "token": "ability",
         "grammar_group": "ability",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "accepted legacy raw-only token with exact nonempty target/ability fields; no pinned Showdown emitter is claimed",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "target ident, ability",
-          "optional": "tags",
-          "shape": "ability event"
+          "optional": "none under current raw fixture",
+          "shape": "exact |ability|IDENT|ABILITY raw-only record"
         },
-        "target_semantics": "field is a protocol Pokémon ident when required",
-        "visibility": "reveal/split-dependent",
-        "authoritative_state_effect": "ability evidence",
+        "target_semantics": "field is a protocol Pokémon ident",
+        "visibility": "raw evidence only; no source emitter established",
+        "authoritative_state_effect": "none; bare ability remains deliberate raw-only compatibility and does not update typed ability state",
         "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
-        "legal_action_effect": "mechanic effects",
-        "fixture_reference": "state_extractor"
+        "legal_action_effect": "none",
+        "fixture_reference": "trainer/src/neural/protocol_contract.json; accepted legacy raw-only contract"
       },
       {
         "token": "activate",
@@ -1095,12 +1095,12 @@
         "token": "boost",
         "grammar_group": "boost",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, ASCII canonical integer delta 0..12",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -1293,12 +1293,12 @@
         "token": "damage",
         "grammar_group": "hp",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
@@ -1311,12 +1311,12 @@
         "token": "detailschange",
         "grammar_group": "pokemon",
         "classification": "represented",
-        "parser_support": "explicit ident/details/condition shape; state extractor handler",
+        "parser_support": "exact four/five fields; condition validated only when present",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, details, condition",
-          "optional": "none",
-          "shape": "exact details-change record"
+          "required": "target ident, details",
+          "optional": "optional condition in exact Gen 9 health grammar",
+          "shape": "exact four-field source form or five-field condition-bearing legacy form; absent condition preserves HP/status/fainted"
         },
         "target_semantics": "field is a protocol Pokémon ident",
         "visibility": "public when emitted",
@@ -1347,12 +1347,12 @@
         "token": "drag",
         "grammar_group": "pokemon",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact field count and health validation; source-effect payload remains open text",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, details, condition",
-          "optional": "tags",
-          "shape": "roster/active record"
+          "required": "target ident, details, exact Gen 9 health condition",
+          "optional": "optional single [from] nonempty-text tag",
+          "shape": "five fields or six fields with a source-effect tag"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -1545,12 +1545,12 @@
         "token": "gen",
         "grammar_group": "metadata_or_raw",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact ASCII canonical decimal lexeme with no leading zeroes and JavaScript-safe integer bound",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "integer",
           "optional": "none",
-          "shape": "exact scalar integer"
+          "shape": "one nonnegative safe integer field; ASCII digits only; leading zeroes rejected"
         },
         "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
@@ -1563,12 +1563,12 @@
         "token": "heal",
         "grammar_group": "hp",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
@@ -1833,12 +1833,12 @@
         "token": "request",
         "grammar_group": "request",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "validate JSON root, present-vs-missing rqid and finite numbers before filtering/sanitization; private fields never enter public state",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "JSON object",
-          "optional": "rqid and request-variant fields",
-          "shape": "parse JSON object; raw body is transient/private"
+          "required": "one JSON object",
+          "optional": "rqid absent or a safe integral JSON number; other JSON properties are transient/private",
+          "shape": "JSON object root; explicit null/boolean/string/fractional/unsafe rqid reject; non-finite numbers anywhere reject"
         },
         "target_semantics": "no Pokémon target or token-specific",
         "visibility": "addressed side only",
@@ -1887,12 +1887,12 @@
         "token": "setboost",
         "grammar_group": "boost",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, resulting stage -6..6",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -1905,12 +1905,12 @@
         "token": "sethp",
         "grammar_group": "hp",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "condition must be 0 fnt or positive safe numerator/denominator with optional Gen 9 major status; known tags only",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, condition/HP",
-          "optional": "tags",
-          "shape": "health record"
+          "required": "target ident, exact Gen 9 health condition",
+          "optional": "validated command-specific [from], [of], [silent], [zeffect], [partiallytrapped], or [wisher] tags",
+          "shape": "health record with finite public tag vocabulary; dynamic source names remain open raw text"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public/split-dependent",
@@ -2031,12 +2031,12 @@
         "token": "switch",
         "grammar_group": "pokemon",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact field count and health validation; source-effect payload remains open text",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, details, condition",
-          "optional": "tags",
-          "shape": "roster/active record"
+          "required": "target ident, details, exact Gen 9 health condition",
+          "optional": "optional single [from] nonempty-text tag",
+          "shape": "five fields or six fields with a source-effect tag"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -2049,12 +2049,12 @@
         "token": "t:",
         "grammar_group": "metadata_or_raw",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact ASCII canonical decimal lexeme with no leading zeroes and JavaScript-safe integer bound",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "integer timestamp",
           "optional": "none",
-          "shape": "exact timestamp"
+          "shape": "one nonnegative safe integer field; ASCII digits only; leading zeroes rejected"
         },
         "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
@@ -2136,6 +2136,24 @@
         "fixture_reference": "observable_state"
       },
       {
+        "token": "tier",
+        "grammar_group": "metadata_or_raw",
+        "classification": "raw-only",
+        "parser_support": "exactly one nonempty format label, validated before intentional filtering from public prefixes",
+        "review_status": "reviewed_with_documented_gaps",
+        "record_grammar": {
+          "required": "one nonempty format name",
+          "optional": "none",
+          "shape": "exact |tier|LABEL; validated then filtered"
+        },
+        "target_semantics": "no Pokémon target",
+        "visibility": "public static battle metadata",
+        "authoritative_state_effect": "format label is already carried by the battle envelope; raw-only, no additional state effect",
+        "belief_effect": "no direct belief mutation; any hypothesis requires BELIEF-001 evidence provenance",
+        "legal_action_effect": "none; format field and current request remain authoritative",
+        "fixture_reference": "sim/battle.ts:1857; trainer/src/neural/protocol_contract.json; pipeline_integration.ts:projectPipelineProtocolPrefix"
+      },
+      {
         "token": "transform",
         "grammar_group": "transform",
         "classification": "raw-only",
@@ -2157,12 +2175,12 @@
         "token": "turn",
         "grammar_group": "metadata_or_raw",
         "classification": "represented",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "exact ASCII canonical decimal lexeme with no leading zeroes and JavaScript-safe integer bound",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
           "required": "integer",
           "optional": "none",
-          "shape": "exact scalar integer"
+          "shape": "one nonnegative safe integer field; ASCII digits only; leading zeroes rejected"
         },
         "target_semantics": "no Pokémon target or token-specific",
         "visibility": "per token/source channel",
@@ -2175,12 +2193,12 @@
         "token": "unboost",
         "grammar_group": "boost",
         "classification": "raw-only",
-        "parser_support": "allowlisted; specific shape or generic nonempty-field fallback",
+        "parser_support": "stat, canonical integer, numeric range, and source-tag forms validated before routing",
         "review_status": "reviewed_with_documented_gaps",
         "record_grammar": {
-          "required": "target ident, stat, integer amount",
-          "optional": "tags",
-          "shape": "stage record"
+          "required": "target ident, one of atk/def/spa/spd/spe/accuracy/evasion, ASCII canonical integer delta 0..12",
+          "optional": "[from] nonempty-text, [silent], or [zeffect]",
+          "shape": "stage record; state change remains bounded to public stage evidence"
         },
         "target_semantics": "field is a protocol Pokémon ident when required",
         "visibility": "public when emitted",
@@ -3002,20 +3020,11 @@
       {
         "token": "-singleturn",
         "source_files": [
-          "data/mods/gen3/moves.ts",
-          "data/mods/gen4/moves.ts",
-          "data/mods/gen5/moves.ts",
-          "data/mods/gen6/moves.ts",
-          "data/mods/gen7/moves.ts",
-          "data/mods/gen8linked/moves.ts",
-          "data/mods/gen9ssb/moves.ts",
-          "data/mods/passiveaggressive/moves.ts",
-          "data/mods/thecardgame/moves.ts",
           "data/moves.ts"
         ],
         "review_status": "reviewed_with_documented_gaps",
-        "scope": "package-wide literal scan; not format filtered",
-        "classification": "source-reviewed; see exclusion inventory"
+        "scope": "pinned gen9randombattle base-moves literal/template emitters; valid_record_controls is the raw-only form inventory",
+        "classification": "source-reviewed; each accepted form is raw-only"
       },
       {
         "token": "-start",
@@ -3611,8 +3620,8 @@
         "fixture": "observable_state"
       }
     },
-    "accepted_count": 113,
-    "parser_token_fingerprint": "4aec23988cf33abd84ff7b165b32748f9b77a6e3363b5db4e803d248f8079b53",
+    "accepted_count": 114,
+    "parser_token_fingerprint": "48d9c5be42d6e6e2b82c3d8619b257c02badc01ee758b6af5938c5ea17a21cfd",
     "emission_paths": [
       {
         "name": "Battle.add",
@@ -3733,10 +3742,11 @@
       "disposition": "See token classification and source path. Parser-only boundary aliases/diagnostics are not claimed simulator emissions; static emitter-only tokens are package-wide and may be other-mod, specialized format, or diagnostic. Supported-format state records missing from parser were added only where source audit established common Gen 9 use."
     },
     "contract": {
-      "schema_version": "showdown-protocol-contract/v1",
+      "schema_version": "showdown-protocol-contract/v2",
       "source": "../trainer/src/neural/protocol_contract.json",
-      "final_coverage_attestation": "pending separate review of shared boundary implementation",
-      "review_scope": "Supported raw-only and represented records, unresolved aliases, recognized unsupported stops, malformed shapes, and unknown commands."
+      "final_coverage_attestation": "pending separate review of corrected shared boundary implementation",
+      "review_scope": "Pinned-source field grammar, ASCII/numeric/JSON types, request privacy, source-valid detailschange and endability shapes, validated filtering of request/tier/framing, strict loader structure, raw-only preservation, and the enforced -singlemove stop. Bare ability compatibility is raw-only and not a pinned emitter claim.",
+      "remaining_uncertainty": "Dynamic source/effect text remains syntactically nonempty raw evidence; package-wide callback composition, scanner closure, nested effects, and operative format reachability remain separate work."
     },
     "recognized_unsupported_commands": [
       {
@@ -3769,6 +3779,13 @@
         "kind": "unsupported_stop",
         "source": "pokemon-showdown@0.11.10 data/moves.ts:3619,6896,8176,15098",
         "reason": "reachable candidate emitters are identified; lifecycle semantics are not accepted"
+      }
+    ],
+    "framing_only_records": [
+      {
+        "record": "|",
+        "evidence": "pinned sim/battle.ts:1451,2754,2881 emits empty separators",
+        "disposition": "accepted by raw validator and filtered before public prefix"
       }
     ]
   },

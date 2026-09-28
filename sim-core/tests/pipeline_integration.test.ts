@@ -321,6 +321,20 @@ test('unresolved protocol aliases stop pipeline projection while known raw-only 
       assert.equal(states.p1.protocol_prefix.at(-1), rawOnlyRecord);
       assert.equal(states.p2.protocol_prefix.at(-1), rawOnlyRecord);
     }
+
+    const directProjection = projectPipelineStepResult(result, 'pipeline-protocol-boundary', [
+      ...basePrefix, '|request|{"private":true}', '|tier|[Gen 9] Random Battle', '|',
+    ]);
+    for (const player of ['p1', 'p2'] as const) {
+      assert.ok(!directProjection[player].protocol_prefix.some((line) => line.startsWith('|tier|') || line === '|'));
+      assert.ok(directProjection[player].protocol_prefix.includes('|request|{}'));
+      assert.ok(!directProjection[player].protocol_prefix.some((line) => line.includes('private')));
+    }
+    for (const record of ['|request|not-json', '|tier|']) {
+      assert.throws(() => projectPipelineStepResult(result, 'pipeline-protocol-boundary', [...basePrefix, record]),
+        (error: Error) => error instanceof PipelineIntegrationError
+          && error.code === 'pipeline/v1/unsupported-observable-protocol');
+    }
   } finally {
     await env.close();
   }
@@ -359,7 +373,22 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
       { record: '|clearstatus|legacy-token', code: 'pipeline/v1/unresolved-protocol-alias' },
       { record: '|futuremechanic|opaque', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singlemove|p1a: Pikachu|Destiny Bond', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Future Mechanic', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|move: Follow Me|[of] p2a: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee ', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-boost|bad ident|atk|1', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|faint|p1a: Pikachu ', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-clearboost|p1a: Pikachu ', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-endability|p1a: Pikachu ', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-transform|p1a: Ditto|p2a: Gengar ', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-transform|p1a: Ditto|p2a:\tGengar', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-heal|p1:Eevee|50/100|[from] move: Revival Blessing', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|request|not-json', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|request|{"rqid":null}', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|tier|', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-damage|p1a: Pikachu|garbage', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-boost|p1a: Pikachu|banana|1000', code: 'pipeline/v1/unsupported-observable-protocol' },
     ]) {
       injectedRecord = testCase.record;
       await assert.rejects(session.step(), (error: Error) => error instanceof PipelineIntegrationError

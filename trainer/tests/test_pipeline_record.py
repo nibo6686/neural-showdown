@@ -7,7 +7,11 @@ from unittest.mock import patch
 
 from neural.ts_identity import observation_digest, belief_digest, REFERENCE_KEYS, verify_bundle_identities
 from neural.canonical_action import canonical_action_from_legal_action
-from neural.protocol_contract import RECORD_FIXTURES, REJECTION_FIXTURES, SUPPORTED_COMMANDS, ProtocolRecordError, validate_protocol_record
+from neural.protocol_contract import (
+    RECORD_FIXTURES, REJECTION_FIXTURES, SUPPORTED_COMMANDS, VALID_RECORD_CONTROLS, VALIDATION_RULES,
+    ProtocolContractError, ProtocolRecordError, load_protocol_contract, validate_protocol_contract,
+    validate_protocol_record,
+)
 from neural.pipeline_record import (
     PipelineRecordError,
     main,
@@ -227,9 +231,15 @@ class PipelineRecordTest(unittest.TestCase):
     def test_shared_protocol_contract_fixtures_cover_every_supported_command(self):
         self.assertEqual({fixture["token"] for fixture in RECORD_FIXTURES}, SUPPORTED_COMMANDS)
         self.assertEqual(len(RECORD_FIXTURES), len(SUPPORTED_COMMANDS))
+        validate_protocol_record("|")
         for fixture in RECORD_FIXTURES:
             with self.subTest(token=fixture["token"]):
+                self.assertEqual(fixture["record"].split("|")[1], fixture["token"])
                 validate_protocol_record(fixture["record"])
+        for control in VALID_RECORD_CONTROLS:
+            with self.subTest(control=control["record"]):
+                self.assertEqual(control["record"].split("|")[1], control["token"])
+                validate_protocol_record(control["record"])
         for fixture in REJECTION_FIXTURES:
             with self.subTest(record=fixture["record"]):
                 with self.assertRaises(ProtocolRecordError) as caught:
@@ -239,6 +249,8 @@ class PipelineRecordTest(unittest.TestCase):
     def test_rehashed_protocol_rejections_cover_versions_perspectives_and_prefixes(self):
         original_controls = {}
         cases = 0
+        original_review_rejections = 0
+        review_records = {"|turn|١", '|request|{"rqid":null}'}
         for version in ("v1", "v2"):
             for perspective in ("p1", "p2"):
                 original = _bundle(perspective=perspective, version=version)
@@ -255,8 +267,118 @@ class PipelineRecordTest(unittest.TestCase):
                             self.assertEqual(result, 2, stderr.getvalue())
                             self.assertEqual(stdout.getvalue(), "")
                         cases += 1
+                        original_review_rejections += fixture["record"] in review_records
                 self.assertEqual(validate_pipeline_bundle(original), original_controls[(version, perspective)])
         self.assertEqual(cases, len(REJECTION_FIXTURES) * 8)
+        self.assertEqual(original_review_rejections, 16)
+
+    def test_player_ident_rejections_cover_singleturn_event_tags_and_side_targets(self):
+        rejected = {fixture["record"] for fixture in REJECTION_FIXTURES}
+        for record in (
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee",
+            "|-damage|p1a: Pikachu|50/100|[of] p2:Eevee",
+            "|-heal|p1a: Pikachu|50/100|[of] p2a:Eevee",
+            "|move|p1a: Pikachu|Tackle|p2:Eevee",
+            "|faint|p1a: Pikachu ",
+            "|-clearboost|p1a: Pikachu ",
+            "|-endability|p1a: Pikachu ",
+            "|-transform|p1a: Ditto|p2a:Eevee",
+            "|-transform|p1a: Ditto|p2a: Eevee ",
+            "|-transform|p1a: Ditto|p2a:  Eevee",
+            "|-transform|p1a: Ditto|p2a:\tEevee",
+            "|-transform|p1a: Ditto|p2a:\u00a0Eevee",
+            "|-transform|p1a: Ditto|p2a:\u2009Eevee",
+            "|-transform|p1a: Ditto|p2: Eevee",
+        ):
+            self.assertIn(record, rejected)
+        for record in (
+            "|move|p1a: Pikachu|Tackle|p2: Eevee",
+            "|move|p1a: Mr: Mime|Tackle|p2a: Farfetch'd",
+        ):
+            validate_protocol_record(record)
+
+    def test_rehashed_singleturn_source_controls_publish_across_versions_and_prefixes(self):
+        controls = [control for control in VALID_RECORD_CONTROLS if control["token"] == "-singleturn"]
+        player_ident_controls = [
+            control for control in VALID_RECORD_CONTROLS
+            if control["reconstruction_scope"].startswith("raw-only player-ident grammar control")
+            or control["token"] == "-transform"
+        ]
+        rules = VALIDATION_RULES["singleturn"]
+        parts = [control["record"].split("|") for control in controls]
+        self.assertEqual(
+            sorted(row[3] for row in parts if len(row) == 4),
+            sorted(rules["untagged_effects"]),
+        )
+        tagged_forms = []
+        for row in parts:
+            if len(row) != 5:
+                continue
+            no_payload_tag = row[4] == "[zeffect]"
+            tagged_forms.append({
+                "effect": row[3],
+                "tag": row[4] if no_payload_tag else "[of]",
+                "tag_value": "none" if no_payload_tag else "player-ident",
+            })
+        self.assertEqual(tagged_forms, rules["tagged_forms"])
+        self.assertEqual(len(controls), len(rules["untagged_effects"]) + len(rules["tagged_forms"]))
+        cases = 0
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                original = _bundle(perspective=perspective, version=version)
+                for where in ("input", "successor"):
+                    for control in (*controls, *player_ident_controls):
+                        candidate = _rehashed_protocol_candidate(original, where, control["record"])
+                        verify_bundle_identities(candidate)
+                        validate_pipeline_bundle(candidate)
+                        stdout = io.StringIO()
+                        stderr = io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            result = main()
+                        with self.subTest(version=version, perspective=perspective, where=where, record=control["record"]):
+                            self.assertEqual(result, 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                        cases += 1
+        self.assertEqual(cases, (len(controls) + len(player_ident_controls)) * 8)
+
+    def test_shared_contract_loader_rejects_inconsistent_and_unsupported_shapes(self):
+        from pathlib import Path
+        contract_path = Path(__file__).parents[1] / "src/neural/protocol_contract.json"
+        base = json.loads(contract_path.read_text(encoding="utf-8"))
+        invalid = []
+        wrong_type = copy.deepcopy(base); wrong_type["supported_commands"] = "move"; invalid.append(wrong_type)
+        unknown_rule = copy.deepcopy(base); unknown_rule["validation_rules"]["integer"]["lexeme"] = "unicode-decimal"; invalid.append(unknown_rule)
+        invalid_ident = copy.deepcopy(base); invalid_ident["validation_rules"]["player_ident"]["separator"] = ":"; invalid.append(invalid_ident)
+        mismatched_singleturn = copy.deepcopy(base); mismatched_singleturn["validation_rules"]["singleturn"]["tagged_forms"][0]["tag"] = "[of]"; invalid.append(mismatched_singleturn)
+        unknown_rule_key = copy.deepcopy(base); unknown_rule_key["validation_rules"]["future"] = {}; invalid.append(unknown_rule_key)
+        duplicate = copy.deepcopy(base); duplicate["supported_commands"].append(duplicate["supported_commands"][0]); invalid.append(duplicate)
+        mismatched_fixture = copy.deepcopy(base); next(row for row in mismatched_fixture["record_fixtures"] if row["token"] == "ability")["token"] = "-ability"; invalid.append(mismatched_fixture)
+        conflict = copy.deepcopy(base); conflict["supported_commands"].append("clearstatus"); invalid.append(conflict)
+        for candidate in invalid:
+            with self.subTest(candidate=invalid.index(candidate)):
+                with self.assertRaises(ProtocolContractError):
+                    validate_protocol_contract(candidate)
+
+        with self.assertRaises(ProtocolContractError):
+            load_protocol_contract(contract_path.with_name("missing-contract.json"))
+        with self.assertRaises(ProtocolContractError):
+            load_protocol_contract(contract_path.with_name("protocol_contract.py"))
+
+    def test_rehashed_valid_tier_and_private_request_cannot_be_published(self):
+        original = _bundle(version="v2")
+        for record, message in (
+            ('|tier|[Gen 9] Random Battle', "filtered ruleset metadata"),
+            ('|request|{"rqid":7,"secret":"private"}', "private request"),
+        ):
+            candidate = _rehashed_protocol_candidate(original, "successor", record)
+            verify_bundle_identities(candidate)
+            with self.subTest(record=record), self.assertRaisesRegex(PipelineRecordError, message):
+                validate_pipeline_bundle(candidate)
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                result = main()
+            self.assertEqual(result, 2, stderr.getvalue())
+            self.assertEqual(stdout.getvalue(), "")
 
     def test_fully_rehashed_unknown_command_regression(self):
         bundle = _bundle(version="v2")

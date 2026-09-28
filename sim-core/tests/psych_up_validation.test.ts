@@ -29,7 +29,7 @@ function inject(original:any,where:'input'|'successor',line:string) {
  b.input_belief.belief_id=beliefId(b.input_belief);b.successor_belief.parent_belief_id=b.input_belief.belief_id;b.successor_belief.belief_id=beliefId(b.successor_belief);
  return b;
 }
-const malformed=['','garbage','p3a: Name','p1: Name','p1A: Name','p1a:','p1a: ','p1a: \t','p1a: \ufeff','p1a Name'];
+const malformed=['','garbage','p3a: Name','p1z: Name','p1: Name','p1A: Name','p1a:Name','p1a:  Name','p1a:\tName','p1a:\ufeffName','p1a:','p1a: ','p1a: \t','p1a: \ufeff','p1a Name'];
 const lines=[...malformed.map(id=>`|-copyboost|${id}|p2a: Donor|[from] move: Psych Up`),...malformed.map(id=>`|-copyboost|p1a: Caller|${id}|[from] move: Psych Up`),'|-copyboost','|-copyboost||p2a: Donor|[from] ability: Costar','|-copyboost|p1a: Caller|p2a: Donor','|-copyboost|p1a: Caller|p2a: Donor|[from] move: Psych Up|extra','|-copyboost|p1a: Caller|p2a: Donor|[from] ability: Costar'];
 const aliasLines=[...lines.map(line=>line.replace('|-copyboost','|copyboost')), '|copyboost|p1a: Caller|p2a: Donor|[from] move: Psych Up'];
 const publicationRejections=[...lines,...aliasLines];
@@ -38,10 +38,6 @@ for(const version of ['observable-battle-state/v1','observable-battle-state/v2']
  try {
  const actions=Object.fromEntries((['p1','p2'] as const).map(p=>{const r=s.boundary.perspectives[p].observation.request!;return[p,canonicalActionFromLegalAction(r,r.legal_actions.available_indices[0])]})) as Parameters<typeof s.step>[0];
  const result=await s.step(actions),bundles:any[]=[],validBundles:any[]=Object.values(result.record_bundles);
- for(const p of ['p1','p2'] as const)for(const where of ['input','successor'] as const) {
-  const good=inject(result.record_bundles[p],where,'|-copyboost|p1z: Unresolved|p2z: Donor|[from] move: Psych Up');
-  projectBeliefState({observation:good[where+'_observation']});validBundles.push(good);
- }
  for(const p of ['p1','p2'] as const)for(const where of ['input','successor'] as const)for(const line of publicationRejections) {
   const b=inject(result.record_bundles[p],where,line);bundles.push(b);
   assert.throws(()=>validateObservableProtocolPrefix(b[where+'_observation'].protocol_prefix,p),/copy|identifier/);
@@ -53,10 +49,10 @@ for(const version of ['observable-battle-state/v1','observable-battle-state/v2']
 });
 test('copy helpers validate before routing; valid unresolved identities remain unknown',()=>{
  for(const line of lines)assert.throws(()=>opponentPublicBoosts([line],'p1a: Caller'),/copy/);
- const valid=['p1a: Unseen','p1z:Unseen',' p1a: Unseen ','p1a: é😀'];
- for(const ident of valid) {const line=`|-copyboost|${ident}|p2z:Unknown|[from] move: Psych Up`;validateObservableProtocolPrefix([line],'p1');assert.ok(Object.values(opponentPublicBoosts([line],ident)).every(x=>x===null));}
+ const valid=['p1a: Unseen','p1a: é😀'];
+ for(const ident of valid) {const line=`|-copyboost|${ident}|p2a: Unknown|[from] move: Psych Up`;validateObservableProtocolPrefix([line],'p1');assert.ok(Object.values(opponentPublicBoosts([line],ident)).every(x=>x===null));}
  const prefix=['|-setboost|p1a: Caller|atk|6','|-copyboost|p1a: Caller|p2a: Unseen|[from] move: Psych Up'];assert.ok(Object.values(opponentPublicBoosts(prefix,'p1a: Caller')).every(x=>x===null));
- const response=py({bad:lines,valid:valid.map(id=>`|-copyboost|${id}|p2z:Unknown|[from] move: Psych Up`),prefix},`import json,sys\nfrom neural.public_boosts import public_boost_evidence\nx=json.load(sys.stdin)\nfor line in x['bad']:\n try: public_boost_evidence([line])\n except ValueError as e: assert 'copy' in str(e)\n else: raise AssertionError(line)\nfor line in x['valid']:\n for stages in public_boost_evidence([line]).values(): assert all(v is None for v in stages.values())\nassert all(v is None for v in public_boost_evidence(x['prefix'])['p1: Caller'].values())`);assert.equal(response.status,0,response.stderr);
+ const response=py({bad:lines,valid:valid.map(id=>`|-copyboost|${id}|p2a: Unknown|[from] move: Psych Up`),prefix},`import json,sys\nfrom neural.public_boosts import public_boost_evidence\nx=json.load(sys.stdin)\nfor line in x['bad']:\n try: public_boost_evidence([line])\n except ValueError as e: assert 'copy' in str(e)\n else: raise AssertionError(line)\nfor line in x['valid']:\n for stages in public_boost_evidence([line]).values(): assert all(v is None for v in stages.values())\nassert all(v is None for v in public_boost_evidence(x['prefix'])['p1: Caller'].values())`);assert.equal(response.status,0,response.stderr);
 });
 test('original fully rehashed review reproductions reject before Python CLI output',()=>{
  const folder=path.resolve(__dirname,'../../../artifacts/validation/psych-up-review-2026-09-25');

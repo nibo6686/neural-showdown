@@ -1,5 +1,5 @@
 {
-  "schema_version": "showdown-protocol-contract/v1",
+  "schema_version": "showdown-protocol-contract/v2",
   "simulator": {
     "package": "pokemon-showdown",
     "version": "0.11.10",
@@ -83,6 +83,7 @@
     "teamsize",
     "terastallize",
     "-terastallize",
+    "tier",
     "turn",
     "unboost",
     "-unboost",
@@ -164,10 +165,10 @@
   "record_fixtures": [
     {
       "token": "ability",
-      "record": "|-ability|p1a: Pikachu|Static",
+      "record": "|ability|p1a: Pikachu|Static",
       "inventory_classification": "raw-only",
       "grammar_summary": "ability event",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "accepted_contract_raw_only_compatibility; bare ability has no pinned emitter",
       "inventory_grammar": {
         "required": "target ident, ability",
         "optional": "tags",
@@ -440,14 +441,14 @@
     },
     {
       "token": "detailschange",
-      "record": "|detailschange|p1a: Pikachu|Pikachu, L50|100/100",
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77",
       "inventory_classification": "represented",
-      "grammar_summary": "exact details-change record",
+      "grammar_summary": "source details-change with optional legacy condition",
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
-        "required": "target ident, details, condition",
-        "optional": "none",
-        "shape": "exact details-change record"
+        "required": "target ident, details",
+        "optional": "legacy condition/HP status",
+        "shape": "source four-field record or documented condition-bearing record"
       },
       "fixture_reference": "sim-core/tests/state_extractor.test.ts",
       "pinned_emitter_sources": [
@@ -539,12 +540,12 @@
       "token": "-endability",
       "record": "|-endability|p1a: Pikachu",
       "inventory_classification": "represented",
-      "grammar_summary": "ability end",
+      "grammar_summary": "base or move-source ability end",
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
         "required": "target ident",
-        "optional": "none",
-        "shape": "ability end"
+        "optional": "old ability and exact [from] move tag for move-source form",
+        "shape": "base suppression or extended move-source event"
       },
       "fixture_reference": "state_extractor",
       "pinned_emitter_sources": [
@@ -1484,6 +1485,22 @@
       ]
     },
     {
+      "token": "tier",
+      "record": "|tier|[Gen 9] Random Battle",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact one-field ruleset label; validated then intentionally filtered",
+      "evidence": "pinned source sim/battle.ts:1857; intentionally filtered from public prefix",
+      "inventory_grammar": {
+        "required": "format label",
+        "optional": "none",
+        "shape": "exact one-field metadata record"
+      },
+      "fixture_reference": "sim/battle.ts:1857; pipeline_integration.ts:projectPipelineProtocolPrefix",
+      "pinned_emitter_sources": [
+        "sim/battle.ts:1857"
+      ]
+    },
+    {
       "token": "turn",
       "record": "|turn|1",
       "inventory_classification": "represented",
@@ -2315,8 +2332,384 @@
       "kind": "malformed"
     },
     {
-      "record": "|",
-      "kind": "unknown"
+      "record": "|turn|\u0661",
+      "kind": "malformed"
+    },
+    {
+      "record": "|turn|\uff11\uff12",
+      "kind": "malformed"
+    },
+    {
+      "record": "|turn|01",
+      "kind": "malformed"
+    },
+    {
+      "record": "|turn|9007199254740992",
+      "kind": "malformed"
+    },
+    {
+      "record": "|turn|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|turn|1|extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":null}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":true}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":false}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":\"7\"}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":7.5}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":9007199254740992}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":NaN}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":1e400}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"active\":{\"ratio\":1e400}}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|null",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|true",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|garbage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|0/100",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|101/100",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/0",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100 xyz",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a: Pikachu|banana|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a: Pikachu|atk|1000",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-setboost|p1a: Pikachu|atk|7",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-setboost|p1a: Pikachu|atk|-7",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Protect|opaque|arbitrary",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Future Mechanic",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Future Mechanic|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p3a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100|[of] p2:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[of] p2a:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|move|p1a: Pikachu|Tackle|p2:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|move: Helping Hand|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Follow Me|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|move: Follow Me|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Protect|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee|[of] p1a: Pikachu",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|[zeffect]|move: Follow Me",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|move: Follow Me|[zeffect]|opaque",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|move: Follow Me|[zeffect]|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77|garbage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-endability|p1a: Pikachu|Static|[from] ability: Trace",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed|extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|tier|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|tier|[Gen 9] Random Battle|extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":-9007199254740992}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":[]}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|request|{\"rqid\":{}}",
+      "kind": "malformed"
+    },
+    {
+      "record": "|gen|01",
+      "kind": "malformed"
+    },
+    {
+      "record": "|gen|9007199254740992",
+      "kind": "malformed"
+    },
+    {
+      "record": "|t:|01",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-setboost|p1a: Pikachu|atk|-0",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-setboost|p1a: Pikachu|atk|\u0661",
+      "kind": "malformed"
+    },
+    {
+      "record": "|switch|p1a: Pikachu|Pikachu, L50|garbage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|drag|p1a: Pikachu|Pikachu, L50|0/100",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100|opaque",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100|[from] ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[silent]|opaque",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-sethp|p1a: Pikachu|50/100|[wisher] Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a: Pikachu|atk|1|opaque",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a: Pikachu|atk|1|[from] ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a:Pikachu|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a:  Pikachu|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a:\tPikachu|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1a:\u00a0Pikachu|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of]  p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:\tEevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:\u00a0Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100|[of]  p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[of] p2a:\tEevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-damage|p1a: Pikachu|50/100|[of] p2a: Eevee ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1:Eevee|50/100|[from] move: Revival Blessing",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1:\tEevee|50/100|[from] move: Revival Blessing",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-copyboost|p1a: Pikachu|p2a:Eevee|[from] move: Psych Up",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-boost|p1z: Pikachu|atk|1",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Spectral Thief|p2: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|prepare|p1a: Pikachu|Solar Beam|p2: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-clearpositiveboost|p1a: Pikachu|p2: Eevee|move: Psych Up",
+      "kind": "malformed"
+    },
+    {
+      "record": "|faint|p1a: Pikachu ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-clearboost|p1a: Pikachu ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-endability|p1a: Pikachu ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto |p2a: Gengar",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a: Eevee ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a:  Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a:\tEevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a:\u00a0Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2a:\u2009Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-transform|p1a: Ditto|p2: Eevee",
+      "kind": "malformed"
     }
   ],
   "disposition_rules": {
@@ -2325,5 +2718,348 @@
     "malformed_supported": "Reject before side routing and publication. Episode handling classifies malformed evidence as failed; it is not a supported mechanic.",
     "unknown": "Reject before side routing and publication; episode handling truncates on unsupported protocol.",
     "privacy": "Requests remain private; only the sanitized rqid record is allowed in a public prefix. All other request JSON is rejected at publication."
-  }
+  },
+  "validation_rules": {
+    "integer": {
+      "lexeme": "ascii-decimal",
+      "leading_zeroes": "reject",
+      "safe_limit": 9007199254740991
+    },
+    "request": {
+      "root": "object",
+      "rqid_presence": "optional",
+      "rqid_type": "safe-integer",
+      "rqid_null": "reject",
+      "rqid_boolean": "reject",
+      "non_finite_numbers": "reject",
+      "other_properties": "transient-private"
+    },
+    "health_condition": {
+      "fainted": "0 fnt",
+      "ratio": "positive-safe-integer-pair",
+      "numerator_limit": "at-most-denominator",
+      "statuses": [
+        "brn",
+        "par",
+        "slp",
+        "psn",
+        "tox",
+        "frz"
+      ]
+    },
+    "player_ident": {
+      "side_ids": ["p1", "p2"],
+      "slots": ["", "a", "b", "c", "d", "e", "f"],
+      "separator": ": ",
+      "name": "trimmed-nonempty-text"
+    },
+    "boost_event": {
+      "stats": [
+        "atk",
+        "def",
+        "spa",
+        "spd",
+        "spe",
+        "accuracy",
+        "evasion"
+      ],
+      "delta_min": 0,
+      "delta_max": 12,
+      "set_min": -6,
+      "set_max": 6,
+      "tags": [
+        "[from] trimmed-nonempty-text",
+        "[silent]",
+        "[zeffect]"
+      ]
+    },
+    "detailschange": {
+      "condition": "optional-health-condition"
+    },
+    "endability": {
+      "forms": [
+        "target-only",
+        "move-source"
+      ],
+      "move_source_tag": "[from] move: "
+    },
+    "singleturn": {
+      "untagged_effects": [
+        "move: Protect", "move: Beak Blast", "Crafty Shield", "move: Electrify", "move: Endure",
+        "move: Focus Punch", "move: Follow Me", "Protect", "move: Magic Coat", "Mat Block",
+        "Max Guard", "Powder", "Quick Guard", "move: Rage Powder", "move: Roost", "move: Shell Trap",
+        "Snatch", "move: Spotlight", "Wide Guard"
+      ],
+      "tagged_forms": [
+        {
+          "effect": "move: Follow Me",
+          "tag": "[zeffect]",
+          "tag_value": "none"
+        },
+        {
+          "effect": "Helping Hand",
+          "tag": "[of]",
+          "tag_value": "player-ident",
+          "ident_role": "active"
+        }
+      ]
+    },
+    "tier": {
+      "payload_fields": 1,
+      "label": "nonempty-text"
+    },
+    "switch_drag": {
+      "optional_tag": "[from] trimmed-nonempty-text"
+    },
+    "health_event_tags": {
+      "damage": [
+        "[from] trimmed-nonempty-text",
+        "[of] player-ident",
+        "[silent]",
+        "[partiallytrapped]"
+      ],
+      "heal": [
+        "[from] trimmed-nonempty-text",
+        "[of] player-ident",
+        "[silent]",
+        "[zeffect]",
+        "[wisher] trimmed-nonempty-text"
+      ],
+      "sethp": [
+        "[from] trimmed-nonempty-text",
+        "[silent]"
+      ]
+    }
+  },
+  "valid_record_controls": [
+    {
+      "token": "request",
+      "record": "|request|{}",
+      "evidence": "pinned sim/side.ts:483-485; rqid is optional at ChoiceRequest type boundary",
+      "reconstruction_scope": "private request is parsed for validation then omitted from public prefix"
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":7.0,\"wait\":true,\"active\":[]}",
+      "evidence": "JSON number semantics: integral numeric rqid is a safe integer in both runtimes",
+      "reconstruction_scope": "private request is parsed for validation then omitted from public prefix"
+    },
+    {
+      "token": "detailschange",
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77|75/100 brn",
+      "evidence": "legacy condition-bearing form documented in pinned sim/SIM-PROTOCOL.md:275-283",
+      "reconstruction_scope": "species/details plus condition when present"
+    },
+    {
+      "token": "-endability",
+      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
+      "evidence": "pinned sim/pokemon.ts:1861-1866",
+      "reconstruction_scope": "raw-only variant; does not assert Gastro Acid suppression"
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Follow Me|[zeffect]",
+      "evidence": "pinned data/moves.ts:6264-6269; Follow Me emits the move label followed by [zeffect] only for its Z effect",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee",
+      "evidence": "pinned data/moves.ts:8884-8891; Helping Hand emits its effect label followed by the source ident",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Protect",
+      "evidence": "pinned data/moves.ts:1033-1038; Protect emits its move label without a trailing tag",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Beak Blast",
+      "evidence": "pinned data/moves.ts:1172-1176", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Crafty Shield",
+      "evidence": "pinned data/moves.ts:3262-3266", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Electrify",
+      "evidence": "pinned data/moves.ts:4734-4738", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Endure",
+      "evidence": "pinned data/moves.ts:4992-4996", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Focus Punch",
+      "evidence": "pinned data/moves.ts:6231-6235", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Follow Me",
+      "evidence": "pinned data/moves.ts:6264-6270", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Protect",
+      "evidence": "pinned data/moves.ts:10281-10285,13332-13336,14480-14484,17031-17035", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Magic Coat",
+      "evidence": "pinned data/moves.ts:11092-11096", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Mat Block",
+      "evidence": "pinned data/moves.ts:11401-11405", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Max Guard",
+      "evidence": "pinned data/moves.ts:11579-11583", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Powder",
+      "evidence": "pinned data/moves.ts:14162-14166", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Quick Guard",
+      "evidence": "pinned data/moves.ts:15031-15035", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Rage Powder",
+      "evidence": "pinned data/moves.ts:15145-15149", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Roost",
+      "evidence": "pinned data/moves.ts:16023-16027", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Shell Trap",
+      "evidence": "pinned data/moves.ts:16900-16904", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Snatch",
+      "evidence": "pinned data/moves.ts:17775-17779", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Spotlight",
+      "evidence": "pinned data/moves.ts:18459-18463", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Wide Guard",
+      "evidence": "pinned data/moves.ts:21634-21638", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-damage",
+      "record": "|-damage|p1a: Pikachu|50/100 brn|[from] recoil",
+      "evidence": "pinned sim/pokemon.ts:1990-2020 and sim/battle.ts:2154",
+      "reconstruction_scope": "public HP/status event; source tag remains raw"
+    },
+    {
+      "token": "-boost",
+      "record": "|-boost|p1a: Pikachu|accuracy|1|[silent]",
+      "evidence": "pinned sim/dex.ts:581-588 and sim/battle.ts:1910-1969",
+      "reconstruction_scope": "public stage event"
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":0}",
+      "evidence": "safe integral rqid lower boundary; JSON number type is enforced consistently",
+      "reconstruction_scope": "validated transient input; omitted from the public prefix"
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":9007199254740991}",
+      "evidence": "safe integral rqid upper boundary from the shared request rule",
+      "reconstruction_scope": "validated transient input; only sanitized rqid may be retained"
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":-9007199254740991}",
+      "evidence": "safe integral rqid lower signed boundary for runtime parity",
+      "reconstruction_scope": "validated transient input; only sanitized rqid may be retained"
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":7,\"nullable\":null,\"enabled\":false}",
+      "evidence": "JSON null and boolean values are permitted in transient non-rqid fields",
+      "reconstruction_scope": "private fields are validated then omitted from the public prefix"
+    },
+    {
+      "token": "tier",
+      "record": "|tier|[Gen 9] Random Battle",
+      "evidence": "pinned sim/battle.ts:1857 emits one format label",
+      "reconstruction_scope": "valid raw-only format metadata; validated then filtered before publication"
+    },
+    {
+      "token": "switch",
+      "record": "|switch|p2a: Ting-Lu|Ting-Lu, L78|92/100|[from] U-turn",
+      "evidence": "Pinned simulator probe reproduced a sourceEffect switch tag; emitter sim/battle-actions.ts:142 appends [from] sourceEffect.",
+      "reconstruction_scope": "active identity and health are represented; the source tag remains raw"
+    },
+    {
+      "token": "-damage",
+      "record": "|-damage|p1a: Pikachu|50/100|[from] move: Whirlpool|[partiallytrapped]",
+      "evidence": "pinned sim/battle.ts:2034 emits [from] effect then [partiallytrapped]",
+      "reconstruction_scope": "HP state is represented; source tags remain raw"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p1a: Pikachu|100/100|[from] move: Wish|[wisher] Eevee",
+      "evidence": "pinned data/moves.ts:21760 emits [wisher] after Wish healing",
+      "reconstruction_scope": "HP state is represented; source/wisher tags remain raw"
+    },
+    {
+      "token": "-sethp",
+      "record": "|-sethp|p1a: Pikachu|50/100|[from] move: Pain Split|[silent]",
+      "evidence": "pinned data/moves.ts:13600 emits source and silent tags for Pain Split",
+      "reconstruction_scope": "HP state is represented; source tags remain raw"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p1: Blissey|50/100|[from] move: Revival Blessing",
+      "evidence": "pinned sim/battle.ts:2738 emits a benched revived Pokemon; sim/pokemon.ts:325,510-512 formats it as p1: Blissey",
+      "reconstruction_scope": "raw-only player-ident grammar control; the Revival Blessing mechanics remain separately scoped"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p1a: Pikachu|50/100|[from] drain|[of] p2: Eevee",
+      "evidence": "pinned sim/battle.ts:2201-2215 emits [of] source; sim/pokemon.ts:510-512 emits side-only p2: Eevee for a non-active source",
+      "reconstruction_scope": "raw-only player-ident grammar control; no drain or HP interaction is reconstructed"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p1a: Mr: Mime|50/100|[from] drain|[of] p2f: Farfetch'd",
+      "evidence": "pinned sim/battle.ts:2201-2215 uses [of] source; sim/pokemon.ts:504-512 emits active slots a-f and preserves the display name",
+      "reconstruction_scope": "raw-only player-ident grammar control; no drain or HP interaction is reconstructed"
+    },
+    {
+      "token": "faint",
+      "record": "|faint|p1a: Mr: Mime",
+      "evidence": "pinned sim/battle.ts:2457 emits the fainting Pokemon object; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
+      "reconstruction_scope": "raw-only player-ident grammar control; punctuation in the emitted name is preserved"
+    },
+    {
+      "token": "-clearboost",
+      "record": "|-clearboost|p2a: Farfetch'd",
+      "evidence": "pinned data/moves.ts:2643 emits the target Pokemon object; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
+      "reconstruction_scope": "raw-only player-ident grammar control; no additional stage transition is inferred by this fixture"
+    },
+    {
+      "token": "-endability",
+      "record": "|-endability|p1a: Mr: Mime|Static|[from] move: Worry Seed",
+      "evidence": "pinned sim/pokemon.ts:1861-1866 emits this Pokemon object; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
+      "reconstruction_scope": "raw-only player-ident grammar control; existing ability semantics are unchanged"
+    },
+    {
+      "token": "-transform",
+      "record": "|-transform|p1a: Mr: Mime|p2a: Farfetch'd",
+      "evidence": "pinned sim/pokemon.ts:1288-1290 passes both Pokemon objects to Battle.add; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
+      "reconstruction_scope": "protocol grammar control for active actor and target identifiers; no additional state transition is inferred by this fixture"
+    }
+  ],
+  "framing_only_records": [
+    {
+      "record": "|",
+      "disposition": "validate then filter from public prefixes",
+      "evidence": "pinned sim/battle.ts:1451,2754,2881 emits empty separator records"
+    }
+  ]
 }

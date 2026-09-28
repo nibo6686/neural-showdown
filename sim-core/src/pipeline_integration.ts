@@ -5,6 +5,7 @@ import type { SettlingOptions } from './settling';
 import {
   OBSERVABLE_STATE_SCHEMA_VERSION, isObservableSchema, type ObservableSchemaVersion,
   projectStepResult,
+  validateRawProtocolRecord,
   type ObservableBattleState,
 } from './observable_state';
 import {
@@ -187,15 +188,32 @@ function freeze<T>(value: T): T {
 export function projectPipelineProtocolPrefix(records: readonly string[]): string[] {
   const projected: string[] = [];
   for (const [recordIndex, raw] of records.entries()) {
-    const line = raw.replace(/\r\n?/g, '\n').trim();
-    if (!line || line === '|') continue;
+    // Strip only a transport line delimiter; the protocol record itself must
+    // reach validation byte-for-byte so malformed fields cannot be repaired.
+    const line = raw.endsWith('\r\n')
+      ? raw.slice(0, -2)
+      : raw.endsWith('\n') || raw.endsWith('\r')
+        ? raw.slice(0, -1)
+        : raw;
+    if (line === '') continue;
     if (!line.startsWith('|')) {
       throw new PipelineIntegrationError('pipeline/v1/unsupported-protocol-record', 'spectator output contained a non-protocol line');
     }
     assertNoUnresolvedProtocolAlias(line, recordIndex);
+    try {
+      validateRawProtocolRecord(line);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'protocol record validation failed';
+      throw new PipelineIntegrationError(
+        'pipeline/v1/unsupported-observable-protocol',
+        detail,
+        { record_index: recordIndex, record_command: line.slice(1).split('|', 1)[0] },
+      );
+    }
+    if (line === '|') continue;
     if (line.startsWith('|request|')) continue;
     if (line.startsWith('|tier|')) continue;
-    projected.push(line.replace(/^\|t:\|\d+$/, '|t:|0'));
+    projected.push(line.replace(/^\|t:\|[0-9]+$/, '|t:|0'));
   }
   return projected;
 }

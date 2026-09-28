@@ -28,6 +28,26 @@ for (const player of ['p1', 'p2'] as const) {
   });
 }
 
+test('source-shaped singleturn records remain raw-only and do not add typed volatiles', () => {
+  const extractor = new PlayerStateExtractor('singleturn-raw-only', 'gen9randombattle', 'p1');
+  extractor.consumeChunk([
+    '|switch|p1a: Pikachu|Pikachu, L80|100/100',
+    '|-singleturn|p1a: Pikachu|move: Protect',
+    '|-singleturn|p1a: Pikachu|move: Follow Me',
+    '|-singleturn|p1a: Pikachu|move: Follow Me|[zeffect]',
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee',
+  ].join('\n'));
+  assert.deepEqual(extractor.getView().self_team[0].volatiles, []);
+});
+
+test('malformed player identifiers reject before raw extraction mutates state', () => {
+  const extractor = new PlayerStateExtractor('canonical-player-ident', 'gen9randombattle', 'p1');
+  assert.throws(() => extractor.consumeChunk('|-boost|p1a:Pikachu|atk|2'), /identifier/);
+  assert.throws(() => extractor.consumeChunk('|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee '), /ident/);
+  assert.deepEqual(extractor.getView().self_team, []);
+  assert.deepEqual(extractor.getView().opponent_team, []);
+});
+
 test('clearVolatile exception preserves only publicly known Eternamax Dynamax (outside random-battle scope)', () => {
   const extractor = new PlayerStateExtractor('eternamax-retention', 'gen9customgame', 'p1');
   extractor.consumeChunk([
@@ -123,6 +143,32 @@ test('state extractor exposes public current type changes separately from specie
   assert.deepEqual(view.opponent_team[0].types, ['Water']);
 });
 
+test('conditionless detailschange updates form while preserving public HP and status', () => {
+  const extractor = new PlayerStateExtractor('detailschange-source-shape', 'gen9randombattle', 'p1');
+  extractor.consumeChunk([
+    '|switch|p2a: Palafin|Palafin, L77|75/100 brn',
+    '|detailschange|p2a: Palafin|Palafin-Hero, L77',
+  ].join('\n'));
+  const palafin = extractor.getView().opponent_team[0];
+  assert.equal(palafin.current_species, 'Palafin-Hero');
+  assert.equal(palafin.hp_text, '75/100');
+  assert.equal(palafin.status, 'brn');
+  assert.equal(palafin.fainted, false);
+});
+
+test('move-sourced endability clears stale current knowledge without marking suppression', () => {
+  const extractor = new PlayerStateExtractor('endability-source-shape', 'gen9randombattle', 'p1');
+  extractor.consumeChunk([
+    '|switch|p2a: Pikachu|Pikachu, L50|100/100',
+    '|-ability|p2a: Pikachu|Static',
+    '|-endability|p2a: Pikachu|Static|[from] move: Worry Seed',
+  ].join('\n'));
+  const pikachu = extractor.getView().opponent_team[0];
+  assert.equal(pikachu.ability, null);
+  assert.equal(pikachu.ability_state, 'unknown');
+  assert.equal(pikachu.ability_suppressed, false);
+});
+
 test('state extractor distinguishes removed and consumed items and ability suppression', () => {
   const removed = new PlayerStateExtractor('env-item-removed', 'gen9randombattle', 'p1');
   removed.consumeChunk([
@@ -182,6 +228,24 @@ test('state extractor preserves base/current species, illusion display, and stat
   assert.equal(revealed.displayed_species, 'Dragonite');
   assert.equal(revealed.illusion_revealed, true);
   assert.equal(revealed.displayed_species_uncertain, false);
+});
+
+test('state extractor rejects malformed raw actor and transform target identifiers before routing', () => {
+  for (const record of [
+    '|faint|p1a: Pikachu ',
+    '|-clearboost|p1a: Pikachu ',
+    '|-endability|p1a: Pikachu ',
+    '|-transform|p1a: Ditto|p2a:Eevee',
+    '|-transform|p1a: Ditto|p2a: Eevee ',
+    '|-transform|p1a: Ditto|p2a:  Eevee',
+    '|-transform|p1a: Ditto|p2a:\tEevee',
+    '|-transform|p1a: Ditto|p2a:\u00a0Eevee',
+    '|-transform|p1a: Ditto|p2a:\u2009Eevee',
+    ' |faint|p1a: Pikachu',
+  ]) {
+    const extractor = new PlayerStateExtractor('raw-ident-validation', 'gen9randombattle', 'p1');
+    assert.throws(() => extractor.consumeChunk(record), record);
+  }
 });
 
 test('state extractor exposes Tera and named field state with perspective-normalized sides', () => {

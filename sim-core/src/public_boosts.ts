@@ -1,4 +1,6 @@
 // Public-prefix-only evidence. Null is unknown; zero requires a public baseline.
+import { isCanonicalPlayerIdent } from './protocol_contract';
+
 export const PUBLIC_BOOST_KEYS = ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'] as const;
 export type PublicBoosts = Record<(typeof PUBLIC_BOOST_KEYS)[number], number | null>;
 const filled = (value: number | null): PublicBoosts => Object.fromEntries(PUBLIC_BOOST_KEYS.map(k => [k, value])) as PublicBoosts;
@@ -7,6 +9,11 @@ export function publicBoostEvidence(prefix: readonly string[]): Map<string, Publ
   const active: Record<string, { key: string; stages: PublicBoosts; prior?: PublicBoosts }> = {};
   const key = (ident: string) => ident.replace(/^(p[12])[a-f]:/, '$1:');
   const side = (ident: string) => /^(p[12])[a-f]:/.exec(ident)?.[1];
+  const actorCommands = new Set([
+    'switch', 'drag', 'replace', 'faint', '-boost', '-unboost', '-setboost',
+    '-clearboost', '-clearnegativeboost', '-clearpositiveboost', '-copyboost',
+    '-invertboost', '-transform',
+  ]);
   for (const line of prefix) {
     const p = line.split('|');
     const rawCommand = p[1];
@@ -15,12 +22,21 @@ export function publicBoostEvidence(prefix: readonly string[]): Map<string, Publ
     // Validate even when the recipient cannot be routed to a player. Unresolved
     // roster identity is valid; missing or malformed protocol identity is not.
     if (cmd === '-copyboost' && (p.length !== 5 || p[4] !== '[from] move: Psych Up'
-      || ![p[2], p[3]].every(id => typeof id === 'string' && /^p[12][a-z]:\s*[^|]+$/.test(id.trim())))) {
+      || ![p[2], p[3]].every(id => isCanonicalPlayerIdent(id, true)))) {
       throw new Error('Unsupported or malformed public boost copy evidence');
     }
     if (cmd === '-invertboost' && (p.length !== 4 || p[3] !== '[from] move: Topsy-Turvy'
-      || !/^p[12][a-z]:\s*[^|]+$/.test((p[2] || '').trim()))) {
+      || !isCanonicalPlayerIdent(p[2], true))) {
       throw new Error('Unsupported or malformed public stage inversion evidence');
+    }
+    if (actorCommands.has(cmd) && !isCanonicalPlayerIdent(p[2], true)) {
+      throw new Error('Malformed public boost player identifier');
+    }
+    if (cmd === '-transform' && !isCanonicalPlayerIdent(p[3], true)) {
+      throw new Error('Malformed public boost transform target identifier');
+    }
+    if (cmd === '-clearpositiveboost' && !isCanonicalPlayerIdent(p[3], true)) {
+      throw new Error('Malformed public boost source identifier');
     }
     const id = p[2] || ''; const player = side(id);
     if (['-swapboost'].includes(cmd)

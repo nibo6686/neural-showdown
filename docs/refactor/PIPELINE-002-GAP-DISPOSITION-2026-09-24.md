@@ -1,5 +1,349 @@
 # PIPELINE-002 gap disposition — 2026-09-24
 
+## Raw player-identifier review — blocked (2026-09-28)
+
+The raw-repair fix and active `-transform` target validation pass focused checks,
+but the shared boundary is not ready for scoped acceptance. The remaining
+source-grammar defect is a side-only Helping Hand source accepted in both
+runtimes, even though its pinned emitter formats the move's active `source`
+Pokémon.
+
+### Contract player-identifier field map
+
+| Contract field | Pinned source form | Slot requirement |
+|---|---|---|
+| Shared `ident()` actor fields, including terminal actors | Pokémon object fields are stringified by `Battle.add()`; `Pokemon.toString()` returns `p1a: Name` for active battlers. Relevant examples: `faint` (`sim/battle.ts:2457`), `-clearboost` (`data/moves.ts:2643`), and `-endability` (`sim/pokemon.ts:1861-1866`). | Active slot required. Terminal records use the same raw validator. |
+| `move` target | `BattleActions` emits the target Pokémon at `sim/battle-actions.ts:455`; `Pokemon.toString()` selects active-slot or side-only spelling based on `isActive` (`sim/pokemon.ts:504-512`). | Active or side-only. |
+| Health-event `[of]` source | `Battle.damage()`/`heal()` interpolate `${source}` (`sim/battle.ts:2046,2189,2201`); `Pokemon.toString()` preserves its active or inactive form. | Active or side-only. |
+| Revival Blessing `-heal` target | `sim/battle.ts:2738` emits `action.target`, the revived benched Pokémon. | Side-only. |
+| Helping Hand `-singleturn` `[of]` source | `data/moves.ts:8885-8891` emits `${source}`. `runMove` receives the acting Pokémon (`sim/battle-actions.ts:206-219`); action execution skips it when inactive (`sim/battle.ts:2648-2650`). | Active slot required. **Current contract incorrectly uses generic `player-ident`.** |
+| `-copyboost` donor, `-anim` target, `-clearpositiveboost` source, and `-transform` target | `data/moves.ts:14575`; `sim/battle-actions.ts:790,799`; `sim/pokemon.ts:1288-1290`; all are Pokémon-object fields. | Active slot required for these reviewed supported shapes. |
+
+Side IDs in `player`, `teamsize`, `poke`, and side-condition records are not
+Pokémon player identifiers; display names and free text also remain outside
+this rule. Bare `transform` has no pinned emitter and retains its existing
+compatibility grammar.
+
+### Minimal source-backed reproduction
+
+The contract's `singleturn.tagged_forms` defines Helping Hand `[of]` as generic
+`player-ident`; the TypeScript validator calls `isCanonicalPlayerIdent` with
+the default `activeRequired=false` (`sim-core/src/observable_state.ts:563`),
+and Python does the same (`trainer/src/neural/protocol_contract.py:470`). Both
+therefore accept this side-only source:
+
+```text
+|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee
+```
+
+Observed on the current checkout: TypeScript raw validation and prefix
+projection accept it; Python protocol and publication-prefix validation accept
+it. A fully rehashed v2 candidate built from the existing synthetic bundle
+passes `verify_bundle_identities` and `validate_pipeline_bundle`; Python's
+DATA-001 publisher returns status 0 with 1,326 output bytes. This is an
+unsupported emitted source shape, not a state-reconstruction claim.
+
+The existing focused regression set still passes: TypeScript build; 35 focused
+protocol/pipeline/extractor tests, including both v1/v2 rejection matrices
+(224 rehashed valid controls and 856 rejected candidates); and 20 Python
+pipeline-record tests. The matrix omits the side-only Helping Hand source, so
+those passing counts do not close this blocker. The malformed terminal-actor
+control now rejects in both runtimes and the valid form retains its raw spelling.
+`git diff --check` and the staged whitespace check pass. No code, staged state,
+coverage manifest, stored digest, or attestation was changed by this review.
+Stored/reviewed digest remains
+`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
+
+## Implementation checkpoint — emitted player-ident spelling enforced (2026-09-28)
+
+The shared contract now applies the exact `Pokemon.toString()` spelling to
+every player-identifier field in both runtimes. The separator is one ASCII
+colon followed by one ASCII space; neither validator trims, normalizes, nor
+repairs an identifier. Names remain part of the identifier grammar, so ordinary
+punctuation such as `Mr: Mime` and `Farfetch'd` is preserved. Free-text and
+display-name fields that are not player identifiers keep their own rules.
+
+### Source-backed player-ident grammar
+
+| Emitted form | Pinned Showdown evidence | Contract rule and boundary |
+|---|---|---|
+| Side-only Pokémon: `p1: Name`, `p2: Name` | `sim/pokemon.ts:325` builds `fullname`; inactive `Pokemon.toString()` returns it at `sim/pokemon.ts:510-512`. `Battle.add` stringifies fields and joins them with `|` at `sim/battle.ts:3022-3025`; Revival Blessing emits a benched Pokémon as a heal target at `sim/battle.ts:2738`. | Empty slot is valid only for fields that permit a non-active Pokémon reference, including `[of]`, move targets, and the Revival Blessing exception. Fields marked active-required still reject this form. |
+| Active Pokémon: `p1a: Name` through source formatter slots `a`-`f` on either side | `sim/pokemon.ts:504-512`: `getSlot()` selects from `abcdef`; active `toString()` combines that slot with the `fullname` suffix. | Contract slots are `a`-`f`; field-specific active requirements apply. `gen9randombattle` is singles, so direct format evidence exercises slot `a`; the other formatter slots are syntax support only, with no reachability claim. |
+| Side display label: `p1: Player`, `p2: Player` | `sim/side.ts:315-317` | This is `Side.toString()`, not a Pokémon identifier. Side IDs, player labels, and other display/free-text fields are not routed through the player-ident rule unless a contract field explicitly says `player-ident`. |
+
+The pinned display-name path runs through `Dex.getName()` (`sim/dex.ts:213`),
+which normalizes team nicknames before `Pokemon.fullname` is constructed. The
+runtime validators treat names and identifiers as opaque text after
+validation; they do not rewrite them. Punctuation and embedded colons are
+preserved (`Mr: Mime`, `Farfetch'd`), and edge whitespace is rejected rather
+than trimmed. `Dex.getName()` also collapses interior whitespace and removes
+some characters before emission; the current contract intentionally does not
+replicate that whole nickname sanitizer, so its display-name grammar remains
+broader than the normal validated-team output.
+
+### Historical review finding — terminal actor repair (corrected below)
+
+The shared raw validators reject this malformed source record, but the
+TypeScript prefix projection accepts it after silently trimming the final
+space:
+
+```ts
+'|faint|p1a: Pikachu\x20'
+```
+
+Here `\x20` is a JavaScript escape for the final ASCII space.
+
+`validateRawProtocolRecord('|faint|p1a: Pikachu ')` and Python
+`validate_protocol_record(...)` both reject the original. In contrast,
+`projectPipelineProtocolPrefix(['|faint|p1a: Pikachu '])` returns
+`['|faint|p1a: Pikachu']`. `pipeline_integration.ts:194-200` calls
+`validatePlayerIdentAtRecordEnd()` and then trims the record before grammar
+validation. The helper at `observable_state.ts:348-374` recognizes final move
+targets and `[of]` fields but omits terminal actor identifiers such as `faint`
+and `-endability`. Pinned Showdown emits `faint` with a Pokémon object at
+`sim/battle.ts:2457`; `Pokemon.toString()` supplies its exact identity at
+`sim/pokemon.ts:504-512`, and `Battle.add()` joins those fields unchanged at
+`sim/battle.ts:3022-3025`. Thus the projection path repairs a malformed
+identifier before filtering/publication, despite correct raw-validator
+behavior.
+
+At that review checkpoint, the existing 192-control/768-rejection rehashed
+matrix did not include this terminal-actor case. The reproduction is retained
+here as historical evidence; the current implementation and focused result are
+recorded below. The prior stored/reviewed coverage digest was preserved.
+
+## Current implementation checkpoint — raw identifiers validate before projection (2026-09-28)
+
+The projection paths now validate the original protocol record before
+filtering or publishing it. `projectPipelineProtocolPrefix` and
+`normalizeProtocolPrefix` remove only one final CR/LF line delimiter as
+transport framing; neither trims, rewrites embedded line breaks, or repairs
+fields. `PlayerStateExtractor.consumeChunk` likewise removes only the stream's
+final CR and rejects whitespace-prefixed protocol records without passing a
+repaired copy to the parser. This closes the terminal-actor gap for `faint`,
+`-clearboost`, `-endability`, and other typed actor fields checked by
+`validateRawProtocolRecord`.
+
+Pinned source evidence:
+
+| Claim | Pinned source | Enforced and tested |
+|---|---|---|
+| Actor/target spelling is `p1`/`p2`, optional source slot `a`-`f`, exact `: `, then the emitted Pokémon name | `sim/pokemon.ts:325,504-512`; `sim/battle.ts:3022-3025` | Shared `isCanonicalPlayerIdent`; direct record validation, `projectPipelineProtocolPrefix`, `validateObservableProtocolPrefix`, and `PlayerStateExtractor.consumeChunk`; punctuation controls cover `Mr: Mime` and `Farfetch'd`. |
+| Terminal actor records retain the same exact spelling | `sim/battle.ts:2457` (`faint`); `data/moves.ts:2643` (`-clearboost`); `sim/pokemon.ts:1861-1866` (`-endability`) | New valid controls plus trailing-space rejections; typed actor records pass the same raw validator before extraction/projection. |
+| `-transform` actor and target are Pokemon objects, therefore active player identifiers | `sim/pokemon.ts:1288-1290`; formatter `sim/pokemon.ts:504-512` | TS and Python now validate both fields with the active player-ident rule. Bare `transform` retains its previous compatibility grammar because no pinned emitter was found for that token. |
+
+The shared matrix now publishes **224 valid rehashed controls** and rejects
+**856 rehashed candidates** (107 source/contract rejections across both
+observation versions, p1/p2 perspectives, and input/successor prefixes).
+Python publication checks verify recomputed bundle identities and joins and
+produce no DATA-001 output for rejected candidates. Direct TS validation,
+observation-prefix validation, and prefix projection agree on the new malformed
+identifier cases. Valid controls retain their exact protocol spelling.
+Integration rollback tests inject malformed terminal actors and transform
+targets and confirm committed state, lineage, and the next transition are
+unchanged.
+
+Focused verification: TypeScript build passed; the protocol, pipeline, and
+extractor test files passed **35 tests**; Python `test_pipeline_record.py`
+passed **20 tests**. `-singleturn` remains raw-only; `-singlemove` remains an
+enforced stop; `faithful_complete_episode:false` remains required. This
+implementation checkpoint does not attest coverage or semantic transition
+fidelity. The prior coverage digest is unchanged. Broader nickname grammar,
+`-transform` format reachability, scanner expansion, and operative format
+coverage remain outside this correction; scanner expansion and operative
+format coverage are the next separate batch.
+
+Earlier `-singleturn` source-form checks, HP-event, and move-target cases remain
+part of the shared matrix. No coverage checker, digest, or attestation was
+changed.
+
+The current emitter table below remains the source inventory. Only Beak Blast,
+Focus Punch, Protect and Roost have direct Gen 9 Random Battle set evidence;
+all other listed forms are syntax-only here and do not imply format
+reachability. HP-event tag ordering, Instruct, scanner expansion and operative
+format coverage remain outside this review.
+
+## Implementation checkpoint — `-singleturn` source forms constrained (2026-09-28)
+
+The shared contract now allows only pinned source literals/templates for
+`-singleturn`. Helping Hand is the literal bare label `Helping Hand`; its source
+identity is the final `[of] ${source}` field. Follow Me emits `move: Follow Me`
+with no tag, or with final `[zeffect]` only in the Z-power branch. Every
+accepted record remains raw-only: no volatile state is inferred. Unknown
+effect labels and unsupported shapes fail protocol validation before
+publication, and an episode candidate stops with
+`pipeline/v1/unsupported-observable-protocol`.
+
+### Source identifier roles
+
+| Source-backed field/template | Source parameter | Contract role |
+|---|---|---|
+| Standard actor fields, `-copyboost` donor, `-anim` target, `-clearpositiveboost` source, and `-transform` target | `Pokemon` | Active |
+| `move` target and health-event `[of]` source | `Pokemon` or inactive/active `Pokemon.toString()` output | Side-or-active |
+| Revival Blessing `-heal` target | Benched `Pokemon` | Side-only exception |
+| Helping Hand `-singleturn` `[of]` source | Acting `Pokemon` from `data/moves.ts:8885-8891` | Active |
+
+`singleturn.tagged_forms` records Helping Hand's `ident_role: "active"`; the
+validator applies that role only to this source template. The general
+`player-ident` grammar still accepts side-only references where the pinned
+source permits them. Rehashed v1/v2 controls cover active sources on p1 and p2,
+and side-only sources reject without altering the serialized prefix.
+
+HEAD remains `a2ef3a6c3d2c27bb396bc55fc7dc10a0fcc29c2c`; the original staged
+batch and its unstaged review/correction work are preserved. This task added
+only unstaged contract, validator, test and documentation changes. No files
+were staged, unstaged or committed by git actions. No coverage attestation or
+digest was changed.
+
+### Pinned emitter and format evidence
+
+`Battle.add` preserves fields in the supplied order (`sim/battle.ts:3022-3025`),
+so tags below follow the emitter literally. Direct reachability means a move
+appears in a `data/random-battles/gen9/sets.json` movepool. “No direct entry” is
+not proof of unreachability; indirect call/copy paths are not closed here. The
+pinned-package token search found 28 base `data/moves.ts` call sites, including
+the excluded Instruct emitter; no applicable base `sim`, ability, item,
+condition or Gen 9 override emitter was found. Other `data/mods/*` emitters are
+outside `gen9randombattle`.
+
+| Emitted effect text | Emitter lines in `data/moves.ts` | Permitted tag and order | Direct Gen 9 random-set evidence | Disposition |
+|---|---:|---|---|---|
+| `move: Protect` | 1038, 2109, 18222 | None | No direct entry for Baneful Bunker/Burning Bulwark/Spiky Shield | Exact literal, raw-only |
+| `move: Beak Blast` | 1175 | None | Yes: Toucannon, `sets.json:5160-5166` | Exact literal, raw-only |
+| `Crafty Shield` | 3265 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Electrify` | 4737 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Endure` | 4995 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Focus Punch` | 6234 | None | Yes: Dusknoir, `sets.json:3230-3234` | Exact literal, raw-only |
+| `move: Follow Me` | 6269; Z branch 6267 | None, or final `[zeffect]` after the effect | No direct set evidence; reachability unresolved | Exact source forms, raw-only |
+| `Helping Hand` | 8887, 8891; ident text via `sim/pokemon.ts:325,510-512` | Final `[of] ${source}` after the effect | No direct entry; indirect paths unresolved | Exact template, raw-only |
+| `Protect` | 10284, 13335, 14483, 17034 | None | Yes: Protect, e.g. `sets.json:194-201` | Exact literal, raw-only |
+| `move: Magic Coat` | 11095 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `Mat Block` | 11404 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `Max Guard` | 11582 | None | No direct set evidence; reachability unresolved | Exact literal, raw-only |
+| `Powder` | 14165 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `Quick Guard` | 15034 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Rage Powder` | 15148 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Roost` | 16026 | None | Yes: Articuno, `sets.json:946-953` (also Zapdos/Moltres) | Exact literal, raw-only |
+| `move: Shell Trap` | 16903 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `Snatch` | 17778 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `move: Spotlight` | 18462 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+| `Wide Guard` | 21637 | None | No direct entry; indirect paths unresolved | Exact literal, raw-only |
+
+The package-level Instruct emitter at `data/moves.ts:10009` is excluded by this
+task; no Instruct grammar or reachability disposition was changed. The contract
+contains 19 exact untagged literals and two tagged templates. It rejects bare
+`Follow Me|[zeffect]`, prefixed `move: Helping Hand`, wrong/mismatched tags,
+invalid `[of]` identities, duplicate/reordered tags, extra fields, and unknown
+untagged or tagged labels such as `Future Mechanic`. These rejected
+`-singleturn` forms use the existing unsupported-protocol stop. `-singlemove`
+remains separately recognized as an enforced unsupported stop.
+
+All in-scope exact emitter shapes are dispositioned raw-only because retaining
+the validated line adds no typed state or legal-action inference. The missing
+direct-movepool entries remain reachability unknowns, not mechanics support;
+they do not widen the reconstructed state. No additional per-form stop was
+needed in this batch.
+
+### Focused verification
+
+- `cd sim-core && npm run build` passed.
+- Focused TypeScript build passed; the affected selected set passed **125 tests**. The Python `test_pipeline_record.py` suite passed **20 tests**.
+- The shared contract contains 21 `-singleturn` controls, three raw-only player-ident controls, and 96 rejection fixtures. The rehashed matrix publishes **192 valid controls** and rejects **768 candidates** across v1/v2, p1/p2 and input/successor prefixes. Every rejection candidate has recomputed identities and joins; Python publication returns no DATA-001 output. Integration rollback checks malformed player identifiers as well as protocol failures and preserves committed state, lineage, and the next transition. Raw-only extraction adds no volatile state.
+- Prior focused evidence remains 125 selected TypeScript tests and 20 Python tests; it did not test terminal-actor whitespace before projection and does not close this review. Privacy, historical identities, raw-only records, field/loader/filtering regressions, and the `-singlemove` stop remain covered within their stated scopes. `faithful_complete_episode:false` remains required. HP-event tag order, indirect random-format reachability, Instruct, global scanner expansion, and operative-format digest coverage remain outside this batch. The existing coverage digest was preserved; no coverage attestation was issued.
+
+## Earlier checkpoint — protocol-boundary source review blocked (2026-09-28, pre-correction)
+
+This checkpoint records a blocked source review of the staged boundary batch. It
+does not grant scoped acceptance or update the coverage attestation or reviewed
+digest. The previous blocked review below remains the historical reproduction
+of the pre-correction checkout. Current checkout: branch
+`refactor/state-001-observable-state`, HEAD
+`a2ef3a6c3d2c27bb396bc55fc7dc10a0fcc29c2c` before this correction.
+
+### Changes present in the staged implementation
+
+- Both runtimes now use ASCII canonical integer lexemes and safe integer limits.
+  Request JSON must have an object root; a missing `rqid` is distinct from
+  explicit `null`, and booleans, strings, fractional/unsafe IDs, and non-finite
+  numbers reject. Other request fields are transient and do not enter public
+  observations.
+- Pinned-source grammar now validates HP/status ratios, boost stats/ranges and
+  known tag vocabularies, `-singleturn` arity/tag vocabulary, switch/drag `[from]` forms, and one-label
+  `tier`. Valid `tier` and bare `|` framing records are validated then filtered;
+  malformed request/tier records fail before filtering. Direct TypeScript
+  observation projection also sanitizes request fields and filters tier/frame
+  records. Python rejects private requests and filtered tier/frame records if
+  they reach publication.
+- `detailschange` accepts the pinned four-field form and a documented
+  condition-bearing form. When condition is absent, state extraction retains
+  HP, status and fainting evidence. `-endability` accepts target-only
+  suppression and the five-field move-source form. The latter clears current
+  ability knowledge without asserting suppression.
+- Contract loaders reject unsupported schema/rule values, wrong container
+  shapes, duplicate/conflicting dispositions, fixture/record token mismatch,
+  inconsistent rejection classes, and missing/invalid-JSON assets. The bare
+  `ability` fixture now matches the `ability` token and remains accepted raw-only
+  compatibility, with no pinned emitter claim.
+
+Evidence boundary: `sim/pokemon.ts:1391` plus
+`data/abilities.ts:5559-5565` and
+`data/random-battles/gen9/sets.json:6840+` support Palafin detailschange;
+`sim/pokemon.ts:1861-1866` supports the extended `-endability` form;
+`sim/pokemon.ts:1990-2020` and `sim/dex.ts:581-588` define health/stat fields;
+`sim/battle.ts:1857,1910-1969,2034+` defines tier, stage and HP emission;
+`sim/battle-actions.ts:142` emits switch/drag source tags; and
+`sim/battle.ts:1451,2754,2881` emits bare separator records. The contract has
+114 command fixtures, 17 valid-record controls and 62 rejection cases. The 17
+controls are not all source-backed: the staged `-singleturn` controls include a
+source-inconsistent record, and health-event tag dependencies/order remain
+permissive. Remaining syntax uncertainty includes dynamic source/effect values
+and the distinction between package-wide emitter presence and actual
+random-battle reachability. This batch does not close grammar for every token.
+
+### Source review table and blocker
+
+| Claim | Pinned source and enforcement/regression | Review result |
+|---|---|---|
+| Numeric/request parsing | `sim/battle.ts:1700,1855,2882`; `SIM-PROTOCOL.md:744-750`; server `room-battle.ts:536,785-791`. TS `observable_state.ts:421,471`; Python `protocol_contract.py:286,348`; shared rejection matrix. | Unicode digits, null, booleans, fractions and unsafe IDs reject. Negative safe `rqid` remains a contract-policy allowance, not a server-emitted value. |
+| Validate before filtering | `sim/battle.ts:1857,1451,2754,2881`; `sim/side.ts:483-485`. TS `pipeline_integration.ts:188` and observable-prefix validation; Python `pipeline_record.py:113`; projection/rehashed tests. | Request, tier and framing records validate before their privacy/filter boundary. |
+| `detailschange` / `-endability` | `sim/pokemon.ts:1388-1391,1861-1866`; `SIM-PROTOCOL.md:275-283,525-527`; TS/Python exact forms and `state_extractor.test.ts:126,139`. | Reviewed four/five-field detailschange and target-only/five-field endability forms pass; state treatment remains bounded. |
+| HP/stage tags and `-singleturn` | `sim/pokemon.ts:1990-2018`; `sim/battle.ts:2034-2048,2154-2160,2186-2203`; `sim/dex.ts:581-588`; `data/moves.ts:6267,8887-8891`. TS/Python grammar and shared controls. | HP/stage values are represented; tags remain raw. Tag dependency/order and effect/tag combinations are not fully source-constrained. |
+| Loader, rollback and stops | Shared contract loaders and tests; `pipeline_integration.test.ts`, `pipeline_episode.test.ts`; `-singlemove` emitters in the manifest. | Structural failure, rehashed no-output rejection, committed-lineage preservation and the unsupported stop are covered. |
+
+Minimal source-backed blocker:
+
+```text
+|-singleturn|p1a: Pikachu|Follow Me|[zeffect]
+```
+
+Both staged validators accept this valid control, but pinned
+`data/moves.ts:6267` emits `move: Follow Me` before `[zeffect]`. The other staged
+control combines the Follow Me effect with the `[of] source` shape emitted by
+Helping Hand at `data/moves.ts:8887-8891`. Do not treat the current controls as
+evidence of complete `-singleturn` grammar.
+
+### Verification
+
+- `cd sim-core && npm run build` passed.
+- `node --test dist/tests/protocol_contract_validation.test.js dist/tests/pipeline_integration.test.js dist/tests/state_extractor.test.js` passed 28 TypeScript tests. The shared rejection matrix checks 496 rehashed candidates across v1/v2, p1/p2, and input/successor prefixes; the saved 16 Unicode/null publication candidates all verify joins, reject with status 2 and emit zero stdout.
+- `PYTHONPATH=src /Library/Developer/CommandLineTools/usr/bin/python3 -m pytest -q tests/test_pipeline_record.py` passed 18 Python tests, including exact identity recomputation, zero-output rejection, request privacy, filtered-tier rejection and a count assertion for those original 16 cases.
+- This review rebuilt the staged source and reran the focused suites: build passed, the three TypeScript protocol/integration/extractor files passed 28 tests, and Python `test_pipeline_record.py` passed 18. Direct calls reproduced acceptance of the minimal `-singleturn` record above in both validators. No implementation files were changed during this review.
+- Previously recorded broader evidence (57 selected TypeScript tests and 29 Python pipeline/lineage tests) used this same staged source/test set and computed local source digest `0675208ee538f33d378861f648021624222283c42fd911420a6ef40c68c3a625`; it was reused without another full cycle. The coverage checker was not rerun for this blocked review. The stored/reviewed digest remains `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`, and the prior coverage attestation is unchanged.
+
+Clean-environment recreation from the pinned tarball remains incomplete. Semantic
+transition evidence in the scoped tests does not establish environment
+reproducibility, and environment reproducibility would not establish semantic
+transition fidelity. Keep `faithful_complete_episode:false`.
+
+### Next separate implementation batch
+
+Expand the source scanner for nested/self/slot conditions and dynamic callbacks,
+then cover operative format configuration in the digest. Classify every newly
+found effect and its format/reachability evidence before implementing mechanics.
+The shared protocol correction remains blocked on the source-inconsistent
+`-singleturn` control and permissive event-tag combinations. Correct and review
+those contract claims before a coverage attestation can be issued.
+
 ## Current checkpoint — protocol boundary review blocked (2026-09-25)
 
 ### Protocol validation/publication review — blocked
