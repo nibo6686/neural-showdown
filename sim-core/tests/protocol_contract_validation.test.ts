@@ -138,8 +138,14 @@ test('singleturn source controls cover every configured literal and tagged templ
     if (!noPayloadTag) form.ident_role = 'active';
     return form;
   });
-  assert.deepEqual(tagged, rules.tagged_forms);
-  assert.equal(controls.length, rules.untagged_effects.length + rules.tagged_forms.length);
+  const taggedForms = tagged.filter((form: any, index: number) => tagged.findIndex((candidate: any) =>
+    JSON.stringify(candidate) === JSON.stringify(form)) === index);
+  assert.deepEqual(taggedForms, rules.tagged_forms);
+  assert.equal(untagged.length, rules.untagged_effects.length);
+  assert.deepEqual(controls
+    .filter((parts: string[]) => parts.length === 5 && parts[3] === 'Helping Hand')
+    .map((parts: string[]) => parts[4])
+    .sort(), ['[of] p1a: Pikachu', '[of] p2a: Eevee']);
 });
 
 test('Helping Hand keeps its Pokemon source active while generic side-or-active fields retain their source role', () => {
@@ -153,6 +159,15 @@ test('Helping Hand keeps its Pokemon source active while generic side-or-active 
     const record = `|-singleturn|p1a: Pikachu|Helping Hand|[of] ${source}`;
     assert.throws(() => validateRawProtocolRecord(record), /single-turn source ident/);
     assert.throws(() => validateObservableProtocolPrefix([record], 'p1'), /single-turn source ident/);
+    assert.throws(() => projectPipelineProtocolPrefix([record]), /unsupported-observable-protocol/);
+  }
+  for (const record of [
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee',
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of]',
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of] Eevee',
+  ]) {
+    assert.throws(() => validateRawProtocolRecord(record));
+    assert.throws(() => validateObservableProtocolPrefix([record], 'p1'));
     assert.throws(() => projectPipelineProtocolPrefix([record]), /unsupported-observable-protocol/);
   }
   assert.doesNotThrow(() => validateRawProtocolRecord('|-damage|p1a: Pikachu|50/100|[of] p2: Eevee'));

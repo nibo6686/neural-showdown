@@ -1,6 +1,6 @@
 # PIPELINE-002 gap disposition — 2026-09-24
 
-## Raw player-identifier review — blocked (2026-09-28)
+## Prior raw player-identifier review — blocked (2026-09-28)
 
 The raw-repair fix and active `-transform` target validation pass focused checks,
 but the shared boundary is not ready for scoped acceptance. The remaining
@@ -53,6 +53,71 @@ control now rejects in both runtimes and the valid form retains its raw spelling
 coverage manifest, stored digest, or attestation was changed by this review.
 Stored/reviewed digest remains
 `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
+
+## Current implementation checkpoint — Helping Hand source role enforced (2026-09-29)
+
+The shared `singleturn.tagged_forms` contract assigns `ident_role: "active"`
+only to the Helping Hand `[of]` template. TypeScript raw and prefix validation,
+and Python protocol/publication-prefix validation, pass that field-specific role
+to the canonical player-identifier check. A side-only source is therefore
+rejected before projection or DATA-001 publication; generic health-event `[of]`
+and move-target rules remain side-or-active.
+
+Pinned `data/moves.ts:8885-8891` emits the callback's `${source}` as the final
+`[of]` field. `runMove` receives the acting Pokémon at
+`sim/battle-actions.ts:206-219`, and `sim/battle.ts:2648-2650` skips inactive
+move actors.
+
+The source-backed controls include active sources on both sides:
+
+```text
+|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee
+|-singleturn|p2a: Eevee|Helping Hand|[of] p1a: Pikachu
+```
+
+The rejection set now includes both side-only forms, a missing source payload,
+a source with no side label, and the existing malformed spacing and invalid-
+side forms. The rehashed Python matrix applies every rejection across v1/v2,
+p1/p2, and input/successor prefixes. Its publication assertion requires exit
+status 2 and empty stdout, then validates the untouched original bundle, which
+covers no DATA-001 output and preserved identity/lineage. The TypeScript
+rollback matrix injects these cases and asserts that the committed boundary,
+lineage, active slots, and subsequent transition remain unchanged. The raw
+extractor check also confirms an active Pokémon remains in its slot after each
+invalid record. `-singleturn` remains raw-only.
+
+Separate review accepted this protocol-boundary batch. `npm run build`, 36
+TypeScript protocol/pipeline/extractor tests, Python `test_pipeline_record.py`
+with 20 tests, the coverage checker, and its drift self-tests pass. The reviewed
+local digest is
+`985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.
+This attestation accepts only the field-specific Helping Hand correction and
+the listed protocol-boundary sources and tests. `-singlemove` remains an
+unsupported stop and `faithful_complete_episode:false` remains required.
+Scanner expansion and operative format coverage remain separate work.
+
+## Separate protocol-boundary review and coverage attestation (2026-09-29)
+
+### Findings
+
+No material findings. The field-specific active role matches the pinned Helping
+Hand emitter, and both runtimes enforce it before projection or publication.
+The review found no privacy expansion: `-singleturn` remains raw-only, no typed
+volatile is inferred, and invalid candidates cannot emit DATA-001 output.
+
+### Open questions
+
+None for this batch. HP-tag ordering, Instruct, scanner expansion, and
+operative-format coverage remain documented separate scopes.
+
+### Change summary
+
+The review covers the shared contract, TypeScript validation/projection and
+rollback tests, Python publication matrix, and raw-extractor atomicity test.
+The coverage manifest now attests local digest
+`985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.
+It accepts this protocol-boundary batch with documented gaps; it does not
+accept broader mechanics or complete episodes.
 
 ## Implementation checkpoint — emitted player-ident spelling enforced (2026-09-28)
 

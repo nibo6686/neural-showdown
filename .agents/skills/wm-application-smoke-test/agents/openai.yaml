@@ -1,0 +1,4 @@
+interface:
+  display_name: "Application Smoke Test"
+  short_description: "Run focused smoke tests for any application"
+  default_prompt: "Use $wm-application-smoke-test to discover and run a safe smoke test for this application. Target: [repository, URL, or environment]. Scope: [application, feature, or critical flow]. Prefer a verified repository-native runner when available; otherwise use the safest supported live surface. Do not generate test scaffolding. Report actual row-level results first, including non-passing items, why they did not pass, clean links when available, evidence, and next actions; end with the final verdict."

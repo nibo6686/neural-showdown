@@ -1,8 +1,8 @@
 # Project Status
 
-**Current as of:** 2026-09-28
+**Current as of:** 2026-09-29
 **Branch:** `refactor/state-001-observable-state`
-**Reviewed implementation state:** HEAD `a2ef3a6c3d2c27bb396bc55fc7dc10a0fcc29c2c` plus the staged protocol-boundary batch and unstaged review/correction work. The prior 54-file digest remains the accepted Psych Up state. Bounded base Topsy-Turvy semantics are reviewed. The raw-record repair correction and active `-transform` target rule are verified. Scoped review is blocked because Helping Hand `[of]` currently accepts an inactive side-only source identifier that pinned Showdown cannot emit in the move callback; a fully rehashed v2 candidate reaches DATA-001 publication. The focused suites pass but omit this source-incompatible shape. No coverage attestation or digest change was made. See the [mechanics assessment](refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md) and [PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
+**Reviewed implementation state:** HEAD `a2ef3a6c3d2c27bb396bc55fc7dc10a0fcc29c2c` plus the unstaged protocol-boundary batch. The Helping Hand `[of]` source role is accepted: only its template requires an active Pokémon source, and side-only, missing-side, and malformed forms stop before DATA-001 publication. The rehashed v1/v2 matrix covers both perspectives and input/successor prefixes; rollback preserves committed state, lineage, active slots, and the next transition. The reviewed local digest is `985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`. `-singleturn` remains raw-only, `-singlemove` remains unsupported, and `faithful_complete_episode:false` remains required. See the [mechanics assessment](refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md) and [PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
 
 This page is the current status summary for the project. Detailed contract
 requirements and historical review evidence remain in their linked documents.
@@ -13,9 +13,9 @@ requirements and historical review evidence remain in their linked documents.
 |---|---|---|
 | Refactor contract preparation | Complete for accepted items through SEARCH-001 | STATE-001, ACTION-001, FIXTURE-001/002, TRANS-001, BELIEF-001, DATA-001, and SEARCH-001 have recorded acceptance. |
 | ENV-001 reproducibility | Existing-machine validation passed; fresh-machine recreation pending | macOS terminal Python and Windows neuralgpu validation passed; selected scenarios matched at `117df85`. Dependency/lock/runtime policy and clean recreation remain pending. See ENVIRONMENT_VALIDATION for working commands. |
-| SIM-COVERAGE-001 | Prior Psych Up attestation preserved; raw player-identifier review blocked | Raw TS/Python validation rejects malformed terminal actors without repair, and `-transform` targets require active player identifiers. A side-only Helping Hand `[of]` source is accepted by both validators and by a fully rehashed v2 publication candidate; this conflicts with the pinned active move source. The 224/856 matrix passes but omits that shape. Preserve the prior digest; no new attestation. |
+| SIM-COVERAGE-001 | Protocol-boundary batch accepted with documented gaps | Helping Hand `[of]` requires an active source only for its shared template. TS/Python validation and projection reject invalid sources before publication; rehashed v1/v2 controls and rollback cover both perspectives and input/successor prefixes. Reviewed digest: `985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`. |
 | PIPELINE-001 | Accepted for explicit v1 joint-actionable scope | Natural hidden-trap simulator rejection and injected rejection both preserve committed state/lineage. Focused TypeScript tests pass 42/42; Python record/lineage tests pass 18/18. Complete episodes remain PIPELINE-002. |
-| PIPELINE-002 | Prior scopes retained; raw identifier review blocked | Projection validates terminal actor records without repair, and both runtimes enforce the active `-transform` target form. Helping Hand `[of]` still accepts side-only IDs contrary to the pinned source and can pass rehashed publication. Preserve the prior digest. After this field rule is corrected and reviewed, scanner expansion and operative format coverage remain the next batch. `faithful_complete_episode:false`. |
+| PIPELINE-002 | Protocol-boundary batch accepted with documented gaps | Projection validates terminal actor records without repair; `-transform` targets and Helping Hand’s `[of]` source use their field-specific active rules. Scanner expansion and operative format coverage remain the next batch. `faithful_complete_episode:false`. |
 | FEATURE-001 | Unresolved; no accepted feature contract | Feature schema, extraction semantics, privacy/information regime, target, reward, and model interface are not finalized. |
 | New dataset generation | Not ready / not performed | DATA-001 defines lineage; PIPELINE-001 records use the `features-not-produced/v1` sentinel. No new refactored-model dataset has been generated. |
 | New model training | Not ready / not performed | Training objective, feature schema, and reproducibility gates are unresolved. |
@@ -31,12 +31,10 @@ or vNext checkpoint.
 1. Complete deterministic protocol and stopping-behavior fixes. **Complete.**
 2. Disposition remaining SIM-COVERAGE gaps and define the faithful transition
    boundary. **Scoped identity/type/stage and progression work remains as
-   accepted in its cited reviews; bounded Topsy-Turvy semantics are reviewed.
-   Raw player-identifier projection repair is corrected, but the shared review
-   is blocked by Helping Hand accepting a side-only `[of]` source. Preserve the
-   digest until the boundary is corrected and reviewed. Scanner expansion and
-   operative format/provenance coverage are the next batch. Faithful
-   complete-episode publication remains unaccepted.**
+   accepted in its cited reviews; bounded Topsy-Turvy semantics and the
+   Helping Hand source-role correction are reviewed and attested. Scanner
+   expansion and operative format/provenance coverage are the next batch.
+   Faithful complete-episode publication remains unaccepted.**
 3. Review PIPELINE-001 with an explicit supported scope and rejection
    guarantees. **Accepted for v1 scope.**
 4. Remediate ENV-001 reproducibility in parallel.

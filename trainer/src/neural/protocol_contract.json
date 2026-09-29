@@ -2464,6 +2464,22 @@
       "kind": "malformed"
     },
     {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p1: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] Eevee",
+      "kind": "malformed"
+    },
+    {
       "record": "|-damage|p1a: Pikachu|50/100|[of] p2:Eevee",
       "kind": "malformed"
     },
@@ -2866,6 +2882,12 @@
       "token": "-singleturn",
       "record": "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee",
       "evidence": "pinned data/moves.ts:8884-8891; Helping Hand emits its effect label followed by the source ident",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p2a: Eevee|Helping Hand|[of] p1a: Pikachu",
+      "evidence": "pinned data/moves.ts:8884-8891; Helping Hand passes the acting Pokemon source to the final [of] field",
       "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {

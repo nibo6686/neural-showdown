@@ -1,0 +1,194 @@
+{
+  "version": 7,
+  "tool": "codex",
+  "tools": [
+    "codex"
+  ],
+  "mode": "install",
+  "workflow": "spec",
+  "packs": [
+    "foundation",
+    "delivery"
+  ],
+  "includeLocal": true,
+  "localAssets": [],
+  "assets": [
+    {
+      "name": "wm-spec",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "spec",
+      "description": "Generate an automation-friendly product specification from a raw requirement or feature brief."
+    },
+    {
+      "name": "wm-backlog",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Turn a specification, requirements, or stories into a prioritized MVP backlog with sequencing and delivery guidance."
+    },
+    {
+      "name": "wm-qa-plan",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Create a concise QA plan, scenario matrix, seed-data approach, and smoke-test checklist."
+    },
+    {
+      "name": "wm-application-smoke-test",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Run a focused, evidence-based smoke test against a web app, API, CLI, worker, or full-stack application using a verified native runner when available or safe live execution as a fallback; do not generate test scaffolding."
+    },
+    {
+      "name": "wm-pr-review",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Review a change against West Monroe quality, security, testing, and client-delivery expectations."
+    },
+    {
+      "name": "wm-adr",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Generate a West Monroe-style architecture decision record from the current decision context."
+    },
+    {
+      "name": "wm-client-handoff",
+      "kind": "skill",
+      "group": "core",
+      "packs": [
+        "foundation"
+      ],
+      "workflow": "any",
+      "description": "Review a client-facing deliverable for readiness, professionalism, and West Monroe engagement standards."
+    },
+    {
+      "name": "product-specification-agent",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "spec",
+      "description": "Convert a product brief into an automation-friendly product specification with requirements, flows, contracts, validation rules, and implementation slices."
+    },
+    {
+      "name": "backlog-prioritization-agent",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "any",
+      "description": "Convert requirements into an MVP backlog with dependency-aware sequencing and delivery recommendations."
+    },
+    {
+      "name": "full-stack-delivery-agent",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "any",
+      "description": "Implement a scoped feature with tests, product docs, architecture/workflow docs, and dependency manifests while following existing codebase patterns."
+    },
+    {
+      "name": "qa-validation-agent",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "any",
+      "description": "Validate requirements coverage, setup docs, architecture/workflow docs, dependency manifests, seed data, and smoke checks for a demo-ready increment."
+    },
+    {
+      "name": "codebase-onboarding-agent",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "any",
+      "description": "Explore a codebase and produce an onboarding guide that gets a new engineer productive quickly."
+    },
+    {
+      "name": "product-delivery-orchestrator",
+      "kind": "agent-skill",
+      "group": "delivery",
+      "packs": [
+        "delivery"
+      ],
+      "workflow": "any",
+      "description": "Act as a PM-style orchestrator that coordinates the active requirements workflow, backlog, implementation, QA, README, architecture/workflow docs, and dependency readiness."
+    }
+  ],
+  "generatedFiles": [
+    ".agents/skills/wm-spec/SKILL.md",
+    ".agents/skills/wm-backlog/SKILL.md",
+    ".agents/skills/wm-qa-plan/SKILL.md",
+    ".agents/skills/wm-application-smoke-test/SKILL.md",
+    ".agents/skills/wm-application-smoke-test/agents/openai.yaml",
+    ".agents/skills/wm-application-smoke-test/references/execution-and-coverage.md",
+    ".agents/skills/wm-application-smoke-test/references/optional-integrations.md",
+    ".agents/skills/wm-application-smoke-test/references/reporting-contract.md",
+    ".agents/skills/wm-pr-review/SKILL.md",
+    ".agents/skills/wm-adr/SKILL.md",
+    ".agents/skills/wm-client-handoff/SKILL.md",
+    ".agents/skills/product-specification-agent/SKILL.md",
+    ".agents/skills/backlog-prioritization-agent/SKILL.md",
+    ".agents/skills/full-stack-delivery-agent/SKILL.md",
+    ".agents/skills/qa-validation-agent/SKILL.md",
+    ".agents/skills/codebase-onboarding-agent/SKILL.md",
+    ".agents/skills/product-delivery-orchestrator/SKILL.md",
+    ".codex/agents/product-specification-agent.toml",
+    ".codex/agents/backlog-prioritization-agent.toml",
+    ".codex/agents/full-stack-delivery-agent.toml",
+    ".codex/agents/qa-validation-agent.toml",
+    ".codex/agents/codebase-onboarding-agent.toml",
+    ".codex/agents/product-delivery-orchestrator.toml",
+    "AGENTS.md"
+  ],
+  "fileHashes": {
+    ".agents/skills/wm-spec/SKILL.md": "b784aa8bf9b06f0adb39b7e03382b30de2156af82b7e1bde50d36cf06acdcae2",
+    ".agents/skills/wm-backlog/SKILL.md": "a9cfe896a9bb4e388d184ce8950a69c8e0651bef592dcc2b287b22bb99be8969",
+    ".agents/skills/wm-qa-plan/SKILL.md": "a1f1a450b1ad465a923325af4b593aeb05c733c0b44d10f51941c802669bc453",
+    ".agents/skills/wm-application-smoke-test/SKILL.md": "41a21356ef28b30d6f37cbe1c61b427c6f21d9c495b53ad682e7e75dd3ad2f6e",
+    ".agents/skills/wm-application-smoke-test/agents/openai.yaml": "6e93f17887ce037f48d24e988cad065d40590ff79765a49b28270ac05f4b37f1",
+    ".agents/skills/wm-application-smoke-test/references/execution-and-coverage.md": "593d6eb9a63abd499a9ba32be7719778999c74dde6e3e8cd3d19a4582f53b3fc",
+    ".agents/skills/wm-application-smoke-test/references/optional-integrations.md": "2125fb5065e899ed5d790b9bb5d2b8c043ab69974e0fc4cfc4a89d538d49d26c",
+    ".agents/skills/wm-application-smoke-test/references/reporting-contract.md": "b80ce25dd9caf22618a769e2933dec82c97ca369f826b0268b649dbb89b643b5",
+    ".agents/skills/wm-pr-review/SKILL.md": "f4682dbe94052f62713384102a2dbe695ed9f8f60488b9f33e4e567c339e32b1",
+    ".agents/skills/wm-adr/SKILL.md": "8360f5881a228953ce70937178103904d990f2e054cfb811cee48a7bddcedbb1",
+    ".agents/skills/wm-client-handoff/SKILL.md": "9c78e04b3219e7d3f67fae825438a8c7d0fe704dd38a534e1565710c022e47df",
+    ".agents/skills/product-specification-agent/SKILL.md": "221dbcb5538aca2b989a426484baf9e5f4f77d6aa6ce3398f056b58a8d814b32",
+    ".agents/skills/backlog-prioritization-agent/SKILL.md": "d62f1cd82ab617ff6c9ccc1259258947085530693b4c6ae8d07d94b40a092f71",
+    ".agents/skills/full-stack-delivery-agent/SKILL.md": "33ce5156ad528671c1de922b8abfb5d56a853d8321611f64bc77088f96cbdadc",
+    ".agents/skills/qa-validation-agent/SKILL.md": "e7063a75e59654cf621fb8976e21f92e4e952304155809c7276718246a8a9547",
+    ".agents/skills/codebase-onboarding-agent/SKILL.md": "da46d8ff83665d8c0d2434aeb81dd55d353db918271b45798eca9588d1cee254",
+    ".agents/skills/product-delivery-orchestrator/SKILL.md": "ccff8f0b364c0cf0b6e8f5315632c01d9cc81a5cd6f752a251e012e66ce4dc7e"
+  },
+  "sourceRepo": "awesome-ai-and-agentic-transformation",
+  "updatedAt": "2026-09-29T14:32:47.008Z"
+}

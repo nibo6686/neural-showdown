@@ -16,29 +16,24 @@ opt-in. `faithful_complete_episode:false` remains required. FEATURE-001, new
 training and faithful complete-episode publication are outside this assessment's
 authority.
 
-Latest implementation checkpoint (2026-09-28): the TS projection and
-observable-prefix paths now validate raw lines without trimming or repairing
-player identifiers; only a final supported line delimiter is removed as
-transport framing. TS and Python also require `-transform`'s actor and target
-to be active player identifiers, matching the pinned Pokemon-object emitter.
-The focused build passed, 35 TypeScript protocol/pipeline/extractor tests
-passed, and Python `test_pipeline_record.py` passed 20 tests. A rehashed matrix
-now covers 224 valid controls and 856 rejected candidates across v1/v2,
-perspectives and input/successor prefixes; rollback preserves committed state
-and lineage. Scoped review and coverage attestation remain pending; the prior
-digest is preserved. Showdown's `Dex.getName()` normalizes nicknames before
-ordinary team emission; the current identifier rule retains a broader opaque
-nonempty display-name scope and does not emulate that sanitizer. See the
-current PIPELINE-002 checkpoint for exact source references and verification.
-
-Scoped raw player-identifier review (2026-09-28) is **blocked**: both validators
-and the Python DATA-001 publication boundary accept a side-only
-`[of]` identifier on `-singleturn` Helping Hand, although the pinned move source
-is the active Pokémon. The matrix and focused suites pass but omit this shape.
-The raw terminal-actor repair is confirmed corrected. The current review's
-source table, minimal rehashed reproduction, and exact results are in the
-[PIPELINE-002 checkpoint](PIPELINE-002-GAP-DISPOSITION-2026-09-24.md#raw-player-identifier-review--blocked-2026-09-28).
-Preserve the existing coverage digest; no coverage attestation was made.
+Latest implementation checkpoint (2026-09-29): Helping Hand's final `[of]`
+template alone carries `ident_role: "active"`. TypeScript validation/projection
+and Python protocol/publication validation use that role to reject side-only,
+missing-side, and malformed sources before publication, while health-event
+`[of]` and move-target rules retain their side-or-active grammar. Source-backed
+controls cover active sources on both sides. The rehashed matrix applies the
+new rejections across v1/v2, p1/p2, and input/successor prefixes; its existing
+publication and rollback assertions require no DATA-001 output and preserve
+committed state, lineage, the next transition, and active-slot state. The
+focused build/test pass is pending. `-singleturn` remains raw-only,
+`-singlemove` remains an unsupported stop, and
+`faithful_complete_episode:false` remains required. Focused verification passed:
+TypeScript build and 36 selected tests, plus 20 Python pipeline-record tests.
+The separate protocol-boundary review attested local digest
+`985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`; this does
+not expand mechanics coverage. See the
+[PIPELINE-002 checkpoint](PIPELINE-002-GAP-DISPOSITION-2026-09-24.md#current-implementation-checkpoint--helping-hand-source-role-enforced-2026-09-29)
+for source references and review scope.
 
 Repository instructions: no `AGENTS.md` was found in the repository or its
 ancestors. Starting references: `docs/PROJECT_STATUS.md`,
@@ -64,14 +59,11 @@ ancestors. Starting references: `docs/PROJECT_STATUS.md`,
 - [x] Shared TypeScript/Python protocol contract, rehashed publication rejection
   matrix, raw-only token preservation and stop/rollback checks.
 
-**Resume here (updated 2026-09-28):** the raw-repair correction and active
-`-transform` target rule are implemented, but scoped identifier review is
-blocked by the Helping Hand `[of]` side-only source reproduction. Keep
-`-singleturn` raw-only, preserve `-singlemove` as an unsupported stop, and do
-not alter the coverage digest or `faithful_complete_episode:false`. The
-[current review checkpoint](PIPELINE-002-GAP-DISPOSITION-2026-09-24.md#raw-player-identifier-review--blocked-2026-09-28)
-has the contract-field table and focused results. Scanner expansion and
-operative format coverage remain the next separate batch.
+**Resume here (updated 2026-09-29):** the Helping Hand `[of]` source-role
+correction is accepted and attested. Keep `-singleturn` raw-only,
+preserve `-singlemove` as an unsupported stop, and retain
+`faithful_complete_episode:false`. Scanner expansion and operative format
+coverage remain the next separate batch.
 
 ## Initial source-boundary findings
 
@@ -307,9 +299,9 @@ acceptance. Inventory references use JSON paths in the coverage manifest.
 | **MEC-07 — requests, moves and legal actions** `protocol.grammar_groups.request/move`; `canonical_action` | `action_codec.ts:97–209`; `pipeline_integration.ts:377–388,432–456`; `pipeline_episode.ts:75–95`; Python `pipeline_record.py:167–190` | Only the addressed side's current request supplies legal slots, PP/disabled/trapped/Tera state and move identity; outcomes do not define the menu. CanonicalAction checks the current request and binds `rqid`. | **Verified support** for accepted Gen 9 singles menus. Targeted and multi-active syntax is an **intentional contract exclusion**; team preview, requestless/waiting and unsupported boundaries must not create fabricated actions. |
 | **MEC-08 — abilities and items** `condition_inventory`, `condition_semantics.internal_effect`, protocol ability/item groups | `state_extractor.ts:836–917`; pinned `data/abilities.ts`, `data/items.ts`; manifest callback/effect links | Own known values and public `-ability`/`-item` evidence are represented; opponent names remain hidden until public revelation (`has-item` is a public presence marker). Magic Room and ability suppression have selected public handling. Full reachable activations, copying/suppression and field mutations are not inventoried. | Public/private boundary is **verified support** within reviewed events; broader callback composition is **unknown**. Hidden enemy loadout is an **intentional privacy boundary**. |
 | **MEC-09 — field and side lifecycle** `condition_semantics.side_condition/pseudo_weather/terrain/weather`; `review.unknowns` | `state_extractor.ts:813–865`; pinned `sim/side.ts`, `sim/field.ts`, `data/conditions.ts` | Weather/terrain/pseudo-weather are current IDs; side records count starts and delete on end/swap. Counts do not encode every layer, cap, duration, source or per-effect expiry. These values can change move outcomes and switching hazards. | Coarse IDs/counts are **verified support**; full lifecycle is **unknown** and is not claimed. Do not treat counts as absent/false or as complete mechanics. |
-| **MEC-10 — protocol and publication boundary** `protocol.commands`, `protocol.grammar_groups`, `protocol.recognized_unsupported_commands`; shared `trainer/src/neural/protocol_contract.json` | TS `protocol_contract.ts`, `observable_state.ts`, `pipeline_integration.ts`; Python `protocol_contract.py`, `pipeline_record.py`; `pipeline_episode.ts`; saved rehashed review cases | Malformed requests/tier fail before filtering; valid requests are privacy-sanitized/removed and valid `tier`/framing lines are filtered only after validation. The expanded matrix rejects 856 fully rehashed candidates with no DATA-001 output and publishes 224 valid controls across v1/v2, p1/p2 and input/successor prefixes. TS direct, observable-prefix, and pipeline-prefix validation agree for the new malformed actor/target IDs. The live integration rollback checks preserve committed state and lineage. Historical identities, aliases, raw-only records, privacy, and the `-singlemove` stop remain tested within their existing scope. | **The confirmed TS pre-validation repair is corrected and focused tests pass; separate scoped review and coverage attestation remain pending.** Preserve the prior digest. This does not establish faithful-complete-episode publication. |
-| **MEC-13 — contract asset and fixture integrity** `protocol.contract`, shared command fixtures | TS `protocol_contract.ts`; Python `protocol_contract.py`; `tests/protocol_contract_validation.test.ts`; `trainer/tests/test_pipeline_record.py` | Both loaders now validate root/schema, token arrays, disposition conflicts, exact fixture/record token agreement, valid/rejection controls and the supported rule definitions. Missing, malformed JSON and structurally invalid assets fail closed. The 114-fixture inventory has no token-label mismatch; `-singlemove` remains recognized-but-unsupported. | **Loader and fixture defect corrected in the implementation; final coverage attestation remains pending.** |
-| **MEC-14 — protocol grammar parity and source alignment** `protocol.commands[*].record_grammar`; pinned protocol emitters | TS `protocol_contract.ts`, `observable_state.ts`, `pipeline_integration.ts`; Python `protocol_contract.py`, `pipeline_record.py`; pinned `sim/pokemon.ts:325,504-512,1288-1290,1861-1866`, `sim/battle.ts:2046,2189,2201,2457,2648-2650,2738,3022-3025`, `sim/battle-actions.ts:206-219,455,790,799`, and `data/moves.ts:8885-8891,14575`; shared controls | The raw terminal-actor repair is verified corrected: original trailing-space `faint` rejects in direct validation and projection in both runtimes; accepted actor spelling is preserved. `-transform` target remains active-required, while bare `transform` keeps its previous compatibility grammar because no pinned emitter is known. A source-table review found a field-specific gap: Helping Hand's `[of]` value is the active move source, but the shared `singleturn` contract labels it generic `player-ident`; both runtimes accept `|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee`, and a fully rehashed v2 bundle is accepted by DATA-001 publication. The 224 rehashed valid controls and 856 rejection candidates pass the focused matrix, but that matrix omits this source-incompatible shape. `-singleturn` is still raw-only; no volatile reconstruction is claimed. Nickname grammar remains broader than the full `Dex.getName()` sanitizer. HP-event tag ordering, Instruct, scanner expansion and operative format coverage remain outside this review. | **Confirmed defect:** the Helping Hand source identifier must require an active slot. Raw projection repair and `-transform` target validation are verified support. **Scoped batch acceptance and coverage attestation are withheld; preserve the prior digest.** |
+| **MEC-10 — protocol and publication boundary** `protocol.commands`, `protocol.grammar_groups`, `protocol.recognized_unsupported_commands`; shared `trainer/src/neural/protocol_contract.json` | TS `protocol_contract.ts`, `observable_state.ts`, `pipeline_integration.ts`; Python `protocol_contract.py`, `pipeline_record.py`; `pipeline_episode.ts`; saved rehashed review cases | Malformed requests/tier fail before filtering; valid requests are privacy-sanitized/removed and valid `tier`/framing lines are filtered only after validation. The rehashed matrix runs every rejection fixture across v1/v2, p1/p2 and input/successor prefixes and requires no DATA-001 output. TS direct, observable-prefix, and pipeline-prefix validation agree for malformed records; the live integration rollback regression preserves committed state, lineage, active slots, and the next transition. Historical identities, aliases, raw-only records, privacy, and the `-singlemove` stop remain tested within their existing scope. | **Accepted for the listed protocol-boundary sources and tests; reviewed digest `985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.** This does not establish faithful-complete-episode publication. |
+| **MEC-13 — contract asset and fixture integrity** `protocol.contract`, shared command fixtures | TS `protocol_contract.ts`; Python `protocol_contract.py`; `tests/protocol_contract_validation.test.ts`; `trainer/tests/test_pipeline_record.py` | Both loaders validate root/schema, token arrays, disposition conflicts, exact fixture/record token agreement, valid/rejection controls and the supported rule definitions. Missing, malformed JSON and structurally invalid assets fail closed. The shared template carries Helping Hand’s sole active `[of]` role; `-singlemove` remains recognized-but-unsupported. | **Accepted within the protocol-boundary attestation.** |
+| **MEC-14 — protocol grammar parity and source alignment** `protocol.commands[*].record_grammar`; pinned protocol emitters | TS `protocol_contract.ts`, `observable_state.ts`, `pipeline_integration.ts`; Python `protocol_contract.py`, `pipeline_record.py`; pinned `sim/pokemon.ts:325,504-512,1288-1290,1861-1866`, `sim/battle.ts:2046,2189,2201,2457,2648-2650,2738,3022-3025`, `sim/battle-actions.ts:206-219,455,790,799`, and `data/moves.ts:8885-8891,14575`; shared controls | The raw terminal-actor repair remains corrected and `-transform` target remains active-required; bare `transform` retains its compatibility grammar. Helping Hand's final `[of]` template alone records `ident_role: "active"`, matching its acting-Pokémon source. TS validation/projection and Python publication validation reject side-only, missing-side, and malformed Helping Hand sources while health-event `[of]` and move targets retain side-or-active grammar. Active controls cover both sides; the rehashed v1/v2, p1/p2, input/successor matrix and rollback cases carry these candidates through the publication boundary. `-singleturn` stays raw-only. Nickname grammar, HP-event tag ordering, Instruct, scanner expansion, and operative format coverage remain outside this review. | **Accepted within the protocol-boundary attestation.** `faithful_complete_episode:false` remains mandatory. |
 | **MEC-12 — signed `-setboost` grammar** `protocol.commands[-setboost]`; `protocol.grammar_groups.boost` | Pinned `sim/battle.ts:1941–1942`; shared protocol contract/fixtures; TS `observable_state.ts`; Python `protocol_contract.py`, `public_boosts.py` | The simulator emits the resulting signed stage (for example `-6` for a Contrary/Belly Drum probe). Raw TS grammar previously required unsigned integers while v2 stage replay already accepted signed set stages. Both validators now accept signed safe integers for `setboost` only; ordinary boost/unboost amounts remain nonnegative. The custom combination's random-team reachability was not established. | **Confirmed grammar defect, fixed for pinned protocol syntax; random-team occurrence is unknown.** This is not acceptance of Contrary/Belly Drum battle mechanics or new format reachability. |
 | **MEC-11 — progression and episode claim** `contracts.seeded_transition`, `contracts.dataset_lineage`; `pipeline_episode` | `pipeline_episode.ts:70–112,120–200`; `pipeline_integration.ts:425–570`; accepted progression sections in coverage contract | Joint actions, ordinary forced switches, bounded bench Revival Blessing, settling, deterministic lineage, rejected-candidate rollback and bounded/truncated outcomes have scoped acceptance. Other boundaries and unsupported protocol can stop; a terminal result alone does not prove typed-state fidelity. | Scoped progression is **verified support**. `faithful_complete_episode:false` remains mandatory; complete episodes are an **unaccepted scope**. |
 

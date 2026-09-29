@@ -1,6 +1,6 @@
 {
   "manifest_schema": "simulator-coverage/v2",
-  "review_status": "reviewed_with_documented_gaps; not work-item acceptance",
+  "review_status": "reviewed_with_documented_gaps; protocol-boundary batch accepted 2026-09-29",
   "simulator": {
     "name": "pokemon-showdown",
     "version": "0.11.10",
@@ -6600,7 +6600,7 @@
     "condition_inventory": 142
   },
   "review": {
-    "status": "reviewed_with_documented_gaps; not work-item acceptance",
+    "status": "reviewed_with_documented_gaps; protocol-boundary batch accepted 2026-09-29",
     "reviewed_source_tree_sha256": "95cc2b31a17340cf376739ad8f02570cd847e6647da2a0760f8623aef75290fe",
     "known_gaps": [
       "volatile duration/source/lock targets",
@@ -6709,8 +6709,8 @@
       "tests/transform_boosts.test.ts",
       "tests/transform_types.test.ts"
     ],
-    "sha256": "d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3",
-    "reviewed_sha256": "d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3",
+    "sha256": "985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b",
+    "reviewed_sha256": "985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b",
     "prior_reviewed_sha256": "15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9",
     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
     "portability_review_scope": "Windows review on 2026-09-25 accepted binary UTF-8 stdin decoding for the Python record bridge, including Unicode identity preservation and fail-closed malformed UTF-8/JSON behavior. Local coverage hashing now requires valid UTF-8 and normalizes CRLF pairs to LF while retaining lone CR and all substantive text changes as identity-bearing. Added the reusable Windows validator to hashing; it verifies base/patch identity and reports named step and aggregate failures. Native Windows focused evidence passed 85 TypeScript tests and 22 Python tests plus 22 subtests before attestation; the expected pre-attestation coverage failure identified digest 56578c01b9d641aa4a6598d5a78bd60bea3088a996a1f7ed73d246d611c39380. This review extends only portability and validation evidence; prior simulator semantic scope and faithful_complete_episode:false remain unchanged.",

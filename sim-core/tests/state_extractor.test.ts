@@ -46,6 +46,20 @@ test('malformed player identifiers reject before raw extraction mutates state', 
   assert.throws(() => extractor.consumeChunk('|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee '), /ident/);
   assert.deepEqual(extractor.getView().self_team, []);
   assert.deepEqual(extractor.getView().opponent_team, []);
+
+  const activeExtractor = new PlayerStateExtractor('singleturn-active-slot-atomicity', 'gen9randombattle', 'p1');
+  activeExtractor.consumeChunk('|switch|p1a: Pikachu|Pikachu, L80|100/100');
+  const activeBefore = activeExtractor.getView().active;
+  const teamBefore = activeExtractor.getView().self_team;
+  for (const record of [
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee',
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee',
+    '|-singleturn|p1a: Pikachu|Helping Hand|[of]',
+  ]) {
+    assert.throws(() => activeExtractor.consumeChunk(record));
+    assert.deepEqual(activeExtractor.getView().active, activeBefore);
+    assert.deepEqual(activeExtractor.getView().self_team, teamBefore);
+  }
 });
 
 test('clearVolatile exception preserves only publicly known Eternamax Dynamax (outside random-battle scope)', () => {

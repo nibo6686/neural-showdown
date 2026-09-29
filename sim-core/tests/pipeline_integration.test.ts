@@ -353,6 +353,7 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
         observation_id: state.observation.observation_id,
         belief_id: state.belief.belief_id,
         event_cursor: state.observation.event_cursor,
+        active_slots: { ...state.observation.view.active },
       }];
     })),
   };
@@ -376,6 +377,11 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
       { record: '|-singleturn|p1a: Pikachu|Future Mechanic', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singleturn|p1a: Pikachu|move: Follow Me|[of] p2a: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p1: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of]', code: 'pipeline/v1/unsupported-observable-protocol' },
+      { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a: Eevee ', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-boost|bad ident|atk|1', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|faint|p1a: Pikachu ', code: 'pipeline/v1/unsupported-observable-protocol' },
@@ -404,6 +410,7 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
             observation_id: state.observation.observation_id,
             belief_id: state.belief.belief_id,
             event_cursor: state.observation.event_cursor,
+            active_slots: { ...state.observation.view.active },
           }];
         })),
       }, committedLineage);

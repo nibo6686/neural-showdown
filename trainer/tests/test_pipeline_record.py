@@ -276,6 +276,11 @@ class PipelineRecordTest(unittest.TestCase):
         rejected = {fixture["record"] for fixture in REJECTION_FIXTURES}
         for record in (
             "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee",
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of] p1: Eevee",
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee",
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of] p: Eevee",
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of]",
+            "|-singleturn|p1a: Pikachu|Helping Hand|[of] Eevee",
             "|-damage|p1a: Pikachu|50/100|[of] p2:Eevee",
             "|-heal|p1a: Pikachu|50/100|[of] p2a:Eevee",
             "|move|p1a: Pikachu|Tackle|p2:Eevee",
@@ -315,13 +320,24 @@ class PipelineRecordTest(unittest.TestCase):
             if len(row) != 5:
                 continue
             no_payload_tag = row[4] == "[zeffect]"
-            tagged_forms.append({
+            tagged_form = {
                 "effect": row[3],
                 "tag": row[4] if no_payload_tag else "[of]",
                 "tag_value": "none" if no_payload_tag else "player-ident",
-            })
+                **({} if no_payload_tag else {"ident_role": "active"}),
+            }
+            if tagged_form not in tagged_forms:
+                tagged_forms.append(tagged_form)
         self.assertEqual(tagged_forms, rules["tagged_forms"])
-        self.assertEqual(len(controls), len(rules["untagged_effects"]) + len(rules["tagged_forms"]))
+        self.assertEqual(
+            len([row for row in parts if len(row) == 4]),
+            len(rules["untagged_effects"]),
+        )
+        self.assertEqual(
+            sorted(row[4][len("[of] "):] for row in parts
+                   if len(row) == 5 and row[3] == "Helping Hand"),
+            ["p1a: Pikachu", "p2a: Eevee"],
+        )
         cases = 0
         for version in ("v1", "v2"):
             for perspective in ("p1", "p2"):

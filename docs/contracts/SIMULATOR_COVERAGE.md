@@ -41,25 +41,25 @@ TypeScript/Python validation and TypeScript projection reject
 `'|faint|p1a: Pikachu\x20'`, while the valid source spelling is preserved. The
 active `-transform` target rule also matches its Pokémon-object emitter.
 
-The remaining field-specific blocker is Helping Hand `[of]`: pinned source
-emits `[of] ${source}` (`data/moves.ts:8885-8891`) for the active move source
-(`battle.ts:2648-2650`). Both validators currently accept
-`|-singleturn|p1a: Pikachu|Helping Hand|[of] p2: Eevee`. A fully rehashed v2
-candidate passed Python bundle validation and produced DATA-001 output. The
-field map and minimal reproduction are recorded in the
-[PIPELINE-002 review checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md#raw-player-identifier-review--blocked-2026-09-28).
+Helping Hand’s `[of]` source-role review is accepted: the shared contract assigns
+`ident_role: "active"` only to its source template, matching pinned
+`data/moves.ts:8885-8891` and the inactive-actor guard at
+`sim/battle.ts:2648-2650`. TypeScript and Python reject side-only, missing-side,
+and malformed sources before projection or DATA-001 publication. Health-event
+`[of]` and move-target rules remain side-or-active.
 
-The differential matrix exercises 224 added valid controls and rejects 856
-fully rehashed candidates across v1/v2, p1/p2 and input/successor prefixes. The
-focused build, 35 TypeScript tests and 20 Python tests pass, but the matrix omits
-the source-incompatible Helping Hand form. The stored/reviewed local digest
-remains
-`d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`; no new
-digest or coverage attestation was made. Direct random-set evidence remains
-limited to Beak Blast, Focus Punch, Protect and Roost. Instruct, HP-tag ordering,
-scanner expansion and operative format coverage remain deferred. `-singleturn`
-is raw-only, `-singlemove` remains an enforced stop, and
-`faithful_complete_episode:false` remains unchanged.
+The rehashed matrix applies the valid controls and every rejection fixture across
+v1/v2, p1/p2 and input/successor prefixes. Invalid candidates produce no
+DATA-001 output; TypeScript rollback preserves committed state, lineage, active
+slots, and the next transition. Build, 36 focused TypeScript tests, 20 Python
+pipeline-record tests, the coverage checker, and its drift self-tests pass. The
+reviewed local digest is
+`985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.
+
+Direct random-set evidence remains limited to Beak Blast, Focus Punch, Protect
+and Roost. Instruct, HP-tag ordering, scanner expansion and operative format
+coverage remain deferred. `-singleturn` is raw-only, `-singlemove` remains an
+enforced stop, and `faithful_complete_episode:false` remains unchanged.
 
 Scanner expansion, nested-effect modeling and operative format-digest coverage
 remain the next separate implementation batch, with newly found effects
