@@ -62,7 +62,7 @@ test('malformed player identifiers reject before raw extraction mutates state', 
   }
 });
 
-test('clearVolatile exception preserves only publicly known Eternamax Dynamax (outside random-battle scope)', () => {
+test('Dynamax remains raw-only outside the random-battle inventory scope', () => {
   const extractor = new PlayerStateExtractor('eternamax-retention', 'gen9customgame', 'p1');
   extractor.consumeChunk([
     '|switch|p2a: Eternatus|Eternatus-Eternamax|100/100',
@@ -72,7 +72,7 @@ test('clearVolatile exception preserves only publicly known Eternamax Dynamax (o
     '|faint|p2a: Eternatus',
   ].join('\n'));
   const pokemon = extractor.getView().opponent_team[0];
-  assert.deepEqual(pokemon.volatiles, ['dynamax']);
+  assert.deepEqual(pokemon.volatiles, []);
   assert.deepEqual(pokemon.boosts, {});
 });
 

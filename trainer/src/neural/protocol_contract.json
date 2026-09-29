@@ -246,9 +246,9 @@
     {
       "token": "boost",
       "record": "|boost|p1a: Pikachu|atk|1",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "stage record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "target ident, stat, integer amount",
         "optional": "tags",
@@ -273,9 +273,9 @@
     {
       "token": "clearallboost",
       "record": "|clearallboost",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "exact no-payload record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "no fields",
         "optional": "none",
@@ -1521,9 +1521,9 @@
     {
       "token": "unboost",
       "record": "|unboost|p1a: Pikachu|atk|1",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "stage record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "target ident, stat, integer amount",
         "optional": "tags",
@@ -1629,9 +1629,9 @@
     {
       "token": "transform",
       "record": "|transform|p1a: Pikachu|p2a: Gengar",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "transform record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "target ident, source target",
         "optional": "tags",
@@ -1662,9 +1662,9 @@
     {
       "token": "setboost",
       "record": "|setboost|p1a: Pikachu|atk|6",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "stage record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "target ident, stat, integer amount",
         "optional": "tags",
@@ -2071,9 +2071,9 @@
     {
       "token": "clearboost",
       "record": "|clearboost|p1a: Pikachu",
-      "inventory_classification": "raw-only",
+      "inventory_classification": "represented",
       "grammar_summary": "clear boost record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "current_v2_public_stage_projection_normalizes_bare_token",
       "inventory_grammar": {
         "required": "target ident",
         "optional": "none",

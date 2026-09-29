@@ -195,7 +195,6 @@ export function projectPipelineProtocolPrefix(records: readonly string[]): strin
       : raw.endsWith('\n') || raw.endsWith('\r')
         ? raw.slice(0, -1)
         : raw;
-    if (line === '') continue;
     if (!line.startsWith('|')) {
       throw new PipelineIntegrationError('pipeline/v1/unsupported-protocol-record', 'spectator output contained a non-protocol line');
     }

@@ -6,6 +6,8 @@ import {
   OBSERVABLE_STATE_SCHEMA_VERSION,
   ObservableStateProjector,
   projectObservableBattleState,
+  validateObservableProtocolPrefix,
+  validateRawProtocolRecord,
   type ObservableStateInput,
 } from '../src/observable_state';
 import {
@@ -69,12 +71,45 @@ test('Illusion replace has its own strict conditionless grammar and retains publ
 });
 
 test('observable state hashes normalized protocol prefixes deterministically', () => {
-  const first = projectObservableBattleState(input({ protocol_prefix: [' |turn|1\n', '|request|{"rqid":7}'] }));
+  const first = projectObservableBattleState(input({ protocol_prefix: ['|turn|1\n', '|request|{"rqid":7}'] }));
   const second = projectObservableBattleState(input({ protocol_prefix: ['|turn|1', '|request|{"rqid":7}'] }));
   assert.equal(first.event_cursor, 2);
   assert.equal(first.protocol_prefix_hash, second.protocol_prefix_hash);
   assert.equal(first.observation_id, second.observation_id);
   assert.equal(first.schema_version, OBSERVABLE_STATE_SCHEMA_VERSION);
+});
+
+test('empty normalized records reject while the defined framing record remains valid', () => {
+  for (const raw of ['', '\n', '\r', '\r\n']) {
+    assert.throws(() => validateRawProtocolRecord(raw), /Malformed raw protocol record/);
+    assert.throws(() => projectObservableBattleState(input({ protocol_prefix: [raw] })), /empty/);
+  }
+  assert.doesNotThrow(() => validateRawProtocolRecord('|'));
+  assert.doesNotThrow(() => projectObservableBattleState(input({ protocol_prefix: ['|'] })));
+});
+
+test('sanitized request prefixes require canonical JSON and matching associated rqid', () => {
+  const view = input().view;
+  for (const [record, request] of [
+    ['|request|{}', null],
+    ['|request|{"rqid":7}', { rqid: 7 }],
+  ] as const) {
+    assert.doesNotThrow(() => validateObservableProtocolPrefix([record], 'p1', view, request));
+  }
+  for (const record of [
+    '|request|{ }',
+    '|request|{"rqid": 7}',
+    '|request|{"rqid":7 }',
+    '|request|{"rqid":7.0}',
+    '|request|{"rqid":7,"rqid":7}',
+    '|request|{"rqid":null}',
+  ]) {
+    assert.throws(() => validateObservableProtocolPrefix([record], 'p1', view, { rqid: 7 }), record);
+  }
+  assert.throws(
+    () => validateObservableProtocolPrefix(['|request|{"rqid":8}'], 'p1', view, { rqid: 7 }),
+    /request\.rqid/,
+  );
 });
 
 test('public singleturn and self-target move records are accepted and retained verbatim', () => {

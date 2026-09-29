@@ -296,6 +296,14 @@ test('unresolved protocol aliases stop pipeline projection while known raw-only 
   try {
     const result = await env.resetWithOptions({ view_players: ['p1', 'p2'], include_log_delta: true, include_possible_roles: false });
     const basePrefix = projectPipelineProtocolPrefix(result.log_delta);
+    assert.deepEqual(projectPipelineProtocolPrefix(['|gen|9\n', '|', '|turn|1\r\n']), ['|gen|9', '|turn|1']);
+    for (const emptySegment of ['', '\n', '\r\n']) {
+      assert.throws(
+        () => projectPipelineProtocolPrefix(['|gen|9', emptySegment, '|turn|1']),
+        (error: Error) => error instanceof PipelineIntegrationError
+          && error.code === 'pipeline/v1/unsupported-protocol-record',
+      );
+    }
     const aliases = ['clearstatus', '-clearstatus', 'nothing'];
     for (const alias of aliases) {
       const line = `|${alias}|audit`;
@@ -371,6 +379,8 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
       };
     };
     for (const testCase of [
+      { record: '', code: 'pipeline/v1/unsupported-protocol-record' },
+      { record: '\n', code: 'pipeline/v1/unsupported-protocol-record' },
       { record: '|clearstatus|legacy-token', code: 'pipeline/v1/unresolved-protocol-alias' },
       { record: '|futuremechanic|opaque', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singlemove|p1a: Pikachu|Destiny Bond', code: 'pipeline/v1/unsupported-observable-protocol' },

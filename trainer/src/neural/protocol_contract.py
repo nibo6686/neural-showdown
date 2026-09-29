@@ -255,11 +255,82 @@ REJECTION_FIXTURES = tuple(_CONTRACT["rejection_fixtures"])
 VALID_RECORD_CONTROLS = tuple(_CONTRACT["valid_record_controls"])
 VALIDATION_RULES = _CONTRACT["validation_rules"]
 _JS_TRIM = "\u0009\u000a\u000b\u000c\u000d\u0020\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000\ufeff"
+
+
+def _load_effect_inventory():
+    path = Path(__file__).resolve().parents[3] / "sim-core" / "simulator_coverage" / "pokemon-showdown-0.11.10-gen9randombattle.json"
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ProtocolContractError(f"Unable to load simulator effect inventory at {path}: {exc}") from exc
+    discovery = manifest.get("effect_discovery", {})
+    if discovery.get("schema_version") != "simulator-effect-inventory/v1":
+        raise ProtocolContractError("Simulator effect inventory schema is missing or unsupported")
+    entries = {}
+    for entry in [*manifest.get("condition_inventory", []), *discovery.get("additional_entries", [])]:
+        identifier = entry.get("id")
+        if not isinstance(identifier, str) or identifier in entries:
+            raise ProtocolContractError("Simulator effect inventory has a missing or duplicate identifier")
+        if entry.get("classification") not in {"represented", "raw-only", "explicitly unsupported", "unknown", "silently omitted"}:
+            raise ProtocolContractError(f"Simulator effect inventory has an invalid disposition for {identifier}")
+        entries[identifier] = entry
+    return entries, discovery
+
+
+_EFFECT_INVENTORY, _EFFECT_DISCOVERY = _load_effect_inventory()
+
+
+def _effect_id(value):
+    return re.sub(r"[^a-z0-9]", "", value.lower())
+
+
+def _classify_effect_record(command, value):
+    if command in ("-start", "-end"):
+        family, allowed_categories = "move_volatile", {"move_volatile"}
+    elif command == "-weather":
+        family, allowed_categories = "weather", {"weather"}
+    elif command in ("-fieldstart", "-fieldend"):
+        family, allowed_categories = "field", {"pseudo_weather", "terrain"}
+    elif command in ("-sidestart", "-sideend"):
+        family, allowed_categories = "side_condition", {"side_condition"}
+    else:
+        return "represented"
+
+    identifier = _effect_id(value)
+    special = next((item for item in _EFFECT_DISCOVERY.get("special_values", [])
+                    if command in item.get("commands", []) and item.get("id") == identifier), None)
+    if special:
+        return special["classification"]
+    prefix = re.match(r"^(?:move|ability|item):\s*", value, re.IGNORECASE)
+    if prefix:
+        identifier = _effect_id(value[prefix.end():])
+    entry = _EFFECT_INVENTORY.get(identifier)
+    diagnostic = f"simulator-coverage/v1/unclassified-effect-value command={command} family={family} value={value}"
+    if entry is None:
+        raise ProtocolRecordError("unknown", command, diagnostic + " disposition=unknown",
+                                  code="simulator-coverage/v1/unclassified-effect-value", family=family,
+                                  value=value, disposition="unknown")
+    if entry["classification"] == "raw-only":
+        return "raw-only"
+    if entry["classification"] != "represented":
+        raise ProtocolRecordError("unsupported_stop", command, diagnostic + f" disposition={entry['classification']}",
+                                  code="simulator-coverage/v1/unclassified-effect-value", family=family,
+                                  value=value, disposition=entry["classification"])
+    if entry.get("category") not in allowed_categories:
+        disposition = f"family-mismatch:{entry.get('category')}"
+        raise ProtocolRecordError("unsupported_stop", command, diagnostic + f" disposition={disposition}",
+                                  code="simulator-coverage/v1/unclassified-effect-value", family=family,
+                                  value=value, disposition=disposition)
+    return "represented"
 class ProtocolRecordError(ValueError):
-    def __init__(self, kind, command, message):
+    def __init__(self, kind, command, message, *, code=None, family=None, value=None, disposition=None):
         super().__init__(message)
         self.kind = kind
         self.command = command
+        self.code = code
+        self.family = family
+        self.value = value
+        self.disposition = disposition
 
 
 def _malformed(command, detail=""):
@@ -627,3 +698,9 @@ def validate_protocol_record(record):
     if command not in SUPPORTED_COMMANDS:
         raise ProtocolRecordError("unknown", command, f"unsupported raw protocol event: {command or '<empty>'}")
     _shape(parts, command)
+    if command in ("-start", "-end"):
+        _classify_effect_record(command, parts[3])
+    elif command in ("-weather", "-fieldstart", "-fieldend"):
+        _classify_effect_record(command, parts[2])
+    elif command in ("-sidestart", "-sideend"):
+        _classify_effect_record(command, parts[3])

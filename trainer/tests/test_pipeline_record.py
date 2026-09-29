@@ -14,6 +14,7 @@ from neural.protocol_contract import (
 )
 from neural.pipeline_record import (
     PipelineRecordError,
+    _prefix,
     main,
     validate_pipeline_bundle,
 )
@@ -240,6 +241,9 @@ class PipelineRecordTest(unittest.TestCase):
             with self.subTest(control=control["record"]):
                 self.assertEqual(control["record"].split("|")[1], control["token"])
                 validate_protocol_record(control["record"])
+        typed_bare_stage_tokens = {"boost", "unboost", "setboost", "clearboost", "clearallboost", "transform"}
+        classifications = {fixture["token"]: fixture["inventory_classification"] for fixture in RECORD_FIXTURES}
+        self.assertEqual({token for token in typed_bare_stage_tokens if classifications[token] == "represented"}, typed_bare_stage_tokens)
         for fixture in REJECTION_FIXTURES:
             with self.subTest(record=fixture["record"]):
                 with self.assertRaises(ProtocolRecordError) as caught:
@@ -271,6 +275,122 @@ class PipelineRecordTest(unittest.TestCase):
                 self.assertEqual(validate_pipeline_bundle(original), original_controls[(version, perspective)])
         self.assertEqual(cases, len(REJECTION_FIXTURES) * 8)
         self.assertEqual(original_review_rejections, 16)
+
+    def test_rehashed_empty_protocol_segments_reject_before_publication(self):
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                original = _bundle(perspective=perspective, version=version)
+                control = validate_pipeline_bundle(original)
+                for where in ("input", "successor"):
+                    candidate = _rehashed_protocol_candidate(original, where, "")
+                    verify_bundle_identities(candidate)
+                    with self.subTest(version=version, perspective=perspective, where=where):
+                        with self.assertRaisesRegex(PipelineRecordError, "protocol prefix is malformed"):
+                            validate_pipeline_bundle(candidate)
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            result = main()
+                        self.assertEqual(result, 2, stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(validate_pipeline_bundle(original), control)
+
+    def test_rehashed_sanitized_request_records_are_canonical_and_join_rqid(self):
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                original = _bundle(perspective=perspective, version=version)
+                for where, record, successor_rqid in (
+                    ("input", '|request|{}', None),
+                    ("input", '|request|{"rqid":12}', 12),
+                    ("successor", '|request|{}', None),
+                    ("successor", '|request|{"rqid":13}', None),
+                ):
+                    candidate = _rehashed_protocol_candidate(original, where, record)
+                    if successor_rqid is not None:
+                        candidate["successor_observation"]["request"]["rqid"] = successor_rqid
+                        _seal_bundle(candidate)
+                    verify_bundle_identities(candidate)
+                    with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            result = main()
+                        self.assertEqual(result, 0, stderr.getvalue())
+                        published = json.loads(stdout.getvalue())
+                        self.assertEqual(published["observation_id"], candidate["input_observation"]["observation_id"])
+                        self.assertNotIn("request|", stdout.getvalue())
+
+                invalid = (
+                    ("input", '|request|{ "rqid": 12 }', "noncanonical request"),
+                    ("input", '|request|{"rqid":12,"rqid":12}', "noncanonical request"),
+                    ("input", '|request|{"private":true,"rqid":12}', "private request"),
+                    ("input", '|request|{"rqid":12,"private":true}', "private request"),
+                    ("input", '|request|{"rqid":13}', "rqid disagrees"),
+                    ("successor", '|request|{"rqid":13 }', "noncanonical request"),
+                    ("successor", '|request|{"rqid":12}', "rqid disagrees"),
+                    ("successor", '|request|{"rqid":null}', "Malformed raw request"),
+                )
+                for where, record, reason in invalid:
+                    candidate = _rehashed_protocol_candidate(original, where, record)
+                    verify_bundle_identities(candidate)
+                    with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            result = main()
+                        self.assertEqual(result, 2, stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+                        self.assertIn(reason.lower(), stderr.getvalue().lower())
+
+    def test_rehashed_observation_requests_are_object_or_null(self):
+        scalar_requests = ("invalid", [], 12, False)
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                original = _bundle(perspective=perspective, version=version)
+                for where in ("input", "successor"):
+                    # A null request is valid for requestless observations. The
+                    # input still cannot publish an action without a request.
+                    null_candidate = _rehashed_protocol_candidate(original, where, "|turn|2")
+                    null_observation = null_candidate[where + "_observation"]
+                    null_observation["request"] = None
+                    _seal_bundle(null_candidate)
+                    verify_bundle_identities(null_candidate)
+                    with self.subTest(version=version, perspective=perspective, where=where, request=None):
+                        self.assertEqual(list(_prefix(null_observation, where)), null_observation["protocol_prefix"])
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(null_candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            result = main()
+                        if where == "successor":
+                            self.assertEqual(result, 0, stderr.getvalue())
+                            self.assertNotEqual(stdout.getvalue(), "")
+                        else:
+                            self.assertEqual(result, 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+
+                    for request_value in scalar_requests:
+                        candidate = _rehashed_protocol_candidate(original, where, "|turn|2")
+                        candidate[where + "_observation"]["request"] = request_value
+                        _seal_bundle(candidate)
+                        verify_bundle_identities(candidate)
+                        before = copy.deepcopy(candidate)
+                        with self.subTest(version=version, perspective=perspective, where=where, request=request_value):
+                            with self.assertRaisesRegex(PipelineRecordError, "request must be an object or null"):
+                                _prefix(candidate[where + "_observation"], where)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                result = main()
+                            self.assertEqual(result, 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+                # A retained rqid has to join to a request object with that rqid.
+                candidate = _rehashed_protocol_candidate(original, "successor", '|request|{"rqid":12}')
+                candidate["successor_observation"]["request"] = None
+                _seal_bundle(candidate)
+                verify_bundle_identities(candidate)
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                    result = main()
+                self.assertEqual(result, 2, stderr.getvalue())
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertIn("no associated request object", stderr.getvalue())
 
     def test_player_ident_rejections_cover_singleturn_event_tags_and_side_targets(self):
         rejected = {fixture["record"] for fixture in REJECTION_FIXTURES}
@@ -402,6 +522,54 @@ class PipelineRecordTest(unittest.TestCase):
         verify_bundle_identities(candidate)
         with self.assertRaisesRegex(PipelineRecordError, "(?i)unsupported raw protocol event: futuremechanic"):
             validate_pipeline_bundle(candidate)
+
+    def test_unknown_effect_values_fail_closed_before_python_publication(self):
+        original = _bundle(version="v2")
+        for record, family in (
+            ("|-start|p1a: Pikachu|futurevolatile", "move_volatile"),
+            ("|-fieldstart|futurefield", "field"),
+            ("|-sidestart|p1: P1|futuresidecondition", "side_condition"),
+        ):
+            with self.subTest(record=record):
+                with self.assertRaises(ProtocolRecordError) as raised:
+                    validate_protocol_record(record)
+                self.assertEqual(raised.exception.code, "simulator-coverage/v1/unclassified-effect-value")
+                self.assertEqual(raised.exception.family, family)
+                self.assertEqual(raised.exception.disposition, "unknown")
+
+                candidate = _rehashed_protocol_candidate(original, "input", record)
+                verify_bundle_identities(candidate)
+                with self.assertRaisesRegex(PipelineRecordError, "simulator-coverage/v1/unclassified-effect-value"):
+                    validate_pipeline_bundle(candidate)
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                    result = main()
+                self.assertEqual(result, 2, stderr.getvalue())
+                self.assertIn("simulator-coverage/v1/unclassified-effect-value", stderr.getvalue())
+                self.assertEqual(stdout.getvalue(), "")
+
+    def test_represented_effect_in_wrong_family_fails_before_python_publication(self):
+        original = _bundle(version="v2")
+        record = "|-start|p1a: Pikachu|stealthrock"
+        with self.assertRaises(ProtocolRecordError) as raised:
+            validate_protocol_record(record)
+        self.assertEqual(raised.exception.code, "simulator-coverage/v1/unclassified-effect-value")
+        self.assertEqual(raised.exception.family, "move_volatile")
+        self.assertEqual(raised.exception.disposition, "family-mismatch:side_condition")
+
+        candidate = _rehashed_protocol_candidate(original, "input", record)
+        verify_bundle_identities(candidate)
+        before = json.dumps(candidate, sort_keys=True)
+        with self.assertRaisesRegex(PipelineRecordError, "family-mismatch:side_condition"):
+            validate_pipeline_bundle(candidate)
+        self.assertEqual(json.dumps(candidate, sort_keys=True), before)
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+            result = main()
+        self.assertEqual(result, 2, stderr.getvalue())
+        self.assertIn("simulator-coverage/v1/unclassified-effect-value", stderr.getvalue())
+        self.assertIn("family-mismatch:side_condition", stderr.getvalue())
+        self.assertEqual(stdout.getvalue(), "")
 
     def test_integral_float_cursors_preserve_javascript_number_identities(self):
         bundle = _bundle()

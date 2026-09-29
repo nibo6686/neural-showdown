@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import sys
 from typing import Any, Dict, Mapping, Optional, Sequence
@@ -17,7 +18,7 @@ from typing import Any, Dict, Mapping, Optional, Sequence
 from neural.canonical_action import validate_canonical_action
 from neural.public_boosts import validate_public_boosts
 from neural.protocol_contract import ProtocolRecordError, validate_protocol_record
-from neural.ts_identity import verify_bundle_identities
+from neural.ts_identity import canonical, verify_bundle_identities
 from neural.dataset_lineage import (
     DATASET_RECORD_SCHEMA,
     DatasetLineageError,
@@ -110,12 +111,21 @@ def _digest(value: Any, label: str) -> str:
     return value
 
 
+def _safe_request_rqid(value: Any) -> bool:
+    if type(value) is int:
+        return abs(value) <= 9007199254740991
+    return (type(value) is float and math.isfinite(value)
+            and value.is_integer() and abs(value) <= 9007199254740991)
+
+
 def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
     prefix = observation.get("protocol_prefix")
     if not isinstance(prefix, list) or any(not isinstance(line, str) or not line or line.strip() != line for line in prefix):
         raise PipelineRecordError(f"{label} protocol prefix is malformed")
     if isinstance(observation.get("event_cursor"), bool) or observation.get("event_cursor") != len(prefix):
         raise PipelineRecordError(f"{label} event cursor does not match its protocol prefix")
+    retained_rqid = None
+    has_retained_rqid = False
     for record_index, line in enumerate(prefix):
         try:
             validate_protocol_record(line)
@@ -134,16 +144,36 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
                 ) from exc
             raise PipelineRecordError(f"{label} {exc}") from exc
         if line.startswith("|request|"):
+            request_text = line[len("|request|"):]
             try:
-                request_payload = json.loads(line[len("|request|"):])
+                request_payload = json.loads(request_text)
             except json.JSONDecodeError as exc:
                 raise PipelineRecordError(f"{label} protocol prefix contains a raw request") from exc
             if not isinstance(request_payload, dict) or set(request_payload) - {"rqid"}:
                 raise PipelineRecordError(f"{label} protocol prefix contains a private request")
+            try:
+                canonical_request = canonical(request_payload)
+            except (TypeError, ValueError) as exc:
+                raise PipelineRecordError(f"{label} protocol prefix contains a noncanonical request") from exc
+            if canonical_request != request_text:
+                raise PipelineRecordError(f"{label} protocol prefix contains a noncanonical request")
+            if "rqid" in request_payload:
+                retained_rqid = request_payload["rqid"]
+                has_retained_rqid = True
         if line.startswith("|tier|"):
             raise PipelineRecordError(f"{label} protocol prefix contains filtered ruleset metadata")
         if line == "|":
             raise PipelineRecordError(f"{label} protocol prefix contains filtered framing metadata")
+    associated_request = observation.get("request")
+    if associated_request is not None and not isinstance(associated_request, Mapping):
+        raise PipelineRecordError(f"{label} request must be an object or null")
+    if has_retained_rqid:
+        if not isinstance(associated_request, Mapping):
+            raise PipelineRecordError(f"{label} protocol request rqid has no associated request object")
+        associated_rqid = associated_request.get("rqid")
+        if (not _safe_request_rqid(retained_rqid) or not _safe_request_rqid(associated_rqid)
+                or retained_rqid != associated_rqid):
+            raise PipelineRecordError(f"{label} protocol request rqid disagrees with its associated request")
     # ObservableState hashes strings with JavaScript's literal-Unicode JSON.
     # DATA-001 separately uses ensure_ascii=True; these are distinct hashes.
     ts_hash = hashlib.sha256(

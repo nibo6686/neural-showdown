@@ -1,6 +1,7 @@
 import { opponentPublicBoosts, type PublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
 import { isCanonicalPlayerIdent, isCanonicalSideOnlyPlayerIdent, PROTOCOL_CONTRACT, RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
+import { classifyEffectRecord } from './effect_inventory';
 import type {
   BattleView,
   ChoiceRequestView,
@@ -1007,6 +1008,10 @@ export function validateRawProtocolRecord(record: string): void {
     throw new ObservableStateError(`Unsupported raw protocol event: ${command}.`);
   }
   validateRawRecordShape(parts, command);
+  const effectField = ['-start', '-end'].includes(command) ? 3
+    : ['-weather', '-fieldstart', '-fieldend'].includes(command) ? 2
+      : ['-sidestart', '-sideend'].includes(command) ? 3 : -1;
+  if (effectField >= 0) classifyEffectRecord(command, parts[effectField] || '');
 }
 
 function parseIntegerRecord(parts: string[], label: string): number {

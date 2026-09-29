@@ -1,5 +1,6 @@
 import { Dex, toID } from 'pokemon-showdown';
 import { isCanonicalPlayerIdent, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
+import { classifyEffectRecord } from './effect_inventory';
 import { validateRawProtocolRecord } from './observable_state';
 import { normalizeRequest } from './action_codec';
 import {
@@ -790,6 +791,7 @@ export class PlayerStateExtractor {
 
   private handleVolatile(parts: string[]): void {
     const ident = parts[2] || '';
+    if (classifyEffectRecord(parts[1] || '', parts[3] || '') === 'raw-only') return;
     const effect = normalizeEffectId(parts[3] || '');
     const parsedIdent = parseIdent(ident);
     if (!parsedIdent.player || !effect) {
@@ -824,11 +826,13 @@ export class PlayerStateExtractor {
   }
 
   private handleWeather(parts: string[]): void {
+    if (classifyEffectRecord(parts[1] || '', parts[2] || '') === 'raw-only') return;
     const weather = normalizeEffectId(parts[2] || '');
     this.view.field.weather = weather || null;
   }
 
   private handlePseudoWeather(parts: string[]): void {
+    if (classifyEffectRecord(parts[1] || '', parts[2] || '') === 'raw-only') return;
     const effect = normalizeEffectId(parts[2] || '');
     if (!effect) {
       return;
@@ -858,6 +862,7 @@ export class PlayerStateExtractor {
 
   private handleSideCondition(parts: string[]): void {
     const side = (parts[2] || '').split(':', 1)[0];
+    if (classifyEffectRecord(parts[1] || '', parts[3] || '') === 'raw-only') return;
     const effect = normalizeEffectId(parts[3] || '');
     if ((side !== 'p1' && side !== 'p2') || !effect) {
       return;

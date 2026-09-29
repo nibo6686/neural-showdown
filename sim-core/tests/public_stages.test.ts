@@ -263,6 +263,32 @@ test('v2 stages require public baseline, ignore supplied future boosts, and pres
   } finally { await h.close(); }
 });
 
+test('v2 observation identities retain typed projections for bare boost-family records', async () => {
+  const h = await harness('p1');
+  try {
+    const cases = [
+      { records: ['|boost|p2a: Target|atk|2'], atk: 2 },
+      { records: ['|unboost|p2a: Target|atk|2'], atk: -2 },
+      { records: ['|setboost|p2a: Target|atk|-3'], atk: -3 },
+      { records: ['|boost|p2a: Target|atk|2', '|clearboost|p2a: Target'], atk: 0 },
+      { records: ['|boost|p2a: Target|atk|2', '|clearallboost'], atk: 0 },
+      { records: ['|boost|p1a: Copier|atk|3', '|transform|p2a: Target|p1a: Copier'], atk: 3 },
+    ];
+    const initial = projectPipelineProtocolPrefix(h.prefix);
+    for (const testCase of cases) {
+      const prefix = projectPipelineProtocolPrefix([...h.prefix, ...testCase.records]);
+      const v2 = projectPipelineStepResult(h.result, CONFIG.battle_id, prefix, PUBLIC_STAGES_SCHEMA_VERSION).p1;
+      const v1 = projectPipelineStepResult(h.result, CONFIG.battle_id, prefix, OBSERVABLE_STATE_SCHEMA_VERSION).p1;
+      assert.equal(v2.view.opponent_team.find(p => p.active)!.public_boosts!.atk, testCase.atk);
+      assert.equal(v2.protocol_prefix_hash, v1.protocol_prefix_hash);
+      assert.notEqual(v2.observation_id, v1.observation_id);
+      assert.equal(v1.view.opponent_team.find(p => p.active)!.public_boosts, undefined);
+      assert.ok(v2.protocol_prefix.length > initial.length);
+      assert.doesNotMatch(JSON.stringify(v2), /secret|raw|possible_roles/i);
+    }
+  } finally { await h.close(); }
+});
+
 for (const actor of ['p1', 'p2'] as const) {
   test(`v2 public stages ${actor} reconcile Illusion reveal without changing teammate or earlier prefixes`, async () => {
     const battle = illusionBattle(actor, true);
