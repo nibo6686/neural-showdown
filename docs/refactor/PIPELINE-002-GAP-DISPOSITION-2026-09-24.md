@@ -1,5 +1,185 @@
 # PIPELINE-002 gap disposition — 2026-09-24
 
+## SLICE-003 v2 per-side projection closure — implementation checkpoint (2026-09-29)
+
+- Start: branch `refactor/state-001-observable-state`, HEAD
+  `868e2734a273bdabb387304bfb6b8ce8113b4e2b`; the pre-existing untracked
+  `FACTORY_V2_CAPTURE_QA_PLAN.md` was preserved.
+- Added one versioned synthetic pinned fixture:
+  `tests/fixtures/observable_state_v2_per_side_gen9randombattle.json`.
+  At the same 13-record normalized public cursor it creates immutable
+  `observable-battle-state/v2` views for p1 and p2, with distinct owned
+  requests/actions, a public known-absent status, and an unrevealed
+  `status_source: "unknown"` entry for each perspective.
+- The fixture-derived TypeScript regression verifies private request raw fields
+  and opponent request details do not cross perspectives or enter the shared
+  prefix/hash; the same-turn suffix cannot alter either earlier frozen
+  observation, hash, or identity. It retains source-shaped `-singleturn`
+  evidence without a typed `protect` volatile. It also confirms well-formed
+  `-singlemove`, an unclassified volatile, a side-condition value in the
+  volatile family, and malformed `-start` all reject before typed projection.
+- No projection or extractor correction was required. Unrevealed ability
+  details are omitted from the sanitized observable view; explicit
+  `status_source: "unknown"` is the fixture's three-valued unknown marker,
+  while public active `status: null` plus `status_source: "protocol"` is the
+  evidence-backed known absence. Every fixture result retains
+  `faithful_complete_episode:false`.
+- Validation: `npm run build --prefix sim-core` passed. The newly added
+  fixture regression and all selected observable/extractor/pipeline tests
+  passed. The prescribed combined four-file command remains blocked by two
+  pre-existing `public_stages` Illusion-reveal cases (p1 and p2), each failing
+  with `settling/v1/simulator-error`; this slice did not modify their source
+  or behavior. Final `git diff --check` passed.
+- SLICE-004 remains required for candidate execution, snapshot restoration,
+  transition rollback, Python/DATA-001 publication, and cross-runtime
+  publication parity. The six unresolved computed `addVolatile` paths remain
+  unknown/fail-closed; `-singlemove` remains unsupported and `-singleturn`
+  remains raw-only.
+
+### Separate review, blocker, and local coverage attestation (2026-09-29)
+
+- An isolated worktree at the committed pre-SLICE-003 HEAD
+  `868e2734a273bdabb387304bfb6b8ce8113b4e2b` rebuilt and ran
+  `public_stages.test.js`: 20 tests passed and the same two p1/p2
+  Illusion-reveal tests failed with `settling/v1/simulator-error`. The changed
+  projection/extractor production sources and `public_stages.test.ts` are
+  byte-identical to that baseline. This is a separate pre-existing
+  settling/Illusion blocker, not a SLICE-003 regression; it requires separate
+  ownership before SLICE-004 and was not repaired here.
+- Independent review found the fixture and regression limited to the stated
+  per-side projection scope. They do not execute candidates, restore state,
+  exercise transition rollback, or invoke Python/DATA-001 publication.
+- Review also found that the new fixture was absent from
+  `local_coverage_sources.files`. It was added before attestation; the
+  current/reviewed local coverage digest is now
+  `a2e71a78c53fa9f9672df173b930ee9264e0cabb141ce1b2e411a6c60bbf3389`,
+  with prior reviewed digest
+  `34f086aa2ffc896caf39f11e3ff1c8139cda75cde3a851e550d6c7c60fc66ca9`.
+  This attests only SLICE-003's fixture/test/coverage-source boundary and
+  does not accept the separate Illusion blocker, mechanics, publication, or
+  complete-episode behavior.
+
+### Separate raw-only `-end Illusion` repair and attestation (2026-09-29)
+
+- Separate ownership localized the prior p1/p2
+  `settling/v1/simulator-error` to an inventory omission, before settling
+  delivery or v2 projection. Pinned `Abilities.illusion.onEnd` emits
+  `replace` immediately followed by `-end|ACTOR|Illusion`.
+- The source-backed `-end Illusion` disposition is raw-only. `replace` alone
+  reconciles public identity and stages; both p1/p2 regressions retain the
+  exact end record in the public prefix, preserve the revealed Fox's `spa: 2`,
+  and add no typed `illusion` volatile. No lifecycle semantics are claimed.
+- Independent semantic review found no material finding. The changed
+  `tests/public_stages.test.ts` was already listed in coverage hashing. The
+  reviewed local digest is now
+  `b6219f5ea41c804eb4b1f9a8e2ec7535a570590ee3c8cd923dddd82fa058e099`,
+  with SLICE-003's independently reviewed digest
+  `a2e71a78c53fa9f9672df173b930ee9264e0cabb141ce1b2e411a6c60bbf3389`
+  retained as its predecessor. This repair does not alter SLICE-003's fixture
+  or acceptance, and does not authorize SLICE-004.
+
+## SLICE-004A v2 deterministic joint transition — implementation checkpoint (2026-09-29)
+
+- Start: branch `refactor/state-001-observable-state`, HEAD
+  `868e2734a273bdabb387304bfb6b8ce8113b4e2b`; all pre-existing SLICE-003,
+  Illusion, coverage-manifest, and fixture work remains preserved.
+- Added one focused TypeScript-only regression in
+  `sim-core/tests/pipeline_integration.test.ts`. It creates two
+  `observable-battle-state/v2` ordinary joint-action boundaries at the same
+  pinned `gen9randombattle` seed, reuses one legal canonical action pair, and
+  observes the disposable runner restoring byte-identical serialized input
+  snapshots for the rejected and accepted candidate attempts.
+- No production correction was required. Existing candidate execution already
+  restores and fingerprints the input snapshot, validates both restored
+  request IDs, projects both successors before commit, and discards a failed
+  candidate. The regression compares transition and branch IDs, output
+  fingerprint, both action IDs, timestamp-normalized emitted deltas, successor
+  cursors, observation IDs, and belief IDs across the independent restored
+  runs. Both successors remain v2, retain only their owned actionable request,
+  and retain no `|request|` record in the shared public prefix.
+- The same regression proves stale request IDs, malformed canonical actions,
+  a candidate-only per-player choice rejection, and a separate candidate-only
+  top-level `diagnostics.last_error` environment-error rejection preserve the
+  complete committed boundary: snapshot fingerprint, step, branch, cursor,
+  observation/belief identities, active slots, and belief lineage. The latter
+  asserts `pipeline/v1/rejected-action` and the `simulator reported an
+  environment error` diagnostic. Every prototype override is restored in
+  `finally`; the next valid transition exactly matches an untouched control.
+  This is a bounded transition proof only; no complete-episode semantics were
+  added and `faithful_complete_episode:false` remains required.
+- Validation: `npm run build --prefix sim-core` and the prescribed
+  `transition.test.js` plus `pipeline_integration.test.js` command passed
+  **13/13**. Final semantic review found no material SLICE-004A finding:
+  candidate-only p1 choice and top-level environment-error rejections preserve
+  the committed boundary and recover deterministically. The coverage list
+  already includes `tests/pipeline_integration.test.ts`; replacing only that
+  covered file with its pre-SLICE-004A version reproduces the separately
+  reviewed `b6219f5ea41c804eb4b1f9a8e2ec7535a570590ee3c8cd923dddd82fa058e099`
+  baseline. The reviewed local digest is now
+  `1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308`.
+  The coverage checker and synthetic drift self-tests passed after attestation;
+  `git diff --check` passed.
+- SLICE-004B remains separate: forced-switch, Revival Blessing, waiting,
+  requestless, episode-runner behavior, Python/DATA-001 publication, and
+  cross-runtime publication parity are out of scope.
+
+## SLICE-004B v2 joint-transition TypeScript/Python publication parity — implementation checkpoint (2026-09-29)
+
+- Extended the same deterministic ordinary `gen9randombattle` v2 joint
+  transition regression in `sim-core/tests/pipeline_integration.test.ts`; no
+  TypeScript or Python production/contract correction was required. Both
+  perspective bundles pass `python3 -m neural.pipeline_record` and emit one
+  DATA-001 record with `observable-battle-state/v2` as the observation
+  fingerprint. The p1/p2 record IDs are respectively
+  `datarec-f4b83a69d488b081fe3a57b2d01042d2fdeac2cfa075d38ead344a4db6fa1969`
+  and `datarec-305f868555bc9751be9181035d79846155b40b8263092af29d314f3b60f919ef`.
+  They share transition
+  `transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5`,
+  branch `branch-5151a1e1b4046c1dfe782451bb61e7f5253c9a914be4acfd61704143881224be`,
+  and the input/output state fingerprints
+  `88c7a99186975bbdab350f60e4a103e300623cc72ffe4f065206bb394cdd2874` /
+  `f41b4ead5d5e85209f7ee777e24b79cfbc8398ce9111fb32b26225e87ec564c3`.
+- The proof directly joins each input/successor observation and belief,
+  action, transition, branch/lineage, cursor, and exact successor prefix to
+  its TypeScript bundle. A fresh independent session produces the identical
+  per-perspective validated record. The published record has only DATA-001
+  fields and excludes requests, snapshots, seeds, hidden opponent data, and
+  successor/future records.
+- The p1 and p2 compact tamper matrices each reject before output (exit 2 and
+  empty stdout): a public-stage change with successor observation/belief IDs
+  recomputed, mixed v1/v2 observations, wrong perspective, broken
+  observation/transition references, a rehashed non-extending successor
+  prefix, a forbidden raw request, and a malformed action identity. The
+  existing candidate-only choice/environment rejection proof remains in the
+  same run: its committed boundary stays separate and its valid retry matches
+  the untouched control.
+- Evidence hashes: `sim-core/tests/pipeline_integration.test.ts`
+  `7f4f52534715c47b5dda2169a3a0aca61f839c67ee51a1953bba80ed28df2887`;
+  `sim-core/src/pipeline_integration.ts`
+  `939081e963020cd8f7e72e65990fa10f3dfbfb91fe02f79027fdde36254cbd1b`;
+  `trainer/src/neural/pipeline_record.py`
+  `5a25774de80ece830f7be56e8ac0f7c5503045b37faf451da615b9502e4b7c9f`;
+  `trainer/src/neural/ts_identity.py`
+  `115af529c5c9c873d18c1e76cb3ca0cb8e543d24e32cc6a76ae534551d7d411a`.
+- Final semantic review found no material SLICE-004B finding. The documented
+  `/Library/Developer/CommandLineTools/usr/bin/python3` runs both real v2
+  bundle controls and `trainer/tests/test_pipeline_record.py` (**25 passed**)
+  without repair; the focused pipeline command passed **9/9**. The only new
+  covered path is the already-listed `tests/pipeline_integration.test.ts`; the
+  current reviewed local digest is
+  `4a43068ae878aaa5a3d6624220d424ff09cbdd5f2350c73303bfe1e5985daa77`, with
+  SLICE-004A's separately accepted
+  `1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308` retained
+  as its predecessor. The coverage checker and synthetic drift self-tests
+  passed after attestation; `git diff --check` passed. This attests only
+  ordinary v2 joint-transition bundle validation and does not accept broader
+  publication, episode, mechanics, dataset, feature, training, or live-model
+  scope.
+- `faithful_complete_episode:false` remains required. No forced-switch,
+  Revival Blessing, waiting/requestless, episode, dataset-writing, Python
+  feature/training, or live-model claim is added. The next scope is
+  SLICE-004B semantic review and conditional coverage attestation.
+
 ## Prior raw player-identifier review — blocked (2026-09-28)
 
 The raw-repair fix and active `-transform` target validation pass focused checks,

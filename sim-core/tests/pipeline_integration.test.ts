@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import test from 'node:test';
 import { canonicalActionFromLegalAction, type CanonicalAction } from '../src/canonical_action';
@@ -10,6 +11,7 @@ import {
   assertPipelineTransitionSupported,
   classifyPipelineBoundary,
   classifyPipelineRequestState,
+  type PipelineBoundary,
   type PipelineRequestState,
   createPipelineIntegrationSession,
   PipelineIntegrationError,
@@ -31,6 +33,63 @@ function validateInPython(bundle: unknown) {
     encoding: 'utf8',
   });
   return python;
+}
+
+function assertPythonRejectsWithoutPublication(bundle: unknown, label: string, reason?: RegExp): void {
+  const rejected = validateInPython(bundle);
+  assert.equal(rejected.status, 2, `${label}: ${rejected.stderr}`);
+  assert.equal(rejected.stdout, '', `${label}: Python must not publish a record`);
+  if (reason) assert.match(rejected.stderr, reason, `${label}: ${rejected.stderr}`);
+}
+
+function typeScriptCanonical(value: unknown): string {
+  if (value === null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
+    const serialized = JSON.stringify(value);
+    if (serialized === undefined) throw new Error('identity value is not JSON serializable');
+    return serialized;
+  }
+  if (Array.isArray(value)) return `[${value.map(typeScriptCanonical).join(',')}]`;
+  if (typeof value === 'object') {
+    const object = value as Record<string, unknown>;
+    return `{${Object.keys(object).sort().map((key) => `${JSON.stringify(key)}:${typeScriptCanonical(object[key])}`).join(',')}}`;
+  }
+  throw new Error('identity value is not JSON serializable');
+}
+
+function typeScriptDigest(value: unknown): string {
+  return createHash('sha256').update(typeScriptCanonical(value), 'utf8').digest('hex');
+}
+
+/** Recompute successor identities after a change that leaves its prefix valid. */
+function rehashSuccessorObservationAndBelief(candidate: Record<string, any>): Record<string, any> {
+  const observation = candidate.successor_observation as Record<string, any>;
+  const priorObservationId = observation.observation_id;
+  observation.observation_id = `obs-${typeScriptDigest(Object.fromEntries(
+    Object.entries(observation).filter(([key]) => key !== 'observation_id' && key !== 'protocol_prefix'),
+  ))}`;
+
+  const belief = candidate.successor_belief as Record<string, any>;
+  const updateReference = (reference: Record<string, any>) => {
+    if (reference.observation_id === priorObservationId) reference.observation_id = observation.observation_id;
+  };
+  updateReference(belief.observation);
+  for (const reference of belief.observation_history) updateReference(reference);
+  belief.transition_lineage.output_observation_id = observation.observation_id;
+  belief.belief_id = `belief-${typeScriptDigest(Object.fromEntries(
+    Object.entries(belief).filter(([key]) => key !== 'belief_id'),
+  ))}`;
+  return candidate;
+}
+
+/** Recompute the nested v2 identities after a public-stage mutation. */
+function rehashedSuccessorPublicStage(bundle: unknown): unknown {
+  const candidate = structuredClone(bundle) as Record<string, any>;
+  const activeOpponent = candidate.successor_observation.view.opponent_team
+    .find((pokemon: Record<string, unknown>) => pokemon.active);
+  assert.ok(activeOpponent?.public_boosts);
+  const priorStage = activeOpponent.public_boosts.atk;
+  activeOpponent.public_boosts.atk = priorStage === 6 ? 5 : priorStage + 1;
+  return rehashSuccessorObservationAndBelief(candidate);
 }
 
 function runFreshSimulatorProcess() {
@@ -78,6 +137,36 @@ function actionPair(session: Awaited<ReturnType<typeof createPipelineIntegration
     );
   }
   return actions;
+}
+
+function committedBoundaryShape(boundary: PipelineBoundary) {
+  return {
+    state_fingerprint: boundary.state_fingerprint,
+    step_index: boundary.step_index,
+    branch_id: boundary.branch_id,
+    perspectives: Object.fromEntries(['p1', 'p2'].map((player) => {
+      const perspective = boundary.perspectives[player as PlayerID];
+      return [player, {
+        observation_id: perspective.observation.observation_id,
+        belief_id: perspective.belief.belief_id,
+        cursor: perspective.observation.event_cursor,
+        active: structuredClone(perspective.observation.view.active),
+        parent_belief_id: perspective.belief.parent_belief_id,
+        transition_lineage: structuredClone(perspective.belief.transition_lineage),
+      }];
+    })),
+  };
+}
+
+function assertV2PerspectiveBoundary(boundary: PipelineBoundary): void {
+  for (const player of ['p1', 'p2'] as const) {
+    const observation = boundary.perspectives[player].observation;
+    assert.equal(observation.schema_version, 'observable-battle-state/v2');
+    assert.equal(observation.perspective, player);
+    assert.equal(observation.request?.player, player);
+    assert.ok(observation.request?.legal_actions.available_indices.length);
+    assert.ok(observation.protocol_prefix.every((record) => !record.startsWith('|request|')));
+  }
 }
 
 test('PIPELINE-001 links two real transitions for both perspectives and validates records in fresh Python processes', async () => {
@@ -203,6 +292,213 @@ test('stale and simulator-rejected candidates leave the committed boundary uncha
     assert.equal(accepted.boundary.step_index, 1);
   } finally {
     await session.close();
+  }
+});
+
+test('v2 joint transitions restore deterministic candidates and retain committed lineage after rejection', async () => {
+  const options = {
+    battle_id: 'pipeline-v2-joint-transition-v1',
+    format: 'gen9randombattle',
+    seed: SEED,
+    observation_schema_version: 'observable-battle-state/v2' as const,
+  };
+  const primary = await createPipelineIntegrationSession(options);
+  const control = await createPipelineIntegrationSession(options);
+  const originalResetFromSerialized = LocalBattleEnv.prototype.resetFromSerialized;
+  const originalStepSeededTransition = LocalBattleEnv.prototype.stepSeededTransition;
+  const originalDiagnostics = LocalBattleEnv.prototype.diagnostics;
+  const restoredSnapshots: string[] = [];
+  const emittedDeltas: string[][] = [];
+  try {
+    assert.equal(primary.boundary.kind, 'joint_actionable');
+    assert.equal(control.boundary.kind, 'joint_actionable');
+    assertV2PerspectiveBoundary(primary.boundary);
+    assertV2PerspectiveBoundary(control.boundary);
+    assert.notDeepEqual(
+      primary.boundary.perspectives.p1.observation.request,
+      primary.boundary.perspectives.p2.observation.request,
+    );
+
+    LocalBattleEnv.prototype.resetFromSerialized = async function recordCandidateRestore(serialized, stepOptions) {
+      if (this.id.includes('pipeline-step-0')) restoredSnapshots.push(JSON.stringify(serialized));
+      return originalResetFromSerialized.call(this, serialized, stepOptions);
+    };
+    LocalBattleEnv.prototype.stepSeededTransition = async function recordCandidateDelta(request, stepOptions) {
+      const result = await originalStepSeededTransition.call(this, request, stepOptions);
+      if (this.id.includes('pipeline-step-0')) emittedDeltas.push([...result.metadata.emitted_log_delta]);
+      return result;
+    };
+
+    const actions = actionPair(primary);
+    const committed = committedBoundaryShape(primary.boundary);
+    const stale = { ...actions.p1, rqid: (actions.p1.rqid ?? 0) + 1 };
+    await assert.rejects(primary.step({ p1: stale, p2: actions.p2 }), /request ID does not match/);
+    assert.deepEqual(committedBoundaryShape(primary.boundary), committed);
+
+    const malformed = { ...actions.p1, index: 13, action_id: `act-${'0'.repeat(64)}` };
+    await assert.rejects(primary.step({ p1: malformed, p2: actions.p2 }), /Canonical action index is invalid/);
+    assert.deepEqual(committedBoundaryShape(primary.boundary), committed);
+
+    const candidateEnvironmentId = `${options.battle_id}-pipeline-step-0`;
+    let injectedCandidateFailure: 'choice' | 'environment' | null = null;
+    LocalBattleEnv.prototype.diagnostics = function diagnosticsWithCandidateRejection() {
+      const diagnostics = originalDiagnostics.call(this) as Record<string, unknown>;
+      if (this.id !== candidateEnvironmentId || !injectedCandidateFailure) return diagnostics;
+      if (injectedCandidateFailure === 'environment') {
+        return { ...diagnostics, last_error: { message: 'injected environment error' } };
+      }
+      const players = diagnostics.players as Record<PlayerID, Record<string, unknown>>;
+      return {
+        ...diagnostics,
+        players: { ...players, p1: { ...players.p1, last_choice_error: { message: 'injected rejection' } } },
+      };
+    };
+    try {
+      injectedCandidateFailure = 'choice';
+      await assert.rejects(
+        primary.step(actions),
+        (error: Error) => error instanceof PipelineIntegrationError && error.code === 'pipeline/v1/rejected-action',
+      );
+      assert.deepEqual(committedBoundaryShape(primary.boundary), committed);
+
+      injectedCandidateFailure = 'environment';
+      await assert.rejects(primary.step(actions), (error: Error) => {
+        assert.ok(error instanceof PipelineIntegrationError);
+        assert.equal(error.code, 'pipeline/v1/rejected-action');
+        assert.match(error.message, /simulator reported an environment error/);
+        return true;
+      });
+      assert.deepEqual(committedBoundaryShape(primary.boundary), committed);
+    } finally {
+      injectedCandidateFailure = null;
+      LocalBattleEnv.prototype.diagnostics = originalDiagnostics;
+    }
+
+    const primaryResult = await primary.step(actions);
+    const controlResult = await control.step(actions);
+    assertV2PerspectiveBoundary(primaryResult.boundary);
+    assertV2PerspectiveBoundary(controlResult.boundary);
+    assert.equal(primaryResult.transition_id, controlResult.transition_id);
+    assert.equal(primaryResult.boundary.branch_id, controlResult.boundary.branch_id);
+    assert.equal(primaryResult.boundary.state_fingerprint, controlResult.boundary.state_fingerprint);
+    assert.equal(primaryResult.boundary.step_index, controlResult.boundary.step_index);
+    assert.equal(primaryResult.boundary.step_index, committed.step_index + 1);
+    assert.ok(restoredSnapshots.length >= 3);
+    assert.ok(restoredSnapshots.every((snapshot) => snapshot === restoredSnapshots[0]));
+
+    const normalizeDelta = (records: string[]) => records.map((record) => (
+      /^\|t:\|\d+$/.test(record) ? '|t:|0' : record
+    ));
+    assert.ok(emittedDeltas.length >= 3);
+    assert.deepEqual(
+      normalizeDelta(emittedDeltas[emittedDeltas.length - 2]),
+      normalizeDelta(emittedDeltas[emittedDeltas.length - 1]),
+    );
+    const records = {} as Record<PlayerID, Record<string, any>>;
+    for (const player of ['p1', 'p2'] as const) {
+      const primaryBundle = primaryResult.record_bundles[player];
+      const controlBundle = controlResult.record_bundles[player];
+      assert.equal(primaryBundle.action.action_id, actions[player].action_id);
+      assert.equal(primaryBundle.action.action_id, controlBundle.action.action_id);
+      assert.equal(primaryBundle.transition.transition_id, controlBundle.transition.transition_id);
+      assert.equal(primaryBundle.transition.branch_id, controlBundle.transition.branch_id);
+      assert.equal(primaryBundle.transition.output_state_fingerprint, controlBundle.transition.output_state_fingerprint);
+      assert.equal(
+        primaryResult.boundary.perspectives[player].observation.event_cursor,
+        controlResult.boundary.perspectives[player].observation.event_cursor,
+      );
+      assert.equal(
+        primaryResult.boundary.perspectives[player].observation.observation_id,
+        controlResult.boundary.perspectives[player].observation.observation_id,
+      );
+      assert.equal(
+        primaryResult.boundary.perspectives[player].belief.belief_id,
+        controlResult.boundary.perspectives[player].belief.belief_id,
+      );
+
+      assert.equal(primaryBundle.input_observation.schema_version, 'observable-battle-state/v2');
+      assert.equal(primaryBundle.successor_observation.schema_version, 'observable-battle-state/v2');
+      assert.equal(primaryBundle.input_belief.observation.observation_id, primaryBundle.input_observation.observation_id);
+      assert.equal(primaryBundle.successor_belief.observation.observation_id, primaryBundle.successor_observation.observation_id);
+      assert.equal(primaryBundle.successor_belief.parent_belief_id, primaryBundle.input_belief.belief_id);
+      assert.equal(primaryBundle.successor_belief.transition_lineage?.transition_id, primaryBundle.transition.transition_id);
+      assert.equal(primaryBundle.successor_belief.transition_lineage?.parent_branch_id, primaryBundle.transition.parent_branch_id);
+      assert.equal(primaryBundle.successor_belief.transition_lineage?.branch_id, primaryBundle.transition.branch_id);
+      assert.equal(primaryBundle.successor_belief.transition_lineage?.input_observation_id, primaryBundle.input_observation.observation_id);
+      assert.equal(primaryBundle.successor_belief.transition_lineage?.output_observation_id, primaryBundle.successor_observation.observation_id);
+      assert.equal(primaryBundle.successor_belief.simulator_snapshot?.state_fingerprint, primaryBundle.transition.output_state_fingerprint);
+      assert.deepEqual(
+        primaryBundle.successor_observation.protocol_prefix.slice(0, primaryBundle.input_observation.event_cursor),
+        primaryBundle.input_observation.protocol_prefix,
+      );
+
+      const checked = validateInPython(primaryBundle);
+      assert.equal(checked.status, 0, checked.stderr);
+      assert.notEqual(checked.stdout, '');
+      const record = JSON.parse(checked.stdout) as Record<string, any>;
+      records[player] = record;
+      assert.equal(record.schema_fingerprints.observation, 'observable-battle-state/v2');
+      assert.equal(record.perspective, player);
+      assert.equal(record.observation_id, primaryBundle.input_observation.observation_id);
+      assert.equal(record.belief_id, primaryBundle.input_belief.belief_id);
+      assert.equal(record.action_id, primaryBundle.action.action_id);
+      assert.equal(record.transition_id, primaryBundle.transition.transition_id);
+      assert.equal(record.observation_cursor, primaryBundle.input_observation.event_cursor);
+      assert.deepEqual(record.input_fields, []);
+      assert.equal(record.private_data_provenance, 'acting_player_request');
+      assert.equal(record.feature_input_eligibility, 'acting_player_private');
+      assert.deepEqual(Object.keys(record).sort(), [
+        'action_id', 'battle_id', 'belief_id', 'feature_cursor', 'feature_input_eligibility', 'input_fields',
+        'observation_cursor', 'observation_id', 'observation_prefix_hash', 'parser_version', 'perspective',
+        'private_data_provenance', 'record_id', 'replay_id', 'ruleset', 'schema_fingerprints', 'schema_version',
+        'source_kind', 'source_ref', 'split', 'split_key', 'split_seed', 'transition_id',
+      ]);
+      assert.doesNotMatch(JSON.stringify(record), /raw_request|simulator_state|rng_seed|root_seed|private_team|opponent_private|future_events|omniscient|successor_observation/);
+
+      const fresh = validateInPython(controlBundle);
+      assert.equal(fresh.status, 0, fresh.stderr);
+      assert.deepEqual(JSON.parse(fresh.stdout), record);
+    }
+
+    for (const player of ['p1', 'p2'] as const) {
+      const bundle = primaryResult.record_bundles[player];
+      const other = player === 'p1' ? 'p2' : 'p1';
+      const mixedVersions = structuredClone(bundle) as Record<string, any>;
+      mixedVersions.successor_observation.schema_version = 'observable-battle-state/v1';
+      const wrongPerspective = structuredClone(bundle) as Record<string, any>;
+      wrongPerspective.perspective = other;
+      const brokenObservationReference = structuredClone(bundle) as Record<string, any>;
+      brokenObservationReference.successor_belief.observation.observation_id = bundle.input_observation.observation_id;
+      const brokenTransitionReference = structuredClone(bundle) as Record<string, any>;
+      brokenTransitionReference.successor_belief.transition_lineage.transition_id = `transition-${'0'.repeat(64)}`;
+      let nonExtension = structuredClone(bundle) as Record<string, any>;
+      nonExtension.successor_observation.protocol_prefix[0] = '|turn|999';
+      nonExtension.successor_observation.protocol_prefix_hash = typeScriptDigest(nonExtension.successor_observation.protocol_prefix);
+      nonExtension = rehashSuccessorObservationAndBelief(nonExtension);
+      const privatePayload = structuredClone(bundle) as Record<string, any>;
+      privatePayload.raw_request = { side: { pokemon: [] } };
+      const malformedIdentity = structuredClone(bundle) as Record<string, any>;
+      malformedIdentity.action.action_id = 'act-malformed';
+      for (const [label, candidate, reason] of [
+        ['rehashed-public-stage', rehashedSuccessorPublicStage(bundle), /Invalid public-stage evidence/],
+        ['mixed-observation-versions', mixedVersions, /Mixed observation schemas/],
+        ['wrong-perspective', wrongPerspective, /perspective disagrees with record/],
+        ['broken-observation-reference', brokenObservationReference, /successor belief does not reference/],
+        ['broken-transition-reference', brokenTransitionReference, /transition lineage does not match/],
+        ['non-extension-successor-prefix', nonExtension, /not an exact extension/],
+        ['forbidden-private-payload', privatePayload, /private or raw simulator data/],
+        ['malformed-identity', malformedIdentity, /canonical action ID is malformed/],
+      ] as const) {
+        assertPythonRejectsWithoutPublication(candidate, `${player}/${label}`, reason);
+      }
+    }
+    assert.notEqual(records.p1.record_id, records.p2.record_id);
+  } finally {
+    LocalBattleEnv.prototype.resetFromSerialized = originalResetFromSerialized;
+    LocalBattleEnv.prototype.stepSeededTransition = originalStepSeededTransition;
+    LocalBattleEnv.prototype.diagnostics = originalDiagnostics;
+    await primary.close();
+    await control.close();
   }
 });
 

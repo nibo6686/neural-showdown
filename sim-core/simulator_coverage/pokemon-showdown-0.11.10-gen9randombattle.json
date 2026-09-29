@@ -6347,6 +6347,7 @@
     "special_values": [
       {"id":"typechange","commands":["-start","-end"],"classification":"represented","source_file":"data/moves.ts","projection_path":"state_extractor.handleVolatile -> public type changes"},
       {"id":"typeadd","commands":["-start","-end"],"classification":"represented","source_file":"data/moves.ts","projection_path":"state_extractor.handleVolatile -> added public type"},
+      {"id":"illusion","commands":["-end"],"classification":"raw-only","source_file":"data/abilities.ts","projection_path":"raw protocol evidence only; preceding replace reconciles the public appearance","evidence":"Abilities.illusion.onEnd emits replace followed by -end Illusion; no typed volatile lifecycle is claimed"},
       {"id":"none","commands":["weather","-weather"],"classification":"represented","source_file":"data/conditions.ts","projection_path":"state_extractor.handleWeather -> clear weather"},
       {"id":"raindance","commands":["-fieldend"],"classification":"raw-only","source_file":"protocol fixtures","projection_path":"raw protocol evidence only","evidence":"legacy generic field-end fixture uses a weather identifier, which is not a typed pseudo-weather removal"}
     ]
@@ -6866,6 +6867,7 @@
       "../scripts/generate_cross_platform_simulator_record.ps1",
       "../scripts/validate_windows_simulator_record.ps1",
       "../tests/fixtures/canonical_action_v1.json",
+      "../tests/fixtures/observable_state_v2_per_side_gen9randombattle.json",
       "../trainer/pyproject.toml",
       "../trainer/src/neural/canonical_action.py",
       "../trainer/src/neural/pipeline_record.py",
@@ -6917,9 +6919,9 @@
       "tests/transform_boosts.test.ts",
       "tests/transform_types.test.ts"
     ],
-    "sha256": "34f086aa2ffc896caf39f11e3ff1c8139cda75cde3a851e550d6c7c60fc66ca9",
-    "reviewed_sha256": "34f086aa2ffc896caf39f11e3ff1c8139cda75cde3a851e550d6c7c60fc66ca9",
-    "prior_reviewed_sha256": "06305dab8ac7abeb9172e7e42f38988d169dac95b0024e221eb1236af0a28e5a",
+    "sha256": "4a43068ae878aaa5a3d6624220d424ff09cbdd5f2350c73303bfe1e5985daa77",
+    "reviewed_sha256": "4a43068ae878aaa5a3d6624220d424ff09cbdd5f2350c73303bfe1e5985daa77",
+    "prior_reviewed_sha256": "1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308",
     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
     "portability_review_scope": "Windows review on 2026-09-25 accepted binary UTF-8 stdin decoding for the Python record bridge, including Unicode identity preservation and fail-closed malformed UTF-8/JSON behavior. Local coverage hashing now requires valid UTF-8 and normalizes CRLF pairs to LF while retaining lone CR and all substantive text changes as identity-bearing. Added the reusable Windows validator to hashing; it verifies base/patch identity and reports named step and aggregate failures. Native Windows focused evidence passed 85 TypeScript tests and 22 Python tests plus 22 subtests before attestation; the expected pre-attestation coverage failure identified digest 56578c01b9d641aa4a6598d5a78bd60bea3088a996a1f7ed73d246d611c39380. This review extends only portability and validation evidence; prior simulator semantic scope and faithful_complete_episode:false remain unchanged.",
     "comparison_bundle_review_scope": "Cross-platform preparation review on 2026-09-25 added a portable generator/comparator and Windows wrapper to hashing (28 files). The bundle reuses accepted deterministic scenarios for joint transition, one-sided KO replacement, natural Arena Trap rejection/recovery, terminal restoration, Unicode record validation and a bounded episode. It records canonical inputs, outputs and identities; normalizes only protocol timestamps and line endings under the documented policy; retains an explicit machine-specific field list; and never serializes private simulator snapshots. Two fresh Windows generations were byte-identical and self-comparison passed. Cross-platform equality remains pending a macOS candidate.",

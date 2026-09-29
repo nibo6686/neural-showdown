@@ -1,0 +1,105 @@
+{
+  "fixture_schema": "observable-state-v2-per-side-gen9randombattle/v1",
+  "provenance": {
+    "simulator": "pokemon-showdown@0.11.10",
+    "format": "gen9randombattle",
+    "source_kind": "sim_core",
+    "battle_id": "slice-003-v2-per-side",
+    "synthetic": true
+  },
+  "faithful_complete_episode": false,
+  "public_prefix": [
+    "|gen|9",
+    "|player|p1|Alice|1|",
+    "|player|p2|Bob|2|",
+    "|teamsize|p1|2",
+    "|teamsize|p2|2",
+    "|poke|p1|Pikachu|item",
+    "|poke|p1|Bulbasaur|item",
+    "|poke|p2|Dragonite|item",
+    "|poke|p2|Gholdengo|item",
+    "|switch|p1a: Spark|Pikachu, L80|100/100",
+    "|switch|p2a: Nox|Eevee, L80|100/100",
+    "|turn|1",
+    "|-singleturn|p1a: Spark|move: Protect"
+  ],
+  "same_turn_suffix": [
+    "|move|p1a: Spark|Thunderbolt|p2a: Nox"
+  ],
+  "requests": {
+    "p1": {
+      "rqid": 17,
+      "active": [{
+        "moves": [{"move": "Thunderbolt", "id": "thunderbolt", "pp": 15, "maxpp": 24, "target": "normal", "disabled": false}],
+        "canTerastallize": "Electric"
+      }],
+      "side": {
+        "name": "Alice",
+        "id": "p1",
+        "pokemon": [{
+          "ident": "p1: Spark",
+          "details": "Pikachu, L80",
+          "condition": "100/100",
+          "active": true,
+          "stats": {"atk": 146, "spa": 196, "spe": 216},
+          "moves": ["thunderbolt"],
+          "baseAbility": "static",
+          "ability": "static",
+          "item": "choicespecs",
+          "teraType": "Electric"
+        }]
+      },
+      "private_note": "p1-raw-only-secret"
+    },
+    "p2": {
+      "rqid": 23,
+      "active": [{
+        "moves": [{"move": "Quick Attack", "id": "quickattack", "pp": 30, "maxpp": 30, "target": "normal", "disabled": false}],
+        "canTerastallize": "Normal"
+      }],
+      "side": {
+        "name": "Bob",
+        "id": "p2",
+        "pokemon": [{
+          "ident": "p2: Nox",
+          "details": "Eevee, L80",
+          "condition": "100/100",
+          "active": true,
+          "stats": {"atk": 146, "spe": 216},
+          "moves": ["quickattack"],
+          "baseAbility": "runaway",
+          "ability": "runaway",
+          "item": "leftovers",
+          "teraType": "Normal"
+        }]
+      },
+      "private_note": "p2-raw-only-secret"
+    }
+  },
+  "expected": {
+    "event_cursor": 13,
+    "raw_only_effect": "protect",
+    "perspectives": {
+      "p1": {"rqid": 17, "active_move": "Thunderbolt", "legal_action_indices": [0, 4]},
+      "p2": {"rqid": 23, "active_move": "Quick Attack", "legal_action_indices": [0, 4]}
+    },
+    "known_absent": {
+      "p1": {"ident": "p2a: Nox", "field": "status_source", "value": "protocol"},
+      "p2": {"ident": "p1a: Spark", "field": "status_source", "value": "protocol"}
+    },
+    "unknown": {
+      "p1": {"species": "Gholdengo", "field": "status_source", "value": "unknown"},
+      "p2": {"species": "Bulbasaur", "field": "status_source", "value": "unknown"}
+    },
+    "forbidden_by_perspective": {
+      "p1": ["p1-raw-only-secret", "p2-raw-only-secret", "Quick Attack", "leftovers", "runaway"],
+      "p2": ["p1-raw-only-secret", "p2-raw-only-secret", "Thunderbolt", "choicespecs", "static"]
+    }
+  },
+  "stop_controls": [
+    {"name": "singlemove", "record": "|-singlemove|p1a: Spark|Destiny Bond", "diagnostic": "Unsupported raw protocol event: -singlemove"},
+    {"name": "unclassified-volatile", "record": "|-start|p1a: Spark|Future Volatile", "diagnostic": "unclassified-effect-value"},
+    {"name": "wrong-family-side-condition", "record": "|-start|p1a: Spark|Stealth Rock", "diagnostic": "family-mismatch"},
+    {"name": "malformed-start", "record": "|-start|p1a: Spark|", "diagnostic": "effect is required"}
+  ]
+}

@@ -314,7 +314,18 @@ for (const actor of ['p1', 'p2'] as const) {
       assert.ok(hidden[other].view.opponent_team.every(p => p.name !== 'Fox' && p.species !== 'Zoroark'));
       assert.equal(hidden[other].view.opponent_team.find(p => p.active)!.public_boosts!.spa, 2);
       const revealed = await step('move 3', 'move 2');
-      assert.equal(revealed[other].view.opponent_team.find(p => p.name === 'Fox')!.public_boosts!.spa, 2);
+      const hiddenAppearance = hidden[other].view.opponent_team.find(p => p.active)!;
+      const revealedFox = revealed[other].view.opponent_team.find(p => p.name === 'Fox')!;
+      assert.equal(revealedFox.public_boosts!.spa, 2);
+      const rawIllusionEnd = result.log_delta.find((record) => record === `|-end|${actor}a: Fox|Illusion`);
+      assert.equal(rawIllusionEnd, `|-end|${actor}a: Fox|Illusion`);
+      for (const perspective of ['p1', 'p2'] as const) {
+        assert.ok(revealed[perspective].protocol_prefix.includes(rawIllusionEnd));
+      }
+      // `replace` owns the identity reconciliation. The paired -end Illusion
+      // is retained as source-shaped evidence and must not become a volatile.
+      assert.deepEqual(revealedFox.volatiles, hiddenAppearance.volatiles);
+      assert.ok(!revealedFox.volatiles.includes('illusion'));
       assert.deepEqual(revealed[other].view.opponent_team.find(p => p.name === 'Mask')!.public_boosts, stages({}));
       const departed = await step('switch 2');
       assert.deepEqual(departed[other].view.opponent_team.find(p => p.name === 'Fox')!.public_boosts, stages({}));

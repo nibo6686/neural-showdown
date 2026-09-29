@@ -4,12 +4,14 @@ import path from 'node:path';
 import test from 'node:test';
 import {
   OBSERVABLE_STATE_SCHEMA_VERSION,
+  PUBLIC_STAGES_SCHEMA_VERSION,
   ObservableStateProjector,
   projectObservableBattleState,
   validateObservableProtocolPrefix,
   validateRawProtocolRecord,
   type ObservableStateInput,
 } from '../src/observable_state';
+import { PlayerStateExtractor } from '../src/state_extractor';
 import {
   createEmptyBattleView,
   createEmptyLegalActionSet,
@@ -56,6 +58,140 @@ function input(overrides: Partial<ObservableStateInput> = {}): ObservableStateIn
     ...overrides,
   };
 }
+
+type PerSideFixture = {
+  fixture_schema: string;
+  provenance: { simulator: string; format: string; source_kind: string; battle_id: string; synthetic: boolean };
+  faithful_complete_episode: boolean;
+  public_prefix: string[];
+  same_turn_suffix: string[];
+  requests: Record<'p1' | 'p2', Record<string, unknown>>;
+  expected: {
+    event_cursor: number;
+    raw_only_effect: string;
+    perspectives: Record<'p1' | 'p2', { rqid: number; active_move: string; legal_action_indices: number[] }>;
+    known_absent: Record<'p1' | 'p2', { ident: string; field: string; value: unknown }>;
+    unknown: Record<'p1' | 'p2', { species: string; field: string; value: unknown }>;
+    forbidden_by_perspective: Record<'p1' | 'p2', string[]>;
+  };
+  stop_controls: Array<{ name: string; record: string; diagnostic: string }>;
+};
+
+const perSideV2Fixture = JSON.parse(fs.readFileSync(
+  path.resolve(__dirname, '../../../tests/fixtures/observable_state_v2_per_side_gen9randombattle.json'),
+  'utf8',
+)) as PerSideFixture;
+
+function perSideV2Input(player: 'p1' | 'p2', prefix = perSideV2Fixture.public_prefix): ObservableStateInput {
+  const extractor = new PlayerStateExtractor(
+    perSideV2Fixture.provenance.battle_id,
+    perSideV2Fixture.provenance.format,
+    player,
+  );
+  extractor.consumeChunk([...prefix, `|request|${JSON.stringify(perSideV2Fixture.requests[player])}`].join('\n'));
+  const request = extractor.getRequest();
+  if (!request) throw new Error(`Fixture did not construct a ${player} request.`);
+  return {
+    schema_version: PUBLIC_STAGES_SCHEMA_VERSION,
+    source_kind: 'sim_core',
+    battle_id: perSideV2Fixture.provenance.battle_id,
+    perspective: player,
+    snapshot_phase: 'pre_decision',
+    protocol_prefix: prefix,
+    view: extractor.getView(),
+    request,
+  };
+}
+
+test('pinned v2 per-side fixture closes same-cursor privacy, raw evidence, and stops', () => {
+  assert.equal(perSideV2Fixture.fixture_schema, 'observable-state-v2-per-side-gen9randombattle/v1');
+  assert.deepEqual(perSideV2Fixture.provenance, {
+    simulator: 'pokemon-showdown@0.11.10',
+    format: 'gen9randombattle',
+    source_kind: 'sim_core',
+    battle_id: 'slice-003-v2-per-side',
+    synthetic: true,
+  });
+  assert.equal(perSideV2Fixture.faithful_complete_episode, false);
+
+  const p1Input = perSideV2Input('p1');
+  const p2Input = perSideV2Input('p2');
+  const p1 = projectObservableBattleState(p1Input);
+  const p2 = projectObservableBattleState(p2Input);
+  const states = { p1, p2 };
+
+  assert.equal(p1.event_cursor, perSideV2Fixture.expected.event_cursor);
+  assert.equal(p2.event_cursor, perSideV2Fixture.expected.event_cursor);
+  assert.deepEqual(p1.protocol_prefix, perSideV2Fixture.public_prefix);
+  assert.deepEqual(p2.protocol_prefix, perSideV2Fixture.public_prefix);
+  assert.equal(p1.protocol_prefix_hash, p2.protocol_prefix_hash);
+  assert.notEqual(p1.observation_id, p2.observation_id);
+  for (const player of ['p1', 'p2'] as const) {
+    const state = states[player];
+    const expected = perSideV2Fixture.expected.perspectives[player];
+    assert.equal(state.request?.player, player);
+    assert.equal(state.request?.rqid, expected.rqid);
+    assert.equal(state.request?.active?.moves[0]?.move, expected.active_move);
+    assert.deepEqual(state.request?.legal_actions.available_indices, expected.legal_action_indices);
+    assert.equal(Object.hasOwn(state.request || {}, 'raw'), false);
+    assert.equal(state.decision_availability.available, true);
+    assert.deepEqual(state.decision_availability.legal_action_indices, expected.legal_action_indices);
+    assert.ok(Object.isFrozen(state));
+    assert.ok(Object.isFrozen(state.protocol_prefix));
+
+    const knownAbsent = perSideV2Fixture.expected.known_absent[player];
+    const knownPokemon = state.view.opponent_team.find((pokemon) => pokemon.ident === knownAbsent.ident);
+    assert.ok(knownPokemon, `${player} known-absent fixture Pokémon`);
+    assert.equal(knownPokemon.status, null);
+    assert.equal((knownPokemon as unknown as Record<string, unknown>)[knownAbsent.field], knownAbsent.value);
+
+    const unknown = perSideV2Fixture.expected.unknown[player];
+    const unknownPokemon = state.view.opponent_team.find((pokemon) => pokemon.species === unknown.species);
+    assert.ok(unknownPokemon, `${player} unrevealed fixture Pokémon`);
+    assert.equal((unknownPokemon as unknown as Record<string, unknown>)[unknown.field], unknown.value);
+
+    assert.ok(state.protocol_prefix.includes('|-singleturn|p1a: Spark|move: Protect'));
+    for (const pokemon of [...state.view.self_team, ...state.view.opponent_team]) {
+      assert.ok(!pokemon.volatiles.includes(perSideV2Fixture.expected.raw_only_effect));
+    }
+    const serialized = JSON.stringify(state);
+    const publicEvidence = JSON.stringify(state.protocol_prefix);
+    for (const secret of perSideV2Fixture.expected.forbidden_by_perspective[player]) {
+      assert.equal(serialized.includes(secret), false, `${player} leaked ${secret}`);
+      assert.equal(publicEvidence.includes(secret), false, `${player} public prefix leaked ${secret}`);
+    }
+  }
+
+  const p1Json = JSON.stringify(p1);
+  const p2Json = JSON.stringify(p2);
+  const p1Later = projectObservableBattleState(perSideV2Input('p1', [
+    ...perSideV2Fixture.public_prefix,
+    ...perSideV2Fixture.same_turn_suffix,
+  ]));
+  const p2Later = projectObservableBattleState(perSideV2Input('p2', [
+    ...perSideV2Fixture.public_prefix,
+    ...perSideV2Fixture.same_turn_suffix,
+  ]));
+  assert.equal(JSON.stringify(p1), p1Json);
+  assert.equal(JSON.stringify(p2), p2Json);
+  assert.notEqual(p1Later.protocol_prefix_hash, p1.protocol_prefix_hash);
+  assert.notEqual(p2Later.protocol_prefix_hash, p2.protocol_prefix_hash);
+  assert.notEqual(p1Later.observation_id, p1.observation_id);
+  assert.notEqual(p2Later.observation_id, p2.observation_id);
+
+  const baselineView = structuredClone(p1Input.view);
+  for (const control of perSideV2Fixture.stop_controls) {
+    assert.throws(
+      () => projectObservableBattleState({
+        ...p1Input,
+        protocol_prefix: [...perSideV2Fixture.public_prefix, control.record],
+      }),
+      new RegExp(control.diagnostic),
+      control.name,
+    );
+    assert.deepEqual(p1Input.view, baselineView, `${control.name} reached typed projection`);
+  }
+});
 
 test('Illusion replace has its own strict conditionless grammar and retains public hint evidence', () => {
   for (const replace of ['|replace|p1a: Fox|Zoroark, M', '|replace|p1a: Fox|Zoroark, M|100/100 brn']) {
