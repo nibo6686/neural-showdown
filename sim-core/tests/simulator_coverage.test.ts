@@ -191,10 +191,13 @@ test('pinned Costar callback emits and projects its dynamically copied classifie
   assert.ok(flamigo?.volatiles.includes('dragoncheer'));
 });
 
-test('format provenance checker covers config drift and reachability routes', () => {
+test('coverage checker covers config drift, local source hashing, and reachability routes', () => {
   const checker = path.resolve(__dirname, '../../scripts/check-simulator-coverage.cjs');
   const result = spawnSync(process.execPath, [checker, '--reachability-self-test'], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /format config root drift fails closed/);
+  assert.match(result.stdout, /listed lock content changes local source digest/);
+  assert.match(result.stdout, /omitting listed lock changes local source digest/);
+  assert.match(result.stdout, /missing listed lock source fails closed/);
   assert.match(result.stdout, /direct, indirect, package-only, raw-only, unsupported, and unknown forms route explicitly/);
 });

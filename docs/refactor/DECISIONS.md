@@ -202,3 +202,207 @@ players, and must report terminal completion or an explicit truncation with
 last committed cursor and reason. No episode may be silently dropped as if
 complete. PIPELINE-002 requires real simulator progression tests and separate
 review before full-episode claims.
+
+## D-021 — Separate simulator-record validation from trainer/live runtime policy
+
+Status: Accepted (2026-09-29).
+
+Accepted 2026-09-29 after review; this accepts the ENV-001 policy direction only,
+not implementation or clean-environment proof.
+
+ENV-001 has passing existing-machine evidence but no repository-owned Python
+dependency policy or clean-environment proof. The recorded macOS environment is
+Command Line Tools Python 3.9.6 with Node v24.21.0/npm 11.19.0; Windows uses the
+existing `neuralgpu` Conda Python 3.11.14 with Node v24.15.0/npm 11.12.1. These
+are observed environments, not approved Python, Node, or npm support claims.
+Continue restoring sim-core with `npm ci` from the committed
+`sim-core/package-lock.json`; this decision does not replace the Node lock policy.
+
+Options considered:
+
+- Use `trainer/pyproject.toml` for repository-owned Python declarations and
+  checked-in resolver-generated lock/constraints artifacts, allowing
+  platform-specific outputs where compatibility or wheel availability requires
+  them. This keeps one declaration source while supporting both recorded
+  platforms, but requires compatibility and lock-format work.
+- Use a Conda environment specification/lock as the dependency authority. It can
+  describe a Windows trainer/GPU environment, but would require Conda for that
+  policy and would not match the recorded macOS terminal-Python setup as a shared
+  requirement. The existing Windows environment was not recreated from
+  repository metadata.
+- Keep only the existing machine instructions and declared `Python >=3.8` floor.
+  This preserves flexibility but cannot reproduce Python dependencies from a
+  clean checkout.
+
+Decision: preserve macOS terminal Python and Windows `neuralgpu` Conda as
+recorded working environments; do not require the same environment manager on
+both platforms. Use `trainer/pyproject.toml` as the repository-owned Python
+declaration source and evaluate a checked-in generated Python lock/constraints
+approach in the separate ENV-001 implementation. Conda may remain a
+Windows-specific environment option, but is not the sole dependency authority.
+Do not derive support ranges or package pins from the currently installed
+environments.
+
+The simulator-record validation profile is Python standard-library record
+validation plus `pytest` for its focused Python regression tests, and the locked
+sim-core Node build/runtime restored with `npm ci`; select the Python package
+through `PYTHON` and `PYTHONPATH` as documented in `ENVIRONMENT_VALIDATION.md`.
+NumPy, PyTorch, and PyYAML belong to future trainer/feature work; FastAPI,
+Pydantic, and Uvicorn belong to future live-server work. PyTorch wheel source,
+CPU versus accelerator selection, CUDA policy, and platform-specific package
+resolution require compatibility evidence in that broader scope. They are not
+part of simulator-record validation.
+
+Clean-environment proof must recreate an isolated Python environment from the
+committed declarations and lock/constraints on both macOS and Windows, record
+the selected Python/Node/npm versions, restore sim-core with `npm ci`, build it,
+verify Node launches the selected `PYTHON`, and pass the focused TypeScript
+simulator-record, Python record/lineage, and coverage checks in
+`ENVIRONMENT_VALIDATION.md`. Results establish only the tested environments and
+checks. Public replay fixtures remain optional for simulator-only validation;
+without `.log` fixtures, replay-marked checks may skip. Fixtures are required
+only for replay-parity or replay-sourced-data claims.
+
+Follow-up actions (separate from this decision):
+
+- [ ] Implement ENV-001 by testing a runtime compatibility matrix, declaring
+  dependencies by validation versus trainer/live profile, and selecting the
+  Python lock/constraints format and resolver. Resolve PyTorch platform and
+  accelerator packaging only for the broader trainer/live profile; do not copy
+  host-installed versions as pins.
+- [ ] In a separate clean-environment validation task, recreate the selected
+  profiles on macOS and Windows from repository metadata, run the focused checks
+  above, and record versions, commands, results, and platform-specific failures
+  in `ENVIRONMENT_VALIDATION.md`.
+
+## D-022 — Resolve broader trainer/live profiles per platform
+
+Status: Accepted (2026-09-30).
+
+Accepted 2026-09-30 after review; this accepts the policy direction only and
+does not claim clean recreation or ENV-001 completion.
+
+Deciders: [Team]
+
+### Context
+
+Accepted D-021 makes `trainer/pyproject.toml` the Python declaration source and
+keeps simulator-record validation separate from trainer/live runtime policy.
+ENV-001B now has a hash-locked simulator-record profile and macOS clean proof;
+that lightweight profile and its lock remain unchanged. Broader work includes
+PyTorch and platform-specific accelerator packages, but the recorded Windows
+`neuralgpu` environment was populated before this repository policy and has not
+been cleanly recreated. Existing Python, package, and CUDA versions are evidence
+only, not compatibility claims.
+
+### Decision Drivers
+
+- Preserve macOS terminal Python and Windows Conda `neuralgpu` as the intended
+  platform workflows.
+- Keep the simulator-record profile small, hash-locked, and independent of
+  trainer/live dependencies.
+- Make Windows recreation depend on repository-owned metadata rather than the
+  contents of an existing environment.
+- Avoid implying one PyTorch artifact or accelerator policy works everywhere.
+- Preserve the committed Node lock and `npm ci` policy.
+
+### Options Considered
+
+#### Option 1: One universal pip lock containing PyTorch
+
+Use one pip-generated lock for the broader profile on macOS and Windows,
+including PyTorch and accelerator packages.
+
+Pros:
+- One installation artifact and resolver workflow to maintain.
+- Hashes could bind resolved package files for the represented targets.
+
+Cons:
+- A single lock would have to represent distinct operating-system wheels and
+  accelerator choices without evidence that the targets are compatible.
+- It risks turning one target's CPU/GPU resolution into a false cross-platform
+  support claim.
+
+#### Option 2: Platform/profile-specific pip locks or constraints
+
+Keep common declarations in `pyproject.toml`, then generate separate locks or
+constraints for each validated platform and profile.
+
+Pros:
+- Keeps simulator-record, macOS trainer/live, and Windows trainer/live
+  dependency closures distinct.
+- Allows PyTorch wheel and accelerator resolution to be verified per target.
+
+Cons:
+- Adds artifacts and resolver procedures that must stay aligned with the shared
+  declarations.
+- A pip lock alone does not recreate the Windows Conda interpreter environment.
+
+#### Option 3: Shared declarations with a repository-owned Windows Conda GPU spec
+
+Keep project dependency intent in `pyproject.toml` and add a Windows Conda
+environment specification and generated lock for the `neuralgpu` runtime.
+Maintain a separate pip lock for any broader macOS profile the project supports.
+
+Pros:
+- Preserves the existing Windows environment manager while making its clean
+  recreation a repository-defined process.
+- Lets Windows PyTorch and accelerator packages resolve for their target, while
+  macOS terminal Python retains its own profile artifact.
+
+Cons:
+- Conda and pip artifacts introduce separate resolvers and require an explicit
+  consistency check against the `pyproject.toml` declarations.
+- More platform-specific metadata must be updated and validated together.
+
+### Decision
+
+Use the shared `trainer/pyproject.toml` declarations with separate
+platform/profile resolution artifacts. Keep the existing simulator-record extra
+and `trainer/requirements/simulator-record.txt` unchanged. For broader work,
+create a macOS pip lock for any trainer/live profile the project chooses to
+support and a repository-owned Windows Conda environment specification and lock
+for `neuralgpu`; keep the Conda artifact a platform-specific resolution of the
+shared declarations, not a replacement dependency authority. Do not publish one
+universal PyTorch/CUDA lock or claim a tested Python or accelerator matrix until
+clean recreation and compatibility checks establish it. Preserve the
+`sim-core/package-lock.json` and `npm ci` policy.
+
+### Consequences
+
+**Positive:**
+- Dependency intent stays in one project declaration while resolved runtime
+  artifacts match the platform and profile being validated.
+- The Windows workflow can remain Conda-based and become reproducible from
+  repository metadata.
+
+**Negative / Trade-offs:**
+- Multiple locks/specifications and their resolver provenance require upkeep.
+- Platform-specific PyTorch, accelerator, and Python compatibility must be
+  maintained as separate evidence.
+
+**Neutral:**
+- Current host versions remain observations; this decision does not approve
+  exact pins, a Python support range, or CUDA/runtime compatibility.
+- Environment policy does not authorize dataset generation, training, model
+  evaluation, or live inference; those remain separately gated by requirements
+  and project status.
+
+### Follow-up Actions
+
+- [ ] In ENV-001C, declare broader trainer/live dependency groups in
+  `trainer/pyproject.toml` without changing the simulator-record profile.
+- [ ] Create repository-owned platform/profile artifacts: a macOS pip lock for
+  any broader profile selected for support, plus a Windows Conda environment
+  specification and generated lock that can recreate `neuralgpu` from a clean
+  state.
+- [ ] Resolve package pins and Python targets from native compatibility checks;
+  determine PyTorch wheel/source and accelerator/CUDA runtime compatibility per
+  platform. Record resolver inputs and outputs rather than copying installed
+  versions.
+- [ ] Recreate and validate Windows from repository metadata, then separately
+  validate the macOS broader trainer/live profile if this decision supports it.
+  Record commands, versions, results, and failures in
+  `docs/refactor/ENVIRONMENT_VALIDATION.md`.
+
+Record this proposed decision in the existing `docs/refactor/DECISIONS.md` log.

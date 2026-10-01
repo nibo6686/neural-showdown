@@ -75,9 +75,13 @@ for the new approach and are not a readiness dependency.
 
 The environment instructions and commands in this README document existing
 legacy workflows. They are not a reproducibility declaration for the new
-pipeline: ENV-001 remains blocked on dependency policy and clean-environment
-validation. Do not treat dataset/training examples below as authorization for
-the current refactored work.
+pipeline: ENV-001 remains open pending Windows clean recreation and broader
+Windows trainer/live packaging. The macOS broader profile has a locked proof only
+for the recorded Command Line Tools Python 3.9.6 arm64 environment; it does not
+establish a supported Python range or Windows/PyTorch/CUDA compatibility. See
+the [environment validation record](docs/refactor/ENVIRONMENT_VALIDATION.md#env-001c1--macos-broader-trainerlive-profile).
+Do not treat dataset/training examples below as authorization for the current
+refactored work.
 
 For the refactored simulator-record path, use the
 [verified macOS and Windows environment instructions](docs/refactor/ENVIRONMENT_VALIDATION.md#verified-existing-environments--2026-09-25).
@@ -89,8 +93,14 @@ and training/data readiness remain separately gated; `faithful_complete_episode:
 Runtime pieces:
 
 - Node.js and npm for `sim-core`.
-- Python 3.8+ with PyTorch, NumPy, FastAPI/Uvicorn, pytest, and the other
-  scientific/runtime packages used by the trainer.
+- The simulator-record profile uses Python's standard library plus the locked
+  `simulator-record` pytest extra. The declared Python `>=3.8` floor is not a
+  tested compatibility matrix.
+- The repository-owned macOS broader trainer/live profile declares the direct
+  imports and uses the hash-checked lock documented in the environment
+  validation record. Windows Conda packaging and clean recreation remain
+  ENV-001C2; neither environment profile authorizes model training or live
+  inference.
 - On this Windows setup, the launcher defaults to:
 
 ```powershell
@@ -99,15 +109,17 @@ D:\Anaconda\envs\neuralgpu\python.exe
 
 The code can run on CPU. PyTorch will use CUDA when available.
 
-Install and build the simulator:
+Install and build the simulator from the repository root using the committed
+Node lockfile:
 
 ```powershell
-cd C:\Users\cloud\Downloads\neural\final
-cd .\sim-core
-npm install
-npm run build
-cd ..
+npm.cmd ci --prefix sim-core
+npm.cmd run build --prefix sim-core
 ```
+
+For the locked Python simulator-record profile, the macOS clean-environment
+commands and the later Windows `neuralgpu` install path are documented in
+[`docs/refactor/ENVIRONMENT_VALIDATION.md`](docs/refactor/ENVIRONMENT_VALIDATION.md).
 
 Set Python imports for manual module runs:
 

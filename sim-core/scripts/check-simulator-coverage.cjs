@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const os = require('node:os');
 const assert = require('node:assert/strict');
 
 const root = path.resolve(__dirname, '..');
@@ -168,10 +169,10 @@ function normalizedTextBytes(bytes) {
   return Buffer.from(text.replace(/\r\n/g, '\n'), 'utf8');
 }
 
-function localSourceDigest(files) {
+function localSourceDigest(files, sourceRoot = root) {
   const hash = crypto.createHash('sha256');
   for (const name of [...files].sort()) {
-    const full = path.join(root, name);
+    const full = path.join(sourceRoot, name);
     if (!fs.existsSync(full) || !fs.statSync(full).isFile()) throw new Error(`Missing local coverage source: ${name}`);
     hash.update(name).update('\0').update(normalizedTextBytes(fs.readFileSync(full))).update('\0');
   }
@@ -470,6 +471,26 @@ if (process.argv.includes('--self-test') || process.argv.includes('--reachabilit
   let invalidUtf8Rejected = false;
   try { normalizedTextBytes(Buffer.from([0xff])); } catch { invalidUtf8Rejected = true; }
   tests.push(['invalid UTF-8 source is rejected', invalidUtf8Rejected]);
+  const localSourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'simulator-coverage-local-source-'));
+  const localLockName = 'trainer/requirements/simulator-record.txt';
+  const localLockPath = path.join(localSourceRoot, localLockName);
+  fs.mkdirSync(path.dirname(localLockPath), { recursive: true });
+  try {
+    fs.writeFileSync(localLockPath, 'pytest==8.4.2\n', 'utf8');
+    const lockDigest = localSourceDigest([localLockName], localSourceRoot);
+    fs.writeFileSync(localLockPath, 'pytest==8.4.3\n', 'utf8');
+    const modifiedLockDigest = localSourceDigest([localLockName], localSourceRoot);
+    tests.push(['listed lock content changes local source digest', lockDigest !== modifiedLockDigest]);
+    tests.push(['omitting listed lock changes local source digest', lockDigest !== localSourceDigest([], localSourceRoot)]);
+    fs.unlinkSync(localLockPath);
+    let missingLockRejected = false;
+    try { localSourceDigest([localLockName], localSourceRoot); } catch (error) {
+      missingLockRejected = error.message.includes('Missing local coverage source');
+    }
+    tests.push(['missing listed lock source fails closed', missingLockRejected]);
+  } finally {
+    fs.rmSync(localSourceRoot, { recursive: true, force: true });
+  }
   tests.push(['new condition ID', setDiff(['known', '__new_condition__'], ['known']).added.includes('__new_condition__')]);
   tests.push(['new protocol token', setDiff(['known', '__new_protocol__'], ['known']).added.includes('__new_protocol__')]);
   tests.push(['new emitter token', setDiff(['known', '__new_emitter__'], ['known']).added.includes('__new_emitter__')]);
