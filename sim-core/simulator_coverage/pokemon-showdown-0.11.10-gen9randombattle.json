@@ -8238,6 +8238,15 @@
       "whole_branch_verdict": "withheld: committed legacy replay policy same-turn identity collision outside coverage inputs, final-candidate validation and owner decisions pending",
       "no_tests_run": true,
       "no_git_publication_or_evidence_move": true
+    },
+    "whitespace_normalization": {
+      "status": "accepted-scoped",
+      "date": "2026-10-09",
+      "reviewed_commit": "286e2de8e1f71435c1d749fc1048d48052bc1ca6",
+      "parent_commit": "849f52351d7120f8fe43f1b84d983eda8ae49a88",
+      "prior_reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+      "reviewed_local_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
+      "scope": "Only reported trailing whitespace in two historical logs, excess EOF blank lines in three TS helpers, and exact hash/provenance bookkeeping. Source, assertions, fixture payloads and execution outcomes unchanged; existing accepted evidence reused. No implementation tests rerun. Prior accepted scope unchanged; no merge/training/live approval."
     }
   },
   "local_coverage_sources": {
@@ -8365,7 +8374,7 @@
       "../artifacts/validation/faithful-flag-2026-10-09/segment-start.json"
     ],
     "sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
-    "reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+    "reviewed_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
     "prior_reviewed_sha256": "1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308",
     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
     "portability_review_scope": "Windows review on 2026-09-25 accepted binary UTF-8 stdin decoding for the Python record bridge, including Unicode identity preservation and fail-closed malformed UTF-8/JSON behavior. Local coverage hashing now requires valid UTF-8 and normalizes CRLF pairs to LF while retaining lone CR and all substantive text changes as identity-bearing. Added the reusable Windows validator to hashing; it verifies base/patch identity and reports named step and aggregate failures. Native Windows focused evidence passed 85 TypeScript tests and 22 Python tests plus 22 subtests before attestation; the expected pre-attestation coverage failure identified digest 56578c01b9d641aa4a6598d5a78bd60bea3088a996a1f7ed73d246d611c39380. This review extends only portability and validation evidence; prior simulator semantic scope and faithful_complete_episode:false remain unchanged.",
@@ -8376,7 +8385,8 @@
     "prior_ce08a_reviewed_sha256": "197d1b90334547f58cef0e4eead41f164838897a16fb7dfb74fa471ff491d3b2",
     "prior_ce08b_reviewed_sha256": "0f348d3675959a63b4946f411fc3141250a9c684c1c58bb95ca2090c7f62c557",
     "prior_flag_decision_reviewed_sha256": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a",
-    "prior_merge_packaging_reviewed_sha256": "919e608db591d606c2a8370bc4df1511e962612a07af421aa9d9ba7ed6f9fbbc"
+    "prior_merge_packaging_reviewed_sha256": "919e608db591d606c2a8370bc4df1511e962612a07af421aa9d9ba7ed6f9fbbc",
+    "prior_whitespace_normalization_reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce"
   },
   "public_typed_state_lifecycle": {
     "schema_version": "public-typed-state-lifecycle/v1",
