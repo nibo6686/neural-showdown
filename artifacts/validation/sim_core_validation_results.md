@@ -8,7 +8,7 @@
 ## Commands
 
 - `C:\Program Files\nodejs\npm.CMD test`: `PASS` (4.88s)
-- `D:\Anaconda\envs\neuralgpu\python.exe -m unittest discover -s C:\Users\cloud\Downloads\neural\final\trainer\tests -p test_sim_core_parity.py`: `PASS` (1.68s)
+- `D:\Anaconda\envs\neuralgpu\python.exe -m unittest discover -s trainer\tests -p test_sim_core_parity.py`: `PASS` (1.68s)
 
 ## Damage healthcheck
 

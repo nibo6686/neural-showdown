@@ -6,7 +6,7 @@
 Python dependency/lock policy and clean-environment proof.
 
 - Base commit: `3ddc5fc3060e8da287425e4d08a71a2ffd77184a`.
-- Transferred patch: `C:\Users\cloud\Downloads\neural-stellar-review.patch`.
+- Transferred patch: `<local-downloads>\neural-stellar-review.patch`.
 - Verified patch SHA-256:
   `968e3f9318e6b67e6585afec1c74e1f4442ef875a11fd47164eb6e71f0140018`.
 - Before application, forward-check passed and reverse-check failed. The patch was
@@ -84,7 +84,7 @@ Final command:
 
 ```powershell
 .\scripts\validate_windows_simulator_record.ps1 `
-  -PatchPath C:\Users\cloud\Downloads\neural-stellar-review.patch
+  -PatchPath <local-downloads>\neural-stellar-review.patch
 ```
 
 Final summarized results:
@@ -123,11 +123,22 @@ joint transition, one-sided KO replacement, natural Arena Trap rejection and
 recovery, terminal restoration, Unicode record validation, and the 55-transition
 bounded episode. Private simulator snapshots are not serialized.
 
-Windows generation command:
+Historical Windows generation used the explicit host paths recorded at proof time.
+For a future invocation, supply the review patch and selected environment explicitly:
 
 ```powershell
-.\scripts\generate_cross_platform_simulator_record.ps1
+.\scripts\generate_cross_platform_simulator_record.ps1 `
+  -PatchPath "<review-patch-file>" `
+  -PythonExe "<selected-environment-python.exe>" `
+  -NodeExe (Get-Command node -CommandType Application).Source `
+  -NpmCmd (Get-Command npm.cmd -CommandType Application).Source
 ```
+
+`-PatchPath` is required; missing patch/executable paths fail before build or
+generation with a setup instruction. Explicit overrides remain authoritative.
+Select the Python environment documented for this historical profile; discovery
+of an arbitrary `python` does not establish compatibility. The argument repair
+has not been executed on Windows.
 
 Two fresh Windows generations were byte-identical and the comparator returned
 `equal_portable_results:true`. Synthetic comparator probes classified an OS

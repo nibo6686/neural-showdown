@@ -8126,8 +8126,8 @@
         "forged-origin.json": "c011f24c9bbea21caaad13f1129d1b8501e9b5f6aebd441b7245f528ea31fb56"
       },
       "evidence_artifact_sha256": {
-        "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json": "024ff30739e568a6e1c38d1581c750222655f89f3357c0e217fd8bb08a0f3fe3",
-        "artifacts/validation/ce08a-current-source-2026-10-09/witness.log": "16e5d8b3b8d98b32f12e79036877316b4b3e0649f81dcefa7227823428e57906",
+        "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json": "b61a590d1f2239617ee3091ba32c26e791ba00199b1adb3a70c9d73df13737f2",
+        "artifacts/validation/ce08a-current-source-2026-10-09/witness.log": "52ca436e2951063ea26c222a477384cb4659a5fee64ed4aef71ce7eafabf3f8e",
         "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json": "512905799e0b425771d45952fa78ef774d34db1a6eabf4cc76a8e6106c68f87f",
         "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/python-controls.json": "f01d44c60fd7560982307ec7142efad694be6517cc74f7bbbfdba021ba72a4f3",
         "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/run-isolated-controls.py": "9055a29bf62b526d926f64eeb1634fafb8bb9d17449cdcbde4f31cf59f52a70a",
@@ -8247,6 +8247,28 @@
       "prior_reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
       "reviewed_local_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
       "scope": "Only reported trailing whitespace in two historical logs, excess EOF blank lines in three TS helpers, and exact hash/provenance bookkeeping. Source, assertions, fixture payloads and execution outcomes unchanged; existing accepted evidence reused. No implementation tests rerun. Prior accepted scope unchanged; no merge/training/live approval."
+    },
+    "publication_sanitization_2026_10_09": {
+      "status": "accepted_scoped",
+      "record": "artifacts/validation/merge-preparation-2026-10-09/publication-sanitization.json",
+      "refreshed_publication_pins": [
+        "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json",
+        "artifacts/validation/ce08a-current-source-2026-10-09/witness.log"
+      ],
+      "original_artifact_sha256": {
+        "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json": "024ff30739e568a6e1c38d1581c750222655f89f3357c0e217fd8bb08a0f3fe3",
+        "artifacts/validation/ce08a-current-source-2026-10-09/witness.log": "16e5d8b3b8d98b32f12e79036877316b4b3e0649f81dcefa7227823428e57906"
+      },
+      "scope": "Only publication text/path sanitization, README status and excluded-proposal-link correction, two explicitly authorized path/default sites and necessary argument/preflight/hash bookkeeping. Earlier capture/flag semantic acceptances are preserved.",
+      "prior_reviewed_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
+      "reviewed_local_sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+      "limitations": "No pwsh parser or Windows execution evidence. Three disclosed hardcoded Conda defaults unchanged/outside the two-site scope; absolute selected-runtime overrides remain documented. Existing scripts are not certified generally portable. External original/large-evidence archival remains pending.",
+      "script_sha256": {
+        "scripts/analyze_decision_categories.py": "2f473c8e626b99136ba92a12515acddb2f16e7d39f26867abb64a9aa853a02a2",
+        "scripts/generate_cross_platform_simulator_record.ps1": "673126db7373dab5d3c19662e7771a5ed03dc4a2eeb325db31fe444e9f166941",
+        "README.md": "b859ee6d43e60365a2f58563702495ac6341fc2462aa363173ce54e09eb059e2",
+        "docs/refactor/WINDOWS-SIMULATOR-RECORD-VALIDATION-2026-09-25.md": "d8f46ed6fbef6d3754a7adabf95764afc246f1f74be83fb3ddb9ef714f1a3e7e"
+      }
     }
   },
   "local_coverage_sources": {
@@ -8373,8 +8395,8 @@
       "tests/pipeline_episode_saved_helpers.ts",
       "../artifacts/validation/faithful-flag-2026-10-09/segment-start.json"
     ],
-    "sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
-    "reviewed_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
+    "sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+    "reviewed_sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
     "prior_reviewed_sha256": "1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308",
     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
     "portability_review_scope": "Windows review on 2026-09-25 accepted binary UTF-8 stdin decoding for the Python record bridge, including Unicode identity preservation and fail-closed malformed UTF-8/JSON behavior. Local coverage hashing now requires valid UTF-8 and normalizes CRLF pairs to LF while retaining lone CR and all substantive text changes as identity-bearing. Added the reusable Windows validator to hashing; it verifies base/patch identity and reports named step and aggregate failures. Native Windows focused evidence passed 85 TypeScript tests and 22 Python tests plus 22 subtests before attestation; the expected pre-attestation coverage failure identified digest 56578c01b9d641aa4a6598d5a78bd60bea3088a996a1f7ed73d246d611c39380. This review extends only portability and validation evidence; prior simulator semantic scope and faithful_complete_episode:false remain unchanged.",
@@ -8386,7 +8408,8 @@
     "prior_ce08b_reviewed_sha256": "0f348d3675959a63b4946f411fc3141250a9c684c1c58bb95ca2090c7f62c557",
     "prior_flag_decision_reviewed_sha256": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a",
     "prior_merge_packaging_reviewed_sha256": "919e608db591d606c2a8370bc4df1511e962612a07af421aa9d9ba7ed6f9fbbc",
-    "prior_whitespace_normalization_reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce"
+    "prior_whitespace_normalization_reviewed_sha256": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+    "prior_publication_cleanup_reviewed_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2"
   },
   "public_typed_state_lifecycle": {
     "schema_version": "public-typed-state-lifecycle/v1",

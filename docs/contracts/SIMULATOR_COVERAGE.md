@@ -19,7 +19,7 @@ The repository declares `pokemon-showdown` exactly at `0.11.10` in `sim-core/pac
 
 The exact scope is `gen9randombattle`: the installed format metadata identifies Gen 9 (`gen9`), singles, randomized teams, and two players. Six is the generated-team expectation. The emitted `teamsize` record remains authoritative per battle. This is not a claim about other formats, generations, doubles, custom formats, or all Showdown protocol output.
 
-The durable machine inventory is [pokemon-showdown-0.11.10-gen9randombattle.json](/Users/nbolger/Desktop/neural-showdown/sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json). It binds TypeScript source and active compiled runtime directories (`config`, `sim`, `data`, `dist/config`, `dist/sim`, `dist/data`) to SHA-256 digests. It also hashes the local parser, projection, action, transition, pipeline and focused-test files. Separate reviewed digests are required for simulator and local coverage sources: refreshing either digest alone fails the checker and does not attest review.
+The durable machine inventory is [pokemon-showdown-0.11.10-gen9randombattle.json](../../sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json). It binds TypeScript source and active compiled runtime directories (`config`, `sim`, `data`, `dist/config`, `dist/sim`, `dist/data`) to SHA-256 digests. It also hashes the local parser, projection, action, transition, pipeline and focused-test files. Separate reviewed digests are required for simulator and local coverage sources: refreshing either digest alone fails the checker and does not attest review.
 
 ### SLICE-002B format provenance and random-set reachability — accepted 2026-09-29
 

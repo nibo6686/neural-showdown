@@ -59,5 +59,26 @@
   "coverage_manifest_sha256": "549abcbd44265db8aa9d0a430a0c36fa3fc27620edc17068bb9173e14fb3d954",
   "publication": "Constructed local fixture: four distinct rows; duplicate collection preserves existing output and produces no report. Regression outputs temporary only.",
   "limits": "No owned request/action reconstruction, generated-team witness, training certification, or historical file migration. Inconsistent/missing protocol/event joins skip rather than fabricate boundaries.",
-  "git_operations": "No staging, commit, push or merge; no large evidence moved/rehashed"
+  "git_operations": "No staging, commit, push or merge; no large evidence moved/rehashed",
+  "publication_sanitization_2026_10_09": {
+    "policy": "Personal location text only; execution results, versions, diagnostics and historical hashes remain unchanged. Existing log_sha256 fields describe execution-time/previously normalized artifacts. Use publication_log_sha256 for the sanitized published copy. Originals remain locally in ignored artifacts/analysis; no upload or archival claimed.",
+    "logs": {
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log": {
+        "original_sha256": "89f74e6ffcc32498e4272c88a40af86c5bb1b9e1ba0093f2c7d5d6baf02e01cf",
+        "publication_log_sha256": "b48ff994ad37335955d76bab08f4a2a864f5327025311380379039329e704c4f"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log": {
+        "original_sha256": "e53acb6ced775004567729fcf7da54fbcdd7ced1a15c089e29e9c79ced0bb4d2",
+        "publication_log_sha256": "54a8f22ae0a041182ef816c17c43fbdf36045b3dc75de980e83cd1ea23619739"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log": {
+        "original_sha256": "043ac86f6bc55e7216ff5b883923173500c4c88abfdc05997ca89b4287e89b06",
+        "publication_log_sha256": "5a78ca2893b2b33afe135a92134aab68012f13203c74d0f1b33643270e881182"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log": {
+        "original_sha256": "60bce5c4a75195f24b8f8df7befc2bff88378a81084149b8c76e9e90867278a9",
+        "publication_log_sha256": "7934afafbc7b2740420b3e8ed79c30bf4a14cfb04a24fd5c6c9ad8d1ff9d6f3e"
+      }
+    }
+  }
 }

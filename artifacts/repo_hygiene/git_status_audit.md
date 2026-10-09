@@ -93,7 +93,7 @@ at repo root).
 
 ## Files needing a user decision
 
-1. **`CLAUDE.md` at the repo root** — a copy already exists at `C:\Users\cloud\Downloads\CLAUDE.md`
+1. **`CLAUDE.md` at the repo root** — a separate local copy exists outside the repository (not a published input)
    (parent) and is identical guidance. Committing the in-repo copy is reasonable (keeps the
    guidelines with the code), but confirm you want it tracked rather than kept local.
 2. **`artifacts/validation/sim_core_validation_results.json`** — now ignored. If you want a

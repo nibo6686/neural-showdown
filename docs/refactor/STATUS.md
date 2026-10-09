@@ -133,9 +133,9 @@ workspace branch or HEAD.
 
 ### Environment blockers recorded at the 2026-09-24 checkpoint
 
-- The bare `python` and direct `pytest` commands are not on PATH; use `/Library/Developer/CommandLineTools/usr/bin/python3` and `python3 -m pytest`, or add `/Users/nbolger/Library/Python/3.9/bin` to PATH.
-- Python packages are installed and importable from `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`.
-- Node/npm are available through `/Users/nbolger/.nvm/versions/node/v24.21.0/bin`; sim-core packages and compiled server are present.
+- The bare `python` and direct `pytest` commands are not on PATH; use `/Library/Developer/CommandLineTools/usr/bin/python3` and `python3 -m pytest`, or add `$HOME/Library/Python/3.9/bin` to PATH.
+- Python packages are installed and importable from `$HOME/Library/Python/3.9/lib/python/site-packages`.
+- Node/npm are available through `<NVM_DIR>/versions/node/v24.21.0/bin`; sim-core packages and compiled server are present.
 - Remaining blockers are runtime/dependency reproducibility policy and
   clean-environment validation. Raw replay fixtures are optional for the first
   simulator-only milestone and remain required only for replay-specific claims.
@@ -552,3 +552,5 @@ affected case passed 1/1 afterward. The 1,000-turn Python bulk publication is
 still unverified after the canceled run, and no further long test was started
 following the user's fast-stop instruction. The closure audit records exact
 hashes and limits. No scoped attestation or fidelity flag changed.
+
+Publication path notation: `$HOME` denotes the user home; `<NVM_DIR>` denotes the local nvm installation. Resolve executables with `command -v node` and `command -v npm`, and Python locations with `python3 -m site`. These portable references preserve the recorded host versions; they do not declare a new supported runtime.

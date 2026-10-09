@@ -12,8 +12,8 @@ Date: 2026-09-24
 - No applicable `AGENTS.md` was found in the workspace or its parent chain.
 - Read the current project status, agent protocol, work items, definition of
   done, continuation note, review-state log, and state/action/transition,
-  pipeline, coverage, and lineage contracts. Independent review artifacts are
-  under `/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/outputs/`.
+  pipeline, coverage, and lineage contracts. Independent historical review artifacts were supplied locally
+  outside the repository; they are not published inputs.
 
 ## Task scope and assignments
 

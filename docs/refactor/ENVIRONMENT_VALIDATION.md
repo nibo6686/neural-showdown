@@ -326,7 +326,7 @@ above. If Node dependencies are missing, restore them with the committed lock
 ### macOS: run from the repository root
 
 ```bash
-cd /Users/nbolger/Desktop/neural-showdown
+cd "<repository-root>" # replace with your checkout directory
 export PYTHON="/Library/Developer/CommandLineTools/usr/bin/python3"
 export PYTHONPATH="$PWD/trainer/src"
 "$PYTHON" -c 'import sys, pytest; print(sys.executable, sys.version); print(pytest.__version__)'
@@ -409,8 +409,8 @@ macOS merge path.
 - At proof time, unqualified `python3` resolved to Python 3.12.10 at
   `/Library/Frameworks/Python.framework/Versions/3.12/bin/python3`; it was not
   used for the lock generation or clean proof.
-- User-site packages: `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`
-- User-site scripts: `/Users/nbolger/Library/Python/3.9/bin`
+- User-site packages: `$HOME/Library/Python/3.9/lib/python/site-packages`
+- User-site scripts: `$HOME/Library/Python/3.9/bin`
 - The prior Python 3.9 host used its user-site `python3 -m pip`; ENV-001B used
   only pip inside temporary venvs.
 
@@ -427,10 +427,10 @@ evidence, not a project support guarantee. Do not infer a wider range from them.
 - Exact supported Node line is not declared; Node `>=16` is an evidence-based minimum, not a complete support policy.
 - npm version is not declared. `package-lock.json` uses lockfile version 3.
 - Current host: Node `v24.21.0`, npm `11.19.0`; scoped simulator validation passed.
-- Node executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node`
-- npm executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/npm`
-- Local sim-core packages: `/Users/nbolger/Desktop/neural-showdown/sim-core/node_modules`
-- Compiled server: `/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/server.js`
+- Node executable: `<NVM_DIR>/versions/node/v24.21.0/bin/node`
+- npm executable: `<NVM_DIR>/versions/node/v24.21.0/bin/npm`
+- Local sim-core packages: `sim-core/node_modules`
+- Compiled server: `sim-core/dist/src/server.js`
 
 ## 2. Python dependencies inferred from imports
 
@@ -556,15 +556,15 @@ trainer/live dependencies and define its own compatibility and validation matrix
 The following user-site paths are historical host evidence; ENV-001B used only
 the temporary virtual environments recorded above.
 
-The active Python client can import NumPy, PyTorch, FastAPI, Pydantic, Uvicorn, PyYAML, and pytest from `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`.
+The active Python client can import NumPy, PyTorch, FastAPI, Pydantic, Uvicorn, PyYAML, and pytest from `$HOME/Library/Python/3.9/lib/python/site-packages`.
 
-The `pytest`, `pip`, `uvicorn`, and related console scripts are under `/Users/nbolger/Library/Python/3.9/bin`, which is not currently on `PATH`. Prefer `python3 -m pytest` and `python3 -m pip`; if direct console commands are needed, use:
+The `pytest`, `pip`, `uvicorn`, and related console scripts are under `$HOME/Library/Python/3.9/bin`, which is not currently on `PATH`. Prefer `python3 -m pytest` and `python3 -m pip`; if direct console commands are needed, use:
 
 ```bash
 export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 ```
 
-Node and npm are accessible through the nvm-managed paths above. sim-core dependencies and compiled output are present at the documented absolute paths. Future agents must not report these packages or clients as missing unless the paths or import checks fail.
+Node and npm are accessible through the nvm-managed paths above. sim-core dependencies and compiled output are present at the documented repository-relative paths. Future agents must not report these packages or clients as missing unless the paths or import checks fail.
 
 Open cross-platform environment work is:
 
@@ -622,3 +622,5 @@ documented profiles and do not establish universal Python or Node/npm support.
 The replay-fixture policy remains explicit: an absent fixture directory is
 allowed for simulator-record validation, while replay-specific claims still
 require fixtures.
+
+Publication path notation: `$HOME` denotes the user home; `<NVM_DIR>` denotes the local nvm installation. Resolve executables with `command -v node` and `command -v npm`, and Python locations with `python3 -m site`. These portable references preserve the recorded host versions; they do not declare a new supported runtime.

@@ -119,7 +119,7 @@ work merely because an older status paragraph still lists it as pending.
 
 ### FLOW-004: Future replay imitation flow (not current delivery)
 
-The [proposed ingestion and training strategy](../refactor/DATA_INGESTION_AND_TRAINING_STRATEGY.md) discusses replay input-log reconstruction and subsequent local training. It is a proposal, not an accepted collection, eligibility, feature, or training contract.
+Replay input-log reconstruction and subsequent local training remain future work. No collection, eligibility, feature, or training contract is accepted by this flow.
 
 1. A future approved collector may parse public replay protocol and retain source/battle provenance.
 2. Each action label will be matched against a legal candidate set reconstructed from the acting player’s information at the pre-action cursor. Unmatched or information-incomplete rows are quarantined, not repaired using the chosen action or later reveals.

@@ -43,16 +43,28 @@ you run them from the repository root.
 
 ### Current focus and status
 
-The active priority is separate CE-06A review and attestation, then the remaining
-P0 closure dependencies including CE-06B segment/terminal closure, followed by
-final macOS validation at the branch tip, a branch-level `$wm-pr-review`, findings
-reconciliation, and the scoped merge sequence in
+Pinned v2 capture, CE-06A/CE-06B, FCE-01–FCE-08, and conditional per-result
+fidelity have scoped acceptance. The current priority is draft PR review,
+publication hygiene, and explicit merge approval, with external archival of
+large evidence pending an owner-selected destination. See
 [Current Project Status](docs/PROJECT_STATUS.md). The v7/v8 and vNext program
 descriptions elsewhere in this README are historical records of earlier
 experiments; their dimensions, datasets, labels, and checkpoints do not define
 the new input contract. No model-quality claim is made here for those earlier
 models. The old checkpoints are abandoned for the new approach and are not a
 readiness dependency.
+
+### Legacy decision-category analysis
+
+Use an existing saved gzip JSONL decision log with an explicitly selected Python:
+
+```bash
+python3 scripts/analyze_decision_categories.py --input "<saved-decisions.jsonl.gz>" --output "<output.csv>"
+```
+
+`--input` is required. Omitting `--output` writes to repository-relative
+`artifacts/analysis/decision_categories.csv`; explicit paths are preserved.
+This legacy analysis does not collect data or establish training readiness.
 
 ## Repository Layout
 

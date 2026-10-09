@@ -525,12 +525,12 @@ ENV-001 remains `BLOCKED_WITH_REMEDIATION`. Node/sim-core validation is green an
 ## 16. ENV-001 installation locations and accessibility — 2026-09-22
 
 - Active Python executable: `/Library/Developer/CommandLineTools/usr/bin/python3` (Python 3.9.6).
-- Python user-site packages: `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`.
-- Python user-site scripts: `/Users/nbolger/Library/Python/3.9/bin`; this directory is not currently on PATH, so future agents should use `python3 -m pip` and `python3 -m pytest` or add it to PATH.
+- Python user-site packages: `$HOME/Library/Python/3.9/lib/python/site-packages`.
+- Python user-site scripts: `$HOME/Library/Python/3.9/bin`; this directory is not currently on PATH, so future agents should use `python3 -m pip` and `python3 -m pytest` or add it to PATH.
 - Verified import locations for NumPy, PyTorch, FastAPI, Pydantic, Uvicorn, PyYAML, and pytest are under the Python user site.
-- Node executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node`; npm executable: `/Users/nbolger/.nvm/versions/node/v24.21.0/bin/npm`.
-- sim-core dependencies: `/Users/nbolger/Desktop/neural-showdown/sim-core/node_modules`.
-- Compiled sim-core server: `/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/server.js`.
+- Node executable: `<NVM_DIR>/versions/node/v24.21.0/bin/node`; npm executable: `<NVM_DIR>/versions/node/v24.21.0/bin/npm`.
+- sim-core dependencies: `sim-core/node_modules`.
+- Compiled sim-core server: `sim-core/dist/src/server.js`.
 - Future agents must distinguish “not on PATH” from “not installed”; the above absolute paths and import checks are the current accessibility baseline.
 
 ## 17. Replay-policy closeout and STATE-001 slice — 2026-09-22
@@ -1801,3 +1801,5 @@ change. See the current [PIPELINE-002 checkpoint](refactor/PIPELINE-002-GAP-DISP
 and `artifacts/validation/protocol-boundary-review-2026-09-25/`. Keep
 `faithful_complete_episode:false`; remediate this boundary before scanner
 expansion and operative format coverage.
+
+Publication path notation: `$HOME` denotes the user home; `<NVM_DIR>` denotes the local nvm installation. Resolve executables with `command -v node` and `command -v npm`, and Python locations with `python3 -m site`. These portable references preserve the recorded host versions; they do not declare a new supported runtime.

@@ -116,5 +116,14 @@
       }
     },
     "execution": "No tests rerun; substantive bytes unchanged. Historical result and digest fields remain the execution-time baseline."
+  },
+  "publication_sanitization_2026_10_09": {
+    "policy": "Personal location text only; execution results, versions, diagnostics and historical hashes remain unchanged. Existing log_sha256 fields describe execution-time/previously normalized artifacts. Use publication_log_sha256 for the sanitized published copy. Originals remain locally in ignored artifacts/analysis; no upload or archival claimed.",
+    "logs": {
+      "artifacts/validation/faithful-flag-2026-10-09/cleanup.log": {
+        "original_sha256": "f1f63a551765b2cee4bf40ad55f2db619189c8c1c5f9d567d4825da5b94130bc",
+        "publication_log_sha256": "2369f64faaf5c92239ca11fb24e3834ca98d1fa784f71c5e3ed108349fc1dfea"
+      }
+    }
   }
 }

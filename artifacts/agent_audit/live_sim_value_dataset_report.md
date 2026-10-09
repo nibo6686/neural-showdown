@@ -1,7 +1,7 @@
 # Live/Sim Value Dataset Report (Part B)
 
 Generated: 2026-06-18T18:09:25
-Output: `C:\Users\cloud\Downloads\neural\final\data\value\gen9randombattle_live_sim_value_v1.npz`
+Output: `data\value\gen9randombattle_live_sim_value_v1.npz`
 
 ## Generation
 

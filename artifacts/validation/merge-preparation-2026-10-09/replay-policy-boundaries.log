@@ -1,13 +1,13 @@
 RUN .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_same_turn_move_switch_distinct_lineage_and_publication -vv -s
 ============================= test session starts ==============================
-platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- .venv-simulator/bin/python
 cachedir: .pytest_cache
-rootdir: /Users/nbolger/Desktop/neural-showdown
+rootdir: <repository-root>
 configfile: pytest.ini
 plugins: anyio-4.12.1
 collecting ... collected 1 item
 
-trainer/tests/test_replay_policy_lineage.py::test_same_turn_move_switch_distinct_lineage_and_publication build-replay-policy-dataset done | format=gen9randombattle replays=1 examples=4 mapped_pct=100.0 output=/private/var/folders/06/7971_2vn1r7bw5y8cctg8jsh0000gp/T/pytest-of-nbolger/pytest-44/test_same_turn_move_switch_dis0/policy.jsonl.gz
+trainer/tests/test_replay_policy_lineage.py::test_same_turn_move_switch_distinct_lineage_and_publication build-replay-policy-dataset done | format=gen9randombattle replays=1 examples=4 mapped_pct=100.0 output=<temporary-directory>/pytest/test_same_turn_move_switch_dis0/policy.jsonl.gz
 PASSED
 
 ============================== 1 passed in 1.05s ===============================

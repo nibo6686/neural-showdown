@@ -1,8 +1,8 @@
 RUN .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_single_action_and_unverifiable_boundary_control -vv -s
 ============================= test session starts ==============================
-platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- .venv-simulator/bin/python
 cachedir: .pytest_cache
-rootdir: /Users/nbolger/Desktop/neural-showdown
+rootdir: <repository-root>
 configfile: pytest.ini
 plugins: anyio-4.12.1
 collecting ... collected 1 item

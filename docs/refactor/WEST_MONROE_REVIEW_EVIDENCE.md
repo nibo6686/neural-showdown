@@ -9,12 +9,10 @@ West Monroe internal engineering, security, delivery, or product standard was
 provided for this task. This document does not claim compliance, infer a
 company standard, or treat test counts as approval.
 
-The independent project review supplied for this task is
-`/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/outputs/PROJECT_REVIEW.md`;
-its adjacent `review-evidence/` directory contains the prior repository/source
-snapshots, `verification.log`, and `probe-results.md`. That review is historical
-evidence for the state it inspected. The current worktree contains additional
-uncommitted changes and must be reviewed separately.
+The independently supplied review and its source snapshots are historical,
+local-only evidence, not repository inputs or public references. This index
+does not provide a private-document pointer. Its conclusions apply only to the
+state inspected; subsequent changes require their own review.
 
 ## Evidence available
 
