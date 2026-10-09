@@ -1,5 +1,10 @@
 # Pre-Training Gate Status
 
+> **Historical snapshot dated 2026-06-19.** Its v7/v5 go/no-go sequence does
+> not govern the current refactored pipeline. Existing checkpoints are
+> abandoned and non-blocking; current dataset/training gates are in
+> [`../../docs/PROJECT_STATUS.md`](../../docs/PROJECT_STATUS.md).
+
 **Date:** 2026-06-19
 
 `live-private-belief-v7` and `legal-action-v5` are ready for disposable,

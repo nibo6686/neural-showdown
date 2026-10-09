@@ -1,0 +1,55 @@
+{
+  "scope": "CE-08B four-finding repair; independent review pending",
+  "source_hashes": {
+    "sim-core/src/pipeline_episode.ts": "30e53f61d6a60659c3c29597e5d5c24f9796c02f2bd250fc81eb2710c40df866",
+    "trainer/src/neural/pipeline_record.py": "9760ab4778c8ea7ad146208761f4207a86ddbb56f2b1699c977ba4ad9f40273b",
+    "sim-core/tests/pipeline_episode_stop_repair.test.ts": "9df965ab6493847e79af6fcca509bb1143d75364173e7e884b6529f6d8719fdf",
+    "sim-core/src/pipeline_episode_evidence.ts": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+    "sim-core/src/pipeline_integration.ts": "e75e3a0ee38ff399fc3ffb8ea363b7dbe8cb6dee97e5a9f9858f41d7a0b310f3",
+    "sim-core/src/settling.ts": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+    "sim-core/tests/settling.test.ts": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b",
+    "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9"
+  },
+  "fixture": "saved predecessor; no battle regeneration",
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 1.636
+  },
+  "tests": [
+    {
+      "name": "CE-08B repair exact limits schema rejects canonical ordinary and compact metadata",
+      "passed": 1,
+      "elapsed_seconds": 4.124
+    },
+    {
+      "name": "CE-08B repair Revival causes and stopped-candidate accounting agree across runtimes",
+      "passed": 1,
+      "elapsed_seconds": 3.155
+    },
+    {
+      "name": "CE-08B repair construction validation and cleanup failures retain structured committed evidence",
+      "passed": 1,
+      "elapsed_seconds": 0.664
+    }
+  ],
+  "publication": "valid zero/two actor controls; invalid controls exit 2 with empty stdout",
+  "limits": "sequential enforced 180-second process-group timeout; Python subprocess 30 seconds",
+  "attestation": "unchanged; CE-08B/FCE-08 pending",
+  "coverage": {
+    "synthetic_self_test": {
+      "exit_code": 0,
+      "elapsed_seconds": 4.054
+    },
+    "normal_checker": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.453,
+      "diagnostic": "local coverage sources are not bound to a separate semantic-review digest",
+      "expected_separate_review_gate": true
+    }
+  },
+  "whitespace_check": {
+    "command": "git diff --check",
+    "exit_code": 0
+  },
+  "candidate_digest": "c8b0faacb8f972209aed0c8e11de7bc4d2b86a832bed914a3ca1a097c702aec6"
+}

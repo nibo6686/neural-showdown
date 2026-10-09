@@ -1,0 +1,220 @@
+{
+  "schema_version": "publication-sanitization/v1",
+  "date": "2026-10-09",
+  "baseline_commit": "161d2fe108dd1e0aad4674400034e1a1f59ed611",
+  "policy": "Sanitized publication derivatives only. Original evidence is retained locally under ignored artifacts/analysis; hashes below distinguish original bytes from publication bytes. Runtime versions, platform facts, results and meaningful system paths are unchanged. No original evidence was uploaded or relocated to external storage.",
+  "files": {
+    "README.md": {
+      "original_sha256": "3ea404954123bd3e9660895488a86da041107f2a56f6ffb490bf5e70db85d4e7",
+      "publication_sha256": "b859ee6d43e60365a2f58563702495ac6341fc2462aa363173ce54e09eb059e2",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/README.md",
+      "sanitization_only_sha256": "95aa237c6c83544ac2946ebd87d9b84264d0cfca4eb0f819ade3ce3fe62eb1f6"
+    },
+    "artifacts/agent_audit/live_sim_value_dataset_report.md": {
+      "original_sha256": "3bf355b3dd9555c853b5e06138acf8390a8b3ea68c5fd12f558faa7eff4f9714",
+      "publication_sha256": "ee49442e90518cf79521b5ef4e6b38afd6410ce28cfb462f994b19944e3e9fcc",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/agent_audit/live_sim_value_dataset_report.md"
+    },
+    "artifacts/agent_audit/live_sim_value_training_report.md": {
+      "original_sha256": "ab6c3328fc882fff30de8f958859fdd84e4113992342494ca1a2840c3f7db7c1",
+      "publication_sha256": "ee51e41677222df19620fef9d8b74cace4402203dca54a72d335c3fd7b36a6a6",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/agent_audit/live_sim_value_training_report.md"
+    },
+    "artifacts/repo_hygiene/git_status_audit.md": {
+      "original_sha256": "646670489e848a0bcf966ef8781415b79276c74807bd3ce482839b2b57d7a76d",
+      "publication_sha256": "082e14ced3e44dcade9796882c92f54bfaca66f6f9c7db47b4598caefa569869",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/repo_hygiene/git_status_audit.md"
+    },
+    "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json": {
+      "original_sha256": "024ff30739e568a6e1c38d1581c750222655f89f3357c0e217fd8bb08a0f3fe3",
+      "publication_sha256": "b61a590d1f2239617ee3091ba32c26e791ba00199b1adb3a70c9d73df13737f2",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/ce08a-current-source-2026-10-09/metadata.json"
+    },
+    "artifacts/validation/ce08a-current-source-2026-10-09/witness.log": {
+      "original_sha256": "16e5d8b3b8d98b32f12e79036877316b4b3e0649f81dcefa7227823428e57906",
+      "publication_sha256": "52ca436e2951063ea26c222a477384cb4659a5fee64ed4aef71ce7eafabf3f8e",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/ce08a-current-source-2026-10-09/witness.log"
+    },
+    "artifacts/validation/faithful-flag-2026-10-09/cleanup.log": {
+      "original_sha256": "f1f63a551765b2cee4bf40ad55f2db619189c8c1c5f9d567d4825da5b94130bc",
+      "publication_sha256": "2369f64faaf5c92239ca11fb24e3834ca98d1fa784f71c5e3ed108349fc1dfea",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/faithful-flag-2026-10-09/cleanup.log"
+    },
+    "artifacts/validation/macos-2026-09-25/generate1.log": {
+      "original_sha256": "2dacac89cc837b3cedfd6f7ab0b917ff0fef7d2d403d1d06dfb2daa26ba0af0f",
+      "publication_sha256": "e400544a2c2dc3f536aa6ec9e80d491e7a0009e20a347e361667499ea45f508b",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/macos-2026-09-25/generate1.log"
+    },
+    "artifacts/validation/macos-2026-09-25/generate2.log": {
+      "original_sha256": "3264f3569136d70ddb384dda03c415a6bf9119c9cf555eb68a8c4f4dc3159dc0",
+      "publication_sha256": "741b24a6fea2b2ae011f2dc7b89c017238c3e7d29d058ba456d75e4b11051332",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/macos-2026-09-25/generate2.log"
+    },
+    "artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log": {
+      "original_sha256": "89f74e6ffcc32498e4272c88a40af86c5bb1b9e1ba0093f2c7d5d6baf02e01cf",
+      "publication_sha256": "b48ff994ad37335955d76bab08f4a2a864f5327025311380379039329e704c4f",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log"
+    },
+    "artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log": {
+      "original_sha256": "e53acb6ced775004567729fcf7da54fbcdd7ced1a15c089e29e9c79ced0bb4d2",
+      "publication_sha256": "54a8f22ae0a041182ef816c17c43fbdf36045b3dc75de980e83cd1ea23619739",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log"
+    },
+    "artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log": {
+      "original_sha256": "043ac86f6bc55e7216ff5b883923173500c4c88abfdc05997ca89b4287e89b06",
+      "publication_sha256": "5a78ca2893b2b33afe135a92134aab68012f13203c74d0f1b33643270e881182",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log"
+    },
+    "artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log": {
+      "original_sha256": "60bce5c4a75195f24b8f8df7befc2bff88378a81084149b8c76e9e90867278a9",
+      "publication_sha256": "7934afafbc7b2740420b3e8ed79c30bf4a14cfb04a24fd5c6c9ad8d1ff9d6f3e",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log"
+    },
+    "artifacts/validation/sim_core_validation_results.md": {
+      "original_sha256": "c5ec39b17294bb81b53cf7efce96dfd4b8599dbf2db707076a45764442817869",
+      "publication_sha256": "d40bc8c7227b74007e5e361c9ad8aa28b4410059ee820b413a32afad5e4ac15f",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/sim_core_validation_results.md"
+    },
+    "docs/codex_review_state.md": {
+      "original_sha256": "20c38918583c53ed78bcde75b23a897fc0f2c2ff9288402fe18ac9f91abb7997",
+      "publication_sha256": "9a9bba7185a8dfee4899d467c8b5d225b781573b6da26640dbb1bfbd5d4ca55a",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/codex_review_state.md"
+    },
+    "docs/contracts/SIMULATOR_COVERAGE.md": {
+      "original_sha256": "af4110af6d4410b85f6afb8fe4a644213fafa205d3e1153c2805fb5e0743c638",
+      "publication_sha256": "f8cfa9a8ce90c9fd57c2d3f3de1fa90262d4e22e846c08db5bc6a551c1fdcd63",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/contracts/SIMULATOR_COVERAGE.md"
+    },
+    "docs/refactor/ENVIRONMENT_VALIDATION.md": {
+      "original_sha256": "17ec9465e1a344481eca083d2ab837f7f9f24c1e8c72d3e2f38dbd6040f34d89",
+      "publication_sha256": "3bc44fd1b421cb3365055949662d14095c67eb1ee4b55f2de9c0fdcbe0c76d77",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/ENVIRONMENT_VALIDATION.md"
+    },
+    "docs/refactor/MACOS-SIMULATOR-RECORD-COMPARISON-2026-09-25.md": {
+      "original_sha256": "8e40fde2147f1aa175da02254417bf4367074f9583156fdcf94e05b0d94c25bc",
+      "publication_sha256": "8426a334a4690c362f0a64edd630e5f704e62bf0b07a261b05907edd40d7a936",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/MACOS-SIMULATOR-RECORD-COMPARISON-2026-09-25.md"
+    },
+    "docs/refactor/PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md": {
+      "original_sha256": "596d796a3b1fd68b96c97d80af3265ad4fc577767e34f155fb36fe54aa55966b",
+      "publication_sha256": "2163988b6fd43c00a3f99c81a87ca34a7e2cca0d5e2c03882efbc5ab2465efad",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md"
+    },
+    "docs/refactor/STATUS.md": {
+      "original_sha256": "e5b74ed4ae032fb5caa0de31c883246741fd1aaa37982cebc4bf35e86b368e17",
+      "publication_sha256": "460ac06e5a08847e81b8fddf71f0d102d87ead94be6a7a0d45271a5b07358b1d",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/STATUS.md"
+    },
+    "docs/refactor/WEST_MONROE_REVIEW_EVIDENCE.md": {
+      "original_sha256": "9d4449abccdd7fb9ea6176f2ce977beb2e4905b9b34922a40abb3b38db904aa4",
+      "publication_sha256": "6a648b25661d66355e07a89976afcfd149b5435bc920fb218011e6d32c40d070",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/WEST_MONROE_REVIEW_EVIDENCE.md"
+    },
+    "docs/refactor/WINDOWS-SIMULATOR-RECORD-VALIDATION-2026-09-25.md": {
+      "original_sha256": "8313310fee8988386249997e1580b5df275fdf1c4fdaf0fb88c46de7a8499d97",
+      "publication_sha256": "d8f46ed6fbef6d3754a7adabf95764afc246f1f74be83fb3ddb9ef714f1a3e7e",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/refactor/WINDOWS-SIMULATOR-RECORD-VALIDATION-2026-09-25.md",
+      "sanitization_only_sha256": "f48c567bb990365f46fe9079de336fbc179248be8f14c7c0123919480757dd7f"
+    },
+    "docs/requirements/spec.md": {
+      "original_sha256": "d2b4e3f6e240fabd9b813398e784dc61a63c70e403ecf9153ad479be169d4392",
+      "publication_sha256": "60269b9f4071190283db85b545c5b9d8449d7b9b42517d2684ad0028c96d133a",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/docs/requirements/spec.md"
+    },
+    "artifacts/validation/faithful-flag-2026-10-09/evidence.json": {
+      "original_sha256": "2c36bfacb00b945779355024f62a45e01267df1c46324070b27148a5974ed941",
+      "publication_sha256": "1ad0f5f90ae9b8bd6badbc5360f226be155ae483906e1e9a24d40961a0780b55",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/faithful-flag-2026-10-09/evidence.json"
+    },
+    "artifacts/validation/merge-preparation-2026-10-09/replay-policy-repair.json": {
+      "original_sha256": "620be3436bc54b19da72a766c1a40de97d505182621b79d9930c55e3f62fc884",
+      "publication_sha256": "4af183d42b60fe80f744576145b57ec2ed661be97067766a4d71e88bc05f0d0b",
+      "preserved_original": "artifacts/analysis/pr2-publication-originals-2026-10-09/artifacts/validation/merge-preparation-2026-10-09/replay-policy-repair.json"
+    }
+  },
+  "remaining_executable_paths": [],
+  "scope_limit": "Documentation/log sanitization plus explicitly authorized two-site argument repair; additional Conda defaults are reported but unchanged.",
+  "refreshed_coverage_publication_pins": [
+    "artifacts/validation/ce08a-current-source-2026-10-09/metadata.json",
+    "artifacts/validation/ce08a-current-source-2026-10-09/witness.log"
+  ],
+  "coverage_inputs_changed": [
+    "README.md",
+    "docs/contracts/SIMULATOR_COVERAGE.md",
+    "docs/refactor/STATUS.md",
+    "docs/requirements/spec.md"
+  ],
+  "reviewed_sha256_unchanged": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
+  "candidate_digest": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+  "executable_path_repair_2026_10_09": {
+    "source_sha256": {
+      "scripts/analyze_decision_categories.py": "2f473c8e626b99136ba92a12515acddb2f16e7d39f26867abb64a9aa853a02a2",
+      "scripts/generate_cross_platform_simulator_record.ps1": "673126db7373dab5d3c19662e7771a5ed03dc4a2eeb325db31fe444e9f166941",
+      "README.md": "b859ee6d43e60365a2f58563702495ac6341fc2462aa363173ce54e09eb059e2",
+      "docs/refactor/WINDOWS-SIMULATOR-RECORD-VALIDATION-2026-09-25.md": "d8f46ed6fbef6d3754a7adabf95764afc246f1f74be83fb3ddb9ef714f1a3e7e"
+    },
+    "checks": [
+      "Python compile/AST/import without file I/O",
+      "parse_args explicit input/output with spaces and repository-root default",
+      "CLI required/missing input: exit 2, empty stdout",
+      "CLI help: exit 0",
+      "analysis body unchanged after indentation",
+      "PowerShell static required patch parameter and preflight ordering",
+      "git diff --check: exit 0"
+    ],
+    "windows_limitation": "pwsh unavailable; no PowerShell AST parsing or Windows execution performed",
+    "additional_findings": [
+      {
+        "path": "scripts/generate_cross_platform_simulator_record.ps1",
+        "line": 7,
+        "kind": "hardcoded selected Conda environment default"
+      },
+      {
+        "path": "scripts/run_windows.ps1",
+        "line": 9,
+        "kind": "hardcoded selected Conda environment default"
+      },
+      {
+        "path": "scripts/validate_windows_simulator_record.ps1",
+        "line": 4,
+        "kind": "hardcoded selected Conda environment default"
+      }
+    ],
+    "scope": "Only the two identified personal path sites, main/argument plumbing, preflight setup errors, usage and bookkeeping. Other environment defaults preserved pending separate authorization.",
+    "coverage_checker": {
+      "exit_code": 1,
+      "diagnostic": "Manifest incomplete: local coverage sources are not bound to a separate semantic-review digest",
+      "expected_pending_independent_review_only": true
+    }
+  },
+  "documentation_sanitization_validation": {
+    "whitespace": "git diff --check: exit 0",
+    "candidate_markdown_broken_targets": [],
+    "originals_and_publication_hashes_verified": 25,
+    "remaining_personal_paths_in_executable_files": [
+      "scripts/analyze_decision_categories.py",
+      "scripts/generate_cross_platform_simulator_record.ps1"
+    ],
+    "coverage_checker_exit_code": 1,
+    "coverage_checker_diagnostic": "Manifest incomplete: local coverage sources are not bound to a separate semantic-review digest",
+    "implementation_tests_run": false,
+    "index_empty": true
+  },
+  "current_changed_coverage_inputs": [
+    "README.md",
+    "docs/contracts/SIMULATOR_COVERAGE.md",
+    "docs/refactor/STATUS.md",
+    "docs/requirements/spec.md",
+    "scripts/generate_cross_platform_simulator_record.ps1"
+  ],
+  "independent_review_2026_10_09": {
+    "verdict": "accepted_scoped",
+    "reviewed_local_sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+    "prior_reviewed_sha256": "10a58699b7857ae158ed85224a33dbe35d62df25462666c950fb6c865e526de2",
+    "scope": "Only publication text/path sanitization, README status and excluded-proposal-link correction, two explicitly authorized path/default sites and necessary argument/preflight/hash bookkeeping. Earlier capture/flag semantic acceptances are preserved.",
+    "fresh_checks": "25 original/publication baseline hashes and eight exact log transforms; historical metadata/evidence result parity; Python syntax/import/arguments/help/missing-input/body equivalence; PowerShell static parameter/preflight inspection; intended-tree personal-pointer/reference scan; coverage and whitespace. No data or battle generation.",
+    "reused_evidence": "Accepted pinned capture/flag and legacy semantic evidence: runtime validators/tests/fixtures unchanged. No original failed invocation relabeled passing.",
+    "limitations": "No pwsh parser or Windows execution evidence. Three disclosed hardcoded Conda defaults unchanged/outside the two-site scope; absolute selected-runtime overrides remain documented. Existing scripts are not certified generally portable. External original/large-evidence archival remains pending.",
+    "publication": "Commit authorized by this review task only; pushing, readiness, merge and evidence upload are not authorized."
+  }
+}

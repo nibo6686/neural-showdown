@@ -1,0 +1,11 @@
+RUN node --test --test-isolation=none --test-reporter=spec --test-name-pattern=^faithful claim coherent origin and actor tampering reaches semantic validators$ sim-core/dist/tests/pipeline_episode_faithful.test.js
+✔ faithful claim coherent origin and actor tampering reaches semantic validators (421.826708ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 517.168125
+EXIT 0 ELAPSED 0.567

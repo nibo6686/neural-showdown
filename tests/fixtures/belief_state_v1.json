@@ -1,0 +1,93 @@
+{
+  "fixture_schema": "belief-state-fixtures/v1",
+  "schema_version": "belief-state/v1",
+  "provenance": "Synthetic decision-prefix fixture; no replay or simulator-only truth.",
+  "cases": [
+    {
+      "case_id": "public-prefix-with-open-hypotheses",
+      "observation": {
+        "source_kind": "sim_core",
+        "battle_id": "belief-fixture-battle",
+        "perspective": "p1",
+        "snapshot_phase": "post_resolution",
+        "turn": 1,
+        "protocol_prefix": [
+          "|turn|1",
+          "|move|p2a: Eevee|Tackle|p1a: Pikachu"
+        ]
+      },
+      "candidates": [
+        {
+          "category": "tera_type",
+          "subject_key": "p2:slot:1",
+          "value": "Ghost"
+        },
+        {
+          "category": "ability",
+          "subject_key": "p2:slot:1",
+          "value": "Intimidate"
+        },
+        {
+          "category": "move",
+          "subject_key": "p2:slot:1",
+          "value": "Tackle"
+        },
+        {
+          "category": "role",
+          "subject_key": "p2:slot:1",
+          "value": "Bulky Attacker"
+        },
+        {
+          "category": "item",
+          "subject_key": "p2:slot:1",
+          "value": "Leftovers"
+        }
+      ],
+      "evidence": [
+        {
+          "perspective": "p1",
+          "category": "move",
+          "subject_key": "p2:slot:1",
+          "value": "Tackle",
+          "assertion": "supports",
+          "provenance": {
+            "kind": "direct_observed",
+            "observation": "base",
+            "event_index": 1
+          }
+        },
+        {
+          "perspective": "p1",
+          "category": "role",
+          "subject_key": "p2:slot:1",
+          "value": "Bulky Attacker",
+          "assertion": "supports",
+          "provenance": {
+            "kind": "prior_knowledge",
+            "source_id": "synthetic-randbats-prior",
+            "source_version": "fixture-v1",
+            "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "unresolved": [
+        {
+          "category": "ability",
+          "subject_key": "p2:slot:1",
+          "reason": "no_evidence"
+        }
+      ],
+      "expected": {
+        "belief_id": "belief-1d62cb04f0cb9c4d4070c5f5fbc8d3c00ebca0b93c5507adbe19718c8a308d3f",
+        "canonical_serialization": "{\"battle_id\":\"belief-fixture-battle\",\"belief_id\":\"belief-1d62cb04f0cb9c4d4070c5f5fbc8d3c00ebca0b93c5507adbe19718c8a308d3f\",\"candidates\":[{\"candidate_id\":\"hyp-73d2509f7577ff5a3a18bdbf9f81249723cc504bc1f43f0dae99af1438e90ae1\",\"category\":\"ability\",\"disposition\":\"possible\",\"evidence_ids\":[],\"subject_key\":\"p2:slot:1\",\"value\":\"Intimidate\"},{\"candidate_id\":\"hyp-7d31556fcdf89853328a9186db15ab01918b4a03fadb197bba98b841cb690fc3\",\"category\":\"item\",\"disposition\":\"possible\",\"evidence_ids\":[],\"subject_key\":\"p2:slot:1\",\"value\":\"Leftovers\"},{\"candidate_id\":\"hyp-09d2c68e291f018af30cf82cd8fe22afb604b3fbac6e4e539ccd102404a48b75\",\"category\":\"move\",\"disposition\":\"supported\",\"evidence_ids\":[\"evidence-493bb7aad546b77d53412f09877af3f371db6bf43356d879746d684706a2d8ce\"],\"subject_key\":\"p2:slot:1\",\"value\":\"Tackle\"},{\"candidate_id\":\"hyp-180ab1a3014b5e28409dc3129019896e801eca84f309190a3f8239fa3728b7f3\",\"category\":\"role\",\"disposition\":\"supported\",\"evidence_ids\":[\"evidence-03d39edf79da7f1e9273e93d3e8f97623d73533c94a863c188ac19f154a31a39\"],\"subject_key\":\"p2:slot:1\",\"value\":\"Bulky Attacker\"},{\"candidate_id\":\"hyp-4f2c59ee2dcd07b1bed096dfee07983b2952dfb00731df74c612486164a2f646\",\"category\":\"tera_type\",\"disposition\":\"possible\",\"evidence_ids\":[],\"subject_key\":\"p2:slot:1\",\"value\":\"Ghost\"}],\"contradictions\":[],\"evidence\":[{\"assertion\":\"supports\",\"category\":\"role\",\"evidence_id\":\"evidence-03d39edf79da7f1e9273e93d3e8f97623d73533c94a863c188ac19f154a31a39\",\"perspective\":\"p1\",\"provenance\":{\"kind\":\"prior_knowledge\",\"source_digest\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"source_id\":\"synthetic-randbats-prior\",\"source_version\":\"fixture-v1\"},\"subject_key\":\"p2:slot:1\",\"value\":\"Bulky Attacker\"},{\"assertion\":\"supports\",\"category\":\"move\",\"evidence_id\":\"evidence-493bb7aad546b77d53412f09877af3f371db6bf43356d879746d684706a2d8ce\",\"perspective\":\"p1\",\"provenance\":{\"event_cursor\":2,\"event_index\":1,\"kind\":\"direct_observed\",\"observation_id\":\"obs-f52113eecab58dc3aba738b378f9bdb9964b4f2ba1d765478d01aed9c1fbc224\",\"record\":\"|move|p2a: Eevee|Tackle|p1a: Pikachu\",\"record_hash\":\"dd11c8adedb6748d376fb554f058029f58693db2a05bd07586b8178a99cf8760\"},\"subject_key\":\"p2:slot:1\",\"value\":\"Tackle\"}],\"information_regime\":\"player\",\"observation\":{\"event_cursor\":2,\"observation_id\":\"obs-f52113eecab58dc3aba738b378f9bdb9964b4f2ba1d765478d01aed9c1fbc224\",\"protocol_prefix_hash\":\"10f975601b31ffcafb4ce8b593b1db5ee5eb90c8ae008d311dd3311e3eccd65d\",\"schema_version\":\"observable-battle-state/v1\",\"snapshot_phase\":\"post_resolution\",\"source_kind\":\"sim_core\"},\"observation_history\":[{\"event_cursor\":2,\"observation_id\":\"obs-f52113eecab58dc3aba738b378f9bdb9964b4f2ba1d765478d01aed9c1fbc224\",\"protocol_prefix_hash\":\"10f975601b31ffcafb4ce8b593b1db5ee5eb90c8ae008d311dd3311e3eccd65d\",\"schema_version\":\"observable-battle-state/v1\",\"snapshot_phase\":\"post_resolution\",\"source_kind\":\"sim_core\"}],\"parent_belief_id\":null,\"perspective\":\"p1\",\"schema_version\":\"belief-state/v1\",\"simulator_snapshot\":null,\"simulator_snapshot_history\":[],\"source_protocol_prefix\":[\"|turn|1\",\"|move|p2a: Eevee|Tackle|p1a: Pikachu\"],\"transition_history\":[],\"transition_lineage\":null,\"unresolved\":[{\"category\":\"ability\",\"reason\":\"no_evidence\",\"subject_key\":\"p2:slot:1\"}]}",
+        "dispositions": {
+          "ability:Intimidate": "possible",
+          "item:Leftovers": "possible",
+          "move:Tackle": "supported",
+          "role:Bulky Attacker": "supported",
+          "tera_type:Ghost": "possible"
+        }
+      }
+    }
+  ]
+}

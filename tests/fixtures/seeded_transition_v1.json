@@ -1,0 +1,37 @@
+{
+  "fixture_schema": "seeded-transition-fixtures/v1",
+  "schema_version": "seeded-transition/v1",
+  "provenance": {
+    "source_kind": "sim_core",
+    "format": "gen9randombattle",
+    "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+    "root_seed": [101, 202, 303, 404]
+  },
+  "case": {
+    "name": "serialized-snapshot-identical-joint-action",
+    "step_index": 0,
+    "input_state_fingerprint": "88c7a99186975bbdab350f60e4a103e300623cc72ffe4f065206bb394cdd2874",
+    "parent_branch_id": "branch-01caed2bbc459a161cb6bfca14ea57ca5cb7fa6d50cb035a9b5b7d6f800266f4",
+    "action_ids": {
+      "p1": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a",
+      "p2": "act-26c2d988a76a0030ce9a6ea6e33bb44ab669a13eac46439c193f7b47db4c2855"
+    },
+    "transition_id": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
+    "branch_id": "branch-5151a1e1b4046c1dfe782451bb61e7f5253c9a914be4acfd61704143881224be",
+    "output_state_fingerprint": "f41b4ead5d5e85209f7ee777e24b79cfbc8398ce9111fb32b26225e87ec564c3",
+    "emitted_log_delta": [
+      "|",
+      "|t:|<timestamp>",
+      "|move|p1a: Solgaleo|Psychic|p2a: Carbink",
+      "|-damage|p2a: Carbink|80/100",
+      "|move|p2a: Carbink|Moonblast|p1a: Solgaleo",
+      "|-resisted|p1a: Solgaleo",
+      "|-damage|p1a: Solgaleo|89/100",
+      "|",
+      "|upkeep",
+      "|turn|2"
+    ],
+    "step_turn": 2,
+    "output_request_rqids": {"p1": null, "p2": null}
+  }
+}

@@ -5,7 +5,24 @@ TypeScript Pokemon Showdown simulator service with Python tooling for data
 collection, replay ingestion, featurization, model training, evaluation, action
 ranking, and live battle evaluation.
 
-The current repository is centered on four related loops:
+> **Current project status (2026-10-09):** Pinned `pokemon-showdown@0.11.10`
+> Gen 9 Random Battle v2 capture and boundary progression are accepted through
+> the reviewed FCE-01–FCE-08 packet, CE-08A positive capture, CE-08B incomplete/error
+> semantics, and final PIPELINE-002 decision. Conditional per-result
+> `faithful_complete_episode` emission and TS/Python validation are independently
+> accepted: true requires validated original-to-terminal evidence, including
+> original-origin continuity for resumed capture, actor validation and successful
+> cleanup. False is conservative and mandatory for ineligible results.
+> Historical failed invocations and the combined-command timeout remain documented.
+> Final-candidate validation, whole-branch review and merge approval remain separate.
+> Windows clean recreation and trainer/live packaging are deferred; this acceptance
+> establishes no Windows/cross-platform, dataset, training, feature or live readiness.
+> Legacy instructions below describe retained capabilities, not authorization.
+
+See [Current Project Status](docs/PROJECT_STATUS.md) for gates, blockers, and
+the next work sequence.
+
+The repository retains four legacy/historical workflow areas:
 
 - Local simulator experiments: collect self-play or baseline-vs-baseline games,
   train policy/value models, and evaluate checkpoints.
@@ -14,7 +31,7 @@ The current repository is centered on four related loops:
 - Live evaluation: serve a local `/evaluate` endpoint that scores the current
   battle state and ranks legal actions using live request data, opponent beliefs,
   damage diagnostics, rollout estimates, and action rankers.
-- vNext diagnostic program: a newer, frozen-schema research track
+- vNext diagnostic program: an earlier frozen-schema research track
   (`live-private-belief-v7` state + `legal-action-v5` action) that materializes
   battle-level diagnostic datasets, trains isolated value / action-rank heads,
   validates representation quality offline, and prepares the action-rank model
@@ -26,19 +43,28 @@ you run them from the repository root.
 
 ### Current focus and status
 
-The active priority is **representation correctness and dataset quality** for the
-vNext program, then training models for private-match testing once the diagnostic
-pipeline is trusted — not maximizing training volume. As of the latest update:
+Pinned v2 capture, CE-06A/CE-06B, FCE-01–FCE-08, and conditional per-result
+fidelity have scoped acceptance. The current priority is draft PR review,
+publication hygiene, and explicit merge approval, with external archival of
+large evidence pending an owner-selected destination. See
+[Current Project Status](docs/PROJECT_STATUS.md). The v7/v8 and vNext program
+descriptions elsewhere in this README are historical records of earlier
+experiments; their dimensions, datasets, labels, and checkpoints do not define
+the new input contract. No model-quality claim is made here for those earlier
+models. The old checkpoints are abandoned for the new approach and are not a
+readiness dependency.
 
-- The action-rank track is the promising one: the `diagnostic_1000` rank-only
-  model beats simple offline baselines (validation top-1/top-3 0.463/0.858).
-- The state-value head is weak on the diagnostic data and is paused.
-- The live `/evaluate` defaults remain intentionally **old and stable**
-  (`live-private-belief-v2` / `legal-action-v3`). The vNext v7/v5 work is
-  **diagnostic-only**: no vNext checkpoint is promoted, and the live bot path is
-  unchanged. Promotion is tracked by a closed gate
-  (`artifacts/training_plan/diagnostic_training_gate.md`).
-- No private or public matches have been run with vNext models.
+### Legacy decision-category analysis
+
+Use an existing saved gzip JSONL decision log with an explicitly selected Python:
+
+```bash
+python3 scripts/analyze_decision_categories.py --input "<saved-decisions.jsonl.gz>" --output "<output.csv>"
+```
+
+`--input` is required. Omitting `--output` writes to repository-relative
+`artifacts/analysis/decision_categories.csv`; explicit paths are preserved.
+This legacy analysis does not collect data or establish training readiness.
 
 ## Repository Layout
 
@@ -65,11 +91,40 @@ pipeline is trusted — not maximizing training volume. As of the latest update:
 
 ## Prerequisites
 
+The environment instructions and commands in this README document existing
+legacy workflows. They are not a readiness declaration for the new pipeline.
+ENV-001 remains incomplete for cross-platform claims. The documented macOS
+simulator-record and broader trainer/live profiles are accepted only within
+their recorded scope. Windows clean recreation and Windows trainer/live
+packaging are deferred platform work, not blockers to a future scoped macOS
+refactor merge. The macOS broader profile proof is for the recorded Command Line
+Tools Python 3.9.6 arm64 environment; it does not establish a supported Python
+range or Windows/PyTorch/CUDA compatibility. See the
+[environment validation record](docs/refactor/ENVIRONMENT_VALIDATION.md#env-001c1--macos-broader-trainerlive-profile).
+Do not treat dataset/training examples below as authorization for the current
+refactored work.
+
+For scoped refactored simulator-record validation, use the accepted
+[macOS environment instructions](docs/refactor/ENVIRONMENT_VALIDATION.md#env-001b--simulator-record-profile-and-macos-clean-proof).
+The historical Windows host checks and six-scenario comparison are recorded for
+their selected cases only; they establish neither Windows support nor
+cross-platform reproducibility. Python's standard library plus pytest for tests
+is sufficient for the simulator-record profile; the training/live dependencies
+below are broader. Training/data readiness remains separately gated, and
+conditional `faithful_complete_episode` emission is independently accepted within
+the pinned runtime scope; incomplete, unsupported and failed results remain false.
+
 Runtime pieces:
 
 - Node.js and npm for `sim-core`.
-- Python 3.8+ with PyTorch, NumPy, FastAPI/Uvicorn, pytest, and the other
-  scientific/runtime packages used by the trainer.
+- The simulator-record profile uses Python's standard library plus the locked
+  `simulator-record` pytest extra. The declared Python `>=3.8` floor is not a
+  tested compatibility matrix.
+- The repository-owned macOS broader trainer/live profile declares the direct
+  imports and uses the hash-checked lock documented in the environment
+  validation record. Windows Conda packaging and clean recreation remain
+  ENV-001C2; neither environment profile authorizes model training or live
+  inference.
 - On this Windows setup, the launcher defaults to:
 
 ```powershell
@@ -78,15 +133,17 @@ D:\Anaconda\envs\neuralgpu\python.exe
 
 The code can run on CPU. PyTorch will use CUDA when available.
 
-Install and build the simulator:
+Install and build the simulator from the repository root using the committed
+Node lockfile:
 
 ```powershell
-cd C:\Users\cloud\Downloads\neural\final
-cd .\sim-core
-npm install
-npm run build
-cd ..
+npm.cmd ci --prefix sim-core
+npm.cmd run build --prefix sim-core
 ```
+
+For the locked Python simulator-record profile, the macOS clean-environment
+commands and the later Windows `neuralgpu` install path are documented in
+[`docs/refactor/ENVIRONMENT_VALIDATION.md`](docs/refactor/ENVIRONMENT_VALIDATION.md).
 
 Set Python imports for manual module runs:
 
@@ -286,7 +343,7 @@ Live action rankers are action-conditioned models. They score each legal action
 from a concatenation of live state features and action features, rather than
 only choosing from the fixed policy head.
 
-Current **live-default** action feature schema:
+Existing legacy `/evaluate` action feature schema (not FEATURE-001):
 
 - Feature version: `legal-action-v3`
 - Feature dimension: `165`
@@ -305,7 +362,7 @@ different feature domains.
 
 ### Behavior Cloning Policy
 
-Default checkpoint examples:
+Legacy checkpoint examples (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_bc.dev.pt`
 - `artifacts/checkpoints/gen9randombattle_bc.pt`
@@ -325,7 +382,7 @@ Primary modules:
 
 ### Local Trace Value Model
 
-Default checkpoint:
+Legacy checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_value.pt`
 
@@ -341,7 +398,7 @@ Primary modules:
 
 ### Public Replay Value and Policy Models
 
-Default checkpoints:
+Legacy checkpoint paths (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_replay_value.pt`
 - `artifacts/checkpoints/gen9randombattle_replay_policy.pt`
@@ -367,11 +424,11 @@ Primary modules:
 
 ### Live Private-Belief Value Model
 
-Current default checkpoint:
+Legacy `/evaluate` code default checkpoint (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_live_private_value_v2.pt`
 
-Current feature domain:
+Existing legacy feature domain (not the new model contract):
 
 - Feature version: `live-private-belief-v2`
 - Feature dimension: `115`
@@ -403,19 +460,19 @@ Build and train:
 
 ### Action Rankers
 
-Current action-rank dataset:
+Legacy action-rank dataset path:
 
 - `data/policy/gen9randombattle_action_rank_v2.npz`
 
-Current action-ranker checkpoint:
+Legacy action-ranker checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_action_ranker_v2.pt`
 
-Current action-value dataset:
+Legacy action-value dataset path:
 
 - `data/policy/gen9randombattle_action_value_rank_v2.npz`
 
-Current action-value ranker checkpoint:
+Legacy action-value ranker checkpoint path (abandoned for the new pipeline):
 
 - `artifacts/checkpoints/gen9randombattle_action_value_ranker_v2.pt`
 
@@ -520,7 +577,11 @@ configs, and checkpoints record these fingerprints, and loaders refuse mismatche
    `NEURAL_VNEXT_INFERENCE`; **not imported by the default live path**. It consumes
    precomputed v7/v5 features — live feature generation is not yet wired.
 
-### Current datasets and checkpoints
+### Historical datasets and checkpoints
+
+The paths and metrics below document an earlier diagnostic program. They are
+not inputs or gates for the refactored pipeline, and their presence is not
+assumed.
 
 - `artifacts/training_plan/datasets/diagnostic_300_v7_v5/` — 300 battles
   (210/45/45), 25,396 states, 189,957 candidates.
@@ -528,7 +589,7 @@ configs, and checkpoints record these fingerprints, and loaders refuse mismatche
   battles (700/150/150), 80,899 states, 606,770 candidates, 79,525 action-rank
   positives.
 - `artifacts/diagnostic_training/diagnostic_1000_action_rank_v7_v5_rank_only/model.best.pt`
-  — current best vNext action-rank checkpoint (epoch 8; validation top-1/top-3
+  — historical vNext action-rank checkpoint (epoch 8; reported validation top-1/top-3
   0.4626/0.8576, test top-1 0.4608). **Not promoted; not live.**
 
 ### Reports and the gate
@@ -1023,3 +1084,116 @@ PowerShell output looks strange:
   off by default and not wired into live battles. The promotion gate
   (`artifacts/training_plan/diagnostic_training_gate.md`) stays closed until a
   controlled private-match dry run and explicit approval.
+
+### Bounded item and terminal identity validation
+
+The 2026-10-08 implementation checks public item presence and existing owned
+item disposition/history against ordered evidence. It carries validated
+committed owner identity through requestless terminal Illusion in a linked
+bundle or complete predecessor chain. Incoming unrevealed terminal switches require the validated canonical switch action in an ordinary/full/bulk bundle; a bare envelope lacks this authority. Bare deserialized observations cannot authorize an unrevealed owned alias. C22/C23 remain open pending independent acceptance; broader
+callback composition and complete-episode gates are unchanged.
+
+On the accepted macOS simulator profile:
+
+```bash
+npm run build --prefix sim-core
+PYTHON="$PWD/.venv-simulator/bin/python" node --test --test-isolation=none --test-reporter=spec sim-core/dist/tests/item_identity.test.js
+PYTHONPATH=trainer/src .venv-simulator/bin/python -m pytest trainer/tests/test_public_consequences.py trainer/tests/test_pipeline_record.py
+node sim-core/scripts/check-simulator-coverage.cjs --reachability-self-test
+node sim-core/scripts/check-simulator-coverage.cjs
+```
+
+The normal checker continues withholding semantic attestation while the local
+source digest differs from the separately reviewed digest. See the existing
+closure audit for exact matrices, source profiles, hashes, and remaining gates.
+
+
+For routine episode checks, use the focused npm command. It builds, reports live results, and explicitly skips the 1,000-commit fixture:
+
+```bash
+PYTHON="$PWD/.venv-simulator/bin/python" npm run test:episode:focused --prefix sim-core
+```
+
+Run the episode cases without the long fixture using Node's explicit skip flag (supported by the accepted Node v24.21.0 profile):
+
+```bash
+PYTHON="$PWD/.venv-simulator/bin/python" node --test --test-isolation=none --test-reporter=spec --test-skip-pattern='source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row' sim-core/dist/tests/pipeline_episode.test.js
+```
+
+Run the source turn-limit fixture alone after the focused suites; it captures 1,000 commits and can take several minutes. The default isolated Node reporter buffers file output, so use the live reporter and the exact anchored name:
+
+```bash
+PYTHON="$PWD/.venv-simulator/bin/python" node --test --test-isolation=none --test-reporter=spec --test-name-pattern='^source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row$' sim-core/dist/tests/pipeline_episode.test.js
+```
+
+The fixture prints native progress every 100 commits and separate Python bulk phases. Each bulk subprocess has a 360-second timeout, and successful publication remains subject to the existing 300-second performance assertion. Run no other heavy episode test concurrently. Historical item-carrier uncertainty remains raw-only without a legitimate identity join; it never assigns an old unrevealed alias to a bench teammate by nickname. Private terminal switch restoration uses its separate v2 history schema; public observation versions and identity algorithms remain unchanged.
+
+
+Before the performance correction, each boundary rehashed every complete
+historical prefix. Profiling showed active Node CPU work around 100% and
+approximately 355 MiB RSS. Each validation now uses a fresh incremental
+canonical-array hash and copies its state at historical cursors, preserving
+the same bytes and every cursor/identity/hash guard. Live 100-commit markers and bounded Python phases
+make progress observable. The focused command excludes the long fixture; the
+full test command includes it. The repair does not change untrusted-candidate
+history validation or introduce a shared mutable cache.
+
+
+The short CE-08B repair tests use the saved predecessor artifact and do not
+regenerate a battle. After building, run one exact case at a time with the
+accepted macOS interpreter and an outer process timeout:
+
+```bash
+PYTHON="$PWD/.venv-simulator/bin/python" node --test --test-isolation=none --test-reporter=spec --test-name-pattern='^CE-08B repair exact limits schema rejects canonical ordinary and compact metadata$' sim-core/dist/tests/pipeline_episode_stop_repair.test.js
+```
+
+The same file has exact Revival/accounting and construction/cleanup cases; their
+recorded names, durations and source hashes are in the existing repair checkpoint.
+
+### Conditional faithful-result focused checks
+
+This candidate uses saved accepted boundary artifacts; it does not regenerate a
+battle or execute the 1,000-turn witness. After `npm run build --prefix sim-core`,
+run one exact case at a time with the accepted simulator-record interpreter:
+
+```sh
+PYTHON="$PWD/.venv-simulator/bin/python" PYTHONPATH="$PWD/trainer/src" \
+node --test --test-name-pattern='^faithful claim saved win tie and bound continuation publish conservatively or true$' \
+  sim-core/dist/tests/pipeline_episode_faithful.test.js
+```
+
+The other two exact case names and timeout/results are recorded in the closure
+audit’s conditional faithful-claim checkpoint. Keep a real 180-second process-group
+timeout around each short validation workload. Saved predecessor and segment-start
+fixtures are hash-pinned by the helpers; no new dependency is required.
+
+
+<details>
+<summary>Historical status as recorded on 2026-10-08</summary>
+
+> **Historical project status (2026-10-08):** The active milestone is faithful,
+> privacy-correct Gen 9 Random Battle episode capture. Bounded v2 transition
+> capture and TypeScript/Python publication parity are accepted within their
+> reviewed joint-actionable scope. Scanner, source-coverage, format-reachability,
+> and documented macOS environment slices are accepted within their attested
+> scope. CE-01's aggregate Glaive Rush fixture repair and CE-04C public-stage
+> source/evidence closure are accepted only within their recorded scopes. CE-06A
+> has an implementation checkpoint pending separate review and attestation.
+> C23 now rejects the six reviewed false Wish results and partial public
+> health maps in both runtimes. Bounded public item evidence and validated
+> predecessor authority for requestless terminal Illusion are implemented and
+> await independent acceptance. C22 callback composition remains unresolved;
+> Neutralizing Gas has a source-backed generated no-route disposition and
+> constructed source semantics, with broader callback truth still pending. The complete-episode closure audit
+> remains a gap inventory and plan. Keep
+> `faithful_complete_episode:false`. Windows clean recreation and Windows
+> trainer/live packaging are deferred and do not block a future scoped macOS
+> refactor merge. Features, datasets, training, live-model behavior, Windows
+> support, cross-platform reproducibility, and other formats remain later or
+> unaccepted scope. Legacy instructions below describe retained capabilities,
+> not current readiness or authorization.
+
+This earlier summary is superseded by the current pinned acceptance records; its
+pending milestones and false-only flag describe that checkpoint.
+
+</details>

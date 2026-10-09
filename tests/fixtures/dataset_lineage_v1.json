@@ -1,0 +1,72 @@
+{
+  "fixture_schema": "dataset-lineage-fixture/v1",
+  "provenance": "Synthetic deterministic records only; no downloaded replay data.",
+  "valid_inputs": [
+    {
+      "battle_id": "fixture-battle-a",
+      "replay_id": "fixture-replay-a",
+      "source_kind": "replay",
+      "source_ref": "tests/fixtures/replay_sample.log",
+      "ruleset": "gen9randombattle",
+      "parser_version": "fixture-parser-v1",
+      "perspective": "p1",
+      "observation_cursor": 4,
+      "feature_cursor": 4,
+      "observation_prefix_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "observation_id": null,
+      "action_id": null,
+      "belief_id": null,
+      "transition_id": null,
+      "private_data_provenance": "none",
+      "feature_input_eligibility": "public_only",
+      "schema_fingerprints": {
+        "observation": "observable-state/v1",
+        "belief": null,
+        "transition": null,
+        "feature": "fixture-feature-v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "split": "train",
+      "split_seed": 20260923,
+      "metric": {"absolute_error": 0.25, "target": 1.0, "prediction": 0.75}
+    },
+    {
+      "battle_id": "fixture-battle-b",
+      "replay_id": "fixture-replay-b",
+      "source_kind": "live",
+      "source_ref": "fixture-live-capture",
+      "ruleset": "gen9randombattle",
+      "parser_version": "fixture-parser-v1",
+      "perspective": "p2",
+      "observation_cursor": 7,
+      "feature_cursor": 6,
+      "observation_prefix_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "observation_id": null,
+      "action_id": "act-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "belief_id": "belief-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "transition_id": null,
+      "private_data_provenance": "acting_player_request",
+      "feature_input_eligibility": "acting_player_private",
+      "schema_fingerprints": {
+        "observation": "observable-state/v1",
+        "belief": "belief-state/v1",
+        "transition": null,
+        "feature": "fixture-feature-v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "split": "validation",
+      "split_seed": 20260923,
+      "metric": {"absolute_error": 0.5, "target": -1.0, "prediction": -0.5}
+    }
+  ],
+  "invalid_cases": {
+    "unsupported_schema": {"schema_version": "dataset-record/v99"},
+    "future_feature_cursor": {"feature_cursor": 8},
+    "missing_provenance": {"private_data_provenance": ""},
+    "private_public_input": {
+      "private_data_provenance": "acting_player_request",
+      "feature_input_eligibility": "public_only"
+    },
+    "cross_split_same_battle": {"split": "test", "battle_id": "fixture-battle-a"},
+    "cross_split_same_replay": {"split": "test", "battle_id": "fixture-battle-c", "replay_id": "fixture-replay-a"},
+    "malformed_cursor": {"observation_cursor": -1}
+  }
+}

@@ -1,0 +1,119 @@
+[
+  {
+    "name": "valid-cancellation-control",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "aa877df18a98ddca488e9513e23d3bc92e585359c6df002ef45998291cb31487"
+  },
+  {
+    "name": "valid-limit-negative-control",
+    "status": 2,
+    "stdout_bytes": 0,
+    "stderr": "pipeline-record validation failed: episode counter does not establish its declared budget stop",
+    "rows": null,
+    "payload_sha256": "caa954b4f21390df79331904193a670ca25287b6dbe88eae71ca948f4d40356b"
+  },
+  {
+    "name": "invalid-limits-null",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "8f70de8208f417ed29a504c571f3ebb4cc614232e10b572c984dbf3c077f964d"
+  },
+  {
+    "name": "invalid-limits-array",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "e49ba565e55a6b81b00c1005860f82f97dcb6e2fbc0891aea091db9e64cf54f5"
+  },
+  {
+    "name": "invalid-limits-number",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "2522f75cb60bef2ccf2cc324163380d7ffa9819e89ad62ef5a204ca9b882b4d0"
+  },
+  {
+    "name": "seeded-revival-pre-selection",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "28cc7cde9b6773a0e4cd326f4f39a5434a3c7f7573777dbcc4bfe3ecd026ce47",
+    "stop": {
+      "code": "episode/v1/unsupported-revival-blessing",
+      "reason": "Revival request variant is outside the supported singles selection scope."
+    },
+    "counts": {
+      "attempts": 0,
+      "committed_transitions": 0,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    }
+  },
+  {
+    "name": "seeded-revival-candidate",
+    "status": 2,
+    "stdout_bytes": 0,
+    "stderr": "pipeline-record validation failed: episode counter contains an unaccounted attempt at a clean stop",
+    "rows": null,
+    "payload_sha256": "d0219b13e9f48f99da6d0b1da7e1b384c16ce8a938e157270c19a8f3797d8918",
+    "stop": {
+      "code": "episode/v1/unsupported-revival-blessing",
+      "reason": "Revival request variant is outside the supported singles selection scope."
+    },
+    "counts": {
+      "attempts": 1,
+      "committed_transitions": 0,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    }
+  },
+  {
+    "name": "seeded-forced-switch-pre-selection",
+    "status": 0,
+    "stdout_bytes": 3,
+    "stderr": "",
+    "rows": 0,
+    "payload_sha256": "28cc7cde9b6773a0e4cd326f4f39a5434a3c7f7573777dbcc4bfe3ecd026ce47",
+    "stop": {
+      "code": "episode/v1/unsupported-revival-blessing",
+      "reason": "Revival request variant is outside the supported singles selection scope."
+    },
+    "counts": {
+      "attempts": 0,
+      "committed_transitions": 0,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    }
+  },
+  {
+    "name": "seeded-forced-switch-candidate",
+    "status": 2,
+    "stdout_bytes": 0,
+    "stderr": "pipeline-record validation failed: episode counter contains an unaccounted attempt at a clean stop",
+    "rows": null,
+    "payload_sha256": "d0219b13e9f48f99da6d0b1da7e1b384c16ce8a938e157270c19a8f3797d8918",
+    "stop": {
+      "code": "episode/v1/unsupported-revival-blessing",
+      "reason": "Revival request variant is outside the supported singles selection scope."
+    },
+    "counts": {
+      "attempts": 1,
+      "committed_transitions": 0,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    }
+  },
+  {
+    "name": "malformed-terminal-construction",
+    "error": "evidence-terminal-perspectives",
+    "closed": false
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "incoming_commit": "117df85247846548fe99ee7e3d60a26d827fc05c",
+  "isolated_base": "3ddc5fc3060e8da287425e4d08a71a2ffd77184a",
+  "incoming_tracked_tree_byte_mismatches": [],
+  "source_equal_to_windows": true,
+  "source": {
+    "base_commit": "3ddc5fc3060e8da287425e4d08a71a2ffd77184a",
+    "local_coverage_file_count": 28,
+    "local_coverage_files": {
+      "../scripts/generate_cross_platform_simulator_record.ps1": "a40b9245804a2f7a025eafe1ad1c2f5078432d2f0b2011fe88291d03126be5a3",
+      "../scripts/validate_windows_simulator_record.ps1": "e03a91f0e1cf3db34a78f33f5940751cde75e738adc6cd2323f9c8408d409ed5",
+      "../trainer/src/neural/pipeline_record.py": "e94e70b99f0b8c504bd87fa6fb493e7428967c78dfcf16e680da673d0dccfbcf",
+      "../trainer/tests/test_pipeline_record.py": "e6f9d68e351f0ab44692592aab2c0465d345a4e279404ed56b2ac4d2cecd6524",
+      "scripts/check-simulator-coverage.cjs": "b5abf7b684b97512e6c90429286ecb40af4b255c94b73740ed86762b387a1c4d",
+      "scripts/simulator-record-comparison.cjs": "e513ef62327e241b4eeaa861b4c549339a3b6fef3197f35ad25245f75197e98a",
+      "src/action_codec.ts": "7499ff858952fbc7e2abdf43e2867a500a993285d03414eb89cc0b0b7b57d05a",
+      "src/battle_helpers.ts": "6a79251137efa04c18150a5a0512756c23e33877224ae46c58624facbc37f994",
+      "src/belief_state.ts": "7f63f471fe493432d72e9dbad46533722b37e33bda989d7ac0a6ef11bb1beed7",
+      "src/env_manager.ts": "c597e1215997705fa9dae942c71aab77adced6b0602ce55cc0006e7ed322e930",
+      "src/observable_state.ts": "faa78cf0419acd17cc25248b364d9f7647cf5ec8ecc54942fc948296ce87e2db",
+      "src/pipeline_episode.ts": "a299fc9bb71bad4dab0746352cb8dddb2bb8d1d914da30b0023eea4adca7ee0e",
+      "src/pipeline_integration.ts": "8b1f1121b69e6d6531f50658eb5d6e2ff9da8476a1366f86cc0b328e99155063",
+      "src/settling.ts": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+      "src/state_extractor.ts": "3e15bf37284a8dd74b7d24c04ff19aa70d4ab5634ad62db537e17492a900b040",
+      "src/transition.ts": "676d5427673ea6be7ce53e59df74b052bce7ad9691617687d5b1a6c290ec5656",
+      "src/types.ts": "7a59052d0b79606944ecd12fe6e49d0686b1ccdb3dcd2cb6b7055a95cbea25cf",
+      "tests/action_codec.test.ts": "9901cdae365884dd350c602f5db509789a7fdd965594228ebb37ae2cb726a206",
+      "tests/env_manager.test.ts": "c7c939042c93882c5e430e4a1bf663757f9dad266bd2c3e40c3ae20abf10bdd0",
+      "tests/forced_switch.test.ts": "daf16c7bc3896bc4c00124c6b27c23cb634efb2c39b4711734fcab99008d3567",
+      "tests/helpers/state_lifecycle.ts": "d4f44d6ed5f35a406950af0f9b11c9ff172b1b23dec190eb7ead8ab144bf1e70",
+      "tests/illusion.test.ts": "2af13415a40133e0889015f386d48a272feb264626840c86124c33a2c8736463",
+      "tests/observable_state.test.ts": "cbc044e3f42921188f9cd7196ac7ce28f5f99cb2e894746f7ad0048071122860",
+      "tests/pipeline_episode.test.ts": "17adb1e43c2105a00d8772d847204b8d519c15c46bf3f12cc31caf2bf27fa80f",
+      "tests/pipeline_integration.test.ts": "4f9fcfb42b9e89a8b4b0e41338b60f38dac0c594023cd2288276b65372882581",
+      "tests/settling.test.ts": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b",
+      "tests/simulator_coverage.test.ts": "00f16db387addb61d350a79a1518c5fc988584ccc270281fece3df45c1baee09",
+      "tests/state_extractor.test.ts": "a9e6858dace697dc92dfedf8d0a403fe39ded2013d3aad7a3b383ec0fc759597"
+    },
+    "local_coverage_sha256": "14dff114f66482bbdf5cb10bd0bc3579f339da2af878395b7b74c2f7913f71b0",
+    "pokemon_showdown_version": "0.11.10",
+    "review_patch_sha256": "968e3f9318e6b67e6585afec1c74e1f4442ef875a11fd47164eb6e71f0140018"
+  }
+}

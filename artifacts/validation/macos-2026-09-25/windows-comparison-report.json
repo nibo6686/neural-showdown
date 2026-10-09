@@ -1,0 +1,52 @@
+{
+  "actionable_differences": [],
+  "equal_portable_results": true,
+  "machine_specific_differences": [
+    {
+      "candidate": "arm64",
+      "path": "/environment/architecture",
+      "reference": "x64"
+    },
+    {
+      "candidate": "v24.21.0",
+      "path": "/environment/node_version",
+      "reference": "v24.15.0"
+    },
+    {
+      "candidate": "11.19.0",
+      "path": "/environment/npm_version",
+      "reference": "11.12.1"
+    },
+    {
+      "candidate": "25.6.0",
+      "path": "/environment/os_release",
+      "reference": "10.0.26200"
+    },
+    {
+      "candidate": "darwin",
+      "path": "/environment/platform",
+      "reference": "win32"
+    },
+    {
+      "candidate": "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "path": "/environment/python/executable",
+      "reference": "D:\\Anaconda\\envs\\neuralgpu\\python.exe"
+    },
+    {
+      "candidate": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9",
+      "path": "/environment/python/prefix",
+      "reference": "D:\\Anaconda\\envs\\neuralgpu"
+    },
+    {
+      "candidate": "3.9.6",
+      "path": "/environment/python/version",
+      "reference": "3.11.14"
+    },
+    {
+      "candidate": "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "path": "/environment/python_command_from_node",
+      "reference": "D:\\Anaconda\\envs\\neuralgpu\\python.exe"
+    }
+  ],
+  "schema_version": "simulator-record-comparison-report/v1"
+}

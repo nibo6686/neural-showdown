@@ -1,8 +1,8 @@
 # Live/Sim Bounded Value Training Report (Part C)
 
 Generated: 2026-06-18T18:10:49
-Checkpoint: `C:\Users\cloud\Downloads\neural\final\artifacts\checkpoints\gen9randombattle_live_sim_value_v1.pt`
-Dataset: `C:\Users\cloud\Downloads\neural\final\data\value\gen9randombattle_live_sim_value_v1.npz`
+Checkpoint: `artifacts\checkpoints\gen9randombattle_live_sim_value_v1.pt`
+Dataset: `data\value\gen9randombattle_live_sim_value_v1.npz`
 
 ## Model
 

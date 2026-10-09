@@ -1,0 +1,64 @@
+{
+  "scope": "CE-08B S01-S12 execution evidence; independent review pending",
+  "accepted_ce08a_digest": "197d1b90334547f58cef0e4eead41f164838897a16fb7dfb74fa471ff491d3b2",
+  "source_hashes": {
+    "sim-core/src/pipeline_episode.ts": "5e55f0b953d95af206f35ce11fd9a23ed7df1091e17b19e467689108da436eb4",
+    "trainer/src/neural/pipeline_record.py": "caa1919fb5cb2130378aaa9b86150c136a1d0a523a88e67e548f2ae2b1c932b8",
+    "sim-core/tests/pipeline_episode.test.ts": "c8c94c1e6b52bbc61c8c4cb88a527bd73dc84069efb68e829250fe4ea35edd46",
+    "sim-core/src/pipeline_episode_evidence.ts": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+    "sim-core/src/pipeline_integration.ts": "e75e3a0ee38ff399fc3ffb8ea363b7dbe8cb6dee97e5a9f9858f41d7a0b310f3",
+    "sim-core/src/settling.ts": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+    "sim-core/tests/settling.test.ts": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b"
+  },
+  "baseline_all_21_matched_before_edits": true,
+  "changed_baseline_inputs": [
+    "sim-core/tests/pipeline_episode.test.ts",
+    "sim-core/src/pipeline_episode.ts",
+    "trainer/src/neural/pipeline_record.py",
+    "sim-core/dist/tests/pipeline_episode.test.js"
+  ],
+  "runtime": {
+    "python": "3.9.6 arm64 .venv-simulator",
+    "node": "v24.21.0",
+    "timeout_seconds": 180,
+    "sequential": true
+  },
+  "fresh": {
+    "CE08B_exact_four": {
+      "exit": 0,
+      "passed": 4,
+      "elapsed_seconds": 2.342,
+      "cases_ms": [
+        785.442458,
+        679.781417,
+        303.26325,
+        395.074875
+      ]
+    },
+    "settling_exact_six": {
+      "exit": 0,
+      "passed": 6,
+      "elapsed_seconds": 0.502,
+      "cases_ms": [
+        176.623875,
+        32.325125,
+        35.207125,
+        30.4685,
+        31.201583,
+        0.161542
+      ]
+    },
+    "build": {
+      "exit": 0,
+      "elapsed_seconds": 1.673
+    }
+  },
+  "reused": "Existing 34-case individual evidence for unchanged test bodies and accepted source/capture paths; not a new combined pass. New result metadata guards are freshly exercised; no actor/identity algorithm changed.",
+  "limits": [
+    "Historical combined short-command timeout remains unresolved",
+    "No positive episode or long sweep rerun",
+    "CE-08B/FCE-08 independent review and PIPELINE-002 acceptance remain separate"
+  ],
+  "faithful_complete_episode": false,
+  "output_sha256": "2ea46b23a4013ee2eb386f8206b401c04f2ddee5e7e2f4d473aa3b72b05a0171"
+}

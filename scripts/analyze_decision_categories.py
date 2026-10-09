@@ -191,57 +191,74 @@ def categorize(r):
     row["category"] = "unknown_action"
     return row
 
-path = Path(r"C:\Users\cloud\Downloads\neural\final\data\raw\gen9randombattle_bc.jsonl.gz")
-out = Path(r"C:\Users\cloud\Downloads\neural\final\artifacts\analysis\decision_categories.csv")
-out.parent.mkdir(parents=True, exist_ok=True)
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Analyze an existing legacy decision log; no data collection or training is performed.")
+    parser.add_argument("--input", type=Path, required=True, help="Existing gzip JSONL decision log")
+    parser.add_argument("--output", type=Path,
+                        default=Path(__file__).resolve().parents[1] / "artifacts" / "analysis" / "decision_categories.csv",
+                        help="Output CSV (default: repository artifacts/analysis/decision_categories.csv)")
+    args = parser.parse_args(argv)
+    if not args.input.is_file():
+        parser.error("--input must name an existing gzip JSONL file; pass --input PATH to your saved decision log")
+    return args
 
-rows = []
-with gzip.open(path, "rt", encoding="utf-8") as f:
-    for line in f:
-        rows.append(categorize(json.loads(line)))
 
-with out.open("w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
-    writer.writeheader()
-    writer.writerows(rows)
+def main(argv=None):
+    args = parse_args(argv)
+    path, out = args.input, args.output
+    out.parent.mkdir(parents=True, exist_ok=True)
 
-total = len(rows)
-by_category = Counter(r["category"] for r in rows)
-attack_rows = [r for r in rows if r["category"] in {"super_effective_attack", "neutral_attack", "resisted_attack", "no_effect_attack", "unknown_effectiveness"}]
-first_turns = [r for r in rows if r.get("step_index") == 0]
-first_turn_tera = sum(1 for r in first_turns if r.get("tera_used") == "True")
+    rows = []
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        for line in f:
+            rows.append(categorize(json.loads(line)))
 
-print(f"Read decisions: {total}")
-print(f"Wrote CSV: {out}")
-print()
-print("Decision categories:")
-for cat, count in by_category.most_common():
-    print(f"  {count:5}  {count / total:7.2%}  {cat}")
+    with out.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
 
-print()
-print("Attack-only effectiveness:")
-for cat, count in Counter(r["category"] for r in attack_rows).most_common():
-    print(f"  {count:5}  {count / len(attack_rows):7.2%}  {cat}")
+    total = len(rows)
+    by_category = Counter(r["category"] for r in rows)
+    attack_rows = [r for r in rows if r["category"] in {"super_effective_attack", "neutral_attack", "resisted_attack", "no_effect_attack", "unknown_effectiveness"}]
+    first_turns = [r for r in rows if r.get("step_index") == 0]
+    first_turn_tera = sum(1 for r in first_turns if r.get("tera_used") == "True")
 
-print()
-if first_turns:
-    print(f"First-turn tera: {first_turn_tera}/{len(first_turns)} ({first_turn_tera / len(first_turns):.2%})")
-
-print()
-print("Examples by category:")
-grouped = defaultdict(list)
-for r in rows:
-    if len(grouped[r["category"]]) < 5:
-        grouped[r["category"]].append(r)
-
-for cat in sorted(grouped):
+    print(f"Read decisions: {total}")
+    print(f"Wrote CSV: {out}")
     print()
-    print("=" * 90)
-    print(cat)
-    print("=" * 90)
-    for r in grouped[cat]:
-        print(
-            f"battle={r['battle_index']:>3} step={r['step_index']:>3} turn={r['turn']:>3} "
-            f"{r['self_species']} HP={r['self_hp']} vs {r['opp_species']} HP={r['opp_hp']} "
-            f"| {r['chosen_label']} | mult={r['effectiveness_multiplier']} return={r['return']}"
-        )
+    print("Decision categories:")
+    for cat, count in by_category.most_common():
+        print(f"  {count:5}  {count / total:7.2%}  {cat}")
+
+    print()
+    print("Attack-only effectiveness:")
+    for cat, count in Counter(r["category"] for r in attack_rows).most_common():
+        print(f"  {count:5}  {count / len(attack_rows):7.2%}  {cat}")
+
+    print()
+    if first_turns:
+        print(f"First-turn tera: {first_turn_tera}/{len(first_turns)} ({first_turn_tera / len(first_turns):.2%})")
+
+    print()
+    print("Examples by category:")
+    grouped = defaultdict(list)
+    for r in rows:
+        if len(grouped[r["category"]]) < 5:
+            grouped[r["category"]].append(r)
+
+    for cat in sorted(grouped):
+        print()
+        print("=" * 90)
+        print(cat)
+        print("=" * 90)
+        for r in grouped[cat]:
+            print(
+                f"battle={r['battle_index']:>3} step={r['step_index']:>3} turn={r['turn']:>3} "
+                f"{r['self_species']} HP={r['self_hp']} vs {r['opp_species']} HP={r['opp_hp']} "
+                f"| {r['chosen_label']} | mult={r['effectiveness_multiplier']} return={r['return']}"
+            )
+
+
+if __name__ == "__main__":
+    main()

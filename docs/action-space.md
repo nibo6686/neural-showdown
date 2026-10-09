@@ -11,3 +11,9 @@ Indices:
 The concrete Showdown command for an index depends on the current request. `legal_actions.actions[index]` stores the concrete choice string, while `legal_actions.mask[index]` states whether that index is currently legal.
 
 Illegal indices must be masked before sampling or argmax.
+
+This page describes the existing fixed 13-action codec. The accepted
+[`CanonicalAction v1`](contracts/CANONICAL_ACTION.md) contract binds action
+identity and slot to the current request and is additive; it does not define a
+new feature-vector shape or authorize model integration. Targeted and
+multi-active commands remain outside v1.

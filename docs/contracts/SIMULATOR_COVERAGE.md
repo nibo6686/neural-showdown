@@ -1,0 +1,642 @@
+# Simulator State and Protocol Coverage
+
+**Status:** Source-reviewed inventory with explicit known gaps. This is not an acceptance of PIPELINE-001 or FEATURE-001.
+
+## Current acceptance and flag boundary — 2026-10-09
+
+The final PIPELINE-002 decision accepts pinned v2 capture/boundary progression
+from the independently reconciled FCE-01–FCE-08 evidence. The manifest records
+this capability verdict separately from per-result fidelity. Runtime
+conditional `faithful_complete_episode` emission and TS/Python enforcement are
+independently accepted within the pinned runtime scope. True requires a validated
+supported original-to-terminal chain and successful execution/cleanup; all
+ineligible results remain false. No global faithful capability flag is introduced.
+Historical scoped decisions below retain their original meaning.
+
+## Provenance and supported format
+
+The repository declares `pokemon-showdown` exactly at `0.11.10` in `sim-core/package.json`. `sim-core/package-lock.json` resolves the same version and has npm `resolved` and `integrity` fields. Installed `node_modules/pokemon-showdown/package.json` also reports `0.11.10`. The package is not a Git checkout, so an upstream source commit ID is unavailable. The lock integrity records the expected tarball hash; it does **not** prove the unpacked active files equal that tarball without a clean install. This task did not install packages.
+
+The exact scope is `gen9randombattle`: the installed format metadata identifies Gen 9 (`gen9`), singles, randomized teams, and two players. Six is the generated-team expectation. The emitted `teamsize` record remains authoritative per battle. This is not a claim about other formats, generations, doubles, custom formats, or all Showdown protocol output.
+
+The durable machine inventory is [pokemon-showdown-0.11.10-gen9randombattle.json](../../sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json). It binds TypeScript source and active compiled runtime directories (`config`, `sim`, `data`, `dist/config`, `dist/sim`, `dist/data`) to SHA-256 digests. It also hashes the local parser, projection, action, transition, pipeline and focused-test files. Separate reviewed digests are required for simulator and local coverage sources: refreshing either digest alone fails the checker and does not attest review.
+
+### SLICE-002B format provenance and random-set reachability — accepted 2026-09-29
+
+The coverage checker now includes `config` and `dist/config` in the simulator source tree and checks the installed effective format metadata (`[Gen 9] Random Battle`, `gen9`, singles, `team: random`, six slots). The manifest records the sources for format resolution, rules, generator dispatch, and compiled runtime. Configuration changes therefore require a reviewed source-tree digest refresh; metadata or source drift fails closed.
+
+The pinned generator trace is `Battle.getTeam` → `Teams.getGenerator` → `RandomTeams.getTeam` → `randomTeam` → `randomSet` → `randomMoveset` / `getAbility` / `getPriorityItem` / `getItem`. The singles generator reads `randomSets`, not `randomDoublesSets`. Current source counts are 507 species keys, 869 set rows, 350 distinct move-pool candidates, and 203 distinct ability candidates. Candidate rows can be pruned by lead-role and team/Tera constraints; moves, abilities, and generated items are then selected using set and team context. Item values are produced by generator selectors and are not authored set-row candidates.
+
+Reachability evidence distinguishes direct set candidates, indirect callback/copy/reflection paths, package-wide-only code, raw-only protocol, recognized unsupported stops, and unresolved unknown edges. The manifest includes representative source-backed forms for all six categories: Body Press and Magic Bounce candidates; Magic Bounce reflection and Ditto/Imposter Transform copying; package-wide Dynamax code; raw-only `-singleturn`; unsupported `-singlemove`; and unresolved computed `addVolatile` values. The full runtime inventories and evidence links remain in the JSON manifest. These labels do not expand existing mechanics classifications: `-singleturn` stays raw-only, `-singlemove` stays stop-before-publication, and unknown values remain fail-closed.
+
+The scanner self-test covers source/config drift and representative routing. Separate review accepted the listed provenance and reachability evidence. The reviewed simulator source-tree digest is `12d83949635889cd10a51a081890f9dfc6d3ed480eacf2a9a0728fb48e8e086c`; the reviewed local-source digest is `34f086aa2ffc896caf39f11e3ff1c8139cda75cde3a851e550d6c7c60fc66ca9`. `faithful_complete_episode:false` remains required.
+
+### Remaining-mechanics assessment — 2026-09-25
+
+The [assessment and gap register](../refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md)
+traces reachable mechanics through raw extraction, perspective projection,
+restoration and TypeScript/Python publication. It found that the checker does
+not enumerate nested move/ability/item conditions or slot/self effects, does
+not bind operative format configuration, and does not establish indirect
+generated-team callback closure. Reachable `-singlemove` emitters now have an
+explicit recognized-but-unsupported disposition; the episode runner truncates
+before commit, while Destiny Bond/Glaive Rush/other lifecycle semantics remain
+unaccepted.
+
+### Shared protocol boundary review — blocked (2026-09-28)
+
+The shared `showdown-protocol-contract/v2` at
+[`protocol_contract.json`](../../trainer/src/neural/protocol_contract.json)
+has 114 supported-command fixtures, 43 valid-record controls, 107 rejection
+fixtures and six recognized-but-unsupported spellings. The shared validators
+require exact `: ` player-ident separators. `Pokemon.fullname`/`toString()`
+produces the source spelling (`sim/pokemon.ts:325,504-512`); validated teams
+pass names through `Dex.getName()` before emission (`sim/dex.ts:193-225`,
+`sim/team-validator.ts:576`). Punctuation and embedded colons such as
+`Mr: Mime` and `Farfetch'd` are preserved; edge whitespace is rejected rather
+than repaired. The contract still permits a broader opaque nonempty display
+name than the full Showdown nickname sanitizer.
+
+The terminal-actor repair recorded in the older review is corrected: direct
+TypeScript/Python validation and TypeScript projection reject
+`'|faint|p1a: Pikachu\x20'`, while the valid source spelling is preserved. The
+active `-transform` target rule also matches its Pokémon-object emitter.
+
+Helping Hand’s `[of]` source-role review is accepted: the shared contract assigns
+`ident_role: "active"` only to its source template, matching pinned
+`data/moves.ts:8885-8891` and the inactive-actor guard at
+`sim/battle.ts:2648-2650`. TypeScript and Python reject side-only, missing-side,
+and malformed sources before projection or DATA-001 publication. Health-event
+`[of]` and move-target rules remain side-or-active.
+
+The rehashed matrix applies the valid controls and every rejection fixture across
+v1/v2, p1/p2 and input/successor prefixes. Invalid candidates produce no
+DATA-001 output; TypeScript rollback preserves committed state, lineage, active
+slots, and the next transition. Build, 36 focused TypeScript tests, 20 Python
+pipeline-record tests, the coverage checker, and its drift self-tests pass. The
+reviewed local digest is
+`985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.
+
+Direct random-set evidence remains limited to Beak Blast, Focus Punch, Protect
+and Roost. Instruct, HP-tag ordering, scanner expansion and operative format
+coverage remain deferred. `-singleturn` is raw-only, `-singlemove` remains an
+enforced stop, and `faithful_complete_episode:false` remains unchanged.
+
+Scanner expansion, nested-effect modeling and operative format-digest coverage
+remain the next separate implementation batch, with newly found effects
+classified before implementation. Clean-environment recreation remains
+incomplete; it is separate from semantic transition fidelity. Neither status
+establishes the other. `faithful_complete_episode:false` remains required.
+
+## Classification vocabulary
+
+- **represented:** the current wrapper exposes a typed value from the relevant record or request. This can still be coarse; group notes specify loss of precision.
+- **raw-only:** the public, validated protocol prefix can retain evidence, but no typed state field represents it.
+- **explicitly unsupported:** the adapter rejects the shape or scope intentionally and reports the failure. There are no simulator condition IDs classified this way for this format.
+- **unknown:** the exact source semantics or visibility cannot be established within the supported scope. The JSON `review.unknowns` entries state the evidence and blocking consequence.
+- **silently omitted:** the simulator has a state detail, but the current typed projection does not carry it and no observation-level exclusion represents that detail. These omissions are enumerated below; they are not treated as absent/false.
+
+The manifest attaches every condition/effect ID to a semantic group containing its source files and symbols, lifecycle, visibility, observable/belief treatment, legal-action impact, raw evidence, implementation, tests, classification, and specific gaps. IDs can belong to multiple runtime inventories; the manifest preserves those memberships.
+
+## Condition and state inventory
+
+The pinned runtime surface was read through `Dex.mod('gen9')`, including resolved Gen 9 move, ability, item, and condition records, and checked against `sim/pokemon.ts`, `sim/side.ts`, `sim/field.ts`, `sim/battle.ts`, `sim/dex-conditions.ts`, and `data/{conditions,moves,abilities,items}.ts`.
+
+| Runtime inventory | Count | Source / symbol | Current observable treatment and lifecycle |
+|---|---:|---|---|
+| Major status IDs: `brn`, `par`, `slp`, `frz`, `psn`, `tox` | 6 | `data/conditions.ts`, `Conditions.<id>.onStart/onEnd`; `sim/pokemon.ts`, `Pokemon.status/statusState` | **represented** coarsely by `status` and `status_source`. Status records start/end; residuals and action prevention use simulator-private timers/stages. `status=null` with source `request` means known absent; source `unknown` is not absence. Hidden opponent counters are not in BeliefState. |
+| `Move.volatileStatus` IDs | 55 | `data/moves.ts`, `Moves[*].volatileStatus` | **represented** as an untyped public-presence set when `-start`/`-end` are processed. Lifetimes, counters, sources, target locks, switch/faint clearing and expiration vary by effect. |
+| `secondary[].volatileStatus` IDs | 6 (59-value union with the preceding set; 2 overlap) | resolved Gen 9 `Moves[*].secondaries` | Same presence-only treatment. Union adds `flinch`, `saltcure`, `sparklingaria`, `syrupbomb`; `confusion` and `healblock` overlap the direct property set. |
+| Direct callback `addVolatile` identifiers | 46 literal IDs | Applicable Gen 9 callback paths in `data/moves.ts`, `data/abilities.ts`, `data/items.ts`, `data/conditions.ts`, `sim/battle-actions.ts`, `sim/battle.ts` | Includes both public effect IDs and internal/mechanics IDs such as `trapped`, `twoturnmove`, `stall`, `choicelock`; not interchangeable with the 59 move field IDs. Five source call sites use a dynamic argument and are source-digest protected rather than statically classified by value. |
+| Side conditions | 15 | resolved Gen 9 `Moves[*].sideCondition`; `sim/side.ts`, `Side.sideConditions` | **represented** in `FieldView.side_conditions` as counts. Start/end/swap are public. Hazard layers, caps, duration and per-effect update semantics are partly **silently omitted** by a simple count map. |
+| Pseudo-weather | 8 | resolved Gen 9 `Moves[*].pseudoWeather`; `sim/field.ts`, `Field.pseudoWeather` | **represented** as IDs on field start/end. Duration, source and suppression state are **silently omitted**. |
+| Terrain | 4 | resolved Gen 9 `Moves[*].terrain`; `Field.terrain/setTerrain/clearTerrain` | **represented** through current field parsing for the four runtime IDs. Duration/source remain **silently omitted**. Checker compares the whole move registry so a new terrain stops for review. |
+| Weather | 8 total condition IDs (5 ordinary move properties plus weather-condition/ability variants) | `data/conditions.ts`, weather condition callbacks; `sim/field.ts`, `Field.weather/setWeather/clearWeather` | **represented** by coarse weather ID. Duration, source and suppression counters are **silently omitted**. |
+| Internal condition/effect state | Registry entries plus callback-created IDs are individually listed in the manifest | `Pokemon.volatiles/statusState`, `Side.slotConditions`, `Field.weatherState`, `Conditions.<id>` | **raw-only** or simulator-only unless a public result record is emitted. Private counters/source links are not projected. Legal consequences must be learned from the acting side’s request or public outcome, never an omniscient snapshot. |
+
+Other authoritative state covered in the manifest includes boosts (seven stages: attack, defense, special attack/defense, speed, accuracy, evasion), HP/fainting, active and switching state, roster identity, species/forms/types/Tera, abilities/items, move slots/PP/disabled state/locks, requests, side/slot conditions, field state and terminal lifecycle. `sim/pokemon.ts`, `sim/side.ts`, `sim/field.ts`, and `sim/battle.ts` define the mutable state; requests are produced by `Battle.makeRequest` and `Side.emitRequest`.
+
+### Visibility, legality, and current contract mapping
+
+- Major status IDs are public when exposed by protocol/HP condition. Private durations and toxic-stage counters are not. Status can affect action execution; the following private request remains the immediate legal-action authority.
+- Volatile presence is public only when emitted in the addressed player’s shared log. Effects can carry private state, duration, source, counters, or lock targets. The current `string[]` cannot preserve those semantics. `BeliefState` has no status/volatile hypothesis categories; do not infer them from the simulator snapshot.
+- Side and field records are public where emitted; visibility can differ by record because `Battle.addSplit` emits side-specific values. A token name alone does not establish visibility.
+- Opponent roster arrays are partial. A missing slot is unknown if team size/preview indicates more roster members; it is not a nonexistent member. The current representation uses actual revealed entries plus separate `team_size`, not placeholder Pokémon.
+- Own request data includes move slot/identity, PP, disabled, target class, forced-switch/trapped and Tera availability. `CanonicalAction` binds slots to a request but v1 has no targeted-action target grammar. Future feature mapping must preserve the current request’s move identity and slot together.
+- ObservableBattleState preserves an exact ordered event cursor and sanitized prefix. The cursor is record count, not turn number. A pre-decision feature cutoff must use only that observation and its own request: no successor, terminal outcome, completed trajectory, future record or other perspective’s private request.
+- SeededTransition contains authoritative simulator lineage but does not make hidden simulator state a player observation. BeliefState simulator-truth evidence is only valid in its `simulator_research` regime, never as player-visible evidence.
+
+### Known lifecycle gaps
+
+Confusion is a public volatile with `-start|target|confusion` and `-end|target|confusion` in `data/conditions.ts:163-198`; its duration is simulator-private. The new test forces the pinned simulator to emit both start and end and checks projection for both perspectives. Substitute is tested as another emitted volatile. These tests establish those paths only, not all 59 IDs.
+
+`-singleturn` is shape-validated and preserved in the exact raw prefix, but `PlayerStateExtractor` does not project it into `PokemonView.volatiles`. This is **raw-only**, not a claimed persistent volatile. Its one-turn expiry is not reconstructed. Other volatile duration/source/lock details and side-condition layer/duration transitions remain explicitly **silently omitted** and block treating current typed state as complete simulator state.
+
+## Protocol inventory and reconciliation
+
+The manifest and shared protocol contract currently contain:
+
+- **114 supported command entries**, each mapped to a grammar group and coverage disposition; six recognized-but-unsupported command spellings are listed separately;
+- **86 literal emitter tokens** found by the package-wide source scan, each with source-file references and an explicit scope disposition;
+- separate emission-path descriptions for `Battle.add`, `addSplit`, `addMove`/`attrLastMove`, private `Side.emitRequest`/choice errors, and `BattleStream` routing;
+- the computed `msg` family for `-boost`, `-unboost`, and `-setboost`.
+
+The 86 emitter tokens are package-wide across generations and formats, not a Gen 9 execution trace. Supported commands include adapter-only, request and diagnostic forms; package emitter presence does not imply format reachability or mechanic support. The shared TypeScript/Python command contract is `trainer/src/neural/protocol_contract.json`. It keeps unresolved aliases and `-singlemove` outside the accepted command set. The parser/emitter set difference is documented in manifest entries; neither count proves coverage. `Battle.add` supports computed arguments/functions, `addSplit` has per-side visibility, move lines may be post-mutated, and requests/errors are side-private channels rather than ordinary public battle-log records. Five callback sites construct volatile arguments dynamically; the digest guard covers these source paths.
+
+The shared grammar validates and retains raw-only records such as `cant|target|reason|move?`, `-hitcount|target|integer`, `-fieldactivate|effect|tags?`, `message|text` and `-message|text`. None is projected as typed state. A `cant` or `-hitcount` outcome does not define the next legal-action set. Unknown commands and malformed supported forms fail closed. Request JSON is transient and private, then sanitized to an `rqid` marker in the observable prefix.
+
+Other relevant grammar groups and their required/optional fields are in `protocol.grammar_groups` and per-token `record_grammar`/support entries in the machine manifest. Current strict groups include switch/drag health plus at most one `[from]` tag, conditionless or legacy condition-bearing detailschange, HP/status ratios, seven boost stats and stage ranges, `-singleturn` arity plus an allowed tag vocabulary, and JSON request IDs. `-singleturn` effect/tag combinations and HP-event tag dependencies/order remain permissive and fail this source review. Dynamic effect/source labels are checked as trimmed text but remain open values. Other tokens retain the documented per-entry grammar and may still have permissive optional-field/order rules; this batch does not claim a complete grammar for all commands. For moves, a target may be an active or non-active Pokémon reference (`p1a: ...` or `p1: ...`), or may be omitted/empty. The literal `null` requires exactly one final `[notarget]`; preceding metadata is limited to source-generated `[from]` or `[anim]` fields, matching `useMoveInner` (`sim/battle-actions.ts:446-462`). Accepted move tag forms are pinned emitter tags `[from]`, `[anim]`, `[still]`, `[spread]`, `[miss]`, `[notarget]`, and `[zeffect]` with source-shaped payloads; arbitrary bracket names fail closed. Trailing bracket tags are metadata fields; `[notarget]` is a tag and cannot satisfy the target field. Target meaning is token-specific; an omitted self-target field is not rewritten to an opponent target. The source basis is `sim/battle-actions.ts:412-462,545,590-640,1512-1516`, `sim/battle.ts:3046-3067`, `sim/pokemon.ts:504-512`, and `sim/SIM-PROTOCOL.md:240-252`.
+
+Six recognized-but-unsupported spellings remain outside the accepted command set: unresolved `clearstatus`, `-clearstatus`, `nothing`; internal `copyboost`/`invertboost` helper aliases; and `-singlemove`. Unresolved aliases stop with `pipeline/v1/unresolved-protocol-alias`; the internal aliases reject as unsupported raw events. `-singlemove` stops the candidate and truncates the episode. Python validates both input and successor prefixes before DATA-001 conversion. These explicit stops do not establish the semantics of the associated moves/effects.
+
+Keep `-nothing` separate. It is a supported no-payload raw-only record with a pinned Gen 9 emitter: `data/moves.ts:18380-18384` emits `this.add('-nothing')` in Splash's `onHit` callback. The parser and pipeline retain `-nothing` unchanged. Its existence does not establish grammar or meaning for `nothing`.
+
+Package-wide static emitters not enabled in the Gen 9 singles grammar—such as `-burst`, `-candynamax`, `-mega`, `-primal`, `-zpower`, and multi-active `swap`—are explicitly source-classified as other-format/mechanic or diagnostic records, not silently discarded from the inventory. `-message` and other diagnostic text are raw-only. A change to simulator source, installed version, format metadata, condition registry, emitter set, or parser allowlist requires review before the drift check passes.
+
+## Drift protection
+
+From `sim-core/` run:
+
+```sh
+npm run check:simulator-coverage
+node scripts/check-simulator-coverage.cjs --self-test
+```
+
+The check compares the exact package declaration/lock/installed version, requires lock `resolved` and `integrity`, confirms Gen 9 Random Battle metadata, compares condition/move/secondary/side/pseudo-weather/terrain registries, compares parser and literal-emitter tokens, validates per-entry classification/source/semantic-group completeness, and hashes installed TypeScript plus active compiled `sim`/`data` trees. It also hashes the local parser/projection/pipeline sources and focused tests. Review digests and semantic review status are separately recorded. The self-test detects synthetic new condition, protocol and emitter IDs, missing classification, and simulator or local-source digest-only updates.
+
+Limits: this is not a clean-environment tarball verification; no network/install was used. Static scanning cannot resolve all callback parameters or execute every ability/move/ruleset path. Dynamic `addVolatile` call sites and indirect emission paths remain protected by source digests; those digests stop for review but do not establish semantics. The supported format’s current request/output behavior is tested with deterministic synthetic teams under the same Gen 9 mechanics mod; not every event is proven reachable in random-battle generation. The three aliases remain a semantic review gap even though the collection boundary now stops them. Cross-format portability and exact private duration/counter semantics also remain outside the established contract.
+
+### Scoped local-source semantic review — 2026-09-24
+
+The local digest below was independently reviewed for the listed parser,
+projection, action, transition, pipeline, and focused-test files. Review covered
+the non-active and null move-target forms against pinned `BattleActions` and
+`Pokemon.toString()` emission, exact trailing-tag handling, the unresolved
+alias guards at both TypeScript projection and Python DATA publication
+boundaries, and candidate discard/lineage preservation. It also covered the
+natural hidden-trap rejection regression and deterministic controller trace
+tests. This attestation does not certify all 142 semantic inventories, every
+runtime event path, the unpacked package against its lock tarball, or
+PIPELINE-001/FEATURE-001 as blanket semantic completeness.
+
+Previously attested local coverage-source SHA-256:
+`479a096563318af86addd64dd39d445c56e8c5b4d9c8ba0a1c0e100b3c3861d2`.
+The pinned simulator source digest is unchanged.
+
+### PIPELINE-002 reporting review — 2026-09-24
+
+A separate review accepted opt-in wait reporting, per-player classification,
+consumed-request suppression during restoration, privacy and retained execution
+guards. The reviewed slice matched its recorded passing build, 53 TypeScript
+tests and 18 Python tests. Reviewed `tests/env_manager.test.ts` is now included
+in the local hashed list, changing the computed digest from the implementation
+checkpoint's `ae29d0f002983ae83080cc6f7d64d11df5fda49dc748e3586bc25f4929eb184f`.
+
+Reporting-slice reviewed local coverage-source SHA-256:
+`3d4f9c1a5d41aef6ed8047dfc5faad87ddf86176f1022f7744b963fee042bab2`.
+At that reporting review, the checker and all six drift self-tests passed with matching computed/attested
+digests. This review accepts only the reporting slice, not one-sided execution,
+complete episodes, full typed-view reconstruction or blanket simulator coverage.
+
+### PIPELINE-002 ordinary forced-switch review — 2026-09-24
+
+A separate semantic review accepted ordinary forced-switch-plus-wait execution:
+actor-only submission/publication, both private successor perspectives and belief
+joins, additive versions, deterministic TypeScript/Python identities, live guards,
+Revival Blessing exclusion and atomic candidate rollback/cleanup. No blocking
+findings or production corrections. Reused matching build and 67 TypeScript passes;
+freshly passed all five forced-switch regressions and 20 Python record/lineage tests.
+
+Added `tests/forced_switch.test.ts`, `../trainer/src/neural/pipeline_record.py` and
+`../trainer/tests/test_pipeline_record.py` to the hashed list because they enforce
+cross-language publication and regression claims. The four changed implementation
+sources were already included; paths remain relative to `sim-core`. The expanded
+list is not a claim to cover every transitive dependency.
+
+Forced-switch review computed/attested local SHA-256:
+`b37c9b26a82b8a389042cdf84f107788baaaf63624f4bc9a167625542adc2bf2`.
+The checker and all six self-tests pass; simulator source digest is unchanged.
+This acceptance covers real p2 KO and p1 U-turn cases with resumed joint play.
+It does not accept complete episodes, chained-hazard coverage, requestless
+progression, revival support, full typed-view fidelity or feature completeness.
+See the [checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
+
+### Bounded settling review — scoped acceptance 2026-09-24
+
+Accepted for the pinned simulator and serialized session operations. Review of
+source emission, asynchronous fan-out and consumer acknowledgement established
+complete delivery before decision publication. Terminal requires end plus both
+matching terminal views; buffered terminal delivery after EOF is supported.
+Deadlines do not reset on progress; message budgets reset only after a settled
+boundary. Error/timeout/exhaustion/closure/cancellation release resources, and
+candidate failure remains sticky despite late output. No blocking findings or
+production corrections. Synchronous simulator calls remain non-preemptible.
+
+All four checkpoint hashes and the implementation digest matched. Reused build,
+85 TypeScript and 20 Python evidence; freshly passed 18 settling regressions.
+Two controlled review probes verified repeated-progress budgets and late-output
+rollback/next-transition equality; commands and logs are in the checkpoint.
+
+Added `src/settling.ts` and `tests/settling.test.ts` to hashing; changed environment
+and pipeline files were already listed. They implement/enforce the reviewed
+lifecycle and must invalidate attestation on drift. Settling-review computed/attested
+local SHA-256: `ffc9091735e5838b66a1d29cda6afcc973a9953bf01fcbb72132217335bff1b2`.
+The coverage checker and all six self-tests pass; simulator digest is unchanged.
+Complete-episode execution/outcomes, recovery limits, Revival Blessing and full
+typed-state fidelity remain unaccepted. This is not blanket simulator coverage.
+
+### Bounded episode orchestration review — 2026-09-24
+
+Accepted `pipeline-episode/v1` and the episode-only request scope preflight under
+exclusive serialized-session ownership. No blocking findings or corrections.
+Reviewed distinct outcomes, default 256/512/3 accounting and resets, current-request
+tuple exclusion, explicit-choice-rejection-only recovery, actor-only committed
+publication, partial lineage, cancellation, unsupported/revival stops and cleanup.
+Existing transition/Python record schemas and perspective privacy remain intact.
+
+Added `src/pipeline_episode.ts` and `tests/pipeline_episode.test.ts` to the hashed
+list (22 files). `src/pipeline_integration.ts` and Python validators/tests were
+already covered. Computed and separately attested local SHA-256:
+`4cb99bbc935da7db2edf70568099a19e4876eba049301d459481a0c27077d1c1`.
+Coverage checker and all six drift self-tests pass; simulator digest is unchanged.
+Matched all three implementation hashes; reused 102 TypeScript/20 Python evidence,
+freshly passed build/17 runner regressions and two focused review probes for exact
+terminal-limit/cancellation precedence and exhausted action combinations.
+
+This supersedes the preceding historical exclusion of bounded episode outcomes
+and recovery only. `faithful_complete_episode:false` remains required. Switch/faint
+boost/volatile clearing and supported Shed Tail transfer are the next bounded task;
+Revival Blessing, broader lifecycle coverage and faithful publication remain open.
+See the [checkpoint](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
+
+### State lifecycle review — blocked on 2026-09-24
+
+Extractor corrections clear switch/drag/faint/re-entry boosts and volatiles, retain
+source-supported nonvolatile evidence/Eternamax exception, and copy only Substitute
+on a public Shed Tail switch tag. Request identity/order handling and canonical self
+move IDs preserve the tested live/restored state. No privacy/schema expansion.
+Build, 117 TypeScript tests and 20 Python tests pass. New regressions use constructed
+teams executing real simulator moves for both actors; synthetic retention checks
+are distinguished in the checkpoint. Existing runner/transition behavior still passes.
+
+Listed-source digest is now
+`d231c19ccde9feed1454315418b2eeb56f8bc63ea00ffab27a01af09788db6fc`.
+Both checker commands exit 1 solely on drift; six synthetic self-tests pass.
+The prior `4cb99bbc935da7db2edf70568099a19e4876eba049301d459481a0c27077d1c1`
+attestation is untouched. Review extractor and changed state/environment/forced-switch
+regressions; also review inclusion of new `tests/helpers/state_lifecycle.ts` before
+recomputing and attesting. Review confirmed the helper belongs in the list, but
+list/attestation updates are deferred until corrections pass semantic review.
+
+All five hashes matched. Fresh build and 16 focused tests pass; the prior
+117 TypeScript/20 Python evidence is reused. Additional real-engine probes for both
+actors expose blocking Illusion failures: public boosts attach to the bench disguise
+in the owner view, move evidence diverges after replay, and the valid conditionless
+`replace` emitted by abilities.ts is rejected by observable_state.ts:511-518. The
+synthetic replacement fixture uses the same identity and an extra condition, missing
+both failures. Exact paths, evidence and next correction are in the checkpoint.
+No semantic acceptance or new attestation; checker still exits 1 solely on drift,
+while all six self-tests pass.
+Other switch/faint fields, linked effects and wider lifecycle coverage remain open;
+faithful complete-episode publication is unaccepted.
+
+### Illusion correction implementation — review pending
+
+The reproduced alias and replace failures are corrected in implementation. Public
+active appearances are separate from own request roster projection; reveal restores
+the impersonated entry and reconciles accumulated evidence to the actual identity.
+Conditionless replace has its own strict grammar. The accompanying `-hint` from
+pinned Battle.hint is explicitly raw-only and retained, with no prose-derived state.
+No schema/private visibility expansion. Build, 126 TypeScript and 20 Python tests
+pass, including real both-actor live/replay and deterministic publication regressions.
+Original review probes now pass; this is not semantic acceptance.
+
+Manifest/list/attestation unchanged. Both checker commands exit 1 on local digest
+`8e74d9cf02e2d920c4131bfbb040d4167b05c62c612e8df445d6d08a5fd8d713`
+and added parser token `-hint`; six synthetic self-tests pass. The separate review
+must examine the combined lifecycle/Illusion change, classify `-hint` as raw-only,
+update its parser inventory, and include `tests/helpers/state_lifecycle.ts` plus
+`tests/illusion.test.ts` in source hashing before recomputing/attesting. Review
+conditionless and legacy replace validation and preserve malformed-input rejection.
+Prior attestation remains
+`4cb99bbc935da7db2edf70568099a19e4876eba049301d459481a0c27077d1c1`.
+Broader lifecycle and faithful complete-episode publication remain unaccepted.
+
+## Required FEATURE-001 revisions and remaining blockers
+
+1. Consume only public/revealed condition identifiers or the current acting-side request. Do not use opponent-private counters, source pointers, simulator snapshots, or hidden state as player-regime features.
+2. Distinguish unknown from known absent status and unknown opponent roster slots from absent/nonexistent slots.
+3. Either specify volatile inputs as public presence-only values with a complete registry and explicit raw-only counter exclusions, or keep them out until their effect-specific semantics are chosen. Do not silently treat missing volatile IDs as false.
+4. Preserve exact move identity/request-slot binding; validate against the current request before action features or labels.
+5. Treat `cant`, hit-count, failure, miss, activation, and other outcome records as event evidence. Do not derive legal masks from outcomes; masks come from the addressed side’s current request.
+6. Specify if side-condition features need layers/duration. Current integer map does not reconstruct every lifecycle.
+7. Keep exact event cursor and perspective provenance. Feature source cursor must not exceed observation cursor, and successor/future/terminal data must not leak into pre-decision inputs.
+8. Keep format ID and actual `teamsize` metadata; six is not a parser invariant.
+9. Resolve targeted/multi-active command semantics in a new action-contract work item if needed; CanonicalAction v1 explicitly excludes them.
+
+Known unknowns are narrowly stated in the manifest: choice of private duration/counter semantics (blocking feature semantics), complete per-effect side-layer expiry semantics (blocking claims of full side-condition reconstruction), and protocol portability beyond this exact format (blocking any cross-format claim). PIPELINE-001 is accepted only for its joint-actionable scope; FEATURE-001 remains unaccepted.
+
+### Combined lifecycle/Illusion review — blocked, 2026-09-24
+
+The original identity contamination and conditionless replace failures pass the
+scoped review. Pinned Illusion.onEnd/Battle.hint support conditionless replace and
+raw-only hint; malformed-input guards remain. Existing mirrored tests verify
+ownership, privacy, immutable prefixes, replay and deterministic publication.
+However, fresh appearances at state_extractor.ts:406-448 discard public Tera on
+re-entry: both-actor real probes emit tera:Fire while opponent views report
+Normal/false and owner views Fire/true. Combined acceptance is blocked.
+
+Eight checkpoint hashes match; fresh build and 43 focused tests pass; matching
+126 TypeScript/20 Python evidence reused. Existing source/test coverage inclusion
+is appropriate; helper and Illusion tests must also be hashed after correction.
+Manifest, token classifications and attestations remain untouched. Both checker
+commands fail digest and added -hint drift; all six synthetic self-tests pass.
+Checkpoint contains exact digest, reproduction and completion criteria. Next:
+correct explicit public Tera re-entry without alias leakage, then semantic review.
+Other fields, linked effects and Revival Blessing remain outstanding;
+faithful_complete_episode:false remains mandatory.
+
+### Public Tera re-entry correction — implementation, 2026-09-24
+
+Fresh switch/drag appearances now set their Terastallized flag from public tera:TYPE
+before resolving types, matching pinned getFullDetails for both emitters and Illusion
+without importing private identity. Only state_extractor.ts, illusion.test.ts and the
+shared lifecycle helper changed in source/tests. Four real mirrored switch/drag cases
+cover both perspectives, no-tag teammate isolation, hidden identity/reveal, restoration,
+immutable prefixes, repeatable records/beliefs and Python record validation.
+
+Fresh build/130 TypeScript tests/diff checks pass; prior 20 Python tests reused.
+Original ordinary Snorlax reproduction passes. Combined acceptance remains pending;
+manifest/list/classifications/attestation unchanged. Listed digest is now
+5e69a24866f9142cd0414b38f5d7ec2e70ca440f8a8986b52d56eca6737cfa5a;
+checker commands reject digest and -hint drift, six synthetic self-tests pass.
+Next: combined semantic review, then helper/Illusion test inclusion and raw-only hint
+classification/inventory before recomputing/attesting. Checkpoint records exact scope,
+hashes and evidence. Broader fields/linked effects/Revival Blessing remain open;
+faithful_complete_episode:false remains.
+
+### Combined lifecycle/Illusion/Tera acceptance — 2026-09-24
+
+Scoped acceptance: ordinary boost/volatile switch/drag/faint/re-entry clearing,
+Shed Tail Substitute-only transfer, Illusion appearance/own-request ownership and
+reveal reconciliation, conditionless replace/raw-only hint, and explicit non-Stellar
+public Tera switch/drag re-entry. Existing Eternamax retention exception does not
+expand supported formats. Pinned source and mirrored constructed-team Fire tests
+support both perspectives, restore/reveal, immutable prefixes, privacy and repeatable
+Python-validated records. No production corrections during review.
+
+Eight hashes match; passing build/130 TS/prior 20 Python evidence reused. Fresh
+29 Illusion/observable tests pass, including new Python publication checks. Added
+shared lifecycle helper and Illusion/Tera tests to hashing (24 files), classified
+-hint raw-only, reconciled its inventory/exclusion and corrected replace grammar.
+Computed and attested local digest: `3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2`.
+Pinned simulator digest remains unchanged. Coverage checker and six synthetic
+self-tests pass. Evidence and exact source hashes are in the current checkpoint.
+
+This supersedes earlier pending/blocked dispositions only for the accepted scope.
+Next bounded prerequisite: public Tera reset on faint with mirrored real KO,
+privacy/prefix/restoration and publication checks. Stellar defensive typing,
+other fields, linked effects, wider transfers, Revival Blessing and faithful
+complete-episode publication remain separate gates. Keep faithful_complete_episode:false.
+
+### Faint Tera and terminal restoration implementation — 2026-09-24
+
+Non-Stellar faint now deactivates Tera and restores observable non-Tera typing while
+retaining known Tera type. Own projection overrides stale pre-faint request flags.
+Unrevealed Illusion Explosion preserves opponent uncertainty and bench teammate data.
+Exact terminal restoration exposed missing legitimate own-request history: optional
+terminal-only terminal-request-history/v1 metadata now stores addressed side-bearing
+requests behind opaque snapshots. No public records or actions are created; malformed
+version/side/roster/nonterminal metadata rejects before replacing current state.
+Outer schemas unchanged; terminal fingerprints include metadata. Bare legacy terminal
+JSON lacks historical private data and cannot provide exact observation restoration.
+
+Changed: state_extractor.ts, env_manager.ts, shared lifecycle helper, illusion.test.ts.
+Parent build/134 relevant TS tests pass; delegated full suite157 passes; prior20 Python
+tests reused and new records validated through Python. Mirrored terminal/Illusion KO
+cases verify both perspectives, replay, immutable prefixes, teammate privacy and
+repeatable records/beliefs. Diff checks pass. Checkpoint contains hashes and logs.
+
+Implementation only; separate semantic review/attestation required. Four changed
+files already hashed. Manifest untouched; both checker commands fail solely on digest
+300cfa84ccf97db8fb54653a02fe45c657c6c7ce45a4676448bfa60fcf7c0c02;
+six synthetic self-tests pass. Prior accepted digest remains
+3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2.
+Next: review this correction and terminal metadata compatibility/privacy, then attest.
+Stellar and broader lifecycle gaps remain; faithful_complete_episode:false unchanged.
+
+### Faint/terminal-history review — blocked, 2026-09-24
+
+Pinned non-Stellar faint semantics and normal mirrored privacy/Illusion/teammate/
+immutable-history checks pass. All four source/test hashes match; reuse build134/full157
+TS and prior20 Python evidence. Fresh16 Illusion/Tera tests pass including Python
+publication. No production changes or acceptance/attestation in this review.
+
+Blocker: env_manager.ts:55-83 validates the request envelope and roster array but not
+its entries. A real terminal snapshot with requests.p1.side.pokemon[0].ident = 7
+passes validation, destroys prior state at line441, then throws in selfFromRequest.
+Numeric details/condition also reject late; null entries and string stats succeed
+as corrupt own observations. Parent confirmed the independent probe:
+/tmp/neural-terminal-history-nested-probe.cjs and
+/tmp/neural-faint-review-confirmed-probe.json.
+
+The raw request also contains unused active/action and roster fields. Next task:
+minimize and recursively validate restoration history before destructive reset,
+with mirrored rejection tests preserving fingerprint, observations and usability.
+Valid history creates no actions and raw metadata stays out of logs/records; only
+its existing opaque snapshot commitment enters lineage. Legacy compatibility limits
+remain documented. Four changed files already covered; manifest/list/attestation
+unchanged. Both coverage commands fail only digest drift; six self-tests pass.
+Current digest300cfa84ccf97db8fb54653a02fe45c657c6c7ce45a4676448bfa60fcf7c0c02;
+prior reviewed3b777601e68932a409271b7103a0013b21abbfcc9d8c4f25c0fd118f2dcfc4e2.
+Stellar and wider lifecycle gaps remain; faithful_complete_episode:false unchanged.
+
+### Terminal-history validation correction — implementation, 2026-09-24
+
+Nested consumed fields are now validated before teardown, with structured
+TerminalRequestHistoryValidationError code/path/reason and no private error values.
+Minimal v1 writers retain only the own-roster fields consumed during restoration;
+historical raw-v1 readers validate then drop unused action/roster data and canonicalize
+Tera markers. Old raw-v1 fingerprints may migrate once; canonical round trips remain
+stable. Missing-metadata legacy behavior remains. Valid history creates no actions
+or raw public records. Faint semantics unchanged; separate acceptance remains pending.
+
+Only env_manager.ts and illusion.test.ts changed. Parent build136 relevant TS tests
+pass, including Python publication; prior20 Python evidence reused. Original five
+malformed probes reject with unchanged fingerprints. Nested cases cover both owners,
+live-state/branch preservation and continued request execution versus a twin; valid
+migration/restoration tests preserve observations. Diff checks pass. Checkpoint has
+source hashes and /tmp/neural-history-validation-* evidence.
+
+Manifest/list/attestation untouched; existing list covers all affected source/tests.
+Checker commands fail only on digest9a05263276c0f17e7c2f3b6baf77b874c48c07c0967b3858eb91d1fdd4a29016;
+six synthetic self-tests pass. Next: review corrected minimal-v1 validation and
+migration with the pending faint slice, then separately attest. Wider lifecycle
+prerequisites and faithful_complete_episode:false remain unchanged.
+
+### Faint/minimal-v1 restoration acceptance — 2026-09-24
+
+Scoped acceptance closes the pending non-Stellar faint and terminal restoration
+slice. Faint deactivates Tera while retaining known type and restoring observable
+non-Tera typing; Illusion privacy and teammate/earlier-observation preservation hold.
+Minimal-v1 validates consumed nested fields before teardown, returns structured
+errors and preserves state/fingerprint/branch/continued choices on rejection.
+Only necessary owner-roster fields persist. Terminal restoration creates no actions
+or public raw history. Historical raw-v1 normalization may change identity: recapture
+references and preserve historical records; old-reference/normalized-state pairing
+rejects. Canonical round trips are deterministic and idempotent.
+
+Four input hashes match. Reused build136 TS/prior20 Python and faint evidence;
+fresh build18 Illusion tests (including Python publication) and3 coverage tests pass.
+Independent review found one wall-clock-only flaky comparator; test-only normalization
+now matches existing identity rules, with exact per-run prefix checks unchanged.
+No production correction. Lineage probe and logs are in the current checkpoint.
+
+Existing24-file list covers extractor, environment, helper and regressions; no
+inclusion changes needed. Updated computed/reviewed digest:
+`6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70`.
+Removed resolved faint-Tera known gap; coverage checker and six self-tests pass.
+This supersedes earlier pending/blocked dispositions only for this scoped slice.
+Next: Stellar defensive typing correction with mirrored lifecycle/restore/publication
+checks. Other fields, linked effects, Revival Blessing and broader episode fidelity
+remain open. Keep faithful_complete_episode:false.
+
+### Stellar defensive typing implementation — 2026-09-25; review pending
+
+Pinned Pokemon.getTypes excludes Stellar from replacement defensive typing. Shared
+resolveTypes now follows that distinction for ordinary species/Illusion projection,
+keeping known Tera type and active flag separate. Own hidden Zoroark retains Dark;
+opponent displayed Snorlax retains Normal until reveal, without leaking identity.
+Public Stellar protocol evidence remains; opponent-private tera_type stays omitted.
+No schema change. Temporary-type/Type-event reconstruction and private Stellar
+attack counters remain outside this correction's scope.
+
+Changed: battle_helpers.ts, tests/helpers/state_lifecycle.ts, tests/illusion.test.ts.
+Parent build146 relevant TypeScript tests pass; focused28 Illusion tests pass. New
+cases cover both actors, direct simulator types, Stellar activation, switch/drag,
+reveal/faint, both-perspective privacy, exact immutable prefixes, restoration and
+repeatable Python-validated publication. Existing Fire cases remain green; prior20
+Python evidence reused. No semantic acceptance/attestation issued. Checkpoint has hashes.
+
+Next: scoped review, then add battle_helpers.ts to the current24-file coverage list
+and recompute/attest only if accepted. Helper/Illusion test files already hashed.
+Manifest untouched. Current listed digest (excluding battle_helpers) is
+f0893ed149ee786be29a8a3a03f3ae820a62dce0d5611637573e4095cd6bef1b;
+checker commands fail digest drift, six synthetic self-tests pass. Prior attestation
+6aaddf2751640263f13fa29d4e95c1bfb0987bbf78e7274493a30b8126273c70 remains.
+Broader lifecycle prerequisites and faithful_complete_episode:false are unchanged.
+
+### Bounded bench revival review — scoped acceptance, 2026-09-25
+
+Accepted single living reviver plus waiting partner, at most six roster members,
+fainted non-active target selection, owner-only reviving evidence, current-roster
+fingerprint/slot binding, additive action/transition/record versions, actor-only
+commit and both successor lineages. Pinned source confirms source-qualified bench
+-heal with split HP, cleared status/fainting and unchanged active healer. Ordinary
+schemas/identities remain compatible; no production fixes needed in review.
+
+All14 checkpoint hashes matched. Reused154 TS/27 Python evidence; fresh build/seven
+revival tests, seven Python rejection probes and two exact HP/privacy probes pass.
+Added both canonical codecs/tests, their shared identity fixture and revival test
+(34 total hashed files). Updated -heal grammar and status/target classification.
+Computed/reviewed digest: `39ab09c90a564eaa80a3da3ff8275b8dcf01a7fbd79dcdece1b3945b68753ec8`.
+Coverage checker, ten drift self-tests and three coverage tests pass.
+
+Supersedes historical revival exclusions only for this bounded bench scope.
+Active/fainted revivers, active-target instaswitch, multi-active/simultaneous variants,
+public temporary-type/linked-effect/field reconstruction and faithful complete-episode
+publication remain unaccepted. `faithful_complete_episode:false` is required.
+
+### Soak defensive typing semantic review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both file hashes and
+prior 34-file computed digest match. Source establishes public appearance ownership,
+request-independent temporary typing, Illusion reveal retention, switch/drag/faint
+reset and Fire/Stellar precedence. Reused184 relevant tests/prior27 Python evidence;
+fresh build/30 Soak cases and16 Python publication bundles pass. Added soak.test.ts
+(35 hashed files), qualified protocol classifications without accepting generic
+end semantics or other temporary types. Computed/reviewed digest:
+`1a853d3a5266fad988027a8ee0609700cbd9f7a18a06ca71dc7991e9ba14e4b1`.
+Checker, ten drift self-tests and three coverage tests pass. Pinned source unchanged.
+Next: public added-type composition/lifecycle; real Soak then Forest's Curse gives
+simulator/opponent Water+Grass but owner Water. This previously excluded gap remains
+outside Soak acceptance. Checkpoint records reproduction and bounded next criteria.
+Broader lifecycle and faithful publication remain open; faithful_complete_episode:false.
+
+### Public added-type composition review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and35-file
+computed digest match. Pinned semantics support separate replacement/one added slot,
+ordering/repetition, reset/Tera behavior and Illusion appearance ownership. Reused204
+relevant tests/prior27 Python evidence; fresh build20 added-type cases including20
+Python publication validations pass. Three-type arrays survive observation cloning
+and JSON bundle/identity validation; Python DATA-001 output references observations,
+not a new feature tensor. Legacy two-slot training/live consumers remain excluded.
+Added added_types.test.ts (36 hashed files); qualified protocol classifications.
+Computed/reviewed digest:
+`8dca73b1b49f2dc8a8d5a2e3e1a4b7d43f2e976a64e36f2dde3192561bb0dc09`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+Transform public copied typing/refresh/restoration. Fresh pinned probe gives Mew
+Fire/Flying/Grass in simulator/opponent but Psychic in owner view after copying
+Grass-added Charizard. Checkpoint has reproduction and source anchors. Copy/expiry
+and broader lifecycle remain unaccepted; faithful_complete_episode:false.
+
+### Transform defensive typing review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and36-file
+computed digest match; reused226 relevant tests/prior27 Python evidence. Fresh
+build22 mirrored Transform cases including16 Python publication validations pass.
+Pinned copy boundary, ordinary/added isolation, request/replay persistence,
+identity/reset, caller/target Tera and privacy reviewed. Three-type arrays survive
+serialization/identity checks. Added transform_types.test.ts (37 hashed files);
+qualified -transform/lifecycle classifications without accepting unrelated fields.
+Computed/reviewed digest:
+`79a83f372d28e8c83ca32a00df8d44eb2479a15d1fd7cac4bd9ca5e66a33f804`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public Transform boost copying. Fresh pinned probe copies +2 Attack in simulator
+but both caller views report empty boosts; checkpoint gives exact steps/source.
+This excluded non-typing correction is separate from current scoped acceptance.
+Broader lifecycle/features remain unaccepted; faithful_complete_episode:false.
+
+### Public Transform boost copying review — scoped acceptance, 2026-09-25
+
+No blocking findings or production/test/schema corrections. Both hashes and37-file
+computed digest match. Pinned all-stage assignment, sparse/explicit zeros, negative
+stages, event order, independent maps, request/replay and clearing reviewed. Reused244
+relevant tests/prior27 Python evidence; fresh build18 cases/20 Python validations pass.
+Both raw views correct; caller-self published stages preserved. Opponent publication
+omits stages: representation limitation, not privacy requirement. Corrected contract
+wording without changing v1 serialization. Added transform_boosts.test.ts (38 files)
+and qualified -transform classification. Computed/reviewed digest:
+`16819a7d19f47b6a412a8a9ed540cde284ac524df290cc5ac52d4293082eaab7`.
+Checker, ten drift self-tests, three coverage tests and diff checks pass. Next:
+public opponent-stage publication under explicit version/identity compatibility,
+with no blanket private-field copying. Feature/faithful-publication acceptance
+requires closing that representation gap; other semantic gaps remain separate.
+faithful_complete_episode:false.
+
+
+### Selective clear review — 2026-09-25
+
+Selective positive/negative clearing is scoped represented in raw/self and opt-in v2
+public-prefix stages. Opposite signs, zero and conservative nulls persist. Exact White
+Herb/Z tags and narrow Spectral Thief raw-only animation are reviewed; no broader animation
+or format legality claim. Added tests/selective_boosts.test.ts to coverage (45 files).
+Computed/reviewed digest: `15e0e2b5c8b77b615a420be79634f4d3fc01924a5723eb02ddcc040e867064a9`.
+Checker, ten drift self-tests and three coverage tests pass. Historical v1 omission and
+identities remain unchanged. Psych Up stage copying is the next bounded prerequisite;
+features and faithful complete-episode publication remain gated.
+
+
+### Combined Psych Up review — 2026-09-25
+
+Bounded canonical Psych Up stage copying and Python grammar/alias corrections are scoped
+accepted. Exact command/tag/identifier gates precede reconstruction; private identity,
+critical-hit volatile copying, Costar and other mechanics remain excluded. Added two
+Psych Up tests and seven consumed JSON fixtures to hashing (54 files); implementation
+sources already included. Reviewed digest `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
+Checker, ten drift self-tests and three coverage tests pass. This does not establish
+faithful complete-episode or feature readiness.
+
+
+The current bounded C22/C23 candidate adds ordered item evidence and terminal action authority as implementation-only coverage. Existing request-only private terminal history v1 stays supported. Incoming terminal switch restoration uses private v2 provenance; public observation/record/envelope versions and canonical identities do not change. Optional old unrevealed item carrier claims stay raw-only/unknown without a legitimate carrier join. This does not promote constructed Recycle/Illusion teams to generated selector routes, C22/C23 sufficiency, or complete-episode acceptance. The manifest/checker bind the exact implementation, source matrices, and version/uncertainty rules while leaving the reviewed digest and prior attestations unchanged.

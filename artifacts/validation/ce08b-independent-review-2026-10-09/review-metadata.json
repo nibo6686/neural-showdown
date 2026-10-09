@@ -1,0 +1,42 @@
+{
+  "reviewed_entry_candidate": "0979c06c107f07d6253d5805c89745d2630ba495eb3c2d36c0e6b52cb148a566",
+  "source_hashes": {
+    "sim-core/src/pipeline_episode.ts": "5e55f0b953d95af206f35ce11fd9a23ed7df1091e17b19e467689108da436eb4",
+    "trainer/src/neural/pipeline_record.py": "caa1919fb5cb2130378aaa9b86150c136a1d0a523a88e67e548f2ae2b1c932b8",
+    "sim-core/tests/pipeline_episode.test.ts": "c8c94c1e6b52bbc61c8c4cb88a527bd73dc84069efb68e829250fe4ea35edd46",
+    "sim-core/src/pipeline_episode_evidence.ts": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+    "sim-core/src/pipeline_integration.ts": "e75e3a0ee38ff399fc3ffb8ea363b7dbe8cb6dee97e5a9f9858f41d7a0b310f3",
+    "sim-core/src/settling.ts": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+    "sim-core/tests/settling.test.ts": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b"
+  },
+  "sources_match": true,
+  "artifact_hashes": {
+    "invalid-limits-array.json": "e49ba565e55a6b81b00c1005860f82f97dcb6e2fbc0891aea091db9e64cf54f5",
+    "invalid-limits-null.json": "8f70de8208f417ed29a504c571f3ebb4cc614232e10b572c984dbf3c077f964d",
+    "invalid-limits-number.json": "2522f75cb60bef2ccf2cc324163380d7ffa9819e89ad62ef5a204ca9b882b4d0",
+    "reproduce-limit-sibling.cjs": "755cda8bccf8e819ecddfbab4c99b002fe79d7f2d188ed63c67b1ce8695e8d45",
+    "reproduce.cjs": "158970663a4b3e2856ebf95559ce7f6163b019081e659ef4eb966cf9d8d9aaea",
+    "results.json": "7601ad88dac39a15aab23d06a2b0902cb468a6553b504f563de538d01f33fb1e",
+    "seeded-forced-switch-candidate.json": "d0219b13e9f48f99da6d0b1da7e1b384c16ce8a938e157270c19a8f3797d8918",
+    "seeded-forced-switch-pre-selection.json": "28cc7cde9b6773a0e4cd326f4f39a5434a3c7f7573777dbcc4bfe3ecd026ce47",
+    "seeded-revival-candidate.json": "d0219b13e9f48f99da6d0b1da7e1b384c16ce8a938e157270c19a8f3797d8918",
+    "seeded-revival-pre-selection.json": "28cc7cde9b6773a0e4cd326f4f39a5434a3c7f7573777dbcc4bfe3ecd026ce47",
+    "unknown-limit-key-result.json": "a302b3d64f28c13d6a686ff3f2a08df43b8d50c44250cd5512bfa76b2d14759e",
+    "unknown-limit-key.json": "d3e3f9a4e781643555eaa3313c9cf823497d2f1290d8bd883dcd7a7fdb2faf2f",
+    "valid-cancellation-control.json": "aa877df18a98ddca488e9513e23d3bc92e585359c6df002ef45998291cb31487",
+    "valid-limit-negative-control.json": "caa954b4f21390df79331904193a670ca25287b6dbe88eae71ca948f4d40356b"
+  },
+  "execution": {
+    "main_control_exit": 0,
+    "main_control_elapsed_seconds": 1.565,
+    "sibling_control_exit": 0,
+    "sibling_control_elapsed_seconds": 0.4,
+    "outer_process_group_timeout_seconds": 180,
+    "python_subprocess_timeout_seconds": 30,
+    "sequential": true,
+    "battle_regeneration": false,
+    "long_validation": false
+  },
+  "reproduction_boundary": "51KB saved predecessor original observations, canonical projected beliefs and existing envelope identity helpers; zero actor rows. Runtime fault controls use owned mock sessions; no generated-format reachability claim and no DATA-001 actor-row leak demonstrated.",
+  "verdict": "CE-08B and FCE-08 withheld; no digest attestation; no production repair"
+}

@@ -3,6 +3,8 @@ import os
 import unittest
 from pathlib import Path
 
+import pytest
+
 from neural.damage_engine import estimate_damage
 from neural.env_client import SimCoreClient
 from neural.parse_replay_logs import parse_protocol_log
@@ -10,6 +12,10 @@ from neural.parse_replay_logs import parse_protocol_log
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REPLAY_DIR = REPO_ROOT / "data" / "replays" / "raw" / "gen9randombattle"
+REPLAY_FIXTURE_UNAVAILABLE = (
+    "Replay fixtures unavailable; run the documented opt-in replay-fixture setup "
+    "before executing this test."
+)
 
 
 class SimCoreRpcParityTest(unittest.TestCase):
@@ -113,7 +119,13 @@ class SimCoreRpcParityTest(unittest.TestCase):
         self.assertNotIn("heuristic_fallback", json.dumps([low, high]))
 
 
+@pytest.mark.replay
 class PublicReplaySanityTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not REPLAY_DIR.is_dir() or not any(REPLAY_DIR.glob("*.log")):
+            raise unittest.SkipTest(REPLAY_FIXTURE_UNAVAILABLE)
+
     def test_saved_replays_reproduce_public_event_prefixes_but_have_no_private_seed(self):
         paths = sorted(REPLAY_DIR.glob("*.log"))[:5]
         self.assertGreaterEqual(len(paths), 3)
@@ -137,6 +149,7 @@ class PublicReplaySanityTest(unittest.TestCase):
                 self.assertFalse(any(line.startswith("|request|") for line in lines))
                 self.assertNotIn("seed", trace)
 
+class ReplayIndependentParserTest(unittest.TestCase):
     def test_winner_side_survives_post_battle_player_disconnect_lines(self):
         trace = parse_protocol_log(
             [

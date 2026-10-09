@@ -1,5 +1,11 @@
 # Diagnostic Training Gate
 
+> **Historical gate.** This checklist records the earlier v7/v5 diagnostic
+> program and its original approvals/results. It is not the current gate for a
+> new refactored model. Existing checkpoints from this track are abandoned and
+> non-blocking. Current readiness is in [`../../docs/PROJECT_STATUS.md`](../../docs/PROJECT_STATUS.md);
+> FEATURE-001 and PIPELINE-001 remain unaccepted.
+
 ## Gate before first training run
 
 - [x] Final representation freeze audit completed.

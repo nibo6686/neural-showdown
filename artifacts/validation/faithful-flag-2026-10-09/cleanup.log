@@ -1,0 +1,33 @@
+RUN node --test --test-isolation=none --test-reporter=spec --test-name-pattern=^CE-08B repair construction validation and cleanup failures retain structured committed evidence$ sim-core/dist/tests/pipeline_episode_stop_repair.test.js
+CE-08B repaired evidence before-validation/cleanup=false
+CE-08B repaired evidence before-validation/cleanup=true
+✖ CE-08B repair construction validation and cleanup failures retain structured committed evidence (30186.281708ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30289.914125
+
+✖ failing tests:
+
+test at sim-core/dist/tests/pipeline_episode_stop_repair.test.js:97:25
+✖ CE-08B repair construction validation and cleanup failures retain structured committed evidence (30186.281708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  null !== 2
+
+      at publish (sim-core/dist/tests/pipeline_episode_saved_helpers.js:69:22)
+      at TestContext.<anonymous> (sim-core/dist/tests/pipeline_episode_stop_repair.test.js:133:58)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+EXIT 1 ELAPSED 30.411

@@ -1,0 +1,84 @@
+{
+  "schema_version": "replay-policy-boundary-repair/v1",
+  "date": "2026-10-09",
+  "scope": "Legacy replay policy individual pre-action lineage only; independent review pending",
+  "runtime": "macOS .venv-simulator Python 3.9.6 / pytest 8.4.2",
+  "results": [
+    {
+      "case": "test_same_turn_move_switch_distinct_lineage_and_publication",
+      "command": "PYTHONPATH=trainer/src .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_same_turn_move_switch_distinct_lineage_and_publication -vv -s",
+      "process_group_timeout_seconds": 180,
+      "exit_code": 0,
+      "passed": 1,
+      "elapsed_seconds": 3.591,
+      "log": "artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log",
+      "log_sha256": "89f74e6ffcc32498e4272c88a40af86c5bb1b9e1ba0093f2c7d5d6baf02e01cf"
+    },
+    {
+      "case": "test_genuine_duplicate_rejected_before_publication",
+      "command": "PYTHONPATH=trainer/src .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_genuine_duplicate_rejected_before_publication -vv -s",
+      "process_group_timeout_seconds": 180,
+      "exit_code": 0,
+      "passed": 1,
+      "elapsed_seconds": 0.668,
+      "log": "artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log",
+      "log_sha256": "e53acb6ced775004567729fcf7da54fbcdd7ced1a15c089e29e9c79ced0bb4d2"
+    },
+    {
+      "case": "test_later_same_turn_suffix_cannot_change_earlier_boundary",
+      "command": "PYTHONPATH=trainer/src .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_later_same_turn_suffix_cannot_change_earlier_boundary -vv -s",
+      "process_group_timeout_seconds": 180,
+      "exit_code": 0,
+      "passed": 1,
+      "elapsed_seconds": 0.401,
+      "log": "artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log",
+      "log_sha256": "60bce5c4a75195f24b8f8df7befc2bff88378a81084149b8c76e9e90867278a9"
+    },
+    {
+      "case": "test_single_action_and_unverifiable_boundary_control",
+      "command": "PYTHONPATH=trainer/src .venv-simulator/bin/python -m pytest trainer/tests/test_replay_policy_lineage.py::test_single_action_and_unverifiable_boundary_control -vv -s",
+      "process_group_timeout_seconds": 180,
+      "exit_code": 0,
+      "passed": 1,
+      "elapsed_seconds": 0.46,
+      "log": "artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log",
+      "log_sha256": "043ac86f6bc55e7216ff5b883923173500c4c88abfdc05997ca89b4287e89b06"
+    }
+  ],
+  "source_sha256": {
+    "trainer/src/neural/build_replay_policy_dataset.py": "d035fdd49f8764b31014eb3a9bdd0e304dec37f0480b1da8d4108df101320515",
+    "trainer/tests/test_replay_policy_lineage.py": "1cfb8428d572a009afa5d4245ca1f50cd4b3871f7c867e990cdadfadbf138574",
+    "docs/contracts/DATASET_LINEAGE.md": "fd67ed5c3402f927f01de79ec86eb543ed4bec349ab7d8bbbf09709c606cd894",
+    "trainer/src/neural/dataset_lineage.py": "4178367b0f8dcb319471f749ff6ef64d39b15e0d95716eb5b77876587ce670f0",
+    "trainer/src/neural/parse_replay_logs.py": "7f02c81aaba5e29fae0c5f080822a4e9637e225adabb8698e33ad1cc814cd40d",
+    "trainer/src/neural/build_replay_value_dataset.py": "21de7b0fb737ae06ba195edf2bcae2709971103cdce142e7a28b824c881649a6",
+    "trainer/src/neural/action_mapper.py": "afbaec7230282583d47bd690451cd1507ad758e57e6ba2ead1f3f1d378cf9259"
+  },
+  "coverage_digest_unchanged": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+  "reviewed_sha256_unchanged": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+  "coverage_manifest_sha256": "549abcbd44265db8aa9d0a430a0c36fa3fc27620edc17068bb9173e14fb3d954",
+  "publication": "Constructed local fixture: four distinct rows; duplicate collection preserves existing output and produces no report. Regression outputs temporary only.",
+  "limits": "No owned request/action reconstruction, generated-team witness, training certification, or historical file migration. Inconsistent/missing protocol/event joins skip rather than fabricate boundaries.",
+  "git_operations": "No staging, commit, push or merge; no large evidence moved/rehashed",
+  "publication_sanitization_2026_10_09": {
+    "policy": "Personal location text only; execution results, versions, diagnostics and historical hashes remain unchanged. Existing log_sha256 fields describe execution-time/previously normalized artifacts. Use publication_log_sha256 for the sanitized published copy. Originals remain locally in ignored artifacts/analysis; no upload or archival claimed.",
+    "logs": {
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log": {
+        "original_sha256": "89f74e6ffcc32498e4272c88a40af86c5bb1b9e1ba0093f2c7d5d6baf02e01cf",
+        "publication_log_sha256": "b48ff994ad37335955d76bab08f4a2a864f5327025311380379039329e704c4f"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log": {
+        "original_sha256": "e53acb6ced775004567729fcf7da54fbcdd7ced1a15c089e29e9c79ced0bb4d2",
+        "publication_log_sha256": "54a8f22ae0a041182ef816c17c43fbdf36045b3dc75de980e83cd1ea23619739"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log": {
+        "original_sha256": "043ac86f6bc55e7216ff5b883923173500c4c88abfdc05997ca89b4287e89b06",
+        "publication_log_sha256": "5a78ca2893b2b33afe135a92134aab68012f13203c74d0f1b33643270e881182"
+      },
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log": {
+        "original_sha256": "60bce5c4a75195f24b8f8df7befc2bff88378a81084149b8c76e9e90867278a9",
+        "publication_log_sha256": "7934afafbc7b2740420b3e8ed79c30bf4a14cfb04a24fd5c6c9ad8d1ff9d6f3e"
+      }
+    }
+  }
+}

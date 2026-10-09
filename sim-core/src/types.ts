@@ -4,10 +4,12 @@ export const ACTION_SPACE_SIZE = 13;
 export type PlayerID = typeof PLAYERS[number];
 export type Winner = PlayerID | 'tie' | null;
 export type ControllerType = 'external' | 'random' | 'heuristic';
-export type ActionKind = 'move' | 'move_tera' | 'switch';
+export type ActionKind = 'move' | 'move_tera' | 'switch' | 'revive';
 
 export interface ControllerSpec {
   controller: ControllerType;
+  /** Optional uint32 seed for this player's random controller only; independent of the simulator seed. */
+  random_seed?: number;
 }
 
 export interface BeliefForkOptions {
@@ -45,6 +47,8 @@ export interface RequestMoveView {
 }
 
 export interface RequestSidePokemonView {
+  /** Present only on the addressed active Revival Blessing requester. */
+  reviving?: true;
   slot: number;
   ident: string;
   details: string;
@@ -111,6 +115,8 @@ export interface PokemonView {
   base_ability: string | null;
   ability_state: 'unknown' | 'known' | 'changed' | 'none' | 'suppressed';
   ability_suppressed: boolean;
+  /** Internal effectiveness certainty; never an opponent loadout inference. */
+  ability_effectiveness?: 'active' | 'suppressed' | 'unknown';
   moves: string[];
   revealed_moves: string[];
   types: string[];
@@ -159,6 +165,8 @@ export interface StepResultOptions {
   view_players?: PlayerID[];
   include_log_delta?: boolean;
   include_possible_roles?: boolean;
+  /** Report current wait requests without making them actionable. Defaults to false. */
+  include_wait_requests?: boolean;
 }
 
 export interface StepResult {

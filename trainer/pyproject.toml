@@ -8,8 +8,22 @@ version = "0.1.0"
 description = "Python training stack for the Neural Showdown project"
 requires-python = ">=3.8"
 
+[project.optional-dependencies]
+simulator-record = ["pytest>=8.4,<9"]
+# Direct imports used by broader trainer and live modules. Keep simulator-record
+# validation independent of this group.
+trainer-live = ["numpy", "PyYAML", "fastapi", "pydantic", "uvicorn"]
+# PyTorch is resolved only for the macOS profile here. Windows packaging remains
+# a separate ENV-001C2 Conda decision.
+trainer-live-macos = ["torch"]
+# Test runner for the focused verification commands; kept out of runtime groups.
+trainer-live-test = ["pytest>=8.4,<9"]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+neural = ["protocol_contract.json"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

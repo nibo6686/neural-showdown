@@ -9,6 +9,28 @@ Each `StepResult` contains:
 - `winner`: `p1`, `p2`, `tie`, or `null`
 - `log_delta`: public spectator log lines since the previous snapshot
 
+`STATE-001` adds a separate shadow-only `ObservableBattleState` projection in
+`sim-core/src/observable_state.ts`. It does not change this existing extraction
+schema or any consumer. The normative versioned contract, visibility rules,
+prefix cursor/hash semantics, request boundaries, and source mapping are in
+[`docs/contracts/OBSERVABLE_STATE.md`](contracts/OBSERVABLE_STATE.md).
+Pinned simulator state/protocol coverage and known projection gaps are recorded
+in [`docs/contracts/SIMULATOR_COVERAGE.md`](contracts/SIMULATOR_COVERAGE.md).
+
+`BELIEF-001` defines a separate, perspective-owned `BeliefState` in
+`sim-core/src/belief_state.ts`. It stores candidates, evidence provenance,
+uncertainty, and optional transition lineage; it is never serialized as part of
+`ObservableBattleState`. Its normative schema and fail-closed lineage rules are
+in [`docs/contracts/BELIEF_STATE.md`](contracts/BELIEF_STATE.md).
+
+In particular, `log_delta` is a delta and is not itself an event cursor. An
+observable-state caller must provide the canonical protocol prefix through the
+observation boundary so that cursor units count normalized protocol records and
+the prefix hash can audit future-information boundaries. Raw `|request|` JSON is
+validated as private input evidence and replaced in the observable prefix by a
+canonical request-ID-only record; private team data and moves are never retained
+or hashed there.
+
 `BattleView` includes:
 
 - format, gen, turn, player ids, names
@@ -24,3 +46,7 @@ Each `StepResult` contains:
 - the active move list when available
 - side team snapshot from the latest request
 - `legal_actions` with fixed-size action mask and concrete Showdown choices
+
+The fixed 13-entry mask is the current action codec contract, not a finalized
+model feature schema. FEATURE-001 has not established the shape, ordering, or
+normalization of new model inputs.

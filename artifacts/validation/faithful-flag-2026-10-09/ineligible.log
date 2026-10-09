@@ -1,0 +1,11 @@
+RUN node --test --test-isolation=none --test-reporter=spec --test-name-pattern=^faithful claim ineligible stops segments terminal-only and schemas reject without mutation$ sim-core/dist/tests/pipeline_episode_faithful.test.js
+✔ faithful claim ineligible stops segments terminal-only and schemas reject without mutation (2228.248042ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2302.831791
+EXIT 0 ELAPSED 2.401

@@ -1,0 +1,117 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "--test-isolation=none",
+    "--test-reporter=spec",
+    "--test-name-pattern=^source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row$",
+    "sim-core/dist/tests/pipeline_episode.test.js"
+  ],
+  "python": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+  "outer_timeout_seconds": 1800,
+  "hashes": {
+    "sim-core/tests/pipeline_episode.test.ts": "b4a239dc7e2bedfff353548e1bd80fc49330b6808f8af88bb13d5566a2d7fc2a",
+    "sim-core/src/pipeline_episode.ts": "56dcbb5fb13f658487eb582d2a70f7144b9e0479f8252a77ea2a0b90a9c35f03",
+    "sim-core/src/pipeline_episode_evidence.ts": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+    "sim-core/src/pipeline_integration.ts": "e75e3a0ee38ff399fc3ffb8ea363b7dbe8cb6dee97e5a9f9858f41d7a0b310f3",
+    "sim-core/src/belief_state.ts": "3b7bbed39e078271de70ed10333bf3321177393d23d3880dbca477b20508eef5",
+    "sim-core/src/observable_state.ts": "988a704abdd21dd24b4dfb5db8dedd16d4ce5308697ba7bfae453675709ae297",
+    "sim-core/src/state_extractor.ts": "caf69c8f945e7404b2e50487a4d8ca1f9e76d62f6ceb42b3ddcd026c49caf51e",
+    "sim-core/src/public_ability.ts": "cd02e081265ad427fca3f26c4a6a74497f006b23ea33f86d8dae1929b6478180",
+    "sim-core/src/public_health.ts": "d268166d2b8f6b69d8f5d0905e93bf42b8d3f918a3a7071d1201f3fdf2bdca6d",
+    "sim-core/src/public_item.ts": "98502db79fb5b92db057e140478106b273ade9134f8a5fab8a3368721dfd4a74",
+    "sim-core/src/typed_state_lifecycle.ts": "a133a8c23d94993aab0ad3a6e8f4b921aaa65f76cf0eb8aa08ff392eea75f083",
+    "sim-core/src/protocol_contract.ts": "65fc6f3eb2b91b150fd1b0af096aa6ab685e13fa395d091a762aced803934642",
+    "trainer/src/neural/pipeline_record.py": "5b4c729eefbb2c291abbc09c9dfa2edf10abf5947295430543eb4f2114d589d5",
+    "trainer/src/neural/public_ability.py": "6a3512c50afb706f70c1b17da3adae968960b58b2a4d3a3a8a1534ece751b3d4",
+    "trainer/src/neural/public_health.py": "023f6002bc1dd1a82c65f6091eed071ae1d36729a3255f6d0f74b2a98c3373fb",
+    "trainer/src/neural/public_item.py": "85b7f8069e1169ee6eea27f30418781720aa81964237cb9a5aac6e1f9d0f39c1",
+    "trainer/src/neural/typed_state.py": "997e5cbfd37dcf4adb6c332492f47a42556bca747913a889a913f5e2b79ca951",
+    "trainer/src/neural/ts_identity.py": "d9086a839312293258fa7a011b4965811253a9f85f66c4998219368c6cf84651",
+    "trainer/src/neural/protocol_contract.py": "c5c3016514613a5d6fb0c611b9fa7b8256b6dcb26e7ab54cab210496582a6aab",
+    "trainer/src/neural/protocol_contract.json": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+    "sim-core/dist/tests/pipeline_episode.test.js": "b43b9fa6967203bd567249d24b12428ee6a0c0fc0ac5279b8443fe448fd740af"
+  },
+  "progress": [
+    {
+      "elapsed_seconds": 1.321,
+      "output": "CE-08A isolated turn-limit: native commits started\n"
+    },
+    {
+      "elapsed_seconds": 3.115,
+      "output": "CE-08A isolated turn-limit: 100 commits, 1793ms\n"
+    },
+    {
+      "elapsed_seconds": 6.987,
+      "output": "CE-08A isolated turn-limit: 200 commits, 5666ms\n"
+    },
+    {
+      "elapsed_seconds": 13.051,
+      "output": "CE-08A isolated turn-limit: 300 commits, 11730ms\n"
+    },
+    {
+      "elapsed_seconds": 21.384,
+      "output": "CE-08A isolated turn-limit: 400 commits, 20063ms\n"
+    },
+    {
+      "elapsed_seconds": 32.015,
+      "output": "CE-08A isolated turn-limit: 500 commits, 30694ms\n"
+    },
+    {
+      "elapsed_seconds": 44.936,
+      "output": "CE-08A isolated turn-limit: 600 commits, 43615ms\n"
+    },
+    {
+      "elapsed_seconds": 60.605,
+      "output": "CE-08A isolated turn-limit: 700 commits, 59284ms\n"
+    },
+    {
+      "elapsed_seconds": 78.358,
+      "output": "CE-08A isolated turn-limit: 800 commits, 77037ms\n"
+    },
+    {
+      "elapsed_seconds": 98.459,
+      "output": "CE-08A isolated turn-limit: 900 commits, 97139ms\n"
+    },
+    {
+      "elapsed_seconds": 144.655,
+      "output": "CE-08A isolated turn-limit: native chain completed, 143335ms\n"
+    },
+    {
+      "elapsed_seconds": 145.56,
+      "output": "CE-08A isolated turn-limit: Python bulk publication started (360s timeout)\n"
+    },
+    {
+      "elapsed_seconds": 397.338,
+      "output": "CE-08A isolated turn-limit: Python bulk completed, 252492ms\n"
+    },
+    {
+      "elapsed_seconds": 397.985,
+      "output": "CE-08A isolated turn-limit: atomic invalid-middle sweep started (360s timeout)\n"
+    },
+    {
+      "elapsed_seconds": 433.161,
+      "output": "CE-08A isolated turn-limit: atomic invalid-middle sweep completed\n"
+    },
+    {
+      "elapsed_seconds": 490.032,
+      "output": "\u2716 source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row (489241.904667ms)\n\u2139 CE-08A turn-limit bulk publication: 1996 actor rows in 252492ms\n"
+    },
+    {
+      "elapsed_seconds": 490.082,
+      "output": "\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n"
+    },
+    {
+      "elapsed_seconds": 490.082,
+      "output": "\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 490002.613667\n"
+    },
+    {
+      "elapsed_seconds": 490.085,
+      "output": "\n\u2716 failing tests:\n\ntest at sim-core/dist/tests/pipeline_episode.test.js:1564:25\n\u2716 source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row (489241.904667ms)\n  AssertionError [ERR_ASSERTION]: \n  spawnSync /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9 ETIMEDOUT; code=ETIMEDOUT; signal=SIGTERM\n  \n  null !== 2\n  \n      at TestContext.<anonymous> (sim-core/dist/tests/pipeline_episode.test.js:1726:22)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: 2,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    }
+  ],
+  "exit_status": 1,
+  "timed_out": false,
+  "elapsed_seconds": 490.209,
+  "source_hashes_unchanged": true
+}
