@@ -2,6 +2,17 @@
 
 **Status:** Source-reviewed inventory with explicit known gaps. This is not an acceptance of PIPELINE-001 or FEATURE-001.
 
+## Current acceptance and flag boundary — 2026-10-09
+
+The final PIPELINE-002 decision accepts pinned v2 capture/boundary progression
+from the independently reconciled FCE-01–FCE-08 evidence. The manifest records
+this capability verdict separately from per-result fidelity. Runtime
+conditional `faithful_complete_episode` emission and TS/Python enforcement are
+independently accepted within the pinned runtime scope. True requires a validated
+supported original-to-terminal chain and successful execution/cleanup; all
+ineligible results remain false. No global faithful capability flag is introduced.
+Historical scoped decisions below retain their original meaning.
+
 ## Provenance and supported format
 
 The repository declares `pokemon-showdown` exactly at `0.11.10` in `sim-core/package.json`. `sim-core/package-lock.json` resolves the same version and has npm `resolved` and `integrity` fields. Installed `node_modules/pokemon-showdown/package.json` also reports `0.11.10`. The package is not a Git checkout, so an upstream source commit ID is unavailable. The lock integrity records the expected tarball hash; it does **not** prove the unpacked active files equal that tarball without a clean install. This task did not install packages.
@@ -626,3 +637,6 @@ Psych Up tests and seven consumed JSON fixtures to hashing (54 files); implement
 sources already included. Reviewed digest `d5e51397777285eb10e702d5998bbd7ccf1de371180301129406e0c2cbb28ae3`.
 Checker, ten drift self-tests and three coverage tests pass. This does not establish
 faithful complete-episode or feature readiness.
+
+
+The current bounded C22/C23 candidate adds ordered item evidence and terminal action authority as implementation-only coverage. Existing request-only private terminal history v1 stays supported. Incoming terminal switch restoration uses private v2 provenance; public observation/record/envelope versions and canonical identities do not change. Optional old unrevealed item carrier claims stay raw-only/unknown without a legitimate carrier join. This does not promote constructed Recycle/Illusion teams to generated selector routes, C22/C23 sufficiency, or complete-episode acceptance. The manifest/checker bind the exact implementation, source matrices, and version/uncertainty rules while leaving the reviewed digest and prior attestations unchanged.

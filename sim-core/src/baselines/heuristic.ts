@@ -359,7 +359,8 @@ export class HeuristicBaselineAgent {
 
     const calcPokemon = new CalcPokemon(gen, pokemon.species, {
       level: pokemon.level || this.priors.getLevel(pokemon.species),
-      ability: possibleAbility,
+      // Undefined lets the calculator (including clone) install a species default.
+      ability: pokemon.ability_effectiveness === 'suppressed' || pokemon.ability_effectiveness === 'unknown' ? 'No Ability' : possibleAbility,
       item: pokemon.item || undefined,
       teraType: (teraType || possibleTeraTypes[0]) as any,
       moves: pokemon.revealed_moves.length ? [...pokemon.revealed_moves] : [...pokemon.moves],

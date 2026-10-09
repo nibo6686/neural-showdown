@@ -79,6 +79,30 @@ read-only until a future migration supplies complete envelopes.
 
 ## Explicit limitations and rollback
 
+### Legacy replay policy action boundaries — repair candidate (2026-10-09)
+
+The replay policy builder binds each move/switch label to the exact retained
+public prefix **before that individual action line**, using DATA-001's existing
+cursor, prefix hash and record identity helpers. Multiple actions by one player
+within a turn therefore have distinct boundaries. Collection duplicate rejection
+remains mandatory and runs before output serialization.
+
+The stored turn/event list must match a fresh parse of the retained protocol.
+Missing or inconsistent protocol evidence skips the trajectory with an
+`unverifiable_action_boundaries` diagnostic; the builder does not guess a cursor.
+Feature state is updated after each label, and mapper tracking is sequential;
+later same-turn events cannot seed an earlier row. The current action supplies
+its supervised label, not input evidence. These are observable replay events,
+not reconstructed private decision/request boundaries. Existing historical
+files are not rewritten, and regenerated records have identities for their new
+verified prefixes. No canonical owned observation or legal action is invented.
+
+This repair does not certify legacy replay features/mapping, generated-format
+reachability, or suitability for the new training pipeline. Simulator v2 capture
+acceptance and conditional fidelity semantics are unchanged. Focused constructed
+controls live in `trainer/tests/test_replay_policy_lineage.py`; run an exact case
+with the documented simulator interpreter and `PYTHONPATH=trainer/src`.
+
 V1 does not add calibration, confidence, acquisition APIs, replay fetching,
 training, model-input transformations, or a new dataset storage format. It does
 not attest that a caller-supplied observation ID came from the simulator; it

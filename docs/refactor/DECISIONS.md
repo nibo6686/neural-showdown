@@ -1,5 +1,21 @@
 # Refactor Decisions
 
+## Current status clarification — 2026-10-01
+
+Accepted project evidence now includes bounded v2 transition capture and
+TypeScript/Python publication parity within the reviewed ordinary
+joint-actionable scope; separately attested scanner, source-coverage, and Gen 9
+Random Battle reachability slices; and accepted macOS simulator-record and
+broader trainer/live environment profiles within their documented scope. The
+complete-episode closure audit is complete as an audit and backlog, not an
+implementation acceptance. Keep `faithful_complete_episode:false`.
+
+ENV-001 remains incomplete for cross-platform claims. Windows clean recreation
+and Windows trainer/live support are deferred platform work and are not blockers
+to a future scoped macOS refactor merge. These clarifications do not authorize
+features, datasets, training, live-model behavior, or other formats. The dated
+decisions and review records below retain their original evidence and scope.
+
 ## D-001 — Keep Showdown/sim-core authoritative
 
 Status: Accepted for preparation. Mechanics remain owned by the existing Showdown-backed simulator. Alternative engines are future comparison candidates only after differential validation.
@@ -275,6 +291,13 @@ Follow-up actions (separate from this decision):
   above, and record versions, commands, results, and platform-specific failures
   in `ENVIRONMENT_VALIDATION.md`.
 
+Follow-up status (2026-10-01): the repository-owned simulator-record profile,
+macOS broader trainer/live declarations and locks, and accepted macOS clean
+proofs are recorded in `ENVIRONMENT_VALIDATION.md`. Windows clean recreation
+and the Windows trainer/live profile remain deferred as ENV-001C2. Their open
+status keeps ENV-001 incomplete for cross-platform claims, but does not block a
+scoped macOS refactor merge.
+
 ## D-022 — Resolve broader trainer/live profiles per platform
 
 Status: Accepted (2026-09-30).
@@ -405,4 +428,11 @@ clean recreation and compatibility checks establish it. Preserve the
   Record commands, versions, results, and failures in
   `docs/refactor/ENVIRONMENT_VALIDATION.md`.
 
-Record this proposed decision in the existing `docs/refactor/DECISIONS.md` log.
+Follow-up status (2026-10-01): the broader macOS trainer/live profile, lock, and
+documented focused clean proof are complete and accepted within that profile's
+scope. The Windows Conda specification/lock, clean recreation, and
+platform-specific trainer/live compatibility checks remain deferred. ENV-001
+is not complete for cross-platform claims.
+
+The proposed decision is recorded in this log; the follow-up status above is
+current as of 2026-10-01.

@@ -1,3 +1,6 @@
+import { assertPublicItemsMatchEvidence } from './public_item';
+import { assertPublicAbilityMatchesEvidence } from './public_ability';
+import { assertPublicHealthMatchesEvidence, boundOwnedTarget } from './public_health';
 import { opponentPublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
 import {
@@ -5,6 +8,7 @@ import {
   validateObservableProtocolPrefix,
   type ObservableBattleState,
 } from './observable_state';
+import { assertTypedStateMatchesPublicPrefix } from './typed_state_lifecycle';
 import {
   SEEDED_TRANSITION_SCHEMA_VERSION,
   SEEDED_FORCED_SWITCH_SCHEMA_VERSION, SEEDED_REVIVAL_SCHEMA_VERSION,
@@ -389,15 +393,6 @@ function assertObservation(observation: ObservableBattleState): void {
   if (!isRecord(observation) || !isObservableSchema(observation.schema_version)) {
     throw new BeliefStateError('Unsupported observable schema for BeliefState.');
   }
-  if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
-    && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {
-    for (const pokemon of observation.view.opponent_team) {
-      if (!isRecord(pokemon) || typeof pokemon.ident !== 'string'
-        || canonicalize(pokemon.public_boosts) !== canonicalize(opponentPublicBoosts(observation.protocol_prefix, pokemon.ident))) {
-        throw new BeliefStateError('Public opponent stages disagree with exact prefix.');
-      }
-    }
-  }
   exactKeys(observation, [
     'schema_version', 'source_kind', 'battle_id', 'perspective', 'event_cursor', 'observation_id',
     'protocol_prefix_hash', 'snapshot_phase', 'other_phase', 'request', 'decision_availability',
@@ -417,8 +412,24 @@ function assertObservation(observation: ObservableBattleState): void {
     ) {
     throw new BeliefStateError('Observation cursor must equal its normalized protocol prefix length.');
   }
+  if (observation.request !== null && observation.request?.player !== observation.perspective) {
+    throw new BeliefStateError('Observation request perspective or rqid is invalid.');
+  }
   assertSanitizedProtocolPrefix(observation.protocol_prefix, 'Observation protocol prefix');
   validateObservableProtocolPrefix(observation.protocol_prefix, observation.perspective, observation.view, observation.request);
+  assertTypedStateMatchesPublicPrefix(observation.protocol_prefix, observation.perspective, observation.view, (target) => boundOwnedTarget(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, target));
+  assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
+  assertPublicItemsMatchEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
+  if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
+    && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {
+    for (const pokemon of observation.view.opponent_team) {
+      if (!isRecord(pokemon) || typeof pokemon.ident !== 'string'
+        || canonicalize(pokemon.public_boosts) !== canonicalize(opponentPublicBoosts(observation.protocol_prefix, pokemon.ident))) {
+        throw new BeliefStateError('Public opponent stages disagree with exact prefix.');
+      }
+    }
+  }
+  assertPublicAbilityMatchesEvidence(observation.protocol_prefix, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, observation.perspective);
   assertDigest(observation.protocol_prefix_hash, 'Observation protocol_prefix_hash');
   if (sha256(observation.protocol_prefix) !== observation.protocol_prefix_hash) {
     throw new BeliefStateError('Observation protocol prefix hash is invalid.');
@@ -516,6 +527,12 @@ function assertObservation(observation: ObservableBattleState): void {
   if (`obs-${sha256(identity)}` !== observation.observation_id) {
     throw new BeliefStateError('Observation identity is invalid.');
   }
+}
+
+/** Validate a serialized observable state at an evidence boundary. */
+export function validateObservableBattleState(value: unknown): asserts value is ObservableBattleState {
+  if (!isRecord(value)) throw new BeliefStateError('Observable state must be an object.');
+  assertObservation(value as unknown as ObservableBattleState);
 }
 
 function candidateKey(candidate: BeliefCandidateInput): string {
@@ -918,6 +935,9 @@ function assertParent(parent: BeliefState): void {
   }
   let previousCursor = -1;
   const observationIds = new Set<string>();
+  // Cursors are ordered: hash the canonical array once, copying before each closing bracket.
+  const historicalPrefix = createHash('sha256').update('[');
+  let hashedCursor = 0;
   for (const reference of parent.observation_history) {
     if (!isRecord(reference)) throw new BeliefStateError('Parent observation history entry is malformed.');
     exactKeys(reference, [
@@ -933,7 +953,12 @@ function assertParent(parent: BeliefState): void {
       throw new BeliefStateError('Parent observation history entry is invalid.');
     }
     assertDigest(reference.protocol_prefix_hash, 'Parent historical protocol_prefix_hash');
-    if (sha256(parent.source_protocol_prefix.slice(0, reference.event_cursor)) !== reference.protocol_prefix_hash) {
+    while (hashedCursor < reference.event_cursor) {
+      if (hashedCursor) historicalPrefix.update(',');
+      historicalPrefix.update(canonicalize(parent.source_protocol_prefix[hashedCursor]), 'utf8');
+      hashedCursor++;
+    }
+    if (historicalPrefix.copy().update(']').digest('hex') !== reference.protocol_prefix_hash) {
       throw new BeliefStateError('Parent historical observation prefix hash is invalid.');
     }
     observationIds.add(reference.observation_id);

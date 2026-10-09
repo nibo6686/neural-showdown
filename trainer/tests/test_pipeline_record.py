@@ -18,6 +18,10 @@ from neural.pipeline_record import (
     main,
     validate_pipeline_bundle,
 )
+from neural.typed_state import project_public_typed_state
+from neural.public_item import project_public_items, project_public_item_dispositions
+from neural.public_health import project_public_health
+from neural.public_boosts import public_boost_evidence
 
 
 def _typescript_hash(value):
@@ -171,11 +175,33 @@ def _rehashed_protocol_candidate(bundle, where, record):
     candidate = copy.deepcopy(bundle)
     input_prefix = candidate["input_observation"]["protocol_prefix"]
     successor_prefix = candidate["successor_observation"]["protocol_prefix"]
+    parts = record.split("|")
+    context_start = None
+    if len(parts) > 3 and parts[1] == "-sideend":
+        side, raw_effect = parts[2], parts[3]
+        effect = "".join(char.lower() for char in raw_effect.removeprefix("move: ") if char.isalnum())
+        active = False
+        prefix = input_prefix if where == "input" else successor_prefix
+        for prior in prefix:
+            prior_parts = prior.split("|")
+            if len(prior_parts) <= 3 or prior_parts[2] != side:
+                continue
+            prior_effect = "".join(char.lower() for char in prior_parts[3].removeprefix("move: ") if char.isalnum())
+            if prior_effect == effect and prior_parts[1] in ("-sidestart", "-sideend"):
+                active = prior_parts[1] == "-sidestart"
+        if not active:
+            context_start = f"|-sidestart|{side}|{raw_effect}"
     if where == "input":
         at = len(input_prefix)
+        if context_start:
+            input_prefix.append(context_start)
+            successor_prefix.insert(at, context_start)
+            at += 1
         input_prefix.append(record)
         successor_prefix.insert(at, record)
     else:
+        if context_start:
+            successor_prefix.append(context_start)
         successor_prefix.append(record)
     for which in ("input", "successor"):
         observation = candidate[which + "_observation"]
@@ -183,7 +209,53 @@ def _rehashed_protocol_candidate(bundle, where, record):
         observation["event_cursor"] = len(prefix)
         observation["protocol_prefix_hash"] = _typescript_hash(prefix)
         candidate[which + "_belief"]["source_protocol_prefix"] = list(prefix)
+        # Protocol controls must represent their derived health facts even in minimal v1.
+        try:
+            health = project_public_health(prefix)
+        except (ValueError, TypeError, IndexError, ZeroDivisionError):
+            health = {}
+        for ident, facts in health.items():
+            team = "self_team" if ident[:2] == observation["perspective"] else "opponent_team"
+            rows = observation["view"].setdefault(team, [])
+            row = next((entry for entry in rows if entry.get("ident") == ident), None)
+            if row is None:
+                row = {"ident": ident}; rows.append(row)
+            row.update(facts)
+            if observation.get("schema_version") == "observable-battle-state/v2" and team == "opponent_team":
+                try:
+                    stages = public_boost_evidence(prefix).get(ident)
+                except ValueError:
+                    stages = None
+                row.setdefault("public_boosts", stages or dict.fromkeys(("atk", "def", "spa", "spd", "spe", "accuracy", "evasion"), None))
+        if observation.get("schema_version") == "observable-battle-state/v2":
+            try:
+                projected = project_public_typed_state(prefix)
+            except ValueError:
+                projected = None
+            if projected:
+                perspective = observation["perspective"]
+                own = projected["side_conditions_by_player"][perspective]
+                other = "p2" if perspective == "p1" else "p1"
+                opponent = projected["side_conditions_by_player"][other]
+                if own or opponent:
+                    observation["view"]["field"] = {"side_conditions": {"self": own, "opponent": opponent}}
     return _seal_bundle(candidate)
+
+
+_REPEATED_SINGLETON_TAG_FIXTURES = (
+    ("damage", "[from]", "|-damage|p1a: Pikachu|50/100|[from] move: Tackle|[from] ability: Static"),
+    ("damage", "[of]", "|-damage|p1a: Pikachu|50/100|[of] p2: Eevee|[of] p1a: Pikachu"),
+    ("damage", "[silent]", "|-damage|p1a: Pikachu|50/100|[silent]|[silent]"),
+    ("damage", "[partiallytrapped]", "|-damage|p1a: Pikachu|50/100|[partiallytrapped]|[partiallytrapped]"),
+    ("heal", "[from]", "|-heal|p1a: Pikachu|50/100|[from] move: Recover|[from] ability: Regenerator"),
+    ("heal", "[of]", "|-heal|p1a: Pikachu|50/100|[of] p2: Eevee|[of] p1a: Pikachu"),
+    ("heal", "[silent]", "|-heal|p1a: Pikachu|50/100|[silent]|[silent]"),
+    ("heal", "[zeffect]", "|-heal|p1a: Pikachu|50/100|[zeffect]|[zeffect]"),
+    ("heal", "[wisher]", "|-heal|p1a: Pikachu|50/100|[wisher] Eevee|[wisher] Blissey"),
+    ("boost", "[from]", "|-boost|p1a: Pikachu|atk|1|[from] move: Swords Dance|[from] ability: Intimidate"),
+    ("boost", "[silent]", "|-boost|p1a: Pikachu|atk|1|[silent]|[silent]"),
+    ("boost", "[zeffect]", "|-boost|p1a: Pikachu|atk|1|[zeffect]|[zeffect]"),
+)
 
 
 def _forced_switch_bundle():
@@ -214,9 +286,13 @@ def _revival_bundle():
     bundle = _forced_switch_bundle()
     request = bundle["input_observation"]["request"]
     request["side"] = [
-        {"slot": 1, "active": True, "condition": "100/100", "reviving": True},
-        {"slot": 2, "active": False, "condition": "0 fnt"},
-        {"slot": 3, "active": False, "condition": "100/100"},
+        {"slot": 1, "ident": "p1: Reviver", "active": True, "condition": "100/100", "reviving": True},
+        {"slot": 2, "ident": "p1: Target", "active": False, "condition": "0 fnt"},
+        {"slot": 3, "ident": "p1: Reserve", "active": False, "condition": "100/100"},
+    ]
+    bundle["input_observation"]["view"]["self_team"] = [
+        {"ident": p["ident"], "active": p["active"], **project_public_health([f"|-heal|{p['ident']}|{p['condition']}"])[p["ident"]]}
+        for p in request["side"]
     ]
     legal = request["legal_actions"]["actions"][8]
     legal["kind"] = "revive"
@@ -229,6 +305,675 @@ def _revival_bundle():
 
 
 class PipelineRecordTest(unittest.TestCase):
+    def test_ce04_slots_wish_public_heal_evidence_accepts_exact_source_form_and_rejects_rehashes(self):
+        source_forms = (
+            ("Moves.wish.onEnd", "|-heal|p1a: Recipient|100/100|[from] move: Wish|[wisher] Wisher"),
+        )
+        malformed = (
+            "|-heal|p1a: Recipient|100/100|[wisher] Wisher",
+            "|-heal|p1a: Recipient|100/100|[from] ability: Static|[wisher] Wisher",
+            "|-heal|p1a: Recipient|100/100|[wisher] Wisher|[from] move: Wish",
+            "|-heal|p1a: Recipient|100/100|[from] move: Wish|[wisher] Wisher|[wisher] Other",
+            "|-heal|p1a: Recipient|100/100|[from] move: Wish|[wisher] Wisher|[zeffect]",
+            "|-heal|p1a: Recipient|101/100|[from] move: Wish|[wisher] Wisher",
+        )
+        self.assertEqual(VALIDATION_RULES["heal_wisher_dependency"], {
+            "required_from": "[from] move: Wish",
+            "required_tag_order": ["[from]", "[wisher]"],
+        })
+        validate_protocol_record("|-heal|p1a: Recipient|100/100|[from] ability: Static")
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for emitter, valid in source_forms:
+                        with self.subTest(version=version, perspective=perspective, where=where, emitter=emitter):
+                            candidate = _rehashed_protocol_candidate(
+                                _bundle(perspective=perspective, version=version), where, valid,
+                            )
+                            before = copy.deepcopy(candidate)
+                            published = validate_pipeline_bundle(candidate)
+                            self.assertEqual(published["perspective"], perspective)
+                            self.assertEqual(candidate, before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in malformed:
+                        with self.subTest(version=version, perspective=perspective, where=where, evidence=record):
+                            candidate = _rehashed_protocol_candidate(
+                                _bundle(perspective=perspective, version=version), where, record,
+                            )
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(candidate, before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04d1_entry_hazard_records_publish_only_pinned_forms(self):
+        valid = (
+            "|-sidestart|p1: One|Spikes",
+            "|-sidestart|p2: Two|move: Toxic Spikes",
+            "|-sidestart|p1: One|move: Stealth Rock",
+            "|-sidestart|p2: Two|move: Sticky Web",
+            "|-sideend|p1: One|Spikes|[from] move: Rapid Spin|[of] p1a: Spinner",
+            "|-sideend|p2: Two|move: Toxic Spikes|[of] p2a: Poison",
+        )
+        rejected = (
+            "|-sidestart|p1a: One|Spikes", "|-sidestart|p1: One|move: Spikes",
+            "|-sideend|p1: One|Spikes|[from] move: Court Change|[of] p1a: Spinner",
+            "|-sideend|p1: One|Spikes|[of] p1a: Spinner", "|-sideend|p1: One|Stealth Rock|[from] move: Rapid Spin|[of] p1: Spinner",
+        )
+        for version in ("v2",):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        validate_protocol_record(record)
+                        self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                        self.assertEqual(candidate, before)
+                    for record in rejected:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        with self.assertRaises(ProtocolRecordError): validate_protocol_record(record)
+                        with self.assertRaises(PipelineRecordError): validate_pipeline_bundle(candidate)
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            self.assertEqual(main(), 2, stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+                        self.assertEqual(candidate, before)
+
+    def test_ce04d2_screen_records_publish_only_pinned_generated_forms(self):
+        valid = (
+            "|-sidestart|p1: One|Reflect",
+            "|-sidestart|p2: Two|move: Light Screen",
+            "|-sidestart|p1: One|move: Aurora Veil",
+            "|-sideend|p1: One|Reflect",
+            "|-sideend|p2: Two|move: Light Screen",
+            "|-sideend|p1: One|move: Aurora Veil",
+        )
+        rejected = (
+            "|sidestart|p1: One|Reflect", "|-sidestart|p1a: One|Reflect",
+            "|-sidestart|p1: One|move: Reflect", "|-sidestart|p1: One|Reflect|[from] move: Reflect",
+            "|-sideend|p1: One|Reflect|[from] move: Defog", "|-sideend|p1: One|Aurora Veil",
+            "|-sidestart|p1: One|Safeguard", "|-sidestart|p1: One|Mist",
+            "|-sidestart|p1: One|Reflect ", "|-sideend|p1: One|move: Light Screen|extra",
+        )
+        self.assertEqual(VALIDATION_RULES["screen"], {
+            "ids": ["reflect", "lightscreen", "auroraveil"],
+            "start_forms": {"reflect": "Reflect", "lightscreen": "move: Light Screen", "auroraveil": "move: Aurora Veil"},
+            "end_forms": {"reflect": "Reflect", "lightscreen": "move: Light Screen", "auroraveil": "move: Aurora Veil"},
+            "excluded_forms": ["Safeguard", "Mist"],
+        })
+        for version in ("v2",):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        validate_protocol_record(record)
+                        self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                        self.assertEqual(candidate, before)
+                    for record in rejected:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        with self.assertRaises(ProtocolRecordError): validate_protocol_record(record)
+                        with self.assertRaises(PipelineRecordError): validate_pipeline_bundle(candidate)
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            self.assertEqual(main(), 2, stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+                        self.assertEqual(candidate, before)
+
+    def test_ce04d3_court_change_records_publish_only_the_pinned_atomic_swap(self):
+        valid = (
+            "|-swapsideconditions",
+            "|-activate|p1a: Changer|move: Court Change",
+        )
+        rejected = (
+            "|swapsideconditions", "|-swapsideconditions|p1: One|p2: Two",
+            "|-swapsideconditions|[silent]", "|-swapsideconditions|",
+            "|-swapsideconditions|p1b: One", "|-swapsideconditions|extra",
+            "|-activate|p1: Changer|move: Court Change", "|-activate|p1b: Changer|move: Court Change",
+            "|-activate|p1a: Changer|move: Court Change|[silent]",
+            "|-activate|p1a: Changer|move: Court  Change",
+        )
+        self.assertEqual(VALIDATION_RULES["court_change"], {
+            "command": "-swapsideconditions",
+            "activation_command": "-activate",
+            "activation_effect": "move: Court Change",
+            "transferred_ids": ["mist", "lightscreen", "reflect", "spikes", "safeguard", "tailwind", "toxicspikes", "stealthrock", "waterpledge", "firepledge", "grasspledge", "stickyweb", "auroraveil", "luckychant"],
+            "excluded_ids": ["gmaxsteelsurge", "gmaxcannonade", "gmaxvinelash", "gmaxwildfire", "gmaxvolcalith"],
+        })
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        validate_protocol_record(record)
+                        self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                        self.assertEqual(candidate, before)
+                    for record in rejected:
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        before = copy.deepcopy(candidate)
+                        with self.assertRaises(ProtocolRecordError): validate_protocol_record(record)
+                        with self.assertRaises(PipelineRecordError): validate_pipeline_bundle(candidate)
+                        self.assertEqual(candidate, before)
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            self.assertEqual(main(), 2, stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+                        self.assertEqual(candidate, before)
+
+    def test_ce04e1_weather_records_publish_only_pinned_generated_forms(self):
+        valid = (
+            "|-weather|RainDance",
+            "|-weather|SunnyDay|[upkeep]",
+            "|-weather|Sandstorm|[from] ability: Sand Stream|[of] p2a: Setter",
+            "|-weather|Snowscape|[from] ability: Snow Warning|[of] p1a: Setter",
+            "|-weather|SunnyDay|[from] ability: Orichalcum Pulse|[of] p1a: Setter",
+            "|-weather|none",
+        )
+        rejected = (
+            "|-weather|Hail", "|-weather|Sandstorm", "|-weather|raindance",
+            "|-weather|PrimordialSea",
+            "|-weather|RainDance|[from] ability: Drought|[of] p1a: Setter",
+            "|-weather|SunnyDay|[from] ability: Drought|[of] p1: Setter",
+            "|-weather|Sandstorm|[from] ability: Sand Stream|[of] p1b: Setter",
+            "|-weather|RainDance|[upkeep]|[of] p1a: Setter",
+            "|-weather|SunnyDay|[of] p1a: Setter|[from] ability: Drought",
+            "|-weather|SunnyDay|[from] ability: Drought|[of] p1a: Setter|[upkeep]",
+            "|-weather|none|[upkeep]",
+            "|-weather| RainDance",
+        )
+        self.assertEqual(VALIDATION_RULES["weather"], {
+            "ids": ["RainDance", "SunnyDay", "Sandstorm", "Snowscape"],
+            "ability_origins": {
+                "RainDance": ["Drizzle"], "SunnyDay": ["Drought", "Orichalcum Pulse"],
+                "Sandstorm": ["Sand Stream"], "Snowscape": ["Snow Warning"],
+            },
+            "move_origins": {
+                "RainDance": ["Rain Dance"], "SunnyDay": ["Sunny Day"],
+                "Snowscape": ["Snowscape", "Chilly Reception"],
+            },
+        })
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04e2_terrain_records_publish_only_pinned_generated_forms(self):
+        valid = (
+            "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin",
+            "|-fieldstart|move: Electric Terrain|[from] ability: Hadron Engine|[of] p2a: Miraidon",
+            "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Rillaboom",
+            "|-fieldstart|move: Grassy Terrain|[from] ability: Seed Sower|[of] p2a: Arboliva",
+            "|-fieldstart|move: Psychic Terrain|[from] ability: Psychic Surge|[of] p1a: Indeedee",
+            "|-fieldend|move: Electric Terrain",
+            "|-fieldend|move: Grassy Terrain",
+            "|-fieldend|move: Psychic Terrain",
+        )
+        rejected = (
+            "|-fieldstart|move: Electric Terrain",
+            "|fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin",
+            "|-fieldactivate|move: Electric Terrain",
+            "|-fieldstart|move: Misty Terrain|[from] ability: Misty Surge|[of] p1a: Weezing",
+            "|-fieldstart|move: Grassy Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin",
+            "|-fieldstart|move: Electric Terrain|[of] p1a: Pincurchin|[from] ability: Electric Surge",
+            "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1: Pincurchin",
+            "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1b: Pincurchin",
+            "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin|[upkeep]",
+            "|-fieldend|move: Grassy Terrain|[from] move: Ice Spinner",
+            "|-fieldstart|move:  Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin",
+        )
+        self.assertEqual(VALIDATION_RULES["terrain"], {
+            "ids": ["electricterrain", "grassyterrain", "psychicterrain"],
+            "public_names": {
+                "electricterrain": "move: Electric Terrain",
+                "grassyterrain": "move: Grassy Terrain",
+                "psychicterrain": "move: Psychic Terrain",
+            },
+            "ability_origins": {
+                "electricterrain": ["Electric Surge", "Hadron Engine"],
+                "grassyterrain": ["Grassy Surge", "Seed Sower"],
+                "psychicterrain": ["Psychic Surge"],
+            },
+        })
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04e3_trick_room_records_publish_only_pinned_generated_forms(self):
+        valid = (
+            "|-fieldstart|move: Trick Room|[of] p1a: Room",
+            "|-fieldend|move: Trick Room",
+        )
+        rejected = (
+            "|-fieldstart|move: Trick Room",
+            "|fieldstart|move: Trick Room|[of] p1a: Room",
+            "|-fieldactivate|move: Trick Room",
+            "|-fieldstart|move: Trick Room|[of] p1: Room",
+            "|-fieldstart|move: Trick Room|[of] p1b: Room",
+            "|-fieldstart|move: Trick Room|[persistent]|[of] p1a: Room",
+            "|-fieldstart|move: Trick Room|[of] p1a: Room|[persistent]",
+            "|-fieldend|move: Trick Room|[of] p1a: Room",
+            "|-fieldstart|move:  Trick Room|[of] p1a: Room",
+        )
+        self.assertEqual(VALIDATION_RULES["trick_room"], {
+            "effect": "move: Trick Room", "start_command": "-fieldstart", "end_command": "-fieldend",
+            "source_tag": "[of]", "source_role": "active",
+        })
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04f1_item_records_publish_only_pinned_generated_forms(self):
+        valid = (
+            "|-item|p2a: Target|Leftovers|[from] ability: Frisk|[of] p1a: Frisker",
+            "|-item|p2a: Target|Choice Scarf|[from] move: Trick",
+            "|-item|p1a: Swapper|Leftovers|[from] move: Switcheroo",
+            "|-item|p1a: Holder|White Herb|[from] move: Recycle",
+            "|-enditem|p2a: Target|Sitrus Berry|[eat]",
+            "|-enditem|p2a: Target|Aguav Berry|[eat]",
+            "|-enditem|p2a: Target|Air Balloon",
+            "|-enditem|p2a: Target|Booster Energy",
+            "|-enditem|p2a: Target|Focus Sash",
+            "|-enditem|p2a: Target|Power Herb",
+            "|-enditem|p2a: Target|Throat Spray",
+            "|-enditem|p2a: Target|Weakness Policy",
+            "|-enditem|p2a: Target|White Herb",
+            "|-enditem|p2a: Target|Leftovers|[from] move: Knock Off|[of] p1a: Thief",
+            "|-enditem|p1a: Swapper|Choice Scarf|[silent]|[from] move: Trick",
+            "|-item|p1a: Balloon|Air Balloon",
+            "|item|p1a: Holder|Leftovers",
+            "|enditem|p1a: Holder|Leftovers",
+        )
+        rejected = (
+            "|-item|p2a: Target|Definitely Not An Item|[from] move: Trick",
+            "|-item|p2: Target|Leftovers|[from] move: Trick",
+            "|-item|p2b: Target|Leftovers|[from] move: Trick",
+            "|-item|p2a: Target|Leftovers|[from] ability: Frisk|[of] p2a: Ally",
+            "|-item|p2a: Target|Leftovers|[of] p1a: Frisker|[from] ability: Frisk",
+            "|-enditem|p2a: Target|Leftovers|[of] p1a: Thief|[from] move: Knock Off",
+            "|-enditem|p2a: Target|Sitrus Berry|[eat]|[silent]",
+            "|-enditem|p2a: Target|Choice Scarf|[eat]",
+            "|-enditem|p2a: Target|Air Balloon|[eat]",
+            "|-enditem|p2a: Target|Choice Scarf",
+            "|-enditem|p2a: Target|Leftovers",
+            "|-enditem|p2: Target|Power Herb",
+            "|-enditem|p2b: Target|Power Herb",
+            "|-enditem|p2a: Target| Power Herb",
+            "|-enditem|p2a: Target|Power Herb|[silent]",
+            "|-enditem|p2a: Target|Power Herb|extra",
+            "|-enditem|p2: Target|Air Balloon",
+            "|-enditem|p2b: Target|Air Balloon",
+            "|-enditem|p2a: Target| Air Balloon",
+            "|-enditem|p2a: Target|Air Balloon|[silent]",
+            "|-enditem|p2a: Target|Air Balloon|extra",
+            "|-item|p2a: Target| Leftovers|[from] move: Trick",
+            "|-item|p2a: Target|Leftovers|[from] move: Trick|[of] p1a: Source",
+            "|-item|p2a: Target|Leftovers|[from] move: Recycle",
+            "|-item|p2a: Target|White Herb|[from] move: Recycle|[silent]",
+            "|item|p1a: Holder|Leftovers|[from] ability: Frisk",
+        )
+        self.assertEqual(VALIDATION_RULES["item"]["active_target"], "canonical-singles-active")
+        self.assertIn("Leftovers", VALIDATION_RULES["item"]["payloads"])
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            # Grammar controls must represent every established item fact.
+                            for which in ("input", "successor"):
+                                observation = candidate[which + "_observation"]
+                                for target, item in project_public_items(observation["protocol_prefix"]).items():
+                                    team = "self_team" if target[:2] == perspective else "opponent_team"
+                                    row = {"ident": target}
+                                    if team == "self_team": row.update(item=item, item_suppressed=False, **project_public_item_dispositions(observation["protocol_prefix"])[target])
+                                    elif item is not None: row["item"] = "has-item"
+                                    if version == "v2" and team == "opponent_team": row["public_boosts"] = public_boost_evidence(observation["protocol_prefix"]).get(target, dict.fromkeys(("atk", "def", "spa", "spd", "spe", "accuracy", "evasion"), None))
+                                    observation["view"].setdefault(team, []).append(row)
+                            _seal_bundle(candidate)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04f2_status_records_rehash_and_publish_only_pinned_source_forms(self):
+        valid = (
+            "|-status|p1a: Target|psn|[from] ability: Poison Touch|[of] p2a: Source",
+            "|-status|p1a: Target|slp|[from] move: Sleep Powder",
+            "|-status|p1a: Target|slp|[from] move: Hypnosis",
+            "|-status|p1a: Target|slp|[from] move: Spore",
+            "|-curestatus|p1a: Target|frz|[from] move: Flare Blitz",
+            "|-curestatus|p1a: Target|frz|[from] move: Fusion Flare",
+            "|-curestatus|p1a: Target|frz|[from] move: Hydro Steam",
+            "|-curestatus|p1a: Target|frz|[from] move: Matcha Gotcha",
+            "|-curestatus|p1a: Target|frz|[from] move: Pyro Ball",
+            "|-curestatus|p1a: Target|frz|[from] move: Sacred Fire",
+            "|-curestatus|p1a: Target|frz|[from] move: Scald",
+            "|-curestatus|p1a: Target|frz|[from] move: Scorching Sands",
+            "|-curestatus|p1a: Target|frz|[from] move: Steam Eruption",
+        )
+        rejected = (
+            "|status|p1a: Target|brn",
+            "|curestatus|p2a: Target|frz",
+            "|-status|p1a: Target|slp|[from] move: Yawn",
+            "|-status|p1a: Target|psn|[from] ability: Poison Touch|[of] p1a: Source",
+            "|-curestatus|p1a: Target|frz|[from] move: Flamethrower",
+        )
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04_slots_healing_wish_public_heal_evidence_accepts_only_pinned_full_restore_form(self):
+        exact = "|-heal|p1a: Recipient|100/100|[from] move: Healing Wish"
+        rejected = (
+            "|-heal|p1a: Recipient|100/100|[from] move: Healing Wisp",
+            "|-heal|p1a: Recipient|100/100|[from] move: Healing Wishful",
+            "|-heal|p1: Recipient|100/100|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|99/100|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|1/1|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|100/100 brn|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|100/100|[from] move: Healing Wish|[silent]",
+            "|-heal|p1a: Recipient|100/100|[silent]|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|100/100|[from] move: Healing Wish|[from] move: Healing Wish",
+            "|-heal|p1a: Recipient|100/100|[from] move: Healing Wish|[wisher] Wisher",
+        )
+        self.assertEqual(VALIDATION_RULES["healing_wish_heal"], {
+            "required_from": "[from] move: Healing Wish",
+            "required_tag_order": ["[from]"], "target_role": "active", "health": "100/100",
+        })
+        validate_protocol_record(exact)
+        validate_protocol_record("|-heal|p1a: Recipient|50/100|[from] move: Recover")
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    with self.subTest(version=version, perspective=perspective, where=where, record=exact):
+                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, exact)
+                        before = copy.deepcopy(candidate)
+                        published = validate_pipeline_bundle(candidate)
+                        self.assertEqual(published["perspective"], perspective)
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            self.assertEqual(main(), 0, stderr.getvalue())
+                        self.assertTrue(stdout.getvalue())
+                        self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04_slots_future_sight_public_boundaries_publish_only_the_pinned_forms(self):
+        records = (
+            "|-start|p1a: Seer|move: Future Sight",
+            "|-end|p2a: Target|move: Future Sight",
+            "|-damage|p2a: Target|50/100",
+        )
+        malformed = (
+            "|-start|p1: Seer|move: Future Sight",
+            "|-start|p1a: Seer|move: Future Sight|[silent]",
+            "|-start|p1a: Seer|move: Future Sigh",
+            "|-end|p2: Target|move: Future Sight",
+            "|-end|p2a: Target|move: Future Sight|[from] move: Future Sight",
+            "|-end|p2a: Target|move: Future Sightful",
+            "|-start|p1a: Seer|move:  Future Sight",
+            "|-start|p1a: Seer|move : Future Sight",
+            "|-end|p2a: Target| move: Future Sight",
+        )
+        self.assertEqual(VALIDATION_RULES["future_sight"], {
+            "effect": "move: Future Sight", "activation_command": "-start", "resolution_command": "-end",
+            "target_role": "active", "payload_fields": 1,
+        })
+        for record in records:
+            validate_protocol_record(record)
+        # Future Sight's damage emitter supplies no provenance tag. Keep the
+        # established ordinary damage grammar rather than making a generic
+        # delayed-effect family from this bounded source proof.
+        validate_protocol_record("|-damage|p2a: Target|50/100|[from] move: Tackle")
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in records:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(
+                                _bundle(perspective=perspective, version=version), where, record,
+                            )
+                            before = copy.deepcopy(candidate)
+                            published = validate_pipeline_bundle(candidate)
+                            self.assertEqual(published["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in malformed:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(
+                                _bundle(perspective=perspective, version=version), where, record,
+                            )
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce04_callback_a_ability_templates_publish_only_generated_singles_forms(self):
+        valid = (
+            "|-ability|p1a: Rayquaza|Air Lock",
+            "|-ability|p2a: Arcanine|Intimidate|boost",
+            "|-ability|p1a: Calyrex|Chilling Neigh|boost",
+            "|-ability|p2a: Calyrex|Grim Neigh|boost",
+            "|-ability|p1a: Gardevoir|Static|[from] ability: Trace|[of] p2a: Pikachu",
+            "|ability|p2a: Rayquaza|Air Lock",
+        )
+        rejected = (
+            "|-ability|p1a: Pikachu|Static|[from] ability: Receiver|[of] p1a: Eevee",
+            "|-ability|p1a: Pikachu|Static|[from] ability: Power of Alchemy|[of] p1a: Eevee",
+            "|-ability|p1a: Pikachu|Insomnia|[from] move: Worry Seed",
+            "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
+            "|-endability|p1a: Pikachu",
+            "|-ability|p1a: Torkoal|Drought|[from] sunnyday|[fail]",
+            "|ability|p1a: Pikachu|Static|[from] ability: Trace|[of] p2a: Eevee",
+            "|ability|p1a: Pikachu|Static|boost",
+            "|-ability|p1a: Pikachu|Static|[from] ability: Trace",
+            "|-ability|p1a: Gardevoir|Static|[from] ability: Trace|[of] p1a: Eevee",
+            "|-ability|p1a: Gardevoir|Definitely Not An Ability",
+            "|ability|p1a: Gardevoir|Definitely Not An Ability",
+            "|-ability|p1a: Pikachu|Static",
+            "|ability|p1a: Pikachu|Static",
+            "|-ability|p1a: Pikachu|Air Lock|boost",
+            "|-ability|p1a: Calyrex|As One (Glastrier)|boost",
+            "|-ability|p2a: Calyrex|As One (Spectrier)|boost",
+        )
+        self.assertEqual(VALIDATION_RULES["ability"]["trace_source_role"], "opposing-active")
+        self.assertIn("Air Lock", VALIDATION_RULES["ability"]["payload_domains"]["dash_reveal"])
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for record in valid:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            validate_protocol_record(record)
+                            published = validate_pipeline_bundle(candidate)
+                            self.assertEqual(published["perspective"], perspective)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                            self.assertEqual(candidate, before)
+                    for record in rejected:
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce02_repeated_singleton_tags_reject_before_python_publication(self):
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for family, kind, record in _REPEATED_SINGLETON_TAG_FIXTURES:
+                        with self.subTest(version=version, perspective=perspective, where=where, family=family, kind=kind):
+                            self.assertIn(kind, VALIDATION_RULES["event_tag_cardinality"][family])
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = copy.deepcopy(candidate)
+                            verify_bundle_identities(candidate)
+                            with self.assertRaisesRegex(ProtocolRecordError, "duplicate singleton tag kind"):
+                                validate_protocol_record(record)
+                            with self.assertRaisesRegex(PipelineRecordError, "duplicate singleton tag kind"):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(candidate, before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                result = main()
+                            self.assertEqual(result, 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
     def test_shared_protocol_contract_fixtures_cover_every_supported_command(self):
         self.assertEqual({fixture["token"] for fixture in RECORD_FIXTURES}, SUPPORTED_COMMANDS)
         self.assertEqual(len(RECORD_FIXTURES), len(SUPPORTED_COMMANDS))
@@ -249,6 +994,120 @@ class PipelineRecordTest(unittest.TestCase):
                 with self.assertRaises(ProtocolRecordError) as caught:
                     validate_protocol_record(fixture["record"])
                 self.assertEqual(caught.exception.kind, fixture["kind"])
+
+    def test_hitcount_source_grammar_rehashes_across_versions_perspectives_and_prefixes(self):
+        valid = (
+            "|-hitcount|p1a: Maushold|1",
+            "|-hitcount|p2a: Maushold|10",
+            "|-hitcount|p1: Target|1",
+            "|-hitcount|p2: Houndstone|10",
+        )
+        malformed = (
+            "|-hitcount|p1b: Example|2",
+            "|-hitcount|p2b: Example|2",
+            "|-hitcount|p1: Example|0",
+            "|-hitcount|p1: Example|11",
+            "|-hitcount|p3a: Example|2",
+            "|-hitcount|p1a:Example|2",
+            "|-hitcount|p1a: Example |2",
+            "|-hitcount|p1a: Example|02",
+            "|-hitcount|p1a: Example|2|[silent]",
+        )
+        self.assertEqual(VALIDATION_RULES["hitcount"], {
+            "target_roles": ["active", "side-only"],
+            "count_values": list(range(1, 11)),
+        })
+        for record in valid:
+            validate_protocol_record(record)
+        for record in malformed:
+            with self.subTest(record=record), self.assertRaises(ProtocolRecordError):
+                validate_protocol_record(record)
+
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    original = _bundle(perspective=perspective, version=version)
+                    for record in valid:
+                        candidate = _rehashed_protocol_candidate(original, where, record)
+                        verify_bundle_identities(candidate)
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertNotEqual(stdout.getvalue(), "")
+                    for record in malformed:
+                        candidate = _rehashed_protocol_candidate(original, where, record)
+                        verify_bundle_identities(candidate)
+                        before = copy.deepcopy(candidate)
+                        with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(candidate, before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
+
+    def test_ce02_private_diagnostics_cannot_be_rehashed_into_publication(self):
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    with self.subTest(version=version, perspective=perspective, where=where):
+                        candidate = _rehashed_protocol_candidate(
+                            _bundle(perspective=perspective, version=version), where, "|error|[Invalid choice]"
+                        )
+                        with self.assertRaisesRegex(PipelineRecordError, "private error evidence"):
+                            validate_pipeline_bundle(candidate)
+
+    def test_ce02d_only_source_shaped_auto_tie_bigerror_publishes_after_rehash(self):
+        warning = "|bigerror|You will auto-tie if the battle doesn't end in 10 turns (on turn 1000)."
+        rejected = (
+            ("EV warning", "|bigerror|Warning: One player isn't adhering to a 510 EV limit, and the other player is."),
+            ("wrong turn", "|bigerror|You will auto-tie if the battle doesn't end in 10 turns (on turn 1001)."),
+            ("field count", warning + "|unexpected"),
+            ("whitespace", warning.replace("10 turns", " 10 turns")),
+            ("tag suffix", warning + "|[from] move: Tackle"),
+        )
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    control = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, warning)
+                    verify_bundle_identities(control)
+                    published = validate_pipeline_bundle(control)
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with patch("sys.stdin", io.StringIO(json.dumps(control))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        self.assertEqual(main(), 0, stderr.getvalue())
+                    row = json.loads(stdout.getvalue())
+                    self.assertEqual(row, published)
+                    self.assertEqual(row["schema_version"], "dataset-record/v1")
+                    self.assertIn("observation_prefix_hash", row)
+                    self.assertNotIn("protocol_prefix", row)
+                    self.assertNotIn("request", row)
+                    self.assertNotIn("simulator_snapshot", row)
+                    self.assertNotIn("seed", row)
+                    self.assertNotIn("team", row)
+                    self.assertNotIn("hidden_set", row)
+                    self.assertNotIn("bigerror", json.dumps(row))
+
+                    for kind, record in rejected:
+                        candidate = _rehashed_protocol_candidate(
+                            _bundle(perspective=perspective, version=version), where, record
+                        )
+                        verify_bundle_identities(candidate)
+                        prefix = candidate[where + "_observation"]["protocol_prefix"]
+                        self.assertGreater(prefix.index(record), 0, kind)
+                        before = copy.deepcopy(candidate)
+                        with self.subTest(version=version, perspective=perspective, where=where, kind=kind):
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(candidate, before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertEqual(candidate, before)
 
     def test_rehashed_protocol_rejections_cover_versions_perspectives_and_prefixes(self):
         original_controls = {}
@@ -392,6 +1251,24 @@ class PipelineRecordTest(unittest.TestCase):
                 self.assertEqual(stdout.getvalue(), "")
                 self.assertIn("no associated request object", stderr.getvalue())
 
+    def test_fully_rehashed_private_slot_maps_reject_before_publication(self):
+        for perspective in ("p1", "p2"):
+            for where in ("input", "successor"):
+                for key in ("slotConditions", "slot_conditions", "slot_condition_state", "pending_slots"):
+                    candidate = _bundle(perspective=perspective, version="v2")
+                    observation = candidate[where + "_observation"]
+                    observation["view"][key] = {"wish": {"endingTurn": 3}}
+                    _seal_bundle(candidate)
+                    verify_bundle_identities(candidate)
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with self.subTest(perspective=perspective, where=where, key=key), \
+                            patch("sys.stdin", io.StringIO(json.dumps(candidate))), \
+                            patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                        result = main()
+                    self.assertEqual(result, 2, stderr.getvalue())
+                    self.assertEqual(stdout.getvalue(), "")
+                    self.assertIn("private simulator slot state is not publishable", stderr.getvalue().lower())
+
     def test_player_ident_rejections_cover_singleturn_event_tags_and_side_targets(self):
         rejected = {fixture["record"] for fixture in REJECTION_FIXTURES}
         for record in (
@@ -422,7 +1299,7 @@ class PipelineRecordTest(unittest.TestCase):
         ):
             validate_protocol_record(record)
 
-    def test_rehashed_singleturn_source_controls_publish_across_versions_and_prefixes(self):
+    def test_rehashed_singleturn_and_singlemove_source_controls_publish_across_versions_and_prefixes(self):
         controls = [control for control in VALID_RECORD_CONTROLS if control["token"] == "-singleturn"]
         player_ident_controls = [
             control for control in VALID_RECORD_CONTROLS
@@ -459,6 +1336,18 @@ class PipelineRecordTest(unittest.TestCase):
             ["p1a: Pikachu", "p2a: Eevee"],
         )
         cases = 0
+        singlemove_controls = [control for control in VALID_RECORD_CONTROLS if control["token"] == "-singlemove"]
+        self.assertEqual([control["record"].split("|")[3:] for control in singlemove_controls], VALIDATION_RULES["singlemove"]["forms"])
+        anim_controls = [control for control in VALID_RECORD_CONTROLS if control["token"] == "-anim"]
+        self.assertEqual([[control["record"].split("|")[3]] for control in anim_controls], VALIDATION_RULES["anim"]["forms"])
+        controls = controls + [
+            {**control, "record": control["record"].replace("p1a: Pikachu", target)}
+            for control in singlemove_controls for target in ("p1a: Pikachu", "p2a: Eevee")
+        ]
+        controls = controls + [
+            {**control, "record": control["record"].replace("p1a: Pikachu", "p2a: Pikachu").replace("p2a: Eevee", "p1a: Eevee")}
+            for control in anim_controls
+        ]
         for version in ("v1", "v2"):
             for perspective in ("p1", "p2"):
                 original = _bundle(perspective=perspective, version=version)
@@ -477,6 +1366,126 @@ class PipelineRecordTest(unittest.TestCase):
                         cases += 1
         self.assertEqual(cases, (len(controls) + len(player_ident_controls)) * 8)
 
+    def test_viewless_v1_replays_prefix_before_historical_compatibility(self):
+        def strip_typed_view(bundle):
+            for which in ("input", "successor"):
+                view = bundle[which + "_observation"]["view"]
+                for key in ("self_team", "opponent_team", "field"):
+                    view.pop(key, None)
+            return _seal_bundle(bundle)
+
+        cases = []
+        substitute = _rehashed_protocol_candidate(
+            _bundle(version="v1"), "input", "|switch|p1a: Pikachu|Pikachu, L80|100/100"
+        )
+        substitute = _rehashed_protocol_candidate(substitute, "input", "|-start|p1a: Pikachu|Substitute")
+        cases.append(("substitute missing row", strip_typed_view(substitute), True))
+
+        side_condition = _rehashed_protocol_candidate(
+            _bundle(version="v1"), "input", "|-sidestart|p1: Pikachu|Spikes"
+        )
+        cases.append(("side condition unrepresented", strip_typed_view(side_condition), True))
+
+        valid = strip_typed_view(_bundle(version="v1"))
+        cases.append(("empty typed projection", valid, False))
+
+        for label, candidate, rejects in cases:
+            with self.subTest(label=label):
+                verify_bundle_identities(candidate)
+                before = copy.deepcopy(candidate)
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                    result = main()
+                self.assertEqual(candidate, before)
+                if rejects:
+                    self.assertEqual(result, 2, stderr.getvalue())
+                    self.assertEqual(stdout.getvalue(), "")
+                    self.assertIn("Typed lifecycle evidence mismatch", stderr.getvalue())
+                else:
+                    self.assertEqual(result, 0, stderr.getvalue())
+                    self.assertTrue(stdout.getvalue())
+
+    def test_spirit_shackle_trap_evidence_publishes_raw_without_a_public_link(self):
+        record = "|-activate|p1a: Warden|trapped"
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    with self.subTest(version=version, perspective=perspective, where=where, record=record):
+                        candidate = _rehashed_protocol_candidate(
+                            _bundle(perspective=perspective, version=version), where, record
+                        )
+                        validate_protocol_record(record)
+                        validate_pipeline_bundle(candidate)
+                        self.assertNotIn("trapper", json.dumps(candidate))
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                            self.assertEqual(main(), 0, stderr.getvalue())
+                        self.assertTrue(stdout.getvalue())
+        for malformed in (
+            "|-activate|p2a: Target|trapped|[of] p1a: Warden",
+            "|-activate|p2a: Target|trapped|[from] move: Spirit Shackle",
+            "|-activate|p2a: Target|trapped|source",
+            "|-activate|p2a: Target |trapped",
+            "|-activate|p2a: Target|trapped ",
+            "|-activate|p2: Target|trapped",
+        ):
+            with self.subTest(malformed=malformed):
+                with self.assertRaises(ProtocolRecordError):
+                    validate_protocol_record(malformed)
+                for version in ("v1", "v2"):
+                    for perspective in ("p1", "p2"):
+                        for where in ("input", "successor"):
+                            candidate = _rehashed_protocol_candidate(
+                                _bundle(perspective=perspective, version=version), where, malformed
+                            )
+                            before = json.dumps(candidate, sort_keys=True)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(json.dumps(candidate, sort_keys=True), before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+        with self.assertRaises(ProtocolRecordError):
+            validate_protocol_record("|-activate|p1: Warden|trapped")
+
+    def test_ce05_repeat_use_hint_is_exact_raw_evidence_across_versions_and_prefixes(self):
+        valid = tuple(VALIDATION_RULES["repeat_use_hint"]["messages"])
+        malformed = (
+            "Some effects can force a Pokemon to use Blood Moon again in a row.|extra",
+            "Some effects can force a Pokemon to use Blood Moon again in a row. ",
+            "Some effects can force a Pokemon to use bloodmoon again in a row.",
+            "Some effects can force a Pokemon to use Thunderbolt again in a row.",
+            " Some effects can force a Pokemon to use Gigaton Hammer again in a row.",
+        )
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    for message in valid:
+                        record = "|-hint|" + message
+                        with self.subTest(valid=True, version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            validate_protocol_record(record)
+                            validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 0, stderr.getvalue())
+                            self.assertTrue(stdout.getvalue())
+                    for message in malformed:
+                        record = "|-hint|" + message
+                        with self.subTest(valid=False, version=version, perspective=perspective, where=where, record=record):
+                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            before = json.dumps(candidate, sort_keys=True)
+                            with self.assertRaises(ProtocolRecordError):
+                                validate_protocol_record(record)
+                            with self.assertRaises(PipelineRecordError):
+                                validate_pipeline_bundle(candidate)
+                            self.assertEqual(json.dumps(candidate, sort_keys=True), before)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+
     def test_shared_contract_loader_rejects_inconsistent_and_unsupported_shapes(self):
         from pathlib import Path
         contract_path = Path(__file__).parents[1] / "src/neural/protocol_contract.json"
@@ -485,7 +1494,10 @@ class PipelineRecordTest(unittest.TestCase):
         wrong_type = copy.deepcopy(base); wrong_type["supported_commands"] = "move"; invalid.append(wrong_type)
         unknown_rule = copy.deepcopy(base); unknown_rule["validation_rules"]["integer"]["lexeme"] = "unicode-decimal"; invalid.append(unknown_rule)
         invalid_ident = copy.deepcopy(base); invalid_ident["validation_rules"]["player_ident"]["separator"] = ":"; invalid.append(invalid_ident)
+        invalid_hitcount = copy.deepcopy(base); invalid_hitcount["validation_rules"]["hitcount"]["count_values"].pop(); invalid.append(invalid_hitcount)
         mismatched_singleturn = copy.deepcopy(base); mismatched_singleturn["validation_rules"]["singleturn"]["tagged_forms"][0]["tag"] = "[of]"; invalid.append(mismatched_singleturn)
+        mismatched_singlemove = copy.deepcopy(base); mismatched_singlemove["validation_rules"]["singlemove"]["forms"][1].pop(); invalid.append(mismatched_singlemove)
+        invented_singlemove = copy.deepcopy(base); invented_singlemove["validation_rules"]["singlemove"]["forms"].append(["Future Mechanic"]); invalid.append(invented_singlemove)
         unknown_rule_key = copy.deepcopy(base); unknown_rule_key["validation_rules"]["future"] = {}; invalid.append(unknown_rule_key)
         duplicate = copy.deepcopy(base); duplicate["supported_commands"].append(duplicate["supported_commands"][0]); invalid.append(duplicate)
         mismatched_fixture = copy.deepcopy(base); next(row for row in mismatched_fixture["record_fixtures"] if row["token"] == "ability")["token"] = "-ability"; invalid.append(mismatched_fixture)

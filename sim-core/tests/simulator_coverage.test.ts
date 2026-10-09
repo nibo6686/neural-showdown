@@ -6,6 +6,7 @@ import { Battle, Teams } from 'pokemon-showdown';
 import { buildLegalActionSet, normalizeRequest } from '../src/action_codec';
 import { EffectInventoryError } from '../src/effect_inventory';
 import { validateRawProtocolRecord } from '../src/observable_state';
+import { projectPipelineProtocolPrefix } from '../src/pipeline_integration';
 import { PlayerStateExtractor } from '../src/state_extractor';
 
 type TeamSpec = { species: string; moves: string[]; ability?: string; item?: string };
@@ -108,21 +109,40 @@ test('pinned simulator emits supported cant and multihit-count protocol variants
 });
 
 test('effect inventory permits classified typed values and keeps raw-only evidence out of typed state', () => {
+  const glaiveRush = '|-singlemove|p1a: Mew|Glaive Rush|[silent]';
   const extractor = new PlayerStateExtractor('effect-inventory', 'gen9randombattle', 'p1');
   extractor.consumeChunk([
     '|switch|p1a: Mew|Mew, L50|100/100',
-    '|-start|p1a: Mew|glaiverush',
+    glaiveRush,
     '|-start|p1a: Mew|fly',
-    '|-weather|raindance',
-    '|-fieldstart|electricterrain',
-    '|-sidestart|p1: P1|stealthrock',
+    '|-weather|RainDance',
+    '|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin',
+    '|-sidestart|p1: P1|move: Stealth Rock',
   ].join('\n'));
-  assert.ok(extractor.getView().self_team[0].volatiles.includes('glaiverush'));
+  assert.deepEqual(projectPipelineProtocolPrefix([glaiveRush]), [glaiveRush]);
+  assert.ok(!extractor.getView().self_team[0].volatiles.includes('glaiverush'));
   assert.ok(!extractor.getView().self_team[0].volatiles.includes('fly'));
   assert.equal(extractor.getView().field.weather, 'raindance');
   assert.ok(extractor.getView().field.pseudo_weather.includes('electricterrain'));
   assert.equal(extractor.getView().field.side_conditions.self.stealthrock, 1);
-  assert.doesNotThrow(() => validateRawProtocolRecord('|-sidestart|p1: P1|stealthrock'));
+  assert.doesNotThrow(() => validateRawProtocolRecord('|-sidestart|p1: P1|move: Stealth Rock'));
+});
+
+test('Protosynthesis and Quark Drive finite best-stat start tags remain raw-only', () => {
+  const effects = [
+    'protosynthesisatk', 'protosynthesisdef', 'protosynthesisspa', 'protosynthesisspd', 'protosynthesisspe',
+    'quarkdriveatk', 'quarkdrivedef', 'quarkdrivespa', 'quarkdrivespd', 'quarkdrivespe',
+  ];
+  for (const effect of effects) {
+    const record = `|-start|p1a: Mew|${effect}`;
+    const extractor = new PlayerStateExtractor(`raw-${effect}`, 'gen9randombattle', 'p1');
+    extractor.consumeChunk('|switch|p1a: Mew|Mew, L50|100/100');
+    assert.doesNotThrow(() => validateRawProtocolRecord(record), record);
+    extractor.consumeChunk(record);
+    assert.deepEqual(extractor.getView().self_team[0].volatiles, [], record);
+  }
+  assert.throws(() => validateRawProtocolRecord('|-start|p1a: Mew|protosynthesishp'), EffectInventoryError);
+  assert.throws(() => validateRawProtocolRecord('|-start|p1a: Mew|quarkdriveaccuracy'), EffectInventoryError);
 });
 
 test('unknown volatile, field, and side values fail before TypeScript projection', () => {
@@ -158,7 +178,7 @@ test('represented value in the wrong typed family fails before TypeScript projec
   assert.deepEqual(extractor.getView(), before);
 });
 
-test('pinned Costar callback emits and projects its dynamically copied classified volatile', () => {
+test('Costar copied volatile evidence remains raw-only pending lifecycle closure', () => {
   const sim = new Battle({
     formatid: 'gen9doublescustomgame',
     seed: [1, 2, 3, 4],
@@ -188,7 +208,8 @@ test('pinned Costar callback emits and projects its dynamically copied classifie
     line.startsWith('|switch|p1a:') || line.startsWith('|switch|p1b:') || line.startsWith('|-start|p1a:') || line.startsWith('|-start|p1b:'));
   extractor.consumeChunk(relevantEvidence.join('\n'));
   const flamigo = extractor.getView().self_team.find((pokemon) => pokemon.species === 'Flamigo');
-  assert.ok(flamigo?.volatiles.includes('dragoncheer'));
+  assert.ok(!flamigo?.volatiles.includes('dragoncheer'));
+  assert.ok(relevantEvidence.includes(copied), 'the copied callback event remains in raw public evidence');
 });
 
 test('coverage checker covers config drift, local source hashing, and reachability routes', () => {
@@ -200,4 +221,22 @@ test('coverage checker covers config drift, local source hashing, and reachabili
   assert.match(result.stdout, /omitting listed lock changes local source digest/);
   assert.match(result.stdout, /missing listed lock source fails closed/);
   assert.match(result.stdout, /direct, indirect, package-only, raw-only, unsupported, and unknown forms route explicitly/);
+  assert.match(result.stdout, /CE-03A generated candidates, finite values, selectors, and guards match the manifest/);
+  assert.match(result.stdout, /CE-03A changed generated candidate set fails closed/);
+  assert.match(result.stdout, /CE-03A changed finite generated value fails closed/);
+  assert.match(result.stdout, /CE-03A changed item\/ability format guard fails closed/);
+  assert.match(result.stdout, /B05\/B06\/B09\/B11\/B12\/B13 dispositions and evidence agree across source, manifest, audit, and tests/);
+  for (const id of ['C22', 'C23']) {
+    assert.ok(result.stdout.includes(`${id} unsupported scope expansion fails closed`));
+  }
+  assert.match(result.stdout, /invented C22 acceptance fails closed/);
+  assert.match(result.stdout, /C22 acceptance without finite authority evidence fails closed/);
+  assert.match(result.stdout, /FCE-01 aggregate disposition cannot hide resolved\/unresolved drift/);
+  for (const proof of ['B05', 'B06', 'B09', 'B11', 'B12', 'B13']) {
+    assert.match(result.stdout, new RegExp(`${proof} computed volatile disposition drift fails closed`));
+  }
+  for (const proof of ['B05', 'B06', 'B09', 'B11', 'B12', 'B13']) {
+    assert.match(result.stdout, new RegExp(`${proof} computed volatile audit disposition drift fails closed`));
+  }
+  assert.match(result.stdout, /B05\/B06 no-route proof fails closed when direct candidate roots appear/);
 });

@@ -115,6 +115,8 @@ export interface PokemonView {
   base_ability: string | null;
   ability_state: 'unknown' | 'known' | 'changed' | 'none' | 'suppressed';
   ability_suppressed: boolean;
+  /** Internal effectiveness certainty; never an opponent loadout inference. */
+  ability_effectiveness?: 'active' | 'suppressed' | 'unknown';
   moves: string[];
   revealed_moves: string[];
   types: string[];

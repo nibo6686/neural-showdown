@@ -57,14 +57,14 @@
       "input": {
         "protocol_prefix": [
           "|switch|p1a: Pikachu|Pikachu, L80|100/100",
-          "|replace|p2a: Eevee|Eevee, L80|100/100",
           "|-damage|p1a: Pikachu|50/100",
           "|-heal|p1a: Pikachu|75/100",
           "|-status|p1a: Pikachu|brn",
           "|-boost|p1a: Pikachu|atk|1",
           "|-terastallize|p1a: Pikachu|Water",
           "|-transform|p1a: Pikachu|p2a: Eevee",
-          "|-ability|p1a: Pikachu|Illusion",
+          "|replace|p1a: Zoroark|Zoroark, L80",
+          "|-end|p1a: Zoroark|Illusion",
           "|faint|p2a: Eevee"
         ],
         "snapshot_phase": "post_resolution"
@@ -78,14 +78,14 @@
         "event_cursor": 10,
         "protocol_prefix": [
           "|switch|p1a: Pikachu|Pikachu, L80|100/100",
-          "|replace|p2a: Eevee|Eevee, L80|100/100",
           "|-damage|p1a: Pikachu|50/100",
           "|-heal|p1a: Pikachu|75/100",
           "|-status|p1a: Pikachu|brn",
           "|-boost|p1a: Pikachu|atk|1",
           "|-terastallize|p1a: Pikachu|Water",
           "|-transform|p1a: Pikachu|p2a: Eevee",
-          "|-ability|p1a: Pikachu|Illusion",
+          "|replace|p1a: Zoroark|Zoroark, L80",
+          "|-end|p1a: Zoroark|Illusion",
           "|faint|p2a: Eevee"
         ],
         "decision_availability": {"available": true, "reason": "request", "legal_action_indices": [0]},

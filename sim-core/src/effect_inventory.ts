@@ -15,6 +15,10 @@ type EffectDiscovery = {
 type CoverageManifest = {
   condition_inventory: InventoryEntry[];
   effect_discovery: EffectDiscovery;
+  public_typed_state_lifecycle?: {
+    schema_version: string;
+    entries: Array<{ id: string; family: EffectFamily; disposition: string }>;
+  };
 };
 
 export type EffectDisposition = 'represented' | 'raw-only';
@@ -48,6 +52,8 @@ function loadCoverageManifest(): CoverageManifest {
 }
 
 const manifest = loadCoverageManifest();
+const lifecycleEntries = new Map((manifest.public_typed_state_lifecycle?.entries || [])
+  .map((entry) => [`${entry.family}:${entry.id}`, entry]));
 const entries = new Map<string, InventoryEntry>();
 for (const item of [...manifest.condition_inventory, ...manifest.effect_discovery.additional_entries]) {
   if (entries.has(item.id)) throw new Error(`Duplicate simulator effect inventory ID ${item.id}.`);
@@ -84,6 +90,11 @@ export function classifyEffectRecord(command: string, rawValue: string): EffectD
   const identifier = toEffectID(sourcePrefix ? rawValue.slice(sourcePrefix[0].length) : rawValue);
   const item = entries.get(identifier);
   if (!item) throw new EffectInventoryError(command, rule.family, rawValue);
+  const lifecycle = lifecycleEntries.get(`${rule.family}:${identifier}`);
+  if (lifecycle?.disposition === 'raw-only') return 'raw-only';
+  if (lifecycle?.disposition === 'source-proven-unreachable' || lifecycle?.disposition === 'unsupported-fail-closed') {
+    throw new EffectInventoryError(command, rule.family, rawValue, lifecycle.disposition);
+  }
   if (item.classification === 'raw-only') return 'raw-only';
   if (item.classification !== 'represented') throw new EffectInventoryError(command, rule.family, rawValue, item.classification);
   if (!rule.categories.includes(item.category)) throw new EffectInventoryError(command, rule.family, rawValue, `family-mismatch:${item.category}`);

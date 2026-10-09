@@ -1,3 +1,4 @@
+import { completeSyntheticHealthView } from './public_consequence_test_helpers';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -173,6 +174,7 @@ function fixtureInput(testCase: FixtureCase, prefix = testCase.input.protocol_pr
       pokemon(3, 'p2b: Eevee', 'Eevee', { active: true, fainted: hasFaint, hp_text: hasFaint ? '0 fnt' : '100/100', hp_ratio: hasFaint ? 0 : 1 }),
     ];
   }
+  completeSyntheticHealthView(view, prefix, 'p1', testCase.input.private_request);
   const base = {
     schema_version: OBSERVABLE_STATE_SCHEMA_VERSION,
     source_kind: 'sim_core' as const,
@@ -253,6 +255,23 @@ test('observable-state golden fixtures preserve expected decision-time projectio
       assert.equal(state.view.opponent_team[1]?.fainted, assertions.opponent_fainted);
     }
   }
+});
+
+test('observable-state golden Illusion reveal is source-shaped and rejects fabricated dash ability evidence', () => {
+  const testCase = fixture.cases.find(({ name }) => name === 'battle-events-preserve-ordered-prefix');
+  assert.ok(testCase);
+  const prefix = testCase.input.protocol_prefix;
+  const replace = '|replace|p1a: Zoroark|Zoroark, L80';
+  const end = '|-end|p1a: Zoroark|Illusion';
+  assert.equal(prefix.indexOf(end), prefix.indexOf(replace) + 1);
+  assert.doesNotThrow(() => projectObservableBattleState(fixtureInput(testCase)));
+  assert.throws(
+    () => projectObservableBattleState(fixtureInput(testCase, [
+      ...prefix.filter((record) => record !== replace && record !== end),
+      '|-ability|p1a: Pikachu|Illusion',
+    ])),
+    /outside the dash_reveal source-proven domain/,
+  );
 });
 
 test('observable-state golden fixture sequence requires exact ordered prefix extension', () => {

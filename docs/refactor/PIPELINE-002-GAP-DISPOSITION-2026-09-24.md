@@ -1,5 +1,103 @@
 # PIPELINE-002 gap disposition — 2026-09-24
 
+## CE-01 `-singlemove` raw-protocol closure — implementation checkpoint (2026-10-01)
+
+- The shared TypeScript/Python contract now accepts only four pinned base-source
+  forms as raw public evidence: `-singlemove|ACTIVE|Destiny Bond`,
+  `-singlemove|ACTIVE|Glaive Rush|[silent]`,
+  `-singlemove|ACTIVE|Grudge`, and `-singlemove|ACTIVE|Rage`. The first two
+  have generated-set source witnesses; Grudge and Rage remain package-only/
+  indirect-reachability-unproven and receive no format or mechanic acceptance.
+- Every other `-singlemove` spelling is malformed before projection and Python
+  publication. This includes missing, reordered, duplicated, invented and
+  category-prefixed fields, extra tags, and side-only or malformed target
+  identifiers. Rejection leaves the committed boundary and lineage unchanged
+  and emits no DATA-001 row.
+- The exact records remain raw-only. They create no typed volatile, belief
+  inference, timer, action restriction, or hidden-state disclosure; legal
+  actions continue to come only from the addressed request.
+- Focused review accepted CE-01's exact raw-evidence boundary and attested local
+  digest `1a3a57ceaf5096b6a83b2466c13e01b6206ad04939409adb170ed4428e0affbd`.
+  This does not accept PIPELINE-002, assert complete-episode behavior, or alter
+  the remaining closure backlog; `faithful_complete_episode:false` remains
+  required.
+
+### CE-01 aggregate Glaive Rush typed-state repair checkpoint (2026-10-06, unreviewed)
+
+The aggregate simulator-coverage fixture had retained a synthetic `-start`
+Glaive Rush record and asserted a typed volatile. Pinned
+`Moves.glaiverush.condition.onStart` instead emits the exact raw public record
+`|-singlemove|ACTIVE|Glaive Rush|[silent]`; its `self.volatileStatus` is
+simulator-only. The repaired aggregate control retains the exact record in the
+public prefix and proves that extraction creates no typed volatile. Existing
+source-engine witnesses, both-perspective privacy, restored deterministic
+continuation, rollback, historical fixture behavior, and Python publication
+coverage are unchanged. The checker reports
+`457396db95e5b3ff641e8e849007a86b7456ff093ca3f48f730b2bca4540a44c`
+as unreviewed local drift. Manifest digest/review fields remain unchanged; no
+new CE-01 or PIPELINE-002 acceptance is attested.
+
+**CE-01 aggregate Glaive Rush typed-state repair verdict (2026-10-06, accepted):**
+Review verified the pinned `pokemon-showdown@0.11.10`
+`Moves.glaiverush.condition.onStart` emitter produces only the exact public
+`-singlemove|ACTIVE|Glaive Rush|[silent]` record; the volatile, accuracy, and
+damage behavior remain simulator-only. The repaired aggregate fixture retains
+that raw prefix and proves no typed `glaiverush` volatile is created. Focused
+source-witness, TypeScript contract/extractor/protocol, both-perspective
+restore/rollback/privacy, and Python publication tests passed, as did the
+aggregate coverage suite, checker self-test, and post-attestation checker.
+Digest `457396db95e5b3ff641e8e849007a86b7456ff093ca3f48f730b2bca4540a44c`
+is attested only for this aggregate-fixture repair. No generic mechanic or
+damage model, private state, CE-01 lifecycle expansion, PIPELINE-002
+acceptance, or complete-episode claim is added; `faithful_complete_episode:false`
+remains required.
+
+## CE-04D3 generated Court Change witness repair checkpoint (2026-10-05, unreviewed)
+
+`sim-core/tests/court_change.test.ts` now generates every witness through the
+pinned `Teams.generate('gen9randombattle', {seed})` path. The source roots are
+Cinderace `[91,274,457,640]`; Skarmory/Spikes `[212,637,1062,1487]`; Iron
+Treads/Stealth Rock `[6,19,32,45]`; Ribombee/Sticky Web `[26,79,132,185]`;
+Meowstic/Reflect + Light Screen `[32,97,162,227]`; Abomasnow/Aurora Veil
+`[45,136,227,318]`; Ariados/two-layer Toxic Spikes `[119,358,597,836]`; and
+Shiftry/Tailwind `[110,331,552,773]`. No fixture assigns a move, ability,
+item, weather, or battle state. Abomasnow's generated Snow Warning establishes
+the Aurora Veil weather route.
+
+Mirrored p1/p2 v2 witnesses execute legal generated switches/actions, prove
+asymmetric transfers for all eight reachable represented siblings, post-swap
+hazard switch-ins, Tailwind expiry, deterministic twin identity, direct-runtime
+restore, stale-rqid rollback, public-only observations, and both Python
+successor publications. Focused Court Change/contract/extractor/pipeline
+TypeScript tests passed 80/80; Python publication tests passed 41/41; the
+coverage reachability self-test and `git diff --check` passed. The normal
+coverage checker reports unreviewed local digest
+`110e286b51c6c1530b231cc428c498711a0fa067ad93a535029df9bfb5110856`.
+No coverage manifest or attestation field changed.
+
+The broader `simulator_coverage.test` remains a separate reproducible baseline
+failure: two consecutive runs fail 1/9 because its pre-existing
+`|-weather|raindance` fixture is rejected as unsupported generated weather.
+This repair does not change that test, weather validation, PIPELINE-002
+acceptance, or `faithful_complete_episode:false`.
+
+**CE-04D3 scoped review verdict (2026-10-05, accepted):** Review accepts the
+source-faithful generated Court Change witness set and exact public boundary.
+Separate seeded generator roots cover Cinderace/Court Change and all eight
+reachable represented side conditions: Spikes, Stealth Rock, Sticky Web,
+Reflect, Light Screen, Aurora Veil under generated Snow Warning, two-layer
+Toxic Spikes, and Tailwind. Mirrored p1/p2 v2 sessions use legal actions only,
+prove asymmetric count/presence transfer, direct restore and deterministic
+continuation, stale-rqid rollback, request privacy, later hazard/Tailwind
+evidence, and Python successor publication. Exact grammar and the finite
+normal-side transfer list remain bounded; weather and all other field state do
+not transfer. Mist, Safeguard, Lucky Chant, Pledges, and G-Max conditions retain
+the documented no-route dispositions. Digest
+`110e286b51c6c1530b231cc428c498711a0fa067ad93a535029df9bfb5110856` is
+attested for CE-04D3 only. The independent legacy `|-weather|raindance`
+simulator-coverage failure remains outside this scope; PIPELINE-002 and
+`faithful_complete_episode:false` remain unchanged.
+
 ## SLICE-003 v2 per-side projection closure — implementation checkpoint (2026-09-29)
 
 - Start: branch `refactor/state-001-observable-state`, HEAD
@@ -1282,3 +1380,1232 @@ order, request refresh, restoration and deterministic Python publication; ordina
 clear-all and accepted Transform behavior remain compatible. Keep copy/swap/inversion,
 Baton Pass, broader lifecycle/field reconstruction and feature consumers separate.
 `faithful_complete_episode:false` remains required.
+
+### CE-02 checkpoint — grammar and audience boundary (2026-10-01)
+
+CE-02 adds no coverage-digest attestation and does not accept PIPELINE-002.
+The shared contract now classifies the six bare v2-stage aliases as represented,
+states the validator-effective `move` target grammar, orders accepted HP/stage
+tags, and rejects repeated source-singleton HP/heal/stage tag kinds before TypeScript
+projection or Python publication; it also requires the reviewed exact `clearpositiveboost` payload. The pinned
+public auto-tie `bigerror` warning is raw-only and exact; other diagnostic text
+is rejected. Spectator ingestion and both publication boundaries fail closed if
+private request/error/split evidence appears. CE-03 source/reachability rows,
+complete-episode evidence, and `faithful_complete_episode:false` remain open.
+The observable-state fixture's exact Destiny Bond control is aligned with the
+already accepted CE-01 raw grammar; its malformed tagged variant remains a stop.
+Focused macOS validation for the CE-02 singleton-tag repair computes unreviewed local coverage digest
+`ff28391b147085606c0cdd7898abca255ba6d0e6407247daef5912ecd33ab74e`.
+The manifest's stored and reviewed CE-01 digest remains unchanged; semantic
+acceptance and any CE-02 digest attestation require a separate review.
+
+### CE-02 checkpoint — spectator private-channel ingress repair (2026-10-01)
+
+`appendPublicSpectatorChunk`, the `listenSpectator` ingestion boundary, now
+rejects every CE-02 nonpublic command (`request`, `error`, `split`, `debug`,
+and `showteam`) before appending to the public candidate log. The addressed
+player request path remains unchanged. Focused TypeScript checks exercise each
+record through direct validation and the candidate-ingress path, prove that a
+rejection leaves the accumulated public candidate untouched, and retain public
+`turn` and exact auto-tie warning controls. This is an unreviewed repair;
+CE-03 route proof, CE-02 semantic acceptance, and `faithful_complete_episode:false`
+remain unchanged. The resulting unreviewed local coverage digest is recorded
+by the focused checker: `8e9fa02026be4613695a3e0996ce27370fedf34e956d6f8753e6d7f87475b232`.
+
+### CE-02 scoped review verdict (2026-10-01)
+
+Focused review accepts the complete bounded CE-02 grammar, privacy-routing,
+and reachability closure batch, including the singleton-tag and spectator-ingress
+repairs. It attests local coverage digest
+`8e9fa02026be4613695a3e0996ce27370fedf34e956d6f8753e6d7f87475b232`.
+This verdict does not accept PIPELINE-002, close CE-03, or change
+`faithful_complete_episode:false`.
+
+### CE-03A checkpoint — generator-to-output closure ledger (2026-10-01)
+
+CE-03A binds the pinned direct `gen9randombattle` generator surface without
+adding lifecycle behavior. The coverage checker now compares the complete
+generated move and ability candidate memberships, finite direct move-origin
+sets for `twoturnmove`, `cantusetwice`, and `moveData.volatileStatus`, plus the
+`randomMoveset`/ability/item selector source slices and the singles/doubles
+item guard. It fails closed on a new direct candidate, finite value, selector,
+or guard until the closure ledger has an explicit disposition.
+
+The ledger distinguishes authored membership, generator selection, and realized
+battle witnesses. It records deterministic generated Destiny Bond/Glaive Rush
+witnesses as CE-01 raw-only evidence; it leaves repeat-use hints, called/copy
+two-turn paths, callback-mutated volatile values, ability/item callback output,
+and linked status as CE-03B/CE-04 work. No item, ability, lifecycle, request,
+episode-envelope, or `faithful_complete_episode` behavior changed.
+
+Focused source/configuration self-tests cover synthetic generated-candidate,
+finite-value, and item/ability guard drift. The new local digest is unreviewed:
+`3adb4789cb87e6a8750af0e8fefa9d424e40ee25b61a870e1c54ca5fbf1be774`.
+This is not a PIPELINE-002 or faithful-episode acceptance.
+
+### CE-03A scoped review verdict (2026-10-01)
+
+Focused review accepts the bounded direct generator-to-output ledger and its
+fail-closed drift coverage. It attests local coverage digest
+`3adb4789cb87e6a8750af0e8fefa9d424e40ee25b61a870e1c54ca5fbf1be774`.
+This verdict does not close CE-03B/CE-04, accept PIPELINE-002, or change
+`faithful_complete_episode:false`.
+
+### CE-03B checkpoint — indirect and no-route source proofs (2026-10-01)
+
+The [complete-episode audit](COMPLETE_EPISODE_CLOSURE_AUDIT.md#ce-03b-source-proof-closure-matrix-2026-10-01)
+now contains the CE-03B proof matrix B01–B32 for all assigned C/R routes.
+These are source-proof dispositions for the pinned generated-origin path,
+not a coverage attestation or an acceptance of capture/lifecycle behavior.
+Historical candidate/unproven labels remain historical; the new matrix is the
+current evidence checkpoint for the paths it explicitly proves.
+
+The move-access proof starts with 350 authored IDs, follows Sleep Talk's own
+slots, Transform/Imposter copying, Magic Bounce reflection, Dancer re-execution
+and Encore/lock selection, and adds only Struggle (recharge is a control
+request). Metronome and other registry/call/copy expanders have no seed.
+The ability bound is 203 authored candidates plus the six Ogerpon/Terapagos
+form defaults; item selectors and existing-item transfer/reuse give a finite
+66-ID conservative bound, with five Gluttony alternatives explicitly
+unreachable. These are bounds, not claims that every candidate is selected
+or witnessed. Items and selector inputs remain private until public evidence.
+
+This closes source no-route obligations for Grudge/Rage, Instruct, Psych Up,
+unseeded singleturn/two-turn/stage-swap/theft/Baton Pass/Reflect Type routes,
+unseeded copied abilities/items, parser aliases and legacy RainDance field-end,
+and the named other-format routes. Costar/Commander also have independent
+single-active ally-guard proofs. Contrary+Belly Drum is excluded by the
+relational slot/ability-copy proof, not independent candidate absence.
+Lunar Dance/Doom Desire are unseeded; healreplacement is a Z-only slot path.
+Revival's active-target/fainted-reviver and simultaneous two-side selection
+variants have singles source-order no-route proofs; consecutive selections
+and copied users remain explicit CE-05 capture obligations. Requestless or
+all-wait nonterminal snapshots are transient/error states, not stable engine
+decisions; settling/restoration acceptance remains CE-05.
+
+**New narrow reachable blocker: CE-04-ANIM.** Generated Sunflora using Solar
+Beam in sun and generated Armarouge consuming Power Herb for Meteor Beam emit
+public `-anim` forms rejected by the current Spectral-Thief-only grammar.
+Minimal source reproductions use `Teams.generate('gen9randombattle',
+{seed:[n,2,3,4]})[slot]` (zero-based): Sunflora `93/4` versus Ursaluna-Bloodmoon
+`53/5`, `sunnyday/calmmind` then `solarbeam/calmmind`; or Armarouge `22/4`
+versus that Ursaluna, `meteorbeam/calmmind`. A controlled battle with seed
+`[1,2,3,4]` emits respectively `|-anim|p1a: Sunflora|Solar Beam|p2a: Ursaluna`
+and `|-anim|p1a: Armarouge|Meteor Beam|p2a: Ursaluna`; both are expected
+`Unsupported raw -anim record.` rejections. The future child must derive
+source suffixes/roles and validate both runtimes, with no generic allowlist.
+No correction was implemented here.
+
+Other precise children retain existing semantics boundaries: Shed Tail silently
+transfers only Substitute, Spirit Shackle establishes private trapped/trapper
+links, ability/item/slot consequences need existing-field truth validation,
+and Encore can force repeated Blood Moon/Gigaton Hammer before the next
+Struggle request. The audit gives exact generated-set witnesses and focused
+OBS/BEL/ACT/TRANS/PRO/PIPE/DATA acceptance obligations for CE-04/CE-05.
+
+Validation: local source/configuration probes confirmed the domains, sole
+generated call entry and 21 nested move-hit volatile values; deterministic
+witnesses confirmed both rejected charge animations, both accepted repeat-use
+hints with subsequent Struggle requests, Spirit Shackle links, and Shed Tail's
+Substitute-only transfer. These use real selected sets in controlled source
+battles and do not claim full random episodes or absence from sampling.
+`git diff --check` passed. Only this checkpoint and the closure audit changed.
+All proof dependencies are already covered by the scanner's source/runtime
+root hashes, so no scanner regression was needed. No manifest, code, test,
+dependency, or digest field changed; existing attestation
+`3adb4789cb87e6a8750af0e8fefa9d424e40ee25b61a870e1c54ca5fbf1be774`
+is untouched. **CE-03B scoped source-evidence review verdict: unresolved.**
+B10/CE-04-ANIM omits Dragon Darts: pinned `data/moves.ts:4265–4275` marks it
+two-hit `smartTarget`, and `sim/battle-actions.ts:896–898` emits `-anim` on the
+second hit. `Teams.generate('gen9randombattle', {seed:[59,2,3,4]})` selects a
+Dragapult set with Dragon Darts; a controlled battle (seed `[1,2,3,4]`) against
+passive Snorlax emits `|-anim|p1a: Dragapult|Dragon Darts|p2a: Snorlax` after
+`dragondarts`/`splash`. The current raw grammar accepts only Spectral Thief, so
+this reachable single-target animation remains unaccounted. Include the exact
+form in the source disposition and CE-04-ANIM boundary before closing CE-03B.
+No parser or runtime change was made; PIPELINE-002 and
+`faithful_complete_episode:false` remain unchanged.
+
+### CE-04-ANIM implementation checkpoint (2026-10-01, unreviewed)
+
+CE-04-ANIM now source-closes the directly reachable public `-anim` family for
+the pinned `gen9randombattle` generator. The source table in the closure audit
+traces every base emitter and its condition: Solar Beam in sun, Meteor Beam
+after generated Power Herb consumption, and Dragon Darts on its second
+`smartTarget` hit. Spectral Thief remains a bounded compatibility form outside
+the generated domain. Electro Shot and Solar Blade are excluded because their
+emitter conditions exist but neither move is in the generated M domain; custom
+mod emitters are outside pinned Gen 9 singles.
+
+Shared TS/Python contracts now accept only the four exact labels with active,
+opposing `p1a`/`p2a` actor/target roles and no tags. They retain them as raw
+public evidence only. Table-driven controls cover all labels, both perspectives
+and input/successor prefixes; malformed labels, identifiers, roles, field
+counts and tags reject before projection and publication. Mirrored generated
+fixtures reproduce Solar Beam, Meteor Beam and Dragon Darts for p1 and p2;
+the Dragon Darts second-hit record projects and publishes while its malformed
+controls produce no output. No request progression or other CE-04 lifecycle
+behavior changed. The resulting local coverage digest is recorded as
+**unreviewed** (`ce0171ddd7377e3a2f24464212c6e48223f7ef73228098320132ce147843da7e`) in the closure audit; this checkpoint does not attest it, accept
+PIPELINE-002, or change `faithful_complete_episode:false`.
+
+### CE-04-ANIM scoped review verdict (2026-10-01): accepted
+
+The source table now supports Solar Beam only through its direct generated
+sun route. Meteor Beam remains directly supported by generated Power Herb
+consumption, and Dragon Darts by the second singles `smartTarget` hit. The
+generic Power Herb-to-Solar-Beam transfer remains explicitly unproven and is
+assigned to the named CE-04-CALLBACK item-transfer child; it supplies no current
+format-reachability assertion or grammar expansion.
+
+Focused TypeScript/Python validation confirms exact active-opponent grammar,
+raw-only handling, public rejection/publication rollback, both perspectives,
+both prefixes, and coverage-source inclusion. The six base-package emitter
+sites are accounted for; Spectral Thief stays constrained, while Electro Shot
+and Solar Blade remain rejected. The reviewed local digest is
+`ce0171ddd7377e3a2f24464212c6e48223f7ef73228098320132ce147843da7e`.
+This accepts CE-04-ANIM only; the CE-04-CALLBACK item-transfer child,
+PIPELINE-002, and `faithful_complete_episode:false` remain unchanged.
+
+### CE-03B scoped source-proof review verdict (2026-10-01): accepted
+
+The earlier Dragon Darts gap is resolved: generated `multihit:2`,
+`smartTarget:true` Dragon Darts reaches `BattleActions`' second-hit `-anim`
+emitter and CE-04-ANIM accepts its exact opposing-active singles record.
+The CE-03B matrix therefore no longer implies that singles excludes this path.
+
+All B01–B32 source dispositions remain as reviewed: no-route conclusions have
+their pinned source chains, while reachable effects stay assigned to explicit
+CE-04/CE-05 children. The indirect Power Herb-to-Solar-Beam transfer remains
+unproven and assigned to CE-04-CALLBACK; it is not treated as CE-03B closure.
+No implementation, scanner, manifest, dependency, staging, commit, or broader
+documentation change entered this closeout. This accepts CE-03B source-proof
+closure only and leaves PIPELINE-002 and `faithful_complete_episode:false`
+unchanged.
+
+### CE-04-SHEDTAIL implementation checkpoint (2026-10-01, unreviewed)
+
+Pinned `Moves.shedtail` and `BattleActions.switchIn` prove that the outgoing
+Substitute starts with `[from] move: Shed Tail`, while the incoming replacement
+switch is exactly suffixed `[from] Shed Tail`. `Pokemon.copyVolatileFrom` with
+the `shedtail` cause copies Substitute only, skips boosts, and clears the
+departing volatile state. The source/lifecycle table in the closure audit
+records the public HP, Substitute, switch/end/reset and restoration boundaries;
+it deliberately omits private Substitute HP, hidden selection state and every
+unrelated copied simulator field.
+
+The extractor now requires that exact incoming switch suffix before projecting a
+Substitute transfer. A generic valid switch tag such as `[from] move: Shed
+Tail` remains raw evidence and cannot manufacture typed state. Focused pinned
+fixtures cover both acting sides, both perspectives, exact prefixes,
+Substitute removal, drag/faint clearing, privacy, deterministic restoration,
+rejected forced-switch rollback, and Python publication of the emitted
+transition record. No CE-04-LINK/CALLBACK/SLOTS or CE-05 behavior changed.
+
+Focused build and 25 targeted TypeScript cases pass; the coverage self-test
+passes. The computed local coverage digest
+`14107dfaeb916b654b1acf376cf61226088abdc3fb6939d64098779f2f979d62` is
+**unreviewed**. It does not accept PIPELINE-002 or change
+`faithful_complete_episode:false`.
+
+### CE-04-SHEDTAIL scoped review verdict (2026-10-01): accepted
+
+The exact pinned incoming `switch ...|[from] Shed Tail` signal is now the
+sole typed Substitute-transfer trigger. The outgoing `[from] move: Shed Tail`
+start remains evidence of the move, and generic tagged switch forms cannot
+create a transfer. Pinned lifecycle behavior copies only Substitute, skips
+boosts, and clears the outgoing volatile state. Focused TypeScript and Python
+evidence covers both perspectives, removal/reset paths, v2 publication,
+restoration, and forced-switch rollback. The reviewed local coverage digest is
+`14107dfaeb916b654b1acf376cf61226088abdc3fb6939d64098779f2f979d62`.
+
+This accepts CE-04-SHEDTAIL only. CE-04-LINK, CE-04-CALLBACK, CE-04-SLOTS,
+CE-05, PIPELINE-002, and `faithful_complete_episode:false` remain outside
+this checkpoint.
+
+### CE-04-LINK implementation checkpoint (2026-10-01, unreviewed)
+
+Spirit Shackle is now bounded as a private pinned `trapped`/`trapper` link.
+The shared coverage classification records its exact `Moves.spiritshackle`
+origin and the `Pokemon` unlink lifecycle. Its sole public effect is raw
+`-activate …|trapped` evidence; it creates no public link, target, duration,
+counter, volatile, or belief field. Only the addressed target request controls
+switch legality. Focused fixtures cover both actors, Ghost immunity,
+source/target departure, faint/drag/replacement, request restoration,
+rollback, parser near misses, and TypeScript/Python publication.
+
+The focused checker computes local coverage digest
+`8b54db8829a06218431536d669c0391aacd0bc0794ca331c309249a60fb8609f` as
+**unreviewed**. The manifest's stored/review digest fields remain unchanged.
+This checkpoint does not accept CE-04-LINK, PIPELINE-002, or change
+`faithful_complete_episode:false`.
+
+### CE-04-LINK scoped review finding (2026-10-01, not accepted)
+
+The v2 fixture does not exercise source faint after Spirit Shackle links the
+target. Pinned source-faint cleanup reaches `clearVolatile` and linked-status
+removal, which differs from the covered source-switch path. Add a pinned
+simulator sequence that faints the source while the target is trapped and
+asserts request-gated switch restoration for the target owner. The computed
+`21b05aa836b14a4019a91db9d619cc954af82063199205aa26cf63e4e01f6d34` remains
+unreviewed; no manifest digest field changed.
+
+### CE-04-LINK repair implementation checkpoint (2026-10-01, unreviewed)
+
+The shared TypeScript/Python validators now permit trapped only as
+`|-activate|<active>|trapped`. Source tags, arbitrary labels, extra fields,
+side-only targets, and whitespace-altered target/effect fields reject before
+projection and Python publication. The fabricated `[of]` disclosure is now a
+rehashed rejection control for both perspectives and input/successor prefixes;
+it produces no DATA output.
+
+The pinned simulator fixture explicitly requests `observable-battle-state/v2`
+and executes both actor sides. It publishes both successor perspectives through
+Python, keeps each bundle bound to its owning request, excludes raw requests
+and `trapper`, proves source departure/release and request-gated switch
+restoration, compares independently restored twins for matching trap/release
+transition IDs, bundles, and boundaries, and retains stale-action rollback.
+
+The focused checker computes local coverage digest
+`21b05aa836b14a4019a91db9d619cc954af82063199205aa26cf63e4e01f6d34` as
+**unreviewed**. The manifest's stored/review digest fields remain unchanged.
+This checkpoint does not accept CE-04-LINK, PIPELINE-002, or change
+`faithful_complete_episode:false`.
+
+### CE-04-LINK source-faint evidence checkpoint (2026-10-01, unreviewed)
+
+The Spirit Shackle fixture now exercises both acting sides through the pinned
+simulator's real faint lifecycle. A surviving source first traps a live target
+with a bench; on the following turn, the slower target's source-shaped Eruption
+faints the source. The fixture observes `clearVolatile` unlinking the target's
+private trap, then performs the source owner's one-sided forced switch. The
+next target-owner request alone has `trapped:false`, `can_switch:true`, and a
+legal bench switch. It rejects the stale target switch while the link is live,
+checks that no request or `trapper` value enters either perspective or
+publication, and compares independently restored twins for matching link,
+source-faint, and replacement transition IDs, bundles, and boundaries. Every
+emitted bundle is accepted independently by the Python publication validator.
+
+The focused TypeScript source/request/transition suite (38 cases), focused
+Python trap-publication test, and coverage synthetic self-test pass. The full
+coverage checker reports local digest
+`4398a8f03c730f43f0867477e71334555cda19641cd84ec9d74d8535ff0e3faa` as
+**unreviewed**; manifest stored/review digest fields remain unchanged. This
+checkpoint does not accept CE-04-LINK, PIPELINE-002, or change
+`faithful_complete_episode:false`.
+
+### CE-04-LINK source-faint scoped review verdict (2026-10-01): accepted
+
+The pinned source-faint path is now covered for both acting sides. An ordinary
+target move faints the active Spirit Shackle source, `clearVolatile` unlinks
+the target, and target switching returns only through its subsequent owned
+request after the source forced-replacement boundary. The v2 restored twins
+match transition IDs, publication bundles, and successor boundaries, while
+raw protocol/request privacy remains intact. The reviewed local coverage digest
+is `4398a8f03c730f43f0867477e71334555cda19641cd84ec9d74d8535ff0e3faa`.
+
+This accepts CE-04-LINK only. CE-04-CALLBACK, CE-04-SLOTS, CE-05,
+PIPELINE-002, and `faithful_complete_episode:false` remain outside this
+checkpoint.
+
+### CE-04-SLOTS Wish implementation checkpoint (2026-10-01, unreviewed)
+
+Pinned `Moves.wish` stores its amount, source, source slot and start turn only
+inside the simulator slot-condition state. The public capture retains the
+activation `move` record and, only when the current living slot occupant is
+actually healed, the exact `-heal` record with `[from] move: Wish` and
+`[wisher]`. Existing HP projection remains the sole typed public state; tags
+stay raw evidence. No pending timer, recipient forecast, source link or private
+snapshot enters v2 observations, beliefs or Python records.
+
+The focused pinned-engine fixture covers both actors, generator membership,
+pending resolution after switch, drag, source/recipient faint, replacement,
+terminal-before-resolution, deterministic candidate restoration, rejected
+replacement rollback, privacy and Python publication. Python accepts the exact
+Wish public-heal grammar in both v1/v2 input and successor prefixes and rejects
+tag-order, duplicate-wisher and invalid-HP rehashes without mutation.
+
+`tests/wish.test.ts` is now included in local coverage hashing. The resulting
+local digest is `9b7276277d51db992b2014b178e9dfad484aba92adbab750b54ac92200be763f`,
+recorded as **unreviewed**; `reviewed_sha256` remains the prior reviewed digest.
+This checkpoint does not attest coverage, accept CE-04-SLOTS or PIPELINE-002,
+or change `faithful_complete_episode:false`.
+
+### CE-04-SLOTS Wish `[wisher]` cross-field repair checkpoint (2026-10-01, unreviewed)
+
+Pinned base data has one reachable `[wisher]` emitter:
+`data/moves.ts:Moves.wish.condition.onEnd:21760`, which emits `[from] move:
+Wish` followed by `[wisher] <source name>`. Historical `data/mods/gen4` and
+custom `data/mods/gen9ssb` copies are outside the Gen 9 Random Battle base path.
+The shared TypeScript/Python contract now makes the base source pair indivisible:
+`[wisher]` requires exactly `[from] move: Wish` first, with no other tags.
+
+Focused table-driven controls cover the one valid base source form and missing,
+ability-mismatched, reordered, duplicate and extra-tag rehashes across v1/v2,
+both perspectives and input/successor prefixes. Invalid candidates reject before
+projection/publication, emit no DATA-001 output, and leave committed candidate
+state and lineage unchanged; non-Wish heals without `[wisher]` retain their
+existing source-backed grammar. No public pending Wish state, timer, source
+link, private request or simulator snapshot is introduced. The replacement
+digest `9b7276277d51db992b2014b178e9dfad484aba92adbab750b54ac92200be763f`
+remains unreviewed; CE-04-SLOTS, PIPELINE-002 and
+`faithful_complete_episode:false` remain unaccepted.
+
+### CE-04-SLOTS Wish `[wisher]` scoped review verdict (2026-10-01): accepted
+
+The sole pinned base-data `[wisher]` emitter is Wish `onEnd`, with the exact
+ordered source pair `[from] move: Wish`, `[wisher] <source name>`; Gen 4 and
+`gen9ssb` copies are outside the operative format. Shared TypeScript/Python
+validation rejects every missing, mismatched, reordered, duplicate, extra, or
+malformed pairing before projection/publication, while preserving non-Wish heals
+without `[wisher]`. Rehashed v1/v2, p1/p2, input/successor controls prove
+rollback, lineage preservation, and no DATA-001 output. The reviewed local
+digest is `9b7276277d51db992b2014b178e9dfad484aba92adbab750b54ac92200be763f`.
+
+This accepts CE-04-SLOTS Wish evidence only. CE-04-CALLBACK, other delayed
+effects, CE-05, PIPELINE-002, and `faithful_complete_episode:false` remain
+outside this verdict.
+
+### CE-04-CALLBACK-A implementation checkpoint (2026-10-01, unreviewed)
+
+The CE-04-CALLBACK-A audit table binds the operative public ability forms to
+base `-ability` reveal/boost/copy/weather-fail output and `-endability`
+suppression/replacement lifecycle. Generated Gardevoir/Trace is the direct
+singles witness; Power of Alchemy/Receiver require an allied active and remain
+excluded. Doodle, Entrainment, Role Play, Simple Beam, Worry Seed and Gastro
+Acid retain exact base grammar controls without a generated-move claim.
+
+Shared TypeScript/Python validation now rejects malformed, reordered, missing,
+extra, unsupported-provenance, and non-active source combinations before
+projection or publication. The extractor clears stale current ability on
+silent Transform/form changes, restores only independently public base ability
+through `clearVolatile` lifecycle boundaries, and keeps all raw provenance.
+`-activate` and other heterogeneous ability-tagged outcomes remain raw-only;
+no generic callback state is inferred. Rehashed v1/v2, p1/p2 input/successor
+controls preserve candidate state and lineage and produce no DATA-001 output
+on rejection. The resulting digest is recorded as unreviewed after validation;
+no coverage attestation, CE-04-CALLBACK closeout, PIPELINE-002 change, or
+`faithful_complete_episode:false` change is made.
+
+The computed local coverage digest is
+`403e5818240fb7e2afdc34a13e9fe5d68369eeaba1671aefb3052c9fa1088cfa`;
+its `reviewed_sha256` remains the prior reviewed value.
+
+### CE-04-CALLBACK-A scoped review finding (2026-10-01, not accepted)
+
+The implemented ability grammar exceeds the source-proven `gen9randombattle`
+singles surface. Both validators accept Receiver/Power of Alchemy copy forms
+despite their ally-active requirement, arbitrary move provenance such as
+`|-ability|p1a: Pikachu|Insomnia|[from] move: Splash`, and its matching
+unrestricted `-endability` provenance. They also accept failed-weather evidence
+without a generated weather-blocker route, and apply callback provenance to the
+bare compatibility `ability` alias although pinned callback emitters use
+`-ability`. These records can pass projection and publication.
+
+CE-04-CALLBACK-A remains unaccepted until its projected/publication grammar is
+narrowed to source-proven reachable forms or broader forms are explicitly
+raw-only/excluded and cannot project. The digest remains unreviewed; this does
+not alter CE-04 scope, PIPELINE-002, or `faithful_complete_episode:false`.
+
+### CE-04-CALLBACK-A source-form repair checkpoint (2026-10-01, unreviewed)
+
+The shared boundary now accepts only the operative singles `-ability` reveal,
+literal `boost`, and ordered Trace copy templates, plus the unsuffixed
+raw-only bare `ability` compatibility record. The generator proofs are
+Rayquaza/Air Lock, Arcanine/Intimidate, and Gardevoir/Trace. Receiver, Power
+of Alchemy, every move-sourced replacement or `-endability`, failed weather,
+and bare callback suffixes are recognized as unsupported or malformed before
+TypeScript projection and Python publication. Rehashed v1/v2, p1/p2,
+input/successor controls retain lineage and produce no DATA-001 output on each
+rejection. The new local digest is recorded as unreviewed after focused
+validation; this is not a CE-04-CALLBACK acceptance, PIPELINE-002 closeout, or
+change to `faithful_complete_episode:false`.
+
+### CE-04-CALLBACK-A repaired grammar review finding (2026-10-01, not accepted)
+
+The repair remains unaccepted. Both TypeScript and Python accept
+`|-ability|p1a: Gardevoir|Immunity|[from] ability: Trace|[of] p1a: Eevee`,
+although the pinned Trace emitter uses `adjacentFoes()` and a Gen 9 singles
+Trace `[of]` source must be the opposing active slot. Both also accept the
+fabricated payload `Definitely Not An Ability` in plain `-ability` and bare
+`ability` records. The first can fabricate a private same-side Trace link;
+the second broadens the accepted source form beyond the generated ability
+payload domain. Each must reject before projection/publication. Do not attest
+the local digest until the shared validators enforce the opposing Trace role
+and finite operative ability payloads.
+
+### CE-04-CALLBACK-A finite-domain repair checkpoint (2026-10-01, unreviewed)
+
+The shared JSON and matching TypeScript/Python expected-rule tables now carry
+four exact `validation_rules.ability.payload_domains`: 17 literal generated
+dash reveals, 32 generated ability-boost values, 186 generated Trace-copy
+values allowed by Trace's `notrace` guard, and the same 17 values for bare
+raw-only compatibility reveals. Every dash/bare validator checks its matching
+domain before projection/publication. Trace additionally requires an active
+actor and opposing active `[of]` source because `Abilities.trace.onUpdate`
+selects `adjacentFoes()`.
+
+Focused v1/v2 p1/p2 input/successor rehash controls cover valid publication
+and same-side Trace, invented/unknown payloads, and cross-template payloads as
+immutable Python-publication rejections. The computed digest is unreviewed;
+`0ab90b62c0b1f41cb750f1ab2759fc3df9389fb5bfdb4edac59c5c5c97ac48ad`; this
+is not a CE-04-CALLBACK acceptance, PIPELINE-002 closeout, or attestation.
+
+### CE-04-CALLBACK-A finite-domain review finding (2026-10-01, not accepted)
+
+The `dash_boost` list accepts unsupported `As One (Glastrier)` and `As One
+(Spectrier)` payloads. The pinned As One callbacks pass `chillingneigh` and
+`grimneigh` explicitly to `Battle#boost`, and that emitter publishes
+`effect.name`; generated Calyrex therefore emits `Chilling Neigh` or `Grim
+Neigh`, never either As One variant. Both TypeScript and Python accept the
+fabricated `|-ability|p1a: Calyrex|As One (Glastrier)|boost` record. Remove
+the two values, add cross-runtime rehash controls, and leave the digest
+unattested until the exact emitted boost domain is restored.
+
+### CE-04-CALLBACK-A emitted-boost repair checkpoint (2026-10-01, unreviewed)
+
+`dash_boost` now contains 30 `Battle#boost` `effect.name` payloads. Generated
+As One callbacks publish Chilling Neigh or Grim Neigh; both As One variant
+names reject. Rehashed v1/v2 p1/p2 input/successor controls prove rollback and
+no Python publication for each rejected variant. The local digest remains
+unreviewed (`50585303834f13303dc7c45bd51d40d9d135fe02ff03b74957f8b952fa0dbdda`)
+and no attestation is made.
+
+### CE-04-CALLBACK-A emitted-boost review finding (2026-10-01, not accepted)
+
+The 30 emitted `Battle#boost` values are correct, including Chilling/Grim
+Neigh and excluding the two As One variants. Attestation remains blocked:
+the existing `tests/fixtures/observable_state_v1.json` golden prefix contains
+`|-ability|p1a: Pikachu|Illusion`, which the repaired finite dash-reveal rule
+rejects, failing its decision-time projection test. The coverage checker
+otherwise reports only its expected pre-attestation semantic-review binding
+condition. Reconcile the fixture before any CE-04-CALLBACK-A attestation.
+
+### CE-04-CALLBACK-A golden-fixture repair checkpoint (2026-10-02, unreviewed)
+
+Pinned `Abilities.illusion.onEnd` emits `replace` and then `-end` for the
+revealed Pokémon. The observable-state golden prefix now uses
+`|replace|p1a: Zoroark|Zoroark, L80|75/100` followed immediately by
+`|-end|p1a: Zoroark|Illusion`; it removes the unrelated synthetic Eevee
+replacement while retaining the ten-record ordered cutoff and its public
+projection assertions. A focused regression proves this repaired fixture
+projects and that the old fabricated `|-ability|p1a: Pikachu|Illusion` record
+rejects before projection.
+
+The static ability-record audit retained source-backed Ting-Lu/Vessel of Ruin
+and Pressure evidence, contract acceptance/rejection fixtures, and persisted
+negative review artifacts; the golden pair was the only invalid golden
+projection fixture record. The manifest now hashes this fixture and its focused test. Its computed
+local digest is `ed88914a455d16e17f25e81e3e107706fbaf8bee0b6d75169b4aaf1b9451778b`,
+which is **unreviewed**. No attestation or CE-04-CALLBACK-A acceptance is made.
+
+### CE-04-CALLBACK-A scoped review verdict (2026-10-02): accepted
+
+Focused review accepts only the bounded public ability lifecycle surface: the
+finite dash reveal/boost/Trace-copy/bare domains, exact public source grammar,
+privacy and restoration behavior, and the source-shaped Illusion golden
+fixture. Both runtimes retain v1/v2 and input/successor rejection/publication
+parity with no output or committed-lineage advance on malformed evidence. The
+attested local digest is
+`ed88914a455d16e17f25e81e3e107706fbaf8bee0b6d75169b4aaf1b9451778b`.
+
+This accepts CE-04-CALLBACK-A only. The baseline `env_manager` settling
+failure, item/status callback work, other CE-04 slices, CE-05, PIPELINE-002,
+and `faithful_complete_episode:false` remain outside this verdict.
+
+### Random-controller terminal settling repair checkpoint (2026-10-02, unreviewed)
+
+The fixed `[5,6,7,8]` random battle originally stopped when a generated
+Protosynthesis callback emitted `|-start|...|protosynthesisatk`; the extractor
+treated that source-derived best-stat suffix as unknown and the consumer error
+became a settling failure. Pinned Protosynthesis and Quark Drive callbacks
+append only `Pokemon.getBestStat(false, true)`, whose exact finite values are
+`atk`, `def`, `spa`, `spd`, and `spe`. The corresponding ten start tags are now
+raw-only evidence; all other suffixes still reject before projection.
+
+The same fixed terminal then reached `|-hitcount|p1: Houndstone|2` after a
+final multi-hit KO. Pinned `BattleActions` emits the count after
+`faintMessages`, so the target may be a canonical side-only Pokémon reference.
+The raw-only `-hitcount` validator accepts that source form without typed
+state mutation and still rejects malformed references. Two independent seeded
+random-controller runs now complete with identical terminal logs. The computed
+local digest is `ed0e358983cd7860ba65f777db4087edac876c5fde603b51a6d6d01ca6689dfd`,
+which is **unreviewed**; `reviewed_sha256` remains the prior CE-04-CALLBACK-A
+attestation and this checkpoint makes no new attestation.
+
+### Random-controller terminal settling review reproduction (2026-10-02, repaired)
+
+The finite Protosynthesis/Quark Drive raw-only start forms match their pinned
+source. Review reproduced that the former generic `-hitcount` identifier helper
+accepted doubles-only slots in supported singles, and its generic nonnegative
+integer rule accepted counts not emitted by `BattleActions`. The minimal former
+accepted reproductions were `|-hitcount|p1b: Mew|2`,
+`|-hitcount|p1: Mew|0`, `|-hitcount|p1: Mew|1`, and
+`|-hitcount|p1: Mew|11`. Pinned `BattleActions` emits only an active singles
+target (`p1a`/`p2a`) or the post-faint side-only target, and only after two
+through ten hits (the pinned maximum is Population Bomb). Restrict the slot
+grammar and finite count semantics with rehashed rejection coverage; the
+following unreviewed checkpoint records that repair. No `reviewed_sha256`
+update is authorized here.
+
+### Random-controller terminal settling `-hitcount` repair checkpoint (2026-10-02, unreviewed)
+
+The shared TypeScript/Python rule now accepts only exact four-field
+`|-hitcount|<target>|<count>` raw evidence. `BattleActions.hitStepMoveHitLoop`
+emits after `faintMessages`, so `<target>` is either an active `p1a:`/`p2a:`
+identifier or the `p1:`/`p2:` side-only identifier after a final KO;
+`Pokemon.toString()` supplies those forms. The loop increments `hit` before a
+one-hit KO break and then emits `hit - 1`; generated Maushold has Population
+Bomb (`multihit: 10`). The finite accepted ASCII count set is exactly `1`
+through `10`.
+
+The rule rejects every other slot, side, whitespace spelling, count lexeme,
+out-of-domain count, tag, and extra field before projection or publication.
+It remains raw evidence only: no hit count, ability, boost, action, feature,
+or hidden-state field is projected. TypeScript/Python rehashed matrices cover
+v1/v2, p1/p2, input/successor prefixes, no DATA-001 output, and unchanged
+candidate state/lineage on rejection. The deterministic terminal controller
+fixture still retains its real `|-hitcount|p1: Houndstone|2` record.
+
+The requested checker computed local coverage digest
+`0d3adff3b68903e8a37ad0a951260cdd20dc9b65f0827a8aa7f9015a66a72380`.
+It is **unreviewed**. `sha256` and `reviewed_sha256` remain unchanged; this is
+not an attestation of the settling repair, PIPELINE-002, or
+`faithful_complete_episode:false`.
+
+### Random-controller terminal settling `-hitcount` count-one correction (2026-10-02, unreviewed)
+
+The former `2..10` domain omitted a pinned source-reachable value. In
+`BattleActions.hitStepMoveHitLoop`, a one-hit KO increments `hit` before the
+break at `battle-actions.ts:969-971`; after `faintMessages`, line 979 emits
+`hit - 1`. The pinned Maushold Population Bomb witness against a 1-HP target
+emits `|faint|p2a: Target` then `|-hitcount|p2: Target|1`. Both shared
+validators now admit exact decimal `1..10` for the reviewed active and
+post-faint singles forms. The witness replaces the old `1` rejection control;
+`0`, `11`, leading-zero, malformed identifier, tag, and extra-field controls
+remain pre-projection/pre-publication failures. The coverage checker now
+computes `e7173364c14678c448adfeab0ce81eed56109776e8cdae501d6b6e2e7be71d1a`. It is unreviewed; no manifest digest field changes in
+this repair.
+
+### Random-controller terminal settling `-hitcount` scoped review verdict (2026-10-02): accepted
+
+Focused review accepts the corrected raw-only `-hitcount` boundary. Pinned hit-loop ordering proves the one-hit Population Bomb post-faint form `|-hitcount|p2: Target|1`; generated Maushold's Population Bomb (`multihit: 10`) establishes the source-backed upper bound. The shared validators accept only exact four-field singles active (`p1a:`/`p2a:`) or post-faint side-only (`p1:`/`p2:`) identifiers with ASCII counts `1..10`. Invalid candidates reject before projection or DATA-001 publication and preserve committed lineage. Rehashed TypeScript/Python parity covers v1/v2, both perspectives, input/successor prefixes, rollback, and no-output rejection. The fixed-seed terminal controller run excludes only timestamp framing. The attested local coverage digest is `e7173364c14678c448adfeab0ce81eed56109776e8cdae501d6b6e2e7be71d1a`.
+
+### CE-04-SLOTS Healing Wish review finding (2026-10-02, superseded by unreviewed implementation checkpoint)
+
+**Historical blocker.** The prior finding identified absent Healing Wish lifecycle,
+fixture, exact provenance and v2 publication evidence, including acceptance of
+`|-heal|p1a: Target|100/100|[from] move: Healing Wisp`. The bounded checkpoint
+below supplies the implementation evidence without changing any manifest
+attestation.
+
+### CE-04-SLOTS Healing Wish implementation checkpoint (2026-10-02, unreviewed)
+
+Pinned `Moves.healingwish` creates a private `side.slotConditions` entry, then
+on a qualifying incoming replacement heals to full HP, silently clears status,
+emits exact public `|-heal|<active>|100/100|[from] move: Healing Wish`, and
+removes that condition. The shared TypeScript/Python validator accepts only an
+active target, literal public status-free `100/100`, and exactly that one
+`[from]` tag. The owner-private exact-HP split is omitted before typed routing;
+only the spectator public record clears typed status. It rejects `Healing Wisp` and other
+invented Healing-prefix moves, side-only targets, partial/status-bearing health,
+and reordered, duplicate, or extra tags before projection/DATA-001. Ordinary
+heals and Wish `[wisher]` grammar remain unchanged.
+
+The existing typed public status is cleared only when that exact Healing Wish
+public evidence is processed; no slot condition, source identity, timer, raw
+request, snapshot, forecast, or generic delayed-effect state is projected.
+Pinned-engine p1/p2 fixtures use a real Will-O-Wisp status before Healing Wish
+and cover forced replacement, healthy nonapplication, `canSwitch` cancellation,
+terminal-before-replacement, privacy, restored twins and deterministic
+continuation. The selected replacement's actor record validates in Python; its
+immediate joint continuation supplies two actual v2 bundles whose input prefixes
+include the resolved Healing Wish record, and both validate in Python without
+repair. Rehashed v1/v2, p1/p2, input/successor malformed forms preserve the
+candidate and lineage and produce no Python stdout.
+
+`tests/healing_wish.test.ts` is listed in local coverage sources. The checker
+computed `eff9daa2ac3b737c7983d0ff951244d48b9b532c54b3595904cfb2be63c023ef`,
+which is **unreviewed**. Manifest `sha256`, `reviewed_sha256`, and all
+attestation fields remain unchanged. This checkpoint does not attest CE-04-SLOTS,
+PIPELINE-002, or `faithful_complete_episode:false`; it does not broaden Future
+Sight, other delayed effects, item callbacks, Revival Blessing, or episode
+readiness.
+
+### CE-04-SLOTS Healing Wish scoped review verdict (2026-10-02): accepted
+
+Pinned Healing Wish provides one public result only: exact active-target `|-heal|<target>|100/100|[from] move: Healing Wish`, after its private slot condition resolves on a qualifying replacement. The owner-private exact HP branch is omitted; only the public spectator record clears typed HP/status. Both-actor v2 fixtures cover public privacy, healthy retention, cancellation, terminal behavior, restored twins, continuation and Python successor publication. Shared TypeScript/Python validation rejects malformed provenance, target, HP, and tag forms before projection or DATA-001 output while preserving committed lineage. This scoped review attests `eff9daa2ac3b737c7983d0ff951244d48b9b532c54b3595904cfb2be63c023ef` for CE-04-SLOTS Healing Wish only. It does not accept Future Sight, other delayed effects, item callbacks, Revival Blessing, CE-05, PIPELINE-002, or `faithful_complete_episode:false`.
+
+### CE-04-SLOTS Future Sight delayed public-consequence checkpoint (2026-10-02, unreviewed)
+
+Pinned `Moves.futuresight.onTry` creates a private `futuremove` target-slot condition and emits exactly `|-start|<active source>|move: Future Sight`. Pinned `Conditions.futuremove.onEnd` removes that condition at its private ending turn, emits exactly `|-end|<active target>|move: Future Sight`, then runs ordinary damage. The damage record has no Future Sight tag, so only the public spectator `-damage` record changes typed HP/faint/status; the exact owner split branch, timer, source, target slot, move data, requests and simulator state remain private.
+
+The shared TypeScript/Python contract binds the public start/end forms to their active targets and exact field count, rejecting misspellings, side-only targets, leading/extra/reseparated source-family spellings, and added tags/fields. Generic `-damage` grammar remains unchanged. `futuremove.onEnd` does not cancel for a fainted source, so the pinned fixture proves that source faint plus forced replacement still resolves against the living target slot. Pinned v2 fixtures cover both actors and perspectives, source switch/faint, target drag, target faint/replacement, terminal-before-residual, restored twins, deterministic continuation, split-HP privacy, rehashed v1/v2 p1/p2 input/successor rejection rollback, and actual Python transition-bundle publication. Malformed candidates fail before projection/DATA-001 output and leave committed lineage unchanged.
+
+`tests/future_sight.test.ts`, the shared contracts, extractor route and Python publication test are coverage-hashed. The checker computed `563cd723d2b31429eb4ca5a2570211b3b81035a1979c42536d7d38b620243e1d` as **unreviewed**; manifest attestation fields are unchanged. This checkpoint excludes Doom Desire, Lunar Dance, generic delayed-effect modeling, item callbacks, CE-05, complete-episode claims, and any change to `faithful_complete_episode:false`.
+
+### CE-04-SLOTS Future Sight scoped review verdict (2026-10-02): accepted
+
+Focused review accepts the bounded Future Sight public consequence only. The
+pinned generated route emits exact raw-only active-source
+`|-start|<active source>|move: Future Sight` and, on a valid living slot
+occupant, exact raw-only active-target
+`|-end|<active target>|move: Future Sight`; ordinary public spectator damage
+then supplies the only typed HP/faint effect. The private slot condition,
+timer, source, target, move data, exact owner HP, request and snapshot data
+never enter observations or DATA-001. Pinned p1/p2 v2 fixtures cover source
+switch/faint, target drag/faint/replacement, terminal/no-result, restored
+twins, deterministic continuation, rollback and actual Python publication.
+Shared TypeScript/Python source-form validation rejects malformed labels,
+roles, tags, fields and whitespace/reseparator forms before projection or
+publication. The attested local coverage digest is
+`563cd723d2b31429eb4ca5a2570211b3b81035a1979c42536d7d38b620243e1d`.
+
+This accepts CE-04-SLOTS Future Sight only. Doom Desire, Lunar Dance, generic
+delayed effects, item callbacks, CE-05, PIPELINE-002, and
+`faithful_complete_episode:false` remain outside this verdict.
+
+### CE-05-REPEAT Encore/repeat-use implementation checkpoint (2026-10-02, unreviewed)
+
+Pinned direct generated Blood Moon and Gigaton Hammer are the complete
+`cantusetwice` domain. `Battle#runEvent('DisableMove')` supplies the normal
+disabled owned request; faster Encore's `onOverrideAction` can replace a
+queued alternate with the stored prior move; `BattleActions.runMove` then
+emits exactly one raw hint after a successful forced repeat. Shared
+TypeScript/Python validation accepts only the two exact three-field hint
+strings and rejects source-family misspellings, invented labels, whitespace,
+tags, and extra fields before projection or DATA-001 publication.
+
+The correction is limited to source-request Struggle:
+`Pokemon.getMoveRequestData` returns `Struggle` without PP when Encore plus
+repeat-use disablement leaves no ordinary move, and `action_codec` now treats
+that owned source move as legal. No hint-derived action mask or generic
+move-lock model was added. The simulator-backed v2 fixture covers both actor
+sides and both repeat IDs, normal restriction, Encore override, exact raw
+evidence, Struggle, restored twins, deterministic continuation, stale-action
+rollback, request privacy, and actual Python transition-bundle publication.
+`tests/repeat_use.test.ts` and all changed contract/action/publication paths
+are coverage-hashed.
+
+The local coverage digest `99af6315d68ff86879e2baf6cdbbd2ee0a01caa8a24779a0ca7f9e588cfe0bbc`
+is **unreviewed** after focused validation. This checkpoint does not attest CE-05-REPEAT, PIPELINE-002, or
+`faithful_complete_episode:false`; it excludes generic locks, other Encore
+interactions, item callbacks, Revival progression, training, and complete
+episode claims.
+
+### CE-05-REPEAT scoped review verdict (2026-10-02): accepted
+
+Focused review accepts only the pinned generated Blood Moon/Gigaton Hammer
+repeat-use chain. `cantusetwice` disablement, Encore's override, its exact
+raw-only post-repeat hint, and a later source-owned Struggle request are each
+covered by the shared TS/Python boundary and real v2 p1/p2 transitions. Legal
+actions derive exclusively from addressed simulator requests; raw hints do not
+create an action mask. Both perspectives preserve private requests and hidden
+team data, while malformed hint-family records stop before projection,
+lineage advancement, and DATA-001 publication. Restored twins and actual
+Python bundles remain deterministic. This review attests local digest
+`99af6315d68ff86879e2baf6cdbbd2ee0a01caa8a24779a0ca7f9e588cfe0bbc` for
+CE-05-REPEAT only. Generic move locks, other Encore paths, item callbacks,
+Revival, CE-05 request-pair closure, training, PIPELINE-002, and
+`faithful_complete_episode:false` remain unaccepted.
+
+### CE-05-REVIVAL sequential progression checkpoint (2026-10-02, unreviewed)
+
+Pinned Gen 9 Random Battle directly generates Pawmot/Rabsca Revival Blessing
+and Ditto/Imposter. `Moves.revivalblessing.onTryHit` requires an owner fainted
+party member, then `slotCondition` plus `selfSwitch` creates one owner-only
+selection. `Side.chooseSwitch` accepts only a fainted target. The revive action
+clears faint/status state, restores half HP, emits the split side-only
+`-heal ... [from] move: Revival Blessing`, and removes the condition.
+
+The source sequencing witness proves `turnLoop` pauses after fast Pawmot,
+`commitChoices` places its consumed revive action ahead of the saved queue,
+and queued Rabsca then creates the opposite owner-only selection. Each
+nonacting side has only its own waiting request. Both choices produce
+actor-only v2 record bundles, validate through Python, preserve private target
+selection/request contents, and reach an ordinary joint transition that matches
+a restored twin. A separate copied-Ditto witness takes the same bounded
+selector; a queued opposing terminal action after consumption yields terminal
+observations with no fabricated request. Rejected candidates leave the boundary
+unchanged.
+
+The source-proven exclusions remain active/fainted revivers, active targets,
+instaswitch, multi-active/doubles, simultaneous selection, a combined
+multi-revival API, generic waiting, CE-05 boundary closure, and complete
+episodes. `tests/revival.test.ts` was already coverage-hashed. Focused build,
+10 TypeScript revival tests, 34 Python pipeline-record tests, coverage self-test,
+and whitespace validation pass. The local digest
+`1d5757be1d09c5ced11e260017f9e87cfc13045147a0de1adf3371db8d3bb1ce` is
+**unreviewed**; manifest digest fields remain unchanged.
+
+### CE-05-REVIVAL scoped v2 progression review verdict (2026-10-02): accepted
+
+Pinned Gen 9 Random Battle singles supports the direct Pawmot/Rabsca and
+bounded Imposter-copy Revival Blessing paths. One owner alone receives the
+fainted-bench selector while the other perspective has only its own wait
+request. The source queue pauses at the first request, consumes it, then may
+create the queued opposite-side selection; it does not create simultaneous or
+generic waiting behavior. Revival emits the existing split source-qualified
+bench `-heal` record, with owner-only private request data.
+
+Mirrored v2 fixtures verify both actor sides, copied-user selection, sequential
+requests, rollback, restoration from consumed requests, deterministic continuation
+into ordinary joint play, terminal-after-selection without a fabricated request,
+and Python publication of the actual actor-only bundles. Active-target, inactive
+or fainted reviver, doubles/multi-active, combined multi-revival, and generic
+waiting variants remain excluded.
+
+The reviewed local coverage digest is `1d5757be1d09c5ced11e260017f9e87cfc13045147a0de1adf3371db8d3bb1ce`. This accepts CE-05-REVIVAL
+only; CE-05-BOUNDARY, PIPELINE-002, and `faithful_complete_episode:false`
+remain unaccepted.
+
+### CE-05-BOUNDARY request-pair closure checkpoint (2026-10-02, unreviewed)
+
+The closure audit now records the pinned stable Gen 9 Random Battle singles
+request-pair table. `makeRequest/getRequests` supports owned move-plus-move
+requests and source-owned voluntary switch-plus-switch choices; a direct v2
+witness restores real serialized engine states before and after consumption,
+validates both voluntary switch bundles through Python, and compares pipeline
+twins' cursor, branch, transition, and successor identities. Existing
+forced-switch fixtures cover source `switch+wait`, and existing Revival
+fixtures cover bounded owner-only `revival+wait`, consecutive selections, and
+resumption into ordinary joint play. Both retain only their own request and no
+public protocol prefix or DATA-001 row includes an opposite owner's request.
+
+`Battle.win` clears active requests and ends `turnLoop`, so terminal
+requestlessness is terminal-only: matching terminal views have null requests
+and no fabricated future action. The engine's request construction makes
+nonterminal `move+wait`, `move+requestless`, `wait+wait`,
+`requestless+requestless`, and nonwaiting empty-move-menu pairs source-proven
+impossible stable boundaries. They remain explicit guards, not artificial
+fixtures or generic waiting/requestless execution.
+
+No production change was required. `pipeline_integration.test.ts`,
+`forced_switch.test.ts`, `revival.test.ts`, and `pipeline_episode.test.ts` are
+already coverage-hashed. The resulting local digest
+`3d65ae223bb5d9d3aadd7aaf6a3b35239b69c9c03b513e3ee7deb473de3161a8` is
+**unreviewed**; manifest digest fields remain unchanged. This does not
+accept CE-06, team preview, doubles, generic requestless execution,
+PIPELINE-002, or `faithful_complete_episode:false`.
+
+### CE-05-BOUNDARY scoped request-pair review verdict (2026-10-02): accepted
+
+Review accepts the pinned singles stable-pair closure: move-plus-move,
+voluntary switch-plus-switch, forced switch-plus-wait, and bounded
+revival-plus-wait have direct owner-only v2 witnesses with restoration,
+deterministic identity/cursor evidence, rollback, and Python publication.
+The switch-pair witness restores the real engine request before consumption and
+its successor afterward. Opposite-side requests never enter public protocol or
+DATA-001 output.
+
+Terminal requestlessness is terminal-only with matching null-request
+perspectives and no fabricated action. Nonterminal move-plus-wait,
+move-plus-requestless, wait-plus-wait, requestless-plus-requestless, and
+nonwaiting empty-menu states are source-proven impossible stable boundaries.
+Team preview, doubles, generic requestless execution, CE-06 terminal envelopes,
+PIPELINE-002, and complete-episode acceptance remain excluded.
+
+This attests local coverage digest
+`3d65ae223bb5d9d3aadd7aaf6a3b35239b69c9c03b513e3ee7deb473de3161a8` for
+CE-05-BOUNDARY only; `faithful_complete_episode:false` remains required.
+
+### CE-04B Roost boundary-typing checkpoint (2026-10-02, unreviewed)
+
+Pinned `Moves.roost` has `duration: 1`: a successful non-Tera use emits only
+`|-singleturn|<active>|move: Roost` and applies an internal `onType` filter that
+removes Flying for the current turn. It stores `typeWas` privately. The residual
+queue decrements/removes the condition before `turnLoop` can publish another
+request, so no stable v1/v2 boundary can truthfully expose the temporary type.
+The ordinary public `-heal` remains the existing HP consequence; the
+`-singleturn` is exact raw evidence only.
+
+Direct source fixtures cover both actor sides: a dual-Flying Articuno is hit by
+a slower Ground move during Roost, then both next-request views correctly return
+to `Ice/Flying`; a generated Empoleon Roost + Tera Flying row emits the pinned
+raw hint and no `-singleturn`, retaining public `Flying`. The repaired fixture
+also uses generated Articuno Roost before a slower U-turn pivot, then generated
+Ditto/Imposter replacement. That reaches `transformInto` while private
+`roost.typeWas` is live, emits the exact public `-transform ... [from] ability:
+Imposter`, and leaves both public active types `Ice/Flying` after residual.
+Mirrored v2 candidate restoration, deterministic continuation, stale/wrong
+selection rollback, later source departure plus Rock-hit Ditto faint,
+owner-only replacement, drag cleanup, prefix extension and Python bundle
+publication pass. The source queue completes residual before any post-Imposter
+move request, but earlier residual handlers can still faint copied Ditto before
+Roost order-25 expiry; the dedicated residual witness below covers that route. An unrevealed target-side Zoroark/Illusion
+bench remains absent from the Ditto observer. No production correction or new grammar was needed. The
+manifest corrects Roost from a stale typed volatile classification to raw-only
+and lists `tests/roost.test.ts`; digest fields remain unchanged.
+
+Soak/added-type co-occurrence lacks a generated indirect route proof here;
+unrevealed Illusion, Reflect Type, generic temporary types, offense, doubles
+and complete episodes remain out of scope. The resulting local coverage digest
+is `13023945c453d8dd5a312487edb5482fe2d7ac74f58bae2f62723f14bd6c0ad2`,
+**unreviewed**; manifest attestation fields remain unchanged.
+
+### CE-04B Transform/Roost repair checkpoint (2026-10-02, unreviewed)
+
+The prior review gap is closed by a real source-shaped singles sequence, not
+by inspecting or projecting `typeWas`: Articuno uses Roost, slower U-turn
+creates a forced switch before residual, and Ditto's Imposter transform runs
+against the active Roost target. The consumed-request snapshot restores the
+same forced boundary; both mirror pairs produce deterministic identities in
+their own prefix lineages and the same output state fingerprint. Raw requests,
+private condition fields and Illusion identity stay absent from observations and
+publication. CE-04B awaits scoped digest review only.
+
+### CE-04B active-Transform faint repair (2026-10-05, unreviewed)
+
+Pinned ordering confirms no successor move can faint the newly
+Imposter-transformed Ditto before residual completes: U-turn replacement runs
+`Imposter.onSwitchIn → transformInto`, then residual resolves before the next
+request. The mirrored p1/p2 v2 fixture records the first move-request faint path:
+source departure, a Rock hit against the copied `Ice/Flying` Ditto, its public
+faint/native-Normal bench cleanup, and owner-only replacement. It restores
+twins before and after the faint, matches transition identities and public state
+fingerprints, rejects a stale replacement request without mutation, continues
+deterministically, and validates all actual available Python record bundles.
+No observation or publication exports `typeWas`, raw request data, or the
+unrevealed Zoroark identity. No production code, generic temporary type or
+Transform model, manifest attestation field, or grammar changed. The local
+coverage digest is `13023945c453d8dd5a312487edb5482fe2d7ac74f58bae2f62723f14bd6c0ad2`, **unreviewed**.
+
+### CE-04B active-Transform faint review finding (2026-10-05): superseded
+
+The earlier broader source-impossibility claim was incorrect; the following residual-KO repair supersedes this finding. `Battle.fieldEvent('Residual')`
+orders and runs all field/status/volatile handlers, calling `faintMessages()`
+after each (`sim/battle.ts:477-533`). Sandstorm's field residual is order 1 and
+damages (`data/conditions.ts:620-659`); poison/toxic are order 9
+(`data/conditions.ts:127-160`); Roost's duration handler is order 25
+(`data/moves.ts:16016-16030`). A pre-damaged Ditto can consequently transform
+against the live Roost target and faint to an earlier residual before Roost
+expires. Generated Toxic Spikes and Sand Stream roots mean the later
+Rock-hit-only fixture does not exclude the path. CE-04B remains unreviewed and
+unattested pending a mirrored real v2 earlier-residual faint witness (or a
+complete generated-route exclusion) with the existing privacy, restoration,
+rollback, and Python-publication obligations.
+
+### CE-04B pre-Roost-expiry residual-KO repair (2026-10-05, unreviewed)
+
+This supersedes the prior no-interleaving claim. Generated Tyranitar Sand
+Stream runs at residual order 1 and `Battle.fieldEvent` calls `faintMessages()`
+after it; Roost expires only at order 25. Mirrored p1/p2 v2 source fixtures
+pre-damage Ditto, establish Sand Stream, use Articuno Roost plus slower U-turn,
+and have Ditto/Imposter transform while `roost.typeWas` remains private. The
+real upkeep then faints copied Ditto before Roost expiry. Both views retain the
+active `Ice/Flying` target and public Ditto faint/native-Normal cleanup.
+Restored twins, deterministic same-lineage transitions, stale-choice rollback,
+owner-only replacement, continuation and actual Python v2 publication pass.
+No output exports `typeWas`, raw request data or unrevealed Zoroark identity.
+
+Poison/toxic residual handlers are order 9; their status/damage records differ
+but their `faintMessages()`-before-order-25 type cleanup is identical, so no
+second CE-04B type fixture is necessary. No production feature, generic
+residual/type/Transform support, manifest field or attestation changed. Local
+digest: `bf4c57ae0745d28c7d2d9dd9bf0999e753c53fe6c26e12e12eedf13c3e11a1f4`, **unreviewed**.
+
+### CE-04B Roost and active-Transform scoped review verdict (2026-10-05): accepted
+
+Focused review accepts the bounded Roost public defensive-type closure,
+including the active-Roost Imposter/Transform and pre-expiry residual-faint
+paths. Sand Stream order 1 and poison/toxic order 9 each invoke
+`faintMessages()` before Roost order 25; the Sandstorm fixture supplies the
+mirrored source-backed type/faint/replacement witness and poison/toxic share the
+same bounded transform/type cleanup. Both actor directions, public privacy,
+restored twins, deterministic continuation, rollback, and Python v2 publication
+are covered. The attested local coverage digest is
+`bf4c57ae0745d28c7d2d9dd9bf0999e753c53fe6c26e12e12eedf13c3e11a1f4`.
+
+This acceptance is limited to CE-04B. It does not add generic residual,
+Transform, temporary-type, Reflect Type, or offensive-calculation behavior, and
+does not accept PIPELINE-002 or complete-episode capture.
+
+### CE-04D1 entry-hazard layer checkpoint (2026-10-05, accepted scoped closure)
+
+Pinned `Moves.spikes` and `toxicspikes` emit one public `-sidestart` per source-bounded layer (3 and 2); Stealth Rock and Sticky Web have no restart callback and stay at one. Their switch-in consequences remain existing public HP/status/stage records. Pinned Rapid Spin, Mortal Spin, Defog and Tidy Up produce the exact reviewed side-end forms; Poison absorption is Toxic Spikes' separate `[of]` form. Generated Gen 9 rows root every family and removal route, while generated Court Change remains explicitly excluded.
+
+The public extractor now rejects unsupported hazard source forms and a cap overflow before mutation, retains only public effect/count, and deletes the count at public `-sideend`. Mirrored simulator-backed v2 tests cover p1/p2 layer evidence, Rapid Spin clear, restored twins, deterministic identities, stale-candidate rollback and Python transition publication; direct source-engine tests cover all distinct caps, duplicates, switch-in, Rapid Spin/Mortal Spin/Defog/Tidy Up removals, and Poison absorption. No source/timer/request/snapshot data crosses the observation boundary.
+
+**Switch-in witness repair (2026-10-05):** Four additional source-engine-prepared, real v2 successor transitions now cover both actor directions: Skarmory Stealth Rock causes the exact public `-damage|<active>|<HP>|[from] Stealth Rock` when Charizard enters; Ariados Sticky Web causes `-activate|<active>|move: Sticky Web` followed by `-unboost|<active>|spe|1`; Ariados Toxic Spikes emits `-status …|psn` at one layer and `-status …|tox` at two. Their pre-switch snapshots are restored into independent twins and produce equal transition IDs/fingerprints. Stale-rqid candidates reject without boundary mutation, each player sees the same public layer/consequence while retaining only its own request, and every actual successor bundle validates through Python. Existing shared HP/status/activation/stage grammar already validates these source shapes, so no broad protocol family was added. **CE-04D1 scoped verdict (2026-10-05, accepted):** Source and fixture review accepts the four distinct switch-in consequences and the pre-existing cap/removal/Poison-absorption evidence. Digest `f302c335197264979d898e7db62828934d5100aff474bef3212de06124207fe0` is attested for CE-04D1 only. Screens, weather, terrain, Court Change, generic side swapping, doubles, private hazard/source data, and complete-episode acceptance remain outside scope.
+
+### CE-04E1 public weather-state checkpoint (2026-10-05, unreviewed)
+
+Pinned `Field.setWeather/clearWeather` and the four `Conditions` weather
+entries give one exact public `-weather` family for operative Gen 9 Random
+Battle singles: generated move starts are untagged RainDance, SunnyDay, or
+Snowscape; generated ability starts have exact `[from] ability: …|[of]
+<active>` provenance for Drizzle, Drought, Orichalcum Pulse, Sand Stream, and
+Snow Warning; each weather emits `[upkeep]`; expiry alone emits untagged
+`none`. Replacement directly sets the next ID and does not invent a clear.
+Sandstorm's only generated root is Sand Stream, so an untagged Sandstorm start
+fails closed. Weather Rocks affect private duration only.
+
+Generated Cloud Nine and Air Lock use `suppressWeather` and WeatherChange
+without clearing `Field.weather`, so public typed weather remains the actual
+source-backed ID and suppression has no invented typed field. The v2 fixture
+mirrors both actor sides through Drought start, Rain Dance replacement, upkeep,
+Cloud Nine switch suppression, restored continuation, stale-rqid rollback, and
+actual Python publication. Direct source evidence also covers all generated
+ability starts, duration clear, and terminal behavior without an invented
+`none`. Neither requests, split HP, `weatherState`, source slot, duration,
+hidden ability/item, nor snapshots appear in observations or records.
+
+The shared TypeScript/Python validator rejects historical/extreme weather,
+untagged Sandstorm, wrong origins, side-only or doubles sources, reordered or
+extra tags, and whitespace variants before projection/DATA-001 publication.
+No extractor production change, terrain/pseudo-weather/generic-field model,
+weather-damage model, doubles support, or complete-episode claim entered this
+slice. The coverage digest is unreviewed pending the checker result; manifest
+digest fields remain unchanged. Computed local coverage digest:
+`a2c6b2a3a424c74d6d1241c5990174d1d227f462be40a494057243b9482ab9fa`
+(unreviewed).
+
+**CE-04E1 scoped review verdict (2026-10-05, accepted):** Pinned
+`Field.setWeather/clearWeather` and the four generated `Conditions` forms
+establish exact untagged move starts, tagged active ability starts, literal
+upkeep, and untagged `none` clear records. Generated Cloud Nine and Air Lock
+suppress effects without clearing actual weather, so the bounded public field
+retains the weather ID and has no invented suppression value. Mirrored p1/p2
+v2 fixtures, restored twins, stale-candidate rollback, privacy assertions, and
+Python transition-bundle publication pass. The shared TypeScript/Python rules
+reject unsupported weather IDs, origins, identifier roles, tag orders, and
+whitespace forms before projection or DATA-001 output. The attested local
+coverage digest is `a2c6b2a3a424c74d6d1241c5990174d1d227f462be40a494057243b9482ab9fa`.
+This accepts CE-04E1 only; terrain, pseudo-weather, generic field mechanics,
+weather damage modeling beyond public HP evidence, private weather causes,
+doubles, PIPELINE-002, and complete-episode claims remain outside scope.
+
+**CE-04E1 baseline-fixture repair verdict (2026-10-05, accepted):** The failing
+`simulator_coverage.test.ts` record `|-weather|raindance` was synthetic stale
+input. Pinned `Moves.raindance` passes `weather: 'RainDance'`; after
+`Field.setWeather`, `Conditions.raindance.onFieldStart` emits exactly
+`|-weather|RainDance`. The repair changes only that fixture to the actual
+tagless move-start record. It does not add a lowercase alias, tagged move form,
+duration field, or suppression field. Matching TypeScript and Python negative
+controls now reject lowercase `raindance` before state extraction and DATA-001
+publication. The attested local coverage digest is
+`b778e062f3934444adec94fc865fd6840d1514cc4551a818ae5c5701dde4151d`.
+Focused weather validation, checker/self-test, and Python publication pass.
+The aggregate coverage fixture still rejects its separate lowercase
+`electricterrain` baseline under CE-04E2's unreviewed terrain grammar; that
+failure does not broaden the weather grammar or block this weather-only verdict.
+
+### CE-04E2 public terrain-state checkpoint (2026-10-05, unreviewed)
+
+Pinned `Field.setTerrain/clearTerrain` plus the three operative terrain
+conditions produce a finite public family. Generated Pincurchin/Electric Surge
+and Miraidon/Hadron Engine set Electric Terrain; Rillaboom/Grassy Surge and
+Arboliva/Seed Sower set Grassy Terrain; Indeedee/Indeedee-F/Psychic Surge set
+Psychic Terrain. Each emits only `|-fieldstart|move: <Terrain>|[from] ability:
+<finite setter>|[of] <active>`. Replacement calls the next FieldStart directly,
+without a fabricated old-terrain end. Every source-backed clear (natural expiry,
+generated Ice Spinner, generated Defog, and Teraform Zero where applicable)
+uses the matching untagged `|-fieldend|move: <Terrain>` callback. No terrain
+upkeep record exists. Misty Terrain and all direct terrain-move starts lack an
+operative generated root and reject.
+
+The existing public extractor already stores only the field terrain ID and
+clears it at matching FieldEnd. The shared TypeScript/Python boundary now
+requires the finite generated IDs, exact ability provenance, ordered active
+`[of]` role, and exact tagless clear. It rejects source-less/reordered/extra
+forms, wrong IDs/origins, side-only or doubles identifiers, whitespace forms,
+and ungenerated Misty Terrain before projection or DATA-001. Pinned
+per-target `effectiveTerrain` suppression has no public state-changing record,
+so no public suppression field is added. Duration/source slot, Terrain Extender,
+callback inputs, private requests, split HP, and simulator state remain absent.
+
+`tests/terrain.test.ts` supplies direct source-engine checks for all five
+generated callbacks, natural expiry, Ice Spinner clear, and terminal behavior,
+plus mirrored p1/p2 real v2 transitions through Electric start, Grassy
+replacement, public clear, restored twins, deterministic identities, stale-rqid
+rollback, privacy, and Python successor publication. Python rehashed controls
+cover v1/v2, both perspectives, and input/successor insertion with no-output
+rejection. Terrain-induced mechanics, pseudo-weather, doubles, and
+complete-episode claims remain out of scope. The computed local coverage digest
+is `cb6a971ed3bf7706a6a268c3f93ba8e1068545e786bc835bebdf5b517cf395a7`
+(unreviewed); manifest attestation fields are unchanged.
+
+**CE-04E2 scoped review verdict (2026-10-05, accepted):** The review accepts the finite generated singles terrain family and exact public boundary: active-source ability FieldStarts for Electric Terrain (Electric Surge/Hadron Engine), Grassy Terrain (Grassy Surge/Seed Sower), and Psychic Terrain (Psychic Surge), plus the individual untagged matching FieldEnds. Replacement has no fabricated interim end; expiry and reachable clear routes use the same FieldEnd grammar; terminal completion retains terrain without inventing a clear. Focused TypeScript and Python checks cover p1/p2 real v2 transitions, restored deterministic twins, rollback, privacy, malformed rejection before publication, and successor-bundle publication. The attested local coverage digest is `cb6a971ed3bf7706a6a268c3f93ba8e1068545e786bc835bebdf5b517cf395a7`. This accepts CE-04E2 only; pseudo-weather, generic terrain mechanics, action inference outside owned requests, doubles, PIPELINE-002, and complete-episode claims remain outside scope.
+
+**CE-04E2 aggregate coverage-fixture repair checkpoint (2026-10-05, unreviewed):** The aggregate effect-inventory fixture is corrected from its stale compact `|-fieldstart|electricterrain` synthetic record to the pinned Electric Surge emitter's ordered active-source record, `|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin`. The pinned condition has no compact generated terrain branch. Existing TypeScript/Python CE-04E2 controls accept that finite source form and reject compact/source-less terrain starts before projection or DATA-001. No grammar, extractor, finite terrain ID, private duration/source/request state, generic terrain support, manifest attestation, PIPELINE-002, or complete-episode claim changes. Computed local coverage digest: `9f88b5ebdba384722bd38351f09dfbd617907f3ced85fa9363ab26f8e5a40a0a` (unreviewed).
+
+**CE-04E2 aggregate coverage-fixture repair verdict (2026-10-06, accepted):** Review verified the pinned Electric Surge emitter and generated `gen9randombattle` root produce the ordered active-source record and never the compact source-less form. The finite shared grammar, public-only terrain ID, and omission of duration, source state, requests, split-private HP, and simulator state remain unchanged. Build, focused terrain/protocol checks, Python record checks, and checker self-tests passed. The aggregate test progresses only to a separate stale Glaive Rush typed-volatile assertion; Glaive Rush is currently raw-only, so that assertion does not execute or contradict the terrain case and does not block this fixture-only attestation. Digest `9f88b5ebdba384722bd38351f09dfbd617907f3ced85fa9363ab26f8e5a40a0a` is attested only for this CE-04E2 aggregate-fixture repair. No terrain grammar, extractor, finite terrain ID, private-state boundary, generic terrain support, PIPELINE-002, or complete-episode claim changes.
+
+### CE-04E3 public Trick Room pseudo-weather checkpoint (2026-10-05, unreviewed)
+
+Pinned `Moves.trickroom.condition` emits only `|-fieldstart|move: Trick Room|[of] <active>` for the operative generated singles route. Its active reapplication invokes `onFieldRestart`, which calls `Field.removePseudoWeather` and produces the one tagless `|-fieldend|move: Trick Room`; residual expiry uses that same end callback. The generated set domain has Trick Room roots in Slowbro-Galar, Trevenant, Calyrex-Ice, and Rabsca, while Persistent's otherwise possible `[persistent]` start tag has no generated root and rejects. Trick Room is field-owned, so source switch/faint/form does not fabricate a clear; terminal delivery likewise retains the preceding public state without a FieldEnd.
+
+The existing extractor retains only `pseudo_weather: trickroom`. It does not project `Field.pseudoWeather` duration, source, sourceSlot, a setter identity, queue speed state, raw requests, or simulator snapshots. The move-order witness is actual simulator protocol ordering through `Pokemon.getActionSpeed`; it never becomes a derived action mask or future-order prediction. Mirrored p1/p2 v2 fixtures prove start, slower-first next-turn order, reapplication clear, natural expiry, switch persistence, terminal preservation, restored twins, deterministic transition/fingerprint identity, stale-rqid rollback, both-perspective privacy, and Python successor-bundle publication.
+
+A shared TypeScript/Python boundary now accepts only the exact active-source start and tagless end forms. It rejects source-less, legacy-command, side-only/doubles, Persistent-tagged, extra/reordered, and whitespace-repaired candidates before projection or DATA-001 across v1/v2, p1/p2, and input/successor rehashing. Other pseudo-weather IDs, generic priority/speed inference, doubles, and complete-episode claims remain outside this slice. The computed local coverage digest is `6c49f1c3b3573020baa3d76c988f6637ddcdb3e883185c5092bcd308ee6facea` (unreviewed); manifest attestation fields remain unchanged.
+
+**CE-04E3 scoped review verdict (2026-10-05, accepted):** Review verified the generated singles Trick Room roots in Slowbro-Galar, Trevenant, Calyrex-Ice, and Rabsca, the exact active-source `-fieldstart|move: Trick Room|[of] <active>` form, and the tagless `-fieldend|move: Trick Room` form for reapplication removal and residual expiry. Source switch, faint, and form changes retain the field-owned public ID; terminal delivery does not fabricate a clear. Mirrored p1/p2 v2 transitions, actual simulator slower-first ordering, restored deterministic twins, stale-rqid rollback, private request boundaries, malformed rejection before publication, and Python successor publication passed. The public view contains only `pseudo_weather: trickroom`; queue speed, action legality, duration, setter identity, requests, and simulator state remain unprojected. Digest `6c49f1c3b3573020baa3d76c988f6637ddcdb3e883185c5092bcd308ee6facea` is attested only for CE-04E3; other pseudo-weather, generic priority/speed inference, doubles, and complete-episode claims remain outside scope.
+
+### CE-04F1 public item reveal, consumption, and transfer checkpoint (2026-10-05, unreviewed)
+
+Pinned base emitters and operative generated singles roots establish four bounded public item shapes: Frisk's ordered opposing-active reveal; Sitrus Berry's `[eat]` consumption; Knock Off's ordered opposing-active removal; and Trick/Switcheroo's item recipient plus their silent empty-side removal. Generated selectors provide the finite initial/transfer payload domain; public evidence updates only the named recipient or target. Existing extraction already clears known public item state and records public `last_item` as consumed or removed, without inferring an item from species, request, selector, or callback state.
+
+**`[eat]` source-form repair (2026-10-05, unreviewed):** `Pokemon.eatItem`
+emits `[eat]`, but only the 13 selector-reachable edible payloads are accepted:
+Aguav, Chesto, Custap, Figy, Iapapa, Leppa, Lum, Mago, Passho, Rindo, Salac,
+Sitrus, and Wiki Berry. The previous tag-only form admitted Choice Scarf. Both
+runtimes now reject it and Air Balloon across rehashed v1/v2 p1/p2
+input/successor candidates before projection or DATA-001 output, preserving
+candidate lineage. The revised digest is unreviewed; attestation fields remain
+unchanged.
+
+The shared TypeScript/Python contract now requires canonical active singles identifiers, finite generated payload spelling, exact tag order, and the source-specific opposing role for Frisk and Knock Off. It fails closed before projection/DATA-001 on invented names, whitespace repair, side-only/doubles targets, private/same-side sources, reordered/duplicate/extra tags, non-edible `[eat]` payloads, and provenance on raw-only bare aliases. Mirrored p1/p2 actual v2 fixtures cover reveal, consumption, removal, transfer, restored deterministic twins, continuation, rollback, both-perspective request privacy, and Python successor-bundle publication. Rehashed Python controls cover v1/v2, p1/p2, input/successor validation and no-output rejection. Harvest/Recycle history, Pickup/Magician/Pickpocket, Choice locks, Fling, generic inventory inference, doubles, and training remain excluded. Computed local coverage digest: `538efd728a628201d5957dc881ee2cc56582b41f04280f82b8c05d80f598934d` (unreviewed); manifest attestation fields remain unchanged.
+
+**CE-04F1 tagless `-enditem` repair (2026-10-05, unreviewed):** The empty-tag `dash_enditem` template now accepts only `Air Balloon`, exactly matching `data/items.ts:187-202`; the extractor classifies that tagless public form as `removed` rather than `consumed`, while tagged `[eat]`, Knock Off, Trick, and Switcheroo source forms retain their reviewed behavior. The mirrored p1/p2 Air Balloon v2 fixture proves removal, restored deterministic continuation, stale-rqid rollback, public-only perspectives, and Python successor publication. Rehashed TypeScript/Python v1/v2 p1/p2 input/successor controls accept exact Air Balloon and fail closed before projection/DATA-001 on Choice Scarf or other generated tagless payloads, malformed/side-only/doubles targets, tags, field-count changes, whitespace, and extra payload. Computed local coverage digest: `538efd728a628201d5957dc881ee2cc56582b41f04280f82b8c05d80f598934d` (unreviewed; manifest attestation fields unchanged).
+
+**CE-04F1 tagless `-enditem` review blocker (2026-10-05):** Air Balloon is not the sole source-backed empty-tag payload. `Pokemon.useItem` (`sim/pokemon.ts:1758-1769`) emits a tagless end-item record for non-Gem items; generated Meteor Beam selects Power Herb (`data/random-battles/gen9/teams.ts:1229`), and `Items.powerherb.onChargeMove` invokes that method (`data/items.ts:4421-4427`). The resulting direct generated chain emits `|-enditem|p1a: Armarouge|Power Herb` before the accepted Meteor Beam `-anim` output. The Air Balloon-only shared rule rejects it before projection/Python publication. CE-04F1 remains unaccepted, and manifest digest fields remain unchanged, pending a complete source-qualified disposition for reachable tagless `useItem` forms.
+
+### CE-04F1 tagless `-enditem` non-Gem `useItem()` repair checkpoint (2026-10-05, unreviewed)
+
+The Air Balloon-only repair was narrowed incorrectly. Pinned `Pokemon.useItem` emits tagless `-enditem` for non-Gem use; the complete source-qualified generated singles domain is **Booster Energy, Focus Sash, Power Herb, Throat Spray, Weakness Policy, and White Herb**, plus the separately direct-emitted Air Balloon pop. Their generator roots are respectively Paradox ability selection, Smeargle/lead selection, generated Meteor Beam, generated sound-move selection, generated setup-policy selection, and generated Shell Smash/Unburden selection. Their callbacks are `Items.boosterenergy.onUpdate`, `focussash.onDamage`, `powerherb.onChargeMove`, `throatspray.onAfterMoveSecondarySelf`, `weaknesspolicy.onDamagingHit`, and `whiteherb.onUpdate`; each produces the exact active-target empty-tag record through `useItem`.
+
+The shared TypeScript/Python form accepts only those seven payloads. Air Balloon is publicly `removed`; the six `useItem` forms are publicly `consumed`. This carries no callback, item selector, source, timer, history, request, or simulator-state data. `item.test.ts` now has mirrored p1/p2 source-engine v2 witnesses for every payload, restoration, deterministic continuation, rollback, privacy, and successor Python publication. Rehashed v1/v2/p1/p2/input/successor matrices accept every finite form and reject fabricated Choice Scarf/Leftovers, malformed/side-only/doubles targets, whitespace repair, tags, and extra payload before projection or DATA-001 output without lineage advance. Gems retain their tagged `[from] gem` form; selector-rootless callbacks and doubles-only Blunder Policy remain excluded. Computed local coverage digest: `ac2c0fbb51697d75eef1b8c2b8b55b2c721c1c193b7f62edbcb9e750c48c824e` (unreviewed; manifest attestation fields unchanged).
+
+**CE-04F1 scoped review verdict (2026-10-05, accepted):** Review verified the finite generated-singles intersection of actual non-Gem `useItem` callbacks, including generated Meteor Beam → Power Herb, rather than treating the item selector as an output domain. Exact tagless and tagged forms remain disjoint; malformed or fabricated tagless candidates fail before projection and Python DATA-001 publication in both schemas, perspectives, and prefix positions. Mirrored v2 item transitions confirm owner-only typed reconciliation, shared raw evidence, restoration, deterministic continuation, rollback, and Python publication. Digest `ac2c0fbb51697d75eef1b8c2b8b55b2c721c1c193b7f62edbcb9e750c48c824e` is accepted for CE-04F1 only; generic item callbacks/history, doubles, and complete-episode claims remain excluded.
+
+### CE-04D2 public nonstacking screen checkpoint (2026-10-05, unreviewed)
+
+Pinned `Moves.reflect`, `lightscreen` and `auroraveil` plus `Side.addSideCondition/removeSideCondition` establish the finite generated singles screen family: Reflect uses tagless `-sidestart/-sideend ...|Reflect`; Light Screen and Aurora Veil use `move:`-prefixed forms; duplicate application has no restart and natural expiry uses the same untagged end. Generated Meowstic roots Reflect/Light Screen; Ninetales-Alola and Abomasnow root Aurora Veil under generated snow. Defog, Brick Break, Raging Bull, and Psychic Fangs remove screens through the same SideEnd path; the pinned Psychic Fangs callback removes all three screens before damage, with generated Mew a direct route. Switch/faint preserve the side condition; terminal delivery fabricates no end. Duration, Light Clay, setter/source slot, mitigation and snapshots remain private.
+
+The shared TypeScript/Python grammar accepts only those six side-only exact forms and rejects aliases, active/doubles/whitespace sides, wrong label/prefix, tags/extra fields and ungenerated Safeguard/Mist before projection or DATA-001. Mirrored p1/p2 v2 fixtures cover all three public starts and Psychic Fangs ends, post-start restoration, same-lineage deterministic transitions, stale-candidate rollback, request privacy and Python publication; direct source-engine witnesses cover duplicate, expiry, Defog, Brick Break and Raging Bull. Generated Court Change remains explicitly unsupported, as do generic side swapping, doubles, Safeguard/Mist and other side-condition families. Computed local coverage digest is recorded below after focused validation (unreviewed; manifest fields unchanged).
+
+**CE-04D2 Psychic Fangs repair (2026-10-05, unreviewed):** The source table
+now distinguishes Psychic Fangs from Defog, Brick Break, and Raging Bull.
+Pinned `onTryHit` calls all three ordinary screen `SideEnd` callbacks before
+damage; generated Mew establishes the direct singles route. The direct fixture
+and mirrored p1/p2 v2 transitions witness Reflect, Light Screen, and Aurora
+Veil removal, public side deletion, both-perspective privacy, restored-twin
+continuation, stale-action rollback, and Python publication. No grammar,
+generic removal, side-swap, or attestation surface changed. Computed local
+coverage digest: `8171d803227cdf218e3b24def428c11152345476834efde4b8ec3c6eb261a56a` (unreviewed; manifest
+fields unchanged).
+
+**CE-04D2 scoped review verdict (2026-10-05, accepted):** Review verified the
+direct generated Mew → Psychic Fangs path and pinned pre-damage removal of
+Reflect, Light Screen, and Aurora Veil through the ordinary tagless SideEnd
+records. The p1/p2 v2 witnesses retain public side-state deletion,
+both-perspective privacy, restoration, deterministic continuation, rollback,
+and Python publication; Defog, Brick Break, and Raging Bull evidence remains
+intact. Digest `8171d803227cdf218e3b24def428c11152345476834efde4b8ec3c6eb261a56a`
+is accepted for CE-04D2 only. Generic removal, side swapping, doubles, damage
+calculation, and complete-episode claims remain excluded.
+
+### CE-04D3 Court Change public side-condition swap checkpoint (2026-10-05, unreviewed)
+
+Pinned `Moves.courtchange.onHitField` exchanges its finite normal-side condition list before emitting exact no-payload `|-swapsideconditions`; the subsequent `|-activate|<active>|move: Court Change` occurs only after a successful exchange. Generated Cinderace supplies the direct Gen 9 Random Battle singles root. The shared TypeScript/Python rule admits only those exact source shapes: the dash swap record has no actor, side, tags, or payload; the activation must use a canonical singles active actor. Bare aliases, participant fields, doubles slots, tags, reordering, whitespace variants, and extra payload reject before projection/DATA-001.
+
+The public extractor atomically exchanges only the pinned source-list IDs. This preserves public hazard layer counts and screen presence without carrying source setter, duration, Light Clay, item, request, or simulator-state data. Mirrored p1/p2 v2 source-engine fixtures prepare asymmetric Spikes/Toxic Spikes and Reflect/Light Screen, execute Court Change, verify both public perspectives, then switch both reserves to witness the swapped Spikes damage and Toxic Spikes poison. Restored twins, deterministic transition/fingerprint identities, stale-rqid rollback, request privacy, and Python successor publication pass. Free-for-all's distinct silent protocol, G-Max-only conditions, doubles, weather/terrain/pseudo-weather transfer, generic side swaps, damage calculation, and complete-episode claims remain excluded. Computed local coverage digest: `b99158a110b0546936e6f98077214d4eda7dfadc9815230bc632ea11ba4b05ac` (unreviewed; manifest attestation fields unchanged).
+
+**CE-04D3 review blocker (2026-10-05):** Generated Shiftry can establish public Tailwind (`data/random-battles/gen9/sets.json:1926-1945`; `Moves.tailwind` at `data/moves.ts:19608-19618`), and pinned Court Change includes `tailwind` in its normal-side transfer list. The current generic side-condition extraction types Tailwind, so `|-sidestart|p1: One|Tailwind`, `|-sidestart|p2: Two|Spikes`, `|-swapsideconditions` changes p1's public map to `{spikes:1}` and p2's to `{tailwind:1}`. The CE-04D3 fixture and v2/Python evidence cover only hazards and screens. This unreviewed reachable typed side-condition transfer is broader than the scoped hazard/screen closure; it has no simulator-backed restoration or publication proof. CE-04D3 remains unaccepted and the manifest digest fields remain unchanged.
+
+**CE-04D3 transferable-side-condition inventory repair (2026-10-05, unreviewed):** The complete pinned normal-side list is `mist`, `lightscreen`, `reflect`, `spikes`, `safeguard`, `tailwind`, `toxicspikes`, `stealthrock`, `waterpledge`, `firepledge`, `grasspledge`, `stickyweb`, `auroraveil`, and `luckychant`. The represented and generated-singles subset is exactly Spikes (1–3), Toxic Spikes (1–2), Stealth Rock, Sticky Web, Reflect, Light Screen, Aurora Veil, and Tailwind (all presence `1` except layers). Existing CE-04D1/D2 and Court Change witnesses cover the hazard/screen forms, including their distinct later switch-in records. A new mirrored p1/p2 v2 source-engine fixture pairs generated Cinderace with generated Shiftry: Cinderace establishes Stealth Rock/Sticky Web while Shiftry establishes two-layer Toxic Spikes, Light Screen, Aurora Veil under source-backed snow, and Tailwind; Court Change swaps the exact public count/presence values atomically, and Tailwind later emits `|-sideend|<new side>|move: Tailwind` on its transferred side. Restored twins converge with untouched sessions, stale rqid candidates preserve their boundary, both perspectives retain only owned requests, and actual successor bundles publish through Python. `mist`, `safeguard`, and `luckychant` have no selected Gen 9 Random Battle root; the three pledge conditions require `isAlly` Pledge combinations and are singles-impossible; the five G-Max IDs have no Gen 9 Random Battle route. Those unrepresented routes have explicit no-route dispositions rather than synthetic fixtures. Grammar remains only the exact no-payload swap plus canonical active Court Change activation; no generic swapping, doubles, G-Max, field transfer, duration/setter inference, or complete-episode scope was added. Computed local coverage digest is recorded after validation (unreviewed; manifest fields unchanged).
+
+Focused build, Court Change/contract/extractor/pipeline TypeScript tests (50/50), Python publication tests (41/41), coverage self-test, and `git diff --check` pass. The standard coverage checker reports expected unreviewed drift `62e63cd27d89281efa242bdc20e3692f17479d13fa2fdd0d93fb8caff9741e58`; manifest digest fields are unchanged and no verdict is attested.
+
+**CE-04D3 closure review hold (2026-10-05):** The inventory's route
+classification is source-backed, but the asserted combined generated fixture
+is not. Cinderace's selected rows supply Court Change only; they do not supply
+Spikes, Reflect, Stealth Rock, or Sticky Web. Shiftry's Tailwind row supplies
+Wind Rider and Tailwind only; it does not supply Snow Warning, Toxic Spikes,
+Light Screen, or Aurora Veil. The fixture injects those invalid combinations,
+so it is an engine-state test rather than proof of the claimed generated-set
+routes. The complete reachable represented sibling set needing
+format-faithful Court Change source-engine coverage is **Spikes, Stealth Rock,
+Sticky Web, Reflect, Light Screen, and Aurora Veil**. Toxic Spikes/Ariados
+and Tailwind/Shiftry retain individual direct roots. Mist, Safeguard, and
+Lucky Chant have no selected route; Pledges require an ally in singles; and
+the five G-Max conditions have no operative route. CE-04D3 remains
+unaccepted, the computed digest
+`62e63cd27d89281efa242bdc20e3692f17479d13fa2fdd0d93fb8caff9741e58` is
+unreviewed only, and no manifest digest or review verdict was changed.
+
+### CE-04F2 major-status projection checkpoint (2026-10-06, unreviewed)
+
+The public protocol gate now validates source-shaped major-status apply and
+cure records before TypeScript extraction and Python pipeline publication.
+The gate accepts only the six status IDs, ordinary untagged status effects,
+Rest, Flame/Toxic Orb, Effect Spore/Flame Body/Static/Toxic Chain, ordinary
+`[msg]` cures, Natural Cure, and the generated frozen self-defrost rows. It
+rejects fabricated status IDs, wrong item or ability pairings, malformed or
+same-side provenance, unsupported cures, and tagged compatibility aliases
+before a candidate observation can be projected or published.
+
+The extractor records a new public status/replacement/cure from the accepted
+record, treats an explicit statusless HP condition as a known clear, retains a
+status that is explicitly present on switch-in, and clears the public
+major-status field at faint. Existing Healing Wish and Revival Blessing exact
+heal records remain the only silent-clear evidence. Status timers, sleep
+selection, toxic counter, source object, terrain/item/ability guards,
+private request state, generic callbacks, doubles, and episode claims remain
+outside this checkpoint.
+
+`tests/major_status.test.ts` covers both perspectives and lifecycle state;
+`trainer/tests/test_major_status_contract.py` verifies the same accepted and
+rejected grammar in Python. The existing mirrored v2 Healing Wish/Revival
+fixtures cover restore, deterministic continuation, rollback, and Python
+publication for silent clears. Computed local coverage digest:
+`ba328907f58d969aebeb167b834fcf9262bf2c87f5620047bef705c61722ea8b` (**unreviewed**); manifest attestation fields remain
+unchanged.
+
+**CE-04F2 review hold (2026-10-06):** Do not attest this checkpoint. The
+shared validators accept unsupported bare `|status|...` and
+`|curestatus|...` aliases although the pinned base emitters use dashed
+commands. They also reject four reachable source families: frozen
+self-defrost records for generated Hydro Steam, Matcha Gotcha, and Steam
+Eruption; Poison Touch's generated `psn` ability provenance; and move-origin
+sleep records for generated Sleep Powder, Hypnosis, and Spore. Pinned
+`Conditions.frz.onModifyMove`, `Conditions.psn.onStart`, and
+`Conditions.slp.onStart` establish those exact public forms. The four current
+`selective_boosts` failures are separate: the White Herb scenario rejects an
+unsupported `-item` source form under current item grammar, not CE-04F2.
+No code, tests, manifest digest, review verdict, or readiness claim changed.
+
+### CE-04F shared status and White Herb repair checkpoint (2026-10-06, unreviewed)
+
+| Contract family | Finite source domain | Pipeline disposition |
+|---|---|---|
+| Dashed status command | `-status` and `-curestatus` only | Bare `status`/`curestatus` are recognized unsupported aliases and stop before DATA-001 publication. |
+| Poison Touch | `psn`, `[from] ability: Poison Touch`, opposing active `[of]` from `data/abilities.ts:3275-3287` through `Conditions.psn.onStart` | The public status ID changes; ability ownership, chance, guards, and callback state remain absent. |
+| Direct sleep | Sleep Powder, Hypnosis, Spore only, each `slp|[from] move: <name>` from `Conditions.slp.onStart` | Pinned Gen 9 Random Battle movepool inventory has these three direct sleep roots. Other move names stop. |
+| Frozen self-defrost | Flare Blitz, Fusion Flare, Hydro Steam, Matcha Gotcha, Pyro Ball, Sacred Fire, Scald, Scorching Sands, Steam Eruption | `Conditions.frz.onModifyMove` emits the dashed source tag; the generated-movepool inventory has exactly these nine defrost moves. |
+| White Herb repeat | tagless `-enditem White Herb`, silent negative clear, then exact `-item White Herb|[from] move: Recycle` | `data/items.ts:7201-7214` consumes and clears; `data/moves.ts:15376-15381` restores. The extractor returns held then consumed state without generic history inference. |
+
+`major_status.test.ts`, `selective_boosts.test.ts`, item controls, the shared
+contract matrix, and Python rehash controls cover v1/v2, p1/p2, input/successor,
+valid records, malformed records, no-output rejection, and unchanged candidates
+after rejection. The White Herb simulator paths cover restoration, deterministic
+continuation, rollback, privacy, and successor publication.
+
+Exclusions remain explicit: generic status/item callback handling, unlisted
+sleep/defrost moves, generic Recycle payloads, private counters/history/requests,
+doubles, and complete episodes. Computed local coverage digest
+`16bfe90d2fc9e54efbb16aa13d47a26c642d51f18f198edc4519618c11b0b05b` is
+**unreviewed**; manifest attestation fields are unchanged.
+
+**CE-04F2 scoped review verdict (2026-10-06, accepted):** The pipeline review
+accepts only dashed `-status` and `-curestatus` records in the finite shared
+table: Poison Touch `psn` with its opposing-active source, direct Sleep Powder,
+Hypnosis, and Spore `slp` rows, and the nine generated frozen self-defrost
+moves including Hydro Steam, Matcha Gotcha, and Steam Eruption. Bare aliases,
+unlisted move names, malformed provenance, and non-singles identifiers stop
+before projection and publication. Rehashed TypeScript/Python v1/v2, p1/p2,
+input/successor controls preserve candidate state and produce no output on
+rejection. No generic status callback, private state, doubles, or complete
+episode support is accepted.
+
+**CE-04F1 scoped review verdict (2026-10-06, accepted):** The pipeline review
+accepts exactly the White Herb Recycle output
+`|-item|<active>|White Herb|[from] move: Recycle` after the independently
+bounded tagless consume and silent negative clear. Mirrored p1/p2 source-engine
+paths restore, consume again, continue deterministically, roll back rejected
+candidates, retain private request boundaries, and publish successor bundles
+through Python. Generic Recycle, other restored payloads, item-history
+inference, doubles, and complete-episode claims remain rejected or out of
+scope. Digest `16bfe90d2fc9e54efbb16aa13d47a26c642d51f18f198edc4519618c11b0b05b`
+is attested only for these CE-04F1 and CE-04F2 repairs; PIPELINE-002 remains
+unaccepted.

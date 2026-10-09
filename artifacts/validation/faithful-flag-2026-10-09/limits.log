@@ -1,0 +1,11 @@
+RUN node --test --test-isolation=none --test-reporter=spec --test-name-pattern=^CE-08B repair exact limits schema rejects canonical ordinary and compact metadata$ sim-core/dist/tests/pipeline_episode_stop_repair.test.js
+✔ CE-08B repair exact limits schema rejects canonical ordinary and compact metadata (3990.36325ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4063.381709
+EXIT 0 ELAPSED 4.155

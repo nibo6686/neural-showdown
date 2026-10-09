@@ -78,6 +78,207 @@ async function harness(actor: PlayerID, scenario = 'mixed') {
 }
 const STAGES = ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'] as const;
 function stages(boosts: Partial<Record<string, number>>) { return Object.fromEntries(STAGES.map(k => [k, boosts[k] || 0])); }
+
+type GeneratedSet = ReturnType<typeof Teams.generate>[number];
+type GeneratedTeam = GeneratedSet[];
+
+function generatedSet(species: string, seed: number[]): GeneratedSet {
+  const set = Teams.generate('gen9randombattle', { seed }).find(candidate => candidate.species === species);
+  assert.ok(set, `${species} must be present in the deterministic generated team`);
+  return structuredClone(set);
+}
+
+function importedTeam(text: string): GeneratedTeam { return Teams.import(text)!; }
+
+async function stageWitness(actor: PlayerID, name: string, own: GeneratedTeam, foe: GeneratedTeam) {
+  const battle = new Battle({ formatid: 'gen9randombattle', seed: '1,2,3,4' });
+  battle.setPlayer('p1', { team: actor === 'p1' ? own : foe });
+  battle.setPlayer('p2', { team: actor === 'p2' ? own : foe });
+  const snapshot = structuredClone(battle.toJSON());
+  const config = { ...CONFIG, battle_id: `stage-closure-${name}-${actor}` };
+  const reset = LocalBattleEnv.prototype.resetWithOptions;
+  let session: Awaited<ReturnType<typeof createPipelineIntegrationSession>>;
+  try {
+    LocalBattleEnv.prototype.resetWithOptions = function (options) {
+      return this.resetFromSerialized(structuredClone(snapshot), options);
+    };
+    session = await createPipelineIntegrationSession(config);
+  } finally {
+    LocalBattleEnv.prototype.resetWithOptions = reset;
+  }
+
+  return {
+    battle,
+    session,
+    async step(p1: string, p2: string) {
+      battle.makeChoices(p1, p2);
+      const select = (player: PlayerID, choice: string) => {
+        const request = session.boundary.perspectives[player].observation.request!;
+        const legal = request.legal_actions.actions.find(action => action?.choice === choice);
+        assert.ok(legal, `${player} must own ${choice}`);
+        return canonicalActionFromLegalAction(request, legal.index);
+      };
+      const transition = await session.step({ p1: select('p1', p1), p2: select('p2', p2) });
+      for (const player of ['p1', 'p2'] as const) {
+        const bundle = transition.record_bundles[player];
+        assert.ok(bundle, `${player} successor bundle is present`);
+        const input = bundle.input_observation;
+        const successor = bundle.successor_observation;
+        assert.deepEqual(successor.protocol_prefix.slice(0, input.event_cursor), input.protocol_prefix);
+        const ownPokemon = battle[player].active[0];
+        const foePokemon = battle[player === 'p1' ? 'p2' : 'p1'].active[0];
+        assert.ok(ownPokemon && foePokemon);
+        assert.deepEqual(stages(successor.view.self_team.find(pokemon => pokemon.active)!.boosts || {}), stages(ownPokemon.boosts));
+        assert.deepEqual(successor.view.opponent_team.find(pokemon => pokemon.active)!.public_boosts, stages(foePokemon.boosts));
+        assert.ok(successor.view.opponent_team.every(pokemon => pokemon.boosts === undefined && pokemon.stats === undefined));
+        const published = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          input: JSON.stringify(bundle), encoding: 'utf8',
+          env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
+        });
+        assert.equal(published.status, 0, published.stderr);
+        assert.equal(JSON.parse(published.stdout).schema_fingerprints.observation, PUBLIC_STAGES_SCHEMA_VERSION);
+      }
+      return transition;
+    },
+    async close() { battle.destroy(); await session.close(); },
+  };
+}
+
+function actorChoices(actor: PlayerID, own: string, foe: string): [string, string] {
+  return actor === 'p1' ? [own, foe] : [foe, own];
+}
+
+function moveChoice(battle: Battle, player: PlayerID, move: string): string {
+  const index = battle[player].active[0].moveSlots.findIndex(slot => slot.id === move.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  assert.notEqual(index, -1, `${battle[player].active[0].species.name} must have ${move}`);
+  return `move ${index + 1}`;
+}
+
+for (const actor of ['p1', 'p2'] as const) {
+  test(`generated Haze ${actor} clears the source-backed active stage map`, async () => {
+    const source = generatedSet('Tentacruel', [21, 2, 3, 4]);
+    const target = importedTeam(`Target (Gengar)
+Ability: Cursed Body
+- Shell Smash
+- Splash
+- Recover
+`);
+    const h = await stageWitness(actor, 'haze', [source], target);
+    try {
+      let [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Surf'), 'move 1');
+      await h.step(p1, p2);
+      assert.equal(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts.atk, 2);
+      [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Haze'), 'move 2');
+      const result = await h.step(p1, p2);
+      assert.ok(result.record_bundles[actor].successor_observation.protocol_prefix.some(line => line === '|-clearallboost'));
+      assert.deepEqual(stages(h.battle[actor].active[0].boosts), stages({}));
+      assert.deepEqual(stages(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts), stages({}));
+    } finally { await h.close(); }
+  });
+
+  test(`generated Clear Smog ${actor} clears only its public target stages`, async () => {
+    const source = generatedSet('Amoonguss', [148, 2, 3, 4]);
+    const target = importedTeam(`Target (Gengar)
+Ability: Cursed Body
+- Shell Smash
+- Splash
+- Recover
+`);
+    const h = await stageWitness(actor, 'clear-smog', [source], target);
+    try {
+      let [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Giga Drain'), 'move 1');
+      await h.step(p1, p2);
+      [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Clear Smog'), 'move 2');
+      const result = await h.step(p1, p2);
+      const targetIdent = `${actor === 'p1' ? 'p2' : 'p1'}a: Target`;
+      assert.ok(result.record_bundles[actor].successor_observation.protocol_prefix.some(line => line === `|-clearboost|${targetIdent}`));
+      assert.deepEqual(stages(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts), stages({}));
+      assert.equal(h.battle[actor].active[0].boosts.atk, 0);
+    } finally { await h.close(); }
+  });
+
+  test(`generated Mirror Armor ${actor} reflects the actual drop to its source`, async () => {
+    const source = generatedSet('Corviknight', [152, 2, 3, 4]);
+    const target = importedTeam(`Target (Snorlax)
+Ability: Thick Fat
+- Splash
+
+Intimidator (Arcanine)
+Ability: Intimidate
+- Tackle
+- Splash
+`);
+    const h = await stageWitness(actor, 'mirror-armor', [source], target);
+    try {
+      const [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Roost'), 'switch 2');
+      const result = await h.step(p1, p2);
+      const prefix = result.record_bundles[actor].successor_observation.protocol_prefix;
+      assert.ok(prefix.some(line => line.includes('|Mirror Armor')));
+      assert.ok(prefix.some(line => line === `|-unboost|${actor === 'p1' ? 'p2' : 'p1'}a: Intimidator|atk|1`));
+      assert.equal(h.battle[actor].active[0].boosts.atk, 0);
+      assert.equal(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts.atk, -1);
+    } finally { await h.close(); }
+  });
+
+  test(`generated Contrary ${actor} publishes the ability-modified stage delta`, async () => {
+    const source = generatedSet('Serperior', [40, 2, 3, 4]);
+    const target = importedTeam(`Target (Snorlax)
+Ability: Thick Fat
+- Splash
+`);
+    const h = await stageWitness(actor, 'contrary', [source], target);
+    try {
+      const [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Leaf Storm'), 'move 1');
+      const result = await h.step(p1, p2);
+      const ident = `${actor}a: Serperior`;
+      assert.ok(result.record_bundles[actor].successor_observation.protocol_prefix.some(line => line === `|-boost|${ident}|spa|2`));
+      assert.equal(h.battle[actor].active[0].boosts.spa, 2);
+    } finally { await h.close(); }
+  });
+
+  test(`generated Imposter ${actor} copies the prior public stage map at Transform`, async () => {
+    const ditto = generatedSet('Ditto', [9, 2, 3, 4]);
+    const source = importedTeam(`Source (Snorlax)
+Ability: Thick Fat
+- Splash
+`);
+    const target = importedTeam(`Target (Gengar)
+Ability: Cursed Body
+- Shell Smash
+- Splash
+`);
+    const h = await stageWitness(actor, 'imposter', [...source, ditto], target);
+    try {
+      let [p1, p2] = actorChoices(actor, 'move 1', 'move 1');
+      await h.step(p1, p2);
+      const targetStages = stages(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts);
+      assert.equal(targetStages.atk, 2);
+      [p1, p2] = actorChoices(actor, 'switch 2', 'move 2');
+      const result = await h.step(p1, p2);
+      const prefix = result.record_bundles[actor].successor_observation.protocol_prefix;
+      assert.ok(prefix.some(line => line.includes('|-transform|') && line.includes('[from] ability: Imposter')));
+      assert.deepEqual(stages(h.battle[actor].active[0].boosts), targetStages);
+      assert.deepEqual(stages(h.battle[actor === 'p1' ? 'p2' : 'p1'].active[0].boosts), targetStages);
+    } finally { await h.close(); }
+  });
+
+  test(`generated Belly Drum ${actor} publishes its source-backed stage replacement`, async () => {
+    const source = generatedSet('Azumarill', [17, 2, 3, 4]);
+    const target = importedTeam(`Target (Snorlax)
+Ability: Thick Fat
+- Splash
+`);
+    const h = await stageWitness(actor, 'belly-drum', [source], target);
+    try {
+      const [p1, p2] = actorChoices(actor, moveChoice(h.battle, actor, 'Belly Drum'), 'move 1');
+      const result = await h.step(p1, p2);
+      const ident = `${actor}a: Azumarill`;
+      assert.ok(result.record_bundles[actor].successor_observation.protocol_prefix.some(line => line === `|-setboost|${ident}|atk|6|[from] move: Belly Drum`));
+      assert.equal(h.battle[actor].active[0].boosts.atk, 6);
+    } finally { await h.close(); }
+  });
+}
+
 function check(h: Awaited<ReturnType<typeof harness>>, actor: PlayerID) {
   const other = actor === 'p1' ? 'p2' : 'p1';
   for (const who of [actor, other] as PlayerID[]) {

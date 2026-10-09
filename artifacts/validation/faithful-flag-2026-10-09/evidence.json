@@ -1,0 +1,106 @@
+{
+  "status": "candidate-pending-independent-review",
+  "starting_reviewed_digest": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a",
+  "profile": {
+    "python": ".venv-simulator/bin/python",
+    "python_version": "3.9.6 arm64",
+    "node": "v24.21.0"
+  },
+  "source_test_fixture_sha256": {
+    "sim-core/src/pipeline_episode.ts": "353aac765d4995796818485d254fdbd09416b5c715981f052e0d6f5eb8415fcd",
+    "sim-core/src/pipeline_integration.ts": "5e509d6dff1500d7a05630772a80f76c0c4f1c34a5f61462757e4b8b04c5fc70",
+    "trainer/src/neural/pipeline_record.py": "ce9b6e83e526eeff280e2674c5a14c75b1754618f7db8ba6954b98ad6f9794e5",
+    "sim-core/tests/pipeline_episode_faithful.test.ts": "693c11af6946eb39fc6a9a8bec6c480c1024d81ae83ed851d15b7bc0a026d845",
+    "sim-core/tests/pipeline_episode_saved_helpers.ts": "9c24cfbefe269096d20f6da419c93651fdde3dd341eb6c3c3f0d2ee17c723ed0",
+    "sim-core/tests/pipeline_episode_stop_repair.test.ts": "c62098985a9df8fff7291ba8bc4413ea7a27271c9abe3198958846c663e79ebd",
+    "sim-core/tests/pipeline_episode.test.ts": "bfa0d90b0898c34a263b0d98cd0f5657852c81b07f7f6983b16a505d87ecebbc",
+    "sim-core/scripts/recover-ce08a-adversarial.cjs": "d58a71b2e1e2cf9599cde14789a35cbfbd1fee28a79fa5752fdc7dd6c0e719e0",
+    "artifacts/validation/faithful-flag-2026-10-09/segment-start.json": "a468592b1374317504445184242a8438112d381eb18e59931816c3d25b0127c5"
+  },
+  "checks": [
+    {
+      "name": "saved win/tie, fresh/bound, conservative false/full/bulk/cleanup",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/eligible.log",
+      "log_sha256": "7b977edcc964e79fafc7380ce7b5a05958705147e379e0cd45750f349f550a50",
+      "elapsed_seconds": 2.917,
+      "result": "pass 1/1"
+    },
+    {
+      "name": "ineligible stops, terminal-only, legacy/schema/missing evidence",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/ineligible.log",
+      "log_sha256": "12cc5ab9ff684014aace142f7b5a51fa079dc0107f642bd318884b41050f173a",
+      "elapsed_seconds": 2.401,
+      "result": "pass 1/1"
+    },
+    {
+      "name": "coherent origin/actor/counter tampering",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/tamper.log",
+      "log_sha256": "fde42f84b6bed34419c51ee2af9ebe6dc5a9912ad5354e86fa849c2b84782f2b",
+      "elapsed_seconds": 0.567,
+      "result": "pass 1/1"
+    },
+    {
+      "name": "CE-08B limits regression",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/limits.log",
+      "log_sha256": "ead0a0db0f4cdf36832eb4a3549c24a61470f54ee39fcaee33b5d22c0da0cb2a",
+      "elapsed_seconds": 4.155,
+      "result": "pass 1/1"
+    },
+    {
+      "name": "CE-08B Revival cause/accounting regression",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/revival.log",
+      "log_sha256": "2c7e3049eeb8ccb1ebfb111a04e0e9346a8c03951d65f8932887a4c385f3904a",
+      "elapsed_seconds": 3.241,
+      "result": "pass 1/1"
+    },
+    {
+      "name": "CE-08B construction/validation/cleanup first invocation",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/cleanup.log",
+      "log_sha256": "fbbebb2151bcbc5f925ce8e22e1e8a725cdad2cc361e46aa6964d4afb96c85b4",
+      "elapsed_seconds": 30.411,
+      "result": "timeout: Python status null; not a semantic verdict"
+    },
+    {
+      "name": "CE-08B construction/validation/cleanup diagnostic retry",
+      "log": "artifacts/validation/faithful-flag-2026-10-09/cleanup-retry.log",
+      "log_sha256": "1b04e78cc15737d7d789d2ed2b8e378a1375a41f81fb178dda835f9415bd7bf7",
+      "elapsed_seconds": 1.644,
+      "result": "pass 1/1; all six combinations"
+    }
+  ],
+  "build": {
+    "result": "pass",
+    "final_after_failure_logger_elapsed_seconds": 4.752
+  },
+  "limits": {
+    "outer_process_group_timeout_seconds": 180,
+    "python_spawn_timeout_seconds": 30
+  },
+  "fixture_provenance": {
+    "segment_start_source_payload_sha256": "e66fe6f0c418e0273d166a21696755161e3c91c2f2b120b0a4c690f930199c95",
+    "predecessor_payload_sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+    "method": "extract origin and first commit from saved accepted envelope; contract-only terminal suffix; no engine execution"
+  },
+  "reuse": "Earlier focused passes precede only the helper failure-path payload logger. Its successful-publication path and all semantic assertions are unchanged. Final build and cleanup retry use the current helper. Prior accepted mechanic/source proofs reused, not rerun.",
+  "pending": "Independent runtime-flag review; final-tip integration/CI and merge-readiness. Historical combined timeout and original failed long invocation remain documented.",
+  "coverage_checks": {
+    "synthetic_self_test": {
+      "exit_code": 0,
+      "elapsed_seconds": 4.061,
+      "log": "coverage-self-test.log"
+    },
+    "normal_checker": {
+      "exit_code": 1,
+      "elapsed_seconds": 0.62,
+      "diagnostic": "Manifest incomplete: local coverage sources are not bound to a separate semantic-review digest",
+      "expected_separate_review_gate_only": true,
+      "log": "coverage-checker.log"
+    },
+    "git_diff_check": {
+      "exit_code": 0,
+      "output_bytes": 0
+    }
+  },
+  "candidate_digest": "4f3445b129a43dd5f7a3254d155746d827e26ba1fe2102bbb59560cfb3b14696",
+  "reviewed_digest_unchanged": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a"
+}

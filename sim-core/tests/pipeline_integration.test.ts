@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import test from 'node:test';
 import { canonicalActionFromLegalAction, type CanonicalAction } from '../src/canonical_action';
-import { projectBeliefState, serializeBeliefState } from '../src/belief_state';
+import { projectBeliefState, serializeBeliefState, validateObservableBattleState } from '../src/belief_state';
 import { LocalBattleEnv } from '../src/env_manager';
 import type { ObservableBattleState } from '../src/observable_state';
 import {
@@ -20,6 +20,7 @@ import {
 } from '../src/pipeline_integration';
 import type { ChoiceRequestView, PlayerID } from '../src/types';
 import { toSeededSnapshotRef } from '../src/transition';
+import { PROTOCOL_CONTRACT } from '../src/protocol_contract';
 
 const SEED = [101, 202, 303, 404] as const;
 const TERMINAL_CONTROLLER_SEEDS = { p1: 0x51a7, p2: 0xc0de } as const;
@@ -69,11 +70,22 @@ function rehashSuccessorObservationAndBelief(candidate: Record<string, any>): Re
   ))}`;
 
   const belief = candidate.successor_belief as Record<string, any>;
+  const observationReference = {
+    schema_version: observation.schema_version,
+    observation_id: observation.observation_id,
+    source_kind: observation.source_kind,
+    event_cursor: observation.event_cursor,
+    protocol_prefix_hash: observation.protocol_prefix_hash,
+    snapshot_phase: observation.snapshot_phase,
+  };
   const updateReference = (reference: Record<string, any>) => {
-    if (reference.observation_id === priorObservationId) reference.observation_id = observation.observation_id;
+    if (reference.observation_id === priorObservationId) Object.assign(reference, observationReference);
   };
   updateReference(belief.observation);
   for (const reference of belief.observation_history) updateReference(reference);
+  for (const transition of belief.transition_history) {
+    if (transition.output_observation_id === priorObservationId) transition.output_observation_id = observation.observation_id;
+  }
   belief.transition_lineage.output_observation_id = observation.observation_id;
   belief.belief_id = `belief-${typeScriptDigest(Object.fromEntries(
     Object.entries(belief).filter(([key]) => key !== 'belief_id'),
@@ -89,6 +101,82 @@ function rehashedSuccessorPublicStage(bundle: unknown): unknown {
   assert.ok(activeOpponent?.public_boosts);
   const priorStage = activeOpponent.public_boosts.atk;
   activeOpponent.public_boosts.atk = priorStage === 6 ? 5 : priorStage + 1;
+  return rehashSuccessorObservationAndBelief(candidate);
+}
+
+function rehashedSuccessorTypedLifecycleTamper(bundle: unknown, kind: 'volatile' | 'side-condition' | 'presence'): unknown {
+  const candidate = structuredClone(bundle) as Record<string, any>;
+  const view = candidate.successor_observation.view;
+  if (kind === 'volatile') {
+    const active = [...view.self_team, ...view.opponent_team].find((pokemon: Record<string, unknown>) => pokemon.active);
+    assert.ok(active);
+    active.volatiles = active.volatiles.includes('substitute')
+      ? active.volatiles.filter((effect: string) => effect !== 'substitute')
+      : [...active.volatiles, 'substitute'];
+  } else {
+    const self = view.field.side_conditions.self;
+    if (kind === 'side-condition') self.spikes = self.spikes === 1 ? 2 : 1;
+    else if (self.reflect === 1) delete self.reflect;
+    else self.reflect = 1;
+  }
+  return rehashSuccessorObservationAndBelief(candidate);
+}
+
+function rehashedSuccessorMissingVolatileRosterRow(bundle: unknown, removeRow: boolean): Record<string, any> {
+  const candidate = structuredClone(bundle) as Record<string, any>;
+  const observation = candidate.successor_observation as Record<string, any>;
+  const team = observation.view.self_team as Array<Record<string, any>>;
+  const active = team.find((pokemon) => pokemon.active);
+  assert.ok(active);
+  const rosterIdent = active.ident as string;
+  const protocolIdent = rosterIdent.replace(/^(p[12]): /, '$1a: ');
+  observation.protocol_prefix.push(`|-start|${protocolIdent}|Substitute`);
+  observation.event_cursor = observation.protocol_prefix.length;
+  active.volatiles = [...new Set([...(active.volatiles as string[]), 'substitute'])];
+  if (removeRow) observation.view.self_team = team.filter((pokemon) => pokemon !== active);
+  observation.protocol_prefix_hash = typeScriptDigest(observation.protocol_prefix);
+  candidate.successor_belief.source_protocol_prefix = structuredClone(observation.protocol_prefix);
+  return rehashSuccessorObservationAndBelief(candidate);
+}
+
+type PartialProjectionCase = 'volatile-roster' | 'volatile-team' | 'side-field' | 'side-container'
+  | 'side-self' | 'side-opponent' | 'side-wrong-compartment';
+
+function rehashedSuccessorPartialTypedProjection(bundle: unknown, omission: PartialProjectionCase): Record<string, any> {
+  const candidate = structuredClone(bundle) as Record<string, any>;
+  const observation = candidate.successor_observation as Record<string, any>;
+  const view = observation.view as Record<string, any>;
+  const team = view.self_team as Array<Record<string, any>>;
+  const active = team.find((pokemon) => pokemon.active);
+  assert.ok(active);
+  if (omission === 'volatile-roster' || omission === 'volatile-team') {
+    const protocolIdent = (active.ident as string).replace(/^(p[12]): /, '$1a: ');
+    observation.protocol_prefix.push(`|-start|${protocolIdent}|Substitute`);
+    active.volatiles = [...new Set([...(active.volatiles as string[]), 'substitute'])];
+    if (omission === 'volatile-roster') view.self_team = team.filter((pokemon) => pokemon !== active);
+    else delete view.self_team;
+  } else {
+    observation.protocol_prefix.push('|-sidestart|p1: One|Spikes');
+    const field = view.field as Record<string, any>;
+    const sides = field.side_conditions as Record<string, any>;
+    if (omission === 'side-opponent') {
+      observation.protocol_prefix.push('|-sidestart|p2: Two|Reflect');
+      sides.opponent.reflect = 1;
+      delete sides.opponent;
+    } else {
+      sides.self.spikes = 1;
+      if (omission === 'side-field') delete view.field;
+      else if (omission === 'side-container') delete field.side_conditions;
+      else if (omission === 'side-self') delete sides.self;
+      else {
+        delete sides.self.spikes;
+        sides.opponent.spikes = 1;
+      }
+    }
+  }
+  observation.event_cursor = observation.protocol_prefix.length;
+  observation.protocol_prefix_hash = typeScriptDigest(observation.protocol_prefix);
+  candidate.successor_belief.source_protocol_prefix = structuredClone(observation.protocol_prefix);
   return rehashSuccessorObservationAndBelief(candidate);
 }
 
@@ -212,6 +300,37 @@ test('PIPELINE-001 links two real transitions for both perspectives and validate
       assert.deepEqual(record.input_fields, []);
       assert.match(record.schema_fingerprints.feature, /^features-not-produced\/v1:/);
       localRecordIds[player] = record.record_id;
+    }
+
+    const committedBoundaryBeforeLifecycleTamper = structuredClone(primary.boundary);
+    for (const kind of ['volatile', 'side-condition', 'presence'] as const) {
+      const candidate = rehashedSuccessorTypedLifecycleTamper(first.record_bundles.p1, kind) as Record<string, any>;
+      assert.doesNotThrow(() => serializeBeliefState(candidate.successor_belief), `${kind} candidate identities are internally consistent`);
+      assert.throws(() => validateObservableBattleState(candidate.successor_observation), /Typed lifecycle evidence mismatch/);
+      assertPythonRejectsWithoutPublication(candidate, `fully rehashed false typed ${kind}`, /Typed lifecycle evidence mismatch/);
+      assert.deepEqual(primary.boundary, committedBoundaryBeforeLifecycleTamper, `${kind} rejection preserves the committed boundary`);
+    }
+
+    const validSubstituteRow = rehashedSuccessorMissingVolatileRosterRow(first.record_bundles.p1, false);
+    assert.doesNotThrow(() => validateObservableBattleState(validSubstituteRow.successor_observation));
+    const visibleSubstitutePublication = validateInPython(validSubstituteRow);
+    assert.equal(visibleSubstitutePublication.status, 0, `a visible Substitute row remains publishable: ${visibleSubstitutePublication.stderr}`);
+    const missingSubstituteRow = rehashedSuccessorMissingVolatileRosterRow(first.record_bundles.p1, true);
+    assert.throws(() => validateObservableBattleState(missingSubstituteRow.successor_observation), /exactly one canonical self_team roster row|owned roster identity\/order disagrees/);
+    assertPythonRejectsWithoutPublication(missingSubstituteRow, 'fully rehashed omitted Substitute roster row', /exactly one canonical self_team roster row|owned roster identity\/order disagrees/);
+    assert.deepEqual(primary.boundary, committedBoundaryBeforeLifecycleTamper, 'missing-row rejection preserves the committed boundary');
+
+    for (const omission of [
+      'volatile-roster', 'volatile-team', 'side-field', 'side-container', 'side-self', 'side-opponent',
+      'side-wrong-compartment',
+    ] as const) {
+      const partial = rehashedSuccessorPartialTypedProjection(first.record_bundles.p1, omission);
+      assert.throws(() => validateObservableBattleState(partial.successor_observation),
+        /Typed lifecycle evidence mismatch/, `${omission} must not erase prefix-derived typed state`);
+      assertPythonRejectsWithoutPublication(partial, `fully rehashed partial projection ${omission}`,
+        /Typed lifecycle evidence mismatch/);
+      assert.deepEqual(primary.boundary, committedBoundaryBeforeLifecycleTamper,
+        `${omission} rejection preserves the committed TypeScript boundary`);
     }
 
     const freshProcess = runFreshSimulatorProcess();
@@ -502,6 +621,118 @@ test('v2 joint transitions restore deterministic candidates and retain committed
   }
 });
 
+test('v2 voluntary switch-plus-switch remains a joint request pair with deterministic publication', async () => {
+  const options = {
+    battle_id: 'pipeline-v2-voluntary-switch-pair-v1',
+    format: 'gen9randombattle',
+    seed: SEED,
+    observation_schema_version: 'observable-battle-state/v2' as const,
+  };
+  const stepOptions = { view_players: ['p1', 'p2'] as PlayerID[], include_log_delta: true, include_possible_roles: false, include_wait_requests: true };
+  const direct = new LocalBattleEnv('pipeline-v2-voluntary-switch-pair-direct', options.format, [...options.seed]);
+  let session: Awaited<ReturnType<typeof createPipelineIntegrationSession>> | null = null;
+  let twin: Awaited<ReturnType<typeof createPipelineIntegrationSession>> | null = null;
+  let beforeRestored: LocalBattleEnv | null = null;
+  let afterRestored: LocalBattleEnv | null = null;
+  try {
+    const directInitial = await direct.resetWithOptions(stepOptions);
+    const prefix = [...directInitial.log_delta];
+    const serializedBefore = structuredClone(direct.captureSeededSnapshot(null).simulator_state);
+    beforeRestored = new LocalBattleEnv('pipeline-v2-voluntary-switch-pair-before', options.format, [...options.seed]);
+    const beforeReplay = await beforeRestored.resetFromSerialized(serializedBefore, stepOptions);
+    const projectedBefore = projectPipelineStepResult(
+      directInitial, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version,
+    );
+    assert.deepEqual(
+      projectPipelineStepResult(beforeReplay, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version),
+      projectedBefore,
+    );
+    assert.equal(beforeRestored.captureSeededSnapshot(null).state_fingerprint, direct.captureSeededSnapshot(null).state_fingerprint);
+
+    const reset = LocalBattleEnv.prototype.resetWithOptions;
+    try {
+      LocalBattleEnv.prototype.resetWithOptions = function (requestOptions) {
+        return this.resetFromSerialized(structuredClone(serializedBefore), requestOptions);
+      };
+      session = await createPipelineIntegrationSession(options);
+      twin = await createPipelineIntegrationSession(options);
+    } finally {
+      LocalBattleEnv.prototype.resetWithOptions = reset;
+    }
+    const selectSwitch = (target: NonNullable<typeof session>, player: PlayerID) => {
+      const request = target.boundary.perspectives[player].observation.request!;
+      const action = request.legal_actions.actions.find((candidate) => candidate?.kind === 'switch');
+      assert.ok(action, `${player} must have an owner-authorized voluntary switch`);
+      return canonicalActionFromLegalAction(request, action.index);
+    };
+    assert.ok(session && twin);
+    assert.deepEqual(
+      Object.fromEntries(['p1', 'p2'].map((player) => [player, session!.boundary.perspectives[player as PlayerID].observation])),
+      projectedBefore,
+      'the pipeline starts from the same serialized request boundary',
+    );
+    const actions = { p1: selectSwitch(session, 'p1'), p2: selectSwitch(session, 'p2') };
+    const before = committedBoundaryShape(session.boundary);
+    assert.equal(session.boundary.kind, 'joint_actionable');
+    assert.equal(actions.p1.kind, 'switch');
+    assert.equal(actions.p2.kind, 'switch');
+    assert.equal(session.boundary.perspectives.p1.observation.request?.force_switch, false);
+    assert.equal(session.boundary.perspectives.p2.observation.request?.force_switch, false);
+    assert.notDeepEqual(
+      session.boundary.perspectives.p1.observation.request,
+      session.boundary.perspectives.p2.observation.request,
+      'each perspective retains only its own request',
+    );
+
+    await assert.rejects(
+      session.step({ p1: { ...actions.p1, rqid: (actions.p1.rqid ?? 0) + 1 }, p2: actions.p2 }),
+      /request ID does not match/,
+    );
+    assert.deepEqual(committedBoundaryShape(session.boundary), before);
+
+    const result = await session.step(actions);
+    const repeated = await twin.step({ p1: selectSwitch(twin, 'p1'), p2: selectSwitch(twin, 'p2') });
+    const directResult = await direct.stepWithOptions({ p1: actions.p1.choice, p2: actions.p2.choice }, stepOptions);
+    prefix.push(...directResult.log_delta);
+    const projectedAfter = projectPipelineStepResult(
+      directResult, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version,
+    );
+    assert.deepEqual(
+      Object.fromEntries(['p1', 'p2'].map((player) => [player, result.boundary.perspectives[player as PlayerID].observation])),
+      projectedAfter,
+    );
+    const serializedAfter = structuredClone(direct.captureSeededSnapshot(null).simulator_state);
+    afterRestored = new LocalBattleEnv('pipeline-v2-voluntary-switch-pair-after', options.format, [...options.seed]);
+    const afterReplay = await afterRestored.resetFromSerialized(serializedAfter, stepOptions);
+    assert.deepEqual(
+      projectPipelineStepResult(afterReplay, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version),
+      projectedAfter,
+    );
+    assert.equal(afterRestored.captureSeededSnapshot(null).state_fingerprint, direct.captureSeededSnapshot(null).state_fingerprint);
+    assert.equal(result.transition_id, repeated.transition_id);
+    assert.equal(result.boundary.branch_id, repeated.boundary.branch_id);
+    assert.equal(result.boundary.state_fingerprint, repeated.boundary.state_fingerprint);
+    assert.equal(result.boundary.step_index, before.step_index + 1);
+    assertV2PerspectiveBoundary(result.boundary);
+    for (const player of ['p1', 'p2'] as const) {
+      const bundle = result.record_bundles[player];
+      assert.equal(bundle.action.kind, 'switch');
+      assert.equal(bundle.transition.transition_id, result.transition_id);
+      assert.equal(bundle.successor_belief.transition_lineage?.transition_id, result.transition_id);
+      assert.equal(bundle.successor_observation.event_cursor, result.boundary.perspectives[player].observation.event_cursor);
+      assert.equal(bundle.successor_observation.observation_id, repeated.boundary.perspectives[player].observation.observation_id);
+      assert.equal(validateInPython(bundle).status, 0);
+      assert.ok(!JSON.stringify(bundle).includes('|request|'));
+    }
+  } finally {
+    await session?.close();
+    await twin?.close();
+    await beforeRestored?.close();
+    await afterRestored?.close();
+    await direct.close();
+  }
+});
+
 test('a naturally hidden Arena Trap rejection preserves the committed pipeline lineage', async () => {
   const options = {
     format: 'gen9randombattle',
@@ -679,7 +910,8 @@ test('rejected protocol candidates preserve committed state, lineage and the nex
       { record: '\n', code: 'pipeline/v1/unsupported-protocol-record' },
       { record: '|clearstatus|legacy-token', code: 'pipeline/v1/unresolved-protocol-alias' },
       { record: '|futuremechanic|opaque', code: 'pipeline/v1/unsupported-observable-protocol' },
-      { record: '|-singlemove|p1a: Pikachu|Destiny Bond', code: 'pipeline/v1/unsupported-observable-protocol' },
+      ...PROTOCOL_CONTRACT.rejection_fixtures.filter((fixture) => fixture.record.startsWith('|-singlemove'))
+        .map(({ record }) => ({ record, code: 'pipeline/v1/unsupported-observable-protocol' })),
       { record: '|-singleturn|p1a: Pikachu|Future Mechanic', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singleturn|p1a: Pikachu|move: Follow Me|[of] p2a: Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },
       { record: '|-singleturn|p1a: Pikachu|Helping Hand|[of] p2a:Eevee', code: 'pipeline/v1/unsupported-observable-protocol' },

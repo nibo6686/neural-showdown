@@ -1,16 +1,34 @@
 # SLICE-002A Scanner Expansion Progress
 
-## Checkpoint
+## Current status — 2026-10-01
+
+SLICE-002A scanner expansion was separately reviewed and accepted with local
+coverage digest
+`06305dab8ac7abeb9172e7e42f38988d169dac95b0024e221eb1236af0a28e5a`.
+SLICE-002B format provenance and Gen 9 Random Battle reachability were also
+accepted separately; see
+[`SIMULATOR_COVERAGE.md`](../contracts/SIMULATOR_COVERAGE.md#slice-002b-format-provenance-and-random-set-reachability--accepted-2026-09-29)
+for its reviewed simulator and local-source digests. These accept the listed
+scanner, source-coverage, and reachability evidence only. They do not establish
+complete simulator semantics or faithful episode capture. The complete-episode
+closure audit is complete as an audit/backlog; implementation remains open and
+`faithful_complete_episode:false` remains required. The current milestone and
+delivery order are in [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
+## Original implementation checkpoint
 
 - Branch: `refactor/state-001-observable-state`
 - HEAD: `b056f7ef5433cef254d2cfdaf822cc23c0c24b0c`
 - Starting worktree: pre-existing user changes are present in simulator coverage, pipeline integration and tests, Python pipeline recording and tests, protocol contract, and schema-closure audit documents. These are preserved.
 - Scope: expand the source-backed effect inventory and enforce fail-closed classification at TypeScript projection and Python publication boundaries.
-- Excluded: SLICE-002B provenance/reachability; simulator mechanics, lifecycle, counters, features, training, replays, installation/network behavior, README/dependency or aggregate-status changes; coverage digest attestation/recomputation.
+- Excluded at this checkpoint: SLICE-002B provenance/reachability (accepted
+  separately on 2026-09-29); simulator mechanics, lifecycle, counters,
+  features, training, replays, installation/network behavior, README/dependency
+  or aggregate-status changes; coverage digest attestation/recomputation.
 
-## Status
+## Status at original implementation checkpoint
 
-Inventory is complete and enforcement is implemented at the TypeScript raw-record/projection boundary and Python publication validator. The coverage digest remains unreviewed; no digest value was recomputed or attested.
+Inventory is complete and enforcement is implemented at the TypeScript raw-record/projection boundary and Python publication validator. The coverage digest was unreviewed at this checkpoint; a later separate review accepted and attested the scanner closure, as recorded above.
 
 ## Inventory checkpoint
 

@@ -19,23 +19,188 @@ _EXPECTED_RULES = {
         "fainted": "0 fnt", "ratio": "positive-safe-integer-pair", "numerator_limit": "at-most-denominator",
         "statuses": ["brn", "par", "slp", "psn", "tox", "frz"],
     },
+    "major_status": {
+        "ids": ["brn", "par", "slp", "psn", "tox", "frz"],
+        "active_target": "canonical-singles-active",
+        "bare_commands": [],
+        "apply_forms": [
+            {"tags": []},
+            {"tags": ["[from] move: Rest"], "statuses": ["slp"]},
+            {"tags": ["[from] item: Flame Orb"], "statuses": ["brn"]},
+            {"tags": ["[from] item: Toxic Orb"], "statuses": ["tox"]},
+            {"tags": ["[from] ability: Effect Spore", "[of] opposing-active"], "statuses": ["slp", "par", "psn"]},
+            {"tags": ["[from] ability: Flame Body", "[of] opposing-active"], "statuses": ["brn"]},
+            {"tags": ["[from] ability: Static", "[of] opposing-active"], "statuses": ["par"]},
+            {"tags": ["[from] ability: Toxic Chain", "[of] opposing-active"], "statuses": ["tox"]},
+            {"tags": ["[from] ability: Poison Touch", "[of] opposing-active"], "statuses": ["psn"]},
+            {"tags": ["[from] move: Sleep Powder"], "statuses": ["slp"]},
+            {"tags": ["[from] move: Hypnosis"], "statuses": ["slp"]},
+            {"tags": ["[from] move: Spore"], "statuses": ["slp"]},
+        ],
+        "cure_forms": [
+            {"tags": ["[msg]"]},
+            {"tags": ["[from] ability: Natural Cure"]},
+            {"tags": ["[from] move: Flare Blitz"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Fusion Flare"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Pyro Ball"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Sacred Fire"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Scald"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Scorching Sands"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Hydro Steam"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Matcha Gotcha"], "statuses": ["frz"]},
+            {"tags": ["[from] move: Steam Eruption"], "statuses": ["frz"]},
+        ],
+    },
     "player_ident": {
         "side_ids": ["p1", "p2"], "slots": ["", "a", "b", "c", "d", "e", "f"],
         "separator": ": ", "name": "trimmed-nonempty-text",
     },
+    "hitcount": {
+        "target_roles": ["active", "side-only"],
+        "count_values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    },
     "switch_drag": {"optional_tag": "[from] trimmed-nonempty-text"},
+    "entry_hazard": {
+        "layers": {"spikes": 3, "toxicspikes": 2, "stealthrock": 1, "stickyweb": 1},
+        "start_forms": {"spikes": "Spikes", "toxicspikes": "move: Toxic Spikes", "stealthrock": "move: Stealth Rock", "stickyweb": "move: Sticky Web"},
+        "removal_sources": ["Rapid Spin", "Mortal Spin", "Defog"],
+    },
+    "screen": {
+        "ids": ["reflect", "lightscreen", "auroraveil"],
+        "start_forms": {"reflect": "Reflect", "lightscreen": "move: Light Screen", "auroraveil": "move: Aurora Veil"},
+        "end_forms": {"reflect": "Reflect", "lightscreen": "move: Light Screen", "auroraveil": "move: Aurora Veil"},
+        "excluded_forms": ["Safeguard", "Mist"],
+    },
+    "court_change": {
+        "command": "-swapsideconditions",
+        "activation_command": "-activate",
+        "activation_effect": "move: Court Change",
+        "transferred_ids": ["mist", "lightscreen", "reflect", "spikes", "safeguard", "tailwind", "toxicspikes", "stealthrock", "waterpledge", "firepledge", "grasspledge", "stickyweb", "auroraveil", "luckychant"],
+        "excluded_ids": ["gmaxsteelsurge", "gmaxcannonade", "gmaxvinelash", "gmaxwildfire", "gmaxvolcalith"],
+    },
+    "weather": {
+        "ids": ["RainDance", "SunnyDay", "Sandstorm", "Snowscape"],
+        "ability_origins": {
+            "RainDance": ["Drizzle"],
+            "SunnyDay": ["Drought", "Orichalcum Pulse"],
+            "Sandstorm": ["Sand Stream"],
+            "Snowscape": ["Snow Warning"],
+        },
+        "move_origins": {
+            "RainDance": ["Rain Dance"],
+            "SunnyDay": ["Sunny Day"],
+            "Snowscape": ["Snowscape", "Chilly Reception"],
+        },
+    },
+    "terrain": {
+        "ids": ["electricterrain", "grassyterrain", "psychicterrain"],
+        "public_names": {
+            "electricterrain": "move: Electric Terrain",
+            "grassyterrain": "move: Grassy Terrain",
+            "psychicterrain": "move: Psychic Terrain",
+        },
+        "ability_origins": {
+            "electricterrain": ["Electric Surge", "Hadron Engine"],
+            "grassyterrain": ["Grassy Surge", "Seed Sower"],
+            "psychicterrain": ["Psychic Surge"],
+        },
+    },
+    "trick_room": {
+        "effect": "move: Trick Room",
+        "start_command": "-fieldstart",
+        "end_command": "-fieldend",
+        "source_tag": "[of]",
+        "source_role": "active",
+    },
     "boost_event": {
         "stats": ["atk", "def", "spa", "spd", "spe", "accuracy", "evasion"],
         "delta_min": 0, "delta_max": 12, "set_min": -6, "set_max": 6,
         "tags": ["[from] trimmed-nonempty-text", "[silent]", "[zeffect]"],
+        "tag_order": ["[from]", "[silent]", "[zeffect]"],
     },
     "health_event_tags": {
         "damage": ["[from] trimmed-nonempty-text", "[of] player-ident", "[silent]", "[partiallytrapped]"],
         "heal": ["[from] trimmed-nonempty-text", "[of] player-ident", "[silent]", "[zeffect]", "[wisher] trimmed-nonempty-text"],
         "sethp": ["[from] trimmed-nonempty-text", "[silent]"],
     },
+    "health_event_tag_order": {
+        "damage": ["[from]", "[of]", "[partiallytrapped]", "[silent]"],
+        "heal": ["[from]", "[of]", "[wisher]", "[zeffect]", "[silent]"],
+        "sethp": ["[from]", "[silent]"],
+    },
+    "event_tag_cardinality": {
+        "damage": ["[from]", "[of]", "[silent]", "[partiallytrapped]"],
+        "heal": ["[from]", "[of]", "[silent]", "[zeffect]", "[wisher]"],
+        "sethp": ["[from]", "[silent]"],
+        "boost": ["[from]", "[silent]", "[zeffect]"],
+    },
+    "heal_wisher_dependency": {
+        "required_from": "[from] move: Wish",
+        "required_tag_order": ["[from]", "[wisher]"],
+    },
+    "healing_wish_heal": {
+        "required_from": "[from] move: Healing Wish",
+        "required_tag_order": ["[from]"],
+        "target_role": "active",
+        "health": "100/100",
+    },
+    "future_sight": {
+        "effect": "move: Future Sight", "activation_command": "-start", "resolution_command": "-end",
+        "target_role": "active", "payload_fields": 1,
+    },
+    "repeat_use_hint": {
+        "messages": [
+            "Some effects can force a Pokemon to use Blood Moon again in a row.",
+            "Some effects can force a Pokemon to use Gigaton Hammer again in a row.",
+        ],
+        "payload_fields": 1,
+    },
+    "item": {
+        "payloads": [
+            "Aguav Berry", "Adamant Crystal", "Air Balloon", "Assault Vest", "Binding Band", "Blunder Policy", "Booster Energy", "Chesto Berry", "Choice Band", "Choice Scarf", "Choice Specs", "Clear Amulet", "Cornerstone Mask", "Custap Berry", "Draco Plate", "Dread Plate", "Earth Plate", "Eviolite", "Figy Berry", "Fist Plate", "Flame Orb", "Flame Plate", "Focus Sash", "Griseous Core", "Heavy-Duty Boots", "Hearthflame Mask", "Iapapa Berry", "Icicle Plate", "Iron Plate", "Leppa Berry", "Leftovers", "Light Ball", "Light Clay", "Loaded Dice", "Lum Berry", "Lustrous Globe", "Lustrous Orb", "Mago Berry", "Magnet", "Meadow Plate", "Mind Plate", "Mystic Water", "Passho Berry", "Pixie Plate", "Power Herb", "Rindo Berry", "Rocky Helmet", "Salac Berry", "Scope Lens", "Silk Scarf", "Silver Powder", "Sky Plate", "Soul Dew", "Splash Plate", "Spooky Plate", "Sitrus Berry", "Stone Plate", "Throat Spray", "Toxic Orb", "Toxic Plate", "Weakness Policy", "Wellspring Mask", "White Herb", "Wide Lens", "Wiki Berry", "Zap Plate",
+        ],
+        "active_target": "canonical-singles-active",
+        "dash_item_forms": [
+            {"tags": [], "payloads": ["Air Balloon"]},
+            {"tags": ["[from] ability: Frisk", "[of] opposing-active"]},
+            {"tags": ["[from] move: Trick"]},
+            {"tags": ["[from] move: Switcheroo"]},
+            {"tags": ["[from] move: Recycle"], "payloads": ["White Herb"]},
+        ],
+        "dash_enditem_forms": [
+            {"tags": [], "payloads": ["Air Balloon", "Booster Energy", "Focus Sash", "Power Herb", "Throat Spray", "Weakness Policy", "White Herb"]}, {"tags": ["[eat]"], "payloads": [
+                "Aguav Berry", "Chesto Berry", "Custap Berry", "Figy Berry", "Iapapa Berry", "Leppa Berry",
+                "Lum Berry", "Mago Berry", "Passho Berry", "Rindo Berry", "Salac Berry", "Sitrus Berry", "Wiki Berry",
+            ]},
+            {"tags": ["[from] move: Knock Off", "[of] opposing-active"]},
+            {"tags": ["[silent]", "[from] move: Trick"]},
+            {"tags": ["[silent]", "[from] move: Switcheroo"]},
+        ],
+        "bare_commands": ["item", "enditem"],
+        "bare_tags": [],
+    },
+    "ability": {
+        "dash_templates": ["reveal", "boost", "trace-copy"],
+        "bare_templates": ["reveal"],
+        "trace_source_tag": "[from] ability: Trace",
+        "trace_of_tag": "[of] ",
+        "trace_actor_role": "active",
+        "trace_source_role": "opposing-active",
+        "payload_domains": {
+            "dash_reveal": ["Air Lock", "As One", "Beads of Ruin", "Cloud Nine", "Comatose", "Gooey", "Mirror Armor", "Mold Breaker", "Pressure", "Sturdy", "Sword of Ruin", "Tablets of Ruin", "Tangling Hair", "Teraform Zero", "Teravolt", "Turboblaze", "Unnerve", "Vessel of Ruin"],
+            "dash_boost": ["Anger Shell", "Battle Bond", "Berserk", "Chilling Neigh", "Competitive", "Dauntless Shield", "Defiant", "Download", "Embody Aspect (Cornerstone)", "Embody Aspect (Hearthflame)", "Embody Aspect (Teal)", "Embody Aspect (Wellspring)", "Gooey", "Grim Neigh", "Gulp Missile", "Intimidate", "Intrepid Sword", "Justified", "Lightning Rod", "Mirror Armor", "Motor Drive", "Moxie", "Rattled", "Sap Sipper", "Soul-Heart", "Speed Boost", "Stamina", "Storm Drain", "Tangling Hair", "Thermal Exchange", "Water Compaction", "Weak Armor", "Well-Baked Body", "Wind Rider"],
+            "dash_trace_copy": ["Adaptability", "Aftermath", "Air Lock", "Analytic", "Anger Shell", "Arena Trap", "Aroma Veil", "Bad Dreams", "Beads of Ruin", "Berserk", "Big Pecks", "Blaze", "Bulletproof", "Cheek Pouch", "Chilling Neigh", "Chlorophyll", "Clear Body", "Cloud Nine", "Competitive", "Compound Eyes", "Contrary", "Corrosion", "Cud Chew", "Cursed Body", "Cute Charm", "Damp", "Dancer", "Dauntless Shield", "Defiant", "Download", "Dragon's Maw", "Drizzle", "Drought", "Dry Skin", "Early Bird", "Earth Eater", "Effect Spore", "Electric Surge", "Electromorphosis", "Filter", "Flame Body", "Flash Fire", "Flower Veil", "Fluffy", "Frisk", "Full Metal Body", "Fur Coat", "Galvanize", "Good as Gold", "Gooey", "Grassy Surge", "Grim Neigh", "Gulp Missile", "Guts", "Hadron Engine", "Harvest", "Heatproof", "Heavy Metal", "Huge Power", "Hustle", "Hydration", "Ice Body", "Ice Scales", "Infiltrator", "Inner Focus", "Insomnia", "Intimidate", "Intrepid Sword", "Iron Fist", "Justified", "Keen Eye", "Leaf Guard", "Levitate", "Libero", "Light Metal", "Lightning Rod", "Limber", "Liquid Ooze", "Liquid Voice", "Magic Bounce", "Magic Guard", "Magician", "Magnet Pull", "Mega Launcher", "Mind's Eye", "Mirror Armor", "Mold Breaker", "Motor Drive", "Moxie", "Multiscale", "Mycelium Might", "Natural Cure", "No Guard", "Oblivious", "Orichalcum Pulse", "Overcoat", "Overgrow", "Own Tempo", "Pickpocket", "Pixilate", "Poison Heal", "Poison Touch", "Power Spot", "Prankster", "Pressure", "Prism Armor", "Protean", "Psychic Surge", "Punk Rock", "Pure Power", "Purifying Salt", "Queenly Majesty", "Quick Feet", "Rattled", "Reckless", "Regenerator", "Rock Head", "Rocky Payload", "Rough Skin", "Sand Force", "Sand Rush", "Sand Stream", "Sap Sipper", "Scrappy", "Seed Sower", "Serene Grace", "Shadow Shield", "Shadow Tag", "Sharpness", "Shed Skin", "Sheer Force", "Shell Armor", "Shield Dust", "Skill Link", "Slow Start", "Slush Rush", "Sniper", "Snow Warning", "Solid Rock", "Soul-Heart", "Soundproof", "Speed Boost", "Stakeout", "Stamina", "Static", "Steely Spirit", "Sticky Hold", "Storm Drain", "Strong Jaw", "Sturdy", "Supreme Overlord", "Surge Surfer", "Swarm", "Swift Swim", "Sword of Ruin", "Synchronize", "Tablets of Ruin", "Tangling Hair", "Technician", "Teravolt", "Thermal Exchange", "Thick Fat", "Tinted Lens", "Torrent", "Tough Claws", "Toxic Boost", "Toxic Chain", "Toxic Debris", "Transistor", "Triage", "Truant", "Turboblaze", "Unaware", "Unburden", "Unnerve", "Unseen Fist", "Vessel of Ruin", "Vital Spirit", "Volt Absorb", "Water Absorb", "Water Bubble", "Water Compaction", "Water Veil", "Weak Armor", "Well-Baked Body", "Wind Rider"],
+            "bare_reveal": ["Air Lock", "As One", "Beads of Ruin", "Cloud Nine", "Comatose", "Gooey", "Mirror Armor", "Mold Breaker", "Pressure", "Sturdy", "Sword of Ruin", "Tablets of Ruin", "Tangling Hair", "Teraform Zero", "Teravolt", "Turboblaze", "Unnerve", "Vessel of Ruin"],
+        },
+        "source_evidence": {
+            "dash_reveal": "data/random-battles/gen9/sets.json candidate abilities plus generated permanent form defaults intersect literal data/abilities.ts -ability emitters",
+            "dash_boost": "data/random-battles/gen9/sets.json generated callbacks plus permanent form defaults reaching sim/battle.ts Battle#boost, enumerated by emitted effect.name rather than holder ability name",
+            "dash_trace_copy": "data/random-battles/gen9/sets.json candidate abilities filtered by Abilities.trace.onUpdate notrace guard",
+            "bare_reveal": "B02 compatibility spelling restricted to the same finite public reveal domain",
+        },
+    },
     "detailschange": {"condition": "optional-health-condition"},
-    "endability": {"forms": ["target-only", "move-source"], "move_source_tag": "[from] move: "},
+    "trapped_activation": {"token": "-activate", "target_role": "active", "effect": "trapped", "payload_fields": 2},
     "singleturn": {
         "untagged_effects": [
             "move: Protect", "move: Beak Blast", "Crafty Shield", "move: Electrify", "move: Endure",
@@ -50,7 +215,16 @@ _EXPECTED_RULES = {
             {"effect": "Helping Hand", "tag": "[of]", "tag_value": "player-ident", "ident_role": "active"},
         ],
     },
+    "singlemove": {"forms": [["Destiny Bond"], ["Glaive Rush", "[silent]"], ["Grudge"], ["Rage"]]},
+    "anim": {
+        "forms": [["Spectral Thief"], ["Solar Beam"], ["Meteor Beam"], ["Dragon Darts"]],
+        "actor_role": "active", "target_role": "active",
+    },
     "tier": {"payload_fields": 1, "label": "nonempty-text"},
+    "bigerror": {
+        "auto_tie": "You will auto-tie if the battle doesn't end in <N> turn(s) (on turn 1000).",
+        "turns_left_values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500],
+    },
 }
 _ROOT_KEYS = {
     "schema_version", "simulator", "source_basis", "framing_only_records", "supported_commands", "recognized_unsupported_commands",
@@ -167,8 +341,8 @@ def validate_protocol_contract(value):
         if entry["token"] in unsupported:
             _contract_error(f"duplicate recognized-unsupported token {entry['token']}")
         unsupported[entry["token"]] = entry["kind"]
-    if unsupported.get("-singlemove") != "unsupported_stop":
-        _contract_error("-singlemove must remain a recognized unsupported stop")
+    if "-singlemove" not in supported:
+        _contract_error("-singlemove must have exact raw-evidence support")
 
     if not isinstance(value["record_fixtures"], list):
         _contract_error("record_fixtures must be an array")
@@ -360,6 +534,25 @@ def _is_side_only_player_ident(value):
     return _is_player_ident(value) and any(value.startswith(side + rules["separator"]) for side in rules["side_ids"])
 
 
+def _hitcount_target(parts, index, command):
+    _field(parts, index, command, "pokemon identifier")
+    value = parts[index]
+    if not _is_player_ident(value):
+        _malformed(command, "invalid pokemon identifier")
+    separator = VALIDATION_RULES["player_ident"]["separator"]
+    prefix = value.partition(separator)[0]
+    side, slot = prefix[:2], prefix[2:]
+    role = "active" if slot == "a" else "side-only" if slot == "" else None
+    if side not in VALIDATION_RULES["player_ident"]["side_ids"] or role not in VALIDATION_RULES["hitcount"]["target_roles"]:
+        _malformed(command, "target must be a Gen 9 singles active or post-faint side-only ident")
+
+
+def _hitcount(parts, index, command):
+    _integer(parts, index, command, "hit count")
+    if int(parts[index]) not in VALIDATION_RULES["hitcount"]["count_values"]:
+        _malformed(command, "hit count is outside the pinned Gen 9 Random Battle domain")
+
+
 def _ident(parts, index, command):
     _field(parts, index, command, "pokemon identifier")
     if not _is_player_ident(parts[index], active_required=True):
@@ -403,10 +596,15 @@ def _health_condition(parts, index, command):
         _malformed(command, "invalid health condition")
 
 
-def _event_tags(parts, start, command, rules):
+def _tag_kind(tag):
+    return tag.split(" ", 1)[0]
+
+
+def _event_tags(parts, start, command, rules, order, singleton_kinds):
     tags = parts[start:]
-    if len(set(tags)) != len(tags):
-        _malformed(command, "duplicate tag")
+    seen_tags = set()
+    seen_kinds = set()
+    previous_order = -1
     for tag in tags:
         valid = False
         for rule in rules:
@@ -424,6 +622,320 @@ def _event_tags(parts, start, command, rules):
                 break
         if not valid:
             _malformed(command, "invalid tag")
+        kind = _tag_kind(tag)
+        if kind in singleton_kinds and kind in seen_kinds:
+            _malformed(command, "duplicate singleton tag kind")
+        if tag in seen_tags:
+            _malformed(command, "duplicate tag")
+        seen_tags.add(tag)
+        seen_kinds.add(kind)
+        index = order.index(kind)
+        if index < previous_order:
+            _malformed(command, "tags are out of source order")
+        previous_order = index
+
+
+def _heal_wisher_dependency(parts, command):
+    tags = parts[4:]
+    if not any(_tag_kind(tag) == "[wisher]" for tag in tags):
+        return
+    dependency = VALIDATION_RULES["heal_wisher_dependency"]
+    if (len(tags) != len(dependency["required_tag_order"])
+            or tags[0] != dependency["required_from"]
+            or [_tag_kind(tag) for tag in tags] != dependency["required_tag_order"]):
+        _malformed(command, "[wisher] requires its exact Wish source form")
+
+
+def _healing_wish_dependency(parts, command):
+    tags = parts[4:]
+    # The pinned base-data healing emitter in this name family is Healing Wish.
+    # Ordinary heals retain their existing grammar; malformed attempted Healing
+    # Wish provenance cannot cross the public publication boundary.
+    if not any(tag.startswith("[from] move: Healing") for tag in tags):
+        return
+    dependency = VALIDATION_RULES["healing_wish_heal"]
+    if (len(parts) != 5
+            or parts[4] != dependency["required_from"]
+            or not _is_player_ident(parts[2], active_required=True)
+            or parts[3] != dependency["health"]
+            or dependency["required_tag_order"] != ["[from]"]):
+        _malformed(command, "Healing Wish requires its exact source form")
+
+
+def _future_sight_dependency(parts, command):
+    effect = parts[3] if len(parts) > 3 else ""
+    # The generic start/end grammar stays available for its existing raw-only
+    # families. Pinned Future Sight emits neither tags nor private slot state.
+    # Match source-family spelling attempts before exact comparison so leading
+    # whitespace or an extra separator cannot fall through to generic start/end.
+    if not (re.search(r"future\s*sight", effect, re.IGNORECASE)
+            or re.match(r"^\s*move[\s:]+future", effect, re.IGNORECASE)):
+        return
+    dependency = VALIDATION_RULES["future_sight"]
+    if command not in (dependency["activation_command"], dependency["resolution_command"]):
+        return
+    if (len(parts) != dependency["payload_fields"] + 3
+            or effect != dependency["effect"]
+            or not _is_player_ident(parts[2], active_required=dependency["target_role"] == "active")):
+        _malformed(command, "Future Sight requires its exact source form")
+
+
+def _repeat_use_hint_dependency(parts, command):
+    message = parts[2] if len(parts) > 2 else ""
+    if not re.match(r"^\s*Some\s+effects\s+can\s+force\s+a\s+Pokemon\s+to\s+use\b", message, re.IGNORECASE):
+        return
+    dependency = VALIDATION_RULES["repeat_use_hint"]
+    if len(parts) != dependency["payload_fields"] + 2 or message not in dependency["messages"]:
+        _malformed(command, "repeat-use hint requires its exact source form")
+
+
+def _entry_hazard(parts, command):
+    if command not in ("-sidestart", "-sideend"):
+        return
+    rules = VALIDATION_RULES["entry_hazard"]
+    effect_value = parts[3] if len(parts) > 3 else ""
+    effect = _effect_id(re.sub(r"^move:\s*", "", effect_value, flags=re.IGNORECASE))
+    if effect not in rules["layers"]:
+        return
+    if not _is_side_only_player_ident(parts[2]):
+        _malformed(command, "hazard side must be canonical")
+    titles = {"spikes": "Spikes", "toxicspikes": "Toxic Spikes", "stealthrock": "Stealth Rock", "stickyweb": "Sticky Web"}
+    if command == "-sidestart":
+        if len(parts) != 4 or parts[3] != rules["start_forms"][effect]:
+            _malformed(command, "unsupported entry-hazard start form")
+        return
+    if parts[3] != titles[effect]:
+        if not (effect == "toxicspikes" and parts[3] == "move: Toxic Spikes" and len(parts) == 5
+                and parts[4].startswith("[of] ") and _is_player_ident(parts[4][5:], active_required=True)):
+            _malformed(command, "unsupported entry-hazard end form")
+        return
+    if len(parts) == 4:
+        return
+    if (len(parts) != 6 or not parts[4].startswith("[from] move: ") or not parts[5].startswith("[of] ")
+            or parts[4][13:] not in rules["removal_sources"] or not _is_player_ident(parts[5][5:], active_required=True)):
+        _malformed(command, "unsupported entry-hazard removal form")
+
+
+
+def _screen_record(parts, command):
+    if command not in ("sidestart", "-sidestart", "sideend", "-sideend"):
+        return
+    rules = VALIDATION_RULES["screen"]
+    effect_value = parts[3] if len(parts) > 3 else ""
+    effect = _effect_id(re.sub(r"^move:\s*", "", effect_value, flags=re.IGNORECASE))
+    if effect not in rules["ids"]:
+        if effect in (_effect_id(value) for value in rules["excluded_forms"]):
+            _malformed(command, "unsupported generated screen form")
+        return
+    expected = (rules["start_forms"].get(effect) if command == "-sidestart"
+                else rules["end_forms"].get(effect) if command == "-sideend" else None)
+    if (not expected or len(parts) != 4 or parts[3] != expected
+            or not _is_side_only_player_ident(parts[2])):
+        _malformed(command, "unsupported screen source form")
+
+
+def _court_change_record(parts, command):
+    rules = VALIDATION_RULES["court_change"]
+    if command == "swapsideconditions":
+        _malformed(command, "Court Change emits only the pinned dash command")
+    if command == rules["command"]:
+        if len(parts) != 2:
+            _malformed(command, "Court Change has no participants, tags, or payload")
+        return True
+    if command != rules["activation_command"]:
+        return False
+    effect = parts[3] if len(parts) > 3 else ""
+    if not re.search(r"court\s*change", effect, re.IGNORECASE):
+        return False
+    if (len(parts) != 4 or effect != rules["activation_effect"]
+            or not _is_player_ident(parts[2], active_required=True)
+            or not re.match(r"^p[12]a: ", parts[2])):
+        _malformed(command, "Court Change requires an active source and its exact source form")
+    return False
+
+
+def _weather_record(parts, command):
+    if command != "-weather":
+        return
+    rules = VALIDATION_RULES["weather"]
+    effect = parts[2] if len(parts) > 2 else ""
+    if effect == "none":
+        if len(parts) != 3:
+            _malformed(command, "clear has no tags")
+        return
+    if effect not in rules["ids"]:
+        _malformed(command, "unsupported generated weather")
+    if len(parts) == 3 and rules["move_origins"].get(effect):
+        return
+    if len(parts) == 4 and parts[3] == "[upkeep]":
+        return
+    if len(parts) == 5 and parts[3].startswith("[from] ability: ") and parts[4].startswith("[of] "):
+        ability, source = parts[3][16:], parts[4][5:]
+        if (ability in rules["ability_origins"].get(effect, [])
+                and _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source)):
+            return
+    _malformed(command, "unsupported source grammar")
+
+def _terrain_record(parts, command):
+    if command not in ("fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
+        return
+    rules = VALIDATION_RULES["terrain"]
+    effect = parts[2] if len(parts) > 2 else ""
+    terrain_id = next((identifier for identifier, name in rules["public_names"].items() if name == effect), None)
+    if terrain_id is None:
+        # Existing pseudo-weather field records retain their own grammar. Any
+        # terrain-name spelling attempt is fail-closed below rather than using
+        # that generic family as an escape hatch.
+        if re.search(r"terrain", effect, re.IGNORECASE):
+            _malformed(command, "unsupported generated terrain")
+        return
+    if command in ("fieldstart", "fieldend", "-fieldactivate"):
+        _malformed(command, "terrain uses the pinned dash command")
+    if command == "-fieldend":
+        if len(parts) != 3:
+            _malformed(command, "terrain clear has no tags")
+        return
+    if (len(parts) == 5 and parts[3].startswith("[from] ability: ") and parts[4].startswith("[of] ")):
+        ability, source = parts[3][16:], parts[4][5:]
+        if (ability in rules["ability_origins"][terrain_id]
+                and _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source)):
+            return
+    _malformed(command, "unsupported terrain source grammar")
+
+
+def _trick_room_record(parts, command):
+    if command not in ("fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
+        return
+    rules = VALIDATION_RULES["trick_room"]
+    effect = parts[2] if len(parts) > 2 else ""
+    if _effect_id(re.sub(r"^move:\s*", "", effect, flags=re.IGNORECASE)) != "trickroom":
+        return
+    if effect != rules["effect"]:
+        _malformed(command, "unsupported Trick Room effect spelling")
+    if command == rules["end_command"]:
+        if len(parts) != 3:
+            _malformed(command, "Trick Room clear has no tags")
+        return
+    if command == rules["start_command"] and len(parts) == 4 and parts[3].startswith(rules["source_tag"] + " "):
+        source = parts[3][len(rules["source_tag"]) + 1:]
+        if _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source):
+            return
+    _malformed(command, "unsupported Trick Room source grammar")
+
+
+def _ability_event(parts, command):
+    rules = VALIDATION_RULES["ability"]
+    if len(parts) < 4:
+        _malformed(command)
+    _ident(parts, 2, command)
+    _field(parts, 3, command, "ability")
+    if parts[3] != parts[3].strip(_JS_TRIM):
+        _malformed(command, "invalid ability")
+    def require_payload(domain):
+        if parts[3] not in rules["payload_domains"][domain]:
+            _malformed(command, f"ability payload is outside the {domain} source-proven domain")
+
+    if len(parts) == 4:
+        require_payload("bare_reveal" if command == "ability" else "dash_reveal")
+        return
+    if command == "ability":
+        _malformed(command, "compatibility alias has only the plain reveal template")
+    if len(parts) == 5 and parts[4] == "boost":
+        require_payload("dash_boost")
+        return
+    if (len(parts) == 6 and parts[4] == rules["trace_source_tag"]
+            and parts[5].startswith(rules["trace_of_tag"])):
+        source = parts[5][len(rules["trace_of_tag"]):]
+        if (not _is_player_ident(source, active_required=True)
+                or parts[2][:2] == source[:2]):
+            _malformed(command, "Trace source must be an opposing active ident")
+        require_payload("dash_trace_copy")
+        return
+    _malformed(command, "unsupported ability provenance")
+
+
+def _item_event(parts, command):
+    rules = VALIDATION_RULES["item"]
+    if len(parts) < 4:
+        _malformed(command)
+    actor = parts[2]
+    if not _is_player_ident(actor, active_required=True) or not re.match(r"^p[12]a: ", actor):
+        _malformed(command, "target must be a Gen 9 singles active ident")
+    item = parts[3]
+    if item != item.strip(_JS_TRIM) or item not in rules["payloads"]:
+        _malformed(command, "item payload is outside the generated source domain")
+    tags = parts[4:]
+    if command in rules["bare_commands"]:
+        if tags:
+            _malformed(command, "compatibility form has no tags")
+        return
+    forms = rules["dash_item_forms"] if command == "-item" else rules["dash_enditem_forms"]
+    matching = None
+    for form in forms:
+        expected = form["tags"]
+        if len(expected) == len(tags) and all(
+            tag == actual or tag == "[of] opposing-active"
+            for tag, actual in zip(expected, tags)
+        ):
+            matching = form
+            break
+    if matching is None or ("payloads" in matching and item not in matching["payloads"]):
+        _malformed(command, "unsupported item source grammar")
+    if "[of] opposing-active" in matching["tags"]:
+        tag = tags[matching["tags"].index("[of] opposing-active")]
+        prefix = "[of] "
+        source = tag[len(prefix):] if tag.startswith(prefix) else ""
+        if (not _is_player_ident(source, active_required=True) or not re.match(r"^p[12]a: ", source)
+                or source[:2] == actor[:2]):
+            _malformed(command, "source must be an opposing Gen 9 singles active ident")
+
+
+def _major_status_event(parts, command):
+    rules = VALIDATION_RULES["major_status"]
+    if len(parts) < 4:
+        _malformed(command)
+    target = parts[2]
+    if not _is_player_ident(target, active_required=True) or not re.match(r"^p[12]a: ", target):
+        _malformed(command, "target must be a Gen 9 singles active ident")
+    status = parts[3]
+    if status not in rules["ids"]:
+        _malformed(command, "unsupported major status")
+    tags = parts[4:]
+    if command in rules["bare_commands"]:
+        if tags:
+            _malformed(command, "compatibility form has no tags")
+        return
+    forms = rules["apply_forms"] if command == "-status" else rules["cure_forms"]
+    matching = None
+    for form in forms:
+        expected = form["tags"]
+        if len(expected) == len(tags) and all(
+            tag == actual or tag == "[of] opposing-active"
+            for tag, actual in zip(expected, tags)
+        ):
+            matching = form
+            break
+    if matching is None or ("statuses" in matching and status not in matching["statuses"]):
+        _malformed(command, "unsupported major-status source grammar")
+    if "[of] opposing-active" in matching["tags"]:
+        tag = tags[matching["tags"].index("[of] opposing-active")]
+        source = tag[len("[of] "):] if tag.startswith("[of] ") else ""
+        if (not _is_player_ident(source, active_required=True) or not re.match(r"^p[12]a: ", source)
+                or source[:2] == target[:2]):
+            _malformed(command, "source must be an opposing Gen 9 singles active ident")
+
+
+def _auto_tie_warning(parts, command):
+    if len(parts) != 3:
+        _malformed(command)
+    match = re.fullmatch(r"You will auto-tie if the battle doesn't end in ([1-9][0-9]*) (turn|turns) \(on turn 1000\)\.", parts[2])
+    if match is None:
+        _malformed(command, "unsupported diagnostic")
+    turns_left = int(match.group(1))
+    if (turns_left not in VALIDATION_RULES["bigerror"]["turns_left_values"]
+            or (turns_left == 1 and match.group(2) != "turn")
+            or (turns_left != 1 and match.group(2) != "turns")):
+        _malformed(command, "unsupported diagnostic")
 
 
 def _request_constant(token):
@@ -492,8 +1004,11 @@ def _shape(parts, command):
     def ident(index=2):
         _ident(parts, index, command)
 
+    if _court_change_record(parts, command):
+        return
+
     if command in {
-        "clearallboost", "-clearallboost", "swapsideconditions", "-swapsideconditions",
+        "clearallboost", "-clearallboost",
         "teampreview", "clearpoke", "done", "upkeep", "start", "end", "-nothing",
     }:
         if not (len(parts) == 2 or (len(parts) == 3 and parts[2] == "")):
@@ -525,6 +1040,12 @@ def _shape(parts, command):
         tags = parts[5:]
         if tags.count("[notarget]") > 1 or ("[notarget]" in tags and tags[-1] != "[notarget]") or any(not _move_tag(tag) for tag in tags):
             _malformed(command, "invalid tag")
+    elif command == "-singlemove":
+        ident()
+        if not re.match(r"^p[12]a: ", parts[2]):
+            _malformed(command, "target must be a Gen 9 singles active ident")
+        if parts[3:] not in VALIDATION_RULES["singlemove"]["forms"]:
+            _malformed(command, "unsupported effect/tag combination")
     elif command == "-singleturn":
         if len(parts) not in (4, 5): _malformed(command)
         ident(); _field(parts, 3, command, "effect")
@@ -548,7 +1069,8 @@ def _shape(parts, command):
         at_least(4); ident(); _field(parts, 3, command, "reason")
         if len(parts) > 4: _field(parts, 4, command, "move")
     elif command == "-hitcount":
-        at_least(4); ident(); _integer(parts, 3, command, "hit count")
+        if len(parts) != 4: _malformed(command)
+        _hitcount_target(parts, 2, command); _hitcount(parts, 3, command)
     elif command == "faint":
         if len(parts) != 3: _malformed(command)
         ident()
@@ -580,11 +1102,14 @@ def _shape(parts, command):
             _malformed(command, "unsupported copy grammar")
         ident(); _ident(parts, 3, command)
     elif command == "-anim":
-        if len(parts) != 5 or parts[3] != "Spectral Thief":
+        if len(parts) != 5 or [parts[3]] not in VALIDATION_RULES["anim"]["forms"]:
             _malformed(command, "unsupported animation grammar")
         ident(); _ident(parts, 4, command)
+        actor_side, target_side = parts[2].split(": ", 1)[0], parts[4].split(": ", 1)[0]
+        if actor_side not in ("p1a", "p2a") or target_side not in ("p1a", "p2a") or actor_side == target_side:
+            _malformed(command, "source and target must be opposing Gen 9 singles active identifiers")
     elif command == "-hint":
-        at_least(3); _field(parts, 2, command, "message")
+        at_least(3); _field(parts, 2, command, "message"); _repeat_use_hint_dependency(parts, command)
     elif command == "poke":
         at_least(4); _player(parts, 2, command); _field(parts, 3, command, "details")
     elif command in ("formechange", "-formechange"):
@@ -599,9 +1124,14 @@ def _shape(parts, command):
         if not revival_bench: ident()
         _health_condition(parts, 3, command)
         tag_group = command.removeprefix("-")
-        _event_tags(parts, 4, command, VALIDATION_RULES["health_event_tags"][tag_group])
+        _event_tags(parts, 4, command, VALIDATION_RULES["health_event_tags"][tag_group],
+                    VALIDATION_RULES["health_event_tag_order"][tag_group],
+                    VALIDATION_RULES["event_tag_cardinality"][tag_group])
+        if command == "-heal":
+            _heal_wisher_dependency(parts, command)
+            _healing_wish_dependency(parts, command)
     elif command in ("status", "-status", "curestatus", "-curestatus"):
-        at_least(4); ident(); _field(parts, 3, command, "status")
+        _major_status_event(parts, command)
     elif command in ("boost", "-boost", "unboost", "-unboost", "setboost", "-setboost"):
         at_least(5); ident(); _field(parts, 3, command, "stat")
         if parts[3] not in VALIDATION_RULES["boost_event"]["stats"]:
@@ -612,7 +1142,8 @@ def _shape(parts, command):
         minimum, maximum = ((rules["set_min"], rules["set_max"]) if command in ("setboost", "-setboost") else (rules["delta_min"], rules["delta_max"]))
         if not minimum <= amount <= maximum:
             _malformed(command, "amount is outside the supported stage range")
-        _event_tags(parts, 5, command, rules["tags"])
+        _event_tags(parts, 5, command, rules["tags"], rules["tag_order"],
+                    VALIDATION_RULES["event_tag_cardinality"]["boost"])
     elif command in ("clearboost", "-clearboost"):
         if len(parts) != 3: _malformed(command)
         ident()
@@ -620,32 +1151,36 @@ def _shape(parts, command):
         if len(parts) < 3 or len(parts) > 4 or (len(parts) == 4 and parts[3] not in ("[silent]", "[zeffect]")): _malformed(command)
         ident()
     elif command in ("clearpositiveboost", "-clearpositiveboost"):
-        at_least(5); ident(); _ident(parts, 3, command); _field(parts, 4, command, "effect")
+        if len(parts) != 5: _malformed(command)
+        ident(); _ident(parts, 3, command); _field(parts, 4, command, "effect")
     elif command in ("start", "-start", "end", "-end"):
         at_least(4); ident(); _field(parts, 3, command, "effect")
+        if command in ("-start", "-end"):
+            _future_sight_dependency(parts, command)
     elif command in ("weather", "-weather", "fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
         at_least(3); _field(parts, 2, command, "effect")
+        _weather_record(parts, command)
+        _terrain_record(parts, command)
+        _trick_room_record(parts, command)
     elif command == "-message":
         at_least(3); _field(parts, 2, command, "message")
     elif command in ("activate", "-activate"):
         at_least(4); ident(); _field(parts, 3, command, "effect")
+        _court_change_record(parts, command)
+        trapped = VALIDATION_RULES["trapped_activation"]
+        if command == trapped["token"] and parts[3].strip(_JS_TRIM) == trapped["effect"]:
+            if parts[3] != trapped["effect"] or len(parts) != trapped["payload_fields"] + 2:
+                _malformed(command, "trapped activation must use the exact source grammar")
     elif command in ("sidestart", "-sidestart", "sideend", "-sideend"):
         at_least(4)
         if not re.match(r"^p[12](?::|$)", parts[2]): _malformed(command)
         _field(parts, 3, command, "condition")
+        _entry_hazard(parts, command)
+        _screen_record(parts, command)
     elif command in ("item", "-item", "enditem", "-enditem"):
-        at_least(4); ident(); _field(parts, 3, command, "item")
+        _item_event(parts, command)
     elif command in ("ability", "-ability"):
-        at_least(4); ident(); _field(parts, 3, command, "ability")
-    elif command in ("endability", "-endability"):
-        if command == "-endability" and len(parts) == 5:
-            ident(); _field(parts, 3, command, "old ability")
-            move_name = parts[4][len(VALIDATION_RULES["endability"]["move_source_tag"]):]
-            if not parts[4].startswith(VALIDATION_RULES["endability"]["move_source_tag"]) or not move_name or move_name != move_name.strip(_JS_TRIM):
-                _malformed(command, "invalid move-source tag")
-            return
-        if len(parts) != 3: _malformed(command)
-        ident()
+        _ability_event(parts, command)
     elif command == "tier":
         if len(parts) != VALIDATION_RULES["tier"]["payload_fields"] + 2: _malformed(command)
         _field(parts, 2, command, "format label")
@@ -680,6 +1215,8 @@ def _shape(parts, command):
         at_least(4); _field(parts, 2, command, "user"); _field(parts, 3, command, "message")
     elif command in ("error", "gametype", "rule", "message"):
         at_least(3); _field(parts, 2, command, "payload")
+    elif command == "bigerror":
+        _auto_tie_warning(parts, command)
     elif len(parts) < 3 or any(not part.strip(_JS_TRIM) for part in parts[2:]):
         _malformed(command)
 

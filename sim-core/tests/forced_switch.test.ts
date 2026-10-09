@@ -10,6 +10,7 @@ import type { PlayerID } from '../src/types';
 import { lifecycleBattle, lifecycleChoices, prepareLifecycle, LIFECYCLE_SEED } from './helpers/state_lifecycle';
 
 const OPTIONS = { include_wait_requests: true, include_possible_roles: false };
+const SHEDTAIL_OBSERVATION_SCHEMA = 'observable-battle-state/v2' as const;
 const KO_SEED = [101, 202, 303, 404];
 const PIVOT_SEED = [11, 202, 303, 404];
 const scenarios = [
@@ -22,7 +23,10 @@ for (const actor of ['p1', 'p2'] as const) {
     const battle = lifecycleBattle(actor);
     prepareLifecycle(battle, actor, false);
     const serialized = battle.toJSON();
-    const config = { battle_id: `shed-tail-${actor}`, format: 'gen9randombattle', seed: LIFECYCLE_SEED };
+    const config = {
+      battle_id: `shed-tail-${actor}`, format: 'gen9randombattle', seed: LIFECYCLE_SEED,
+      observation_schema_version: SHEDTAIL_OBSERVATION_SCHEMA,
+    };
     const direct = new LocalBattleEnv('shed-tail-direct', config.format, config.seed);
     const reset = LocalBattleEnv.prototype.resetWithOptions;
     const sessions: Session[] = [];
@@ -48,18 +52,26 @@ for (const actor of ['p1', 'p2'] as const) {
       const choices = lifecycleChoices(actor, 'move 3');
       for (const s of sessions) await s.step({ p1: select(s, 'p1', choices.p1), p2: select(s, 'p2', choices.p2) });
       const pending = await direct.stepWithOptions(choices, OPTIONS); prefix.push(...pending.log_delta);
-      const pendingObservations = projectPipelineStepResult(pending, config.battle_id, projectPipelineProtocolPrefix(prefix));
+      const pendingObservations = projectPipelineStepResult(
+        pending, config.battle_id, projectPipelineProtocolPrefix(prefix), SHEDTAIL_OBSERVATION_SCHEMA,
+      );
       const prior = session.boundary;
       for (const p of ['p1', 'p2'] as const) assert.deepEqual(prior.perspectives[p].observation, pendingObservations[p]);
+      const malformed = { ...select(session, actor, 'switch 2'), rqid: 999 };
+      await assert.rejects(session.stepForcedSwitch(malformed), /request ID does not match/);
+      assert.equal(session.boundary, prior, 'a rejected Shed Tail replacement must preserve the pending boundary');
       const committed = await session.stepForcedSwitch(select(session, actor, 'switch 2'));
       const repeated = await twin.stepForcedSwitch(select(twin, actor, 'switch 2'));
       const next = await direct.stepWithOptions({ [actor]: 'switch 2' }, OPTIONS); prefix.push(...next.log_delta);
-      const observations = projectPipelineStepResult(next, config.battle_id, projectPipelineProtocolPrefix(prefix));
+      const observations = projectPipelineStepResult(
+        next, config.battle_id, projectPipelineProtocolPrefix(prefix), SHEDTAIL_OBSERVATION_SCHEMA,
+      );
       assert.deepEqual(committed.record_bundles, repeated.record_bundles);
       assert.deepEqual(Object.keys(committed.record_bundles), [actor]);
       assert.equal(committed.transition_id, repeated.transition_id);
       for (const p of ['p1', 'p2'] as const) {
         const state = committed.boundary.perspectives[p];
+        assert.equal(state.observation.schema_version, SHEDTAIL_OBSERVATION_SCHEMA);
         assert.deepEqual(state.observation, observations[p]);
         assert.deepEqual(state.belief, repeated.boundary.perspectives[p].belief);
         assert.equal(state.belief.observation.observation_id, observations[p].observation_id);

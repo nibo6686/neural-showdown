@@ -1,32 +1,94 @@
 # Refactor Readiness Status
 
-## Current project status — 2026-09-24
+## Current reconciliation — 2026-10-09
+
+C22 and C23 are accepted and registered only within their independently reviewed finite public-consequence scopes. FCE-01 has zero unresolved reachable P0 source/evidence inventory rows after reconciling C01–C30 against their source proofs and verdicts. Unsupported expansions and unknown forms remain fail-closed. This supersedes historical open-registration summaries below, without changing their original decisions.
+
+CE-08A positive complete-episode evidence received scoped independent acceptance on 2026-10-09. Original-to-terminal normal win, source simultaneous terminal outcome and turn-limit tie, both perspectives, actor-only publication, restoration/privacy and coherent tamper rejection are supported by matching-source recorded evidence. The long chain published 1,996 segment rows and two predecessor rows. Recovered outcome/origin Python controls each exited 2 with zero stdout (115.192s / 5.017s), resolving their missing evidence. The original long command still exited 1 at its earlier 30s timeout; the historical combined short-command 182.032s timeout remains unresolved. Neither invocation is claimed passing.
+
+CE-08B received independent scoped acceptance for pinned v2 S01–S12 incomplete/error classification, limits/accounting and construction/cleanup delivery. FCE-08 is separately accepted for the explicitly reconciled FCE-01–FCE-08 source/semantic evidence packet. The four metadata/cleanup findings are resolved with matching artifact-only evidence; see the existing independent review record. The subsequent final PIPELINE-002 decision accepts pinned v2 capture/boundary progression. Conditional faithful_complete_episode emission and matching TS/Python validation received scoped independent runtime acceptance on 2026-10-09. True requires validated supported original-to-terminal evidence and successful execution/cleanup; false is conservative and mandatory for ineligible results. It remains a per-result claim, not a capability flag. Merge readiness and datasets/training/live remain separate. See the existing final decision for scope and next task.
+
+
+## Historical project status — 2026-10-07
+
+The following snapshot and delivery sequence retain their recorded checkpoint
+meaning; the current 2026-10-09 reconciliation above governs accepted scope.
 
 Current authoritative summary: [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+The current checkout is branch `refactor/state-001-observable-state`, HEAD
+`6475d01e9d1bf2766339e41ac3d0738902e4046e`. The worktree is dirty; this HEAD
+is not a reviewed snapshot and uncommitted work is not acceptance evidence.
 
-- Workspace: branch `refactor/state-001-observable-state`, HEAD
-  `b9b3eb06d362963bb1fa2da21d7c471a84df262c`.
-- Documentation preparation and the accepted contracts through SEARCH-001 are
-  complete. This is not a claim that data collection, model training, or live
-  evaluation is ready.
-- `ENV-001` remains `BLOCKED_WITH_REMEDIATION`.
-- `SIM-COVERAGE-001` has a pinned-source inventory and drift checker, with
-  explicit lifecycle gaps still requiring disposition. The listed local
-  parser/pipeline digest now has a scoped semantic-review attestation and both
-  drift checks pass; this does not establish full lifecycle coverage.
-- `PIPELINE-001` is accepted for its explicit v1 joint-actionable scope. A
-  source-backed hidden Magnet Pull rejection passes action preflight, is
-  rejected by Showdown, and preserves committed state and lineage. Complete
-  episode progression remains PIPELINE-002.
-- `PIPELINE-002` now records concrete complete-episode acceptance criteria for
-  one-sided forced-switch, waiting, and requestless boundaries; implementation
-  has not started.
-- `FEATURE-001` remains unresolved and unaccepted. Do not generate features or
-  targets from an implied schema.
-- No new dataset or model has been produced for this refactored approach.
-  Existing checkpoints are intentionally abandoned and non-blocking.
+- Bounded v2 transition capture and TypeScript/Python publication parity are
+  accepted for the reviewed ordinary joint-actionable scope. PIPELINE-001's v1
+  scope also remains separately accepted.
+- Scanner expansion, source-coverage, and Gen 9 Random Battle format/reachability
+  slices have accepted scoped attestations. They do not establish universal
+  simulator coverage; unknown and unclosed forms remain explicit stops.
+- CE-01's aggregate Glaive Rush fixture correction and CE-04C's public-stage
+  source/evidence closure were accepted within their separate 2026-10-06 scopes.
+- CE-06A's privacy regression now propagates the foreign p2 request through
+  p1's origin observation, first actor record, every dependent p1 belief
+  reference, and the initial/final summaries. The test validates every p1
+  boundary/record join and canonical belief identity before TypeScript rejects
+  the ownership mismatch; Python validates the altered origin record and
+  rejects the same full result with exit 2 and empty stdout. No production
+  change was needed. The CE-06A local/reviewed coverage digest is
+  `e7d5e2f6279fc0cc0895e048e6b8fce7971431d44e0366861651d5700a291c1c`;
+  it is attested only for CE-06A. Prior scoped attestations remain intact.
+- CE-06B's v2 terminal/segment closure received a separate scoped attestation
+  on 2026-10-06. It has recursively validated
+  predecessor/origin joins, matching terminal win/tie references, explicit
+  original/segment/terminal-only coverage, and actor-only publication. Source
+  restored win/tie and one-sided terminal paths, resumed-chain controls, and
+  rehashed tamper rejection pass. The 2026-10-06 CE-08A pre-edit
+  reconciliation is blocked by a missing initial-request-to-turn-limit-tie
+  chain, a missing source-engine simultaneous-outcome episode, and unresolved
+  FCE-01 computed-effect dispositions between the audit and coverage manifest.
+  No selective positive suite was added. CE-08A/08B and remaining P0
+  dependencies remain open, and `faithful_complete_episode:false` remains
+  required.
+- The complete-episode closure audit is complete as a gap inventory and plan.
+  The 2026-10-06 CE-08A blocker batch closed the turn-limit origin chain,
+  simultaneous-outcome source witness, and six manifest/audit disposition
+  paths. On 2026-10-07, the turn-limit tie path also bulk-published all 1,996
+  current-segment actor rows through Python DATA-001 validation (155.4 seconds),
+  separately published its two predecessor rows, and rejected a rehashed
+  middle-row ownership tamper atomically. This closes that scoped review
+  finding only; CE-08A's aggregate positive-suite review, CE-08B, remaining P0
+  gates, and complete-episode acceptance are still open.
+  `faithful_complete_episode:false` remains required.
+- `faithful_complete_episode:false` remains required. The active milestone is
+  faithful, privacy-correct `gen9randombattle` episode capture.
+- ENV-001 is incomplete for cross-platform claims. The macOS simulator-record
+  and broader trainer/live profiles have accepted evidence within their
+  documented scope. Windows clean recreation and Windows trainer/live packaging
+  are deferred and do not block a future scoped macOS refactor merge.
+- FEATURE-001, feature extraction, datasets, training, live-model behavior, and
+  other formats remain later milestones. No readiness claim is made for them.
 
-## Gate status
+## Historical next delivery sequence — 2026-10-07
+
+1. Complete the separate CE-08A review against its positive-suite evidence and
+   remaining FCE gates; do not promote this publication-only checkpoint into
+   aggregate acceptance.
+2. Complete CE-08B stop classification and final review evidence, then resolve
+   remaining P0 closure-audit rows.
+3. Run final macOS validation, complete branch-level `$wm-pr-review`, reconcile
+   findings, then update from `main`, merge, and verify the resulting checkout.
+
+Windows clean recreation and Windows trainer/live support remain deferred. Their
+open ENV-001 work is not a blocker to this scoped macOS merge path.
+
+## Historical preparation record — status as recorded 2026-09-24
+
+The checkpoint below preserves its original preparation findings and validation
+history. Its dates, branch/HEAD values, and then-current next steps are historical;
+the current status and sequence are above.
+
+### Project status recorded on 2026-09-24
+
+### Gate status recorded 2026-09-24
 
 `DOCUMENTATION_PREPARATION: COMPLETE`
 
@@ -40,7 +102,7 @@ The earlier `READY_FOR_REFACTOR` value referred only to completion of the
 initial documentation-preparation gate. It must not be read as readiness to
 construct a new dataset, train a model, or evaluate a live route.
 
-## Gate evidence
+### Gate evidence recorded 2026-09-24
 
 - All requested documentation files plus the replay-fixture policy document
   exist.
@@ -52,11 +114,11 @@ construct a new dataset, train a model, or evaluate a live route.
   the requested documentation tree.
 - Baseline branch, tag, commit, and environment blockers are recorded below.
 
-## Objective
+### Objective in the original preparation scope
 
 Prepare a controlled refactor while keeping Showdown/sim-core as the authoritative mechanics engine. Separate authoritative state, player-observable state, beliefs, canonical actions, transitions, features, and search. Preserve raw protocol events, prevent future-information leakage, make seeded transitions reproducible, and make model/data/action/schema provenance explicit.
 
-## Baseline
+### Baseline recorded in the original preparation scope
 
 The following values record the original preparation baseline, not the current
 workspace branch or HEAD.
@@ -69,7 +131,7 @@ workspace branch or HEAD.
   raw-choice consumers, and default paths remain unchanged.
 - Simulator replacement: prohibited in this phase
 
-## Environment blockers
+### Environment blockers recorded at the 2026-09-24 checkpoint
 
 - The bare `python` and direct `pytest` commands are not on PATH; use `/Library/Developer/CommandLineTools/usr/bin/python3` and `python3 -m pytest`, or add `/Users/nbolger/Library/Python/3.9/bin` to PATH.
 - Python packages are installed and importable from `/Users/nbolger/Library/Python/3.9/lib/python/site-packages`.
@@ -78,7 +140,7 @@ workspace branch or HEAD.
   clean-environment validation. Raw replay fixtures are optional for the first
   simulator-only milestone and remain required only for replay-specific claims.
 
-## Current readiness constraints
+### Readiness constraints recorded at the 2026-09-24 checkpoint
 
 - Replay policy closeout and the additive STATE-001 shadow slice are complete;
   production refactoring and model integration remain out of scope.
@@ -120,7 +182,7 @@ workspace branch or HEAD.
   inputs, checkpoints, legacy source labels, and consumers remain unchanged.
 - The orchestrator is the only writer of aggregate status files.
 
-## SIM-COVERAGE / PIPELINE / FEATURE current gate
+### SIM-COVERAGE / PIPELINE / FEATURE gate recorded at the 2026-09-24 checkpoint
 
 - `SIM-COVERAGE-001`: inventory and checker status are recorded in
   [`../contracts/SIMULATOR_COVERAGE.md`](../contracts/SIMULATOR_COVERAGE.md)
@@ -148,7 +210,7 @@ workspace branch or HEAD.
   and episode-policy acceptance. The full current sequence is in
   [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-## Current focused verification — 2026-09-24
+### Focused verification recorded 2026-09-24
 
 - `npm run build --prefix sim-core`: passed.
 - Focused TypeScript selection including coverage, state extraction, observable
@@ -163,7 +225,7 @@ workspace branch or HEAD.
 - Task-specific command/results and remaining acceptance work are in
   [`PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md`](PIPELINE-CORRECTNESS-2026-09-24-PROGRESS.md).
 
-## Accepted preparation scope as of 2026-09-23
+### Accepted preparation scope as of 2026-09-23
 
 `STATE-001` has an accepted shadow slice, `ACTION-001` has an accepted
 request-bound canonical-action slice, FIXTURE-001/FIXTURE-002 have accepted
@@ -310,3 +372,183 @@ remain unchanged.
   acquisition, or ENV-001 changes were made.
 - Follow-on search integration requires a separate scoped work item; the
   current SEARCH-001 rollback is documentation-only.
+
+## CE-08A blocker closure batch — 2026-10-07
+
+- FCE-07 has mirrored source-engine simultaneous-knockout witnesses from
+  original requests, with replay, terminal agreement, actor-only Python
+  publication, and rehashed tamper rejection.
+- FCE-01's six computed `addVolatile`/`linkedStatus` paths now have a checked
+  manifest/audit/test crosswalk; aggregate FCE-01 remains open.
+- The fresh-origin turn-limit tie chain passed focused validation from original
+  requests through the source turn-1000 tie, with a validated predecessor and
+  Python envelope checks. Final CE-08A positive-suite review remains separate.
+  `faithful_complete_episode:false` is unchanged.
+
+## FCE-01 aggregate reconciliation — 2026-10-07
+
+The C01–C30 machine-checkable reconciliation records four remaining reachable
+P0 blockers: public volatile lifecycle truth (C17), aggregate side-condition
+layer/expiry truth (C20), callback-composition truth (C22), and slot-effect
+sufficiency (C23). The prior computed `addVolatile` / `linkedStatus`
+disposition drift is closed by the manifest/audit/checker crosswalk. Final
+CE-08A positive evidence remains deferred until all four are closed;
+`faithful_complete_episode:false` remains required.
+
+## C17/C20 scoped lifecycle verdict — 2026-10-07
+
+Independent review accepted C17/C20's evidence-derived lifecycle boundary from
+implementation digest `9319ea2131a777315e2194240cd2cd3bc18458676a7651a18e1f18161f2836c2`.
+C22 callback composition and C23 slot-effect sufficiency remain FCE-01 blockers;
+CE-08A remains withheld and `faithful_complete_episode:false` remains required.
+
+
+## C17/C20 typed-state implementation checkpoint — 2026-10-07
+
+A manifest-backed public-prefix projection now constrains typed volatile and
+side-condition maps in TypeScript and Python publication. It keeps Substitute
+and eight rooted side conditions typed, downgrades other inventoried volatiles
+to raw-only, and fails closed on 15 side-condition IDs without approved generated
+roots. Source-backed equivalence rules and fully rehashed cross-runtime false-map
+controls are in place.
+
+This is unreviewed implementation evidence, not a C17/C20 verdict. C22 and C23
+remain unresolved, so FCE-01 and CE-08A remain open. The local coverage digest is
+`c5a5fc3112a1778af1adb9e5b817b9639b1b183ac8a6d42f6ccc0ea043d12e4d`;
+`reviewed_sha256` is unchanged pending separate review.
+
+Validation: build passed; focused TypeScript 96/96; focused Python 46/46;
+coverage self-test passed; normal coverage checker reports only the expected
+unreviewed semantic-digest mismatch; `git diff --check` passed.
+`faithful_complete_episode:false` remains required.
+
+## C17/C20 typed-row omission repair — 2026-10-07
+
+The typed-state validators now reject a fully rehashed observation when its
+public prefix derives nonempty Substitute state for an ident that has no unique
+canonical roster row on the correct perspective. Missing, duplicate, and
+wrong-side rows reject before publication; row synthesis and hidden-identity
+inference are not introduced.
+
+Targeted controls cover ordinary DATA-001 records and a v2 episode-origin
+boundary with rehashed observation, belief, summary, actor-record, run/origin,
+envelope, and reference identities. Valid Substitute rows remain valid. The
+omitted-row cases reach the typed evidence mismatch; Python exits 2 with empty
+stdout and TS preserves the committed boundary.
+
+Validation: build passed; selected TS lifecycle, ordinary-record, and v2-boundary
+tests passed 3/3; Python typed-state and pipeline-record suites passed 47/47;
+coverage reachability self-test and `git diff --check` passed. The ordinary
+coverage checker continues to report only the expected separate semantic-review
+digest gate. Local digest: `fd2b787af19a5cc597cd511f25801003382e33649323afb83c9968771a258217`;
+`reviewed_sha256` is unchanged. C17/C20 remain unreviewed and unattested; C22/C23
+remain open, CE-08A remains withheld, and `faithful_complete_episode:false`
+remains required.
+
+## C17/C20 view-less v1 replay bypass repair — 2026-10-07
+
+Python publication now replays the prefix before historical v1 compatibility.
+A view without typed projections publishes only when the prefix derives no
+typed volatile or side-condition state. Fully rehashed Substitute and Spikes
+controls reject with exit 2 and empty stdout; the empty-state v1 control and
+ordinary/v2 regression coverage pass. Coverage self-test and diff check pass;
+the normal checker confirms the refreshed local digest and retains only the
+separate semantic-review gate. The reviewed digest is unchanged. C17/C20 remain
+unreviewed, C22/C23 remain open, and `faithful_complete_episode:false` remains
+required. See the audit and pipeline progress checkpoint for evidence and
+hashes.
+
+## C17/C20 partial typed-view bypass repair — 2026-10-07
+
+Validators require projected Substitute values to have a unique owning-side
+roster row and require derived own/opponent side conditions in their correct
+field compartment. Missing representation containers reject only when the
+prefix derives a value requiring them. Seven fully rehashed controls pass their
+TS/Python rejection assertions, including Python exit 2 with empty stdout and
+unchanged committed TS boundary. Focused validation passed: TS 37/37, v2
+episode-origin 1/1, Python 49/49, coverage self-test, and diff check. Local
+digest `9319ea2131a777315e2194240cd2cd3bc18458676a7651a18e1f18161f2836c2` is
+current; reviewed digest remains unchanged pending separate review. This is not
+a C17/C20 attestation. C22/C23 remain open and
+`faithful_complete_episode:false` remains required.
+
+## C22/C23 callback and slot consequence checkpoint — 2026-10-07
+
+C23 retains source-route evidence but remains unresolved after independent semantic review. The machine-readable
+`public_consequence_matrix/v1` binds the pinned source tree, move/ability
+candidate digests, selector digest, eight callback/slot source-file hashes,
+direct slot roots, Future Sight's imperative `futuremove` route, and the three
+source-unreachable exclusions. Both-perspective source-engine tests cover
+Wish, Healing Wish, Future Sight, and Revival Blessing through restoration,
+rollback, switch/drag, faint/replacement, terminal outcomes, and Python
+publication. Private timers, slot occupants, and source metadata remain out of
+public state.
+
+C22 stays open for broader callback-state truth. Ordered public item replay now rejects the original mirrored rehashed Sitrus
+presence forgeries and unsupported presence assertions, including existing
+disposition, last-item and suppression fields. Neutralizing Gas has a complete
+bounded no-route disposition: absent from 203 authored candidates and six form
+defaults, with no unseeded copy/transfer route. Constructed native-engine tests
+prove global suppression, exemptions, multi-source cleanup, silent End/Start,
+restoration and unsupported publication. Known names are retained; internal
+unknown effectiveness never becomes a guessed opponent loadout.
+
+C23 now rejects the six original Wish false HP/status/faint maps and partial
+public health representation in both runtimes. Actual sibling source bundles,
+full-result Wish and original-to-terminal health controls also reject after
+complete rehashing. Valid living unrevealed terminal Illusion now uses validated
+committed predecessor identity through native sessions, ordinary linked bundles,
+and full envelopes with predecessor closure. Incoming unrevealed switches
+require an action-bound ordinary/full/bulk path; bare envelopes lack the action.
+Bare deserialized observations cannot authorize an unrevealed alias; mutable alias fields cannot authorize them. C23
+remains open pending independent acceptance of the mirrored restoration and
+coherent forgery matrix.
+The checker keeps C22/C23 as unresolved; C17/C20 acceptance is unchanged.
+FCE-01 and CE-08A remain open, reviewed coverage stays unchanged, and
+`faithful_complete_episode:false` remains required. See the closure audit's
+2026-10-08 bounded repair checkpoint for the precise acceptance matrix.
+
+
+## C22/C23 resumed implementation freeze — 2026-10-08
+
+Action-bound incoming terminal identity, private v2 switch restoration,
+attributable item history and raw-only unknown historical carriers are implemented.
+The exact near-turn-1000 terminal-switch/source authority test passed 1/1 in
+28.210s. Source/tests are frozen while the parent runs all remaining validation
+sequentially with visible output and bounded subprocess timeouts. See the closure
+audit for final matrices, commands and hashes. No new semantic attestation is
+claimed: C22/C23, FCE-01, CE-08A/08B and PIPELINE-002 remain open, and
+`faithful_complete_episode:false` remains required.
+
+
+Final current-hash item/identity matrix: **48/48 passed in 142.137s**, covering
+2,644 ordinary and 246 each full-result, envelope and compact-bulk adversarial
+candidates. The earlier timed-out runs are superseded. Remaining focused and
+complete-chain validation is recorded separately in the closure audit; this
+matrix adds no semantic attestation or gate promotion.
+
+
+The subsequent full episode job exhausted its inherited 600s outer budget
+during bulk publication after 1,000 native commits; it is not passing evidence.
+The parent is repairing repeated historical prefix hashing with a fresh
+per-validation incremental stream and unchanged canonical bytes/checks. This
+source change revokes the prior freeze; the earlier 48/48 and suite passes
+remain bound to their old hashes until affected current checks run. The full
+episode wrapper now uses a 3,000s outer budget, with existing bounded Python
+phases. Current results and hashes will be recorded in the closure audit. No
+C22/C23 attestation or complete-episode gate is changed.
+
+
+After the bounded per-validation history-hash correction, the fresh current
+source matrix passed **48/48 in 140.487s**, with 2,644 ordinary and 246 each
+full-result, envelope and bulk adversarial candidates. The new 20-file freeze
+and raw hashes are recorded in the closure audit. Remaining focused suites and
+complete-chain checks run sequentially; no earlier-source pass is substituted.
+C22/C23 and complete-episode gates remain open pending independent acceptance.
+
+Current-source focused TS/Python checks passed 241/241 and 58/58. The focused
+episode shortcut passed 33/34 before a test-only diagnostic correction; its
+affected case passed 1/1 afterward. The 1,000-turn Python bulk publication is
+still unverified after the canceled run, and no further long test was started
+following the user's fast-stop instruction. The closure audit records exact
+hashes and limits. No scoped attestation or fidelity flag changed.

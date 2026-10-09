@@ -1,0 +1,22 @@
+Final stable CE-08B focused output (tail captured after initial progress yield):
+CE-08B bounded cancelled
+CE-08B bounded action-exhausted
+CE-08B bounded after-commit
+CE-08B cleanup cancelled
+CE-08B cleanup cancelled-after-commit
+CE-08B cleanup error
+CE-08B cleanup terminal
+CE-08B cleanup completed
+✔ CE-08B v2 classified failures preserve cause and committed evidence (785.442458ms)
+✔ CE-08B Python rejects contradictory stop classification atomically (679.781417ms)
+✔ CE-08B v2 cancellation and exhaustive rejections retain incomplete actor-free evidence (303.26325ms)
+✔ CE-08B cleanup preserves preceding diagnostics and terminal precedence (395.074875ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2242.155709
+EXIT 0 ELAPSED 2.342

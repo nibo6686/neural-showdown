@@ -1,0 +1,138 @@
+{
+  "source_hashes": {
+    "sim-core/tests/pipeline_episode.test.ts": "b4a239dc7e2bedfff353548e1bd80fc49330b6808f8af88bb13d5566a2d7fc2a",
+    "sim-core/src/pipeline_episode.ts": "56dcbb5fb13f658487eb582d2a70f7144b9e0479f8252a77ea2a0b90a9c35f03",
+    "sim-core/src/pipeline_episode_evidence.ts": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+    "sim-core/src/pipeline_integration.ts": "e75e3a0ee38ff399fc3ffb8ea363b7dbe8cb6dee97e5a9f9858f41d7a0b310f3",
+    "sim-core/src/belief_state.ts": "3b7bbed39e078271de70ed10333bf3321177393d23d3880dbca477b20508eef5",
+    "sim-core/src/observable_state.ts": "988a704abdd21dd24b4dfb5db8dedd16d4ce5308697ba7bfae453675709ae297",
+    "sim-core/src/state_extractor.ts": "caf69c8f945e7404b2e50487a4d8ca1f9e76d62f6ceb42b3ddcd026c49caf51e",
+    "sim-core/src/public_ability.ts": "cd02e081265ad427fca3f26c4a6a74497f006b23ea33f86d8dae1929b6478180",
+    "sim-core/src/public_health.ts": "d268166d2b8f6b69d8f5d0905e93bf42b8d3f918a3a7071d1201f3fdf2bdca6d",
+    "sim-core/src/public_item.ts": "98502db79fb5b92db057e140478106b273ade9134f8a5fab8a3368721dfd4a74",
+    "sim-core/src/typed_state_lifecycle.ts": "a133a8c23d94993aab0ad3a6e8f4b921aaa65f76cf0eb8aa08ff392eea75f083",
+    "sim-core/src/protocol_contract.ts": "65fc6f3eb2b91b150fd1b0af096aa6ab685e13fa395d091a762aced803934642",
+    "trainer/src/neural/pipeline_record.py": "5b4c729eefbb2c291abbc09c9dfa2edf10abf5947295430543eb4f2114d589d5",
+    "trainer/src/neural/public_ability.py": "6a3512c50afb706f70c1b17da3adae968960b58b2a4d3a3a8a1534ece751b3d4",
+    "trainer/src/neural/public_health.py": "023f6002bc1dd1a82c65f6091eed071ae1d36729a3255f6d0f74b2a98c3373fb",
+    "trainer/src/neural/public_item.py": "85b7f8069e1169ee6eea27f30418781720aa81964237cb9a5aac6e1f9d0f39c1",
+    "trainer/src/neural/typed_state.py": "997e5cbfd37dcf4adb6c332492f47a42556bca747913a889a913f5e2b79ca951",
+    "trainer/src/neural/ts_identity.py": "d9086a839312293258fa7a011b4965811253a9f85f66c4998219368c6cf84651",
+    "trainer/src/neural/protocol_contract.py": "c5c3016514613a5d6fb0c611b9fa7b8256b6dcb26e7ab54cab210496582a6aab",
+    "trainer/src/neural/protocol_contract.json": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+    "sim-core/dist/tests/pipeline_episode.test.js": "b43b9fa6967203bd567249d24b12428ee6a0c0fc0ac5279b8443fe448fd740af",
+    "sim-core/scripts/recover-ce08a-adversarial.cjs": "3dba90c0806a6980caf365d1dc65325245d48b14bff99a775fbdf7a58ab68c01"
+  },
+  "payloads": {
+    "predecessor.json": {
+      "sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+      "bytes": 51325
+    },
+    "valid-envelope.json": {
+      "sha256": "e66fe6f0c418e0273d166a21696755161e3c91c2f2b120b0a4c690f930199c95",
+      "bytes": 182180582
+    },
+    "wrong-outcome.json": {
+      "sha256": "072fc0c2d46988bae40f04453c36b94f8e3f282dd06caf7549571134cc167a54",
+      "bytes": 182180581
+    },
+    "forged-origin.json": {
+      "sha256": "c011f24c9bbea21caaad13f1129d1b8501e9b5f6aebd441b7245f528ea31fb56",
+      "bytes": 182180575
+    }
+  },
+  "phases": [
+    {
+      "phase": "source-chain regeneration started; no publication",
+      "timestamp": "2026-10-09T18:08:44.538Z"
+    },
+    {
+      "phase": "persisted predecessor.json",
+      "timestamp": "2026-10-09T18:08:44.701Z"
+    },
+    {
+      "phase": "100 commits; 1986ms",
+      "timestamp": "2026-10-09T18:08:46.526Z"
+    },
+    {
+      "phase": "200 commits; 5892ms",
+      "timestamp": "2026-10-09T18:08:50.432Z"
+    },
+    {
+      "phase": "300 commits; 11925ms",
+      "timestamp": "2026-10-09T18:08:56.465Z"
+    },
+    {
+      "phase": "400 commits; 20213ms",
+      "timestamp": "2026-10-09T18:09:04.753Z"
+    },
+    {
+      "phase": "500 commits; 30781ms",
+      "timestamp": "2026-10-09T18:09:15.321Z"
+    },
+    {
+      "phase": "600 commits; 43693ms",
+      "timestamp": "2026-10-09T18:09:28.233Z"
+    },
+    {
+      "phase": "700 commits; 58901ms",
+      "timestamp": "2026-10-09T18:09:43.441Z"
+    },
+    {
+      "phase": "800 commits; 76490ms",
+      "timestamp": "2026-10-09T18:10:01.030Z"
+    },
+    {
+      "phase": "900 commits; 96822ms",
+      "timestamp": "2026-10-09T18:10:21.362Z"
+    },
+    {
+      "phase": "persisted valid-envelope.json",
+      "timestamp": "2026-10-09T18:11:07.815Z"
+    },
+    {
+      "phase": "persisted wrong-outcome.json",
+      "timestamp": "2026-10-09T18:11:09.633Z"
+    },
+    {
+      "phase": "persisted forged-origin.json",
+      "timestamp": "2026-10-09T18:11:11.546Z"
+    },
+    {
+      "phase": "all payloads durable; checking canonical identities and dependent joins",
+      "timestamp": "2026-10-09T18:11:11.547Z"
+    },
+    {
+      "phase": "wrong-outcome canonical/join and TypeScript rejection checks passed",
+      "timestamp": "2026-10-09T18:12:04.178Z"
+    },
+    {
+      "phase": "forged-origin canonical/join and TypeScript rejection checks passed",
+      "timestamp": "2026-10-09T18:12:07.474Z"
+    },
+    {
+      "phase": "recovery complete; actor-publication evidence reused, no sweep executed",
+      "timestamp": "2026-10-09T18:12:07.478Z"
+    }
+  ],
+  "generated_once": true,
+  "wrong-outcome": {
+    "typescript_error": "evidence-terminal-join",
+    "canonical_identity": true,
+    "unchanged_other_joins": true,
+    "immutable": true
+  },
+  "forged-origin": {
+    "typescript_error": "evidence-origin-metadata",
+    "canonical_identity": true,
+    "unchanged_other_joins": true,
+    "immutable": true
+  },
+  "native_and_recovery_seconds": 202.935,
+  "segment_actor_rows": 1996,
+  "predecessor_actor_rows": 2,
+  "final_outcome": "tie",
+  "baseline_sources_unchanged": true,
+  "isolated_runner_sha256": "9055a29bf62b526d926f64eeb1634fafb8bb9d17449cdcbde4f31cf59f52a70a",
+  "all_saved_payloads_unchanged": true
+}

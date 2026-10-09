@@ -6,7 +6,7 @@ All items are documentation/preparation work unless explicitly marked otherwise.
 |---|---|---|---|---|
 | CTRL-001 | Refactor control documents and baseline tag | Complete (documentation only) | Orchestrator | Review state, README |
 | STATE-001 | ObservableBattleState contract | Accepted | State owner | CTRL-001, ENV-001, existing state schema |
-| ENV-001 | Reproducible Python/Node validation environment | Blocked with runtime/dependency/lock policy and clean-environment remediation | Environment owner | CTRL-001, baseline tag |
+| ENV-001 | Reproducible Python/Node validation environment | Incomplete for cross-platform claims; scoped macOS simulator-record and trainer/live profiles accepted | Environment owner | CTRL-001, baseline tag |
 | BELIEF-001 | BeliefState contract | Accepted | Belief owner | STATE-001, FIXTURE-001, TRANS-001 |
 | ACTION-001 | CanonicalAction contract | Accepted | Action owner | STATE-001, existing action codec |
 | FIXTURE-001 | Protocol-prefix golden fixtures | Accepted | Test owner | STATE-001 |
@@ -14,10 +14,35 @@ All items are documentation/preparation work unless explicitly marked otherwise.
 | TRANS-001 | Seeded transition contract | Accepted | Simulation owner | STATE-001, FIXTURE-001 |
 | DATA-001 | Dataset lineage and battle-level splits | Accepted | Data owner | STATE-001, BELIEF-001 |
 | SEARCH-001 | Document current rollout/search semantics | Accepted | Search owner | STATE-001, TRANS-001, BELIEF-001 |
-| SIM-COVERAGE-001 | Pinned simulator state and protocol coverage | Review complete with documented gaps; not accepted | Simulation owner | ENV-001, STATE-001, BELIEF-001, ACTION-001 |
+| SIM-COVERAGE-001 | Pinned simulator state and protocol coverage | Scanner, source-coverage, format-provenance/reachability, and protocol-boundary slices accepted with explicit gaps; full semantic closure not accepted | Simulation owner | ENV-001, STATE-001, BELIEF-001, ACTION-001 |
 | PIPELINE-001 | Checkpoint-free transition integration | Accepted for explicit v1 joint-actionable scope | Simulation/data owners | SIM-COVERAGE-001, STATE-001, ACTION-001, TRANS-001, BELIEF-001, DATA-001 |
-| PIPELINE-002 | Complete-episode boundary progression | V2 publication and reference/identity validation scoped accepted | Simulation/data owners | Review bounded Topsy-Turvy inversion; coverage pending |
+| PIPELINE-002 | Complete-episode boundary progression | Pinned v2 capture/progression accepted 2026-10-09; conditional faithful per-result runtime flag accepted scoped; merge readiness separate | Simulation/data owners | Episode-fidelity closure backlog; accepted lower slices remain scoped |
 | FEATURE-001 | Shared model feature contract | Unresolved; contract not accepted | Model/data owners | SIM-COVERAGE-001, PIPELINE-001, ENV-001 |
+
+## Current delivery sequence — 2026-10-01
+
+The complete-episode closure audit is complete as a documentation audit and
+ordered backlog. It does not accept implementation. Current accepted evidence
+includes bounded v2 transition capture and TypeScript/Python publication parity
+for the reviewed ordinary joint-actionable scope; scanner expansion, source
+coverage and Gen 9 Random Battle reachability within separate attestations; and
+macOS simulator-record plus broader trainer/live environment proofs within
+their recorded scope. Keep `faithful_complete_episode:false`.
+
+1. Complete the episode-fidelity closure backlog. CE-01 is the next planned
+   closure slice; no uncommitted CE-01 implementation result is accepted here.
+2. Run final macOS validation on the final branch tip.
+3. Complete a branch-level `$wm-pr-review` and reconcile its findings.
+4. Update from `main`, merge, and verify the resulting `main` checkout.
+
+Windows clean recreation and Windows trainer/live support are deferred platform
+work. ENV-001 remains incomplete for cross-platform claims, but this work does
+not block a future scoped macOS refactor merge. FEATURE-001, feature extraction,
+datasets, training, live-model behavior, and other formats remain later
+milestones.
+
+The detailed item records below preserve their dated checkpoint evidence; this
+summary supersedes older next-step ordering.
 
 ## CTRL-001 — Refactor control documents and baseline tag
 
@@ -79,10 +104,15 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
 
 ## ENV-001 — Reproducible Python/Node validation environment
 
-- Status: Blocked with runtime/dependency/lock policy and clean-environment
-  remediation. The historical replay-fixture failure applies only to
-  replay-specific validation; replay files are not required for the first
-  simulator-only milestone.
+- Current disposition (2026-10-01): the macOS simulator-record and broader
+  trainer/live profiles have accepted, attested evidence within their recorded
+  scope. ENV-001 remains incomplete for cross-platform claims because Windows
+  clean recreation and Windows trainer/live packaging are deferred. These are
+  not blockers to the scoped macOS merge path.
+- Historical status: earlier dependency-policy and clean-environment
+  remediation remained open. Current disposition is recorded above and in
+  `ENVIRONMENT_VALIDATION.md`; raw replay fixtures are required only for
+  replay-specific validation or claims.
 - Owner: Environment owner
 - Dependencies: CTRL-001; baseline branch/tag
 - Acceptance criteria: Record supported Python and Node/npm versions; distinguish runtime and development dependencies; choose the supported dependency declaration/lock mechanism; document sim-core build steps; provide a clean-environment smoke test and exact focused-test commands; record platform-specific assumptions; verify the focused validation suite in a clean environment.
@@ -179,8 +209,15 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
 
 ## SIM-COVERAGE-001 — Pinned simulator state and protocol coverage
 
-- Status: Source audit and drift-check implementation complete with explicit
-  gaps; not accepted as PIPELINE-001 or FEATURE-001 evidence by itself.
+- Current status (2026-10-01): SLICE-002A scanner expansion, SLICE-002B
+  Gen 9 Random Battle format provenance/reachability, and the named
+  protocol-boundary/lifecycle batches have separate accepted attestations.
+  This accepts only their recorded inventory and validation scopes, not full
+  simulator semantics or episode fidelity. Unknown/unclosed forms remain
+  explicit stops. PIPELINE-001 and FEATURE-001 have their own acceptance gates.
+- Historical status and evidence: source audit and drift-check implementation
+  were recorded with explicit gaps; the dated details below do not supersede the
+  current disposition above.
 - Owner: Simulation owner.
 - Dependencies: Pinned simulator metadata, accepted state/belief/action/
   transition contracts, and safe synthetic fixtures.
@@ -248,12 +285,29 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
 
 ## PIPELINE-002 — Complete-episode boundary progression
 
-- Current checkpoint (2026-09-25): bounded Topsy-Turvy inversion implemented in raw
-  and TS/Python v2 stages; exact pre-filter grammar and publication alias rejection.
-  Build79 relevant TS/28 Python pass, including28 new publications,232 rehashed grammar
-  cases and4 false-stage cases. Next: separate semantic review, token classification
-  and two-test coverage inclusion. Rigged Dice/other mechanics excluded; no attestation.
-  Keep faithful_complete_episode:false; source hashes/evidence in current checkpoint.
+Current decision (2026-10-09): the seven criteria below and FCE-01–FCE-08
+are accepted for the pinned v2 capture path. Runtime faithful flag emission and
+Python compatibility remain a bounded follow-up; current false behavior is
+preserved. Earlier dated checkpoints below are historical. See the final
+PIPELINE-002 decision in the closure audit; no merge/training/live acceptance.
+
+- Current checkpoint (2026-10-01): bounded v2 per-side transition capture,
+  deterministic ordinary joint transitions, and TypeScript/Python publication
+  parity are accepted within the reviewed ordinary joint-actionable scope.
+  Separate request-state reporting, one-sided forced-switch, settling,
+  episode-runner, and bounded lifecycle slices are also accepted only within
+  their attested boundaries. The complete-episode closure audit is complete as
+  an audit/backlog, not an implementation acceptance. Keep
+  `faithful_complete_episode:false`.
+
+- Historical checkpoint (2026-09-25): bounded Topsy-Turvy inversion implemented
+  in raw and TS/Python v2 stages; exact pre-filter grammar and publication alias
+  rejection. Build 79 relevant TS/28 Python pass, including 28 new publications,
+  232 rehashed grammar cases, and 4 false-stage cases. At that checkpoint the next
+  action was a separate semantic review, token classification, and two-test
+  coverage inclusion. Rigged Dice/other mechanics were excluded; no attestation
+  was recorded for that slice.
+  This dated next action is superseded by the accepted checkpoints above.
 
 - Status: Request-state reporting slice separately reviewed and accepted
   2026-09-24. Ordinary one-sided forced-switch slice separately accepted under
@@ -431,8 +485,10 @@ Validation dependencies: Python package environment with NumPy/pytest for Python
   Checker/ten self-tests/three coverage tests pass; attested digest:
   39ab09c90a564eaa80a3da3ff8275b8dcf01a7fbd79dcdece1b3945b68753ec8.
   Unsupported revival variants remain explicit; faithful_complete_episode:false.
-  Next prerequisite: public temporary defensive typing, starting with Soak/typechange
-  across request refresh and lifecycle/restoration; see checkpoint.
+  Historical next prerequisite at this 2026-09-25 checkpoint: public temporary
+  defensive typing, starting with Soak/typechange across request refresh and
+  lifecycle/restoration. Later scoped acceptance is recorded in the cited
+  coverage checkpoints; the current next sequence is above.
 - Rollback: Keep v1's explicit fail-closed boundary behavior; remove only a
   separately reviewed PIPELINE-002 progression implementation if rejected.
 

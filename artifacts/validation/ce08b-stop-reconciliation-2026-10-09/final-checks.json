@@ -1,0 +1,22 @@
+{
+  "candidate_sha256": "0979c06c107f07d6253d5805c89745d2630ba495eb3c2d36c0e6b52cb148a566",
+  "reviewed_sha256_unchanged": "197d1b90334547f58cef0e4eead41f164838897a16fb7dfb74fa471ff491d3b2",
+  "coverage_checker": {
+    "exit": 1,
+    "elapsed_seconds": 3.725,
+    "only_error": "local coverage sources are not bound to a separate semantic-review digest"
+  },
+  "synthetic_drift_self_test": {
+    "exit": 0,
+    "elapsed_seconds": 0.67,
+    "command": "node sim-core/scripts/check-simulator-coverage.cjs --reachability-self-test"
+  },
+  "whitespace": {
+    "command": "git diff --check",
+    "exit": 0
+  },
+  "canonical_digest_reproduced": true,
+  "seven_packet_hashes_match": true,
+  "independent_review_pending": true,
+  "owned_workloads_remaining": 0
+}

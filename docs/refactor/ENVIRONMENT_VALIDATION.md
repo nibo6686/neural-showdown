@@ -1,25 +1,27 @@
 # ENV-001 Environment Validation
 
-Status: `BLOCKED_WITH_REMEDIATION`
+Status: `BLOCKED_WITH_REMEDIATION` for cross-platform claims; not a blocker to
+a scoped macOS refactor merge.
 
-Current disposition as of 2026-09-30: ENV-001B has a repository-owned
-simulator-record Python profile and a macOS temporary-environment run. Package
-installation, sim-core build, focused record tests, and Node-to-Python selection
-passed for ENV-001B. Coverage-source closures are reviewed and attested for the
-macOS simulator-record and broader trainer/live profiles. ENV-001C1 also has a
-repository-owned broader macOS profile and a locked focused proof on the
-recorded Command Line Tools Python 3.9.6 arm64 interpreter. Windows clean
-recreation and ENV-001C2 remain open; these macOS results do not establish a
-Python support range or Windows/PyTorch/CUDA compatibility.
+Current disposition as of 2026-10-01: ENV-001B's simulator-record profile and
+ENV-001C1's broader trainer/live profile have accepted, attested macOS evidence
+within their documented interpreter and focused-validation scope. The
+simulator-record profile has a macOS clean-environment proof; the broader
+trainer/live profile has a locked focused proof on the recorded Command Line
+Tools Python 3.9.6 arm64 interpreter. These results do not establish a Python
+support range, Windows support, or PyTorch/CUDA compatibility on Windows.
+Windows clean recreation and ENV-001C2 remain deferred. ENV-001 is incomplete
+for cross-platform claims, but those deferred tasks are not blockers to a future
+scoped macOS refactor merge.
 Existing model checkpoints are abandoned for the new pipeline and are not part
 of the environment gate. See
 [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-Replay-fixture absence is not a prerequisite for the first simulator-only
-milestone. The `-m replay` checks remain opt-in and may be recorded as skipped
-when no `.log` fixtures exist. Replay assets are required only for replay
-parity or a replay-sourced data milestone. ENV-001 remains open pending Windows
-clean recreation and ENV-001C2.
+Replay-fixture absence is not a prerequisite for the documented simulator-record
+validation scope. The `-m replay` checks remain opt-in and may be recorded as
+skipped when no `.log` fixtures exist. Replay assets are required only for
+replay parity or a replay-sourced data milestone. ENV-001 remains incomplete
+for cross-platform claims pending Windows clean recreation and ENV-001C2.
 
 Historical preparation flag `READY_FOR_CONTRACT_IMPLEMENTATION: NO` is superseded
 by the accepted contract work in PROJECT_STATUS; it is not a current simulator-validation failure.
@@ -133,8 +135,8 @@ only the macOS simulator-record profile. Windows clean recreation and Windows
 trainer/live packaging, including its PyTorch and accelerator decisions, remain
 open; ENV-001 is not complete.
 
-Windows will consume the same artifact through the selected Conda interpreter
-in a separate authorized validation task. Use a clean/isolated Conda validation
+Windows recreation from the same artifact through the selected Conda interpreter
+is deferred to a separate environment task. Use a clean/isolated Conda validation
 environment or an approved clone so the existing working `neuralgpu` environment
 is preserved. The current environment was not modified, and Windows clean
 recreation has not been run.
@@ -273,8 +275,9 @@ remain ENV-001C2; ENV-001 is not complete.
 This proof establishes only the selected macOS interpreter/profile and focused
 checks. It does not establish a Python support matrix, broader live-server
 readiness, model/training readiness, or accelerator behavior. ENV-001C2 remains
-the next environment task: repository-owned Windows Conda metadata and clean
-Windows recreation/validation. ENV-001 is not complete.
+deferred: repository-owned Windows Conda metadata and clean Windows
+recreation/validation are required for cross-platform claims, not for the
+scoped macOS merge path. ENV-001 is not complete for cross-platform claims.
 
 ## Verified existing environments — 2026-09-25
 
@@ -283,8 +286,8 @@ sections retain the broader environment audit and historical evidence.
 
 | Status | Disposition |
 | --- | --- |
-| Existing-machine simulator validation | Passed on macOS and Windows. |
-| Cross-platform comparison | Passed for six selected scenarios at source commit `117df85`; two fresh macOS runs were byte-identical, with zero actionable Windows differences. |
+| Existing-machine simulator validation | Selected host checks passed on macOS and Windows; these are scenario-specific records, not platform support evidence. |
+| Selected scenario comparison | Six scenarios were compared at source commit `117df85`; two fresh macOS runs were byte-identical, with zero actionable differences in that comparison. This is not cross-platform reproducibility or a Windows support claim. |
 | Fresh-machine recreation from repository specifications | macOS ENV-001B simulator-record install/build/focused checks and coverage attestation passed; Windows clean recreation is pending. |
 | Training/data readiness | Separately gated by feature/target contracts, collection and lifecycle acceptance; `faithful_complete_episode:false`. |
 
@@ -385,12 +388,13 @@ bundle regeneration, follow the isolated base-plus-exact-117df85-tree procedure 
 the macOS checkpoint; do not change source attestations to bypass provenance guards.
 The direct commands above work independently of that historical HEAD constraint.
 
-**Next substantive pipeline task:** implement bounded Revival Blessing request
-handling: retain the `reviving` signal, enumerate fainted eligible targets and
-validate actor-only execution, both successor perspectives and Python publication.
-Until accepted, keep explicit unsupported-boundary truncation. Fresh-machine
-recreation remains a separate environment gate, not a reason to replace these
-working environments.
+**Historical next substantive pipeline task (as recorded 2026-09-25; superseded):**
+implement bounded Revival Blessing request handling. The bounded bench-revival
+slice was subsequently accepted in the documented review checkpoint. The
+current next pipeline milestone is faithful, privacy-correct complete-episode
+capture; see [PROJECT_STATUS.md](../PROJECT_STATUS.md). Fresh Windows
+recreation remains deferred environment work and is not a blocker to the scoped
+macOS merge path.
 
 
 ## 1. Supported versions
@@ -562,17 +566,20 @@ export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 
 Node and npm are accessible through the nvm-managed paths above. sim-core dependencies and compiled output are present at the documented absolute paths. Future agents must not report these packages or clients as missing unless the paths or import checks fail.
 
-Remaining blockers are:
+Open cross-platform environment work is:
 
 1. Recreate the simulator-record profile from the committed lock on Windows
-   using the selected Conda Python. The Mac proof does not establish Windows
-   compatibility or a universal Python support range.
-2. Define and validate the broader trainer/live profile, including
-   platform-specific PyTorch and accelerator policy, in ENV-001C.
+   using the selected Conda Python. The macOS proof does not establish Windows
+   compatibility or a universal Python support range. This is deferred and
+   does not block a future scoped macOS refactor merge.
+2. Define and validate the Windows trainer/live profile, including its
+   repository-owned Conda specification and platform-specific PyTorch and
+   accelerator policy, under ENV-001C2. The macOS broader trainer/live profile
+   has separate accepted evidence.
 3. Keep replay fixtures opt-in under the policy in
    [REPLAY_FIXTURES.md](REPLAY_FIXTURES.md). Their absence is not a blocker for
-   simulator-only validation, but replay-specific parity and data claims require
-   fixtures.
+   simulator-record validation, but replay-specific parity and data claims
+   require fixtures.
 
 ## 9. Validation evidence
 
@@ -596,18 +603,22 @@ Current continuation validation on 2026-09-22:
 - No replay acquisition, package installation, server start, training, live
   evaluation, or dataset generation was run.
 
-The historical TypeScript and Python evidence above remains tied to its recorded
-host. ENV-001B adds a temporary macOS clean install, focused results, and local
-coverage attestation; pending Windows recreation and broader trainer/live work
-keep ENV-001 open. The
+Historical TypeScript and Python evidence above remains tied to its recorded
+host. At that earlier checkpoint, Windows recreation and broader trainer/live
+work kept ENV-001 open. Later accepted macOS simulator-record and trainer/live
+proofs are recorded above; Windows work remains deferred for cross-platform
+claims and is not a scoped macOS merge blocker. The
 missing replay fixtures block only replay-specific checks, not simulator-only
 validation. Host package versions are evidence for those runs only and are not
 the source of the generated lock.
 
-## Remediation required
+## Cross-platform remediation — deferred for scoped macOS merge
 
-ENV-001 remains open until clean Windows recreation passes using the same Python
-artifact and ENV-001C resolves the broader trainer/live profile and compatibility
-matrix. This Mac result makes no universal Python or Node/npm support claim. The replay-fixture policy remains
-explicit: an absent fixture directory is allowed for simulator-only acceptance,
-while replay-specific claims still require fixtures.
+ENV-001 remains incomplete for cross-platform claims until Windows clean
+recreation and ENV-001C2 trainer/live packaging and compatibility work are
+accepted. This does not block the scoped macOS refactor merge path. The macOS
+simulator-record and broader trainer/live proofs remain limited to their
+documented profiles and do not establish universal Python or Node/npm support.
+The replay-fixture policy remains explicit: an absent fixture directory is
+allowed for simulator-record validation, while replay-specific claims still
+require fixtures.

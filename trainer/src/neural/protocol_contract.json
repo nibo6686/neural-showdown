@@ -11,13 +11,15 @@
     "Supported raw command inventory is reconciled from sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json protocol.commands and the current TypeScript observable parser; package-wide emitter scans are not reachability closure.",
     "Per-record validation logic is checked by the shared accepted-record and rejection fixture matrix in both runtimes.",
     "Signed -setboost is supported from pinned pokemon-showdown@0.11.10 sim/battle.ts:1941-1942; a Contrary plus Belly Drum callback emits the resulting negative stage.",
-    "Bounded -invertboost is accepted for the scoped base Topsy-Turvy contract at data/moves.ts:20427-20436; Gen9SSB Rigged Dice remains excluded."
+    "Bounded -invertboost is accepted for the scoped base Topsy-Turvy contract at data/moves.ts:20427-20436; Gen9SSB Rigged Dice remains excluded.",
+    "CE-02 validates the public Gen 9 auto-tie warning emitted by sim/battle.ts:1761-1767; ordered HP/heal/stage tag kinds are source-singleton from Battle.add/addMove/attrLastMove; private requests, errors, and split transport markers cannot enter the spectator prefix."
   ],
   "supported_commands": [
     "ability",
     "-ability",
     "block",
     "-block",
+    "bigerror",
     "boost",
     "-boost",
     "clearallboost",
@@ -26,7 +28,6 @@
     "-clearnegativeboost",
     "clearpositiveboost",
     "-clearpositiveboost",
-    "curestatus",
     "-curestatus",
     "damage",
     "-damage",
@@ -34,8 +35,6 @@
     "detailschange",
     "end",
     "-end",
-    "endability",
-    "-endability",
     "enditem",
     "-enditem",
     "faint",
@@ -57,6 +56,7 @@
     "-miss",
     "move",
     "-nothing",
+    "-singlemove",
     "-singleturn",
     "cant",
     "-hitcount",
@@ -77,7 +77,6 @@
     "-sideend",
     "start",
     "-start",
-    "status",
     "-status",
     "switch",
     "teamsize",
@@ -98,7 +97,6 @@
     "-setboost",
     "sethp",
     "-sethp",
-    "swapsideconditions",
     "-swapsideconditions",
     "crit",
     "-crit",
@@ -136,6 +134,16 @@
       "reason": "unresolved legacy token; not accepted in a published prefix"
     },
     {
+      "token": "status",
+      "kind": "unresolved_alias",
+      "reason": "pinned Gen 9 status emitters use only the exact dash -status record"
+    },
+    {
+      "token": "curestatus",
+      "kind": "unresolved_alias",
+      "reason": "pinned Gen 9 status emitters use only the exact dash -curestatus record"
+    },
+    {
       "token": "-clearstatus",
       "kind": "unresolved_alias",
       "reason": "unresolved legacy token; not accepted in a published prefix"
@@ -156,36 +164,45 @@
       "reason": "internal helper spelling; only canonical -invertboost is publishable"
     },
     {
-      "token": "-singlemove",
+      "token": "endability",
+      "kind": "unresolved_alias",
+      "reason": "no pinned Gen 9 Random Battle emitter or reviewed compatibility route"
+    },
+    {
+      "token": "-endability",
       "kind": "unsupported_stop",
-      "source": "pokemon-showdown@0.11.10 data/moves.ts:3619,6896,8176,15098",
-      "reason": "reachable candidate emitters are identified; lifecycle semantics are not accepted"
+      "reason": "pinned move and suppression emitters have no operative generated Gen 9 Random Battle singles route"
+    },
+    {
+      "token": "swapsideconditions",
+      "kind": "unresolved_alias",
+      "reason": "Court Change emits only the exact dash -swapsideconditions record"
     }
   ],
   "record_fixtures": [
     {
       "token": "ability",
-      "record": "|ability|p1a: Pikachu|Static",
+      "record": "|ability|p1a: Rayquaza|Air Lock",
       "inventory_classification": "raw-only",
       "grammar_summary": "ability event",
       "evidence": "accepted_contract_raw_only_compatibility; bare ability has no pinned emitter",
       "inventory_grammar": {
         "required": "target ident, ability",
-        "optional": "tags",
-        "shape": "ability event"
+        "optional": "none",
+        "shape": "bare compatibility plain reveal only"
       },
       "fixture_reference": "state_extractor"
     },
     {
       "token": "-ability",
-      "record": "|-ability|p1a: Pikachu|Static",
+      "record": "|-ability|p1a: Rayquaza|Air Lock",
       "inventory_classification": "represented",
       "grammar_summary": "ability event",
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
         "required": "target ident, ability",
-        "optional": "tags",
-        "shape": "ability event"
+        "optional": "literal boost, or ordered Trace source plus active [of] ident",
+        "shape": "generated reveal, boost reveal, or Trace copy"
       },
       "fixture_reference": "state_extractor",
       "pinned_emitter_sources": [
@@ -241,6 +258,22 @@
         "data/mods/gen9ssb/abilities.ts",
         "data/mods/partnersincrime/abilities.ts",
         "data/moves.ts"
+      ]
+    },
+    {
+      "token": "bigerror",
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 10 turns (on turn 1000).",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact public turn-limit auto-tie warning",
+      "evidence": "pinned sim/battle.ts:1761-1767",
+      "inventory_grammar": {
+        "required": "exact auto-tie message with source-scheduled turns left (1..10, 20..90 by tens, 100..500 by hundreds) and matching singular/plural",
+        "optional": "none",
+        "shape": "|bigerror|You will auto-tie if the battle doesn't end in N turn(s) (on turn 1000)."
+      },
+      "fixture_reference": "tests/protocol_contract_validation.test.ts",
+      "pinned_emitter_sources": [
+        "sim/battle.ts:1761-1767"
       ]
     },
     {
@@ -342,7 +375,7 @@
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
         "required": "target ident, source ident, effect",
-        "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+        "optional": "none; exact reviewed three-field payload",
         "shape": "selective sign clear"
       },
       "fixture_reference": "tests/selective_boosts.test.ts"
@@ -355,7 +388,7 @@
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
         "required": "target ident, source ident, effect",
-        "optional": "pre-existing parser accepts further fields; reviewed emitter has none",
+        "optional": "none; exact reviewed three-field payload",
         "shape": "selective sign clear"
       },
       "fixture_reference": "tests/selective_boosts.test.ts",
@@ -364,28 +397,15 @@
       ]
     },
     {
-      "token": "curestatus",
-      "record": "|curestatus|p1a: Pikachu|brn",
-      "inventory_classification": "raw-only",
-      "grammar_summary": "status record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
-      "inventory_grammar": {
-        "required": "target ident, status",
-        "optional": "tags",
-        "shape": "status record"
-      },
-      "fixture_reference": "state_extractor"
-    },
-    {
       "token": "-curestatus",
-      "record": "|-curestatus|p1a: Pikachu|brn",
+      "record": "|-curestatus|p1a: Pikachu|brn|[msg]",
       "inventory_classification": "represented",
-      "grammar_summary": "status record",
+      "grammar_summary": "source-shaped public major-status cure record",
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
-        "required": "target ident, status",
-        "optional": "tags",
-        "shape": "status record"
+        "required": "active target ident, finite major status, exact source tag",
+        "optional": "none",
+        "shape": "source-shaped public major-status cure record"
       },
       "fixture_reference": "state_extractor",
       "pinned_emitter_sources": [
@@ -524,42 +544,6 @@
       ]
     },
     {
-      "token": "endability",
-      "record": "|endability|p1a: Pikachu",
-      "inventory_classification": "raw-only",
-      "grammar_summary": "ability end",
-      "evidence": "pinned_source_and_current_adapter_grammar",
-      "inventory_grammar": {
-        "required": "target ident",
-        "optional": "none",
-        "shape": "ability end"
-      },
-      "fixture_reference": "state_extractor"
-    },
-    {
-      "token": "-endability",
-      "record": "|-endability|p1a: Pikachu",
-      "inventory_classification": "represented",
-      "grammar_summary": "base or move-source ability end",
-      "evidence": "pinned_source_and_current_adapter_grammar",
-      "inventory_grammar": {
-        "required": "target ident",
-        "optional": "old ability and exact [from] move tag for move-source form",
-        "shape": "base suppression or extended move-source event"
-      },
-      "fixture_reference": "state_extractor",
-      "pinned_emitter_sources": [
-        "data/mods/gen7pokebilities/moves.ts",
-        "data/mods/partnersincrime/moves.ts",
-        "data/mods/partnersincrime/scripts.ts",
-        "data/mods/pokebilities/moves.ts",
-        "data/mods/pokemoves/moves.ts",
-        "data/mods/sharedpower/moves.ts",
-        "data/moves.ts",
-        "sim/pokemon.ts"
-      ]
-    },
-    {
       "token": "enditem",
       "record": "|enditem|p1a: Pikachu|Leftovers",
       "inventory_classification": "raw-only",
@@ -574,9 +558,9 @@
     },
     {
       "token": "-enditem",
-      "record": "|-enditem|p1a: Pikachu|Leftovers",
+      "record": "|-enditem|p1a: Pikachu|Air Balloon",
       "inventory_classification": "represented",
-      "grammar_summary": "item event",
+      "grammar_summary": "source-qualified tagless Air Balloon pop or finite non-Gem useItem consumption",
       "evidence": "pinned_source_and_current_adapter_grammar",
       "inventory_grammar": {
         "required": "target ident, item",
@@ -653,7 +637,7 @@
     },
     {
       "token": "fieldstart",
-      "record": "|fieldstart|move: Trick Room",
+      "record": "|fieldstart|move: Gravity",
       "inventory_classification": "raw-only",
       "grammar_summary": "field/weather event",
       "evidence": "pinned_source_and_current_adapter_grammar",
@@ -666,7 +650,7 @@
     },
     {
       "token": "-fieldstart",
-      "record": "|-fieldstart|move: Trick Room",
+      "record": "|-fieldstart|move: Gravity",
       "inventory_classification": "represented",
       "grammar_summary": "field/weather event",
       "evidence": "pinned_source_and_current_adapter_grammar",
@@ -859,14 +843,14 @@
     },
     {
       "token": "-item",
-      "record": "|-item|p1a: Pikachu|Leftovers",
+      "record": "|-item|p1a: Pikachu|Air Balloon",
       "inventory_classification": "represented",
-      "grammar_summary": "item event",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "grammar_summary": "item event: Air Balloon start, Frisk reveal, or generated Trick/Switcheroo transfer",
+      "evidence": "pinned data/items.ts:189; data/abilities.ts:1490; data/moves.ts:19399-19405,20673-20679",
       "inventory_grammar": {
         "required": "target ident, item",
-        "optional": "tags",
-        "shape": "item event"
+        "optional": "only exact CE-04F1 source tags",
+        "shape": "active target, finite generated item, exact source tag form"
       },
       "fixture_reference": "state_extractor",
       "pinned_emitter_sources": [
@@ -955,6 +939,24 @@
       ]
     },
     {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
+      "inventory_classification": "raw-only",
+      "grammar_summary": "exact base-emitter one-move public evidence; no typed lifecycle",
+      "evidence": "pinned data/moves.ts:3619,6896,8176,15098; Grudge/Rage format reachability remains unproven",
+      "inventory_grammar": {
+        "required": "Gen 9 singles active target ident (p1a/p2a) followed by one exact singlemove.forms suffix",
+        "optional": "none; Glaive Rush requires final [silent]",
+        "shape": "exact four fields for Destiny Bond/Grudge/Rage; five for Glaive Rush"
+      },
+      "fixture_reference": "tests/protocol_contract_validation.test.ts; tests/singlemove.test.ts",
+      "pinned_emitter_sources": [
+        "data/moves.ts",
+        "data/mods/gen8linked/moves.ts",
+        "data/mods/partnersincrime/moves.ts"
+      ]
+    },
+    {
       "token": "-singleturn",
       "record": "|-singleturn|p1a: Pikachu|Protect",
       "inventory_classification": "raw-only",
@@ -1022,11 +1024,11 @@
       "record": "|-hitcount|p1a: Pikachu|2",
       "inventory_classification": "raw-only",
       "grammar_summary": "hit-count outcome",
-      "evidence": "pinned_source_and_current_adapter_grammar",
+      "evidence": "pinned sim/battle-actions.ts:836-979 multi-hit loop; gen9 random sets.json Maushold includes Population Bomb",
       "inventory_grammar": {
-        "required": "target ident, integer count",
+        "required": "p1a:/p2a: active target or p1:/p2: post-faint target; count 1 through 10",
         "optional": "none",
-        "shape": "hit-count outcome"
+        "shape": "|-hitcount|<canonical singles target>|<1..10>; raw-only outcome"
       },
       "fixture_reference": "observable_state",
       "pinned_emitter_sources": [
@@ -1202,18 +1204,17 @@
       "token": "-anim",
       "record": "|-anim|p1a: Pikachu|Spectral Thief|p2a: Gengar",
       "inventory_classification": "raw-only",
-      "grammar_summary": "-anim|source|Spectral Thief|target",
-      "evidence": "accepted_protocol_contract",
+      "grammar_summary": "-anim|active source|literal source label|active target; labels: Spectral Thief, Solar Beam, Meteor Beam, Dragon Darts",
+      "evidence": "pinned sim/battle-actions.ts:799,898; data/moves.ts:17905; data/items.ts:4425",
       "inventory_grammar": {
-        "required": "source ident, literal Spectral Thief, target ident",
+        "required": "active source ident, one exact literal label, active target ident",
         "optional": "none",
-        "shape": "-anim|source|Spectral Thief|target"
+        "shape": "-anim|source|{Spectral Thief|Solar Beam|Meteor Beam|Dragon Darts}|target"
       },
-      "fixture_reference": "tests/selective_boosts.test.ts",
+      "fixture_reference": "tests/singlemove.test.ts; tests/protocol_contract_validation.test.ts",
       "pinned_emitter_sources": [
-        "data/mods/gen9ssb/abilities.ts",
-        "data/mods/gen9ssb/moves.ts",
-        "data/mods/littlecolosseum/moves.ts",
+        "data/items.ts",
+        "data/moves.ts",
         "sim/battle-actions.ts"
       ]
     },
@@ -1290,7 +1291,7 @@
     },
     {
       "token": "-sideend",
-      "record": "|-sideend|p1: Alice|move: Stealth Rock",
+      "record": "|-sideend|p1: Alice|Stealth Rock|[from] move: Rapid Spin|[of] p1a: Alice",
       "inventory_classification": "represented",
       "grammar_summary": "side-condition event",
       "evidence": "pinned_source_and_current_adapter_grammar",
@@ -1385,19 +1386,6 @@
         "data/rulesets.ts",
         "sim/battle.ts"
       ]
-    },
-    {
-      "token": "status",
-      "record": "|status|p1a: Pikachu|brn",
-      "inventory_classification": "raw-only",
-      "grammar_summary": "status record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
-      "inventory_grammar": {
-        "required": "target ident, status",
-        "optional": "tags",
-        "shape": "status record"
-      },
-      "fixture_reference": "state_extractor"
     },
     {
       "token": "-status",
@@ -1723,19 +1711,6 @@
       ]
     },
     {
-      "token": "swapsideconditions",
-      "record": "|swapsideconditions",
-      "inventory_classification": "raw-only",
-      "grammar_summary": "exact no-payload record",
-      "evidence": "pinned_source_and_current_adapter_grammar",
-      "inventory_grammar": {
-        "required": "no fields",
-        "optional": "none",
-        "shape": "exact no-payload record"
-      },
-      "fixture_reference": "state_extractor"
-    },
-    {
       "token": "-swapsideconditions",
       "record": "|-swapsideconditions",
       "inventory_classification": "represented",
@@ -1958,7 +1933,7 @@
     },
     {
       "token": "-fieldactivate",
-      "record": "|-fieldactivate|move: Trick Room",
+      "record": "|-fieldactivate|move: Gravity",
       "inventory_classification": "raw-only",
       "grammar_summary": "field/weather event",
       "evidence": "pinned_source_and_current_adapter_grammar",
@@ -2280,6 +2255,502 @@
   ],
   "rejection_fixtures": [
     {
+      "record": "|status|p1a: Target|brn",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|curestatus|p2a: Target|frz",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|-status|p1a: Target|slp|[from] move: Yawn",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-status|p1a: Target|psn|[from] ability: Poison Touch|[of] p1a: Source",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Flamethrower",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target|Choice Scarf|[eat]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target|Choice Scarf",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target|Leftovers",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1: Target|Power Herb",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1b: Target|Power Herb",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target| Power Herb",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target|Power Herb|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-enditem|p1a: Target|Power Herb|extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-start|p1: Seer|move: Future Sight",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-end|p2a: Target|move: Future Sigh",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-end|p2a: Target|move: Future Sight|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-start|p1a: Seer|move : Future Sight",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1b: Example|2",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p2b: Example|2",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1: Example|0",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1: Example|11",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p3a: Example|2",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1a:Example|2",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1a: Example |2",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1a: Example|02",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-hitcount|p1a: Example|2|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2a: Target|trapped|[of] p1a: Warden",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2a: Target|trapped|[from] move: Spirit Shackle",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2a: Target|trapped|source",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2a: Target |trapped",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2a: Target|trapped ",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-activate|p2: Target|trapped",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 1 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 2 turn (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 11 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 99 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 150 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 499 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 501 turns (on turn 1000).",
+      "kind": "malformed"
+    },
+    {
+      "record": "|bigerror|Warning: One player isn't adhering to a 510 EV limit, and the other player is.",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Protect",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|ability: Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|[silent]|Glaive Rush",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|[silent]|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|[from] move: Copycat",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|move: Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|item: Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu| Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|destiny bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1: Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p2: Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p3a: Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1b: Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu |Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:  Pikachu|Destiny Bond",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|[silent]|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|[from] move: Copycat",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|move: Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|ability: Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|item: Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu| Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|glaive rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1: Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p2: Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p3a: Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p2f: Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu |Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:  Pikachu|Glaive Rush|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|[silent]|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|[from] move: Copycat",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Grudge|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|move: Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|ability: Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|item: Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu| Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1: Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p2: Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p3a: Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu |Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:  Pikachu|Grudge",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|[silent]|[silent]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|[from] move: Copycat",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|Rage|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|move: Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|ability: Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|item: Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu| Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu|rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1: Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p2: Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p3a: Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a: Pikachu |Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-singlemove|p1a:  Pikachu|Rage",
+      "kind": "malformed"
+    },
+    {
       "record": "|futuremechanic|opaque",
       "kind": "unknown"
     },
@@ -2304,8 +2775,8 @@
       "kind": "internal_alias"
     },
     {
-      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
-      "kind": "unsupported_stop"
+      "record": "|-singlemove|p1a: Pikachu|Future Mechanic",
+      "kind": "malformed"
     },
     {
       "record": "|-boost|bad ident|atk|1",
@@ -2532,11 +3003,99 @@
       "kind": "malformed"
     },
     {
-      "record": "|-endability|p1a: Pikachu|Static|[from] ability: Trace",
+      "record": "|endability|p1a: Pikachu",
+      "kind": "unresolved_alias"
+    },
+    {
+      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
+      "kind": "unsupported_stop"
+    },
+    {
+      "record": "|-endability|p1a: Pikachu",
+      "kind": "unsupported_stop"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[from] ability: Receiver|[of] p1a: Eevee",
       "kind": "malformed"
     },
     {
-      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed|extra",
+      "record": "|-ability|p1a: Pikachu|Static|[from] ability: Power of Alchemy|[of] p1a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Insomnia|[from] move: Worry Seed",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Torkoal|Drought|[from] sunnyday|[fail]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|ability|p1a: Pikachu|Static|[from] ability: Trace|[of] p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|ability|p1a: Pikachu|Static|boost",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[from] ability: Trace",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[of] p2a: Eevee|[from] ability: Trace",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[from] ability: Trace|[of] p2: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Gardevoir|Static|[from] ability: Trace|[of] p1a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Gardevoir|Definitely Not An Ability",
+      "kind": "malformed"
+    },
+    {
+      "record": "|ability|p1a: Gardevoir|Definitely Not An Ability",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static",
+      "kind": "malformed"
+    },
+    {
+      "record": "|ability|p1a: Pikachu|Static",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Air Lock|boost",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Calyrex|As One (Glastrier)|boost",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p2a: Calyrex|As One (Spectrier)|boost",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[from] move: Worry Seed|[of] p2a: Eevee|extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pikachu|Static|[from] move: Role Play|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pelipper|Drizzle|[from] hail|[fail]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-ability|p1a: Pelipper|Drizzle|[from] raindance|[fail]|extra",
       "kind": "malformed"
     },
     {
@@ -2597,6 +3156,26 @@
     },
     {
       "record": "|-heal|p1a: Pikachu|50/100|[silent]|opaque",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[wisher] Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[from] ability: Static|[wisher] Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[from] move: Wish|[wisher] Eevee|[zeffect]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[from] move: Wish|[wisher] Eevee|[wisher] Blissey",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-heal|p1a: Pikachu|50/100|[wisher] Eevee|[from] move: Wish",
       "kind": "malformed"
     },
     {
@@ -2676,6 +3255,58 @@
       "kind": "malformed"
     },
     {
+      "record": "|-anim|p1a: Pikachu|Solar Beam|p2: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1: Pikachu|Meteor Beam|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p2a: Eevee|[still]",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p2a:Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p2a: Eevee |extra",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Electro Shot|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Solar Blade|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Future Animation|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1b: Pikachu|Dragon Darts|p2a: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p2b: Eevee",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|p2a: Eevee|Dragon Darts",
+      "kind": "malformed"
+    },
+    {
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p1a: Eevee",
+      "kind": "malformed"
+    },
+    {
       "record": "|prepare|p1a: Pikachu|Solar Beam|p2: Eevee",
       "kind": "malformed"
     },
@@ -2693,7 +3324,7 @@
     },
     {
       "record": "|-endability|p1a: Pikachu ",
-      "kind": "malformed"
+      "kind": "unsupported_stop"
     },
     {
       "record": "|-transform|p1a: Ditto |p2a: Gengar",
@@ -2730,7 +3361,7 @@
   ],
   "disposition_rules": {
     "supported": "Accept only the exact command token with its grouped record validator. Raw-only records are retained verbatim and do not imply typed state support.",
-    "recognized_unsupported": "Reject before side routing or publication. Aliases carry an unresolved-alias diagnostic; -singlemove truncates the episode before commit.",
+    "recognized_unsupported": "Reject before side routing or publication. Aliases carry an unresolved-alias diagnostic. Unsupported singlemove forms reject as malformed before commit.",
     "malformed_supported": "Reject before side routing and publication. Episode handling classifies malformed evidence as failed; it is not a supported mechanic.",
     "unknown": "Reject before side routing and publication; episode handling truncates on unsupported protocol.",
     "privacy": "Requests remain private; only the sanitized rqid record is allowed in a public prefix. All other request JSON is rejected at publication."
@@ -2763,11 +3394,236 @@
         "frz"
       ]
     },
+    "major_status": {
+      "ids": [
+        "brn",
+        "par",
+        "slp",
+        "psn",
+        "tox",
+        "frz"
+      ],
+      "active_target": "canonical-singles-active",
+      "bare_commands": [],
+      "apply_forms": [
+        {
+          "tags": []
+        },
+        {
+          "tags": [
+            "[from] move: Rest"
+          ],
+          "statuses": [
+            "slp"
+          ]
+        },
+        {
+          "tags": [
+            "[from] item: Flame Orb"
+          ],
+          "statuses": [
+            "brn"
+          ]
+        },
+        {
+          "tags": [
+            "[from] item: Toxic Orb"
+          ],
+          "statuses": [
+            "tox"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Effect Spore",
+            "[of] opposing-active"
+          ],
+          "statuses": [
+            "slp",
+            "par",
+            "psn"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Flame Body",
+            "[of] opposing-active"
+          ],
+          "statuses": [
+            "brn"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Static",
+            "[of] opposing-active"
+          ],
+          "statuses": [
+            "par"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Toxic Chain",
+            "[of] opposing-active"
+          ],
+          "statuses": [
+            "tox"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Poison Touch",
+            "[of] opposing-active"
+          ],
+          "statuses": [
+            "psn"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Sleep Powder"
+          ],
+          "statuses": [
+            "slp"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Hypnosis"
+          ],
+          "statuses": [
+            "slp"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Spore"
+          ],
+          "statuses": [
+            "slp"
+          ]
+        }
+      ],
+      "cure_forms": [
+        {
+          "tags": [
+            "[msg]"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Natural Cure"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Flare Blitz"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Fusion Flare"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Pyro Ball"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Sacred Fire"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Scald"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Scorching Sands"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Hydro Steam"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Matcha Gotcha"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Steam Eruption"
+          ],
+          "statuses": [
+            "frz"
+          ]
+        }
+      ]
+    },
     "player_ident": {
-      "side_ids": ["p1", "p2"],
-      "slots": ["", "a", "b", "c", "d", "e", "f"],
+      "side_ids": [
+        "p1",
+        "p2"
+      ],
+      "slots": [
+        "",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
       "separator": ": ",
       "name": "trimmed-nonempty-text"
+    },
+    "hitcount": {
+      "target_roles": [
+        "active",
+        "side-only"
+      ],
+      "count_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
     },
     "boost_event": {
       "stats": [
@@ -2787,24 +3643,78 @@
         "[from] trimmed-nonempty-text",
         "[silent]",
         "[zeffect]"
+      ],
+      "tag_order": [
+        "[from]",
+        "[silent]",
+        "[zeffect]"
       ]
     },
     "detailschange": {
       "condition": "optional-health-condition"
     },
-    "endability": {
+    "trapped_activation": {
+      "token": "-activate",
+      "target_role": "active",
+      "effect": "trapped",
+      "payload_fields": 2
+    },
+    "singlemove": {
       "forms": [
-        "target-only",
-        "move-source"
+        [
+          "Destiny Bond"
+        ],
+        [
+          "Glaive Rush",
+          "[silent]"
+        ],
+        [
+          "Grudge"
+        ],
+        [
+          "Rage"
+        ]
+      ]
+    },
+    "anim": {
+      "forms": [
+        [
+          "Spectral Thief"
+        ],
+        [
+          "Solar Beam"
+        ],
+        [
+          "Meteor Beam"
+        ],
+        [
+          "Dragon Darts"
+        ]
       ],
-      "move_source_tag": "[from] move: "
+      "actor_role": "active",
+      "target_role": "active"
     },
     "singleturn": {
       "untagged_effects": [
-        "move: Protect", "move: Beak Blast", "Crafty Shield", "move: Electrify", "move: Endure",
-        "move: Focus Punch", "move: Follow Me", "Protect", "move: Magic Coat", "Mat Block",
-        "Max Guard", "Powder", "Quick Guard", "move: Rage Powder", "move: Roost", "move: Shell Trap",
-        "Snatch", "move: Spotlight", "Wide Guard"
+        "move: Protect",
+        "move: Beak Blast",
+        "Crafty Shield",
+        "move: Electrify",
+        "move: Endure",
+        "move: Focus Punch",
+        "move: Follow Me",
+        "Protect",
+        "move: Magic Coat",
+        "Mat Block",
+        "Max Guard",
+        "Powder",
+        "Quick Guard",
+        "move: Rage Powder",
+        "move: Roost",
+        "move: Shell Trap",
+        "Snatch",
+        "move: Spotlight",
+        "Wide Guard"
       ],
       "tagged_forms": [
         {
@@ -2823,6 +3733,34 @@
     "tier": {
       "payload_fields": 1,
       "label": "nonempty-text"
+    },
+    "bigerror": {
+      "auto_tie": "You will auto-tie if the battle doesn't end in <N> turn(s) (on turn 1000).",
+      "turns_left_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        200,
+        300,
+        400,
+        500
+      ]
     },
     "switch_drag": {
       "optional_tag": "[from] trimmed-nonempty-text"
@@ -2845,9 +3783,866 @@
         "[from] trimmed-nonempty-text",
         "[silent]"
       ]
+    },
+    "health_event_tag_order": {
+      "damage": [
+        "[from]",
+        "[of]",
+        "[partiallytrapped]",
+        "[silent]"
+      ],
+      "heal": [
+        "[from]",
+        "[of]",
+        "[wisher]",
+        "[zeffect]",
+        "[silent]"
+      ],
+      "sethp": [
+        "[from]",
+        "[silent]"
+      ]
+    },
+    "event_tag_cardinality": {
+      "damage": [
+        "[from]",
+        "[of]",
+        "[silent]",
+        "[partiallytrapped]"
+      ],
+      "heal": [
+        "[from]",
+        "[of]",
+        "[silent]",
+        "[zeffect]",
+        "[wisher]"
+      ],
+      "sethp": [
+        "[from]",
+        "[silent]"
+      ],
+      "boost": [
+        "[from]",
+        "[silent]",
+        "[zeffect]"
+      ]
+    },
+    "heal_wisher_dependency": {
+      "required_from": "[from] move: Wish",
+      "required_tag_order": [
+        "[from]",
+        "[wisher]"
+      ]
+    },
+    "healing_wish_heal": {
+      "required_from": "[from] move: Healing Wish",
+      "required_tag_order": [
+        "[from]"
+      ],
+      "target_role": "active",
+      "health": "100/100"
+    },
+    "future_sight": {
+      "effect": "move: Future Sight",
+      "activation_command": "-start",
+      "resolution_command": "-end",
+      "target_role": "active",
+      "payload_fields": 1
+    },
+    "ability": {
+      "dash_templates": [
+        "reveal",
+        "boost",
+        "trace-copy"
+      ],
+      "bare_templates": [
+        "reveal"
+      ],
+      "trace_source_tag": "[from] ability: Trace",
+      "trace_of_tag": "[of] ",
+      "trace_actor_role": "active",
+      "trace_source_role": "opposing-active",
+      "payload_domains": {
+        "dash_reveal": [
+          "Air Lock",
+          "As One",
+          "Beads of Ruin",
+          "Cloud Nine",
+          "Comatose",
+          "Gooey",
+          "Mirror Armor",
+          "Mold Breaker",
+          "Pressure",
+          "Sturdy",
+          "Sword of Ruin",
+          "Tablets of Ruin",
+          "Tangling Hair",
+          "Teraform Zero",
+          "Teravolt",
+          "Turboblaze",
+          "Unnerve",
+          "Vessel of Ruin"
+        ],
+        "dash_boost": [
+          "Anger Shell",
+          "Battle Bond",
+          "Berserk",
+          "Chilling Neigh",
+          "Competitive",
+          "Dauntless Shield",
+          "Defiant",
+          "Download",
+          "Embody Aspect (Cornerstone)",
+          "Embody Aspect (Hearthflame)",
+          "Embody Aspect (Teal)",
+          "Embody Aspect (Wellspring)",
+          "Gooey",
+          "Grim Neigh",
+          "Gulp Missile",
+          "Intimidate",
+          "Intrepid Sword",
+          "Justified",
+          "Lightning Rod",
+          "Mirror Armor",
+          "Motor Drive",
+          "Moxie",
+          "Rattled",
+          "Sap Sipper",
+          "Soul-Heart",
+          "Speed Boost",
+          "Stamina",
+          "Storm Drain",
+          "Tangling Hair",
+          "Thermal Exchange",
+          "Water Compaction",
+          "Weak Armor",
+          "Well-Baked Body",
+          "Wind Rider"
+        ],
+        "dash_trace_copy": [
+          "Adaptability",
+          "Aftermath",
+          "Air Lock",
+          "Analytic",
+          "Anger Shell",
+          "Arena Trap",
+          "Aroma Veil",
+          "Bad Dreams",
+          "Beads of Ruin",
+          "Berserk",
+          "Big Pecks",
+          "Blaze",
+          "Bulletproof",
+          "Cheek Pouch",
+          "Chilling Neigh",
+          "Chlorophyll",
+          "Clear Body",
+          "Cloud Nine",
+          "Competitive",
+          "Compound Eyes",
+          "Contrary",
+          "Corrosion",
+          "Cud Chew",
+          "Cursed Body",
+          "Cute Charm",
+          "Damp",
+          "Dancer",
+          "Dauntless Shield",
+          "Defiant",
+          "Download",
+          "Dragon's Maw",
+          "Drizzle",
+          "Drought",
+          "Dry Skin",
+          "Early Bird",
+          "Earth Eater",
+          "Effect Spore",
+          "Electric Surge",
+          "Electromorphosis",
+          "Filter",
+          "Flame Body",
+          "Flash Fire",
+          "Flower Veil",
+          "Fluffy",
+          "Frisk",
+          "Full Metal Body",
+          "Fur Coat",
+          "Galvanize",
+          "Good as Gold",
+          "Gooey",
+          "Grassy Surge",
+          "Grim Neigh",
+          "Gulp Missile",
+          "Guts",
+          "Hadron Engine",
+          "Harvest",
+          "Heatproof",
+          "Heavy Metal",
+          "Huge Power",
+          "Hustle",
+          "Hydration",
+          "Ice Body",
+          "Ice Scales",
+          "Infiltrator",
+          "Inner Focus",
+          "Insomnia",
+          "Intimidate",
+          "Intrepid Sword",
+          "Iron Fist",
+          "Justified",
+          "Keen Eye",
+          "Leaf Guard",
+          "Levitate",
+          "Libero",
+          "Light Metal",
+          "Lightning Rod",
+          "Limber",
+          "Liquid Ooze",
+          "Liquid Voice",
+          "Magic Bounce",
+          "Magic Guard",
+          "Magician",
+          "Magnet Pull",
+          "Mega Launcher",
+          "Mind's Eye",
+          "Mirror Armor",
+          "Mold Breaker",
+          "Motor Drive",
+          "Moxie",
+          "Multiscale",
+          "Mycelium Might",
+          "Natural Cure",
+          "No Guard",
+          "Oblivious",
+          "Orichalcum Pulse",
+          "Overcoat",
+          "Overgrow",
+          "Own Tempo",
+          "Pickpocket",
+          "Pixilate",
+          "Poison Heal",
+          "Poison Touch",
+          "Power Spot",
+          "Prankster",
+          "Pressure",
+          "Prism Armor",
+          "Protean",
+          "Psychic Surge",
+          "Punk Rock",
+          "Pure Power",
+          "Purifying Salt",
+          "Queenly Majesty",
+          "Quick Feet",
+          "Rattled",
+          "Reckless",
+          "Regenerator",
+          "Rock Head",
+          "Rocky Payload",
+          "Rough Skin",
+          "Sand Force",
+          "Sand Rush",
+          "Sand Stream",
+          "Sap Sipper",
+          "Scrappy",
+          "Seed Sower",
+          "Serene Grace",
+          "Shadow Shield",
+          "Shadow Tag",
+          "Sharpness",
+          "Shed Skin",
+          "Sheer Force",
+          "Shell Armor",
+          "Shield Dust",
+          "Skill Link",
+          "Slow Start",
+          "Slush Rush",
+          "Sniper",
+          "Snow Warning",
+          "Solid Rock",
+          "Soul-Heart",
+          "Soundproof",
+          "Speed Boost",
+          "Stakeout",
+          "Stamina",
+          "Static",
+          "Steely Spirit",
+          "Sticky Hold",
+          "Storm Drain",
+          "Strong Jaw",
+          "Sturdy",
+          "Supreme Overlord",
+          "Surge Surfer",
+          "Swarm",
+          "Swift Swim",
+          "Sword of Ruin",
+          "Synchronize",
+          "Tablets of Ruin",
+          "Tangling Hair",
+          "Technician",
+          "Teravolt",
+          "Thermal Exchange",
+          "Thick Fat",
+          "Tinted Lens",
+          "Torrent",
+          "Tough Claws",
+          "Toxic Boost",
+          "Toxic Chain",
+          "Toxic Debris",
+          "Transistor",
+          "Triage",
+          "Truant",
+          "Turboblaze",
+          "Unaware",
+          "Unburden",
+          "Unnerve",
+          "Unseen Fist",
+          "Vessel of Ruin",
+          "Vital Spirit",
+          "Volt Absorb",
+          "Water Absorb",
+          "Water Bubble",
+          "Water Compaction",
+          "Water Veil",
+          "Weak Armor",
+          "Well-Baked Body",
+          "Wind Rider"
+        ],
+        "bare_reveal": [
+          "Air Lock",
+          "As One",
+          "Beads of Ruin",
+          "Cloud Nine",
+          "Comatose",
+          "Gooey",
+          "Mirror Armor",
+          "Mold Breaker",
+          "Pressure",
+          "Sturdy",
+          "Sword of Ruin",
+          "Tablets of Ruin",
+          "Tangling Hair",
+          "Teraform Zero",
+          "Teravolt",
+          "Turboblaze",
+          "Unnerve",
+          "Vessel of Ruin"
+        ]
+      },
+      "source_evidence": {
+        "dash_reveal": "data/random-battles/gen9/sets.json candidate abilities plus generated permanent form defaults intersect literal data/abilities.ts -ability emitters",
+        "dash_boost": "data/random-battles/gen9/sets.json generated callbacks plus permanent form defaults reaching sim/battle.ts Battle#boost, enumerated by emitted effect.name rather than holder ability name",
+        "dash_trace_copy": "data/random-battles/gen9/sets.json candidate abilities filtered by Abilities.trace.onUpdate notrace guard",
+        "bare_reveal": "B02 compatibility spelling restricted to the same finite public reveal domain"
+      }
+    },
+    "repeat_use_hint": {
+      "messages": [
+        "Some effects can force a Pokemon to use Blood Moon again in a row.",
+        "Some effects can force a Pokemon to use Gigaton Hammer again in a row."
+      ],
+      "payload_fields": 1
+    },
+    "entry_hazard": {
+      "layers": {
+        "spikes": 3,
+        "toxicspikes": 2,
+        "stealthrock": 1,
+        "stickyweb": 1
+      },
+      "start_forms": {
+        "spikes": "Spikes",
+        "toxicspikes": "move: Toxic Spikes",
+        "stealthrock": "move: Stealth Rock",
+        "stickyweb": "move: Sticky Web"
+      },
+      "removal_sources": [
+        "Rapid Spin",
+        "Mortal Spin",
+        "Defog"
+      ]
+    },
+    "weather": {
+      "ids": [
+        "RainDance",
+        "SunnyDay",
+        "Sandstorm",
+        "Snowscape"
+      ],
+      "ability_origins": {
+        "RainDance": [
+          "Drizzle"
+        ],
+        "SunnyDay": [
+          "Drought",
+          "Orichalcum Pulse"
+        ],
+        "Sandstorm": [
+          "Sand Stream"
+        ],
+        "Snowscape": [
+          "Snow Warning"
+        ]
+      },
+      "move_origins": {
+        "RainDance": [
+          "Rain Dance"
+        ],
+        "SunnyDay": [
+          "Sunny Day"
+        ],
+        "Snowscape": [
+          "Snowscape",
+          "Chilly Reception"
+        ]
+      }
+    },
+    "terrain": {
+      "ids": [
+        "electricterrain",
+        "grassyterrain",
+        "psychicterrain"
+      ],
+      "public_names": {
+        "electricterrain": "move: Electric Terrain",
+        "grassyterrain": "move: Grassy Terrain",
+        "psychicterrain": "move: Psychic Terrain"
+      },
+      "ability_origins": {
+        "electricterrain": [
+          "Electric Surge",
+          "Hadron Engine"
+        ],
+        "grassyterrain": [
+          "Grassy Surge",
+          "Seed Sower"
+        ],
+        "psychicterrain": [
+          "Psychic Surge"
+        ]
+      }
+    },
+    "trick_room": {
+      "effect": "move: Trick Room",
+      "start_command": "-fieldstart",
+      "end_command": "-fieldend",
+      "source_tag": "[of]",
+      "source_role": "active"
+    },
+    "item": {
+      "payloads": [
+        "Aguav Berry",
+        "Adamant Crystal",
+        "Air Balloon",
+        "Assault Vest",
+        "Binding Band",
+        "Blunder Policy",
+        "Booster Energy",
+        "Chesto Berry",
+        "Choice Band",
+        "Choice Scarf",
+        "Choice Specs",
+        "Clear Amulet",
+        "Cornerstone Mask",
+        "Custap Berry",
+        "Draco Plate",
+        "Dread Plate",
+        "Earth Plate",
+        "Eviolite",
+        "Figy Berry",
+        "Fist Plate",
+        "Flame Orb",
+        "Flame Plate",
+        "Focus Sash",
+        "Griseous Core",
+        "Heavy-Duty Boots",
+        "Hearthflame Mask",
+        "Iapapa Berry",
+        "Icicle Plate",
+        "Iron Plate",
+        "Leppa Berry",
+        "Leftovers",
+        "Light Ball",
+        "Light Clay",
+        "Loaded Dice",
+        "Lum Berry",
+        "Lustrous Globe",
+        "Lustrous Orb",
+        "Mago Berry",
+        "Magnet",
+        "Meadow Plate",
+        "Mind Plate",
+        "Mystic Water",
+        "Passho Berry",
+        "Pixie Plate",
+        "Power Herb",
+        "Rindo Berry",
+        "Rocky Helmet",
+        "Salac Berry",
+        "Scope Lens",
+        "Silk Scarf",
+        "Silver Powder",
+        "Sky Plate",
+        "Soul Dew",
+        "Splash Plate",
+        "Spooky Plate",
+        "Sitrus Berry",
+        "Stone Plate",
+        "Throat Spray",
+        "Toxic Orb",
+        "Toxic Plate",
+        "Weakness Policy",
+        "Wellspring Mask",
+        "White Herb",
+        "Wide Lens",
+        "Wiki Berry",
+        "Zap Plate"
+      ],
+      "active_target": "canonical-singles-active",
+      "dash_item_forms": [
+        {
+          "tags": [],
+          "payloads": [
+            "Air Balloon"
+          ]
+        },
+        {
+          "tags": [
+            "[from] ability: Frisk",
+            "[of] opposing-active"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Trick"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Switcheroo"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Recycle"
+          ],
+          "payloads": [
+            "White Herb"
+          ]
+        }
+      ],
+      "dash_enditem_forms": [
+        {
+          "tags": [],
+          "payloads": [
+            "Air Balloon",
+            "Booster Energy",
+            "Focus Sash",
+            "Power Herb",
+            "Throat Spray",
+            "Weakness Policy",
+            "White Herb"
+          ]
+        },
+        {
+          "tags": [
+            "[eat]"
+          ],
+          "payloads": [
+            "Aguav Berry",
+            "Chesto Berry",
+            "Custap Berry",
+            "Figy Berry",
+            "Iapapa Berry",
+            "Leppa Berry",
+            "Lum Berry",
+            "Mago Berry",
+            "Passho Berry",
+            "Rindo Berry",
+            "Salac Berry",
+            "Sitrus Berry",
+            "Wiki Berry"
+          ]
+        },
+        {
+          "tags": [
+            "[from] move: Knock Off",
+            "[of] opposing-active"
+          ]
+        },
+        {
+          "tags": [
+            "[silent]",
+            "[from] move: Trick"
+          ]
+        },
+        {
+          "tags": [
+            "[silent]",
+            "[from] move: Switcheroo"
+          ]
+        }
+      ],
+      "bare_commands": [
+        "item",
+        "enditem"
+      ],
+      "bare_tags": []
+    },
+    "screen": {
+      "ids": [
+        "reflect",
+        "lightscreen",
+        "auroraveil"
+      ],
+      "start_forms": {
+        "reflect": "Reflect",
+        "lightscreen": "move: Light Screen",
+        "auroraveil": "move: Aurora Veil"
+      },
+      "end_forms": {
+        "reflect": "Reflect",
+        "lightscreen": "move: Light Screen",
+        "auroraveil": "move: Aurora Veil"
+      },
+      "excluded_forms": [
+        "Safeguard",
+        "Mist"
+      ]
+    },
+    "court_change": {
+      "command": "-swapsideconditions",
+      "activation_command": "-activate",
+      "activation_effect": "move: Court Change",
+      "transferred_ids": [
+        "mist",
+        "lightscreen",
+        "reflect",
+        "spikes",
+        "safeguard",
+        "tailwind",
+        "toxicspikes",
+        "stealthrock",
+        "waterpledge",
+        "firepledge",
+        "grasspledge",
+        "stickyweb",
+        "auroraveil",
+        "luckychant"
+      ],
+      "excluded_ids": [
+        "gmaxsteelsurge",
+        "gmaxcannonade",
+        "gmaxvinelash",
+        "gmaxwildfire",
+        "gmaxvolcalith"
+      ]
     }
   },
   "valid_record_controls": [
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Air Balloon",
+      "evidence": "pinned data/items.ts:187-202 direct pop is the lone tagless removal path",
+      "reconstruction_scope": "public item removal; no source, callback, or inventory inference"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Booster Energy",
+      "evidence": "pinned data/items.ts:624-629 plus generated Protosynthesis/Quark Drive selector root",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Focus Sash",
+      "evidence": "pinned data/items.ts:2051-2057 plus generated singles Focus Sash selector roots",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Power Herb",
+      "evidence": "pinned data/items.ts:4421-4427 plus generated Meteor Beam selector root",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Throat Spray",
+      "evidence": "pinned data/items.ts:5838-5845 plus generated sound-move selector root",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|Weakness Policy",
+      "evidence": "pinned data/items.ts:7117-7125 plus generated singles selector roots",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Holder|White Herb",
+      "evidence": "pinned data/items.ts:7203-7214 plus generated Shell Smash/Unburden selector roots",
+      "reconstruction_scope": "public useItem consumption only"
+    },
+    {
+      "token": "-item",
+      "record": "|-item|p1a: Holder|White Herb|[from] move: Recycle",
+      "evidence": "pinned data/moves.ts:15376-15381 restores the last item through the exact Recycle tag",
+      "reconstruction_scope": "public White Herb restoration only; no generic item-history inference"
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Target|psn|[from] ability: Poison Touch|[of] p2a: Source",
+      "evidence": "pinned data/abilities.ts:3275-3287 routes Poison Touch to Conditions.psn.onStart",
+      "reconstruction_scope": "public poison status only; ability ownership, chance, and guards stay private"
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Target|slp|[from] move: Sleep Powder",
+      "evidence": "pinned data/conditions.ts:47-57 plus generated Sleep Powder move root",
+      "reconstruction_scope": "public sleep status only; duration and source state stay private"
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Target|slp|[from] move: Hypnosis",
+      "evidence": "pinned data/conditions.ts:47-57 plus generated Hypnosis move root",
+      "reconstruction_scope": "public sleep status only; duration and source state stay private"
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Target|slp|[from] move: Spore",
+      "evidence": "pinned data/conditions.ts:47-57 plus generated Spore move root",
+      "reconstruction_scope": "public sleep status only; duration and source state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Flare Blitz",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Fusion Flare",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Hydro Steam",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Matcha Gotcha",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Pyro Ball",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Sacred Fire",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Scald",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Scorching Sands",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p1a: Target|frz|[from] move: Steam Eruption",
+      "evidence": "pinned data/conditions.ts:107-111 plus generated defrost move root",
+      "reconstruction_scope": "public frozen clear only; frozen counter and move execution state stay private"
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p2a: Maushold|10",
+      "evidence": "pinned sim/battle-actions.ts:836-979 emits active targets during a multi-hit move; data/moves.ts Population Bomb has multihit: 10",
+      "reconstruction_scope": "raw-only hit-count evidence; no typed hits, boost, ability, action, or feature state"
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p1: Target|1",
+      "evidence": "pinned sim/battle-actions.ts:969-979 increments hit before a one-hit KO break, calls faintMessages, then emits hit - 1 with Pokemon.toString()'s side-only spelling",
+      "reconstruction_scope": "raw-only post-faint hit-count evidence; no typed hits, boost, ability, action, or feature state"
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p1: Houndstone|2",
+      "evidence": "pinned sim/battle-actions.ts:974-979 calls faintMessages before Battle.add; post-faint Pokemon.toString() has the side-only spelling",
+      "reconstruction_scope": "raw-only post-faint hit-count evidence; no typed hits, boost, ability, action, or feature state"
+    },
+    {
+      "token": "-activate",
+      "record": "|-activate|p2a: Target|trapped",
+      "evidence": "pinned data/conditions.ts Conditions.trapped.onStart emits exactly target and trapped",
+      "reconstruction_scope": "raw-only trapped activation carries no link, source, duration, or action fact"
+    },
+    {
+      "token": "bigerror",
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 1 turn (on turn 1000).",
+      "evidence": "pinned sim/battle.ts:1761-1767 chooses the singular form for the final turn",
+      "reconstruction_scope": "public raw warning only; terminal tie remains separate evidence"
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
+      "evidence": "pinned data/moves.ts:3619 Moves.destinybond.condition.onStart; direct random-set candidate",
+      "reconstruction_scope": "raw-only singlemove; public evidence retained without typed lifecycle"
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Glaive Rush|[silent]",
+      "evidence": "pinned data/moves.ts:6896 Moves.glaiverush.condition.onStart; direct random-set candidate",
+      "reconstruction_scope": "raw-only singlemove; mandatory silent tag; no typed lifecycle"
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Grudge",
+      "evidence": "pinned data/moves.ts:8176 Moves.grudge.condition.onStart; package-only, format reachability unproven",
+      "reconstruction_scope": "raw-only singlemove; no format reachability or typed lifecycle claim"
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Rage",
+      "evidence": "pinned data/moves.ts:15098 Moves.rage.condition.onStart; package-only, format reachability unproven",
+      "reconstruction_scope": "raw-only singlemove; no format reachability or typed lifecycle claim"
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Spectral Thief|p2a: Eevee",
+      "evidence": "pinned sim/battle-actions.ts:799; separately reviewed compatibility source",
+      "reconstruction_scope": "raw-only animation; exact active source/target grammar without typed stages"
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Solar Beam|p2a: Eevee",
+      "evidence": "pinned data/moves.ts:17903-17906; generated Solar Beam in sun",
+      "reconstruction_scope": "raw-only animation; exact active source/target grammar without typed charge state"
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Meteor Beam|p2a: Eevee",
+      "evidence": "pinned data/items.ts:4420-4426; generated Meteor Beam with Power Herb",
+      "reconstruction_scope": "raw-only animation; exact active source/target grammar without typed item state"
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Dragon Darts|p2a: Eevee",
+      "evidence": "pinned sim/battle-actions.ts:893-900; generated two-hit smartTarget second hit",
+      "reconstruction_scope": "raw-only animation; exact active source/target grammar without typed hit state"
+    },
     {
       "token": "request",
       "record": "|request|{}",
@@ -2867,10 +4662,34 @@
       "reconstruction_scope": "species/details plus condition when present"
     },
     {
-      "token": "-endability",
-      "record": "|-endability|p1a: Pikachu|Static|[from] move: Worry Seed",
-      "evidence": "pinned sim/pokemon.ts:1861-1866",
-      "reconstruction_scope": "raw-only variant; does not assert Gastro Acid suppression"
+      "token": "-ability",
+      "record": "|-ability|p1a: Rayquaza|Air Lock",
+      "evidence": "pinned data/abilities.ts public callback reveal form",
+      "reconstruction_scope": "public ability confirmation only"
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Arcanine|Intimidate|boost",
+      "evidence": "pinned sim/battle.ts:1956-1963 ability boost reveal",
+      "reconstruction_scope": "public ability confirmation only"
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Calyrex|Chilling Neigh|boost",
+      "evidence": "pinned data/abilities.ts As One (Glastrier) passes chillingneigh to Battle#boost, which emits effect.name",
+      "reconstruction_scope": "public ability confirmation only"
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p2a: Calyrex|Grim Neigh|boost",
+      "evidence": "pinned data/abilities.ts As One (Spectrier) passes grimneigh to Battle#boost, which emits effect.name",
+      "reconstruction_scope": "public ability confirmation only"
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Gardevoir|Static|[from] ability: Trace|[of] p2a: Pikachu",
+      "evidence": "pinned data/abilities.ts:5060-5067",
+      "reconstruction_scope": "public copied current ability and source target only"
     },
     {
       "token": "-singleturn",
@@ -2897,76 +4716,112 @@
       "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Beak Blast",
-      "evidence": "pinned data/moves.ts:1172-1176", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Beak Blast",
+      "evidence": "pinned data/moves.ts:1172-1176",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Crafty Shield",
-      "evidence": "pinned data/moves.ts:3262-3266", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Crafty Shield",
+      "evidence": "pinned data/moves.ts:3262-3266",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Electrify",
-      "evidence": "pinned data/moves.ts:4734-4738", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Electrify",
+      "evidence": "pinned data/moves.ts:4734-4738",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Endure",
-      "evidence": "pinned data/moves.ts:4992-4996", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Endure",
+      "evidence": "pinned data/moves.ts:4992-4996",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Focus Punch",
-      "evidence": "pinned data/moves.ts:6231-6235", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Focus Punch",
+      "evidence": "pinned data/moves.ts:6231-6235",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Follow Me",
-      "evidence": "pinned data/moves.ts:6264-6270", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Follow Me",
+      "evidence": "pinned data/moves.ts:6264-6270",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Protect",
-      "evidence": "pinned data/moves.ts:10281-10285,13332-13336,14480-14484,17031-17035", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Protect",
+      "evidence": "pinned data/moves.ts:10281-10285,13332-13336,14480-14484,17031-17035",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Magic Coat",
-      "evidence": "pinned data/moves.ts:11092-11096", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Magic Coat",
+      "evidence": "pinned data/moves.ts:11092-11096",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Mat Block",
-      "evidence": "pinned data/moves.ts:11401-11405", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Mat Block",
+      "evidence": "pinned data/moves.ts:11401-11405",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Max Guard",
-      "evidence": "pinned data/moves.ts:11579-11583", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Max Guard",
+      "evidence": "pinned data/moves.ts:11579-11583",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Powder",
-      "evidence": "pinned data/moves.ts:14162-14166", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Powder",
+      "evidence": "pinned data/moves.ts:14162-14166",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Quick Guard",
-      "evidence": "pinned data/moves.ts:15031-15035", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Quick Guard",
+      "evidence": "pinned data/moves.ts:15031-15035",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Rage Powder",
-      "evidence": "pinned data/moves.ts:15145-15149", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Rage Powder",
+      "evidence": "pinned data/moves.ts:15145-15149",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Roost",
-      "evidence": "pinned data/moves.ts:16023-16027", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Roost",
+      "evidence": "pinned data/moves.ts:16023-16027",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Shell Trap",
-      "evidence": "pinned data/moves.ts:16900-16904", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Shell Trap",
+      "evidence": "pinned data/moves.ts:16900-16904",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Snatch",
-      "evidence": "pinned data/moves.ts:17775-17779", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Snatch",
+      "evidence": "pinned data/moves.ts:17775-17779",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|move: Spotlight",
-      "evidence": "pinned data/moves.ts:18459-18463", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|move: Spotlight",
+      "evidence": "pinned data/moves.ts:18459-18463",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
-      "token": "-singleturn", "record": "|-singleturn|p1a: Pikachu|Wide Guard",
-      "evidence": "pinned data/moves.ts:21634-21638", "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Wide Guard",
+      "evidence": "pinned data/moves.ts:21634-21638",
+      "reconstruction_scope": "raw-only event; no volatile mechanics inferred"
     },
     {
       "token": "-damage",
@@ -3063,12 +4918,6 @@
       "record": "|-clearboost|p2a: Farfetch'd",
       "evidence": "pinned data/moves.ts:2643 emits the target Pokemon object; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
       "reconstruction_scope": "raw-only player-ident grammar control; no additional stage transition is inferred by this fixture"
-    },
-    {
-      "token": "-endability",
-      "record": "|-endability|p1a: Mr: Mime|Static|[from] move: Worry Seed",
-      "evidence": "pinned sim/pokemon.ts:1861-1866 emits this Pokemon object; sim/pokemon.ts:504-512 formats active identifiers and preserves the Pokemon name",
-      "reconstruction_scope": "raw-only player-ident grammar control; existing ability semantics are unchanged"
     },
     {
       "token": "-transform",

@@ -215,3 +215,12 @@ The pipeline owns candidate isolation: any failed validation, simulator rejectio
 projection or belief join discards the candidate without changing committed state.
 Active/fainted revivers, active-target instaswitch, multi-active selection and
 simultaneous selections are unsupported variants.
+
+
+### Private terminal switch provenance — bounded C22/C23 implementation
+
+Request-only `terminal-request-history/v1` snapshots retain their existing reader and restoration behavior. A terminal snapshot retaining a validated submitted switch uses `terminal-request-history/v2`, with the same addressed requests plus `submitted_switches` keyed by owner. Each entry contains the canonical action, the exact owner-channel prefix cursor at submission, and the forced-switch flag. A v1 payload cannot include this authority and a v2 payload cannot omit it; old readers that support only v1 must reject v2 rather than claim exact restoration.
+
+The action is captured only after live canonical request validation. Restoration validates its legal historical request slot, stable owned fullname/base species against pinned source `side.active[0]` (including an entry-hazard faint), and source emission order. A regular choice begins after the last turn record. A forced replacement begins at Battle.go's exact blank/timestamp frame immediately preceding its sole switch. Wrong side, slot, force flag, cursor, version, and missing provenance reject before environment replacement. No terminal future request or pending action is synthesized.
+
+This metadata is private simulator-snapshot restoration data. It is covered by the existing snapshot fingerprint but never enters canonical public observation identity, public protocol, or opponent roster. Public ordinary/full/bulk publication independently validates predecessor, canonical action, transition, origin and prefix joins; it does not trust snapshot metadata. Legacy bare terminal simulator JSON remains readable with its existing limitation: it cannot recover private history it never retained. These implementations await independent acceptance and leave complete-episode gates open.

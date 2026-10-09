@@ -2,13 +2,36 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PlayerStateExtractor } from '../src/state_extractor';
 
+test('owner-private Healing Wish HP is omitted until the exact public full-heal record routes typed state', () => {
+  const owner = new PlayerStateExtractor('healing-wish-owner-private', 'gen9randombattle', 'p1');
+  owner.consumeChunk([
+    '|switch|p1a: Recipient|Snorlax, L80|50/100 brn',
+    // getPlayerStreams has already selected the p1 branch of Showdown's
+    // private split. It carries exact HP and must not become public evidence.
+    '|-heal|p1a: Recipient|461/461|[from] move: Healing Wish',
+  ].join('\n'));
+  let recipient = owner.getView().self_team[0]!;
+  assert.equal(recipient.hp_ratio, 0.5);
+  assert.equal(recipient.status, 'brn');
+  owner.consumePublicHealingWishRecord('|-heal|p1a: Recipient|100/100|[from] move: Healing Wish');
+  recipient = owner.getView().self_team[0]!;
+  assert.equal(recipient.hp_ratio, 1);
+  assert.equal(recipient.status, null);
+
+  const publicViewer = new PlayerStateExtractor('healing-wish-public', 'gen9randombattle', 'p2');
+  assert.throws(
+    () => publicViewer.consumeChunk('|-heal|p1a: Recipient|461/461|[from] move: Healing Wish'),
+    /Healing Wish requires its exact source form/,
+  );
+});
+
 for (const player of ['p1', 'p2'] as const) {
   test(`lifecycle clearing preserves permanent evidence and Illusion replacement for ${player}`, () => {
     const extractor = new PlayerStateExtractor('retention', 'gen9randombattle', player);
     extractor.consumeChunk([
       '|switch|p1a: Zoroark|Zoroark, L80|100/100',
       '|-status|p1a: Zoroark|brn',
-      '|-item|p1a: Zoroark|Leftovers',
+      '|-item|p1a: Zoroark|Air Balloon',
       '|-boost|p1a: Zoroark|atk|2',
       '|-start|p1a: Zoroark|Substitute',
       '|replace|p1a: Zoroark|Zoroark, L80|100/100 brn',
@@ -20,11 +43,56 @@ for (const player of ['p1', 'p2'] as const) {
     assert.deepEqual(team()[0].boosts, {});
     assert.deepEqual(team()[0].volatiles, []);
     assert.equal(team()[0].status, 'brn');
-    assert.equal(team()[0].item, 'leftovers');
+    assert.equal(team()[0].item, 'airballoon');
     extractor.consumeChunk('|switch|p1a: Zoroark|Zoroark, L80|100/100 brn');
     assert.deepEqual(team()[0].boosts, {});
     assert.deepEqual(team()[0].volatiles, []);
     assert.equal(team()[0].status, 'brn');
+  });
+}
+
+for (const player of ['p1', 'p2'] as const) {
+  test(`Shed Tail transfers only public Substitute through the exact source switch tag for ${player}`, () => {
+    const extractor = new PlayerStateExtractor(`shed-tail-${player}`, 'gen9randombattle', player);
+    extractor.consumeChunk([
+      '|player|p1|One|1|',
+      '|player|p2|Two|2|',
+      '|switch|p1a: Donor|Cyclizar, L80|100/100',
+      '|-boost|p1a: Donor|atk|2',
+      '|-start|p1a: Donor|Substitute|[from] move: Shed Tail',
+      '|switch|p1a: Receiver|Snorlax, L80|100/100|[from] Shed Tail',
+    ].join('\n'));
+    const team = () => player === 'p1' ? extractor.getView().self_team : extractor.getView().opponent_team;
+    const donor = team().find((pokemon) => pokemon.name === 'Donor')!;
+    const receiver = team().find((pokemon) => pokemon.name === 'Receiver')!;
+    assert.deepEqual(donor.volatiles, []);
+    assert.deepEqual(donor.boosts, {});
+    assert.deepEqual(receiver.volatiles, ['substitute']);
+    assert.deepEqual(receiver.boosts, {});
+
+    // The public end record removes the receiver's transferred state normally.
+    extractor.consumeChunk('|-end|p1a: Receiver|Substitute');
+    assert.deepEqual(team().find((pokemon) => pokemon.name === 'Receiver')!.volatiles, []);
+    extractor.consumeChunk('|drag|p1a: Donor|Cyclizar, L80|100/100');
+    assert.deepEqual(team().find((pokemon) => pokemon.name === 'Donor')!.volatiles, []);
+    assert.deepEqual(team().find((pokemon) => pokemon.name === 'Receiver')!.volatiles, []);
+    extractor.consumeChunk('|faint|p1a: Donor');
+    assert.deepEqual(team().find((pokemon) => pokemon.name === 'Donor')!.volatiles, []);
+    extractor.consumeChunk('|win|One');
+    assert.equal(extractor.getView().winner, 'p1');
+    assert.deepEqual(team().find((pokemon) => pokemon.name === 'Donor')!.volatiles, []);
+
+    // A source-looking generic tag is valid raw switch evidence, but is not the
+    // pinned Shed Tail transfer form and must not create typed state.
+    const misleading = new PlayerStateExtractor(`shed-tail-misleading-${player}`, 'gen9randombattle', player);
+    misleading.consumeChunk([
+      '|switch|p1a: Donor|Cyclizar, L80|100/100',
+      '|-start|p1a: Donor|Substitute',
+      '|switch|p1a: Receiver|Snorlax, L80|100/100|[from] move: Shed Tail',
+    ].join('\n'));
+    const misleadingTeam = player === 'p1' ? misleading.getView().self_team : misleading.getView().opponent_team;
+    assert.deepEqual(misleadingTeam.find((pokemon) => pokemon.name === 'Donor')!.volatiles, []);
+    assert.deepEqual(misleadingTeam.find((pokemon) => pokemon.name === 'Receiver')!.volatiles, []);
   });
 }
 
@@ -170,43 +238,27 @@ test('conditionless detailschange updates form while preserving public HP and st
   assert.equal(palafin.fainted, false);
 });
 
-test('move-sourced endability clears stale current knowledge without marking suppression', () => {
-  const extractor = new PlayerStateExtractor('endability-source-shape', 'gen9randombattle', 'p1');
-  extractor.consumeChunk([
-    '|switch|p2a: Pikachu|Pikachu, L50|100/100',
-    '|-ability|p2a: Pikachu|Static',
-    '|-endability|p2a: Pikachu|Static|[from] move: Worry Seed',
-  ].join('\n'));
-  const pikachu = extractor.getView().opponent_team[0];
-  assert.equal(pikachu.ability, null);
-  assert.equal(pikachu.ability_state, 'unknown');
-  assert.equal(pikachu.ability_suppressed, false);
-});
-
-test('state extractor distinguishes removed and consumed items and ability suppression', () => {
+test('state extractor distinguishes removed and consumed items without inferring excluded ability callbacks', () => {
   const removed = new PlayerStateExtractor('env-item-removed', 'gen9randombattle', 'p1');
   removed.consumeChunk([
     '|switch|p2a: Charizard|Charizard, L80, M|100/100',
-    '|-item|p2a: Charizard|Heavy-Duty Boots',
-    '|-enditem|p2a: Charizard|Heavy-Duty Boots|[from] move: Knock Off',
-    '|-ability|p2a: Charizard|Blaze',
-    '|-ability|p2a: Charizard|Insomnia|[from] move: Worry Seed',
-    '|-endability|p2a: Charizard',
+    '|-item|p2a: Charizard|Air Balloon',
+    '|-enditem|p2a: Charizard|Air Balloon|[from] move: Knock Off|[of] p1a: Thief',
+    '|-ability|p2a: Charizard|Air Lock',
   ].join('\n'));
 
   const mon = removed.getView().opponent_team[0];
   assert.equal(mon.item, null);
-  assert.equal(mon.last_item, 'heavydutyboots');
+  assert.equal(mon.last_item, 'airballoon');
   assert.equal(mon.item_state, 'removed');
-  assert.equal(mon.base_ability, 'blaze');
-  assert.equal(mon.ability, 'insomnia');
-  assert.equal(mon.ability_state, 'suppressed');
-  assert.equal(mon.ability_suppressed, true);
+  assert.equal(mon.base_ability, 'airlock');
+  assert.equal(mon.ability, 'airlock');
+  assert.equal(mon.ability_state, 'known');
+  assert.equal(mon.ability_suppressed, false);
 
   const consumed = new PlayerStateExtractor('env-item-consumed', 'gen9randombattle', 'p1');
   consumed.consumeChunk([
     '|switch|p2a: Pikachu|Pikachu, L80, M|100/100',
-    '|-item|p2a: Pikachu|Sitrus Berry',
     '|-enditem|p2a: Pikachu|Sitrus Berry|[eat]',
   ].join('\n'));
   assert.equal(consumed.getView().opponent_team[0].item_state, 'consumed');
@@ -267,16 +319,16 @@ test('state extractor exposes Tera and named field state with perspective-normal
   const p2 = new PlayerStateExtractor('env-tera-field-p2', 'gen9randombattle', 'p2');
   const protocol = [
     '|switch|p1a: Charizard|Charizard, L80, M|100/100',
-    '|switch|p2a: Blastoise|Blastoise, L80, M|100/100',
+    '|switch|p2a: Pincurchin|Pincurchin, L80, M|100/100',
     '|-terastallize|p1a: Charizard|Fire',
     '|-weather|RainDance',
-    '|-fieldstart|move: Electric Terrain',
-    '|-fieldstart|move: Trick Room',
+    '|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p2a: Pincurchin',
+    '|-fieldstart|move: Trick Room|[of] p1a: Charizard',
     '|-fieldstart|move: Gravity',
-    '|-sidestart|p1: Player|move: Reflect',
+    '|-sidestart|p1: Player|Reflect',
     '|-sidestart|p1: Player|move: Tailwind',
-    '|-sidestart|p1: Player|move: Spikes',
-    '|-sidestart|p1: Player|move: Spikes',
+    '|-sidestart|p1: Player|Spikes',
+    '|-sidestart|p1: Player|Spikes',
   ].join('\n');
   p1.consumeChunk(protocol);
   p2.consumeChunk(protocol);

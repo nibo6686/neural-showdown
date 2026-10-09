@@ -50,3 +50,28 @@ Checkpoint availability is not part of readiness for the new model; existing
 checkpoints are abandoned for this approach and non-blocking. Readiness never
 follows from document existence or a green unit suite alone. See
 [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
+## Current episode-fidelity and merge gates
+
+Final 2026-10-09 review accepts pinned Gen 9 Random Battle v2 complete-episode
+capture/boundary progression against the explicit FCE-01–FCE-08 packet.
+Conditional per-result emission and matching TS/Python validation are implemented
+and independently accepted within the pinned scope. Ineligible results remain false.
+Capability acceptance does not label every result faithful. This is not branch
+integration, merge, dataset or model readiness.
+
+For a future scoped macOS refactor merge, use this delivery sequence:
+
+1. Complete the episode-fidelity closure backlog.
+2. Run final macOS validation on the final branch tip.
+3. Complete a branch-level `$wm-pr-review`.
+4. Reconcile its findings and refresh affected validation evidence.
+5. Update from `main`, merge, and verify the resulting `main` checkout.
+
+ENV-001 remains incomplete for cross-platform claims. The accepted macOS
+simulator-record and broader trainer/live evidence applies only to its
+documented scope. Windows clean recreation and Windows trainer/live support are
+deferred platform work and are not gates for this scoped macOS merge path. That
+merge sequence does not make the project ready for Windows support,
+cross-platform reproducibility, feature extraction, datasets, model training,
+live-model behavior, or other Pokémon Showdown formats.

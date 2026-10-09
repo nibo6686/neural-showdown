@@ -93,7 +93,7 @@ shared node lineage remain follow-on constraints for a separately scoped item.
 No search behavior, features, checkpoints, or live defaults changed. ENV-001
 remains separate and blocked.
 
-## Current continuation — 2026-09-24
+## Continuation checkpoint — 2026-09-24 (historical)
 
 This checkpoint supersedes the SEARCH-001 next-action note above.
 
@@ -120,7 +120,7 @@ slice including a naturally occurring simulator rejection, then design and
 review FEATURE-001. Resolve ENV-001 before claiming reproducible dataset
 generation or training readiness. See [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-## Current continuation — 2026-09-24 protocol-correction update
+## Continuation checkpoint — 2026-09-24 protocol-correction update (historical)
 
 This note supersedes the prior 2026-09-24 next-step sequence above. It records
 the current authorized work, but it is not an acceptance verdict.
@@ -249,7 +249,7 @@ claimed.
   constrain PIPELINE-002 boundary progression. See the task-specific progress
   checkpoint for commands and detailed source evidence.
 
-## Final checkpoint — 2026-09-24
+## Final checkpoint — 2026-09-24 (historical)
 
 The focused implementation and documentation work is complete. Fresh results:
 build passed; focused TypeScript 41/41; Python record/lineage 18/18;
@@ -268,3 +268,37 @@ rejections and is not proof none exist. PIPELINE-001 and FEATURE-001 remain
 unaccepted. No West Monroe compliance claim is made. Resume from the
 task-specific checkpoint linked above; do not repeat completed tests or the
 bounded probe.
+
+## Current continuation — 2026-10-01
+
+Snapshot for this documentation reconciliation: branch
+`refactor/state-001-observable-state`, HEAD
+`a499ab820e7f635834dce83be37eca450a8315ee`, 13 commits ahead of `main` and
+none behind. The worktree was already dirty. This entry uses accepted checkpoint
+evidence only and does not promote uncommitted work.
+
+- Accepted foundations remain bounded: ordinary v2 transition capture and
+  TypeScript/Python publication parity; scanner/source inventory and
+  Gen 9 Random Battle format/reachability slices; the protocol-boundary
+  correction; and macOS simulator-record plus broader trainer/live environment
+  profiles within their documented scopes.
+- The complete-episode closure audit is complete as an audit and ordered
+  backlog. It is not implementation acceptance. The next planned closure slice
+  is CE-01; no uncommitted CE-01 result is accepted here.
+- The active milestone is faithful, privacy-correct Gen 9 Random Battle
+  episode capture. `faithful_complete_episode:false` remains required.
+- Windows clean recreation and Windows trainer/live support are deferred.
+  ENV-001 is incomplete for cross-platform claims, but those deferred platform
+  tasks do not block a future scoped macOS refactor merge.
+- Features, datasets, training, live-model behavior, and formats beyond Gen 9
+  Random Battle remain later milestones.
+
+Next delivery sequence:
+
+1. Complete the episode-fidelity closure backlog.
+2. Run final macOS validation on the final branch tip.
+3. Complete a branch-level `$wm-pr-review` and reconcile its findings.
+4. Update from `main`, merge, and verify the resulting `main` checkout.
+
+The dated 2026-09-24 next-action and checkpoint above are preserved as
+historical records; they are superseded by this continuation entry.

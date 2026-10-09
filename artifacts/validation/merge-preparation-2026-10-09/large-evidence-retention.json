@@ -1,0 +1,44 @@
+{
+  "schema_version": "merge-evidence-retention/v1",
+  "state": "local-only; external destination pending owner selection",
+  "destination": null,
+  "archived": false,
+  "uploaded": false,
+  "hash_method": "Reuse accepted recovery.json payload hashes with matching byte sizes and file mtimes predating recorded final unchanged verification; no large file rehash in this task.",
+  "records": [
+    {
+      "path": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/valid-envelope.json",
+      "bytes": 182180582,
+      "sha256": "e66fe6f0c418e0273d166a21696755161e3c91c2f2b120b0a4c690f930199c95",
+      "sha256_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/payloads/valid-envelope.json",
+      "mtime_utc": "2026-10-09T18:11:07.713484+00:00",
+      "accepted_evidence_dependency": "Accepted CE-08A recovered original/predecessor/both-perspective terminal tie envelope; supports construction and common base of wrong-outcome/origin controls; segment-start compact extraction provenance.",
+      "verification_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/all_saved_payloads_unchanged",
+      "status": "preserved at original local path; excluded from proposed Git commit; not archived"
+    },
+    {
+      "path": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/wrong-outcome.json",
+      "bytes": 182180581,
+      "sha256": "072fc0c2d46988bae40f04453c36b94f8e3f282dd06caf7549571134cc167a54",
+      "sha256_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/payloads/wrong-outcome.json",
+      "mtime_utc": "2026-10-09T18:11:09.532860+00:00",
+      "accepted_evidence_dependency": "Accepted CE-08A isolated Python wrong-outcome rejection: exit 2, 0 stdout, terminal/final-boundary mismatch; 115.192 seconds.",
+      "verification_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/all_saved_payloads_unchanged",
+      "status": "preserved at original local path; excluded from proposed Git commit; not archived"
+    },
+    {
+      "path": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/forged-origin.json",
+      "bytes": 182180575,
+      "sha256": "c011f24c9bbea21caaad13f1129d1b8501e9b5f6aebd441b7245f528ea31fb56",
+      "sha256_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/payloads/forged-origin.json",
+      "mtime_utc": "2026-10-09T18:11:11.453826+00:00",
+      "accepted_evidence_dependency": "Accepted CE-08A isolated Python forged-origin rejection: exit 2, 0 stdout, predecessor/origin mismatch; 5.017 seconds.",
+      "verification_record": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json#/all_saved_payloads_unchanged",
+      "status": "preserved at original local path; excluded from proposed Git commit; not archived"
+    }
+  ],
+  "record_sha256": {
+    "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/recovery.json": "512905799e0b425771d45952fa78ef774d34db1a6eabf4cc76a8e6106c68f87f",
+    "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/python-controls.json": "f01d44c60fd7560982307ec7142efad694be6517cc74f7bbbfdba021ba72a4f3"
+  }
+}

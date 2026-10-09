@@ -62,3 +62,12 @@ tests/fixtures/message*
 index.html
 refactoring.html
 .venv-simulator/
+
+# Refactor merge packaging: retain local payloads, keep exact large dumps out of Git.
+/artifacts/validation/ce08a-adversarial-recovery-2026-10-09/valid-envelope.json
+/artifacts/validation/ce08a-adversarial-recovery-2026-10-09/wrong-outcome.json
+/artifacts/validation/ce08a-adversarial-recovery-2026-10-09/forged-origin.json
+# Generated local packaging output; tracked egg-info edits still need explicit exclusion.
+/trainer/src/neural_trainer.egg-info/
+# Empty root npm lock is unrelated to the locked sim-core package.
+/package-lock.json

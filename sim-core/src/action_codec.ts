@@ -141,7 +141,10 @@ export function buildLegalActionSet(rawRequest: any): LegalActionSet {
   const canTerastallize = !!active.canTerastallize && !teraAlreadyUsed;
 
   for (const move of moves.slice(0, 4)) {
-    if (move.disabled || move.pp <= 0) {
+    // A simulator-owned all-disabled request represents Struggle without a PP
+    // field. It is legal solely because the owned request supplies that move;
+    // no protocol hint or local repeat-lock inference participates here.
+    if (move.disabled || (move.pp <= 0 && move.id !== 'struggle')) {
       continue;
     }
 

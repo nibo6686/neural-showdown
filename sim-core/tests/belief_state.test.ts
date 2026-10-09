@@ -153,6 +153,30 @@ test('belief fixture has deterministic ordered candidates, serialization, and id
   assert.equal(first.belief_id, reordered.belief_id);
 });
 
+test('ordered history hashing preserves canonical Unicode identities and rejects rehashed prefix lies', () => {
+  const prefix = ['|turn|1', '|message|Nidoran♀ "quoted" \\ path', '|message|你好🙂', '|turn|2'];
+  let parent: ReturnType<typeof projectBeliefState> | undefined;
+  for (let cursor = 0; cursor <= prefix.length; cursor++) {
+    const observation = observe({prefix: prefix.slice(0, cursor), turn: cursor === prefix.length ? 2 : 1});
+    parent = projectBeliefState({observation, parent});
+    for (const reference of parent.observation_history) {
+      assert.equal(reference.protocol_prefix_hash, digest(prefix.slice(0, reference.event_cursor)));
+    }
+    assert.doesNotThrow(() => serializeBeliefState(parent!));
+  }
+  const original = serializeBeliefState(parent!);
+  for (const index of [0, 2, parent!.observation_history.length - 2]) {
+    const candidate = structuredClone(parent!);
+    candidate.observation_history[index].protocol_prefix_hash = '0'.repeat(64);
+    const {belief_id: _id, ...payload} = candidate;
+    candidate.belief_id = `belief-${digest(payload)}`;
+    const unchanged = JSON.stringify(candidate);
+    assert.throws(() => serializeBeliefState(candidate), /historical observation prefix hash/);
+    assert.equal(JSON.stringify(candidate), unchanged);
+  }
+  assert.equal(serializeBeliefState(parent!), original);
+});
+
 test('belief snapshots clone and freeze nested inputs and later snapshots preserve their parent', () => {
   const input = fixtureInput();
   const parent = projectBeliefState(input);

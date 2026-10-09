@@ -1,0 +1,45 @@
+CE-08A isolated turn-limit: native commits started
+CE-08A isolated turn-limit: 100 commits, 1793ms
+CE-08A isolated turn-limit: 200 commits, 5666ms
+CE-08A isolated turn-limit: 300 commits, 11730ms
+CE-08A isolated turn-limit: 400 commits, 20063ms
+CE-08A isolated turn-limit: 500 commits, 30694ms
+CE-08A isolated turn-limit: 600 commits, 43615ms
+CE-08A isolated turn-limit: 700 commits, 59284ms
+CE-08A isolated turn-limit: 800 commits, 77037ms
+CE-08A isolated turn-limit: 900 commits, 97139ms
+CE-08A isolated turn-limit: native chain completed, 143335ms
+CE-08A isolated turn-limit: Python bulk publication started (360s timeout)
+CE-08A isolated turn-limit: Python bulk completed, 252492ms
+CE-08A isolated turn-limit: atomic invalid-middle sweep started (360s timeout)
+CE-08A isolated turn-limit: atomic invalid-middle sweep completed
+✖ source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row (489241.904667ms)
+ℹ CE-08A turn-limit bulk publication: 1996 actor rows in 252492ms
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 490002.613667
+
+✖ failing tests:
+
+test at sim-core/dist/tests/pipeline_episode.test.js:1564:25
+✖ source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row (489241.904667ms)
+  AssertionError [ERR_ASSERTION]: 
+  spawnSync /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9 ETIMEDOUT; code=ETIMEDOUT; signal=SIGTERM
+  
+  null !== 2
+  
+      at TestContext.<anonymous> (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/pipeline_episode.test.js:1726:22)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

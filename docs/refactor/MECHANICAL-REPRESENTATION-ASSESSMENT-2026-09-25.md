@@ -3,16 +3,34 @@
 **Status:** assessment complete. This is a gap assessment and implementation
 plan, not a new mechanic acceptance or coverage attestation.
 
+## Current status — 2026-10-01
+
+This assessment's dated findings and snapshot are preserved below. Subsequent
+accepted checkpoints close scanner expansion (SLICE-002A), format provenance
+and Gen 9 Random Battle reachability (SLICE-002B), bounded v2 transition capture
+and TypeScript/Python publication parity, and the documented macOS environment
+profiles within their respective attested scopes. The complete-episode closure
+audit is complete as an audit and backlog, not implementation acceptance.
+`faithful_complete_episode:false` remains required. The active milestone is
+faithful, privacy-correct complete-episode capture; CE-01 is the next planned
+closure slice, not accepted implementation. Windows clean recreation and
+Windows trainer/live support are deferred; ENV-001 remains incomplete for
+cross-platform claims but is not a blocker to a future scoped macOS merge. See
+the [current project status](../PROJECT_STATUS.md) for the delivery sequence.
+
 ## Scope and preserved boundary
 
-Reviewed against branch `refactor/state-001-observable-state`, HEAD
+Historical assessment snapshot (2026-09-25): branch
+`refactor/state-001-observable-state`, HEAD
 `117df85247846548fe99ee7e3d60a26d827fc05c`, plus the pre-existing dirty working
 tree. Do not reset, stage, or rewrite those changes. The current implementation
 set includes uncommitted code, contracts, validation artifacts and the latest
-bounded Topsy-Turvy implementation. Its scoped semantic review is closed; the
-shared protocol validator awaits separate coverage review. Psych Up public-stage
-semantics and grammar remain accepted. Observation v1 remains default; v2 is
-opt-in. `faithful_complete_episode:false` remains required. FEATURE-001, new
+bounded Topsy-Turvy implementation. At that historical checkpoint its scoped
+semantic review was closed, while the shared protocol validator awaited separate
+coverage review; subsequent accepted reviews are summarized above. Psych Up
+public-stage semantics and grammar remain accepted. Observation v1 remains
+default; v2 is opt-in. `faithful_complete_episode:false` remains required.
+FEATURE-001, new
 training and faithful complete-episode publication are outside this assessment's
 authority.
 
@@ -25,7 +43,8 @@ controls cover active sources on both sides. The rehashed matrix applies the
 new rejections across v1/v2, p1/p2, and input/successor prefixes; its existing
 publication and rollback assertions require no DATA-001 output and preserve
 committed state, lineage, the next transition, and active-slot state. The
-focused build/test pass is pending. `-singleturn` remains raw-only,
+checkpoint draft initially marked the focused build/test pass pending; the
+recorded verification below subsequently passed. `-singleturn` remains raw-only,
 `-singlemove` remains an unsupported stop, and
 `faithful_complete_episode:false` remains required. Focused verification passed:
 TypeScript build and 36 selected tests, plus 20 Python pipeline-record tests.
@@ -59,11 +78,12 @@ ancestors. Starting references: `docs/PROJECT_STATUS.md`,
 - [x] Shared TypeScript/Python protocol contract, rehashed publication rejection
   matrix, raw-only token preservation and stop/rollback checks.
 
-**Resume here (updated 2026-09-29):** the Helping Hand `[of]` source-role
-correction is accepted and attested. Keep `-singleturn` raw-only,
-preserve `-singlemove` as an unsupported stop, and retain
-`faithful_complete_episode:false`. Scanner expansion and operative format
-coverage remain the next separate batch.
+**Historical resume point (updated 2026-09-29; superseded 2026-10-01):** the
+Helping Hand `[of]` source-role correction was accepted and attested. Keep
+`-singleturn` raw-only, preserve `-singlemove` as an unsupported stop, and
+retain `faithful_complete_episode:false`. Scanner expansion and operative
+format coverage were the next separate batch at that checkpoint; both now have
+separate accepted scoped evidence recorded in the coverage documents.
 
 ## Initial source-boundary findings
 
@@ -379,7 +399,7 @@ This capture may truncate on unsupported random-battle events such as
 `features-not-produced/v1`. Fresh-environment recreation is a separate ENV-001
 blocker to calling the milestone reproducible across machines.
 
-### Current blockers
+### Historical blockers recorded in this assessment
 
 - The reported protocol-parity, pre-filter and contract-loader defects have
   targeted differential, rehashed publication, rollback and loader evidence.
@@ -407,7 +427,7 @@ FEATURE-001 and a training dataset are not requirements for this transition
 capture milestone, but they remain hard gates before feature publication,
 collection for training or model work.
 
-## Prioritized implementation batches
+## Historical prioritized implementation batches — 2026-09-25
 
 The dependencies establish one shared grammar and effect boundary before
 adding isolated mechanic cases. Bounded base Topsy-Turvy semantics remain
@@ -451,7 +471,7 @@ its separate review and final coverage attestation remain pending.
    observation v2, truncation evidence and Python validation. FEATURE-001,
    dataset generation and training remain separate gates.
 
-### First recommended batch
+### Original first recommended batch — superseded 2026-10-01
 
 Start with **coverage and provenance closure** as a separate batch: expand the
 scanner for nested and dynamic condition/effect sources, model nested effects,

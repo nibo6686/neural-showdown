@@ -1,0 +1,17 @@
+RUN node --test --test-isolation=none --test-reporter=spec --test-name-pattern=^CE-08B repair Revival causes and stopped-candidate accounting agree across runtimes$ sim-core/dist/tests/pipeline_episode_stop_repair.test.js
+CE-08B repaired Revival seeded-revival/v1/unsupported-request/selection
+CE-08B repaired Revival seeded-revival/v1/unsupported-request/candidate
+CE-08B repaired Revival seeded-revival/v1/unsupported-request/after-commit
+CE-08B repaired Revival seeded-forced-switch/v1/unsupported-revival-blessing/selection
+CE-08B repaired Revival seeded-forced-switch/v1/unsupported-revival-blessing/candidate
+CE-08B repaired Revival seeded-forced-switch/v1/unsupported-revival-blessing/after-commit
+✔ CE-08B repair Revival causes and stopped-candidate accounting agree across runtimes (3072.29825ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3142.447375
+EXIT 0 ELAPSED 3.241

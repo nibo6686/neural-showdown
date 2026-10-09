@@ -3,7 +3,19 @@
 **Status:** Completed documentation audit; no implementation change, coverage
 digest refresh, or coverage attestation.
 
-## Audit Snapshot
+## Current status note — 2026-10-01
+
+This remains a schema-closure audit, not a complete-episode acceptance. The
+separate SLICE-002A scanner and SLICE-002B format-provenance/reachability work
+has since received scoped acceptance and attestation; that later evidence does
+not turn every schema finding here into accepted runtime behavior. The
+complete-episode closure audit is separately complete as a gap inventory and
+backlog, while episode implementation remains open and
+`faithful_complete_episode:false` remains required. See
+[`PROJECT_STATUS.md`](../PROJECT_STATUS.md) for the current milestone and next
+sequence.
+
+## Recorded audit snapshot
 
 - Recorded branch: `refactor/state-001-observable-state`
 - Recorded HEAD: `b056f7ef5433cef254d2cfdaf822cc23c0c24b0c`
@@ -105,14 +117,14 @@ the token `raw-only`, but v2 public-stage code types it (see **B-02**).
 |---|---|---|---|---|
 | G01 | `ability` R; `-ability` T | `A`, ability `TXT`; `>=2` payloads; trailing tags are unconstrained. | `PUB`; only `-ability` calls typed ability projection. | Retained and revalidated. `C/S/T0`; bare `ability` has fixture-only evidence (**B-05**). |
 | G02 | `block`, `-block` R | `A`, effect `TXT`; `>=2`; trailing tags unconstrained. | `PUB/RAW`. | Retained/revalidated; `C/S/T0`. |
-| G03 | `boost` T†, `-boost` T; `unboost` T†, `-unboost` T | `A`, stat `atk|def|spa|spd|spe|accuracy|evasion`, unsigned `INT` `0..12`, then zero or more unique tags from `[from] TXT`, `[silent]`, `[zeffect]`; tag order is not constrained. | Dash forms update typed boosts. Bare forms are normalized to dash forms for v2 public stages. | Prefix and v2 stage evidence revalidated; `C/S/T0/T1` (public-stage controls). |
-| G04 | `setboost` T†, `-setboost` T | `A`, stat enum, signed `INT` `-6..6`, then G03 tags. | Dash form updates typed boosts; bare form normalizes for v2 stages. | `C/S/T0/T1`; signed source control is `sim/battle.ts:1941-1942`. |
+| G03 | `boost` T†, `-boost` T; `unboost` T†, `-unboost` T | `A`, stat `atk|def|spa|spd|spe|accuracy|evasion`, unsigned `INT` `0..12`, then zero or more ordered singleton tags from `[from] TXT`, `[silent]`, `[zeffect]`. | Dash forms update typed boosts. Bare forms are normalized to dash forms for v2 public stages. | Prefix and v2 stage evidence revalidated; repeated tag kinds reject before projection/publication; `C/S/T0/T1` (public-stage controls). |
+| G04 | `setboost` T†, `-setboost` T | `A`, stat enum, signed `INT` `-6..6`, then G03 ordered singleton tags. | Dash form updates typed boosts; bare form normalizes for v2 stages. | `C/S/T0/T1`; signed source control is `sim/battle.ts:1941-1942`. |
 | G05 | `clearallboost` T†, `-clearallboost` T | Exact no-payload record, optionally one final empty field only. | Dash form clears typed boosts; bare form normalizes for v2 stages. | `C/S/T0/T1`. |
 | G06 | `clearnegativeboost`, `-clearnegativeboost` T | Exactly `A`, optionally one `[silent]` or `[zeffect]` tag. | Typed selective negative-stage clear; bare form is v2 public-stage normalization. | `C/S/T0/T1`. |
 | G07 | `clearpositiveboost`, `-clearpositiveboost` T | `A`, source `A`, effect `TXT`; `>=3`; further fields currently accepted. | Typed selective positive-stage clear; both identifiers must be active. | `C/S/T0/T1`; extra-field grammar remains open. |
 | G08 | `clearboost` T†, `-clearboost` T | Exactly `A`. | Dash form clears typed boosts; bare form normalizes for v2 stages. | `C/S/T0/T1`. |
 | G09 | `status`, `curestatus` R; `-status`, `-curestatus` T | `A`, status `TXT`; `>=2`; trailing tags unconstrained. | Dash forms update typed public status; bare forms remain raw. | `C/S/T0`; status vocabulary is only closed inside `HP`, not here. |
-| G10 | `damage`, `heal`, `sethp` R; `-damage`, `-heal`, `-sethp` T | `A`, `HP`, then zero or more unique tags. Damage allows `[from] TXT`, `[of] SOA`, `[silent]`, `[partiallytrapped]`; heal adds `[zeffect]`, `[wisher] TXT`; sethp permits `[from] TXT`, `[silent]`. | Dash forms update typed HP/status. `-heal` uniquely accepts `S` only for exactly `-heal|S|HP|[from] move: Revival Blessing`; otherwise target is `A`. | `C/S/T0/T1`; tag dependency/order is not source-closed (**B-04**). |
+| G10 | `damage`, `heal`, `sethp` R; `-damage`, `-heal`, `-sethp` T | `A`, `HP`, then zero or more ordered singleton tags. Damage allows `[from] TXT`, `[of] SOA`, `[silent]`, `[partiallytrapped]`; heal adds `[zeffect]`, `[wisher] TXT`; sethp permits `[from] TXT`, `[silent]`. | Dash forms update typed HP/status. `-heal` uniquely accepts `S` only for exactly `-heal|S|HP|[from] move: Revival Blessing`; otherwise target is `A`. | `C/S/T0/T1`; shared CE-02 cardinality rejects repeated tag kinds before projection/publication. |
 | G11 | `switch`, `drag` T | Exactly `A`, details `TXT`, `HP`, with optional final `[from] TXT`; 3 or 4 payload fields. | Typed roster/active state. | `C/S/T0/T1`; public prefix is retained. |
 | G12 | `detailschange` T | `A`, details `TXT`, optionally `HP`; exactly 2 or 3 payload fields. | Typed source/detail change. | `C/S/T0`; conditionless source form is accepted. |
 | G13 | `end` R | Exact no-payload record, optional final empty field only. | `PUB/RAW` battle marker. | `C/S/T0`. |

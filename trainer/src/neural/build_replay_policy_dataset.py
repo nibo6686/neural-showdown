@@ -18,11 +18,11 @@ from .build_replay_value_dataset import (
     _initial_state,
     _load_trajectories,
     _new_recent,
-    _protocol_prefix_until_turn,
     result_from_winner_side,
 )
-from .dataset_lineage import feature_schema_fingerprint, record_from_source_prefix, validate_records
+from .dataset_lineage import DatasetLineageError, feature_schema_fingerprint, record_from_source_prefix, validate_records
 from .logging_helper import print_line_safe
+from .parse_replay_logs import parse_protocol_log
 
 
 DEFAULT_FORMAT = "gen9randombattle"
@@ -46,6 +46,28 @@ def _action_label(event: Dict[str, Any]) -> str:
     return str(event.get("type") or "unknown")
 
 
+def _pre_action_cursors(trajectory: Dict[str, Any], turns: List[Dict[str, Any]]) -> List[int]:
+    protocol = trajectory.get("protocol_log")
+    if not isinstance(protocol, list) or any(not isinstance(line, str) for line in protocol):
+        raise DatasetLineageError("missing public protocol for action boundaries")
+    parsed = parse_protocol_log(protocol)
+    if parsed["protocol_log"] != protocol or parsed["turns"] != turns:
+        raise DatasetLineageError("parsed events do not join the retained public protocol")
+    cursors: List[int] = []
+    start = 0
+    for turn in turns:
+        for event in turn["events"]:
+            if event.get("type") not in ("move", "switch") or event.get("side") not in ("p1", "p2"):
+                continue
+            try:
+                cursor = protocol.index(event["raw"], start)
+            except (ValueError, KeyError) as exc:
+                raise DatasetLineageError("action has no ordered public protocol boundary") from exc
+            cursors.append(cursor)
+            start = cursor + 1
+    return cursors
+
+
 def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Optional[str]]:
     winner_side = trajectory.get("winner_side")
     turns = trajectory.get("turns")
@@ -53,6 +75,10 @@ def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Di
         return [], "missing_or_unknown_winner"
     if not isinstance(turns, list):
         return [], "no_turn_events"
+    try:
+        action_cursors = iter(_pre_action_cursors(trajectory, turns))
+    except DatasetLineageError as exc:
+        return [], f"unverifiable_action_boundaries: {exc}"
 
     state = _initial_state(trajectory)
     mapper = TrajectoryActionMapper()
@@ -65,14 +91,13 @@ def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Di
         recent = _new_recent()
         events = turn_record.get("events") if isinstance(turn_record.get("events"), list) else []
 
-        # First pass: track state and collect actions
-        mapper.track_events_in_turn(events)
-
         for event in events:
             if not isinstance(event, dict):
                 continue
             event_type = event.get("type")
             side = event.get("side")
+            # The current event supplies a label; future events never seed its mapping.
+            mapper.track_events_in_turn([event])
             if event_type in ("move", "switch") and side in ("p1", "p2"):
                 result = result_from_winner_side(winner_side, perspective=side)
                 context = _feature_vector(state, recent, turn_number)
@@ -92,7 +117,7 @@ def examples_from_policy_trajectory(trajectory: Dict[str, Any]) -> Tuple[List[Di
                     ruleset=str(trajectory.get("format") or "unknown"),
                     parser_version="parse_replay_logs/v1",
                     perspective=side,
-                    protocol_prefix=_protocol_prefix_until_turn(trajectory, turn_number),
+                    protocol_prefix=trajectory["protocol_log"][:next(action_cursors)],
                     private_data_provenance="none",
                     feature_input_eligibility="public_only",
                     schema_fingerprints={

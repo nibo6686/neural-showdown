@@ -1,8 +1,12 @@
+import { abilityEffectiveness, publicGasSources, publicTraceAbilities, publicRevealedAbilities, preservesOwnedAbilityForForm } from './public_ability';
+import {projectPublicOwnedItemHistory, ambiguousOwnedItemTargets} from './public_item';
 import { Dex, toID } from 'pokemon-showdown';
-import { isCanonicalPlayerIdent, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
+import { isCanonicalPlayerIdent, PROTOCOL_CONTRACT, RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
 import { classifyEffectRecord } from './effect_inventory';
-import { validateRawProtocolRecord } from './observable_state';
+import { ObservableStateError, validateRawProtocolRecord } from './observable_state';
 import { normalizeRequest } from './action_codec';
+import type {CanonicalAction} from './canonical_action';
+import { PUBLIC_TYPED_STATE_LIFECYCLE, typedStateLifecycleEntry } from './typed_state_lifecycle';
 import {
   createEmptyBattleView,
   type BattleView,
@@ -21,6 +25,22 @@ import {
   splitProtocolLine,
   upsertUnique,
 } from './battle_helpers';
+
+/** `getPlayerStreams` removes the split marker before it reaches its owner. */
+export function isOwnerPrivateHealingWishHeal(line: string, owner: PlayerID): boolean {
+  const parts = splitProtocolLine(line);
+  if (parts.length !== 5 || parts[1] !== '-heal'
+    || parts[4] !== '[from] move: Healing Wish'
+    || !isCanonicalPlayerIdent(parts[2], true)
+    || !parts[2].startsWith(`${owner}a:`)) return false;
+  return /^([1-9][0-9]*)\/\1$/.test(parts[3] || '');
+}
+
+function isPublicHealingWishHeal(line: string): boolean {
+  const parts = splitProtocolLine(line);
+  return parts.length === 5 && parts[1] === '-heal'
+    && parts[3] === '100/100' && parts[4] === '[from] move: Healing Wish';
+}
 
 function createPokemonView(slot: number, ident = '', details = ''): PokemonView {
   const parsedDetails = parseDetails(details);
@@ -91,6 +111,21 @@ export class PlayerStateExtractor {
   private readonly publicTypeChanges = new WeakMap<PokemonView, string[]>();
   private readonly publicAddedTypes = new WeakMap<PokemonView, string>();
   private ownRequestData: any = null;
+  private ownedItemHistoryCache: {key: string; history: ReturnType<typeof projectPublicOwnedItemHistory>} | null = null;
+  private submittedSwitch: {ident: string; cursor: number; action: CanonicalAction; force_switch: boolean} | null = null;
+
+  /** The caller validates the canonical action against the live owned request first. */
+  recordSubmittedSwitch(action: CanonicalAction | null, forceSwitch = false): void {
+    const ident = action && this.ownRequestData?.side?.pokemon[action.switch_slot! - 1]?.ident;
+    this.submittedSwitch = ident ? {ident, cursor: this.publicAbilityPrefix.length, action: structuredClone(action!), force_switch: forceSwitch} : null;
+  }
+  getSubmittedSwitch(): {action: CanonicalAction; cursor: number; force_switch: boolean} | null {
+    return this.submittedSwitch && this.view.terminated ? {action: structuredClone(this.submittedSwitch.action), cursor: this.submittedSwitch.cursor, force_switch: this.submittedSwitch.force_switch} : null;
+  }
+  restoreSubmittedSwitch(value: {action: CanonicalAction; cursor: number; force_switch: boolean}): void {
+    const ident = this.ownRequestData?.side?.pokemon[value.action.switch_slot! - 1]?.ident;
+    this.submittedSwitch = {ident, action: structuredClone(value.action), cursor: value.cursor, force_switch: value.force_switch};
+  }
 
   private defensiveTypes(pokemon: PokemonView | undefined, species: string, teraType: string | null, terastallized: boolean): string[] {
     if (terastallized && teraType && teraType !== 'Stellar') return [teraType];
@@ -109,26 +144,54 @@ export class PlayerStateExtractor {
     this.currentRequest = null;
   }
 
+  private publicAbilityPrefix: string[] = [];
+
   consumeChunk(chunk: string): void {
     for (const rawLine of chunk.split('\n')) {
       const line = rawLine.replace(/\r$/, '');
       if (line === '') {
         continue;
       }
+      // The owner-private branch holds exact HP. It is deliberately omitted:
+      // the spectator's paired public 100/100 record is routed below.
+      if (isOwnerPrivateHealingWishHeal(line, this.player)) continue;
       if (line.startsWith('|')) {
         const command = line.split('|')[1];
-        if (command && SUPPORTED_RAW_COMMANDS.has(command)) validateRawProtocolRecord(line);
+        if (command && (SUPPORTED_RAW_COMMANDS.has(command) || RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command))) {
+          validateRawProtocolRecord(line);
+        }
       } else if (/^\s*\|/.test(line)) {
         // Detect a protocol record with leading whitespace without repairing
         // it; the validator must see and reject the original line.
         validateRawProtocolRecord(line);
       }
+      if (line.startsWith('|') && !line.startsWith('|request|')) this.publicAbilityPrefix.push(line);
       this.consumeLine(line);
     }
   }
 
+  /** Route the one public Healing Wish result from the spectator stream. */
+  consumePublicHealingWishRecord(line: string): void {
+    if (!isPublicHealingWishHeal(line)) return;
+    validateRawProtocolRecord(line);
+    this.consumeLine(line);
+  }
+
   getView(): BattleView {
     const selfTeam = this.ownRequestData ? this.selfFromRequest(this.ownRequestData) : this.view.self_team;
+    const gasPresent = publicGasSources(this.publicAbilityPrefix).size > 0;
+    const applyEffectiveness = (pokemon: PokemonView, owned: boolean): PokemonView => {
+      const effective = abilityEffectiveness(pokemon, gasPresent, pokemon.item, owned || !!pokemon.item && pokemon.item !== 'has-item');
+      const clone = this.cloneWithStatusEvidence(pokemon);
+      clone.ability_effectiveness = effective;
+      // Existing owner field is supported by the addressed request. Opponent
+      // effectiveness stays unknown if an unrevealed Shield could exempt it.
+      if (owned && effective !== 'unknown') {
+        clone.ability_suppressed = effective === 'suppressed' && pokemon.active;
+        if (clone.ability_suppressed) clone.ability_state = 'suppressed';
+      }
+      return clone;
+    };
     const selfActive = selfTeam.findIndex((pokemon) => pokemon.active);
     return {
       ...this.view,
@@ -144,8 +207,8 @@ export class PlayerStateExtractor {
           opponent: { ...this.view.field.side_conditions.opponent },
         },
       },
-      self_team: selfTeam.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
-      opponent_team: this.view.opponent_team.map((pokemon) => this.cloneWithStatusEvidence(pokemon)),
+      self_team: selfTeam.map((pokemon) => applyEffectiveness(pokemon, true)),
+      opponent_team: this.view.opponent_team.map((pokemon) => applyEffectiveness(pokemon, false)),
     };
   }
 
@@ -299,11 +362,28 @@ export class PlayerStateExtractor {
   private handleRequest(rawJson: string): void {
     const rawRequest = JSON.parse(rawJson);
     this.currentRequest = normalizeRequest(this.player, rawRequest);
-    if (Array.isArray(rawRequest?.side?.pokemon)) this.ownRequestData = rawRequest;
+    if (Array.isArray(rawRequest?.side?.pokemon)) {this.ownRequestData = rawRequest; this.submittedSwitch = null;}
   }
 
   private selfFromRequest(rawRequest: any): PokemonView[] {
     const requestSide = Array.isArray(rawRequest?.side?.pokemon) ? rawRequest.side.pokemon : [];
+    const terminalTrace = this.view.terminated ? publicTraceAbilities(this.publicAbilityPrefix) : {};
+    const submitted = this.view.terminated && this.submittedSwitch
+      && this.publicAbilityPrefix.slice(this.submittedSwitch.cursor).filter((line) => line.startsWith(`|switch|${this.player}a: `)).length === 1
+      && !this.publicAbilityPrefix.slice(this.submittedSwitch.cursor).some((line) => line.startsWith(`|drag|${this.player}a: `))
+      ? this.submittedSwitch.ident : null;
+    const activeOwner = requestSide.find((pokemon: any) => submitted ? pokemon?.ident === submitted : pokemon?.active);
+    const appearance = this.publicActive[this.player]?.pokemon;
+    const currentAppearance = appearance && parseIdent(appearance.ident);
+    const appearanceName = currentAppearance && `${currentAppearance.player}: ${currentAppearance.name}`;
+    const ownedName = activeOwner && parseIdent(activeOwner.ident);
+    const historyKey = `${this.publicAbilityPrefix.length}:${appearanceName}:${ownedName?.player}:${ownedName?.name}`;
+    if (this.ownedItemHistoryCache?.key !== historyKey) this.ownedItemHistoryCache = {key: historyKey,
+      history: projectPublicOwnedItemHistory(this.publicAbilityPrefix, this.player, (target) => target === appearanceName && ownedName ? `${ownedName.player}: ${ownedName.name}` : target, requestSide.map((row: any) => ({ability: toID(row.ability || ''), base_ability: toID(row.baseAbility || '')})))};
+    const ambiguous = ambiguousOwnedItemTargets(this.publicAbilityPrefix, this.player, requestSide.map((row: any) => ({ability: toID(row.ability || ''), base_ability: toID(row.baseAbility || '')})));
+    const itemHistory = this.ownedItemHistoryCache.history;
+    const terminalVisibleOwner = this.view.terminated && currentAppearance && (appearance?.illusion_revealed
+      || requestSide.every((pokemon: any) => pokemon?.ability && pokemon?.baseAbility && toID(pokemon.ability) !== 'illusion' && toID(pokemon.baseAbility) !== 'illusion'));
 
     return requestSide.map((pokemon: any, index: number) => {
       const slot = index + 1;
@@ -317,10 +397,20 @@ export class PlayerStateExtractor {
       // Only the addressed player's request can bind an unrevealed appearance
       // to a real roster member. Never apply its evidence to the bench disguise.
       const appearance = this.publicActive[this.player]?.pokemon;
-      const previous = pokemon?.active ? appearance || named
-        : named && named !== appearance && !named.displayed_species_uncertain ? named : undefined;
+      const ownedActive = submitted ? pokemon?.ident === submitted : terminalVisibleOwner ? ident.name === currentAppearance.name : !!pokemon?.active;
+      const previous = ownedActive ? appearance || named
+        : named && named !== appearance && (this.view.terminated || !named.displayed_species_uncertain) ? named : undefined;
+      const knownHistory = itemHistory[`${ident.player}: ${ident.name}`];
+      const uncertainHistory = !knownHistory && ambiguous.size > 0 && (ambiguous.has(`${ident.player}: ${ident.name}`)
+        || toID(pokemon?.ability || '') === 'illusion' || toID(pokemon?.baseAbility || '') === 'illusion');
       const parsedDetails = parseDetails(pokemon?.details || '');
       const parsedCondition = parseCondition(pokemon?.condition || '');
+      const restoredTrace = terminalTrace[`${ident.player}: ${ident.name}`]?.cleared;
+      const replacedForm = this.view.terminated && previous && previous.base_species !== parsedDetails.species
+        && !preservesOwnedAbilityForForm(previous.base_species || '', pokemon?.ability, pokemon?.baseAbility);
+      const restoredAbility = this.view.terminated && (restoredTrace || previous?.fainted || pokemon?.active && previous && !previous.active);
+      const terminalAbility = replacedForm ? previous?.ability || null : restoredAbility ? pokemon?.baseAbility || null : pokemon?.ability || previous?.ability || null;
+      const terminalBase = replacedForm ? previous?.base_ability || null : pokemon?.baseAbility || previous?.base_ability || null;
       // A terminal battle has no following request. In that case the most
       // recent own request can still describe a live Terastallized Pokemon,
       // while the public faint record has already reset its active Tera form.
@@ -338,7 +428,7 @@ export class PlayerStateExtractor {
         current_species: previous?.transformed
           ? previous.current_species
           : parsedDetails.species || previous?.current_species || previous?.species || null,
-        displayed_species: previous && (previous.transformed || pokemon?.active)
+        displayed_species: previous && (previous.transformed || ownedActive)
           ? previous.displayed_species
           : parsedDetails.species || previous?.displayed_species || previous?.species || null,
         species_source: 'request',
@@ -346,11 +436,11 @@ export class PlayerStateExtractor {
         displayed_species_uncertain: false,
         illusion_revealed: previous?.illusion_revealed || false,
         details: pokemon?.details || previous?.details || '',
-        active: !!pokemon?.active && !previous?.fainted,
-        fainted: parsedCondition.fainted || !!previous?.fainted,
+        active: ownedActive && !previous?.fainted,
+        fainted: this.view.terminated && previous ? previous.fainted : parsedCondition.fainted || !!previous?.fainted,
         hp_text: previous?.fainted || this.view.terminated ? previous?.hp_text ?? parsedCondition.hpText : parsedCondition.hpText,
         hp_ratio: previous?.fainted || this.view.terminated ? previous?.hp_ratio ?? parsedCondition.hpRatio : parsedCondition.hpRatio,
-        status: parsedCondition.status,
+        status: this.view.terminated && previous ? previous.status : parsedCondition.status,
         status_source: 'request',
         status_started_turn: parsedCondition.status
           ? previous?.status === parsedCondition.status ? previous.status_started_turn : this.view.turn
@@ -358,15 +448,15 @@ export class PlayerStateExtractor {
         status_turns_public: null,
         gender: parsedDetails.gender,
         level: parsedDetails.level,
-        item: pokemon?.item || previous?.item || null,
-        last_item: previous?.last_item || null,
-        item_state: pokemon?.item ? 'held' : previous?.item_state || 'none',
+        item: uncertainHistory && !ownedActive ? pokemon?.item || null : this.view.terminated && previous && ['held', 'consumed', 'removed'].includes(previous.item_state) ? previous.item : pokemon?.item || previous?.item || null,
+        last_item: uncertainHistory ? null : previous?.last_item || knownHistory?.last_item || null,
+        item_state: uncertainHistory ? pokemon?.item ? 'held' : 'unknown' : this.view.terminated && previous && ['held', 'consumed', 'removed'].includes(previous.item_state) ? previous.item_state : pokemon?.item ? 'held' : knownHistory?.item_state || previous?.item_state || 'none',
         item_suppressed: this.view.field.pseudo_weather.includes('magicroom'),
-        ability: pokemon?.ability || previous?.ability || null,
-        base_ability: pokemon?.baseAbility || previous?.base_ability || null,
+        ability: terminalAbility,
+        base_ability: terminalBase,
         ability_state: previous?.ability_suppressed
           ? 'suppressed'
-          : pokemon?.ability || pokemon?.baseAbility ? 'known' : previous?.ability_state || 'none',
+          : replacedForm ? terminalAbility ? 'known' : 'unknown' : pokemon?.ability || pokemon?.baseAbility ? 'known' : previous?.ability_state || 'none',
         ability_suppressed: previous?.ability_suppressed || false,
         moves: Array.isArray(pokemon?.moves) ? [...pokemon.moves] : previous?.moves || [],
         revealed_moves: Array.isArray(pokemon?.moves)
@@ -433,8 +523,11 @@ export class PlayerStateExtractor {
     const outgoing = this.publicActive[parsedIdent.player]?.pokemon;
     // switchIn emits the actual switch cause, including after snapshot replay.
     // copyVolatileFrom(..., 'shedtail') copies Substitute only, never boosts.
-    const shedTail = parts[1] === 'switch' && parts.slice(5).some((part) =>
-      part.startsWith('[from] ') && normalizeEffectId(part.slice(7)) === 'shedtail');
+    // The pinned switchIn path emits precisely `[from] Shed Tail`.
+    // Generic switch tags are retained as raw evidence, but must not create
+    // typed Substitute state by resemblance to this source-specific transfer.
+    const shedTail = parts[1] === 'switch' && parts.length === 6
+      && parts[5] === '[from] Shed Tail';
     const transferSubstitute = shedTail && outgoing && !outgoing.fainted
       && outgoing.volatiles.includes('substitute');
     const oldLength = team.length;
@@ -451,6 +544,15 @@ export class PlayerStateExtractor {
     // A fresh appearance must not inherit that teammate's move/item evidence.
     const pokemon = createPokemonView(prior.slot, ident, details);
     if (prior.item === 'has-item') pokemon.item = 'has-item';
+    // clearVolatile restores the simulator's current ability to baseAbility
+    // before every switch-in. Carry only a value already revealed by prior
+    // public ability evidence; preview/species/request data never supplies it.
+    if (prior.base_ability) {
+      pokemon.base_ability = prior.base_ability;
+      pokemon.ability = prior.base_ability;
+      pokemon.ability_state = 'known';
+      pokemon.possible_abilities = [...prior.possible_abilities];
+    }
     if (parsedDetails.species === 'Eternatus-Eternamax' && prior.volatiles.includes('dynamax')) {
       pokemon.volatiles = ['dynamax'];
     }
@@ -505,6 +607,18 @@ export class PlayerStateExtractor {
       pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
     }
     pokemon.boosts = {};
+    // Pinned Pokemon.clearVolatile restores the live ability to baseAbility on
+    // switch and faint. Restore only an already public base value; an
+    // unrevealed base remains unknown rather than being derived from species,
+    // set, request, or simulator state.
+    if (pokemon.base_ability) {
+      pokemon.ability = pokemon.base_ability;
+      pokemon.ability_state = 'known';
+    } else {
+      pokemon.ability = null;
+      pokemon.ability_state = 'unknown';
+    }
+    pokemon.ability_suppressed = false;
     // Pinned Pokemon.clearVolatile retains only Eternamax's Dynamax. Do not
     // erase permanent status, item/reveal evidence, or other nonvolatile fields.
     pokemon.volatiles = pokemon.volatiles.filter((effect) =>
@@ -522,6 +636,7 @@ export class PlayerStateExtractor {
 
     pokemon.ident = ident || pokemon.ident;
     pokemon.name = parseIdent(ident).name || pokemon.name;
+    const speciesChanged = !!parsedDetails.species && parsedDetails.species !== pokemon.current_species;
     pokemon.species = parsedDetails.species || pokemon.species;
     pokemon.base_species = parsedDetails.species || pokemon.base_species;
     pokemon.current_species = parsedDetails.species || pokemon.current_species;
@@ -533,10 +648,26 @@ export class PlayerStateExtractor {
     if (parts.length > 4) {
       pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
       pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
-      pokemon.status = parsedCondition.status ?? pokemon.status;
+      // A condition-bearing public record includes the current major status
+      // when one exists. Its absence is therefore positive clear evidence,
+      // unlike an omitted condition field on the record itself.
+      if (pokemon.status !== parsedCondition.status) {
+        pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
+      }
+      pokemon.status = parsedCondition.status;
+      pokemon.status_source = 'protocol';
       pokemon.fainted = parsedCondition.fainted;
     }
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
+    if (speciesChanged && !preservesOwnedAbilityForForm(details, pokemon.ability, pokemon.base_ability)) {
+      // A form record is not ability evidence. Pinned formeChange can replace
+      // the live ability silently, so retain no earlier current value across a
+      // changed public identity until a later public ability record confirms it.
+      pokemon.ability = null;
+      pokemon.base_ability = null;
+      pokemon.ability_state = 'unknown';
+      pokemon.ability_suppressed = false;
+    }
     this.publicTypeChanges.delete(pokemon);
     this.publicAddedTypes.delete(pokemon);
     pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
@@ -573,7 +704,15 @@ export class PlayerStateExtractor {
     pokemon.details = details || pokemon.details;
     pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
     pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
-    pokemon.status = parsedCondition.status ?? pokemon.status;
+    // `getHealth()` includes the current major status in every emitted HP
+    // condition. Do not preserve an earlier status when this public condition
+    // has none: that would turn a known clear into stale typed state.
+    if (pokemon.status !== parsedCondition.status) {
+      pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
+      pokemon.status_turns_public = null;
+    }
+    pokemon.status = parsedCondition.status;
+    pokemon.status_source = 'protocol';
     pokemon.base_species = pokemon.species;
     pokemon.current_species = pokemon.species;
     pokemon.displayed_species = displayed;
@@ -599,6 +738,12 @@ export class PlayerStateExtractor {
     pokemon.current_species = species;
     pokemon.displayed_species = species;
     pokemon.species_source = 'protocol';
+    // The source form record precedes (and may have no) public ability
+    // confirmation. Do not project the prior form's ability into this form.
+    pokemon.ability = null;
+    pokemon.base_ability = null;
+    pokemon.ability_state = 'unknown';
+    pokemon.ability_suppressed = false;
     this.publicTypeChanges.delete(pokemon);
     this.publicAddedTypes.delete(pokemon);
     pokemon.types = resolveTypes(species, pokemon.tera_type, pokemon.terastallized);
@@ -651,6 +796,15 @@ export class PlayerStateExtractor {
     pokemon.species = currentSpecies;
     pokemon.species_source = 'protocol';
     pokemon.transformed = true;
+    // transformInto silently installs the target's current ability after the
+    // public -transform record. That target value can be hidden, so the
+    // transform event cannot retain the caller's prior ability as live truth.
+    // Keep the caller's independently revealed base ability for a later
+    // clearVolatile restoration, but make its transformed current ability
+    // unknown until a public ability record establishes it.
+    pokemon.ability = null;
+    pokemon.ability_state = 'unknown';
+    pokemon.ability_suppressed = false;
     // Transform assigns every stage, rather than applying boost deltas. A fresh
     // public map also removes stale caller stages (absent entries mean zero).
     pokemon.boosts = { ...target?.boosts };
@@ -700,6 +854,12 @@ export class PlayerStateExtractor {
     pokemon.active = false;
     pokemon.hp_ratio = 0;
     pokemon.hp_text = '0';
+    // `Battle.checkFainted` replaces the internal status with `fnt`; no major
+    // status survives a public faint boundary.
+    pokemon.status = null;
+    pokemon.status_source = 'protocol';
+    pokemon.status_started_turn = null;
+    pokemon.status_turns_public = null;
     this.updateActiveIndices();
   }
 
@@ -715,8 +875,31 @@ export class PlayerStateExtractor {
     const parsedCondition = parseCondition(condition);
     pokemon.hp_text = parsedCondition.hpText;
     pokemon.hp_ratio = parsedCondition.hpRatio;
-    pokemon.status = parsedCondition.status ?? pokemon.status;
-    if (parts[1] === '-heal' && parts.includes('[from] move: Revival Blessing')) {
+    // `getHealth()` includes the current major status for a live Pokémon. A
+    // statusless live condition is public clear evidence. `0 fnt` instead
+    // precedes the separate public `faint` record, which closes the status
+    // lifecycle without prematurely clearing it here.
+    if (!parsedCondition.fainted) {
+      if (pokemon.status !== parsedCondition.status) {
+        pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
+        pokemon.status_turns_public = null;
+      }
+      pokemon.status = parsedCondition.status;
+      pokemon.status_source = 'protocol';
+    }
+    const isRevivalBlessing = parts[1] === '-heal' && parts.includes('[from] move: Revival Blessing');
+    const isHealingWish = parts[1] === '-heal' && parts.length === 5
+      && parts[4] === '[from] move: Healing Wish';
+    if (isRevivalBlessing && /^p[12]: /.test(ident)) {
+      // The pinned bench heal names the actual revived roster member. It closes
+      // the earlier appearance uncertainty so requestless terminal extraction
+      // retains this public revival rather than its stale fainted request.
+      pokemon.displayed_species_uncertain = false;
+    }
+    if (isRevivalBlessing || isHealingWish) {
+      // Pinned emitters clear status before their exact public -heal record.
+      // Healing Wish is active-target only; Revival Blessing stays separately
+      // bounded to its existing bench-selection protocol.
       pokemon.status = parsedCondition.status;
       pokemon.status_source = 'protocol';
       pokemon.status_started_turn = null;
@@ -869,17 +1052,34 @@ export class PlayerStateExtractor {
     }
 
     const target = side === this.player ? this.view.field.side_conditions.self : this.view.field.side_conditions.opponent;
+    const lifecycle = typedStateLifecycleEntry('side_condition', effect);
+    if (!lifecycle || lifecycle.disposition !== 'evidence-derived-typed') return;
     if (parts[1] === '-sideend') {
       delete target[effect];
     } else {
-      target[effect] = (target[effect] || 0) + 1;
+      const next = (target[effect] || 0) + 1;
+      if (next > (lifecycle.cap || 1)) {
+        throw new ObservableStateError(`Malformed raw -sidestart record: ${effect} exceeds its pinned layer cap.`);
+      }
+      if (lifecycle.mode !== 'count' && next > 1) {
+        throw new ObservableStateError(`Malformed raw -sidestart record: duplicate ${effect} presence start.`);
+      }
+      target[effect] = lifecycle.mode === 'count' ? next : 1;
     }
   }
 
   private handleSwapSideConditions(): void {
-    const currentSelf = { ...this.view.field.side_conditions.self };
-    this.view.field.side_conditions.self = { ...this.view.field.side_conditions.opponent };
-    this.view.field.side_conditions.opponent = currentSelf;
+    // Court Change moves a finite source list, not every public map entry.
+    // Preserve the exact existing count (hazards) or presence value (screens)
+    // and leave all non-Court field data where it was.
+    const self = this.view.field.side_conditions.self;
+    const opponent = this.view.field.side_conditions.opponent;
+    for (const effect of PUBLIC_TYPED_STATE_LIFECYCLE.court_change_ids) {
+      const selfValue = self[effect];
+      const opponentValue = opponent[effect];
+      if (opponentValue === undefined) delete self[effect]; else self[effect] = opponentValue;
+      if (selfValue === undefined) delete opponent[effect]; else opponent[effect] = selfValue;
+    }
   }
 
   private handleItem(parts: string[]): void {
@@ -893,7 +1093,11 @@ export class PlayerStateExtractor {
     const pokemon = this.findOrCreatePokemon(team, ident, '');
     if (parts[1] === '-enditem') {
       const tags = parts.slice(4).map((value) => value.toLowerCase());
-      const consumed = tags.some((value) => value.includes('[eat]') || value.includes('[from] gem')) || tags.length === 0;
+      // Air Balloon pops directly in data/items.ts and is therefore removed.
+      // The other finite tagless forms are non-Gem Pokemon.useItem() roots and
+      // consume the public item. No source or callback state is projected.
+      const consumed = tags.some((value) => value.includes('[eat]') || value.includes('[from] gem'))
+        || (tags.length === 0 && item !== 'airballoon');
       pokemon.last_item = item || pokemon.item;
       pokemon.item = null;
       pokemon.item_state = consumed ? 'consumed' : 'removed';
@@ -914,7 +1118,7 @@ export class PlayerStateExtractor {
     const pokemon = this.findOrCreatePokemon(team, ident, '');
     const changed = parts.slice(4).some((value) => value.toLowerCase().startsWith('[from]'));
     if (!pokemon.base_ability && !changed) {
-      pokemon.base_ability = ability || pokemon.base_ability;
+      pokemon.base_ability = publicRevealedAbilities(this.publicAbilityPrefix)[ident.replace(/^(p[12])a: /, '$1: ')]?.base || null;
     }
     pokemon.ability = ability || pokemon.ability;
     pokemon.ability_state = changed ? 'changed' : 'known';

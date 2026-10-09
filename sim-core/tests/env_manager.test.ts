@@ -24,7 +24,8 @@ for (const actor of ['p1', 'p2'] as const) {
         const initialObservations = observations;
         const donorBefore = result.views[actor]!.self_team.find((p) => p.name === 'Donor')!;
         assert.equal(donorBefore.boosts.atk, 2);
-        assert.ok(donorBefore.volatiles.includes('torment'));
+        assert.ok(!donorBefore.volatiles.includes('torment'));
+        assert.ok(prefix.some((line) => line.startsWith('|-start|') && line.endsWith('|Torment')));
 
         const advance = async (choices: Partial<Record<PlayerID, string>>) => {
           const before = observations;
@@ -140,20 +141,30 @@ test('same seed produces the same initial self team state', async () => {
   }
 });
 
-test('random vs random battles terminate without external input', async () => {
-  const manager = new EnvironmentManager();
-  const envId = manager.createEnv('gen9randombattle', [5, 6, 7, 8], {
-    p1: { controller: 'random' },
-    p2: { controller: 'random' },
-  }).env_id;
+test('seeded random controllers settle repeated terminal battles without external input', async () => {
+  const run = async () => {
+    const manager = new EnvironmentManager();
+    const envId = manager.createEnv('gen9randombattle', [5, 6, 7, 8], {
+      p1: { controller: 'random', random_seed: 0x51a7 },
+      p2: { controller: 'random', random_seed: 0xc0de },
+    }).env_id;
+    try {
+      const result = await manager.resetEnv(envId);
+      assert.equal(result.terminated, true);
+      assert.ok(result.winner === 'p1' || result.winner === 'p2' || result.winner === 'tie');
+      assert.ok(result.log_delta.includes('|-hitcount|p1: Houndstone|2'));
+      return {
+        winner: result.winner,
+        // `|t:|` is a wall-clock framing record. Controller choices and the
+        // simulator sequence are deterministic independently of it.
+        log_delta: result.log_delta.filter((record) => !record.startsWith('|t:|')),
+      };
+    } finally {
+      await manager.closeAll();
+    }
+  };
 
-  try {
-    const result = await manager.resetEnv(envId);
-    assert.equal(result.terminated, true);
-    assert.ok(result.winner === 'p1' || result.winner === 'p2' || result.winner === 'tie');
-  } finally {
-    await manager.closeAll();
-  }
+  assert.deepEqual(await run(), await run());
 });
 
 test('response shaping can return only p1 without log delta or possible roles', async () => {

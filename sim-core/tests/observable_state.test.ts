@@ -1,3 +1,4 @@
+import { completeSyntheticHealthView } from './public_consequence_test_helpers';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,6 +47,7 @@ function input(overrides: Partial<ObservableStateInput> = {}): ObservableStateIn
     legal_actions: legalActions,
     raw: { secret: 'must-not-cross-boundary' },
   };
+  if (overrides.protocol_prefix && !overrides.view) completeSyntheticHealthView(view, overrides.protocol_prefix, 'p1');
   return {
     schema_version: OBSERVABLE_STATE_SCHEMA_VERSION,
     source_kind: 'sim_core',
@@ -181,6 +183,24 @@ test('pinned v2 per-side fixture closes same-cursor privacy, raw evidence, and s
 
   const baselineView = structuredClone(p1Input.view);
   for (const control of perSideV2Fixture.stop_controls) {
+    if (control.name === 'singlemove') {
+      assert.doesNotThrow(
+        () => projectObservableBattleState({
+          ...p1Input,
+          protocol_prefix: [...perSideV2Fixture.public_prefix, control.record],
+        }),
+        'exact Destiny Bond raw evidence is supported without typed projection',
+      );
+      assert.throws(
+        () => projectObservableBattleState({
+          ...p1Input,
+          protocol_prefix: [...perSideV2Fixture.public_prefix, `${control.record}|[silent]`],
+        }),
+        /unsupported effect\/tag combination/,
+        'malformed Destiny Bond suffix remains rejected',
+      );
+      continue;
+    }
     assert.throws(
       () => projectObservableBattleState({
         ...p1Input,
@@ -326,6 +346,7 @@ test('known Gen 9 outcome and field records have explicit shapes and remain raw 
   const records = [
     '|cant|p1a: Snorlax|slp|Rest',
     '|-hitcount|p2a: Pikachu|3',
+    '|-hitcount|p1: Pikachu|2',
     '|-fieldactivate|Delta Stream',
     '|-message|Sleep Clause Mod activated.',
     '|-nothing',
@@ -339,11 +360,44 @@ test('known Gen 9 outcome and field records have explicit shapes and remain raw 
   for (const record of [
     '|cant|invalid|slp',
     '|-hitcount|p2a: Pikachu|three',
+    '|-hitcount|p1: Pikachu|two',
+    '|-hitcount|p3: Pikachu|2',
+    '|-hitcount|p1: Pikachu|2|[silent]',
     '|-fieldactivate|',
     '|-message|',
     '|-activate|p2a: Snorlax|',
   ]) {
     assert.throws(() => projectObservableBattleState(input({ protocol_prefix: [record] })), /Malformed raw/);
+  }
+});
+
+test('Gen 9 Random Battle -hitcount accepts only pinned singles target roles and counts', () => {
+  const records = [
+    '|-hitcount|p1a: Maushold|1',
+    '|-hitcount|p2a: Maushold|10',
+    '|-hitcount|p1: Target|1',
+    '|-hitcount|p2: Houndstone|10',
+  ];
+  for (const record of records) {
+    assert.doesNotThrow(() => validateRawProtocolRecord(record), record);
+    assert.doesNotThrow(() => validateObservableProtocolPrefix([record], 'p1'), record);
+    assert.deepEqual(projectObservableBattleState(input({ protocol_prefix: [record] })).protocol_prefix, [record], record);
+  }
+
+  for (const record of [
+    '|-hitcount|p1b: Example|2',
+    '|-hitcount|p2b: Example|2',
+    '|-hitcount|p1: Example|0',
+    '|-hitcount|p1: Example|11',
+    '|-hitcount|p3a: Example|2',
+    '|-hitcount|p1a:Example|2',
+    '|-hitcount|p1a: Example |2',
+    '|-hitcount|p1a: Example|02',
+    '|-hitcount|p1a: Example|2|[silent]',
+  ]) {
+    assert.throws(() => validateRawProtocolRecord(record), /Malformed raw -hitcount/, record);
+    assert.throws(() => validateObservableProtocolPrefix([record], 'p1'), /Malformed raw -hitcount/, record);
+    assert.throws(() => projectObservableBattleState(input({ protocol_prefix: [record] })), /Malformed raw -hitcount/, record);
   }
 });
 
@@ -420,6 +474,13 @@ test('invalid perspectives, request-side mismatches, contradictions, and schemas
   );
 });
 
+test('private slot-condition maps reject before observable projection', () => {
+  for (const key of ['slotConditions', 'slot_conditions', 'slot_condition_state', 'pending_slots']) {
+    const view = { ...input().view, [key]: { wish: { endingTurn: 3 } } } as unknown as BattleView;
+    assert.throws(() => projectObservableBattleState(input({ view })), /Private simulator slot state is not publishable/);
+  }
+});
+
 test('adapter allowlists opponent state for both acting-player perspectives', () => {
   const privatePokemon = {
     slot: 1,
@@ -445,7 +506,7 @@ test('adapter allowlists opponent state for both acting-player perspectives', ()
     gender: null,
     level: 80,
     item: 'SecretItem',
-    last_item: 'SecretItem',
+    last_item: null,
     item_state: 'held',
     item_suppressed: false,
     ability: 'SecretAbility',
@@ -607,7 +668,7 @@ test('raw protocol evidence is independently validated and incomplete evidence r
   for (const validRecord of [
     '|start',
     '|start|',
-    '|-curestatus|p1a: Pikachu|par',
+    '|-curestatus|p1a: Pikachu|par|[msg]',
     '|inactiveoff|Timer is off',
     '|rated|Official match',
     '|-crit|p1a: Pikachu',

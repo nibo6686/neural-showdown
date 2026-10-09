@@ -51,8 +51,47 @@ def observation_digest(value):
     return 'obs-' + digest({k: v for k, v in value.items() if k not in ('observation_id', 'protocol_prefix')})
 
 
-def belief_digest(value):
-    return 'belief-' + digest({k: v for k, v in value.items() if k != 'belief_id'})
+def _digest_reusing_list(value, reused_list, encoded_list):
+    """Hash the ordinary canonical JSON while reusing one pre-serialized boundary prefix."""
+
+    hasher = hashlib.sha256()
+
+    def update(item):
+        if item is reused_list:
+            hasher.update(encoded_list)
+        elif isinstance(item, dict):
+            if any(not isinstance(key, str) for key in item):
+                raise ValueError('JSON keys must be strings')
+            keys = sorted(item, key=lambda key: key.encode('utf-16-be', 'surrogatepass'))
+            hasher.update(b'{')
+            for index, key in enumerate(keys):
+                if index:
+                    hasher.update(b',')
+                hasher.update(_string(key).encode('utf8'))
+                hasher.update(b':')
+                update(item[key])
+            hasher.update(b'}')
+        elif isinstance(item, list):
+            hasher.update(b'[')
+            for index, child in enumerate(item):
+                if index:
+                    hasher.update(b',')
+                update(child)
+            hasher.update(b']')
+        else:
+            hasher.update(canonical(item).encode('utf8'))
+
+    update(value)
+    return hasher.hexdigest()
+
+
+def belief_digest(value, *, canonical_source_prefix=None):
+    payload = {k: v for k, v in value.items() if k != 'belief_id'}
+    if canonical_source_prefix is None:
+        return 'belief-' + digest(payload)
+    return 'belief-' + _digest_reusing_list(
+        payload, value['source_protocol_prefix'], canonical_source_prefix,
+    )
 
 
 def _require(ok, path, reason):
@@ -75,7 +114,12 @@ def _normalized(value):
     return isinstance(value, str) and bool(value) and value == unicodedata.normalize('NFC', value).strip(whitespace)
 
 
-def _verify_reference(ref, version, prefix, path):
+def _verify_reference(ref, version, prefix, path, validated_references=None):
+    if validated_references is not None:
+        _require(isinstance(ref, dict), path, 'observation reference must be an object')
+        authoritative = validated_references.get(ref.get('observation_id'))
+        _require(authoritative is not None and ref == authoritative, path, 'observation reference does not join a validated episode boundary')
+        return
     _require(isinstance(ref, dict), path, 'observation reference must be an object')
     allowed = (set(REFERENCE_KEYS), set(REFERENCE_KEYS) - {'schema_version'}) if version == OBSERVATION_VERSIONS[0] else (set(REFERENCE_KEYS),)
     _require(set(ref) in allowed, path, 'observation reference fields mismatch')
@@ -89,19 +133,25 @@ def _verify_reference(ref, version, prefix, path):
     _require(ref['protocol_prefix_hash'] == digest(prefix[:int(end)]), path, 'observation reference prefix mismatch')
 
 
-def verify_belief(belief, observation, path):
+def verify_belief(
+    belief, observation, path, *, validated_observation_references=None,
+    canonical_source_prefix=None,
+):
     _require(belief.get('schema_version') == 'belief-state/v1', path, 'unsupported belief version')
-    _require(belief.get('belief_id') == belief_digest(belief), path, 'belief content identity mismatch')
+    _require(
+        belief.get('belief_id') == belief_digest(belief, canonical_source_prefix=canonical_source_prefix),
+        path, 'belief content identity mismatch',
+    )
     version = observation['schema_version']
     current = belief['observation']
     expected = {k: observation[k] for k in REFERENCE_KEYS}
-    _verify_reference(current, version, belief['source_protocol_prefix'], path + '.observation')
+    _verify_reference(current, version, belief['source_protocol_prefix'], path + '.observation', validated_observation_references)
     _require(all(current[k] == expected[k] for k in current), path, 'observation reference content mismatch')
     history = belief.get('observation_history')
     _require(isinstance(history, list) and bool(history), path, 'observation history missing')
     seen, cursor = set(), -1
     for index, ref in enumerate(history):
-        _verify_reference(ref, version, belief['source_protocol_prefix'], f'{path}.observation_history[{index}]')
+        _verify_reference(ref, version, belief['source_protocol_prefix'], f'{path}.observation_history[{index}]', validated_observation_references)
         _require(ref['event_cursor'] >= cursor, path, 'historical cursor decreases')
         _require(ref['observation_id'] not in seen, path, 'duplicate historical observation identity')
         seen.add(ref['observation_id']); cursor = ref['event_cursor']
@@ -139,11 +189,17 @@ def verify_belief(belief, observation, path):
         _require(candidate['disposition'] == disposition, path, 'candidate disposition mismatch')
 
 
-def verify_bundle_identities(bundle):
+def verify_bundle_identities(bundle, *, validated_observations=None, validated_beliefs=None):
     for which in ('input', 'successor'):
         obs, belief = bundle[which + '_observation'], bundle[which + '_belief']
-        verify_observation(obs, which + '_observation')
-        verify_belief(belief, obs, which + '_belief')
+        if validated_observations is None:
+            verify_observation(obs, which + '_observation')
+        else:
+            _require(id(obs) in validated_observations.get(obs.get('observation_id'), set()), which + '_observation', 'does not reuse its validated episode boundary')
+        if validated_beliefs is None:
+            verify_belief(belief, obs, which + '_belief')
+        else:
+            _require(belief is validated_beliefs.get(belief.get('belief_id')), which + '_belief', 'does not reuse its validated episode belief')
     before, after = bundle['input_belief'], bundle['successor_belief']
     _require(after.get('parent_belief_id') == before['belief_id'], 'successor_belief', 'parent identity mismatch')
     old, new = before.get('observation_history'), after.get('observation_history')

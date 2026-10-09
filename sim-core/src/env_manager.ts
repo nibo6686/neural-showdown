@@ -1,5 +1,6 @@
 import { Battle, BattleStream, Dex, Teams, getPlayerStreams } from 'pokemon-showdown';
-import { cloneChoiceRequest, removeChoiceFromRequest } from './action_codec';
+import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
+import { cloneChoiceRequest, removeChoiceFromRequest, normalizeRequest } from './action_codec';
 import { HeuristicBaselineAgent } from './baselines/heuristic';
 import { createSeededRandom, RandomBaselineAgent } from './baselines/random';
 import { buildBeliefSnapshot, type BeliefForkMetadata } from './belief_fork';
@@ -25,7 +26,8 @@ import {
   type SeededTransitionWireRequest,
   type SeededTransitionResult,
 } from './transition';
-import { PlayerStateExtractor } from './state_extractor';
+import { PlayerStateExtractor, isOwnerPrivateHealingWishHeal } from './state_extractor';
+import { validateRawProtocolRecord } from './observable_state';
 import type {
   BaselineDecision,
   BattleView,
@@ -48,6 +50,30 @@ type PlayerStream = {
 
 const TERMINAL_REQUEST_HISTORY_KEY = '__neural_terminal_request_history';
 const TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v1' as const;
+const TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v2' as const;
+const PRIVATE_SPECTATOR_COMMANDS = new Set(['request', 'error', 'split', 'debug', 'showteam']);
+
+/** The spectator channel is the sole source of public-prefix evidence. */
+export function validatePublicSpectatorRecord(record: string): void {
+  if (!record.startsWith('|')) throw new Error('Spectator output contained a non-protocol record.');
+  const command = record.slice(1).split('|', 1)[0];
+  if (PRIVATE_SPECTATOR_COMMANDS.has(command)) {
+    throw new Error(`Private ${command} record entered the spectator channel.`);
+  }
+  if (command === 'bigerror') validateRawProtocolRecord(record);
+}
+
+/** Validate each spectator transport record before it becomes public-log evidence. */
+export function appendPublicSpectatorChunk(chunk: string, logLines: string[]): void {
+  const acceptedLines: string[] = [];
+  for (const rawLine of chunk.split('\n')) {
+    const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+    if (!line) continue;
+    validatePublicSpectatorRecord(line);
+    acceptedLines.push(line);
+  }
+  logLines.push(...acceptedLines);
+}
 
 type TerminalRequestPokemon = {
   ident: string;
@@ -71,8 +97,9 @@ type TerminalHistoryRequest = {
 };
 
 type TerminalRequestHistory = {
-  schema_version: typeof TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION;
+  schema_version: typeof TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION | typeof TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION;
   requests: Partial<Record<PlayerID, TerminalHistoryRequest>>;
+  submitted_switches?: Partial<Record<PlayerID, {action: CanonicalAction; cursor: number; force_switch: boolean}>>;
 };
 
 /** A safe, public-value-free error for optional private restoration metadata. */
@@ -255,7 +282,7 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
   const raw = serialized[TERMINAL_REQUEST_HISTORY_KEY];
   if (raw === undefined) return null;
   const history = recordAt(raw, TERMINAL_REQUEST_HISTORY_KEY);
-  if (history.schema_version !== TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION) {
+  if (history.schema_version !== TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION && history.schema_version !== TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION) {
     terminalHistoryUnsupported(`${TERMINAL_REQUEST_HISTORY_KEY}.schema_version`, 'schema is not supported');
   }
   const requests = recordAt(history.requests, `${TERMINAL_REQUEST_HISTORY_KEY}.requests`);
@@ -269,9 +296,55 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
     }
     canonicalRequests[player] = canonicalizeTerminalRequest(request, player, `${TERMINAL_REQUEST_HISTORY_KEY}.requests.${player}`);
   }
+  if ((history.schema_version === TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION) !== (history.submitted_switches !== undefined)) terminalHistoryInvalid(TERMINAL_REQUEST_HISTORY_KEY, 'switch provenance requires the v2 private history schema');
+  const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
+  if (history.submitted_switches !== undefined) {
+    const supplied = recordAt(history.submitted_switches, `${TERMINAL_REQUEST_HISTORY_KEY}.submitted_switches`);
+    for (const [key, rawSwitch] of Object.entries(supplied)) {
+      if (key !== 'p1' && key !== 'p2') terminalHistoryInvalid(`${TERMINAL_REQUEST_HISTORY_KEY}.submitted_switches`, 'must address an owned player');
+      const player = key as PlayerID, path = `${TERMINAL_REQUEST_HISTORY_KEY}.submitted_switches.${player}`;
+      const value = recordAt(rawSwitch, path), request = canonicalRequests[player];
+      if (!request || Object.keys(value).sort().join('|') !== 'action|cursor|force_switch' || !Number.isSafeInteger(value.cursor) || (value.cursor as number) < 0
+        || typeof value.force_switch !== 'boolean' || value.force_switch !== request.side.pokemon.some((row) => row.active && row.condition === '0 fnt')) terminalHistoryInvalid(path, 'must contain a historical owned action and prefix cursor');
+      const action = recordAt(value.action, `${path}.action`) as unknown as CanonicalAction;
+      if (action.kind !== 'switch') terminalHistoryInvalid(`${path}.action`, 'must be a submitted switch');
+      try {canonicalActionToChoice(action, normalizeRequest(player, {...request, rqid: action.rqid, active: [{moves: []}], forceSwitch: value.force_switch ? [true] : undefined}));}
+      catch {terminalHistoryInvalid(`${path}.action`, 'must match the historical owned switch choices');}
+      const owner = request.side.pokemon[action.switch_slot! - 1];
+      const side = (serialized.sides as any[])?.find((entry) => entry.id === player);
+      let sourceActive: any;
+      let restoredSource: Battle | undefined;
+      try {
+        const source = structuredClone(serialized); delete source[TERMINAL_REQUEST_HISTORY_KEY];
+        restoredSource = Battle.fromJSON(source as any);
+        const activePokemon = restoredSource.sides.find((entry) => entry.id === player)?.active[0];
+        sourceActive = activePokemon && {fullname: activePokemon.fullname, set: structuredClone(activePokemon.set)};
+      } catch {terminalHistoryInvalid(path, 'does not contain a restorable source terminal active identity');}
+      finally {restoredSource?.destroy();}
+      const active = sourceActive && [sourceActive];
+      const name = owner?.ident.slice(4);
+      if (!owner || active?.length !== 1 || active[0].fullname !== owner.ident || String(active[0].set?.name || Dex.species.get(active[0].set?.species || '').name) !== name
+        || Dex.species.get(owner.details.split(',')[0]).id !== Dex.species.get(active[0].set?.species || '').id) terminalHistoryInvalid(path, 'does not join the source terminal owned base identity');
+      const channel = player === 'p1' ? 1 : 2;
+      const prefix = extractChannelMessages((serialized.log as string[]).join('\n'), [channel])[channel]
+        .filter((line) => line.startsWith('|') && !line.startsWith('|request|') && !isOwnerPrivateHealingWishHeal(line, player));
+      const cursor = value.cursor as number;
+      const ownSwitches = prefix.flatMap((line, index) => line.startsWith(`|switch|${player}a: `) ? [index] : []);
+      const switchIndex = ownSwitches.at(-1);
+      let turnIndex = -1;
+      for (const [index, line] of prefix.entries()) if (line.startsWith('|turn|')) turnIndex = index;
+      // A joint choice follows the last turn boundary; a forced replacement
+      // starts with Battle.go's blank/timestamp frame before its sole switch.
+      if (switchIndex === undefined || cursor !== (value.force_switch ? switchIndex - 2 : turnIndex + 1)
+        || value.force_switch && (prefix[cursor] !== '|' || !prefix[cursor + 1]?.startsWith('|t:|'))
+        || prefix.slice(cursor).filter((line) => line.startsWith(`|switch|${player}a: `) || line.startsWith(`|drag|${player}a: `)).length !== 1) terminalHistoryInvalid(`${path}.cursor`, 'does not identify the exact source choice boundary');
+      switches[player] = {action: structuredClone(action), cursor: value.cursor as number, force_switch: value.force_switch};
+    }
+  }
   return {
-    schema_version: TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION,
+    schema_version: history.schema_version,
     requests: canonicalRequests,
+    ...(Object.keys(switches).length ? {submitted_switches: switches} : {}),
   };
 }
 
@@ -421,6 +494,7 @@ class ManagedPlayer {
       force_switch: request.force_switch,
       legal_actions: request.legal_actions, side: request.side,
     });
+    this.tracker.recordSubmittedSwitch(action.kind === 'switch' ? action : null, request.force_switch);
     this.submitExternalChoice(choice);
   }
 
@@ -665,6 +739,8 @@ export class LocalBattleEnv {
       for (const player of PLAYERS) {
         const rawRequest = terminalHistory.requests[player];
         if (rawRequest) this.players?.[player].restoreTerminalRequestData(rawRequest);
+        const submitted = terminalHistory.submitted_switches?.[player];
+        if (submitted) this.players?.[player].tracker.restoreSubmittedSwitch(submitted);
       }
     }
     const result = await this.drainUntilExternalDecision(options);
@@ -679,6 +755,7 @@ export class LocalBattleEnv {
     const serialized = battle.toJSON() as Record<string, unknown>;
     if (!battle.ended) return serialized;
     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
+    const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
     for (const player of PLAYERS) {
       const rawRequest = this.players?.[player].getOwnRequestData();
       if (rawRequest) {
@@ -687,14 +764,17 @@ export class LocalBattleEnv {
           player,
           `${TERMINAL_REQUEST_HISTORY_KEY}.requests.${player}`,
         );
+        const submitted = this.players?.[player].tracker.getSubmittedSwitch();
+        if (submitted) switches[player] = submitted;
       }
     }
     if (!Object.keys(requests).length) return serialized;
     return {
       ...serialized,
       [TERMINAL_REQUEST_HISTORY_KEY]: {
-        schema_version: TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION,
+        schema_version: Object.keys(switches).length ? TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION : TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION,
         requests,
+        ...(Object.keys(switches).length ? {submitted_switches: switches} : {}),
       },
     };
   }
@@ -997,11 +1077,14 @@ export class LocalBattleEnv {
     }
     for await (const chunk of this.streams.spectator as unknown as AsyncIterable<string>) {
       if (this.settling.stopped) return;
-      for (const line of chunk.split('\n')) {
-        const trimmed = line.trim();
-        if (trimmed) {
-          this.logLines.push(trimmed);
-        }
+      appendPublicSpectatorChunk(chunk, this.logLines);
+      for (const rawLine of chunk.split('\n')) {
+        const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+        if (!line) continue;
+        // Healing Wish's owner branch is a private exact-HP split. Route only
+        // its paired public result into typed state for both perspectives.
+        this.players?.p1.tracker.consumePublicHealingWishRecord(line);
+        this.players?.p2.tracker.consumePublicHealingWishRecord(line);
       }
       this.settling.acknowledge('spectator');
     }

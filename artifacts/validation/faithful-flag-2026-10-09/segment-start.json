@@ -1,0 +1,3527 @@
+{
+  "schema_version": "saved-episode-boundaries/v1",
+  "source_payload_sha256": "e66fe6f0c418e0273d166a21696755161e3c91c2f2b120b0a4c690f930199c95",
+  "origin": {
+    "step_index": 1,
+    "kind": "joint_actionable",
+    "branch_id": "branch-5013bf6ea4cd8cb7028bf9d359bd84636586b975802dd28cf8b82b0662c45e64",
+    "state_fingerprint": "1817d3a41d67001390cf54aad17368c23799982f1d32e44d953de13c67938fea",
+    "perspectives": {
+      "p1": {
+        "schema_version": "observable-battle-state/v2",
+        "source_kind": "sim_core",
+        "battle_id": "episode-source-turn-limit-tie",
+        "perspective": "p1",
+        "event_cursor": 21,
+        "protocol_prefix_hash": "f4faff2c754568207cf6c20fdfd4aebab23819d829a90252b382bf8de0a06f29",
+        "snapshot_phase": "pre_decision",
+        "other_phase": null,
+        "request": {
+          "player": "p1",
+          "wait": false,
+          "team_preview": false,
+          "force_switch": false,
+          "trapped": false,
+          "rqid": null,
+          "active": {
+            "moves": [
+              {
+                "slot": 1,
+                "move": "Taunt",
+                "id": "taunt",
+                "pp": 32,
+                "maxpp": 32,
+                "target": "normal",
+                "disabled": false,
+                "type": "Dark",
+                "category": "Status",
+                "base_power": 0,
+                "accuracy": 100
+              },
+              {
+                "slot": 2,
+                "move": "Thunderbolt",
+                "id": "thunderbolt",
+                "pp": 24,
+                "maxpp": 24,
+                "target": "normal",
+                "disabled": false,
+                "type": "Electric",
+                "category": "Special",
+                "base_power": 90,
+                "accuracy": 100
+              },
+              {
+                "slot": 3,
+                "move": "Volt Switch",
+                "id": "voltswitch",
+                "pp": 32,
+                "maxpp": 32,
+                "target": "normal",
+                "disabled": false,
+                "type": "Electric",
+                "category": "Special",
+                "base_power": 70,
+                "accuracy": 100
+              },
+              {
+                "slot": 4,
+                "move": "Leaf Storm",
+                "id": "leafstorm",
+                "pp": 8,
+                "maxpp": 8,
+                "target": "normal",
+                "disabled": false,
+                "type": "Grass",
+                "category": "Special",
+                "base_power": 130,
+                "accuracy": 90
+              }
+            ],
+            "can_terastallize": true,
+            "tera_type": "Grass",
+            "trapped": false,
+            "can_switch": true
+          },
+          "side": [
+            {
+              "slot": 1,
+              "ident": "p1: Electrode",
+              "details": "Electrode-Hisui, L87",
+              "condition": "246/246",
+              "active": true,
+              "moves": [
+                "taunt",
+                "thunderbolt",
+                "voltswitch",
+                "leafstorm"
+              ],
+              "stats": {
+                "atk": 92,
+                "def": 172,
+                "spa": 189,
+                "spd": 189,
+                "spe": 311
+              },
+              "base_ability": "aftermath",
+              "ability": "aftermath",
+              "item": "lifeorb",
+              "tera_type": "Grass",
+              "terastallized": false
+            },
+            {
+              "slot": 2,
+              "ident": "p1: Hatterene",
+              "details": "Hatterene, L85, F",
+              "condition": "236/236",
+              "active": false,
+              "moves": [
+                "psyshock",
+                "drainingkiss",
+                "calmmind",
+                "mysticalfire"
+              ],
+              "stats": {
+                "atk": 158,
+                "def": 210,
+                "spa": 280,
+                "spd": 224,
+                "spe": 98
+              },
+              "base_ability": "magicbounce",
+              "ability": "magicbounce",
+              "item": "leftovers",
+              "tera_type": "Steel",
+              "terastallized": false
+            },
+            {
+              "slot": 3,
+              "ident": "p1: Gurdurr",
+              "details": "Gurdurr, L85, M",
+              "condition": "283/283",
+              "active": false,
+              "moves": [
+                "knockoff",
+                "machpunch",
+                "drainpunch",
+                "bulkup"
+              ],
+              "stats": {
+                "atk": 227,
+                "def": 193,
+                "spa": 117,
+                "spd": 134,
+                "spe": 117
+              },
+              "base_ability": "guts",
+              "ability": "guts",
+              "item": "eviolite",
+              "tera_type": "Steel",
+              "terastallized": false
+            },
+            {
+              "slot": 4,
+              "ident": "p1: Volbeat",
+              "details": "Volbeat, L90, M",
+              "condition": "263/263",
+              "active": false,
+              "moves": [
+                "encore",
+                "roost",
+                "lunge",
+                "thunderwave"
+              ],
+              "stats": {
+                "atk": 183,
+                "def": 186,
+                "spa": 136,
+                "spd": 204,
+                "spe": 204
+              },
+              "base_ability": "prankster",
+              "ability": "prankster",
+              "item": "heavydutyboots",
+              "tera_type": "Water",
+              "terastallized": false
+            },
+            {
+              "slot": 5,
+              "ident": "p1: Luvdisc",
+              "details": "Luvdisc, F",
+              "condition": "247/247",
+              "active": false,
+              "moves": [
+                "whirlpool",
+                "surf",
+                "endeavor",
+                "substitute"
+              ],
+              "stats": {
+                "atk": 65,
+                "def": 167,
+                "spa": 137,
+                "spd": 187,
+                "spe": 251
+              },
+              "base_ability": "swiftswim",
+              "ability": "swiftswim",
+              "item": "heavydutyboots",
+              "tera_type": "Ghost",
+              "terastallized": false
+            },
+            {
+              "slot": 6,
+              "ident": "p1: Ribombee",
+              "details": "Ribombee, L82, M",
+              "condition": "233/233",
+              "active": false,
+              "moves": [
+                "bugbuzz",
+                "quiverdance",
+                "terablast",
+                "moonblast"
+              ],
+              "stats": {
+                "atk": 95,
+                "def": 146,
+                "spa": 203,
+                "spd": 162,
+                "spe": 251
+              },
+              "base_ability": "shielddust",
+              "ability": "shielddust",
+              "item": "heavydutyboots",
+              "tera_type": "Ground",
+              "terastallized": false
+            }
+          ],
+          "legal_actions": {
+            "mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "actions": [
+              {
+                "index": 0,
+                "kind": "move",
+                "choice": "move 1",
+                "label": "move:Taunt",
+                "move": "Taunt",
+                "slot": 1
+              },
+              {
+                "index": 1,
+                "kind": "move",
+                "choice": "move 2",
+                "label": "move:Thunderbolt",
+                "move": "Thunderbolt",
+                "slot": 2
+              },
+              {
+                "index": 2,
+                "kind": "move",
+                "choice": "move 3",
+                "label": "move:Volt Switch",
+                "move": "Volt Switch",
+                "slot": 3
+              },
+              {
+                "index": 3,
+                "kind": "move",
+                "choice": "move 4",
+                "label": "move:Leaf Storm",
+                "move": "Leaf Storm",
+                "slot": 4
+              },
+              {
+                "index": 4,
+                "kind": "move_tera",
+                "choice": "move 1 terastallize",
+                "label": "move_tera:Taunt",
+                "move": "Taunt",
+                "slot": 1
+              },
+              {
+                "index": 5,
+                "kind": "move_tera",
+                "choice": "move 2 terastallize",
+                "label": "move_tera:Thunderbolt",
+                "move": "Thunderbolt",
+                "slot": 2
+              },
+              {
+                "index": 6,
+                "kind": "move_tera",
+                "choice": "move 3 terastallize",
+                "label": "move_tera:Volt Switch",
+                "move": "Volt Switch",
+                "slot": 3
+              },
+              {
+                "index": 7,
+                "kind": "move_tera",
+                "choice": "move 4 terastallize",
+                "label": "move_tera:Leaf Storm",
+                "move": "Leaf Storm",
+                "slot": 4
+              },
+              {
+                "index": 8,
+                "kind": "switch",
+                "choice": "switch 2",
+                "label": "switch:Hatterene, L85, F",
+                "slot": 2
+              },
+              {
+                "index": 9,
+                "kind": "switch",
+                "choice": "switch 3",
+                "label": "switch:Gurdurr, L85, M",
+                "slot": 3
+              },
+              {
+                "index": 10,
+                "kind": "switch",
+                "choice": "switch 4",
+                "label": "switch:Volbeat, L90, M",
+                "slot": 4
+              },
+              {
+                "index": 11,
+                "kind": "switch",
+                "choice": "switch 5",
+                "label": "switch:Luvdisc, F",
+                "slot": 5
+              },
+              {
+                "index": 12,
+                "kind": "switch",
+                "choice": "switch 6",
+                "label": "switch:Ribombee, L82, M",
+                "slot": 6
+              }
+            ],
+            "available_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        "decision_availability": {
+          "available": true,
+          "reason": "request",
+          "legal_action_indices": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        "view": {
+          "format": "gen9randombattle",
+          "gen": 9,
+          "turn": 2,
+          "player": "p1",
+          "opponent": "p2",
+          "terminated": false,
+          "winner": null,
+          "names": {
+            "p1": "Agent-1",
+            "p2": "Agent-2"
+          },
+          "team_size": {
+            "p1": 6,
+            "p2": 6
+          },
+          "active": {
+            "self": 0,
+            "opponent": 1
+          },
+          "field": {
+            "weather": null,
+            "terrain": null,
+            "pseudo_weather": [],
+            "side_conditions": {
+              "self": {},
+              "opponent": {}
+            }
+          },
+          "self_team": [
+            {
+              "slot": 1,
+              "ident": "p1: Electrode",
+              "name": "Electrode",
+              "species": "Electrode-Hisui",
+              "base_species": "Electrode-Hisui",
+              "current_species": "Electrode-Hisui",
+              "displayed_species": "Electrode-Hisui",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Electrode-Hisui, L87",
+              "active": true,
+              "fainted": false,
+              "hp_text": "246/246",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": null,
+              "level": 87,
+              "types": [
+                "Electric",
+                "Grass"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "lifeorb",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "aftermath",
+              "base_ability": "aftermath",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "taunt",
+                "thunderbolt",
+                "voltswitch",
+                "leafstorm"
+              ],
+              "revealed_moves": [
+                "taunt",
+                "thunderbolt",
+                "voltswitch",
+                "leafstorm"
+              ],
+              "tera_type": "Grass",
+              "stats": {
+                "atk": 92,
+                "def": 172,
+                "spa": 189,
+                "spd": 189,
+                "spe": 311
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 2,
+              "ident": "p1: Hatterene",
+              "name": "Hatterene",
+              "species": "Hatterene",
+              "base_species": "Hatterene",
+              "current_species": "Hatterene",
+              "displayed_species": "Hatterene",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Hatterene, L85, F",
+              "active": false,
+              "fainted": false,
+              "hp_text": "236/236",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "F",
+              "level": 85,
+              "types": [
+                "Psychic",
+                "Fairy"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "leftovers",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "magicbounce",
+              "base_ability": "magicbounce",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "psyshock",
+                "drainingkiss",
+                "calmmind",
+                "mysticalfire"
+              ],
+              "revealed_moves": [
+                "psyshock",
+                "drainingkiss",
+                "calmmind",
+                "mysticalfire"
+              ],
+              "tera_type": "Steel",
+              "stats": {
+                "atk": 158,
+                "def": 210,
+                "spa": 280,
+                "spd": 224,
+                "spe": 98
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 3,
+              "ident": "p1: Gurdurr",
+              "name": "Gurdurr",
+              "species": "Gurdurr",
+              "base_species": "Gurdurr",
+              "current_species": "Gurdurr",
+              "displayed_species": "Gurdurr",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Gurdurr, L85, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "283/283",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 85,
+              "types": [
+                "Fighting"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "eviolite",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "guts",
+              "base_ability": "guts",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "knockoff",
+                "machpunch",
+                "drainpunch",
+                "bulkup"
+              ],
+              "revealed_moves": [
+                "knockoff",
+                "machpunch",
+                "drainpunch",
+                "bulkup"
+              ],
+              "tera_type": "Steel",
+              "stats": {
+                "atk": 227,
+                "def": 193,
+                "spa": 117,
+                "spd": 134,
+                "spe": 117
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 4,
+              "ident": "p1: Volbeat",
+              "name": "Volbeat",
+              "species": "Volbeat",
+              "base_species": "Volbeat",
+              "current_species": "Volbeat",
+              "displayed_species": "Volbeat",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Volbeat, L90, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "263/263",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 90,
+              "types": [
+                "Bug"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "heavydutyboots",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "prankster",
+              "base_ability": "prankster",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "encore",
+                "roost",
+                "lunge",
+                "thunderwave"
+              ],
+              "revealed_moves": [
+                "encore",
+                "roost",
+                "lunge",
+                "thunderwave"
+              ],
+              "tera_type": "Water",
+              "stats": {
+                "atk": 183,
+                "def": 186,
+                "spa": 136,
+                "spd": 204,
+                "spe": 204
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 5,
+              "ident": "p1: Luvdisc",
+              "name": "Luvdisc",
+              "species": "Luvdisc",
+              "base_species": "Luvdisc",
+              "current_species": "Luvdisc",
+              "displayed_species": "Luvdisc",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Luvdisc, F",
+              "active": false,
+              "fainted": false,
+              "hp_text": "247/247",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "F",
+              "level": null,
+              "types": [
+                "Water"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "heavydutyboots",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "swiftswim",
+              "base_ability": "swiftswim",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "whirlpool",
+                "surf",
+                "endeavor",
+                "substitute"
+              ],
+              "revealed_moves": [
+                "whirlpool",
+                "surf",
+                "endeavor",
+                "substitute"
+              ],
+              "tera_type": "Ghost",
+              "stats": {
+                "atk": 65,
+                "def": 167,
+                "spa": 137,
+                "spd": 187,
+                "spe": 251
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 6,
+              "ident": "p1: Ribombee",
+              "name": "Ribombee",
+              "species": "Ribombee",
+              "base_species": "Ribombee",
+              "current_species": "Ribombee",
+              "displayed_species": "Ribombee",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Ribombee, L82, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "233/233",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 82,
+              "types": [
+                "Bug",
+                "Fairy"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "heavydutyboots",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "shielddust",
+              "base_ability": "shielddust",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "bugbuzz",
+                "quiverdance",
+                "terablast",
+                "moonblast"
+              ],
+              "revealed_moves": [
+                "bugbuzz",
+                "quiverdance",
+                "terablast",
+                "moonblast"
+              ],
+              "tera_type": "Ground",
+              "stats": {
+                "atk": 95,
+                "def": 146,
+                "spa": 203,
+                "spd": 162,
+                "spe": 251
+              },
+              "boosts": {}
+            }
+          ],
+          "opponent_team": [
+            {
+              "slot": 1,
+              "ident": "p2a: Oricorio",
+              "name": "Oricorio",
+              "species": "Oricorio",
+              "base_species": "Oricorio",
+              "current_species": "Oricorio",
+              "displayed_species": "Oricorio",
+              "species_source": "protocol",
+              "transformed": false,
+              "displayed_species_uncertain": true,
+              "illusion_revealed": false,
+              "details": "Oricorio, L84, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "100/100",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "protocol",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 84,
+              "types": [
+                "Fire",
+                "Flying"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "public_boosts": {
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0,
+                "accuracy": 0,
+                "evasion": 0
+              }
+            },
+            {
+              "slot": 2,
+              "ident": "p2a: Iron Bundle",
+              "name": "Iron Bundle",
+              "species": "Iron Bundle",
+              "base_species": "Iron Bundle",
+              "current_species": "Iron Bundle",
+              "displayed_species": "Iron Bundle",
+              "species_source": "protocol",
+              "transformed": false,
+              "displayed_species_uncertain": true,
+              "illusion_revealed": false,
+              "details": "Iron Bundle, L77",
+              "active": true,
+              "fainted": false,
+              "hp_text": "100/100",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "protocol",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": null,
+              "level": 77,
+              "types": [
+                "Ice",
+                "Water"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "public_boosts": {
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0,
+                "accuracy": 0,
+                "evasion": 0
+              }
+            }
+          ]
+        },
+        "observation_id": "obs-e4b6c3be8c769e7ab16f05166e85fe82bd953f8712482f92d2cdfcd551d3f926",
+        "protocol_prefix": [
+          "|t:|0",
+          "|gametype|singles",
+          "|player|p1|Agent-1||",
+          "|player|p2|Agent-2||",
+          "|teamsize|p1|6",
+          "|teamsize|p2|6",
+          "|gen|9",
+          "|rule|Species Clause: Limit one of each Pokémon",
+          "|rule|HP Percentage Mod: HP is shown in percentages",
+          "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+          "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+          "|t:|0",
+          "|start",
+          "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+          "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+          "|turn|1",
+          "|t:|0",
+          "|switch|p2a: Iron Bundle|Iron Bundle, L77|100/100",
+          "|switch|p1a: Electrode|Electrode-Hisui, L87|100/100",
+          "|upkeep",
+          "|turn|2"
+        ]
+      },
+      "p2": {
+        "schema_version": "observable-battle-state/v2",
+        "source_kind": "sim_core",
+        "battle_id": "episode-source-turn-limit-tie",
+        "perspective": "p2",
+        "event_cursor": 21,
+        "protocol_prefix_hash": "f4faff2c754568207cf6c20fdfd4aebab23819d829a90252b382bf8de0a06f29",
+        "snapshot_phase": "pre_decision",
+        "other_phase": null,
+        "request": {
+          "player": "p2",
+          "wait": false,
+          "team_preview": false,
+          "force_switch": false,
+          "trapped": false,
+          "rqid": null,
+          "active": {
+            "moves": [
+              {
+                "slot": 1,
+                "move": "Flip Turn",
+                "id": "flipturn",
+                "pp": 32,
+                "maxpp": 32,
+                "target": "normal",
+                "disabled": false,
+                "type": "Water",
+                "category": "Physical",
+                "base_power": 60,
+                "accuracy": 100
+              },
+              {
+                "slot": 2,
+                "move": "Ice Beam",
+                "id": "icebeam",
+                "pp": 16,
+                "maxpp": 16,
+                "target": "normal",
+                "disabled": false,
+                "type": "Ice",
+                "category": "Special",
+                "base_power": 90,
+                "accuracy": 100
+              },
+              {
+                "slot": 3,
+                "move": "Freeze-Dry",
+                "id": "freezedry",
+                "pp": 32,
+                "maxpp": 32,
+                "target": "normal",
+                "disabled": false,
+                "type": "Ice",
+                "category": "Special",
+                "base_power": 70,
+                "accuracy": 100
+              },
+              {
+                "slot": 4,
+                "move": "Hydro Pump",
+                "id": "hydropump",
+                "pp": 8,
+                "maxpp": 8,
+                "target": "normal",
+                "disabled": false,
+                "type": "Water",
+                "category": "Special",
+                "base_power": 110,
+                "accuracy": 80
+              }
+            ],
+            "can_terastallize": true,
+            "tera_type": "Ice",
+            "trapped": false,
+            "can_switch": true
+          },
+          "side": [
+            {
+              "slot": 1,
+              "ident": "p2: Iron Bundle",
+              "details": "Iron Bundle, L77",
+              "condition": "213/213",
+              "active": true,
+              "moves": [
+                "flipturn",
+                "icebeam",
+                "freezedry",
+                "hydropump"
+              ],
+              "stats": {
+                "atk": 168,
+                "def": 220,
+                "spa": 236,
+                "spd": 137,
+                "spe": 254
+              },
+              "base_ability": "quarkdrive",
+              "ability": "quarkdrive",
+              "item": "choicespecs",
+              "tera_type": "Ice",
+              "terastallized": false
+            },
+            {
+              "slot": 2,
+              "ident": "p2: Oricorio",
+              "details": "Oricorio, L84, M",
+              "condition": "263/263",
+              "active": false,
+              "moves": [
+                "hurricane",
+                "quiverdance",
+                "revelationdance",
+                "roost"
+              ],
+              "stats": {
+                "atk": 122,
+                "def": 166,
+                "spa": 213,
+                "spd": 166,
+                "spe": 204
+              },
+              "base_ability": "dancer",
+              "ability": "dancer",
+              "item": "heavydutyboots",
+              "tera_type": "Ground",
+              "terastallized": false
+            },
+            {
+              "slot": 3,
+              "ident": "p2: Eiscue",
+              "details": "Eiscue, L88, M",
+              "condition": "272/272",
+              "active": false,
+              "moves": [
+                "terablast",
+                "bellydrum",
+                "substitute",
+                "icespinner"
+              ],
+              "stats": {
+                "atk": 191,
+                "def": 244,
+                "spa": 165,
+                "spd": 209,
+                "spe": 138
+              },
+              "base_ability": "iceface",
+              "ability": "iceface",
+              "item": "salacberry",
+              "tera_type": "Electric",
+              "terastallized": false
+            },
+            {
+              "slot": 4,
+              "ident": "p2: Gogoat",
+              "details": "Gogoat, L88, F",
+              "condition": "360/360",
+              "active": false,
+              "moves": [
+                "hornleech",
+                "bulkup",
+                "milkdrink",
+                "earthquake"
+              ],
+              "stats": {
+                "atk": 226,
+                "def": 159,
+                "spa": 221,
+                "spd": 193,
+                "spe": 170
+              },
+              "base_ability": "sapsipper",
+              "ability": "sapsipper",
+              "item": "leftovers",
+              "tera_type": "Water",
+              "terastallized": false
+            },
+            {
+              "slot": 5,
+              "ident": "p2: Grafaiai",
+              "details": "Grafaiai, L86, F",
+              "condition": "249/249",
+              "active": false,
+              "moves": [
+                "superfang",
+                "knockoff",
+                "uturn",
+                "gunkshot"
+              ],
+              "stats": {
+                "atk": 213,
+                "def": 161,
+                "spa": 187,
+                "spd": 173,
+                "spe": 238
+              },
+              "base_ability": "poisontouch",
+              "ability": "poisontouch",
+              "item": "assaultvest",
+              "tera_type": "Dark",
+              "terastallized": false
+            },
+            {
+              "slot": 6,
+              "ident": "p2: Calyrex",
+              "details": "Calyrex-Shadow, L64",
+              "condition": "235/235",
+              "active": false,
+              "moves": [
+                "psyshock",
+                "astralbarrage",
+                "pollenpuff",
+                "trick"
+              ],
+              "stats": {
+                "atk": 113,
+                "def": 140,
+                "spa": 249,
+                "spd": 166,
+                "spe": 230
+              },
+              "base_ability": "asonespectrier",
+              "ability": "asonespectrier",
+              "item": "choicespecs",
+              "tera_type": "Dark",
+              "terastallized": false
+            }
+          ],
+          "legal_actions": {
+            "mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "actions": [
+              {
+                "index": 0,
+                "kind": "move",
+                "choice": "move 1",
+                "label": "move:Flip Turn",
+                "move": "Flip Turn",
+                "slot": 1
+              },
+              {
+                "index": 1,
+                "kind": "move",
+                "choice": "move 2",
+                "label": "move:Ice Beam",
+                "move": "Ice Beam",
+                "slot": 2
+              },
+              {
+                "index": 2,
+                "kind": "move",
+                "choice": "move 3",
+                "label": "move:Freeze-Dry",
+                "move": "Freeze-Dry",
+                "slot": 3
+              },
+              {
+                "index": 3,
+                "kind": "move",
+                "choice": "move 4",
+                "label": "move:Hydro Pump",
+                "move": "Hydro Pump",
+                "slot": 4
+              },
+              {
+                "index": 4,
+                "kind": "move_tera",
+                "choice": "move 1 terastallize",
+                "label": "move_tera:Flip Turn",
+                "move": "Flip Turn",
+                "slot": 1
+              },
+              {
+                "index": 5,
+                "kind": "move_tera",
+                "choice": "move 2 terastallize",
+                "label": "move_tera:Ice Beam",
+                "move": "Ice Beam",
+                "slot": 2
+              },
+              {
+                "index": 6,
+                "kind": "move_tera",
+                "choice": "move 3 terastallize",
+                "label": "move_tera:Freeze-Dry",
+                "move": "Freeze-Dry",
+                "slot": 3
+              },
+              {
+                "index": 7,
+                "kind": "move_tera",
+                "choice": "move 4 terastallize",
+                "label": "move_tera:Hydro Pump",
+                "move": "Hydro Pump",
+                "slot": 4
+              },
+              {
+                "index": 8,
+                "kind": "switch",
+                "choice": "switch 2",
+                "label": "switch:Oricorio, L84, M",
+                "slot": 2
+              },
+              {
+                "index": 9,
+                "kind": "switch",
+                "choice": "switch 3",
+                "label": "switch:Eiscue, L88, M",
+                "slot": 3
+              },
+              {
+                "index": 10,
+                "kind": "switch",
+                "choice": "switch 4",
+                "label": "switch:Gogoat, L88, F",
+                "slot": 4
+              },
+              {
+                "index": 11,
+                "kind": "switch",
+                "choice": "switch 5",
+                "label": "switch:Grafaiai, L86, F",
+                "slot": 5
+              },
+              {
+                "index": 12,
+                "kind": "switch",
+                "choice": "switch 6",
+                "label": "switch:Calyrex-Shadow, L64",
+                "slot": 6
+              }
+            ],
+            "available_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        "decision_availability": {
+          "available": true,
+          "reason": "request",
+          "legal_action_indices": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        "view": {
+          "format": "gen9randombattle",
+          "gen": 9,
+          "turn": 2,
+          "player": "p2",
+          "opponent": "p1",
+          "terminated": false,
+          "winner": null,
+          "names": {
+            "p1": "Agent-1",
+            "p2": "Agent-2"
+          },
+          "team_size": {
+            "p1": 6,
+            "p2": 6
+          },
+          "active": {
+            "self": 0,
+            "opponent": 1
+          },
+          "field": {
+            "weather": null,
+            "terrain": null,
+            "pseudo_weather": [],
+            "side_conditions": {
+              "self": {},
+              "opponent": {}
+            }
+          },
+          "self_team": [
+            {
+              "slot": 1,
+              "ident": "p2: Iron Bundle",
+              "name": "Iron Bundle",
+              "species": "Iron Bundle",
+              "base_species": "Iron Bundle",
+              "current_species": "Iron Bundle",
+              "displayed_species": "Iron Bundle",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Iron Bundle, L77",
+              "active": true,
+              "fainted": false,
+              "hp_text": "213/213",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": null,
+              "level": 77,
+              "types": [
+                "Ice",
+                "Water"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "choicespecs",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "quarkdrive",
+              "base_ability": "quarkdrive",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "flipturn",
+                "icebeam",
+                "freezedry",
+                "hydropump"
+              ],
+              "revealed_moves": [
+                "flipturn",
+                "icebeam",
+                "freezedry",
+                "hydropump"
+              ],
+              "tera_type": "Ice",
+              "stats": {
+                "atk": 168,
+                "def": 220,
+                "spa": 236,
+                "spd": 137,
+                "spe": 254
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 2,
+              "ident": "p2: Oricorio",
+              "name": "Oricorio",
+              "species": "Oricorio",
+              "base_species": "Oricorio",
+              "current_species": "Oricorio",
+              "displayed_species": "Oricorio",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Oricorio, L84, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "263/263",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 84,
+              "types": [
+                "Fire",
+                "Flying"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "heavydutyboots",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "dancer",
+              "base_ability": "dancer",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "hurricane",
+                "quiverdance",
+                "revelationdance",
+                "roost"
+              ],
+              "revealed_moves": [
+                "hurricane",
+                "quiverdance",
+                "revelationdance",
+                "roost"
+              ],
+              "tera_type": "Ground",
+              "stats": {
+                "atk": 122,
+                "def": 166,
+                "spa": 213,
+                "spd": 166,
+                "spe": 204
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 3,
+              "ident": "p2: Eiscue",
+              "name": "Eiscue",
+              "species": "Eiscue",
+              "base_species": "Eiscue",
+              "current_species": "Eiscue",
+              "displayed_species": "Eiscue",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Eiscue, L88, M",
+              "active": false,
+              "fainted": false,
+              "hp_text": "272/272",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "M",
+              "level": 88,
+              "types": [
+                "Ice"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "salacberry",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "iceface",
+              "base_ability": "iceface",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "terablast",
+                "bellydrum",
+                "substitute",
+                "icespinner"
+              ],
+              "revealed_moves": [
+                "terablast",
+                "bellydrum",
+                "substitute",
+                "icespinner"
+              ],
+              "tera_type": "Electric",
+              "stats": {
+                "atk": 191,
+                "def": 244,
+                "spa": 165,
+                "spd": 209,
+                "spe": 138
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 4,
+              "ident": "p2: Gogoat",
+              "name": "Gogoat",
+              "species": "Gogoat",
+              "base_species": "Gogoat",
+              "current_species": "Gogoat",
+              "displayed_species": "Gogoat",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Gogoat, L88, F",
+              "active": false,
+              "fainted": false,
+              "hp_text": "360/360",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "F",
+              "level": 88,
+              "types": [
+                "Grass"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "leftovers",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "sapsipper",
+              "base_ability": "sapsipper",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "hornleech",
+                "bulkup",
+                "milkdrink",
+                "earthquake"
+              ],
+              "revealed_moves": [
+                "hornleech",
+                "bulkup",
+                "milkdrink",
+                "earthquake"
+              ],
+              "tera_type": "Water",
+              "stats": {
+                "atk": 226,
+                "def": 159,
+                "spa": 221,
+                "spd": 193,
+                "spe": 170
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 5,
+              "ident": "p2: Grafaiai",
+              "name": "Grafaiai",
+              "species": "Grafaiai",
+              "base_species": "Grafaiai",
+              "current_species": "Grafaiai",
+              "displayed_species": "Grafaiai",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Grafaiai, L86, F",
+              "active": false,
+              "fainted": false,
+              "hp_text": "249/249",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "F",
+              "level": 86,
+              "types": [
+                "Poison",
+                "Normal"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "assaultvest",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "poisontouch",
+              "base_ability": "poisontouch",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "superfang",
+                "knockoff",
+                "uturn",
+                "gunkshot"
+              ],
+              "revealed_moves": [
+                "superfang",
+                "knockoff",
+                "uturn",
+                "gunkshot"
+              ],
+              "tera_type": "Dark",
+              "stats": {
+                "atk": 213,
+                "def": 161,
+                "spa": 187,
+                "spd": 173,
+                "spe": 238
+              },
+              "boosts": {}
+            },
+            {
+              "slot": 6,
+              "ident": "p2: Calyrex",
+              "name": "Calyrex",
+              "species": "Calyrex-Shadow",
+              "base_species": "Calyrex-Shadow",
+              "current_species": "Calyrex-Shadow",
+              "displayed_species": "Calyrex-Shadow",
+              "species_source": "request",
+              "transformed": false,
+              "displayed_species_uncertain": false,
+              "illusion_revealed": false,
+              "details": "Calyrex-Shadow, L64",
+              "active": false,
+              "fainted": false,
+              "hp_text": "235/235",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "request",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": null,
+              "level": 64,
+              "types": [
+                "Psychic",
+                "Ghost"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "item": "choicespecs",
+              "last_item": null,
+              "item_state": "held",
+              "item_suppressed": false,
+              "ability": "asonespectrier",
+              "base_ability": "asonespectrier",
+              "ability_state": "known",
+              "ability_suppressed": false,
+              "moves": [
+                "psyshock",
+                "astralbarrage",
+                "pollenpuff",
+                "trick"
+              ],
+              "revealed_moves": [
+                "psyshock",
+                "astralbarrage",
+                "pollenpuff",
+                "trick"
+              ],
+              "tera_type": "Dark",
+              "stats": {
+                "atk": 113,
+                "def": 140,
+                "spa": 249,
+                "spd": 166,
+                "spe": 230
+              },
+              "boosts": {}
+            }
+          ],
+          "opponent_team": [
+            {
+              "slot": 1,
+              "ident": "p1a: Hatterene",
+              "name": "Hatterene",
+              "species": "Hatterene",
+              "base_species": "Hatterene",
+              "current_species": "Hatterene",
+              "displayed_species": "Hatterene",
+              "species_source": "protocol",
+              "transformed": false,
+              "displayed_species_uncertain": true,
+              "illusion_revealed": false,
+              "details": "Hatterene, L85, F",
+              "active": false,
+              "fainted": false,
+              "hp_text": "100/100",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "protocol",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": "F",
+              "level": 85,
+              "types": [
+                "Psychic",
+                "Fairy"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "public_boosts": {
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0,
+                "accuracy": 0,
+                "evasion": 0
+              }
+            },
+            {
+              "slot": 2,
+              "ident": "p1a: Electrode",
+              "name": "Electrode",
+              "species": "Electrode-Hisui",
+              "base_species": "Electrode-Hisui",
+              "current_species": "Electrode-Hisui",
+              "displayed_species": "Electrode-Hisui",
+              "species_source": "protocol",
+              "transformed": false,
+              "displayed_species_uncertain": true,
+              "illusion_revealed": false,
+              "details": "Electrode-Hisui, L87",
+              "active": true,
+              "fainted": false,
+              "hp_text": "100/100",
+              "hp_ratio": 1,
+              "status": null,
+              "status_source": "protocol",
+              "status_started_turn": null,
+              "status_turns_public": null,
+              "gender": null,
+              "level": 87,
+              "types": [
+                "Electric",
+                "Grass"
+              ],
+              "terastallized": false,
+              "volatiles": [],
+              "public_boosts": {
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0,
+                "accuracy": 0,
+                "evasion": 0
+              }
+            }
+          ]
+        },
+        "observation_id": "obs-27debaa4a12f2dcb74c2b122d55cb942778861b6b01e2fa334d9c06669999271",
+        "protocol_prefix": [
+          "|t:|0",
+          "|gametype|singles",
+          "|player|p1|Agent-1||",
+          "|player|p2|Agent-2||",
+          "|teamsize|p1|6",
+          "|teamsize|p2|6",
+          "|gen|9",
+          "|rule|Species Clause: Limit one of each Pokémon",
+          "|rule|HP Percentage Mod: HP is shown in percentages",
+          "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+          "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+          "|t:|0",
+          "|start",
+          "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+          "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+          "|turn|1",
+          "|t:|0",
+          "|switch|p2a: Iron Bundle|Iron Bundle, L77|100/100",
+          "|switch|p1a: Electrode|Electrode-Hisui, L87|100/100",
+          "|upkeep",
+          "|turn|2"
+        ]
+      }
+    }
+  },
+  "commit": {
+    "origin_id": "episode-origin-35737d8d6174eeffcaca1b9a2d1068934795815d6e454104a4ced499bf1b2b77",
+    "transition": {
+      "schema_version": "pipeline-transition-reference/v1",
+      "transition_id": "transition-eab1a6798ab1f7bbd451f3e99bc0271cfd1eb195ad20ad638684fd75e1f84037",
+      "parent_branch_id": "branch-5013bf6ea4cd8cb7028bf9d359bd84636586b975802dd28cf8b82b0662c45e64",
+      "branch_id": "branch-61f54f8acb0a5eaca075392bd7bc42bd5374165693226a49be1ab283ee794e2e",
+      "input_state_fingerprint": "1817d3a41d67001390cf54aad17368c23799982f1d32e44d953de13c67938fea",
+      "output_state_fingerprint": "d393e35ea34347385871cb3429efd5800122bc83d13a0ea148469bb592adc562",
+      "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+      "step_index": 1
+    },
+    "actors": [
+      "p1",
+      "p2"
+    ],
+    "boundary": {
+      "step_index": 2,
+      "kind": "joint_actionable",
+      "branch_id": "branch-61f54f8acb0a5eaca075392bd7bc42bd5374165693226a49be1ab283ee794e2e",
+      "state_fingerprint": "d393e35ea34347385871cb3429efd5800122bc83d13a0ea148469bb592adc562",
+      "perspectives": {
+        "p1": {
+          "schema_version": "observable-battle-state/v2",
+          "source_kind": "sim_core",
+          "battle_id": "episode-source-turn-limit-tie",
+          "perspective": "p1",
+          "event_cursor": 27,
+          "protocol_prefix_hash": "2282385c0fb7d3c212cee54840ab808c7b77cb56d902fcc0dc258140f1203ff7",
+          "snapshot_phase": "pre_decision",
+          "other_phase": null,
+          "request": {
+            "player": "p1",
+            "wait": false,
+            "team_preview": false,
+            "force_switch": false,
+            "trapped": false,
+            "rqid": null,
+            "active": {
+              "moves": [
+                {
+                  "slot": 1,
+                  "move": "Psyshock",
+                  "id": "psyshock",
+                  "pp": 16,
+                  "maxpp": 16,
+                  "target": "normal",
+                  "disabled": false,
+                  "type": "Psychic",
+                  "category": "Special",
+                  "base_power": 80,
+                  "accuracy": 100
+                },
+                {
+                  "slot": 2,
+                  "move": "Draining Kiss",
+                  "id": "drainingkiss",
+                  "pp": 16,
+                  "maxpp": 16,
+                  "target": "normal",
+                  "disabled": false,
+                  "type": "Fairy",
+                  "category": "Special",
+                  "base_power": 50,
+                  "accuracy": 100
+                },
+                {
+                  "slot": 3,
+                  "move": "Calm Mind",
+                  "id": "calmmind",
+                  "pp": 32,
+                  "maxpp": 32,
+                  "target": "self",
+                  "disabled": false,
+                  "type": "Psychic",
+                  "category": "Status",
+                  "base_power": 0,
+                  "accuracy": null
+                },
+                {
+                  "slot": 4,
+                  "move": "Mystical Fire",
+                  "id": "mysticalfire",
+                  "pp": 16,
+                  "maxpp": 16,
+                  "target": "normal",
+                  "disabled": false,
+                  "type": "Fire",
+                  "category": "Special",
+                  "base_power": 75,
+                  "accuracy": 100
+                }
+              ],
+              "can_terastallize": true,
+              "tera_type": "Steel",
+              "trapped": false,
+              "can_switch": true
+            },
+            "side": [
+              {
+                "slot": 1,
+                "ident": "p1: Hatterene",
+                "details": "Hatterene, L85, F",
+                "condition": "236/236",
+                "active": true,
+                "moves": [
+                  "psyshock",
+                  "drainingkiss",
+                  "calmmind",
+                  "mysticalfire"
+                ],
+                "stats": {
+                  "atk": 158,
+                  "def": 210,
+                  "spa": 280,
+                  "spd": 224,
+                  "spe": 98
+                },
+                "base_ability": "magicbounce",
+                "ability": "magicbounce",
+                "item": "leftovers",
+                "tera_type": "Steel",
+                "terastallized": false
+              },
+              {
+                "slot": 2,
+                "ident": "p1: Electrode",
+                "details": "Electrode-Hisui, L87",
+                "condition": "246/246",
+                "active": false,
+                "moves": [
+                  "taunt",
+                  "thunderbolt",
+                  "voltswitch",
+                  "leafstorm"
+                ],
+                "stats": {
+                  "atk": 92,
+                  "def": 172,
+                  "spa": 189,
+                  "spd": 189,
+                  "spe": 311
+                },
+                "base_ability": "aftermath",
+                "ability": "aftermath",
+                "item": "lifeorb",
+                "tera_type": "Grass",
+                "terastallized": false
+              },
+              {
+                "slot": 3,
+                "ident": "p1: Gurdurr",
+                "details": "Gurdurr, L85, M",
+                "condition": "283/283",
+                "active": false,
+                "moves": [
+                  "knockoff",
+                  "machpunch",
+                  "drainpunch",
+                  "bulkup"
+                ],
+                "stats": {
+                  "atk": 227,
+                  "def": 193,
+                  "spa": 117,
+                  "spd": 134,
+                  "spe": 117
+                },
+                "base_ability": "guts",
+                "ability": "guts",
+                "item": "eviolite",
+                "tera_type": "Steel",
+                "terastallized": false
+              },
+              {
+                "slot": 4,
+                "ident": "p1: Volbeat",
+                "details": "Volbeat, L90, M",
+                "condition": "263/263",
+                "active": false,
+                "moves": [
+                  "encore",
+                  "roost",
+                  "lunge",
+                  "thunderwave"
+                ],
+                "stats": {
+                  "atk": 183,
+                  "def": 186,
+                  "spa": 136,
+                  "spd": 204,
+                  "spe": 204
+                },
+                "base_ability": "prankster",
+                "ability": "prankster",
+                "item": "heavydutyboots",
+                "tera_type": "Water",
+                "terastallized": false
+              },
+              {
+                "slot": 5,
+                "ident": "p1: Luvdisc",
+                "details": "Luvdisc, F",
+                "condition": "247/247",
+                "active": false,
+                "moves": [
+                  "whirlpool",
+                  "surf",
+                  "endeavor",
+                  "substitute"
+                ],
+                "stats": {
+                  "atk": 65,
+                  "def": 167,
+                  "spa": 137,
+                  "spd": 187,
+                  "spe": 251
+                },
+                "base_ability": "swiftswim",
+                "ability": "swiftswim",
+                "item": "heavydutyboots",
+                "tera_type": "Ghost",
+                "terastallized": false
+              },
+              {
+                "slot": 6,
+                "ident": "p1: Ribombee",
+                "details": "Ribombee, L82, M",
+                "condition": "233/233",
+                "active": false,
+                "moves": [
+                  "bugbuzz",
+                  "quiverdance",
+                  "terablast",
+                  "moonblast"
+                ],
+                "stats": {
+                  "atk": 95,
+                  "def": 146,
+                  "spa": 203,
+                  "spd": 162,
+                  "spe": 251
+                },
+                "base_ability": "shielddust",
+                "ability": "shielddust",
+                "item": "heavydutyboots",
+                "tera_type": "Ground",
+                "terastallized": false
+              }
+            ],
+            "legal_actions": {
+              "mask": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "actions": [
+                {
+                  "index": 0,
+                  "kind": "move",
+                  "choice": "move 1",
+                  "label": "move:Psyshock",
+                  "move": "Psyshock",
+                  "slot": 1
+                },
+                {
+                  "index": 1,
+                  "kind": "move",
+                  "choice": "move 2",
+                  "label": "move:Draining Kiss",
+                  "move": "Draining Kiss",
+                  "slot": 2
+                },
+                {
+                  "index": 2,
+                  "kind": "move",
+                  "choice": "move 3",
+                  "label": "move:Calm Mind",
+                  "move": "Calm Mind",
+                  "slot": 3
+                },
+                {
+                  "index": 3,
+                  "kind": "move",
+                  "choice": "move 4",
+                  "label": "move:Mystical Fire",
+                  "move": "Mystical Fire",
+                  "slot": 4
+                },
+                {
+                  "index": 4,
+                  "kind": "move_tera",
+                  "choice": "move 1 terastallize",
+                  "label": "move_tera:Psyshock",
+                  "move": "Psyshock",
+                  "slot": 1
+                },
+                {
+                  "index": 5,
+                  "kind": "move_tera",
+                  "choice": "move 2 terastallize",
+                  "label": "move_tera:Draining Kiss",
+                  "move": "Draining Kiss",
+                  "slot": 2
+                },
+                {
+                  "index": 6,
+                  "kind": "move_tera",
+                  "choice": "move 3 terastallize",
+                  "label": "move_tera:Calm Mind",
+                  "move": "Calm Mind",
+                  "slot": 3
+                },
+                {
+                  "index": 7,
+                  "kind": "move_tera",
+                  "choice": "move 4 terastallize",
+                  "label": "move_tera:Mystical Fire",
+                  "move": "Mystical Fire",
+                  "slot": 4
+                },
+                {
+                  "index": 8,
+                  "kind": "switch",
+                  "choice": "switch 2",
+                  "label": "switch:Electrode-Hisui, L87",
+                  "slot": 2
+                },
+                {
+                  "index": 9,
+                  "kind": "switch",
+                  "choice": "switch 3",
+                  "label": "switch:Gurdurr, L85, M",
+                  "slot": 3
+                },
+                {
+                  "index": 10,
+                  "kind": "switch",
+                  "choice": "switch 4",
+                  "label": "switch:Volbeat, L90, M",
+                  "slot": 4
+                },
+                {
+                  "index": 11,
+                  "kind": "switch",
+                  "choice": "switch 5",
+                  "label": "switch:Luvdisc, F",
+                  "slot": 5
+                },
+                {
+                  "index": 12,
+                  "kind": "switch",
+                  "choice": "switch 6",
+                  "label": "switch:Ribombee, L82, M",
+                  "slot": 6
+                }
+              ],
+              "available_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ]
+            }
+          },
+          "decision_availability": {
+            "available": true,
+            "reason": "request",
+            "legal_action_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          },
+          "view": {
+            "format": "gen9randombattle",
+            "gen": 9,
+            "turn": 3,
+            "player": "p1",
+            "opponent": "p2",
+            "terminated": false,
+            "winner": null,
+            "names": {
+              "p1": "Agent-1",
+              "p2": "Agent-2"
+            },
+            "team_size": {
+              "p1": 6,
+              "p2": 6
+            },
+            "active": {
+              "self": 0,
+              "opponent": 0
+            },
+            "field": {
+              "weather": null,
+              "terrain": null,
+              "pseudo_weather": [],
+              "side_conditions": {
+                "self": {},
+                "opponent": {}
+              }
+            },
+            "self_team": [
+              {
+                "slot": 1,
+                "ident": "p1: Hatterene",
+                "name": "Hatterene",
+                "species": "Hatterene",
+                "base_species": "Hatterene",
+                "current_species": "Hatterene",
+                "displayed_species": "Hatterene",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Hatterene, L85, F",
+                "active": true,
+                "fainted": false,
+                "hp_text": "236/236",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "F",
+                "level": 85,
+                "types": [
+                  "Psychic",
+                  "Fairy"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "leftovers",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "magicbounce",
+                "base_ability": "magicbounce",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "psyshock",
+                  "drainingkiss",
+                  "calmmind",
+                  "mysticalfire"
+                ],
+                "revealed_moves": [
+                  "psyshock",
+                  "drainingkiss",
+                  "calmmind",
+                  "mysticalfire"
+                ],
+                "tera_type": "Steel",
+                "stats": {
+                  "atk": 158,
+                  "def": 210,
+                  "spa": 280,
+                  "spd": 224,
+                  "spe": 98
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 2,
+                "ident": "p1: Electrode",
+                "name": "Electrode",
+                "species": "Electrode-Hisui",
+                "base_species": "Electrode-Hisui",
+                "current_species": "Electrode-Hisui",
+                "displayed_species": "Electrode-Hisui",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Electrode-Hisui, L87",
+                "active": false,
+                "fainted": false,
+                "hp_text": "246/246",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": null,
+                "level": 87,
+                "types": [
+                  "Electric",
+                  "Grass"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "lifeorb",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "aftermath",
+                "base_ability": "aftermath",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "taunt",
+                  "thunderbolt",
+                  "voltswitch",
+                  "leafstorm"
+                ],
+                "revealed_moves": [
+                  "taunt",
+                  "thunderbolt",
+                  "voltswitch",
+                  "leafstorm"
+                ],
+                "tera_type": "Grass",
+                "stats": {
+                  "atk": 92,
+                  "def": 172,
+                  "spa": 189,
+                  "spd": 189,
+                  "spe": 311
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 3,
+                "ident": "p1: Gurdurr",
+                "name": "Gurdurr",
+                "species": "Gurdurr",
+                "base_species": "Gurdurr",
+                "current_species": "Gurdurr",
+                "displayed_species": "Gurdurr",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Gurdurr, L85, M",
+                "active": false,
+                "fainted": false,
+                "hp_text": "283/283",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 85,
+                "types": [
+                  "Fighting"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "eviolite",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "guts",
+                "base_ability": "guts",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "knockoff",
+                  "machpunch",
+                  "drainpunch",
+                  "bulkup"
+                ],
+                "revealed_moves": [
+                  "knockoff",
+                  "machpunch",
+                  "drainpunch",
+                  "bulkup"
+                ],
+                "tera_type": "Steel",
+                "stats": {
+                  "atk": 227,
+                  "def": 193,
+                  "spa": 117,
+                  "spd": 134,
+                  "spe": 117
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 4,
+                "ident": "p1: Volbeat",
+                "name": "Volbeat",
+                "species": "Volbeat",
+                "base_species": "Volbeat",
+                "current_species": "Volbeat",
+                "displayed_species": "Volbeat",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Volbeat, L90, M",
+                "active": false,
+                "fainted": false,
+                "hp_text": "263/263",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 90,
+                "types": [
+                  "Bug"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "heavydutyboots",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "prankster",
+                "base_ability": "prankster",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "encore",
+                  "roost",
+                  "lunge",
+                  "thunderwave"
+                ],
+                "revealed_moves": [
+                  "encore",
+                  "roost",
+                  "lunge",
+                  "thunderwave"
+                ],
+                "tera_type": "Water",
+                "stats": {
+                  "atk": 183,
+                  "def": 186,
+                  "spa": 136,
+                  "spd": 204,
+                  "spe": 204
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 5,
+                "ident": "p1: Luvdisc",
+                "name": "Luvdisc",
+                "species": "Luvdisc",
+                "base_species": "Luvdisc",
+                "current_species": "Luvdisc",
+                "displayed_species": "Luvdisc",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Luvdisc, F",
+                "active": false,
+                "fainted": false,
+                "hp_text": "247/247",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "F",
+                "level": null,
+                "types": [
+                  "Water"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "heavydutyboots",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "swiftswim",
+                "base_ability": "swiftswim",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "whirlpool",
+                  "surf",
+                  "endeavor",
+                  "substitute"
+                ],
+                "revealed_moves": [
+                  "whirlpool",
+                  "surf",
+                  "endeavor",
+                  "substitute"
+                ],
+                "tera_type": "Ghost",
+                "stats": {
+                  "atk": 65,
+                  "def": 167,
+                  "spa": 137,
+                  "spd": 187,
+                  "spe": 251
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 6,
+                "ident": "p1: Ribombee",
+                "name": "Ribombee",
+                "species": "Ribombee",
+                "base_species": "Ribombee",
+                "current_species": "Ribombee",
+                "displayed_species": "Ribombee",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Ribombee, L82, M",
+                "active": false,
+                "fainted": false,
+                "hp_text": "233/233",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 82,
+                "types": [
+                  "Bug",
+                  "Fairy"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "heavydutyboots",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "shielddust",
+                "base_ability": "shielddust",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "bugbuzz",
+                  "quiverdance",
+                  "terablast",
+                  "moonblast"
+                ],
+                "revealed_moves": [
+                  "bugbuzz",
+                  "quiverdance",
+                  "terablast",
+                  "moonblast"
+                ],
+                "tera_type": "Ground",
+                "stats": {
+                  "atk": 95,
+                  "def": 146,
+                  "spa": 203,
+                  "spd": 162,
+                  "spe": 251
+                },
+                "boosts": {}
+              }
+            ],
+            "opponent_team": [
+              {
+                "slot": 1,
+                "ident": "p2a: Oricorio",
+                "name": "Oricorio",
+                "species": "Oricorio",
+                "base_species": "Oricorio",
+                "current_species": "Oricorio",
+                "displayed_species": "Oricorio",
+                "species_source": "protocol",
+                "transformed": false,
+                "displayed_species_uncertain": true,
+                "illusion_revealed": false,
+                "details": "Oricorio, L84, M",
+                "active": true,
+                "fainted": false,
+                "hp_text": "100/100",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "protocol",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 84,
+                "types": [
+                  "Fire",
+                  "Flying"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "public_boosts": {
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0,
+                  "accuracy": 0,
+                  "evasion": 0
+                }
+              },
+              {
+                "slot": 2,
+                "ident": "p2a: Iron Bundle",
+                "name": "Iron Bundle",
+                "species": "Iron Bundle",
+                "base_species": "Iron Bundle",
+                "current_species": "Iron Bundle",
+                "displayed_species": "Iron Bundle",
+                "species_source": "protocol",
+                "transformed": false,
+                "displayed_species_uncertain": true,
+                "illusion_revealed": false,
+                "details": "Iron Bundle, L77",
+                "active": false,
+                "fainted": false,
+                "hp_text": "100/100",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "protocol",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": null,
+                "level": 77,
+                "types": [
+                  "Ice",
+                  "Water"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "public_boosts": {
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0,
+                  "accuracy": 0,
+                  "evasion": 0
+                }
+              }
+            ]
+          },
+          "observation_id": "obs-3abbecfcbc494dc5b7cf360ab90544cfcd6f725c9d123302c195c30f30d03a15",
+          "protocol_prefix": [
+            "|t:|0",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|rule|Species Clause: Limit one of each Pokémon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+            "|t:|0",
+            "|start",
+            "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+            "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+            "|turn|1",
+            "|t:|0",
+            "|switch|p2a: Iron Bundle|Iron Bundle, L77|100/100",
+            "|switch|p1a: Electrode|Electrode-Hisui, L87|100/100",
+            "|upkeep",
+            "|turn|2",
+            "|t:|0",
+            "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+            "|-end|p2a: Iron Bundle|Quark Drive|[silent]",
+            "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+            "|upkeep",
+            "|turn|3"
+          ]
+        },
+        "p2": {
+          "schema_version": "observable-battle-state/v2",
+          "source_kind": "sim_core",
+          "battle_id": "episode-source-turn-limit-tie",
+          "perspective": "p2",
+          "event_cursor": 27,
+          "protocol_prefix_hash": "2282385c0fb7d3c212cee54840ab808c7b77cb56d902fcc0dc258140f1203ff7",
+          "snapshot_phase": "pre_decision",
+          "other_phase": null,
+          "request": {
+            "player": "p2",
+            "wait": false,
+            "team_preview": false,
+            "force_switch": false,
+            "trapped": false,
+            "rqid": null,
+            "active": {
+              "moves": [
+                {
+                  "slot": 1,
+                  "move": "Hurricane",
+                  "id": "hurricane",
+                  "pp": 16,
+                  "maxpp": 16,
+                  "target": "any",
+                  "disabled": false,
+                  "type": "Flying",
+                  "category": "Special",
+                  "base_power": 110,
+                  "accuracy": 70
+                },
+                {
+                  "slot": 2,
+                  "move": "Quiver Dance",
+                  "id": "quiverdance",
+                  "pp": 32,
+                  "maxpp": 32,
+                  "target": "self",
+                  "disabled": false,
+                  "type": "Bug",
+                  "category": "Status",
+                  "base_power": 0,
+                  "accuracy": null
+                },
+                {
+                  "slot": 3,
+                  "move": "Revelation Dance",
+                  "id": "revelationdance",
+                  "pp": 24,
+                  "maxpp": 24,
+                  "target": "normal",
+                  "disabled": false,
+                  "type": "Normal",
+                  "category": "Special",
+                  "base_power": 90,
+                  "accuracy": 100
+                },
+                {
+                  "slot": 4,
+                  "move": "Roost",
+                  "id": "roost",
+                  "pp": 8,
+                  "maxpp": 8,
+                  "target": "self",
+                  "disabled": false,
+                  "type": "Flying",
+                  "category": "Status",
+                  "base_power": 0,
+                  "accuracy": null
+                }
+              ],
+              "can_terastallize": true,
+              "tera_type": "Ground",
+              "trapped": false,
+              "can_switch": true
+            },
+            "side": [
+              {
+                "slot": 1,
+                "ident": "p2: Oricorio",
+                "details": "Oricorio, L84, M",
+                "condition": "263/263",
+                "active": true,
+                "moves": [
+                  "hurricane",
+                  "quiverdance",
+                  "revelationdance",
+                  "roost"
+                ],
+                "stats": {
+                  "atk": 122,
+                  "def": 166,
+                  "spa": 213,
+                  "spd": 166,
+                  "spe": 204
+                },
+                "base_ability": "dancer",
+                "ability": "dancer",
+                "item": "heavydutyboots",
+                "tera_type": "Ground",
+                "terastallized": false
+              },
+              {
+                "slot": 2,
+                "ident": "p2: Iron Bundle",
+                "details": "Iron Bundle, L77",
+                "condition": "213/213",
+                "active": false,
+                "moves": [
+                  "flipturn",
+                  "icebeam",
+                  "freezedry",
+                  "hydropump"
+                ],
+                "stats": {
+                  "atk": 168,
+                  "def": 220,
+                  "spa": 236,
+                  "spd": 137,
+                  "spe": 254
+                },
+                "base_ability": "quarkdrive",
+                "ability": "quarkdrive",
+                "item": "choicespecs",
+                "tera_type": "Ice",
+                "terastallized": false
+              },
+              {
+                "slot": 3,
+                "ident": "p2: Eiscue",
+                "details": "Eiscue, L88, M",
+                "condition": "272/272",
+                "active": false,
+                "moves": [
+                  "terablast",
+                  "bellydrum",
+                  "substitute",
+                  "icespinner"
+                ],
+                "stats": {
+                  "atk": 191,
+                  "def": 244,
+                  "spa": 165,
+                  "spd": 209,
+                  "spe": 138
+                },
+                "base_ability": "iceface",
+                "ability": "iceface",
+                "item": "salacberry",
+                "tera_type": "Electric",
+                "terastallized": false
+              },
+              {
+                "slot": 4,
+                "ident": "p2: Gogoat",
+                "details": "Gogoat, L88, F",
+                "condition": "360/360",
+                "active": false,
+                "moves": [
+                  "hornleech",
+                  "bulkup",
+                  "milkdrink",
+                  "earthquake"
+                ],
+                "stats": {
+                  "atk": 226,
+                  "def": 159,
+                  "spa": 221,
+                  "spd": 193,
+                  "spe": 170
+                },
+                "base_ability": "sapsipper",
+                "ability": "sapsipper",
+                "item": "leftovers",
+                "tera_type": "Water",
+                "terastallized": false
+              },
+              {
+                "slot": 5,
+                "ident": "p2: Grafaiai",
+                "details": "Grafaiai, L86, F",
+                "condition": "249/249",
+                "active": false,
+                "moves": [
+                  "superfang",
+                  "knockoff",
+                  "uturn",
+                  "gunkshot"
+                ],
+                "stats": {
+                  "atk": 213,
+                  "def": 161,
+                  "spa": 187,
+                  "spd": 173,
+                  "spe": 238
+                },
+                "base_ability": "poisontouch",
+                "ability": "poisontouch",
+                "item": "assaultvest",
+                "tera_type": "Dark",
+                "terastallized": false
+              },
+              {
+                "slot": 6,
+                "ident": "p2: Calyrex",
+                "details": "Calyrex-Shadow, L64",
+                "condition": "235/235",
+                "active": false,
+                "moves": [
+                  "psyshock",
+                  "astralbarrage",
+                  "pollenpuff",
+                  "trick"
+                ],
+                "stats": {
+                  "atk": 113,
+                  "def": 140,
+                  "spa": 249,
+                  "spd": 166,
+                  "spe": 230
+                },
+                "base_ability": "asonespectrier",
+                "ability": "asonespectrier",
+                "item": "choicespecs",
+                "tera_type": "Dark",
+                "terastallized": false
+              }
+            ],
+            "legal_actions": {
+              "mask": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "actions": [
+                {
+                  "index": 0,
+                  "kind": "move",
+                  "choice": "move 1",
+                  "label": "move:Hurricane",
+                  "move": "Hurricane",
+                  "slot": 1
+                },
+                {
+                  "index": 1,
+                  "kind": "move",
+                  "choice": "move 2",
+                  "label": "move:Quiver Dance",
+                  "move": "Quiver Dance",
+                  "slot": 2
+                },
+                {
+                  "index": 2,
+                  "kind": "move",
+                  "choice": "move 3",
+                  "label": "move:Revelation Dance",
+                  "move": "Revelation Dance",
+                  "slot": 3
+                },
+                {
+                  "index": 3,
+                  "kind": "move",
+                  "choice": "move 4",
+                  "label": "move:Roost",
+                  "move": "Roost",
+                  "slot": 4
+                },
+                {
+                  "index": 4,
+                  "kind": "move_tera",
+                  "choice": "move 1 terastallize",
+                  "label": "move_tera:Hurricane",
+                  "move": "Hurricane",
+                  "slot": 1
+                },
+                {
+                  "index": 5,
+                  "kind": "move_tera",
+                  "choice": "move 2 terastallize",
+                  "label": "move_tera:Quiver Dance",
+                  "move": "Quiver Dance",
+                  "slot": 2
+                },
+                {
+                  "index": 6,
+                  "kind": "move_tera",
+                  "choice": "move 3 terastallize",
+                  "label": "move_tera:Revelation Dance",
+                  "move": "Revelation Dance",
+                  "slot": 3
+                },
+                {
+                  "index": 7,
+                  "kind": "move_tera",
+                  "choice": "move 4 terastallize",
+                  "label": "move_tera:Roost",
+                  "move": "Roost",
+                  "slot": 4
+                },
+                {
+                  "index": 8,
+                  "kind": "switch",
+                  "choice": "switch 2",
+                  "label": "switch:Iron Bundle, L77",
+                  "slot": 2
+                },
+                {
+                  "index": 9,
+                  "kind": "switch",
+                  "choice": "switch 3",
+                  "label": "switch:Eiscue, L88, M",
+                  "slot": 3
+                },
+                {
+                  "index": 10,
+                  "kind": "switch",
+                  "choice": "switch 4",
+                  "label": "switch:Gogoat, L88, F",
+                  "slot": 4
+                },
+                {
+                  "index": 11,
+                  "kind": "switch",
+                  "choice": "switch 5",
+                  "label": "switch:Grafaiai, L86, F",
+                  "slot": 5
+                },
+                {
+                  "index": 12,
+                  "kind": "switch",
+                  "choice": "switch 6",
+                  "label": "switch:Calyrex-Shadow, L64",
+                  "slot": 6
+                }
+              ],
+              "available_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ]
+            }
+          },
+          "decision_availability": {
+            "available": true,
+            "reason": "request",
+            "legal_action_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          },
+          "view": {
+            "format": "gen9randombattle",
+            "gen": 9,
+            "turn": 3,
+            "player": "p2",
+            "opponent": "p1",
+            "terminated": false,
+            "winner": null,
+            "names": {
+              "p1": "Agent-1",
+              "p2": "Agent-2"
+            },
+            "team_size": {
+              "p1": 6,
+              "p2": 6
+            },
+            "active": {
+              "self": 0,
+              "opponent": 0
+            },
+            "field": {
+              "weather": null,
+              "terrain": null,
+              "pseudo_weather": [],
+              "side_conditions": {
+                "self": {},
+                "opponent": {}
+              }
+            },
+            "self_team": [
+              {
+                "slot": 1,
+                "ident": "p2: Oricorio",
+                "name": "Oricorio",
+                "species": "Oricorio",
+                "base_species": "Oricorio",
+                "current_species": "Oricorio",
+                "displayed_species": "Oricorio",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Oricorio, L84, M",
+                "active": true,
+                "fainted": false,
+                "hp_text": "263/263",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 84,
+                "types": [
+                  "Fire",
+                  "Flying"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "heavydutyboots",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "dancer",
+                "base_ability": "dancer",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "hurricane",
+                  "quiverdance",
+                  "revelationdance",
+                  "roost"
+                ],
+                "revealed_moves": [
+                  "hurricane",
+                  "quiverdance",
+                  "revelationdance",
+                  "roost"
+                ],
+                "tera_type": "Ground",
+                "stats": {
+                  "atk": 122,
+                  "def": 166,
+                  "spa": 213,
+                  "spd": 166,
+                  "spe": 204
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 2,
+                "ident": "p2: Iron Bundle",
+                "name": "Iron Bundle",
+                "species": "Iron Bundle",
+                "base_species": "Iron Bundle",
+                "current_species": "Iron Bundle",
+                "displayed_species": "Iron Bundle",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Iron Bundle, L77",
+                "active": false,
+                "fainted": false,
+                "hp_text": "213/213",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": null,
+                "level": 77,
+                "types": [
+                  "Ice",
+                  "Water"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "choicespecs",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "quarkdrive",
+                "base_ability": "quarkdrive",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "flipturn",
+                  "icebeam",
+                  "freezedry",
+                  "hydropump"
+                ],
+                "revealed_moves": [
+                  "flipturn",
+                  "icebeam",
+                  "freezedry",
+                  "hydropump"
+                ],
+                "tera_type": "Ice",
+                "stats": {
+                  "atk": 168,
+                  "def": 220,
+                  "spa": 236,
+                  "spd": 137,
+                  "spe": 254
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 3,
+                "ident": "p2: Eiscue",
+                "name": "Eiscue",
+                "species": "Eiscue",
+                "base_species": "Eiscue",
+                "current_species": "Eiscue",
+                "displayed_species": "Eiscue",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Eiscue, L88, M",
+                "active": false,
+                "fainted": false,
+                "hp_text": "272/272",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "M",
+                "level": 88,
+                "types": [
+                  "Ice"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "salacberry",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "iceface",
+                "base_ability": "iceface",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "terablast",
+                  "bellydrum",
+                  "substitute",
+                  "icespinner"
+                ],
+                "revealed_moves": [
+                  "terablast",
+                  "bellydrum",
+                  "substitute",
+                  "icespinner"
+                ],
+                "tera_type": "Electric",
+                "stats": {
+                  "atk": 191,
+                  "def": 244,
+                  "spa": 165,
+                  "spd": 209,
+                  "spe": 138
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 4,
+                "ident": "p2: Gogoat",
+                "name": "Gogoat",
+                "species": "Gogoat",
+                "base_species": "Gogoat",
+                "current_species": "Gogoat",
+                "displayed_species": "Gogoat",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Gogoat, L88, F",
+                "active": false,
+                "fainted": false,
+                "hp_text": "360/360",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "F",
+                "level": 88,
+                "types": [
+                  "Grass"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "leftovers",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "sapsipper",
+                "base_ability": "sapsipper",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "hornleech",
+                  "bulkup",
+                  "milkdrink",
+                  "earthquake"
+                ],
+                "revealed_moves": [
+                  "hornleech",
+                  "bulkup",
+                  "milkdrink",
+                  "earthquake"
+                ],
+                "tera_type": "Water",
+                "stats": {
+                  "atk": 226,
+                  "def": 159,
+                  "spa": 221,
+                  "spd": 193,
+                  "spe": 170
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 5,
+                "ident": "p2: Grafaiai",
+                "name": "Grafaiai",
+                "species": "Grafaiai",
+                "base_species": "Grafaiai",
+                "current_species": "Grafaiai",
+                "displayed_species": "Grafaiai",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Grafaiai, L86, F",
+                "active": false,
+                "fainted": false,
+                "hp_text": "249/249",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "F",
+                "level": 86,
+                "types": [
+                  "Poison",
+                  "Normal"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "assaultvest",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "poisontouch",
+                "base_ability": "poisontouch",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "superfang",
+                  "knockoff",
+                  "uturn",
+                  "gunkshot"
+                ],
+                "revealed_moves": [
+                  "superfang",
+                  "knockoff",
+                  "uturn",
+                  "gunkshot"
+                ],
+                "tera_type": "Dark",
+                "stats": {
+                  "atk": 213,
+                  "def": 161,
+                  "spa": 187,
+                  "spd": 173,
+                  "spe": 238
+                },
+                "boosts": {}
+              },
+              {
+                "slot": 6,
+                "ident": "p2: Calyrex",
+                "name": "Calyrex",
+                "species": "Calyrex-Shadow",
+                "base_species": "Calyrex-Shadow",
+                "current_species": "Calyrex-Shadow",
+                "displayed_species": "Calyrex-Shadow",
+                "species_source": "request",
+                "transformed": false,
+                "displayed_species_uncertain": false,
+                "illusion_revealed": false,
+                "details": "Calyrex-Shadow, L64",
+                "active": false,
+                "fainted": false,
+                "hp_text": "235/235",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "request",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": null,
+                "level": 64,
+                "types": [
+                  "Psychic",
+                  "Ghost"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "item": "choicespecs",
+                "last_item": null,
+                "item_state": "held",
+                "item_suppressed": false,
+                "ability": "asonespectrier",
+                "base_ability": "asonespectrier",
+                "ability_state": "known",
+                "ability_suppressed": false,
+                "moves": [
+                  "psyshock",
+                  "astralbarrage",
+                  "pollenpuff",
+                  "trick"
+                ],
+                "revealed_moves": [
+                  "psyshock",
+                  "astralbarrage",
+                  "pollenpuff",
+                  "trick"
+                ],
+                "tera_type": "Dark",
+                "stats": {
+                  "atk": 113,
+                  "def": 140,
+                  "spa": 249,
+                  "spd": 166,
+                  "spe": 230
+                },
+                "boosts": {}
+              }
+            ],
+            "opponent_team": [
+              {
+                "slot": 1,
+                "ident": "p1a: Hatterene",
+                "name": "Hatterene",
+                "species": "Hatterene",
+                "base_species": "Hatterene",
+                "current_species": "Hatterene",
+                "displayed_species": "Hatterene",
+                "species_source": "protocol",
+                "transformed": false,
+                "displayed_species_uncertain": true,
+                "illusion_revealed": false,
+                "details": "Hatterene, L85, F",
+                "active": true,
+                "fainted": false,
+                "hp_text": "100/100",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "protocol",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": "F",
+                "level": 85,
+                "types": [
+                  "Psychic",
+                  "Fairy"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "public_boosts": {
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0,
+                  "accuracy": 0,
+                  "evasion": 0
+                }
+              },
+              {
+                "slot": 2,
+                "ident": "p1a: Electrode",
+                "name": "Electrode",
+                "species": "Electrode-Hisui",
+                "base_species": "Electrode-Hisui",
+                "current_species": "Electrode-Hisui",
+                "displayed_species": "Electrode-Hisui",
+                "species_source": "protocol",
+                "transformed": false,
+                "displayed_species_uncertain": true,
+                "illusion_revealed": false,
+                "details": "Electrode-Hisui, L87",
+                "active": false,
+                "fainted": false,
+                "hp_text": "100/100",
+                "hp_ratio": 1,
+                "status": null,
+                "status_source": "protocol",
+                "status_started_turn": null,
+                "status_turns_public": null,
+                "gender": null,
+                "level": 87,
+                "types": [
+                  "Electric",
+                  "Grass"
+                ],
+                "terastallized": false,
+                "volatiles": [],
+                "public_boosts": {
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0,
+                  "accuracy": 0,
+                  "evasion": 0
+                }
+              }
+            ]
+          },
+          "observation_id": "obs-b58f7bfea408ad5ebb183722b305e417073a43511851bf1cd27761a2f688a7af",
+          "protocol_prefix": [
+            "|t:|0",
+            "|gametype|singles",
+            "|player|p1|Agent-1||",
+            "|player|p2|Agent-2||",
+            "|teamsize|p1|6",
+            "|teamsize|p2|6",
+            "|gen|9",
+            "|rule|Species Clause: Limit one of each Pokémon",
+            "|rule|HP Percentage Mod: HP is shown in percentages",
+            "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+            "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+            "|t:|0",
+            "|start",
+            "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+            "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+            "|turn|1",
+            "|t:|0",
+            "|switch|p2a: Iron Bundle|Iron Bundle, L77|100/100",
+            "|switch|p1a: Electrode|Electrode-Hisui, L87|100/100",
+            "|upkeep",
+            "|turn|2",
+            "|t:|0",
+            "|switch|p1a: Hatterene|Hatterene, L85, F|100/100",
+            "|-end|p2a: Iron Bundle|Quark Drive|[silent]",
+            "|switch|p2a: Oricorio|Oricorio, L84, M|100/100",
+            "|upkeep",
+            "|turn|3"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "merge-preparation-presence/v1",
+  "accepted_reviewed_digest_unchanged": "919e608db591d606c2a8370bc4df1511e962612a07af421aa9d9ba7ed6f9fbbc",
+  "new_local_digest": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+  "accepted_baseline_reproduced_after_inverse_doc_only_changes": true,
+  "changed_coverage_inputs": [
+    "../README.md",
+    "../docs/PROJECT_STATUS.md",
+    "../docs/architecture.md",
+    "../docs/refactor/STATUS.md",
+    "../docs/workflows.md"
+  ],
+  "original_inventory_files_present": 119,
+  "proposed_include_count": 134,
+  "proposed_exclude_count": 21,
+  "separate_owner_count": 2,
+  "nine_current_runtime_test_fixture_hashes_match": true,
+  "required_fixtures": [
+    {
+      "path": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json",
+      "bytes": 51325,
+      "sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+      "included": true
+    },
+    {
+      "path": "artifacts/validation/faithful-flag-2026-10-09/segment-start.json",
+      "bytes": 111452,
+      "sha256": "a468592b1374317504445184242a8438112d381eb18e59931816c3d25b0127c5",
+      "included": true
+    }
+  ],
+  "tests_run": false,
+  "large_files_rehashed": false,
+  "git_mutations": false,
+  "external_storage": "pending owner-selected destination",
+  "git_diff_check_exit": 0,
+  "new_packaging_files_whitespace": "pass",
+  "ignore_checks": {
+    "compact_fixtures_not_ignored": true,
+    "exact_large_payloads_ignored": true,
+    "root_lock_and_generated_metadata_ignored": true,
+    "tracked_egg_info_requires_explicit_exclusion": true
+  },
+  "fixture_reference_and_pinned_hash_checks": "pass",
+  "dependency_package_files_present_and_tracked": "pass",
+  "index_remains_empty": true,
+  "replay_policy_repair": {
+    "evidence": "replay-policy-repair.json",
+    "included_added_files": [
+      "trainer/src/neural/build_replay_policy_dataset.py",
+      "trainer/tests/test_replay_policy_lineage.py",
+      "docs/contracts/DATASET_LINEAGE.md",
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-repair.json",
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-boundaries.log",
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-duplicate.log",
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-suffix.log",
+      "artifacts/validation/merge-preparation-2026-10-09/replay-policy-single.log"
+    ],
+    "all_inclusion_paths_present": true,
+    "pathspec_sets_disjoint": true,
+    "capture_digest_unchanged": "15366961d663ecd4f6a2a93e485f2d4d55738202ba819e3bdf2ed644ef0361ce",
+    "independent_review": "pending"
+  }
+}

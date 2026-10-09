@@ -1,5 +1,6 @@
+import { carryTerminalOwner, withTerminalOwner } from './public_health';
 import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
-import { projectBeliefState, serializeBeliefState, type BeliefState } from './belief_state';
+import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
 import { LocalBattleEnv } from './env_manager';
 import type { SettlingOptions } from './settling';
 import {
@@ -11,7 +12,7 @@ import {
 import {
   SEEDED_TRANSITION_SCHEMA_VERSION,
   SEEDED_FORCED_SWITCH_SCHEMA_VERSION,
-  SEEDED_REVIVAL_SCHEMA_VERSION,
+  SEEDED_REVIVAL_SCHEMA_VERSION, SIMULATOR_REVISION,
   assertRevivalSelection,
   assertOrdinaryForcedSwitch,
   type ForcedSwitchRoles,
@@ -172,6 +173,17 @@ function assertNoUnresolvedProtocolAlias(record: string, recordIndex: number): v
   );
 }
 
+function assertPublicPipelineRecord(record: string, recordIndex: number): void {
+  const command = record.slice(1).split('|', 1)[0];
+  if (command === 'error' || command === 'split') {
+    throw new PipelineIntegrationError(
+      'pipeline/v1/private-protocol-record',
+      `private ${command} evidence cannot enter a published boundary`,
+      { record_index: recordIndex, record_command: command },
+    );
+  }
+}
+
 function freeze<T>(value: T): T {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
   Object.freeze(value);
@@ -198,6 +210,7 @@ export function projectPipelineProtocolPrefix(records: readonly string[]): strin
     if (!line.startsWith('|')) {
       throw new PipelineIntegrationError('pipeline/v1/unsupported-protocol-record', 'spectator output contained a non-protocol line');
     }
+    assertPublicPipelineRecord(line, recordIndex);
     assertNoUnresolvedProtocolAlias(line, recordIndex);
     try {
       validateRawProtocolRecord(line);
@@ -517,6 +530,16 @@ export class PipelineIntegrationSession {
 
       const nextRawPrefix = [...this.rawPrefix, ...transitionResult.metadata.emitted_log_delta];
       const projectedPrefix = projectPipelineProtocolPrefix(nextRawPrefix);
+      for (const player of PLAYERS) {
+        carryTerminalOwner({
+          predecessor: inputBoundary.perspectives[player].observation as unknown as Record<string, unknown>, before: inputBoundary,
+          transition: transitionResult.metadata,
+          action: canonicalActions[player],
+          after: {step_index: inputBoundary.step_index + 1, branch_id: transitionResult.metadata.branch_id, state_fingerprint: transitionResult.metadata.output_state_fingerprint},
+        }, {schema_version: this.observationSchema, battle_id: this.battle_id, perspective: player,
+          request: transitionResult.step_result.requests[player] ?? null, protocol_prefix: projectedPrefix,
+          view: transitionResult.step_result.views[player]});
+      }
       const nextObservations = this.projectObservations(transitionResult.step_result, projectedPrefix);
       for (const player of PLAYERS) {
         const previous = inputBoundary.perspectives[player].observation.protocol_prefix;
@@ -658,4 +681,68 @@ export class PipelineIntegrationSession {
 
 export async function createPipelineIntegrationSession(options: PipelineIntegrationOptions): Promise<PipelineIntegrationSession> {
   return PipelineIntegrationSession.create(options);
+}
+
+/** Ordinary publication validates the whole owned action and transition before terminal alias authority. */
+export function validatePipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle): void {
+  if (bundle.schema_version !== PIPELINE_BUNDLE_SCHEMA_VERSION) throw new Error('Linked record schema is invalid');
+  validatePipelineEpisodeRecordBundle(bundle);
+}
+
+/** Reuse the accepted action/belief/terminal joins for every episode actor kind. */
+export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle): void {
+  const schemas = {
+    [PIPELINE_BUNDLE_SCHEMA_VERSION]: PIPELINE_TRANSITION_REFERENCE_SCHEMA_VERSION,
+    [PIPELINE_FORCED_SWITCH_BUNDLE_VERSION]: PIPELINE_FORCED_SWITCH_REFERENCE_VERSION,
+    [PIPELINE_REVIVAL_BUNDLE_VERSION]: PIPELINE_REVIVAL_REFERENCE_VERSION,
+  };
+  const oneSided = bundle.schema_version !== PIPELINE_BUNDLE_SCHEMA_VERSION;
+  const before = bundle.input_observation, after = bundle.successor_observation;
+  const expectedKeys = ['schema_version', 'battle_id', 'source_ref', 'ruleset', 'perspective', 'input_observation', 'input_belief', 'action', 'transition', 'successor_observation', 'successor_belief'];
+  if (Object.keys(bundle).sort().join('|') !== expectedKeys.sort().join('|') || !Object.hasOwn(schemas, bundle.schema_version)
+    || bundle.source_ref !== `sim-core://${bundle.battle_id}` || before.source_kind !== 'sim_core' || after.source_kind !== 'sim_core'
+    || bundle.ruleset !== before.view.format || bundle.ruleset !== after.view.format || before.schema_version !== after.schema_version
+    || !before.decision_availability.available || bundle.transition.schema_version !== schemas[bundle.schema_version]
+    || bundle.transition.simulator_revision !== SIMULATOR_REVISION || !/^transition-[a-f0-9]{64}$/.test(bundle.transition.transition_id)
+    || !/^[a-f0-9]{64}$/.test(bundle.transition.input_state_fingerprint) || !/^[a-f0-9]{64}$/.test(bundle.transition.output_state_fingerprint)
+    || !bundle.transition.parent_branch_id.trim() || !bundle.transition.branch_id.trim()
+    || Object.keys(bundle.transition).sort().join('|') !== ['schema_version', 'transition_id', 'parent_branch_id', 'branch_id', 'input_state_fingerprint', 'output_state_fingerprint', 'simulator_revision', 'step_index', 'action_id', ...(oneSided ? ['acting_player', 'waiting_player'] : [])].sort().join('|')) throw new Error('Linked record source/schema/action transition metadata is invalid');
+  if (oneSided) {
+    const roles = bundle.transition as PipelineForcedSwitchReference;
+    if (roles.acting_player !== bundle.perspective || roles.waiting_player !== (bundle.perspective === 'p1' ? 'p2' : 'p1')
+      || classifyPipelineRequestState(before) !== (bundle.schema_version === PIPELINE_REVIVAL_BUNDLE_VERSION ? 'revival_selection' : 'forced_switch')) throw new Error('Episode actor request/role mismatch');
+  }
+  validateObservableBattleState(before);
+  serializeBeliefState(bundle.input_belief);
+  const transition = bundle.transition;
+  const input = bundle.input_belief.simulator_snapshot, output = bundle.successor_belief.simulator_snapshot;
+  const lineage = bundle.successor_belief.transition_lineage;
+  if (!before.request || bundle.perspective !== before.perspective || bundle.perspective !== after.perspective
+    || bundle.battle_id !== before.battle_id || bundle.battle_id !== after.battle_id
+    || bundle.input_belief.observation.observation_id !== before.observation_id
+    || bundle.successor_belief.observation.observation_id !== after.observation_id
+    || bundle.successor_belief.parent_belief_id !== bundle.input_belief.belief_id
+    || bundle.input_belief.battle_id !== bundle.battle_id || bundle.successor_belief.battle_id !== bundle.battle_id
+    || bundle.input_belief.perspective !== bundle.perspective || bundle.successor_belief.perspective !== bundle.perspective
+    || bundle.input_belief.transition_lineage && bundle.input_belief.transition_lineage.step_index + 1 !== transition.step_index
+    || !input || !output || !lineage || input.branch_id !== transition.parent_branch_id
+    || input.state_fingerprint !== transition.input_state_fingerprint || output.branch_id !== transition.branch_id
+    || output.state_fingerprint !== transition.output_state_fingerprint || output.transition_id !== transition.transition_id
+    || output.parent_branch_id !== transition.parent_branch_id || lineage.transition_id !== transition.transition_id
+    || lineage.input_observation_id !== before.observation_id || lineage.output_observation_id !== after.observation_id
+    || lineage.parent_branch_id !== transition.parent_branch_id || lineage.branch_id !== transition.branch_id
+    || lineage.input_state_fingerprint !== transition.input_state_fingerprint || lineage.output_state_fingerprint !== transition.output_state_fingerprint
+    || lineage.step_index !== transition.step_index || lineage.simulator_revision !== transition.simulator_revision
+    || !Number.isSafeInteger(transition.step_index) || transition.step_index < 0) throw new Error('Linked record terminal authority requires validated observation/action/transition joins');
+  serializeCanonicalAction(bundle.action, {player: bundle.perspective, rqid: before.request.rqid,
+    force_switch: before.request.force_switch, legal_actions: before.request.legal_actions, side: before.request.side});
+  if (transition.action_id !== bundle.action.action_id) throw new Error('Linked record action/transition mismatch');
+  withTerminalOwner({predecessor: before as unknown as Record<string, unknown>,
+    action: bundle.action,
+    before: {step_index: transition.step_index, branch_id: input.branch_id, state_fingerprint: input.state_fingerprint}, transition,
+    after: {step_index: transition.step_index + 1, branch_id: output.branch_id, state_fingerprint: output.state_fingerprint}},
+    after as unknown as Record<string, unknown>, () => {
+      validateObservableBattleState(after);
+      serializeBeliefState(bundle.successor_belief);
+    });
 }

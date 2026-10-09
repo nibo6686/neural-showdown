@@ -1,5 +1,13 @@
 # Refactor Risks
 
+Current status (2026-10-01): accepted scanner, source-coverage,
+format-reachability, bounded v2 publication, and macOS environment slices reduce
+their recorded risks only within their attested scope. The complete-episode
+closure audit is complete as a gap inventory; faithful episode implementation
+remains open and `faithful_complete_episode:false` is required. Windows
+recreation and Windows trainer/live support are deferred, while ENV-001 remains
+incomplete for cross-platform claims.
+
 | Risk | Impact | Mitigation | Owner |
 |---|---|---|---|
 | Observation includes future events | Invalid training/evaluation | Prefix fixtures and monotonic event cursors | State owner |
@@ -16,12 +24,14 @@
 | Prefix boundary is supplied at turn rather than record granularity | Future-information leakage | Require explicit normalized prefixes, deterministic hashes, and monotonic projector checks | State owner |
 | Dataset prefix hash is asserted without its source prefix | Future-information leakage | DATA-001 requires exact cursor/hash verification when the source prefix is available; unverifiable legacy records remain read-only | Data owner |
 | Legacy search uses turn-based trace cutoffs and unbound branch context | Future-event leakage or stale action mapping | SEARCH-001 documents that accepted exact-prefix/action/transition contracts are not current search inputs; require a separate scoped integration item before claiming those guarantees | Search owner |
-| Simulator condition or protocol semantics drift | State projection may silently become incomplete | Pin `pokemon-showdown@0.11.10`, compare registries and parser/emitter inventories, bind simulator and local coverage source digests to separate review attestations, and stop on unknown records | Simulation owner |
+| Simulator condition or protocol semantics drift | State projection may silently become incomplete | Accepted SLICE-002A scanner and SLICE-002B format/reachability attestations bind their listed evidence; retain explicit raw-only/stop dispositions and refresh separate simulator/local digests on drift. Attestations do not establish universal semantics or complete-episode fidelity. | Simulation owner |
 | Raw-only volatile/field events are mistaken for complete state | Feature inputs may miss legal-action-relevant state or lifecycle | Treat the SIM-COVERAGE inventory as a known-gap audit; represent only observed/request-backed state and require explicit lifecycle semantics before FEATURE-001 acceptance | Simulation/model owners |
 | Generic aliases have no scoped grammar | A syntactically accepted record could be misread or dropped by projection | Pipeline prefix and step-result projection now stop `clearstatus`, `-clearstatus`, and `nothing` with a structured diagnostic; keep their semantics unresolved and review before changing scope | Data owner |
 | `-nothing` is conflated with `nothing` | A source-emitted no-payload event could be lost or misclassified | Keep `-nothing` distinct; pinned Gen 9 Splash source emits it as a no-payload event and tests preserve it as raw-only evidence | Simulation owner |
 | PIPELINE-001 natural rejection criterion has no demonstrated case | Postflight rejection guarantee may be untested or the criterion may not fit an action path that already validates the full live legal request | Bounded probe covered 169 valid initial joint-action pairs at seed `[101, 202, 303, 404]` and found zero natural rejections; obtain a real admissible case or a separate evidence-backed reviewer disposition, without relabeling injected failure | Simulation owner |
 | Episode reaches one-sided forced-switch, waiting, or requestless boundary | Collector may stop mid-battle or synthesize an invalid action | PIPELINE-001 v1 fails closed and preserves its committed boundary; PIPELINE-002 defines real progression, no-action waiting behavior, and explicit complete/truncated episode records before full-episode collection | Simulation/data owners |
+| A bounded transition or completed audit is mistaken for faithful episode acceptance | Partial evidence may be labeled a complete, private, reproducible battle | Keep `faithful_complete_episode:false`; complete the episode-fidelity backlog and obtain separate review before any boundary change. The closure audit is planning evidence, not implementation acceptance. | Simulation/data owners |
+| Scoped macOS evidence is generalized to Windows or cross-platform support | Environment or model claims exceed validated configurations | Limit claims to the documented macOS simulator-record and trainer/live profiles. Defer Windows clean recreation and Windows trainer/live work; keep ENV-001 incomplete for cross-platform claims without treating it as a scoped macOS merge blocker. | Orchestrator |
 | Random-controller choices are not determined by simulator seed alone | Terminal protocol tests can be flaky and runs cannot be reproduced from simulator seed only | Keep legacy `Math.random()` default; allow explicit independent per-player controller seeds and record simulator seed, controller seeds, format, and configuration for deterministic scenarios | Simulation owner |
 | Feature, label, and runtime schemas are implicit or mismatched | Collection and inference can use different information or ordering | Do not extract or collect model features until FEATURE-001 explicitly binds schema, target, privacy regime, cursor, fingerprint, and runtime interface | Model/data owners |
 | Legacy checkpoints are confused with new-pipeline prerequisites | Work may be blocked on abandoned artifacts or silently reuse incompatible inputs | Treat existing checkpoints as intentionally abandoned and non-blocking; require new model artifacts to declare their own future manifest | Model owner |

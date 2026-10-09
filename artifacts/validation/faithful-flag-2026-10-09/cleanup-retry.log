@@ -1,0 +1,17 @@
+RUN node --test --test-name-pattern=^CE-08B repair construction validation and cleanup failures retain structured committed evidence$ sim-core/dist/tests/pipeline_episode_stop_repair.test.js
+CE-08B repaired evidence before-validation/cleanup=false
+CE-08B repaired evidence before-validation/cleanup=true
+CE-08B repaired evidence construction/cleanup=false
+CE-08B repaired evidence construction/cleanup=true
+CE-08B repaired evidence validation/cleanup=false
+CE-08B repaired evidence validation/cleanup=true
+✔ CE-08B repair construction validation and cleanup failures retain structured committed evidence (929.205542ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1545.313333
+EXIT 0 ELAPSED 1.644

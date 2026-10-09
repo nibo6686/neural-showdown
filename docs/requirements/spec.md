@@ -4,7 +4,7 @@
 
 ## Objective
 
-**Immediate delivery milestone:** capture supported `gen9randombattle` transitions faithfully for each player using `observable-battle-state/v2`. A player capture consists of that perspective’s public protocol evidence through an exact event cursor, plus only that player’s current private request and legal actions. The capture must preserve evidence, privacy, temporal boundaries, and deterministic transition lineage; unsupported or unclassified forms stop publication explicitly.
+**Refactor finish line:** faithful, privacy-correct capture of complete `gen9randombattle` episodes from the initial request through terminal outcome, using `observable-battle-state/v2`. Supported transition capture remains the accepted foundation, not proof of complete episodes. A player capture consists of that perspective’s public protocol evidence through an exact event cursor, plus only that player’s current private request and legal actions. The capture must preserve evidence, privacy, temporal boundaries, and deterministic transition lineage; unsupported or unclassified forms stop publication explicitly.
 
 **Long-term product goal:** provide a recommendation-only neural battling assistant for Gen 9 Random Battle singles. Start learning from legal replay-action imitation, with battle outcome/win rate as the ultimate objective. The current delivery milestone does not implement or authorize that model pipeline.
 
@@ -14,16 +14,56 @@ The pinned Pokemon Showdown simulator in `sim-core` is the authority for support
 
 Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness snapshot and each linked contract as the authority for its own field semantics. The detailed simulator inventory and active raw-protocol review are in [`SIMULATOR_COVERAGE.md`](../contracts/SIMULATOR_COVERAGE.md), [`MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md`](../refactor/MECHANICAL-REPRESENTATION-ASSESSMENT-2026-09-25.md), and [`PIPELINE-002-GAP-DISPOSITION-2026-09-24.md`](../refactor/PIPELINE-002-GAP-DISPOSITION-2026-09-24.md).
 
-- The repository pins `pokemon-showdown@0.11.10` and audits a Gen 9 Random Battle installation. The current source/reachability audit still has gaps; registry counts and source digests do not prove every reachable mechanic is classified.
+- The repository pins `pokemon-showdown@0.11.10`. The independently accepted FCE-01 C01–C30 inventory supplies source-backed dispositions for the supported Gen 9 Random Battle capture path; registry counts or digests alone do not establish coverage.
 - The protocol-boundary review is accepted at committed snapshot `25d21e6`. Helping Hand’s `-singleturn` `[of]` template alone requires an active source, matching the pinned move callback; side-only, missing-side, and malformed forms stop before DATA-001 publication. The reviewed coverage digest is `985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`.
-- `observable-battle-state/v2` and adjacent state/action/belief/transition/data contracts provide scoped foundations. They do not establish complete simulator-state projection, full-episode fidelity, a shared model feature schema, or a production inference path. `faithful_complete_episode:false` remains mandatory.
-- Project status records narrow prior scopes for some pipeline work. Those records do not satisfy acceptance for this v2 capture milestone. `PIPELINE-001`, `PIPELINE-002`, and `FEATURE-001` must not be treated as broadly ready; complete-episode publication remains unaccepted.
+- The FCE-01–FCE-08 packet and final 2026-10-09 PIPELINE-002 decision accept pinned v2 complete-episode capture and boundary progression. They do not accept complete simulator-private-state projection, features, training or inference. Conditional per-result emission and matching TS/Python enforcement received scoped independent runtime acceptance on 2026-10-09; unsupported and incomplete results remain false.
+- PIPELINE-002 is accepted only within the simulator/format/schema/capture scope recorded in the final decision. It is not whole-project, collection, merge or model readiness; FEATURE-001 remains separate. The faithful flag is a per-result claim, not a capability declaration.
 - Existing replay feature paths are not decision-cursor safe: value examples apply all events in a turn before featurizing that turn; action-rank reconstruction uses a prior-turn context together with a whole-trajectory completed roster; the diagnostic materializer records an own-side future-public-reveal assumption. The live overlay also sends a bounded log tail without an accepted exact-cursor contract. These paths are historical evidence, not proof that the required decision-time state is correct. See `build_replay_value_dataset.py`, `build_action_rank_dataset.py`, and `benchmark_vnext_featuregen.py`.
 - The overlay is currently recommendation-only. Existing checkpoints and vNext diagnostics are historical/isolated and are not prerequisites or approved inputs for this milestone.
 
+## Faithful Complete-Episode Milestone — Capture and Conditional Runtime Flag Accepted
+
+The [Complete-Episode Closure Audit and Implementation Backlog](../refactor/COMPLETE_EPISODE_CLOSURE_AUDIT.md)
+is the durable closure inventory and dependency-ordered plan for this finish line.
+Its current-source reconciliation supersedes older next-step recommendations only
+within the accepted scope it cites; historical findings and attestations remain
+unchanged. The conditional faithful-result flag and publication compatibility have
+scoped independent runtime acceptance. Final-tip integration/CI and merge readiness
+remain separate. Accepted
+source mechanics and evidence are reused.
+
+A reachable record may remain raw-only when its validated audience, exact grammar,
+ordered normalized evidence/cursor/hash, correct existing typed state, request-based
+legality, deterministic progression and cross-runtime publication are sufficient
+for episode capture. No typed timer, hidden counter, posterior or model feature is
+required solely because the simulator has that mechanic. Raw-only cannot conceal
+false typed state or an unsupported valid transition.
+
+The following gates received separate scoped review and were reconciled for
+final pinned capture acceptance on 2026-10-09. Runtime
+conditional faithful claims have scoped independent producer/validator acceptance:
+
+| Gate | Acceptance condition |
+|---|---|
+| FCE-01 — Format closure | Every current audit item has a completed implement/raw/unreachable/excluded disposition and source-backed evidence; zero unresolved reachable output/request shapes, unsupported mechanics, privacy gaps or false typed-state cases. Unreachability accounts for indirect calls/copies/reflection, not only direct set membership. |
+| FCE-02 — Complete origin and lineage | Both perspectives retain the initial v2 observation and owned request, every committed successor and exact prefix extension, and final win/tie evidence. Zero missing/duplicate commits or unexplained cursor gaps; resumed segments bind to the original initial request before they can count as complete episodes. Waiting sides retain evidence without fabricated actions or DATA-001 decision rows. |
+| FCE-03 — Privacy and causality | Mirrored hidden/private-data perturbations and same-turn suffix tests pass for affected boundary families; no foreign request, split-private HP, unrevealed set, simulator counter, seed or snapshot enters an ineligible field. |
+| FCE-04 — Truthful state and raw evidence | All reachable currently typed fields have correct public/request boundary semantics; unknown is distinct from absence. Every raw-only family satisfies the audit's six sufficiency conditions with explicit limits. |
+| FCE-05 — Progression and restoration | Every reachable stable request-state pair executes or has a supported-format no-route proof. No fabricated wait/requestless action; deterministic restoration reproduces requests, observations/beliefs, prefixes and transition identity. Rejections preserve the committed boundary. |
+| FCE-06 — Publication parity | TypeScript and Python accept valid full v2 episode evidence and reject fully rehashed grammar, privacy, stage, prefix/cursor, lineage, origin and outcome tampering without repair or publication. |
+| FCE-07 — Terminal and incomplete outcomes | Source-derived normal win, tie/simultaneous outcome and turn-limit tie paths retain matching final evidence for both sides. Segments, budgets, cancellations, unsupported boundaries, malformed input, settling/execution/cleanup failures never count as faithful complete; terminal precedence remains verified. |
+| FCE-08 — Review evidence | Focused source/semantic review and validation under the recorded macOS simulator-record profile bind the final simulator/config/local identities. A separate authorized review must accept episode closure before a later flag change; this plan provides no promotion authority. |
+
+Source-bound inventories and focused witnesses establish coverage; a count of
+successful random episodes does not. FEATURE-001, datasets, training, live-model
+integration, Windows recreation and other formats remain separate milestones.
+The full acceptance methods, open proofs and small implementation slices are in
+the audit; do not redo accepted scanner, ordinary v2 publication or macOS profile
+work merely because an older status paragraph still lists it as pending.
+
 ## Non-Goals
 
-- Claiming complete battle or complete-episode fidelity; changing `faithful_complete_episode:false`.
+- Claiming complete-episode acceptance or changing `faithful_complete_episode:false` before the separate faithful-episode review. The final 2026-10-09 review accepts pinned PIPELINE-002 capture; the backlog alone provides no acceptance authority.
 - Defining or integrating `FEATURE-001`, model input dimensions, training targets beyond the long-term direction below, model training, checkpoint promotion, or live model loading.
 - Generating a dataset, downloading replays, or treating the existing replay-fetch route as readiness or authorization to collect data.
 - Fetching or using an external Random Battle set catalog in the current implementation plan. Any such catalog is a future BeliefState hypothesis source requiring provenance, privacy review, and a separate decision.
@@ -47,7 +87,8 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 | REQ-009 | Unsupported, malformed, contradictory, or unclassified protocol/state forms SHALL fail closed before capture publication. A source-classified raw-only public form counts as captured when its record, cursor, and hash are preserved, but SHALL NOT be promoted to typed/model state by guesswork. | P0 | Emit a stable diagnostic with the record index/command and preserve the last committed boundary for forms that stop. Do not repair source text to make it validate. |
 | REQ-010 | A transition capture SHALL use request-bound legal actions and deterministic simulator restoration/transition lineage. Stale, invalid, rejected, or unsupported candidates SHALL publish no successor and SHALL leave the committed snapshot, prefix, and lineage unchanged. | P0 | Use the existing SeededTransition and pipeline contracts only within separately verified scope; do not synthesize pass/default choices for waiting or requestless sides. |
 | REQ-011 | TypeScript and Python SHALL validate the same capture semantics, schema versions, provenance, prefix extension, content identities, and publication joins. Cross-runtime differences in canonicalization SHALL follow the applicable versioned contract; no stale identity may be silently repaired. | P0 | Keep observation, belief, transition, and DATA-001 identity rules distinct. See [`DATASET_LINEAGE.md`](../contracts/DATASET_LINEAGE.md). |
-| REQ-012 | Every stop, truncation, and unsupported scope SHALL be explicit. The implementation SHALL retain `faithful_complete_episode:false` until a separate complete-episode acceptance exists. | P0 | A successfully captured transition is not proof of a complete battle or training readiness. |
+| REQ-012 | Every stop, truncation, and unsupported scope SHALL be explicit. A true per-result `faithful_complete_episode` SHALL require the separately accepted pinned scope, validated original-origin-to-terminal evidence and successful execution/cleanup; every ineligible result SHALL remain false. | P0 | A successfully captured transition or simulator terminal result is not proof of complete capture or training readiness. |
+| REQ-013 | Complete-episode capture SHALL cover both player perspectives from the original initial request through matching terminal win/tie evidence, preserving every committed boundary, owned request and exact normalized prefix lineage. | P0 | The closure audit governs the implementation backlog and raw-evidence sufficiency; no waiting-side action may be fabricated. |
 | REQ-020 | The long-term assistant SHALL rank only actions legal in the acting player’s current request and display recommendations without submitting a choice. | P1 | Product interaction remains recommendation-only, matching the existing overlay boundary. Not part of current capture acceptance. |
 | REQ-021 | The long-term learning path SHALL begin with replay-action imitation and preserve terminal win/loss outcomes for later outcome-oriented learning/evaluation. The ultimate product objective is stronger battle win rate, not imitation accuracy alone. | P1 | Exact objectives, weighting, eligible replay regimes, and model interface remain future contract decisions. No training/data generation is authorized here. |
 | REQ-022 | A future opponent BeliefState may represent coherent joint Randbats set hypotheses conditioned only on public evidence through the current cursor. Directly revealed facts must remain satisfied; if the source has no consistent candidate, preserve the contradiction and unknown tail rather than relaxing the reveal or inventing a hidden set. | P1 | BeliefState v1 is a snapshot contract, not a posterior algorithm. Any prior source needs its own version, checksum, coverage/quality, and privacy decision. External set catalogs are deferred. |
@@ -77,6 +118,8 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 3. Future BeliefState priors and model features will carry source, version, evidence cursor, coverage, and uncertainty. No hidden simulator truth enters the player information regime.
 
 ### FLOW-004: Future replay imitation flow (not current delivery)
+
+The [proposed ingestion and training strategy](../refactor/DATA_INGESTION_AND_TRAINING_STRATEGY.md) discusses replay input-log reconstruction and subsequent local training. It is a proposal, not an accepted collection, eligibility, feature, or training contract.
 
 1. A future approved collector may parse public replay protocol and retain source/battle provenance.
 2. Each action label will be matched against a legal candidate set reconstructed from the acting player’s information at the pre-action cursor. Unmatched or information-incomplete rows are quarantined, not repaired using the chosen action or later reveals.
@@ -120,7 +163,7 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 | VAL-009 | Candidate transition publication is atomic. | Transition runner | Rejection leaves committed snapshot, prefix, cursor, and lineage unchanged; no successor bundle is emitted. |
 | VAL-010 | Restoration with identical serialized snapshot, seed, simulator revision, step and request-bound actions is deterministic under the pinned runtime. | Transition identity | Output branch/transition IDs, fingerprints, prefixes, and per-side successor observations match the contract. |
 | VAL-011 | TypeScript and Python independently enforce exact schema and lineage rules. | Cross-runtime publication | Mismatched or stale identities reject; no padding, truncation, relabeling, or identity repair. |
-| VAL-012 | Capture completion does not imply complete-episode completion. | Status/results | Keep `faithful_complete_episode:false`; unsupported boundaries carry an explicit stop/truncation reason. |
+| VAL-012 | Capture completion does not imply complete-episode completion. | Status/results | True requires validated supported original-to-terminal evidence and successful execution/cleanup; incomplete or unsupported results remain false with an explicit stop/truncation reason. |
 
 ## Acceptance Checks
 
@@ -142,6 +185,11 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 
 ## Implementation Slices
 
+The table below retains the transition-foundation scopes. For current remaining
+complete-episode work and dependency order, use CE-01A through CE-08B in the
+[closure audit](../refactor/COMPLETE_EPISODE_CLOSURE_AUDIT.md#ordered-implementation-backlog);
+its accepted-work ledger prevents reopening completed foundation slices.
+
 | Slice | Scope | Source Requirements | Verification |
 |---|---|---|---|
 | Completed prerequisite — Helping Hand source role | The shared `-singleturn` Helping Hand `[of]` template requires an active source; source-backed valid controls and side-only, malformed, and missing-side rejections are covered across both runtimes. The accepted review binds digest `985f33403ea2a5af4fe83aa8e647efba70d3f1f21a7809d3200c88805efafd5b`. | REQ-007–REQ-009 | Source-emitter comparison, TS/Python negative and valid controls, rehashed publication regression, and accepted protocol-boundary review. |
@@ -155,7 +203,7 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 ## Assumptions
 
 - The current product boundary is Gen 9 singles with a recommendation-only overlay; the player remains in control of submitting a choice.
-- The current milestone is faithful capture of supported per-side transitions, not a claim that every Gen 9 battle can be completed or that all internal simulator state is typed into the observation.
+- The planned finish line is complete format-scoped episode capture; accepted per-side transition slices do not establish that finish line. It does not require every internal simulator mechanic to become a typed observation or feature.
 - A source-classified `raw-only` record counts as captured when its public record, position, cursor, and hash are preserved; it is not thereby a typed state feature.
 - Public protocol evidence and the addressed player request are the only operational player-information sources. Existing overlay logs are bounded and do not yet satisfy the exact-prefix requirement.
 - The latest project status document and normative contract pages take precedence over older artifact reports when describing readiness. Historical schemas/checkpoints are not adopted by default.
@@ -165,4 +213,23 @@ Use [`docs/PROJECT_STATUS.md`](../PROJECT_STATUS.md) as the current readiness sn
 
 - **OQ-001 — Future learning objective details:** Action imitation is the starting target and battle outcome is the ultimate objective. The weighting, eligible replay population, and point at which outcome-oriented training is introduced remain undecided; this does not block transition capture.
 - **OQ-002 — Future belief prior artifact:** The pinned Showdown generator is the selected source-of-truth direction for future Randbats hypotheses. The precomputed artifact format, sampling/convergence policy, coverage threshold, and whether an external catalog may supplement it remain separate decisions; no retrieval is part of this plan.
-- **OQ-003 — Full episode boundary:** What separate evidence and review will authorize changing `faithful_complete_episode:false` is intentionally not answered by this transition-capture spec.
+- **OQ-003 — Full episode boundary (pinned capture and conditional runtime accepted):** FCE-01–FCE-08 and final PIPELINE-002 pinned capture acceptance are recorded in the [closure audit](../refactor/COMPLETE_EPISODE_CLOSURE_AUDIT.md). Conditional per-result emission and matching TS/Python validation are independently accepted within the pinned runtime scope; false remains conservative and mandatory for ineligible evidence.
+
+
+## Bounded C22/C23 evidence repair contract (2026-10-08)
+
+REQ-002–REQ-010 require ordered public item presence/absence and existing
+disposition fields to agree with eligible public writers and addressed owner
+evidence. Unknown possession cannot support an opponent presence marker.
+Omitted or partial rows/fields are compatible only when they conceal no
+established fact. Transfer, restoration, replacement, and cleanup preserve
+exact writer order without inferring hidden holdings from callback provenance.
+
+REQ-009–REQ-010 permit a requestless terminal Illusion identity join only from
+a validated committed predecessor with owned action, transition, origin,
+ordered roster, perspective, and exact prefix continuity. An ordinary linked
+bundle may carry that authority after all joins validate; a bare terminal
+observation or arbitrary optional predecessor cannot. Authority is private and
+nonserialized, and rejected candidates leave no authority or published rows.
+An incoming unrevealed terminal switch needs its validated canonical switch action and predecessor owned slot; a bare envelope without that action rejects. Optional historical carrier fields narrow to raw-only/unknown after an old unrevealed appearance when current evidence cannot identify the carrier. Current owned items remain exact, and known attributable consumption history cannot disappear at re-entry. Private restoration uses a separately versioned v2 switch-provenance payload, without changing public schemas. These bounded implementations await independent acceptance and do not close
+C22/C23, FCE-01, CE-08A/B, or PIPELINE-002.
