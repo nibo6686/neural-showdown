@@ -58,4 +58,3 @@ Ability: Sturdy
   }
   return battle;
 }
-

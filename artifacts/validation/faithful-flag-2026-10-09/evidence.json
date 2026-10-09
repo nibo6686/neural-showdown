@@ -11,7 +11,7 @@
     "sim-core/src/pipeline_integration.ts": "5e509d6dff1500d7a05630772a80f76c0c4f1c34a5f61462757e4b8b04c5fc70",
     "trainer/src/neural/pipeline_record.py": "ce9b6e83e526eeff280e2674c5a14c75b1754618f7db8ba6954b98ad6f9794e5",
     "sim-core/tests/pipeline_episode_faithful.test.ts": "693c11af6946eb39fc6a9a8bec6c480c1024d81ae83ed851d15b7bc0a026d845",
-    "sim-core/tests/pipeline_episode_saved_helpers.ts": "9c24cfbefe269096d20f6da419c93651fdde3dd341eb6c3c3f0d2ee17c723ed0",
+    "sim-core/tests/pipeline_episode_saved_helpers.ts": "95bfd6436598753fa0a24bfec1a1de401585f6c3d8ea2c210cae67cc239fcb2c",
     "sim-core/tests/pipeline_episode_stop_repair.test.ts": "c62098985a9df8fff7291ba8bc4413ea7a27271c9abe3198958846c663e79ebd",
     "sim-core/tests/pipeline_episode.test.ts": "bfa0d90b0898c34a263b0d98cd0f5657852c81b07f7f6983b16a505d87ecebbc",
     "sim-core/scripts/recover-ce08a-adversarial.cjs": "d58a71b2e1e2cf9599cde14789a35cbfbd1fee28a79fa5752fdc7dd6c0e719e0",
@@ -56,7 +56,7 @@
     {
       "name": "CE-08B construction/validation/cleanup first invocation",
       "log": "artifacts/validation/faithful-flag-2026-10-09/cleanup.log",
-      "log_sha256": "fbbebb2151bcbc5f925ce8e22e1e8a725cdad2cc361e46aa6964d4afb96c85b4",
+      "log_sha256": "f1f63a551765b2cee4bf40ad55f2db619189c8c1c5f9d567d4825da5b94130bc",
       "elapsed_seconds": 30.411,
       "result": "timeout: Python status null; not a semantic verdict"
     },
@@ -102,5 +102,19 @@
     }
   },
   "candidate_digest": "4f3445b129a43dd5f7a3254d155746d827e26ba1fe2102bbb59560cfb3b14696",
-  "reviewed_digest_unchanged": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a"
+  "reviewed_digest_unchanged": "2702f6c334e91444b13fa4b3e36e73fb247ccf943431f5839562ddedd8c5e63a",
+  "whitespace_only_correction_2026_10_09": {
+    "parent_commit": "849f52351d7120f8fe43f1b84d983eda8ae49a88",
+    "changes": {
+      "artifacts/validation/faithful-flag-2026-10-09/cleanup.log": {
+        "before_sha256": "fbbebb2151bcbc5f925ce8e22e1e8a725cdad2cc361e46aa6964d4afb96c85b4",
+        "after_sha256": "f1f63a551765b2cee4bf40ad55f2db619189c8c1c5f9d567d4825da5b94130bc"
+      },
+      "sim-core/tests/pipeline_episode_saved_helpers.ts": {
+        "before_sha256": "9c24cfbefe269096d20f6da419c93651fdde3dd341eb6c3c3f0d2ee17c723ed0",
+        "after_sha256": "95bfd6436598753fa0a24bfec1a1de401585f6c3d8ea2c210cae67cc239fcb2c"
+      }
+    },
+    "execution": "No tests rerun; substantive bytes unchanged. Historical result and digest fields remain the execution-time baseline."
+  }
 }

@@ -100,4 +100,3 @@ export function savedEpisode(owned: PipelineIntegrationSession, options: Paramet
     return [preferred.index, ...request.legal_actions.available_indices.filter((i) => i !== preferred.index)];
   }, ...options});
 }
-

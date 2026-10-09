@@ -127,4 +127,3 @@ Reserve (Blissey)
   turn('move 1');
   return b;
 }
-
