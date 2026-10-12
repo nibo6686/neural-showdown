@@ -1,0 +1,19 @@
+..F
+======================================================================
+FAIL: test_native_spelling_does_not_relax_inconsistent_legacy_joins (trainer.tests.test_perspective_knowledge.NativeLegacyContractTests.test_native_spelling_does_not_relax_inconsistent_legacy_joins)
+----------------------------------------------------------------------
+neural.perspective_knowledge.KnowledgeStructureError: history/legacy binding join
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_perspective_knowledge.py", line 735, in test_native_spelling_does_not_relax_inconsistent_legacy_joins
+    self.assert_sealed_immutable(audit, 'binding legacy join|actor/transition join')
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_perspective_knowledge.py", line 562, in assert_sealed_immutable
+    with self.assertRaisesRegex(ValueError, guard): check_knowledge_structure(audit)
+AssertionError: "binding legacy join|actor/transition join" does not match "history/legacy binding join"
+
+----------------------------------------------------------------------
+Ran 3 tests in 35.223s
+
+FAILED (failures=1)

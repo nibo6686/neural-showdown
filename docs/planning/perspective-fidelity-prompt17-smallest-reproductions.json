@@ -1,0 +1,1369 @@
+{
+  "readiness": false,
+  "executed_event_local_probes": [
+    {
+      "name": "rated",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        8
+      ],
+      "original_records": [
+        "|rated|"
+      ],
+      "decoded_records": [
+        "|rated|"
+      ],
+      "exclusions": [
+        {
+          "index": 0,
+          "original": "|rated|",
+          "decoded": "|rated|",
+          "stage": "strict-record",
+          "error": "Error: Malformed raw rated record."
+        }
+      ],
+      "boundaries": [],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "rated",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        8
+      ],
+      "original_records": [
+        "|rated|"
+      ],
+      "decoded_records": [
+        "|rated|"
+      ],
+      "exclusions": [
+        {
+          "index": 0,
+          "original": "|rated|",
+          "decoded": "|rated|",
+          "stage": "strict-record",
+          "error": "Error: Malformed raw rated record."
+        }
+      ],
+      "boundaries": [],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Perrserker reentry",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        49,
+        53,
+        58,
+        106
+      ],
+      "original_records": [
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+        "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+        "|switch|p1a: Toxapex|Toxapex, L82, F|216\\/216|[from] U-turn",
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269/269",
+        "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+        "|switch|p1a: Toxapex|Toxapex, L82, F|216/216|[from] U-turn",
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269/269"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 106,
+          "cursor": 107,
+          "owner": "p1",
+          "subject": "p1a: Perrserker",
+          "appearance": "p1a: Perrserker@106",
+          "property": "active",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+          "reason_unknown": null,
+          "actual": true,
+          "matches_requirement": true
+        },
+        {
+          "index": 106,
+          "cursor": 107,
+          "owner": "p1",
+          "subject": "p1a: Perrserker",
+          "appearance": "p1a: Perrserker@106",
+          "property": "revealed_move:uturn",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Perrserker reentry",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        49,
+        53,
+        58,
+        106
+      ],
+      "original_records": [
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+        "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+        "|switch|p1a: Toxapex|Toxapex, L82, F|216\\/216|[from] U-turn",
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269/269",
+        "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+        "|switch|p1a: Toxapex|Toxapex, L82, F|216/216|[from] U-turn",
+        "|switch|p1a: Perrserker|Perrserker, L89, F|269/269"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 106,
+          "cursor": 107,
+          "owner": "p2",
+          "subject": "p1a: Perrserker",
+          "appearance": "p1a: Perrserker@106",
+          "property": "active",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+          "reason_unknown": null,
+          "actual": true,
+          "matches_requirement": true
+        },
+        {
+          "index": 106,
+          "cursor": 107,
+          "owner": "p2",
+          "subject": "p1a: Perrserker",
+          "appearance": "p1a: Perrserker@106",
+          "property": "revealed_move:uturn",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Perrserker|Perrserker, L89, F|269\\/269",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Kyurem reentry",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        38,
+        45,
+        58,
+        119
+      ],
+      "original_records": [
+        "|switch|p1a: Kyurem|Kyurem|100\\/100",
+        "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+        "|switch|p1a: Great Tusk|Great Tusk|100\\/100",
+        "|switch|p1a: Kyurem|Kyurem|100\\/100"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Kyurem|Kyurem|100/100",
+        "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+        "|switch|p1a: Great Tusk|Great Tusk|100/100",
+        "|switch|p1a: Kyurem|Kyurem|100/100"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 119,
+          "cursor": 120,
+          "owner": "p1",
+          "subject": "p1a: Kyurem",
+          "appearance": "p1a: Kyurem@119",
+          "property": "active",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Kyurem|Kyurem|100\\/100",
+          "reason_unknown": null,
+          "actual": true,
+          "matches_requirement": true
+        },
+        {
+          "index": 119,
+          "cursor": 120,
+          "owner": "p1",
+          "subject": "p1a: Kyurem",
+          "appearance": "p1a: Kyurem@119",
+          "property": "revealed_move:icebeam",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Kyurem|Kyurem|100\\/100",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Kyurem reentry",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        38,
+        45,
+        58,
+        119
+      ],
+      "original_records": [
+        "|switch|p1a: Kyurem|Kyurem|100\\/100",
+        "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+        "|switch|p1a: Great Tusk|Great Tusk|100\\/100",
+        "|switch|p1a: Kyurem|Kyurem|100\\/100"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Kyurem|Kyurem|100/100",
+        "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+        "|switch|p1a: Great Tusk|Great Tusk|100/100",
+        "|switch|p1a: Kyurem|Kyurem|100/100"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 119,
+          "cursor": 120,
+          "owner": "p2",
+          "subject": "p1a: Kyurem",
+          "appearance": "p1a: Kyurem@119",
+          "property": "active",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Kyurem|Kyurem|100\\/100",
+          "reason_unknown": null,
+          "actual": true,
+          "matches_requirement": true
+        },
+        {
+          "index": 119,
+          "cursor": 120,
+          "owner": "p2",
+          "subject": "p1a: Kyurem",
+          "appearance": "p1a: Kyurem@119",
+          "property": "revealed_move:icebeam",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|switch|p1a: Kyurem|Kyurem|100\\/100",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Leftovers passive reveal",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        19,
+        30
+      ],
+      "original_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|-heal|p2a: Dondozo|335\\/362|[from] item: Leftovers"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|-heal|p2a: Dondozo|335/362|[from] item: Leftovers"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 30,
+          "cursor": 31,
+          "owner": "p1",
+          "subject": "p2a: Dondozo",
+          "appearance": "p2a: Dondozo@19",
+          "property": "item_identity",
+          "expected": "Leftovers",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-heal|p2a: Dondozo|335\\/362|[from] item: Leftovers",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Leftovers passive reveal",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        19,
+        30
+      ],
+      "original_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|-heal|p2a: Dondozo|335\\/362|[from] item: Leftovers"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|-heal|p2a: Dondozo|335/362|[from] item: Leftovers"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 30,
+          "cursor": 31,
+          "owner": "p2",
+          "subject": "p2a: Dondozo",
+          "appearance": "p2a: Dondozo@19",
+          "property": "item_identity",
+          "expected": "Leftovers",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-heal|p2a: Dondozo|335\\/362|[from] item: Leftovers",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Life Orb passive reveal",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        18,
+        39
+      ],
+      "original_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+        "|-damage|p1a: Skuntank|132\\/310|[from] item: Life Orb"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310/310",
+        "|-damage|p1a: Skuntank|132/310|[from] item: Life Orb"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 39,
+          "cursor": 40,
+          "owner": "p1",
+          "subject": "p1a: Skuntank",
+          "appearance": "p1a: Skuntank@18",
+          "property": "item_identity",
+          "expected": "Life Orb",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p1a: Skuntank|132\\/310|[from] item: Life Orb",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Life Orb passive reveal",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        18,
+        39
+      ],
+      "original_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+        "|-damage|p1a: Skuntank|132\\/310|[from] item: Life Orb"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310/310",
+        "|-damage|p1a: Skuntank|132/310|[from] item: Life Orb"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 39,
+          "cursor": 40,
+          "owner": "p2",
+          "subject": "p1a: Skuntank",
+          "appearance": "p1a: Skuntank@18",
+          "property": "item_identity",
+          "expected": "Life Orb",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p1a: Skuntank|132\\/310|[from] item: Life Orb",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Aftermath owner attribution",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        18,
+        19,
+        42
+      ],
+      "original_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|-damage|p2a: Dondozo|80\\/362|[from] ability: Aftermath|[of] p1a: Skuntank"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310/310",
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|-damage|p2a: Dondozo|80/362|[from] ability: Aftermath|[of] p1a: Skuntank"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 42,
+          "cursor": 43,
+          "owner": "p1",
+          "subject": "p1a: Skuntank",
+          "appearance": "p1a: Skuntank@18",
+          "property": "ability",
+          "expected": "Aftermath",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p2a: Dondozo|80\\/362|[from] ability: Aftermath|[of] p1a: Skuntank",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Aftermath owner attribution",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        18,
+        19,
+        42
+      ],
+      "original_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|-damage|p2a: Dondozo|80\\/362|[from] ability: Aftermath|[of] p1a: Skuntank"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Skuntank|Skuntank, L84, M|310/310",
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|-damage|p2a: Dondozo|80/362|[from] ability: Aftermath|[of] p1a: Skuntank"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 42,
+          "cursor": 43,
+          "owner": "p2",
+          "subject": "p1a: Skuntank",
+          "appearance": "p1a: Skuntank@18",
+          "property": "ability",
+          "expected": "Aftermath",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p2a: Dondozo|80\\/362|[from] ability: Aftermath|[of] p1a: Skuntank",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Poison Heal passive reveal",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        110,
+        124
+      ],
+      "original_records": [
+        "|switch|p2a: Gliscor|Gliscor, F|100\\/100",
+        "|-heal|p2a: Gliscor|74\\/100 tox|[from] ability: Poison Heal"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Gliscor|Gliscor, F|100/100",
+        "|-heal|p2a: Gliscor|74/100 tox|[from] ability: Poison Heal"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 124,
+          "cursor": 125,
+          "owner": "p1",
+          "subject": "p2a: Gliscor",
+          "appearance": "p2a: Gliscor@110",
+          "property": "ability",
+          "expected": "Poison Heal",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-heal|p2a: Gliscor|74\\/100 tox|[from] ability: Poison Heal",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Poison Heal passive reveal",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        110,
+        124
+      ],
+      "original_records": [
+        "|switch|p2a: Gliscor|Gliscor, F|100\\/100",
+        "|-heal|p2a: Gliscor|74\\/100 tox|[from] ability: Poison Heal"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Gliscor|Gliscor, F|100/100",
+        "|-heal|p2a: Gliscor|74/100 tox|[from] ability: Poison Heal"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 124,
+          "cursor": 125,
+          "owner": "p2",
+          "subject": "p2a: Gliscor",
+          "appearance": "p2a: Gliscor@110",
+          "property": "ability",
+          "expected": "Poison Heal",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-heal|p2a: Gliscor|74\\/100 tox|[from] ability: Poison Heal",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Rocky Helmet of attribution",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        83,
+        97
+      ],
+      "original_records": [
+        "|switch|p1a: Corviknight|Corviknight, F|100\\/100",
+        "|-damage|p2a: Ogerpon|61\\/100|[from] item: Rocky Helmet|[of] p1a: Corviknight"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Corviknight|Corviknight, F|100/100",
+        "|-damage|p2a: Ogerpon|61/100|[from] item: Rocky Helmet|[of] p1a: Corviknight"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 97,
+          "cursor": 98,
+          "owner": "p1",
+          "subject": "p1a: Corviknight",
+          "appearance": "p1a: Corviknight@83",
+          "property": "item_identity",
+          "expected": "Rocky Helmet",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p2a: Ogerpon|61\\/100|[from] item: Rocky Helmet|[of] p1a: Corviknight",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Rocky Helmet of attribution",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        83,
+        97
+      ],
+      "original_records": [
+        "|switch|p1a: Corviknight|Corviknight, F|100\\/100",
+        "|-damage|p2a: Ogerpon|61\\/100|[from] item: Rocky Helmet|[of] p1a: Corviknight"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Corviknight|Corviknight, F|100/100",
+        "|-damage|p2a: Ogerpon|61/100|[from] item: Rocky Helmet|[of] p1a: Corviknight"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 97,
+          "cursor": 98,
+          "owner": "p2",
+          "subject": "p1a: Corviknight",
+          "appearance": "p1a: Corviknight@83",
+          "property": "item_identity",
+          "expected": "Rocky Helmet",
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-damage|p2a: Ogerpon|61\\/100|[from] item: Rocky Helmet|[of] p1a: Corviknight",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Taunt structured effect",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        19,
+        24,
+        25
+      ],
+      "original_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|move|p1a: Skuntank|Taunt|p2a: Dondozo",
+        "|-start|p2a: Dondozo|move: Taunt"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|move|p1a: Skuntank|Taunt|p2a: Dondozo",
+        "|-start|p2a: Dondozo|move: Taunt"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 25,
+          "cursor": 26,
+          "owner": "p1",
+          "subject": "p2a: Dondozo",
+          "appearance": "p2a: Dondozo@19",
+          "property": "volatile:taunt",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Dondozo|move: Taunt",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Taunt structured effect",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        19,
+        24,
+        25
+      ],
+      "original_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362\\/362",
+        "|move|p1a: Skuntank|Taunt|p2a: Dondozo",
+        "|-start|p2a: Dondozo|move: Taunt"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Dondozo|Dondozo, L78, F|362/362",
+        "|move|p1a: Skuntank|Taunt|p2a: Dondozo",
+        "|-start|p2a: Dondozo|move: Taunt"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 25,
+          "cursor": 26,
+          "owner": "p2",
+          "subject": "p2a: Dondozo",
+          "appearance": "p2a: Dondozo@19",
+          "property": "volatile:taunt",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Dondozo|move: Taunt",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "No Retreat stages vs volatile",
+      "fixture": "random",
+      "owner": "p1",
+      "original_indices": [
+        340,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354
+      ],
+      "original_records": [
+        "|switch|p1a: Falinks|Falinks, L84|246\\/246",
+        "|move|p1a: Falinks|No Retreat|p1a: Falinks",
+        "|-boost|p1a: Falinks|atk|1",
+        "|-boost|p1a: Falinks|def|1",
+        "|-boost|p1a: Falinks|spa|1",
+        "|-boost|p1a: Falinks|spd|1",
+        "|-boost|p1a: Falinks|spe|1",
+        "|-start|p1a: Falinks|move: No Retreat"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Falinks|Falinks, L84|246/246",
+        "|move|p1a: Falinks|No Retreat|p1a: Falinks",
+        "|-boost|p1a: Falinks|atk|1",
+        "|-boost|p1a: Falinks|def|1",
+        "|-boost|p1a: Falinks|spa|1",
+        "|-boost|p1a: Falinks|spd|1",
+        "|-boost|p1a: Falinks|spe|1",
+        "|-start|p1a: Falinks|move: No Retreat"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 354,
+          "cursor": 355,
+          "owner": "p1",
+          "subject": "p1a: Falinks",
+          "appearance": "p1a: Falinks@340",
+          "property": "volatile:noretreat",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p1a: Falinks|move: No Retreat",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "No Retreat stages vs volatile",
+      "fixture": "random",
+      "owner": "p2",
+      "original_indices": [
+        340,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354
+      ],
+      "original_records": [
+        "|switch|p1a: Falinks|Falinks, L84|246\\/246",
+        "|move|p1a: Falinks|No Retreat|p1a: Falinks",
+        "|-boost|p1a: Falinks|atk|1",
+        "|-boost|p1a: Falinks|def|1",
+        "|-boost|p1a: Falinks|spa|1",
+        "|-boost|p1a: Falinks|spd|1",
+        "|-boost|p1a: Falinks|spe|1",
+        "|-start|p1a: Falinks|move: No Retreat"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Falinks|Falinks, L84|246/246",
+        "|move|p1a: Falinks|No Retreat|p1a: Falinks",
+        "|-boost|p1a: Falinks|atk|1",
+        "|-boost|p1a: Falinks|def|1",
+        "|-boost|p1a: Falinks|spa|1",
+        "|-boost|p1a: Falinks|spd|1",
+        "|-boost|p1a: Falinks|spe|1",
+        "|-start|p1a: Falinks|move: No Retreat"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 354,
+          "cursor": 355,
+          "owner": "p2",
+          "subject": "p1a: Falinks",
+          "appearance": "p1a: Falinks@340",
+          "property": "volatile:noretreat",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p1a: Falinks|move: No Retreat",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Chilly Reception premajor",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        149,
+        173
+      ],
+      "original_records": [
+        "|switch|p1a: Slowking|Slowking-Galar, M|100\\/100",
+        "|-prepare|p1a: Slowking|Chilly Reception|[premajor]"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Slowking|Slowking-Galar, M|100/100",
+        "|-prepare|p1a: Slowking|Chilly Reception|[premajor]"
+      ],
+      "exclusions": [
+        {
+          "index": 1,
+          "original": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "decoded": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "stage": "strict-record",
+          "error": "Error: Malformed raw -prepare record: invalid target."
+        }
+      ],
+      "boundaries": [
+        {
+          "index": 173,
+          "cursor": 174,
+          "owner": "p1",
+          "subject": "p1a: Slowking",
+          "appearance": "p1a: Slowking@149",
+          "property": "prepared:chillyreception",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Chilly Reception premajor",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        149,
+        173
+      ],
+      "original_records": [
+        "|switch|p1a: Slowking|Slowking-Galar, M|100\\/100",
+        "|-prepare|p1a: Slowking|Chilly Reception|[premajor]"
+      ],
+      "decoded_records": [
+        "|switch|p1a: Slowking|Slowking-Galar, M|100/100",
+        "|-prepare|p1a: Slowking|Chilly Reception|[premajor]"
+      ],
+      "exclusions": [
+        {
+          "index": 1,
+          "original": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "decoded": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "stage": "strict-record",
+          "error": "Error: Malformed raw -prepare record: invalid target."
+        }
+      ],
+      "boundaries": [
+        {
+          "index": 173,
+          "cursor": 174,
+          "owner": "p2",
+          "subject": "p1a: Slowking",
+          "appearance": "p1a: Slowking@149",
+          "property": "prepared:chillyreception",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-prepare|p1a: Slowking|Chilly Reception|[premajor]",
+          "reason_unknown": null,
+          "actual": null,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Supreme Overlord fallen1",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        263,
+        265,
+        266
+      ],
+      "original_records": [
+        "|switch|p2a: Kingambit|Kingambit, F|100\\/100",
+        "|-activate|p2a: Kingambit|ability: Supreme Overlord",
+        "|-start|p2a: Kingambit|fallen1|[silent]"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Kingambit|Kingambit, F|100/100",
+        "|-activate|p2a: Kingambit|ability: Supreme Overlord",
+        "|-start|p2a: Kingambit|fallen1|[silent]"
+      ],
+      "exclusions": [
+        {
+          "index": 2,
+          "original": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "decoded": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "stage": "strict-record",
+          "error": "EffectInventoryError: simulator-coverage/v1/unclassified-effect-value command=-start family=move_volatile value=fallen1 disposition=unknown"
+        }
+      ],
+      "boundaries": [
+        {
+          "index": 266,
+          "cursor": 267,
+          "owner": "p1",
+          "subject": "p2a: Kingambit",
+          "appearance": "p2a: Kingambit@263",
+          "property": "volatile:fallen1",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Supreme Overlord fallen1",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        263,
+        265,
+        266
+      ],
+      "original_records": [
+        "|switch|p2a: Kingambit|Kingambit, F|100\\/100",
+        "|-activate|p2a: Kingambit|ability: Supreme Overlord",
+        "|-start|p2a: Kingambit|fallen1|[silent]"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Kingambit|Kingambit, F|100/100",
+        "|-activate|p2a: Kingambit|ability: Supreme Overlord",
+        "|-start|p2a: Kingambit|fallen1|[silent]"
+      ],
+      "exclusions": [
+        {
+          "index": 2,
+          "original": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "decoded": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "stage": "strict-record",
+          "error": "EffectInventoryError: simulator-coverage/v1/unclassified-effect-value command=-start family=move_volatile value=fallen1 disposition=unknown"
+        }
+      ],
+      "boundaries": [
+        {
+          "index": 266,
+          "cursor": 267,
+          "owner": "p2",
+          "subject": "p2a: Kingambit",
+          "appearance": "p2a: Kingambit@263",
+          "property": "volatile:fallen1",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Kingambit|fallen1|[silent]",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Quark Drive boost",
+      "fixture": "ou",
+      "owner": "p1",
+      "original_indices": [
+        59,
+        60,
+        61,
+        62
+      ],
+      "original_records": [
+        "|switch|p2a: Iron Crown|Iron Crown|100\\/100",
+        "|-enditem|p2a: Iron Crown|Booster Energy",
+        "|-activate|p2a: Iron Crown|ability: Quark Drive|[fromitem]",
+        "|-start|p2a: Iron Crown|quarkdrivespa"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Iron Crown|Iron Crown|100/100",
+        "|-enditem|p2a: Iron Crown|Booster Energy",
+        "|-activate|p2a: Iron Crown|ability: Quark Drive|[fromitem]",
+        "|-start|p2a: Iron Crown|quarkdrivespa"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 62,
+          "cursor": 63,
+          "owner": "p1",
+          "subject": "p2a: Iron Crown",
+          "appearance": "p2a: Iron Crown@59",
+          "property": "volatile:quarkdrivespa",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Iron Crown|quarkdrivespa",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    },
+    {
+      "name": "Quark Drive boost",
+      "fixture": "ou",
+      "owner": "p2",
+      "original_indices": [
+        59,
+        60,
+        61,
+        62
+      ],
+      "original_records": [
+        "|switch|p2a: Iron Crown|Iron Crown|100\\/100",
+        "|-enditem|p2a: Iron Crown|Booster Energy",
+        "|-activate|p2a: Iron Crown|ability: Quark Drive|[fromitem]",
+        "|-start|p2a: Iron Crown|quarkdrivespa"
+      ],
+      "decoded_records": [
+        "|switch|p2a: Iron Crown|Iron Crown|100/100",
+        "|-enditem|p2a: Iron Crown|Booster Energy",
+        "|-activate|p2a: Iron Crown|ability: Quark Drive|[fromitem]",
+        "|-start|p2a: Iron Crown|quarkdrivespa"
+      ],
+      "exclusions": [],
+      "boundaries": [
+        {
+          "index": 62,
+          "cursor": 63,
+          "owner": "p2",
+          "subject": "p2a: Iron Crown",
+          "appearance": "p2a: Iron Crown@59",
+          "property": "volatile:quarkdrivespa",
+          "expected": true,
+          "knownness": "known",
+          "precision": "public categorical/stage",
+          "evidence": "|-start|p2a: Iron Crown|quarkdrivespa",
+          "reason_unknown": null,
+          "actual": false,
+          "matches_requirement": false
+        }
+      ],
+      "routing": "isolated reduced event-local probe; NOT original ingestion"
+    }
+  ],
+  "legacy_synthetic_reproductions": [
+    {
+      "synthetic": "Transform/acquisition",
+      "owner": "p1",
+      "source": [
+        "|switch|p1a: Ditto|Ditto|100/100",
+        "|switch|p2a: Target|Gengar|100/100",
+        "|turn|1",
+        "|-transform|p1a: Ditto|p2a: Target",
+        "|move|p1a: Ditto|Shadow Ball|p2a: Target",
+        "|turn|2",
+        "|-item|p1a: Ditto|Leftovers|[from] move: Trick"
+      ],
+      "property": "eligible starting-original revelations (empty is not a known empty original loadout)",
+      "expected": {
+        "moves": [],
+        "item": null
+      },
+      "actual": {
+        "moves": [
+          "Shadow Ball"
+        ],
+        "item": "Leftovers"
+      },
+      "classification": "chronology leak / invalid original attribution"
+    },
+    {
+      "synthetic": "both-owner causal suffix",
+      "owner": "p1",
+      "cursor": 3,
+      "expected": {
+        "player_side": "p1",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p1: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Shadow Ball"
+            ],
+            "item": "Leftovers",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "shadowball",
+            "name": "Shadow Ball",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Shadow Ball",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "actual": {
+        "player_side": "p1",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p1: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Sludge Bomb"
+            ],
+            "item": "Life Orb",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "sludgebomb",
+            "name": "Sludge Bomb",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Sludge Bomb",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "chronology leak"
+    },
+    {
+      "synthetic": "duplicate species/nickname ambiguity",
+      "owner": "p1",
+      "source": [
+        "|switch|p1a: Pikachu|Pikachu|100/100",
+        "|move|p1a: Pikachu|Thunderbolt|p2a: Target",
+        "|switch|p1a: Pikachu|Pikachu|100/100",
+        "|move|p1a: Pikachu|Surf|p2a: Target"
+      ],
+      "actual": [
+        "Surf",
+        "Thunderbolt"
+      ],
+      "expected": "appearance relation unresolved; may be reentry or a duplicate; no proven cross-Pokemon merge",
+      "classification": "unresolved identity control"
+    },
+    {
+      "synthetic": "Transform/acquisition",
+      "owner": "p2",
+      "source": [
+        "|switch|p2a: Ditto|Ditto|100/100",
+        "|switch|p1a: Target|Gengar|100/100",
+        "|turn|1",
+        "|-transform|p2a: Ditto|p1a: Target",
+        "|move|p2a: Ditto|Shadow Ball|p1a: Target",
+        "|turn|2",
+        "|-item|p2a: Ditto|Leftovers|[from] move: Trick"
+      ],
+      "property": "eligible starting-original revelations (empty is not a known empty original loadout)",
+      "expected": {
+        "moves": [],
+        "item": null
+      },
+      "actual": {
+        "moves": [
+          "Shadow Ball"
+        ],
+        "item": "Leftovers"
+      },
+      "classification": "chronology leak / invalid original attribution"
+    },
+    {
+      "synthetic": "both-owner causal suffix",
+      "owner": "p2",
+      "cursor": 3,
+      "expected": {
+        "player_side": "p2",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p2: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Shadow Ball"
+            ],
+            "item": "Leftovers",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "shadowball",
+            "name": "Shadow Ball",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Shadow Ball",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "actual": {
+        "player_side": "p2",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p2: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Sludge Bomb"
+            ],
+            "item": "Life Orb",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "sludgebomb",
+            "name": "Sludge Bomb",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Sludge Bomb",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "chronology leak"
+    },
+    {
+      "synthetic": "duplicate species/nickname ambiguity",
+      "owner": "p2",
+      "source": [
+        "|switch|p2a: Pikachu|Pikachu|100/100",
+        "|move|p2a: Pikachu|Thunderbolt|p1a: Target",
+        "|switch|p2a: Pikachu|Pikachu|100/100",
+        "|move|p2a: Pikachu|Surf|p1a: Target"
+      ],
+      "actual": [
+        "Surf",
+        "Thunderbolt"
+      ],
+      "expected": "appearance relation unresolved; may be reentry or a duplicate; no proven cross-Pokemon merge",
+      "classification": "unresolved identity control"
+    }
+  ]
+}

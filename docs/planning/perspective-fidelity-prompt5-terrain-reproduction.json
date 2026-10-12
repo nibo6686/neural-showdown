@@ -1,0 +1,912 @@
+{
+  "schema_version": "pipeline-linked-record/v1",
+  "battle_id": "field-proof-terrain-lifecycle",
+  "source_ref": "sim-core://field-proof-terrain-lifecycle",
+  "ruleset": "gen9randombattle",
+  "perspective": "p1",
+  "input_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-terrain-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 17,
+    "protocol_prefix_hash": "3e889a71dc85e17367b6ad620e6b14b1da4a946afec02243511734745f6bb2a6",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Electric",
+        "trapped": false,
+        "can_switch": true
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Pin",
+          "details": "Pincurchin, M",
+          "condition": "237/237",
+          "active": true,
+          "moves": [
+            "splash"
+          ],
+          "stats": {
+            "atk": 238,
+            "def": 226,
+            "spa": 218,
+            "spd": 206,
+            "spe": 66
+          },
+          "base_ability": "electricsurge",
+          "ability": "electricsurge",
+          "item": null,
+          "tera_type": "Electric",
+          "terastallized": false
+        },
+        {
+          "slot": 2,
+          "ident": "p1: Grass",
+          "details": "Rillaboom, F",
+          "condition": "341/341",
+          "active": false,
+          "moves": [
+            "splash"
+          ],
+          "stats": {
+            "atk": 286,
+            "def": 216,
+            "spa": 156,
+            "spd": 176,
+            "spe": 206
+          },
+          "base_ability": "grassysurge",
+          "ability": "grassysurge",
+          "item": null,
+          "tera_type": "Grass",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 1
+          },
+          null,
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 1
+          },
+          null,
+          null,
+          null,
+          {
+            "index": 8,
+            "kind": "switch",
+            "choice": "switch 2",
+            "label": "switch:Rillaboom, F",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          4,
+          8
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        4,
+        8
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 1,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 2,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": null,
+        "terrain": "grassyterrain",
+        "pseudo_weather": [
+          "electricterrain"
+        ],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Pin",
+          "name": "Pin",
+          "species": "Pincurchin",
+          "base_species": "Pincurchin",
+          "current_species": "Pincurchin",
+          "displayed_species": "Pincurchin",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Pincurchin, M",
+          "active": true,
+          "fainted": false,
+          "hp_text": "237/237",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Electric"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "electricsurge",
+          "base_ability": "electricsurge",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "splash"
+          ],
+          "revealed_moves": [
+            "splash"
+          ],
+          "tera_type": "Electric",
+          "stats": {
+            "atk": 238,
+            "def": 226,
+            "spa": 218,
+            "spd": 206,
+            "spe": 66
+          },
+          "boosts": {}
+        },
+        {
+          "slot": 2,
+          "ident": "p1: Grass",
+          "name": "Grass",
+          "species": "Rillaboom",
+          "base_species": "Rillaboom",
+          "current_species": "Rillaboom",
+          "displayed_species": "Rillaboom",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Rillaboom, F",
+          "active": false,
+          "fainted": false,
+          "hp_text": "341/341",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Grass"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "none",
+          "item_suppressed": false,
+          "ability": "grassysurge",
+          "base_ability": "grassysurge",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "splash"
+          ],
+          "revealed_moves": [
+            "splash"
+          ],
+          "tera_type": "Grass",
+          "stats": {
+            "atk": 286,
+            "def": 216,
+            "spa": 156,
+            "spd": 176,
+            "spe": 206
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Clearer",
+          "name": "Clearer",
+          "species": "Azumarill",
+          "base_species": "Azumarill",
+          "current_species": "Azumarill",
+          "displayed_species": "Azumarill",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Azumarill, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Water",
+            "Fairy"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|2",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Pin|Pincurchin, M|100/100",
+      "|switch|p2a: Clearer|Azumarill, F|100/100",
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|turn|1"
+    ]
+  },
+  "input_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-terrain-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+      "source_kind": "sim_core",
+      "event_cursor": 17,
+      "protocol_prefix_hash": "3e889a71dc85e17367b6ad620e6b14b1da4a946afec02243511734745f6bb2a6",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+        "source_kind": "sim_core",
+        "event_cursor": 17,
+        "protocol_prefix_hash": "3e889a71dc85e17367b6ad620e6b14b1da4a946afec02243511734745f6bb2a6",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|2",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Pin|Pincurchin, M|100/100",
+      "|switch|p2a: Clearer|Azumarill, F|100/100",
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|turn|1"
+    ],
+    "parent_belief_id": null,
+    "simulator_snapshot": {
+      "branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+      "transition_id": null,
+      "state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+      "parent_branch_id": null
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+        "transition_id": null,
+        "state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+        "parent_branch_id": null
+      }
+    ],
+    "transition_lineage": null,
+    "transition_history": [],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-17d2ffb254b396cef0a26c2fd645f5763dc887ca982d8b9e39f0e31a8fcb4deb"
+  },
+  "action": {
+    "schema_version": "canonical-action/v1",
+    "source": "request_legal_action",
+    "player": "p1",
+    "rqid": null,
+    "kind": "switch",
+    "index": 8,
+    "move_slot": null,
+    "switch_slot": 2,
+    "target": null,
+    "choice": "switch 2",
+    "action_id": "act-0d1e35f86e153841ed9cc571b4a810368e694a3f1e865672fb1638280efe7482"
+  },
+  "transition": {
+    "schema_version": "pipeline-transition-reference/v1",
+    "transition_id": "transition-6554fcbfa7279268ec00cde90079657adeb2b6220ebb0a4bf189b96984520b2f",
+    "parent_branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+    "branch_id": "branch-549fc7c1f5da7ba254fd6f3935d27459d3906a99703ff7134a9ad4eac14ac141",
+    "input_state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+    "output_state_fingerprint": "cb9546cca7d16c52f5e11b53efeeb452994a7972101c9ea7e18e6225da46dac1",
+    "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+    "step_index": 0,
+    "action_id": "act-0d1e35f86e153841ed9cc571b4a810368e694a3f1e865672fb1638280efe7482"
+  },
+  "successor_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-terrain-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 24,
+    "protocol_prefix_hash": "61b5284c64870fa0dcb7e9caedc1ef2609a631bc92b6d6f8c9dd900c7717dea3",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Grass",
+        "trapped": false,
+        "can_switch": true
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Grass",
+          "details": "Rillaboom, F",
+          "condition": "341/341",
+          "active": true,
+          "moves": [
+            "splash"
+          ],
+          "stats": {
+            "atk": 286,
+            "def": 216,
+            "spa": 156,
+            "spd": 176,
+            "spe": 206
+          },
+          "base_ability": "grassysurge",
+          "ability": "grassysurge",
+          "item": null,
+          "tera_type": "Grass",
+          "terastallized": false
+        },
+        {
+          "slot": 2,
+          "ident": "p1: Pin",
+          "details": "Pincurchin, M",
+          "condition": "237/237",
+          "active": false,
+          "moves": [
+            "splash"
+          ],
+          "stats": {
+            "atk": 238,
+            "def": 226,
+            "spa": 218,
+            "spd": 206,
+            "spe": 66
+          },
+          "base_ability": "electricsurge",
+          "ability": "electricsurge",
+          "item": null,
+          "tera_type": "Electric",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 1
+          },
+          null,
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 1
+          },
+          null,
+          null,
+          null,
+          {
+            "index": 8,
+            "kind": "switch",
+            "choice": "switch 2",
+            "label": "switch:Pincurchin, M",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          4,
+          8
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        4,
+        8
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 2,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 2,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": null,
+        "terrain": "grassyterrain",
+        "pseudo_weather": [
+          "electricterrain",
+          "grassyterrain"
+        ],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Grass",
+          "name": "Grass",
+          "species": "Rillaboom",
+          "base_species": "Rillaboom",
+          "current_species": "Rillaboom",
+          "displayed_species": "Rillaboom",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Rillaboom, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "341/341",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Grass"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "grassysurge",
+          "base_ability": "grassysurge",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "splash"
+          ],
+          "revealed_moves": [
+            "splash"
+          ],
+          "tera_type": "Grass",
+          "stats": {
+            "atk": 286,
+            "def": 216,
+            "spa": 156,
+            "spd": 176,
+            "spe": 206
+          },
+          "boosts": {}
+        },
+        {
+          "slot": 2,
+          "ident": "p1: Pin",
+          "name": "Pin",
+          "species": "Pincurchin",
+          "base_species": "Pincurchin",
+          "current_species": "Pincurchin",
+          "displayed_species": "Pincurchin",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Pincurchin, M",
+          "active": false,
+          "fainted": false,
+          "hp_text": "237/237",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Electric"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "none",
+          "item_suppressed": false,
+          "ability": "electricsurge",
+          "base_ability": "electricsurge",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "splash"
+          ],
+          "revealed_moves": [
+            "splash"
+          ],
+          "tera_type": "Electric",
+          "stats": {
+            "atk": 238,
+            "def": 226,
+            "spa": 218,
+            "spd": 206,
+            "spe": 66
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Clearer",
+          "name": "Clearer",
+          "species": "Azumarill",
+          "base_species": "Azumarill",
+          "current_species": "Azumarill",
+          "displayed_species": "Azumarill",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Azumarill, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Water",
+            "Fairy"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-53030d06b41d415bc462ea92b2447eee4ddbb1c0d6dd0e980c978f9d466f80c5",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|2",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Pin|Pincurchin, M|100/100",
+      "|switch|p2a: Clearer|Azumarill, F|100/100",
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|turn|1",
+      "|t:|0",
+      "|switch|p1a: Grass|Rillaboom, F|100/100",
+      "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Grass",
+      "|move|p2a: Clearer|Splash|p2a: Clearer",
+      "|-nothing",
+      "|upkeep",
+      "|turn|2"
+    ]
+  },
+  "successor_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-terrain-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-53030d06b41d415bc462ea92b2447eee4ddbb1c0d6dd0e980c978f9d466f80c5",
+      "source_kind": "sim_core",
+      "event_cursor": 24,
+      "protocol_prefix_hash": "61b5284c64870fa0dcb7e9caedc1ef2609a631bc92b6d6f8c9dd900c7717dea3",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+        "source_kind": "sim_core",
+        "event_cursor": 17,
+        "protocol_prefix_hash": "3e889a71dc85e17367b6ad620e6b14b1da4a946afec02243511734745f6bb2a6",
+        "snapshot_phase": "pre_decision"
+      },
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-53030d06b41d415bc462ea92b2447eee4ddbb1c0d6dd0e980c978f9d466f80c5",
+        "source_kind": "sim_core",
+        "event_cursor": 24,
+        "protocol_prefix_hash": "61b5284c64870fa0dcb7e9caedc1ef2609a631bc92b6d6f8c9dd900c7717dea3",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|2",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Pin|Pincurchin, M|100/100",
+      "|switch|p2a: Clearer|Azumarill, F|100/100",
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|turn|1",
+      "|t:|0",
+      "|switch|p1a: Grass|Rillaboom, F|100/100",
+      "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Grass",
+      "|move|p2a: Clearer|Splash|p2a: Clearer",
+      "|-nothing",
+      "|upkeep",
+      "|turn|2"
+    ],
+    "parent_belief_id": "belief-17d2ffb254b396cef0a26c2fd645f5763dc887ca982d8b9e39f0e31a8fcb4deb",
+    "simulator_snapshot": {
+      "branch_id": "branch-549fc7c1f5da7ba254fd6f3935d27459d3906a99703ff7134a9ad4eac14ac141",
+      "transition_id": "transition-6554fcbfa7279268ec00cde90079657adeb2b6220ebb0a4bf189b96984520b2f",
+      "state_fingerprint": "cb9546cca7d16c52f5e11b53efeeb452994a7972101c9ea7e18e6225da46dac1",
+      "parent_branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188"
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+        "transition_id": null,
+        "state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+        "parent_branch_id": null
+      },
+      {
+        "branch_id": "branch-549fc7c1f5da7ba254fd6f3935d27459d3906a99703ff7134a9ad4eac14ac141",
+        "transition_id": "transition-6554fcbfa7279268ec00cde90079657adeb2b6220ebb0a4bf189b96984520b2f",
+        "state_fingerprint": "cb9546cca7d16c52f5e11b53efeeb452994a7972101c9ea7e18e6225da46dac1",
+        "parent_branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188"
+      }
+    ],
+    "transition_lineage": {
+      "transition_id": "transition-6554fcbfa7279268ec00cde90079657adeb2b6220ebb0a4bf189b96984520b2f",
+      "parent_branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+      "branch_id": "branch-549fc7c1f5da7ba254fd6f3935d27459d3906a99703ff7134a9ad4eac14ac141",
+      "input_state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+      "output_state_fingerprint": "cb9546cca7d16c52f5e11b53efeeb452994a7972101c9ea7e18e6225da46dac1",
+      "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+      "step_index": 0,
+      "input_observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+      "output_observation_id": "obs-53030d06b41d415bc462ea92b2447eee4ddbb1c0d6dd0e980c978f9d466f80c5"
+    },
+    "transition_history": [
+      {
+        "transition_id": "transition-6554fcbfa7279268ec00cde90079657adeb2b6220ebb0a4bf189b96984520b2f",
+        "parent_branch_id": "branch-615b2dfe3ae766b01ddf6d1b221edb99e30b57183eaaf797f5146d3872327188",
+        "branch_id": "branch-549fc7c1f5da7ba254fd6f3935d27459d3906a99703ff7134a9ad4eac14ac141",
+        "input_state_fingerprint": "10b7e98cfaecec1931420def4de9d42ff65eb26563d0fe4871ce1dd80b38e680",
+        "output_state_fingerprint": "cb9546cca7d16c52f5e11b53efeeb452994a7972101c9ea7e18e6225da46dac1",
+        "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+        "step_index": 0,
+        "input_observation_id": "obs-d176f6fd278b29e1f16aea274b0b7af367d8a00a74a2823349be97e4c9a68d0f",
+        "output_observation_id": "obs-53030d06b41d415bc462ea92b2447eee4ddbb1c0d6dd0e980c978f9d466f80c5"
+      }
+    ],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-fe230960074dd32a415eb2af5698ed608e8d680b587aaad3cb67c1eaebd2e467"
+  }
+}

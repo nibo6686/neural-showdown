@@ -1,0 +1,811 @@
+{
+  "schema_version": "pipeline-linked-record/v1",
+  "battle_id": "field-proof-weather-lifecycle",
+  "source_ref": "sim-core://field-proof-weather-lifecycle",
+  "ruleset": "gen9randombattle",
+  "perspective": "p1",
+  "input_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-weather-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 17,
+    "protocol_prefix_hash": "1517df57f2c3ae3ef51bd39c1fddff8a51c3032c1cdb5483c759267aa82a7de6",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Rain Dance",
+            "id": "raindance",
+            "pp": 8,
+            "maxpp": 8,
+            "target": "all",
+            "disabled": false,
+            "type": "Water",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          },
+          {
+            "slot": 2,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Fire",
+        "trapped": false,
+        "can_switch": false
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Sun",
+          "details": "Ninetales, M",
+          "condition": "287/287",
+          "active": true,
+          "moves": [
+            "raindance",
+            "splash"
+          ],
+          "stats": {
+            "atk": 188,
+            "def": 186,
+            "spa": 198,
+            "spd": 236,
+            "spe": 236
+          },
+          "base_ability": "drought",
+          "ability": "drought",
+          "item": null,
+          "tera_type": "Fire",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Rain Dance",
+            "move": "Rain Dance",
+            "slot": 1
+          },
+          {
+            "index": 1,
+            "kind": "move",
+            "choice": "move 2",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Rain Dance",
+            "move": "Rain Dance",
+            "slot": 1
+          },
+          {
+            "index": 5,
+            "kind": "move_tera",
+            "choice": "move 2 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          1,
+          4,
+          5
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        1,
+        4,
+        5
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 1,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 1,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": "raindance",
+        "terrain": null,
+        "pseudo_weather": [],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Sun",
+          "name": "Sun",
+          "species": "Ninetales",
+          "base_species": "Ninetales",
+          "current_species": "Ninetales",
+          "displayed_species": "Ninetales",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Ninetales, M",
+          "active": true,
+          "fainted": false,
+          "hp_text": "287/287",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Fire"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "drought",
+          "base_ability": "drought",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "raindance",
+            "splash"
+          ],
+          "revealed_moves": [
+            "raindance",
+            "splash"
+          ],
+          "tera_type": "Fire",
+          "stats": {
+            "atk": 188,
+            "def": 186,
+            "spa": 198,
+            "spd": 236,
+            "spe": 236
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Foe",
+          "name": "Foe",
+          "species": "Eevee",
+          "base_species": "Eevee",
+          "current_species": "Eevee",
+          "displayed_species": "Eevee",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Eevee, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Normal"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Sun|Ninetales, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|-weather|SunnyDay|[from] ability: Drought|[of] p1a: Sun",
+      "|turn|1"
+    ]
+  },
+  "input_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-weather-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+      "source_kind": "sim_core",
+      "event_cursor": 17,
+      "protocol_prefix_hash": "1517df57f2c3ae3ef51bd39c1fddff8a51c3032c1cdb5483c759267aa82a7de6",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+        "source_kind": "sim_core",
+        "event_cursor": 17,
+        "protocol_prefix_hash": "1517df57f2c3ae3ef51bd39c1fddff8a51c3032c1cdb5483c759267aa82a7de6",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Sun|Ninetales, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|-weather|SunnyDay|[from] ability: Drought|[of] p1a: Sun",
+      "|turn|1"
+    ],
+    "parent_belief_id": null,
+    "simulator_snapshot": {
+      "branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+      "transition_id": null,
+      "state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+      "parent_branch_id": null
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+        "transition_id": null,
+        "state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+        "parent_branch_id": null
+      }
+    ],
+    "transition_lineage": null,
+    "transition_history": [],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-a18a99672ca97209fadde1fd9ab550f0e7305597793a2da831260c792bdb27f2"
+  },
+  "action": {
+    "schema_version": "canonical-action/v1",
+    "source": "request_legal_action",
+    "player": "p1",
+    "rqid": null,
+    "kind": "move",
+    "index": 0,
+    "move_slot": 1,
+    "switch_slot": null,
+    "target": null,
+    "choice": "move 1",
+    "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+  },
+  "transition": {
+    "schema_version": "pipeline-transition-reference/v1",
+    "transition_id": "transition-60e70d8c599ed132a6eee61c21933ec6fa875f115d6f8f06d2668457800ca547",
+    "parent_branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+    "branch_id": "branch-865e25dc9e5ee154b64a0b57a6ef62b28f927c4e82db376f4fade3ab0c397042",
+    "input_state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+    "output_state_fingerprint": "4ee21840665be78401812b5b50f230438d68053583e95a6a7db7bcb7bec863d2",
+    "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+    "step_index": 0,
+    "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+  },
+  "successor_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-weather-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 25,
+    "protocol_prefix_hash": "7f3b1d98a3265a870199243549cb61c950af1d23270913eabd57f93f929bf346",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Rain Dance",
+            "id": "raindance",
+            "pp": 7,
+            "maxpp": 8,
+            "target": "all",
+            "disabled": false,
+            "type": "Water",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          },
+          {
+            "slot": 2,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Fire",
+        "trapped": false,
+        "can_switch": false
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Sun",
+          "details": "Ninetales, M",
+          "condition": "287/287",
+          "active": true,
+          "moves": [
+            "raindance",
+            "splash"
+          ],
+          "stats": {
+            "atk": 188,
+            "def": 186,
+            "spa": 198,
+            "spd": 236,
+            "spe": 236
+          },
+          "base_ability": "drought",
+          "ability": "drought",
+          "item": null,
+          "tera_type": "Fire",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Rain Dance",
+            "move": "Rain Dance",
+            "slot": 1
+          },
+          {
+            "index": 1,
+            "kind": "move",
+            "choice": "move 2",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Rain Dance",
+            "move": "Rain Dance",
+            "slot": 1
+          },
+          {
+            "index": 5,
+            "kind": "move_tera",
+            "choice": "move 2 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          1,
+          4,
+          5
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        1,
+        4,
+        5
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 2,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 1,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": "raindance",
+        "terrain": null,
+        "pseudo_weather": [],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Sun",
+          "name": "Sun",
+          "species": "Ninetales",
+          "base_species": "Ninetales",
+          "current_species": "Ninetales",
+          "displayed_species": "Ninetales",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Ninetales, M",
+          "active": true,
+          "fainted": false,
+          "hp_text": "287/287",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Fire"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "drought",
+          "base_ability": "drought",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "raindance",
+            "splash"
+          ],
+          "revealed_moves": [
+            "raindance",
+            "splash"
+          ],
+          "tera_type": "Fire",
+          "stats": {
+            "atk": 188,
+            "def": 186,
+            "spa": 198,
+            "spd": 236,
+            "spe": 236
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Foe",
+          "name": "Foe",
+          "species": "Eevee",
+          "base_species": "Eevee",
+          "current_species": "Eevee",
+          "displayed_species": "Eevee",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Eevee, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Normal"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-0f5208b2a575056b3cd754abb596457bda6b51f669f88431a96a561201180d7e",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Sun|Ninetales, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|-weather|SunnyDay|[from] ability: Drought|[of] p1a: Sun",
+      "|turn|1",
+      "|t:|0",
+      "|move|p1a: Sun|Rain Dance|p1a: Sun",
+      "|-weather|RainDance",
+      "|move|p2a: Foe|Splash|p2a: Foe",
+      "|-nothing",
+      "|-weather|RainDance|[upkeep]",
+      "|upkeep",
+      "|turn|2"
+    ]
+  },
+  "successor_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-weather-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-0f5208b2a575056b3cd754abb596457bda6b51f669f88431a96a561201180d7e",
+      "source_kind": "sim_core",
+      "event_cursor": 25,
+      "protocol_prefix_hash": "7f3b1d98a3265a870199243549cb61c950af1d23270913eabd57f93f929bf346",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+        "source_kind": "sim_core",
+        "event_cursor": 17,
+        "protocol_prefix_hash": "1517df57f2c3ae3ef51bd39c1fddff8a51c3032c1cdb5483c759267aa82a7de6",
+        "snapshot_phase": "pre_decision"
+      },
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-0f5208b2a575056b3cd754abb596457bda6b51f669f88431a96a561201180d7e",
+        "source_kind": "sim_core",
+        "event_cursor": 25,
+        "protocol_prefix_hash": "7f3b1d98a3265a870199243549cb61c950af1d23270913eabd57f93f929bf346",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Sun|Ninetales, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|-weather|SunnyDay|[from] ability: Drought|[of] p1a: Sun",
+      "|turn|1",
+      "|t:|0",
+      "|move|p1a: Sun|Rain Dance|p1a: Sun",
+      "|-weather|RainDance",
+      "|move|p2a: Foe|Splash|p2a: Foe",
+      "|-nothing",
+      "|-weather|RainDance|[upkeep]",
+      "|upkeep",
+      "|turn|2"
+    ],
+    "parent_belief_id": "belief-a18a99672ca97209fadde1fd9ab550f0e7305597793a2da831260c792bdb27f2",
+    "simulator_snapshot": {
+      "branch_id": "branch-865e25dc9e5ee154b64a0b57a6ef62b28f927c4e82db376f4fade3ab0c397042",
+      "transition_id": "transition-60e70d8c599ed132a6eee61c21933ec6fa875f115d6f8f06d2668457800ca547",
+      "state_fingerprint": "4ee21840665be78401812b5b50f230438d68053583e95a6a7db7bcb7bec863d2",
+      "parent_branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc"
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+        "transition_id": null,
+        "state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+        "parent_branch_id": null
+      },
+      {
+        "branch_id": "branch-865e25dc9e5ee154b64a0b57a6ef62b28f927c4e82db376f4fade3ab0c397042",
+        "transition_id": "transition-60e70d8c599ed132a6eee61c21933ec6fa875f115d6f8f06d2668457800ca547",
+        "state_fingerprint": "4ee21840665be78401812b5b50f230438d68053583e95a6a7db7bcb7bec863d2",
+        "parent_branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc"
+      }
+    ],
+    "transition_lineage": {
+      "transition_id": "transition-60e70d8c599ed132a6eee61c21933ec6fa875f115d6f8f06d2668457800ca547",
+      "parent_branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+      "branch_id": "branch-865e25dc9e5ee154b64a0b57a6ef62b28f927c4e82db376f4fade3ab0c397042",
+      "input_state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+      "output_state_fingerprint": "4ee21840665be78401812b5b50f230438d68053583e95a6a7db7bcb7bec863d2",
+      "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+      "step_index": 0,
+      "input_observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+      "output_observation_id": "obs-0f5208b2a575056b3cd754abb596457bda6b51f669f88431a96a561201180d7e"
+    },
+    "transition_history": [
+      {
+        "transition_id": "transition-60e70d8c599ed132a6eee61c21933ec6fa875f115d6f8f06d2668457800ca547",
+        "parent_branch_id": "branch-ebeea6c32bcc0dacc74f1fc0931caabebdb1a2d9b155c41011113ab1ef9d5cfc",
+        "branch_id": "branch-865e25dc9e5ee154b64a0b57a6ef62b28f927c4e82db376f4fade3ab0c397042",
+        "input_state_fingerprint": "56eaaeab2e39ce1c0d9a081058b6a03b6b8ad50285eb9c8b08c1b1db46be37fe",
+        "output_state_fingerprint": "4ee21840665be78401812b5b50f230438d68053583e95a6a7db7bcb7bec863d2",
+        "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+        "step_index": 0,
+        "input_observation_id": "obs-7cc98db918116d580eb5cfe3a76568e34e0ceea6ee13040ad3221d1bb37881a2",
+        "output_observation_id": "obs-0f5208b2a575056b3cd754abb596457bda6b51f669f88431a96a561201180d7e"
+      }
+    ],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-871a57f035665fe8696bb6de6a9683ecc2bc33e1348d4031936cbae42a703b81"
+  }
+}

@@ -220,6 +220,20 @@ exact review scope, hashes and validation.
 number>}`. They are public, cloned from `BattleView.field`, and eligible for
 features; raw protocol contradictions are quarantined.
 
+The bounded field validator compares weather, terrain and Trick Room membership
+against ordered, grammar-validated public writers in projection and imported
+observation validation (v1/v2). Weather replacement has no intervening clear;
+upkeep corroborates its current start; expiry remains the literal `none` wire
+value. Terrain replacement sets its scalar and public end clears it to null.
+Trick Room reapplication emits an end; switch, faint, suppression and terminal
+records do not fabricate field ends. The existing pseudo-weather list also
+contains terrain entries; only Trick Room membership is checked here. No timers
+or effectiveness state are imported. Supplied field objects require exactly the
+four keys above and their existing types, including finite side-condition maps.
+Python's genuine sparse legacy ordinary observations remain compatible only
+when no required field writer is concealed, even after a clear. This is a
+bounded validation rule, pending independent review, not a broader fidelity claim.
+
 For field-level completeness, the copied Pokémon and field members have these
 individual rules (all rows use the same raw-protocol contradiction behavior and
 model eligibility stated in the preceding table):
@@ -737,3 +751,8 @@ invertboost before reconstruction; internal helper aliases do not expand grammar
 V1 defaults, historical identities and schemas are unchanged. Rigged Dice and other
 mod/tag variants remain unsupported. Semantic classification/coverage review pending;
 faithful_complete_episode:false remains required.
+
+
+## Perspective knowledge opt-in candidate (PK-01)
+
+The separately reviewed candidate [PERSPECTIVE_KNOWLEDGE.md](PERSPECTIVE_KNOWLEDGE.md) freezes an external identity-bound audit/context and trusted single-perspective output. It does not adopt a runtime route or alter existing schema keys, canonical bytes, identity/history meanings, publication eligibility or accepted fidelity flags. Existing consumers remain unchanged; opt-in requires later authorized implementation and source/semantic review. The caller must validate legacy observation/belief/record/history joins independently before accepting a knowledge binding. A matching context hash, source label or imported projection is insufficient. Legacy replay builders remain outside the new contract; no silent fallback.

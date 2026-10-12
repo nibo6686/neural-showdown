@@ -1,0 +1,1460 @@
+{
+  "schema_version": "pipeline-episode-publication-sweep/v1",
+  "result": {
+    "schema_version": "pipeline-episode/v1",
+    "run_id": "episode-af31db8148992a41dea1c854cce2ae32ef05350a6b3c086e1a706075193cbfcd",
+    "battle_id": "field-proof-terrain-terminal",
+    "ruleset": "gen9randombattle",
+    "policy_id": "field-proof/v1",
+    "limits": {
+      "max_transitions": 1,
+      "max_attempts": 512,
+      "max_rejections_per_boundary": 3
+    },
+    "status": "completed",
+    "stop": {
+      "code": "episode/v1/terminal",
+      "reason": "The committed simulator boundary is a win or tie."
+    },
+    "counts": {
+      "attempts": 1,
+      "committed_transitions": 1,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    },
+    "initial_boundary": {
+      "step_index": 0,
+      "kind": "joint_actionable",
+      "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+      "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+      "perspectives": {
+        "p1": {
+          "observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+          "belief_id": "belief-401e2ffa1772b6eef65d5848f09ae73263472d73a523720162f5acc049f7e444",
+          "event_cursor": 17,
+          "request_state": "actionable",
+          "winner": null
+        },
+        "p2": {
+          "observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+          "belief_id": "belief-e10245b3903a1623183f6ae9cf6ed2b803cb1602997730ed724e7db9247246b4",
+          "event_cursor": 17,
+          "request_state": "actionable",
+          "winner": null
+        }
+      }
+    },
+    "final_boundary": {
+      "step_index": 1,
+      "kind": "terminal",
+      "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+      "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+      "perspectives": {
+        "p1": {
+          "observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e",
+          "belief_id": "belief-d9fc248e0d97750c0c94433484d598504ecf34e44c9b11da4af3c1cd6aa66b3f",
+          "event_cursor": 23,
+          "request_state": "terminal",
+          "winner": "p1"
+        },
+        "p2": {
+          "observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f",
+          "belief_id": "belief-ddf3369a6b85391faee50fa21872f9fc1bc246b546cb1b59f6f06d296f11a3bd",
+          "event_cursor": 23,
+          "request_state": "terminal",
+          "winner": "p1"
+        }
+      }
+    },
+    "transition_ids": [
+      "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51"
+    ],
+    "faithful_complete_episode": true
+  },
+  "evidence_envelope": {
+    "schema_version": "pipeline-episode-evidence/v2",
+    "run_id": "episode-af31db8148992a41dea1c854cce2ae32ef05350a6b3c086e1a706075193cbfcd",
+    "battle_id": "field-proof-terrain-terminal",
+    "ruleset": "gen9randombattle",
+    "source_ref": "sim-core://field-proof-terrain-terminal",
+    "origin": {
+      "schema_version": "pipeline-episode-origin/v1",
+      "origin_id": "episode-origin-a7ab299b9466386203e107a87b0a4e11bce0de43aaf1c5390fea2668ed8af599",
+      "kind": "fresh_episode",
+      "boundary": {
+        "step_index": 0,
+        "kind": "joint_actionable",
+        "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+        "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+        "perspectives": {
+          "p1": {
+            "schema_version": "observable-battle-state/v2",
+            "source_kind": "sim_core",
+            "battle_id": "field-proof-terrain-terminal",
+            "perspective": "p1",
+            "event_cursor": 17,
+            "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+            "snapshot_phase": "pre_decision",
+            "other_phase": null,
+            "request": {
+              "player": "p1",
+              "wait": false,
+              "team_preview": false,
+              "force_switch": false,
+              "trapped": false,
+              "rqid": null,
+              "active": {
+                "moves": [
+                  {
+                    "slot": 1,
+                    "move": "Splash",
+                    "id": "splash",
+                    "pp": 64,
+                    "maxpp": 64,
+                    "target": "self",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Status",
+                    "base_power": 0,
+                    "accuracy": null
+                  }
+                ],
+                "can_terastallize": true,
+                "tera_type": "Electric",
+                "trapped": false,
+                "can_switch": false
+              },
+              "side": [
+                {
+                  "slot": 1,
+                  "ident": "p1: Pin",
+                  "details": "Pincurchin, L1, M",
+                  "condition": "12/12",
+                  "active": true,
+                  "moves": [
+                    "splash"
+                  ],
+                  "stats": {
+                    "atk": 7,
+                    "def": 7,
+                    "spa": 7,
+                    "spd": 7,
+                    "spe": 5
+                  },
+                  "base_ability": "electricsurge",
+                  "ability": "electricsurge",
+                  "item": null,
+                  "tera_type": "Electric",
+                  "terastallized": false
+                }
+              ],
+              "legal_actions": {
+                "mask": [
+                  true,
+                  false,
+                  false,
+                  false,
+                  true,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "actions": [
+                  {
+                    "index": 0,
+                    "kind": "move",
+                    "choice": "move 1",
+                    "label": "move:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  null,
+                  null,
+                  null,
+                  {
+                    "index": 4,
+                    "kind": "move_tera",
+                    "choice": "move 1 terastallize",
+                    "label": "move_tera:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+                ],
+                "available_indices": [
+                  0,
+                  4
+                ]
+              }
+            },
+            "decision_availability": {
+              "available": true,
+              "reason": "request",
+              "legal_action_indices": [
+                0,
+                4
+              ]
+            },
+            "view": {
+              "format": "gen9randombattle",
+              "gen": 9,
+              "turn": 1,
+              "player": "p1",
+              "opponent": "p2",
+              "terminated": false,
+              "winner": null,
+              "names": {
+                "p1": "One",
+                "p2": "Two"
+              },
+              "team_size": {
+                "p1": 1,
+                "p2": 1
+              },
+              "active": {
+                "self": 0,
+                "opponent": 0
+              },
+              "field": {
+                "weather": null,
+                "terrain": "electricterrain",
+                "pseudo_weather": [
+                  "electricterrain"
+                ],
+                "side_conditions": {
+                  "self": {},
+                  "opponent": {}
+                }
+              },
+              "self_team": [
+                {
+                  "slot": 1,
+                  "ident": "p1: Pin",
+                  "name": "Pin",
+                  "species": "Pincurchin",
+                  "base_species": "Pincurchin",
+                  "current_species": "Pincurchin",
+                  "displayed_species": "Pincurchin",
+                  "species_source": "request",
+                  "transformed": false,
+                  "displayed_species_uncertain": false,
+                  "illusion_revealed": false,
+                  "details": "Pincurchin, L1, M",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "12/12",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "request",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "M",
+                  "level": 1,
+                  "types": [
+                    "Electric"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "item": null,
+                  "last_item": null,
+                  "item_state": "unknown",
+                  "item_suppressed": false,
+                  "ability": "electricsurge",
+                  "base_ability": "electricsurge",
+                  "ability_state": "known",
+                  "ability_suppressed": false,
+                  "moves": [
+                    "splash"
+                  ],
+                  "revealed_moves": [
+                    "splash"
+                  ],
+                  "tera_type": "Electric",
+                  "stats": {
+                    "atk": 7,
+                    "def": 7,
+                    "spa": 7,
+                    "spd": 7,
+                    "spe": 5
+                  },
+                  "boosts": {}
+                }
+              ],
+              "opponent_team": [
+                {
+                  "slot": 1,
+                  "ident": "p2a: Bomb",
+                  "name": "Bomb",
+                  "species": "Snorlax",
+                  "base_species": "Snorlax",
+                  "current_species": "Snorlax",
+                  "displayed_species": "Snorlax",
+                  "species_source": "protocol",
+                  "transformed": false,
+                  "displayed_species_uncertain": true,
+                  "illusion_revealed": false,
+                  "details": "Snorlax, F",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "100/100",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "protocol",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "F",
+                  "level": null,
+                  "types": [
+                    "Normal"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "public_boosts": {
+                    "atk": 0,
+                    "def": 0,
+                    "spa": 0,
+                    "spd": 0,
+                    "spe": 0,
+                    "accuracy": 0,
+                    "evasion": 0
+                  }
+                }
+              ]
+            },
+            "observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+            "protocol_prefix": [
+              "|t:|0",
+              "|gametype|singles",
+              "|player|p1|One||",
+              "|player|p2|Two||",
+              "|teamsize|p1|1",
+              "|teamsize|p2|1",
+              "|gen|9",
+              "|rule|Species Clause: Limit one of each Pokémon",
+              "|rule|HP Percentage Mod: HP is shown in percentages",
+              "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+              "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+              "|t:|0",
+              "|start",
+              "|switch|p1a: Pin|Pincurchin, L1, M|100/100",
+              "|switch|p2a: Bomb|Snorlax, F|100/100",
+              "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+              "|turn|1"
+            ]
+          },
+          "p2": {
+            "schema_version": "observable-battle-state/v2",
+            "source_kind": "sim_core",
+            "battle_id": "field-proof-terrain-terminal",
+            "perspective": "p2",
+            "event_cursor": 17,
+            "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+            "snapshot_phase": "pre_decision",
+            "other_phase": null,
+            "request": {
+              "player": "p2",
+              "wait": false,
+              "team_preview": false,
+              "force_switch": false,
+              "trapped": false,
+              "rqid": null,
+              "active": {
+                "moves": [
+                  {
+                    "slot": 1,
+                    "move": "Splash",
+                    "id": "splash",
+                    "pp": 64,
+                    "maxpp": 64,
+                    "target": "self",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Status",
+                    "base_power": 0,
+                    "accuracy": null
+                  },
+                  {
+                    "slot": 2,
+                    "move": "Explosion",
+                    "id": "explosion",
+                    "pp": 8,
+                    "maxpp": 8,
+                    "target": "allAdjacent",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Physical",
+                    "base_power": 250,
+                    "accuracy": 100
+                  }
+                ],
+                "can_terastallize": true,
+                "tera_type": "Normal",
+                "trapped": false,
+                "can_switch": false
+              },
+              "side": [
+                {
+                  "slot": 1,
+                  "ident": "p2: Bomb",
+                  "details": "Snorlax, F",
+                  "condition": "461/461",
+                  "active": true,
+                  "moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "stats": {
+                    "atk": 256,
+                    "def": 166,
+                    "spa": 166,
+                    "spd": 256,
+                    "spe": 96
+                  },
+                  "base_ability": "thickfat",
+                  "ability": "thickfat",
+                  "item": null,
+                  "tera_type": "Normal",
+                  "terastallized": false
+                }
+              ],
+              "legal_actions": {
+                "mask": [
+                  true,
+                  true,
+                  false,
+                  false,
+                  true,
+                  true,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "actions": [
+                  {
+                    "index": 0,
+                    "kind": "move",
+                    "choice": "move 1",
+                    "label": "move:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  {
+                    "index": 1,
+                    "kind": "move",
+                    "choice": "move 2",
+                    "label": "move:Explosion",
+                    "move": "Explosion",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  {
+                    "index": 4,
+                    "kind": "move_tera",
+                    "choice": "move 1 terastallize",
+                    "label": "move_tera:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  {
+                    "index": 5,
+                    "kind": "move_tera",
+                    "choice": "move 2 terastallize",
+                    "label": "move_tera:Explosion",
+                    "move": "Explosion",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+                ],
+                "available_indices": [
+                  0,
+                  1,
+                  4,
+                  5
+                ]
+              }
+            },
+            "decision_availability": {
+              "available": true,
+              "reason": "request",
+              "legal_action_indices": [
+                0,
+                1,
+                4,
+                5
+              ]
+            },
+            "view": {
+              "format": "gen9randombattle",
+              "gen": 9,
+              "turn": 1,
+              "player": "p2",
+              "opponent": "p1",
+              "terminated": false,
+              "winner": null,
+              "names": {
+                "p1": "One",
+                "p2": "Two"
+              },
+              "team_size": {
+                "p1": 1,
+                "p2": 1
+              },
+              "active": {
+                "self": 0,
+                "opponent": 0
+              },
+              "field": {
+                "weather": null,
+                "terrain": "electricterrain",
+                "pseudo_weather": [
+                  "electricterrain"
+                ],
+                "side_conditions": {
+                  "self": {},
+                  "opponent": {}
+                }
+              },
+              "self_team": [
+                {
+                  "slot": 1,
+                  "ident": "p2: Bomb",
+                  "name": "Bomb",
+                  "species": "Snorlax",
+                  "base_species": "Snorlax",
+                  "current_species": "Snorlax",
+                  "displayed_species": "Snorlax",
+                  "species_source": "request",
+                  "transformed": false,
+                  "displayed_species_uncertain": false,
+                  "illusion_revealed": false,
+                  "details": "Snorlax, F",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "461/461",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "request",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "F",
+                  "level": null,
+                  "types": [
+                    "Normal"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "item": null,
+                  "last_item": null,
+                  "item_state": "unknown",
+                  "item_suppressed": false,
+                  "ability": "thickfat",
+                  "base_ability": "thickfat",
+                  "ability_state": "known",
+                  "ability_suppressed": false,
+                  "moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "revealed_moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "tera_type": "Normal",
+                  "stats": {
+                    "atk": 256,
+                    "def": 166,
+                    "spa": 166,
+                    "spd": 256,
+                    "spe": 96
+                  },
+                  "boosts": {}
+                }
+              ],
+              "opponent_team": [
+                {
+                  "slot": 1,
+                  "ident": "p1a: Pin",
+                  "name": "Pin",
+                  "species": "Pincurchin",
+                  "base_species": "Pincurchin",
+                  "current_species": "Pincurchin",
+                  "displayed_species": "Pincurchin",
+                  "species_source": "protocol",
+                  "transformed": false,
+                  "displayed_species_uncertain": true,
+                  "illusion_revealed": false,
+                  "details": "Pincurchin, L1, M",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "100/100",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "protocol",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "M",
+                  "level": 1,
+                  "types": [
+                    "Electric"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "public_boosts": {
+                    "atk": 0,
+                    "def": 0,
+                    "spa": 0,
+                    "spd": 0,
+                    "spe": 0,
+                    "accuracy": 0,
+                    "evasion": 0
+                  }
+                }
+              ]
+            },
+            "observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+            "protocol_prefix": [
+              "|t:|0",
+              "|gametype|singles",
+              "|player|p1|One||",
+              "|player|p2|Two||",
+              "|teamsize|p1|1",
+              "|teamsize|p2|1",
+              "|gen|9",
+              "|rule|Species Clause: Limit one of each Pokémon",
+              "|rule|HP Percentage Mod: HP is shown in percentages",
+              "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+              "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+              "|t:|0",
+              "|start",
+              "|switch|p1a: Pin|Pincurchin, L1, M|100/100",
+              "|switch|p2a: Bomb|Snorlax, F|100/100",
+              "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+              "|turn|1"
+            ]
+          }
+        }
+      }
+    },
+    "commits": [
+      {
+        "origin_id": "episode-origin-a7ab299b9466386203e107a87b0a4e11bce0de43aaf1c5390fea2668ed8af599",
+        "transition": {
+          "schema_version": "pipeline-transition-reference/v1",
+          "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+          "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "input_state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+          "output_state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0
+        },
+        "actors": [
+          "p1",
+          "p2"
+        ],
+        "boundary": {
+          "step_index": 1,
+          "kind": "terminal",
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "perspectives": {
+            "p1": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-terrain-terminal",
+              "perspective": "p1",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+              "snapshot_phase": "terminal",
+              "other_phase": null,
+              "request": null,
+              "decision_availability": {
+                "available": false,
+                "reason": "terminal",
+                "legal_action_indices": null
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 1,
+                "player": "p1",
+                "opponent": "p2",
+                "terminated": true,
+                "winner": "p1",
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": null,
+                  "opponent": null
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": "grassyterrain",
+                  "pseudo_weather": [
+                    "electricterrain"
+                  ],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1: Pin",
+                    "name": "Pin",
+                    "species": "Pincurchin",
+                    "base_species": "Pincurchin",
+                    "current_species": "Pincurchin",
+                    "displayed_species": "Pincurchin",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Pincurchin, L1, M",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Electric"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "electricsurge",
+                    "base_ability": "electricsurge",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "splash"
+                    ],
+                    "revealed_moves": [
+                      "splash"
+                    ],
+                    "tera_type": "Electric",
+                    "stats": {
+                      "atk": 7,
+                      "def": 7,
+                      "spa": 7,
+                      "spd": 7,
+                      "spe": 5
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2a: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Pin|Pincurchin, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Explosion|p1a: Pin",
+                "|-damage|p1a: Pin|0 fnt",
+                "|faint|p2a: Bomb",
+                "|faint|p1a: Pin",
+                "|win|One"
+              ]
+            },
+            "p2": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-terrain-terminal",
+              "perspective": "p2",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+              "snapshot_phase": "terminal",
+              "other_phase": null,
+              "request": null,
+              "decision_availability": {
+                "available": false,
+                "reason": "terminal",
+                "legal_action_indices": null
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 1,
+                "player": "p2",
+                "opponent": "p1",
+                "terminated": true,
+                "winner": "p1",
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": null,
+                  "opponent": null
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": "electricterrain",
+                  "pseudo_weather": [
+                    "electricterrain"
+                  ],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "thickfat",
+                    "base_ability": "thickfat",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "revealed_moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "tera_type": "Normal",
+                    "stats": {
+                      "atk": 256,
+                      "def": 166,
+                      "spa": 166,
+                      "spd": 256,
+                      "spe": 96
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1a: Pin",
+                    "name": "Pin",
+                    "species": "Pincurchin",
+                    "base_species": "Pincurchin",
+                    "current_species": "Pincurchin",
+                    "displayed_species": "Pincurchin",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Pincurchin, L1, M",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Electric"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Pin|Pincurchin, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Explosion|p1a: Pin",
+                "|-damage|p1a: Pin|0 fnt",
+                "|faint|p2a: Bomb",
+                "|faint|p1a: Pin",
+                "|win|One"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "closure": {
+      "schema_version": "pipeline-episode-closure/v1",
+      "origin_coverage": "original_initial_requests",
+      "predecessor": null,
+      "terminal": {
+        "schema_version": "pipeline-terminal-evidence/v1",
+        "outcome": "win",
+        "winner": "p1",
+        "final_boundary": {
+          "step_index": 1,
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "perspectives": {
+            "p1": {
+              "observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590"
+            },
+            "p2": {
+              "observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590"
+            }
+          }
+        }
+      },
+      "complete_capture": true
+    },
+    "evidence_id": "episode-evidence-45c12dab0889d92a9f0e4d76b1665388ab24fe682b900d19a3e9e69484ac1337"
+  },
+  "records": {
+    "p1": [
+      {
+        "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p1",
+          "rqid": null,
+          "kind": "move",
+          "index": 0,
+          "move_slot": 1,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 1",
+          "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+        },
+        "input_belief_id": "belief-401e2ffa1772b6eef65d5848f09ae73263472d73a523720162f5acc049f7e444",
+        "successor_belief_id": "belief-d9fc248e0d97750c0c94433484d598504ecf34e44c9b11da4af3c1cd6aa66b3f"
+      }
+    ],
+    "p2": [
+      {
+        "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p2",
+          "rqid": null,
+          "kind": "move",
+          "index": 1,
+          "move_slot": 2,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 2",
+          "action_id": "act-7085da4b924dc3166eeb292fa3d5eef99c730c5dcf36638981a099a1b66d8689"
+        },
+        "input_belief_id": "belief-e10245b3903a1623183f6ae9cf6ed2b803cb1602997730ed724e7db9247246b4",
+        "successor_belief_id": "belief-ddf3369a6b85391faee50fa21872f9fc1bc246b546cb1b59f6f06d296f11a3bd"
+      }
+    ]
+  },
+  "beliefs": [
+    {
+      "belief_id": "belief-401e2ffa1772b6eef65d5848f09ae73263472d73a523720162f5acc049f7e444",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-terrain-terminal",
+        "perspective": "p1",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+          "source_kind": "sim_core",
+          "event_cursor": 17,
+          "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": null,
+        "simulator_snapshot": {
+          "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+          "transition_id": null,
+          "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+          "parent_branch_id": null
+        },
+        "transition_lineage": null
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+              "source_kind": "sim_core",
+              "event_cursor": 17,
+              "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "transition_id": null,
+              "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "parent_branch_id": null
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": []
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-d9fc248e0d97750c0c94433484d598504ecf34e44c9b11da4af3c1cd6aa66b3f",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-terrain-terminal",
+        "perspective": "p1",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e",
+          "source_kind": "sim_core",
+          "event_cursor": 23,
+          "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+          "snapshot_phase": "terminal"
+        },
+        "parent_belief_id": "belief-401e2ffa1772b6eef65d5848f09ae73263472d73a523720162f5acc049f7e444",
+        "simulator_snapshot": {
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+          "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+          "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "input_state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+          "output_state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0,
+          "input_observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+          "output_observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+              "source_kind": "sim_core",
+              "event_cursor": 17,
+              "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+              "snapshot_phase": "terminal"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "transition_id": null,
+              "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+              "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+              "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+              "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+              "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+              "input_state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "output_state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-d17a704a964eef81fc071084223ac8cc7a09b0fdcb850bdb0d9c32b9f5a70307",
+              "output_observation_id": "obs-2aff1b41c9bec3269443ff53c1768672a57be331ff27ef04aac8623a07f6514e"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-e10245b3903a1623183f6ae9cf6ed2b803cb1602997730ed724e7db9247246b4",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-terrain-terminal",
+        "perspective": "p2",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+          "source_kind": "sim_core",
+          "event_cursor": 17,
+          "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": null,
+        "simulator_snapshot": {
+          "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+          "transition_id": null,
+          "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+          "parent_branch_id": null
+        },
+        "transition_lineage": null
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+              "source_kind": "sim_core",
+              "event_cursor": 17,
+              "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "transition_id": null,
+              "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "parent_branch_id": null
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": []
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-ddf3369a6b85391faee50fa21872f9fc1bc246b546cb1b59f6f06d296f11a3bd",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-terrain-terminal",
+        "perspective": "p2",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f",
+          "source_kind": "sim_core",
+          "event_cursor": 23,
+          "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+          "snapshot_phase": "terminal"
+        },
+        "parent_belief_id": "belief-e10245b3903a1623183f6ae9cf6ed2b803cb1602997730ed724e7db9247246b4",
+        "simulator_snapshot": {
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+          "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+          "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+          "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+          "input_state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+          "output_state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0,
+          "input_observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+          "output_observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+              "source_kind": "sim_core",
+              "event_cursor": 17,
+              "protocol_prefix_hash": "637f6b8eb55154b719274998d9dd5d36b2f4bfa1896ae4991312edc600fbf3f5",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "7ead6114a88528fc9c7487d55ccbe7e164e47be3006218f7e0dae4202f018590",
+              "snapshot_phase": "terminal"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "transition_id": null,
+              "state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+              "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+              "state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+              "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-81c2f66a6fc63afd357f8a826075d85764342ee532ea33688173ca39ec454a51",
+              "parent_branch_id": "branch-90dabcdc01c9863a5cf1b228034af18e3b796f86c46564ee7843f6777e7997ff",
+              "branch_id": "branch-e6fc397e7d5de2c42eca4232629ebf9a7b4d4cad17ce139f32f262cf2ccdcd2b",
+              "input_state_fingerprint": "310e5a8336b125a80be92dc279a1d1e7652107019372631d52882a4a4bd4dadb",
+              "output_state_fingerprint": "3b5c907278ae35f9ffb0a30355ff350328878c964673e52592923e0f4e343562",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-b78a6b766eb7a6f8f03d61a0184369bbb942a2ea3eb582bf72c1d4aad858fd92",
+              "output_observation_id": "obs-12ef3a851e01c1a7c91846d6d52f59e1cfdf13fb99f96aa24637a31cb833408f"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    }
+  ]
+}

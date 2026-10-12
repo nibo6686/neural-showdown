@@ -1,0 +1,57 @@
+[
+  {
+    "case": "opponent-roster",
+    "python": {
+      "accepted": true,
+      "diagnostic": {
+        "structure_valid": true,
+        "source_semantics_verified": false,
+        "completeness": "not_established",
+        "legacy_envelope_verified": false
+      }
+    },
+    "ts_exit": 0,
+    "ts_stdout": "{\"structure_valid\":true,\"source_semantics_verified\":false,\"completeness\":\"not_established\",\"legacy_envelope_verified\":false}\n",
+    "ts_stderr": ""
+  },
+  {
+    "case": "initialization-cursor",
+    "python": {
+      "accepted": true,
+      "diagnostic": {
+        "structure_valid": true,
+        "source_semantics_verified": false,
+        "completeness": "not_established",
+        "legacy_envelope_verified": false
+      }
+    },
+    "ts_exit": 0,
+    "ts_stdout": "{\"structure_valid\":true,\"source_semantics_verified\":false,\"completeness\":\"not_established\",\"legacy_envelope_verified\":false}\n",
+    "ts_stderr": ""
+  },
+  {
+    "case": "raw-request-depth",
+    "python": {
+      "accepted": true,
+      "diagnostic": {
+        "structure_valid": true,
+        "source_semantics_verified": false,
+        "completeness": "not_established",
+        "legacy_envelope_verified": false
+      }
+    },
+    "ts_exit": 0,
+    "ts_stdout": "{\"structure_valid\":true,\"source_semantics_verified\":false,\"completeness\":\"not_established\",\"legacy_envelope_verified\":false}\n",
+    "ts_stderr": ""
+  },
+  {
+    "case": "33-arrays-empty",
+    "python_accepted": true,
+    "ts_exit": 0
+  },
+  {
+    "case": "33-arrays-scalar",
+    "python_accepted": false,
+    "ts_exit": 2
+  }
+]

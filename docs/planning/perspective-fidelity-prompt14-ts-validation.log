@@ -1,0 +1,20 @@
+✔ CONTROL: 28 cases (20 prompt13 + 8 decision-6/Unicode), observation pins reproduce byte-for-byte, helper reseal reproduces identities (2207.0951ms)
+✔ records match raw text and hand-audited literals for every case, owner and version; ids are recomputed independently (36.9189ms)
+✔ group 1: locked, recharge and Struggle records carry nulls and a lock, ordinary rows are non-null, both owners (4.3992ms)
+✔ group 2: real PP 0 differs from absent PP; an explicit zero/normal/false raw row differs from an omitted raw row under the same observation (0.8626ms)
+✔ group 3: maybeDisabled, maybeTrapped, known trap and nothing are four distinct records; absent without a switch-in is null (4.2582ms)
+✔ group 4: waiting, forced switch, revival and terminal have no active slots, correct presence, null raw only for terminal, both owners (1.8794ms)
+✔ group 5 and decision 3: rejection rollback gives two distinct records; a restored-session request is refused, fresh text builds trapped:true (1.5548ms)
+✔ group 6: building never changes observations or legal sets, is pure and deterministic, and sidecar code cannot reach legal-action construction (43.3285ms)
+✔ builder grammar negatives: doubles, team preview, no_legal_actions, unknown keys, wrong owner, wrong presence, duplicate key, oversize (6.4456ms)
+✔ Unicode names: the exact non-ASCII text round-trips through the record and the canonical bytes (1.0759ms)
+✔ parity: Python builds byte-identical canonical records (110 case/version/owner) and its independent validator accepts them (UTF-8 env unset) (578.9794ms)
+✔ correction round: 256-scalar caps, wait+noCancel, canonical string cap, non-null rqid positive path (4.2214ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3379.952

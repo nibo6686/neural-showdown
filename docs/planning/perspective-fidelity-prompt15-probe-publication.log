@@ -1,0 +1,16 @@
+{
+ "observable-battle-state/v1": {
+  "baseline_ok": true,
+  "data_record_id": "datarec-a7d172ca8b0e31d166aebb7115cf941f2d5614269343d094fc830db49ba39331",
+  "extra_sidecar_key": "rejected: pipeline bundle fields are not exact; missing=[], unexpected=['request_knowledge']",
+  "sidecar_with_raw_request_key_nested_in_extra": "rejected: pipeline bundle.request_knowledge contains private or raw simulator data: raw_request",
+  "new_bundle_schema_version_v2": "rejected: unsupported pipeline bundle schema"
+ },
+ "observable-battle-state/v2": {
+  "baseline_ok": true,
+  "data_record_id": "datarec-52b60b330bc9f1182ba5df56906e8400d236b49a008487181878c1317f1da66c",
+  "extra_sidecar_key": "rejected: pipeline bundle fields are not exact; missing=[], unexpected=['request_knowledge']",
+  "sidecar_with_raw_request_key_nested_in_extra": "rejected: pipeline bundle.request_knowledge contains private or raw simulator data: raw_request",
+  "new_bundle_schema_version_v2": "rejected: unsupported pipeline bundle schema"
+ }
+}

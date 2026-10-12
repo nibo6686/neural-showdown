@@ -1,0 +1,23 @@
+✔ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p1 (390.0756ms)
+✔ rejected hidden-disabled move restores the live request and legal set for p1 (52.1247ms)
+✔ repeated save/restore round trips of a mutated state are stable for p1 (39.9621ms)
+✔ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p2 (42.0131ms)
+✔ rejected hidden-disabled move restores the live request and legal set for p2 (42.1257ms)
+✔ repeated save/restore round trips of a mutated state are stable for p2 (28.7845ms)
+✔ hand-built engine-legal overrides are accepted; the same key built from illegal edits is a typed validation error (122.2127ms)
+✔ a rejected restore leaves the running environment untouched (10.6715ms)
+✔ non-mutated live snapshots carry no override key, including after an ordinary turn (14.0551ms)
+✔ three-seed v1/v2 pipeline corpus (joint, forced-switch, terminal) is byte-identical to the pre-change evidence (34992.2351ms)
+✔ both owners mutated in one snapshot restore both live requests (31.5598ms)
+✔ forced switch with a waiting side produces no override key and restores byte-stably (26.7245ms)
+✔ revival selection produces no override key and restores byte-stably (41.2379ms)
+✔ doubles requests produce no override key (42.6258ms)
+✔ an unexplained live-versus-regenerated difference keeps the old bytes and fires the diagnostic hook (12.3962ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36339.3699

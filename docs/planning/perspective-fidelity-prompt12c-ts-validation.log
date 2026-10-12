@@ -1,0 +1,382 @@
+TAP version 13
+# Subtest: 16 independent literal preimages cover every identity domain and Unicode
+ok 1 - 16 independent literal preimages cover every identity domain and Unicode
+  ---
+  duration_ms: 61.2318
+  type: 'test'
+  ...
+# Subtest: literal controls, lexical ASCII ordering, scalar UTF8, and no normalization
+ok 2 - literal controls, lexical ASCII ordering, scalar UTF8, and no normalization
+  ---
+  duration_ms: 0.8677
+  type: 'test'
+  ...
+# Subtest: raw ingress rejects lexical ambiguity before JSON.parse can erase it
+ok 3 - raw ingress rejects lexical ambiguity before JSON.parse can erase it
+  ---
+  duration_ms: 11.5821
+  type: 'test'
+  ...
+# Subtest: object APIs reject unsupported values and cycles without changing them
+ok 4 - object APIs reject unsupported values and cycles without changing them
+  ---
+  duration_ms: 1.6872
+  type: 'test'
+  ...
+# Subtest: sim full has both owners, exact limited diagnostic, and immutable serialization
+ok 5 - sim full has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 139.3792
+  type: 'test'
+  ...
+# Subtest: sim ordinary has both owners, exact limited diagnostic, and immutable serialization
+ok 6 - sim ordinary has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 133.2815
+  type: 'test'
+  ...
+# Subtest: sim compact has both owners, exact limited diagnostic, and immutable serialization
+ok 7 - sim compact has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 119.3296
+  type: 'test'
+  ...
+# Subtest: replay full has both owners, exact limited diagnostic, and immutable serialization
+ok 8 - replay full has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 117.3524
+  type: 'test'
+  ...
+# Subtest: replay ordinary has both owners, exact limited diagnostic, and immutable serialization
+ok 9 - replay ordinary has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 123.1492
+  type: 'test'
+  ...
+# Subtest: replay compact has both owners, exact limited diagnostic, and immutable serialization
+ok 10 - replay compact has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 123.7445
+  type: 'test'
+  ...
+# Subtest: replay-suffix full has both owners, exact limited diagnostic, and immutable serialization
+ok 11 - replay-suffix full has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 118.1382
+  type: 'test'
+  ...
+# Subtest: replay-suffix ordinary has both owners, exact limited diagnostic, and immutable serialization
+ok 12 - replay-suffix ordinary has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 115.8695
+  type: 'test'
+  ...
+# Subtest: replay-suffix compact has both owners, exact limited diagnostic, and immutable serialization
+ok 13 - replay-suffix compact has both owners, exact limited diagnostic, and immutable serialization
+  ---
+  duration_ms: 118.3648
+  type: 'test'
+  ...
+# Subtest: both-owner projections and inert hash/capability text have only structural acceptance
+ok 14 - both-owner projections and inert hash/capability text have only structural acceptance
+  ---
+  duration_ms: 437.8122
+  type: 'test'
+  ...
+# Subtest: same-source refinement retains proved facts/crosswalk, changed-source roots reprove, suffix is causal
+ok 15 - same-source refinement retains proved facts/crosswalk, changed-source roots reprove, suffix is causal
+  ---
+  duration_ms: 6.4224
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-missing-key.json
+ok 16 - independently resealed structural control: negative-missing-key.json
+  ---
+  duration_ms: 34.5581
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-extra-key.json
+ok 17 - independently resealed structural control: negative-extra-key.json
+  ---
+  duration_ms: 19.0989
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-type.json
+ok 18 - independently resealed structural control: negative-wrong-type.json
+  ---
+  duration_ms: 38.8954
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-discriminant.json
+ok 19 - independently resealed structural control: negative-wrong-discriminant.json
+  ---
+  duration_ms: 18.9277
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-duplicate.json
+ok 20 - independently resealed structural control: negative-duplicate.json
+  ---
+  duration_ms: 75.0408
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-dangling-reference.json
+ok 21 - independently resealed structural control: negative-dangling-reference.json
+  ---
+  duration_ms: 96.2554
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-owner.json
+ok 22 - independently resealed structural control: negative-wrong-owner.json
+  ---
+  duration_ms: 104.529
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-policy.json
+ok 23 - independently resealed structural control: negative-wrong-policy.json
+  ---
+  duration_ms: 105.1695
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-source.json
+ok 24 - independently resealed structural control: negative-wrong-source.json
+  ---
+  duration_ms: 102.2781
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-broken-origin.json
+ok 25 - independently resealed structural control: negative-broken-origin.json
+  ---
+  duration_ms: 97.9292
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-broken-parent.json
+ok 26 - independently resealed structural control: negative-broken-parent.json
+  ---
+  duration_ms: 107.6644
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-broken-request.json
+ok 27 - independently resealed structural control: negative-broken-request.json
+  ---
+  duration_ms: 106.9142
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-broken-history.json
+ok 28 - independently resealed structural control: negative-broken-history.json
+  ---
+  duration_ms: 108.6271
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-compact-private-traversal.json
+ok 29 - independently resealed structural control: negative-compact-private-traversal.json
+  ---
+  duration_ms: 105.5716
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-compact-future-traversal.json
+ok 30 - independently resealed structural control: negative-compact-future-traversal.json
+  ---
+  duration_ms: 114.4754
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-crosswalk-foreign-owner.json
+ok 31 - independently resealed structural control: negative-crosswalk-foreign-owner.json
+  ---
+  duration_ms: 109.9524
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-starting-revision-fork.json
+ok 32 - independently resealed structural control: negative-starting-revision-fork.json
+  ---
+  duration_ms: 102.817
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-certificate-property.json
+ok 33 - independently resealed structural control: negative-certificate-property.json
+  ---
+  duration_ms: 101.6542
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-foreign-original-source.json
+ok 34 - independently resealed structural control: negative-foreign-original-source.json
+  ---
+  duration_ms: 104.4751
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-value-tag.json
+ok 35 - independently resealed structural control: negative-wrong-value-tag.json
+  ---
+  duration_ms: 103.2841
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-wrong-effect-identity.json
+ok 36 - independently resealed structural control: negative-wrong-effect-identity.json
+  ---
+  duration_ms: 110.2702
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-in-range-future-source.json
+ok 37 - independently resealed structural control: negative-in-range-future-source.json
+  ---
+  duration_ms: 103.6348
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-unreachable-entry.json
+ok 38 - independently resealed structural control: negative-unreachable-entry.json
+  ---
+  duration_ms: 108.9862
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-cross-source-parent.json
+ok 39 - independently resealed structural control: negative-cross-source-parent.json
+  ---
+  duration_ms: 101.6316
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-old-source-carryover.json
+ok 40 - independently resealed structural control: negative-old-source-carryover.json
+  ---
+  duration_ms: 99.5887
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-same-source-proved-change.json
+ok 41 - independently resealed structural control: negative-same-source-proved-change.json
+  ---
+  duration_ms: 103.3578
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-old-source-fact-certificate.json
+ok 42 - independently resealed structural control: negative-old-source-fact-certificate.json
+  ---
+  duration_ms: 103.0584
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-old-source-crosswalk-certificate.json
+ok 43 - independently resealed structural control: negative-old-source-crosswalk-certificate.json
+  ---
+  duration_ms: 107.3367
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-consumer-privileged-field.json
+ok 44 - independently resealed structural control: negative-consumer-privileged-field.json
+  ---
+  duration_ms: 1.3053
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-consumer-nested-capability.json
+ok 45 - independently resealed structural control: negative-consumer-nested-capability.json
+  ---
+  duration_ms: 1.2322
+  type: 'test'
+  ...
+# Subtest: independently resealed structural control: negative-consumer-foreign-starting.json
+ok 46 - independently resealed structural control: negative-consumer-foreign-starting.json
+  ---
+  duration_ms: 5.5963
+  type: 'test'
+  ...
+# Subtest: resealed wrong-kind edges, dictionary orphans/order, profile substitution, and retention reject
+ok 47 - resealed wrong-kind edges, dictionary orphans/order, profile substitution, and retention reject
+  ---
+  duration_ms: 788.0692
+  type: 'test'
+  ...
+# Subtest: raw_request has its own 65536 scalar allowance and strict nested JSON rules
+ok 48 - raw_request has its own 65536 scalar allowance and strict nested JSON rules
+  ---
+  duration_ms: 180.1335
+  type: 'test'
+  ...
+# Subtest: named layer/power/timer structural claims have independent key and bound controls
+ok 49 - named layer/power/timer structural claims have independent key and bound controls
+  ---
+  duration_ms: 1517.0184
+  type: 'test'
+  ...
+# Subtest: safe projection finite fact consistency and request delivery time cannot bypass core
+ok 50 - safe projection finite fact consistency and request delivery time cannot bypass core
+  ---
+  duration_ms: 69.4376
+  type: 'test'
+  ...
+# Subtest: restoration, complete bindings and declared certificate qualification have resealed controls
+ok 51 - restoration, complete bindings and declared certificate qualification have resealed controls
+  ---
+  duration_ms: 544.1717
+  type: 'test'
+  ...
+# Subtest: restored fact retention and evidence-free request lifecycle reject at precise joins
+ok 52 - restored fact retention and evidence-free request lifecycle reject at precise joins
+  ---
+  duration_ms: 228.6876
+  type: 'test'
+  ...
+# Subtest: a source-semantic false value can still pass structure; no assurance is minted
+ok 53 - a source-semantic false value can still pass structure; no assurance is minted
+  ---
+  duration_ms: 162.7665
+  type: 'test'
+  ...
+# Subtest: compiled TS bytes reach explicit Python CLI with cwd independence, clean errors and no source mutation
+ok 54 - compiled TS bytes reach explicit Python CLI with cwd independence, clean errors and no source mutation
+  ---
+  duration_ms: 1157.379
+  type: 'test'
+  ...
+# Subtest: revision: mirrored owner crosswalks preserve exact certificate joins in all forms
+ok 55 - revision: mirrored owner crosswalks preserve exact certificate joins in all forms
+  ---
+  duration_ms: 2517.6575
+  type: 'test'
+  ...
+# Subtest: revision: known, absent and explicit unknown initialization facts join delivery for both owners
+ok 56 - revision: known, absent and explicit unknown initialization facts join delivery for both owners
+  ---
+  duration_ms: 2425.3672
+  type: 'test'
+  ...
+# Subtest: revision: retained public index and request delivery guards remain exact for both owners
+ok 57 - revision: retained public index and request delivery guards remain exact for both owners
+  ---
+  duration_ms: 1068.0108
+  type: 'test'
+  ...
+# Subtest: revision: 31/32/33 containers are leaf-independent in parser, canonicalizer and raw requests
+ok 58 - revision: 31/32/33 containers are leaf-independent in parser, canonicalizer and raw requests
+  ---
+  duration_ms: 5393.4983
+  type: 'test'
+  ...
+# Subtest: revision: compiled TS bytes and resealed attacks reach clean Python CLI without encoding overrides
+ok 59 - revision: compiled TS bytes and resealed attacks reach clean Python CLI without encoding overrides
+  ---
+  duration_ms: 2936.1941
+  type: 'test'
+  ...
+# Subtest: native legacy IDs: both owners and versions in all forms keep limited immutable diagnostics and Python transport
+ok 60 - native legacy IDs: both owners and versions in all forms keep limited immutable diagnostics and Python transport
+  ---
+  duration_ms: 2295.127
+  type: 'test'
+  ...
+# Subtest: native legacy IDs: independent field scalar packet rejects wrong kinds, malformed values and internal contamination
+ok 61 - native legacy IDs: independent field scalar packet rejects wrong kinds, malformed values and internal contamination
+  ---
+  duration_ms: 18099.7227
+  type: 'test'
+  ...
+# Subtest: native legacy IDs: spelling acceptance leaves inconsistent boundary and binding joins rejected
+ok 62 - native legacy IDs: spelling acceptance leaves inconsistent boundary and binding joins rejected
+  ---
+  duration_ms: 533.8873
+  type: 'test'
+  ...
+1..62
+# tests 62
+# suites 0
+# pass 62
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 44270.6004

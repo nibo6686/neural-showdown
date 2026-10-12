@@ -216,6 +216,34 @@ test('coverage checker covers config drift, local source hashing, and reachabili
   const checker = path.resolve(__dirname, '../../scripts/check-simulator-coverage.cjs');
   const result = spawnSync(process.execPath, [checker, '--reachability-self-test'], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /perspective fidelity complete required-source list is admitted/);
+  assert.match(result.stdout, /perspective fidelity unchanged isolated sources match their candidate digest/);
+  const requiredFidelitySources = [
+    "../trainer/src/neural/pipeline_json_wire.py",
+    "../trainer/src/neural/public_field.py",
+    "src/public_field.ts",
+    "tests/pipeline_utf8_transport.test.ts",
+    "tests/perspective_field_semantics.test.ts",
+    "../trainer/tests/test_perspective_field_semantics.py",
+    "../docs/contracts/OBSERVABLE_STATE.md",
+    "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+    "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json"
+  ];
+  for (const file of requiredFidelitySources) {
+    assert.ok(result.stdout.includes(`Rehashed perspective fidelity omission ${file}: rejected`), file);
+  }
+  for (const file of requiredFidelitySources.slice(0, 6).concat('src/observable_state.ts')) {
+    assert.ok(result.stdout.includes(`perspective fidelity source mutation fails closed: ${file}`), file);
+  }
+  assert.match(result.stdout, /perspective fidelity missing listed file fails closed/);
+  assert.match(result.stdout, /local digest-only update does not attest semantic review/);
   assert.match(result.stdout, /format config root drift fails closed/);
   assert.match(result.stdout, /listed lock content changes local source digest/);
   assert.match(result.stdout, /omitting listed lock changes local source digest/);
@@ -239,4 +267,15 @@ test('coverage checker covers config drift, local source hashing, and reachabili
     assert.match(result.stdout, new RegExp(`${proof} computed volatile audit disposition drift fails closed`));
   }
   assert.match(result.stdout, /B05\/B06 no-route proof fails closed when direct candidate roots appear/);
+});
+
+
+test('coverage self-tests preserve the actual checker gate exit and diagnostics', () => {
+  const checker = path.resolve(__dirname, '../../scripts/check-simulator-coverage.cjs');
+  const live = spawnSync(process.execPath, [checker], { encoding: 'utf8' });
+  const controls = spawnSync(process.execPath, [checker, '--self-test'], { encoding: 'utf8' });
+  assert.notEqual(live.status, null, live.error?.message);
+  assert.equal(controls.status, live.status, controls.stderr || controls.stdout);
+  assert.equal(controls.stderr, live.stderr);
+  assert.match(controls.stdout, /Synthetic drift self-tests passed/);
 });

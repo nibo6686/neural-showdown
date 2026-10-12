@@ -1,0 +1,357 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "branch": "main",
+  "baseline_file_count": 1405,
+  "protected_count": 1403,
+  "unexpected_changes": [],
+  "originals_and_copies": [
+    {
+      "original": "C:\\Users\\cloud\\Downloads\\Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "copy": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\tests\\fixtures\\perspective-replay\\Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "sha256": "dcdb4065f50d6e0763f077e194564d138458959682d0deea25e03fb1e83e7b42",
+      "bytes": 38133
+    },
+    {
+      "original": "C:\\Users\\cloud\\Downloads\\Gen9OU-2026-10-10-hasklne-loob.html",
+      "copy": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\tests\\fixtures\\perspective-replay\\Gen9OU-2026-10-10-hasklne-loob.html",
+      "sha256": "c44a0b666b492ebcca9bd200f00b1628daf3f9472c236fb3a36f5947ba94d18f",
+      "bytes": 31999
+    }
+  ],
+  "owned_existing": [
+    {
+      "path": "trainer/src/neural/compare_action_rankers.py",
+      "before_sha256": "a7fa69c4ce5bf0cdf700a9804fc2961d0aa3509896b33421226b013ed7fdb1b5",
+      "after_sha256": "4e64c9472ae9a3bacee5489ed49c30147490521f382cccb9d4f39d00fb5feedc"
+    },
+    {
+      "path": "trainer/tests/test_perspective_replay_characterization.py",
+      "before_sha256": "e819dbdce1e3777b21d8f461ada1be68efc487ec335ea00cdc077c794b908e30",
+      "after_sha256": "8cb1c3736be006b9e6abb5859392c5bf032193c4095bdaab333ad34f86ec4826"
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "trainer/src/neural/compare_action_rankers.py",
+      "bytes": 19899,
+      "sha256": "4e64c9472ae9a3bacee5489ed49c30147490521f382cccb9d4f39d00fb5feedc"
+    },
+    {
+      "path": "trainer/tests/test_perspective_replay_characterization.py",
+      "bytes": 10216,
+      "sha256": "8cb1c3736be006b9e6abb5859392c5bf032193c4095bdaab333ad34f86ec4826"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-after-probe.json",
+      "bytes": 109516,
+      "sha256": "8041c4b3d64a6205c3443133e6f5f90b34f9129575aac36626507c5e0ffe5f2a"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-baseline.json",
+      "bytes": 189665,
+      "sha256": "ac79971fd98f1110cd0bfd2fab64a003af4d48d5a9635efcee646c5df3ded76b"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-compare_action_rankers.py",
+      "bytes": 17374,
+      "sha256": "a7fa69c4ce5bf0cdf700a9804fc2961d0aa3509896b33421226b013ed7fdb1b5"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-probe.json",
+      "bytes": 9943,
+      "sha256": "357b54684230667742595de6e52a60afd31cfb178e656e2b4cb95efd84d0e328"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-test_perspective_replay_characterization.py",
+      "bytes": 10023,
+      "sha256": "e819dbdce1e3777b21d8f461ada1be68efc487ec335ea00cdc077c794b908e30"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-command-token-red.log",
+      "bytes": 4937,
+      "sha256": "6635562e252f982a00508b7572f95b96a16a044a6f1f7ed0fa42daad3738fc98"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-diff-check.log",
+      "bytes": 902,
+      "sha256": "b6b8f2c7c1ae0d8cc03fe05620bdcd4cc4285368cf5016368885e1f6f521a49b"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-existing-parser.log",
+      "bytes": 616,
+      "sha256": "7f39016248877de2b45bee8e886428cbaf1bba656ae95afec1f358f7edfe9151"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-import-resolution.log",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader-red-original-output.json",
+      "bytes": 28726,
+      "sha256": "7c17ad8d6622c9604ac2b478185903d3f1b657286779fe23f8eff77810e98120"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader-red.log",
+      "bytes": 21143,
+      "sha256": "60db034e5d0746871bd04454293c4ad3cbcfdefa0287bb1540264faf43cd2d1c"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader.log",
+      "bytes": 1686,
+      "sha256": "4d67e6b45df606c589d917e5c0970164eb20b3b434faabf4c746cd6addc3a011"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-progress.md",
+      "bytes": 1792,
+      "sha256": "32dc6b98ac65228e49d350a1733bf80f17b8a6140f49c62997abff79e8ce4537"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-protected-check.json",
+      "bytes": 299,
+      "sha256": "808b3078132b390588200721f12ddad032ea54fb2b5fc440d7eb16c788f36272"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-characterization.json",
+      "bytes": 33835,
+      "sha256": "dba8a5b1373e78f2b051670b4d6ded8e6c291e0759653da913ab480fd26faeb8"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-characterization.log",
+      "bytes": 498,
+      "sha256": "5661afcd810e29dfccde727342631eebef3c11c287de8aa6ad27c9c66db0dbed"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-requirements.json",
+      "bytes": 33840,
+      "sha256": "777c6387dc73a4f715779ea2f5040a87e6fcada3947d594238e27a2a0c82ff99"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-requirements.log",
+      "bytes": 3367,
+      "sha256": "f10f29cd2892aea08276c326e669e6c66d3051c215c3b6327265d25ffe5af585"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-report.md",
+      "bytes": 5505,
+      "sha256": "301830622f3c18bd5cb5267273a9e55c80ef5f9bb4c9c4c6b57f9cc7420ed18d"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-review-probe.json",
+      "bytes": 278,
+      "sha256": "442939c0868bada1b4be0c57c969d0c89e190296eb16c87f88d392510693d2d2"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-review.md",
+      "bytes": 1554,
+      "sha256": "f7df74bf5eb67f4eaec9e70e7cd2b0c4a497bcea8338db62fb2eeb245395635e"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-transport-requirement.log",
+      "bytes": 286,
+      "sha256": "91eec9b367ecebccfbcf0525f706d16f416d9e25e4214621872765e4ee257573"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-characterization.log",
+      "bytes": 406,
+      "sha256": "3a15469665ff70d4647a55c2e440207d79b715a8cd5a236b0bc350e877b0a38c"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-freshness.json",
+      "bytes": 106,
+      "sha256": "df664b85c948b07dc9df85dbd5e3d13a6b0457ef72161a2e8ee85cd47f88ee72"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-requirements.log",
+      "bytes": 25036,
+      "sha256": "8b2f56d8df8ba11cf7ce70446da5601b085c46b50e4af1a8e18ae3182c75534a"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-validate.py",
+      "bytes": 4214,
+      "sha256": "610f6db0991bf68bfdd800e6a719da53ca5d25f916312f73bac6fb8734f6f73e"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-validation.json",
+      "bytes": 6474,
+      "sha256": "fcf7a00f2f6c9ff4f0c2cdeeb3f469c52c601a0e2afdc8a2fd849ea5b04e308f"
+    },
+    {
+      "path": "trainer/tests/test_local_replay_html_transport.py",
+      "bytes": 11128,
+      "sha256": "b015b869bf3948508bb8b016ec5add41874013a0d81fb9680a7628259bdcb897"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-candidate.diff",
+      "bytes": 549482,
+      "sha256": "fdd6fce78a481af3e9ea94eb09d1afaf138baff5db131fcab327a9bd7770fa11"
+    }
+  ],
+  "whitespace_check_argv": [
+    "git",
+    "-c",
+    "core.autocrlf=false",
+    "-c",
+    "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "diff",
+    "--no-index",
+    "--check",
+    "--",
+    "<before-or-/dev/null>",
+    "<path>"
+  ],
+  "candidate_whitespace_checks": [
+    {
+      "path": "trainer/src/neural/compare_action_rankers.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates differences"
+    },
+    {
+      "path": "trainer/tests/test_perspective_replay_characterization.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates differences"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-after-probe.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-baseline.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-compare_action_rankers.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-probe.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-before-test_perspective_replay_characterization.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-command-token-red.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-diff-check.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-existing-parser.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-import-resolution.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader-red-original-output.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader-red.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-loader.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-progress.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-protected-check.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-characterization.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-characterization.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-requirements.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-python-requirements.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-report.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-review-probe.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-review.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-transport-requirement.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-characterization.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-freshness.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-ts-requirements.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-validate.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt18-validation.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    },
+    {
+      "path": "trainer/tests/test_local_replay_html_transport.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 indicates new additions"
+    }
+  ],
+  "inventory_self_hash": "excluded to avoid recursion",
+  "patch_scope": "owned existing files against exact preimages; new owned files against empty; patch/inventory excluded from patch itself"
+}

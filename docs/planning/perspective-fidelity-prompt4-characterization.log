@@ -1,0 +1,19 @@
+weather/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+weather/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+terrain/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+terrain/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+pseudo_weather/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+pseudo_weather/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+V01 defect characterization: 200 real publication invocations; false-value acceptance is a red semantic finding.
+✔ V01 characterization: source controls and fully resealed false field values through actual publication (32839.2468ms)
+﹣ V01 RED WITNESS: weather contradiction must reject before publication (0.2191ms) # SKIP
+﹣ V01 RED WITNESS: terrain contradiction must reject before publication (0.0772ms) # SKIP
+﹣ V01 RED WITNESS: pseudo_weather contradiction must reject before publication (0.0646ms) # SKIP
+ℹ tests 4
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms 33058.7271

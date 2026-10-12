@@ -1,0 +1,198 @@
+{
+ "summary": {
+  "boundaries": 181,
+  "owners_with_request": 358,
+  "reported_neq_last": 0,
+  "last_restored": 0,
+  "no_fresh_delivery_with_request": 0,
+  "terminal_owner_rows": 4,
+  "terminal_with_prior_delivery": 4,
+  "kinds": {
+   "joint_actionable": 153,
+   "one_sided_forced_switch": 26,
+   "terminal": 2
+  }
+ },
+ "per_seed": [
+  {
+   "seed": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "boundaries": 130,
+   "kinds": {
+    "joint_actionable": 119,
+    "one_sided_forced_switch": 10,
+    "terminal": 1
+   },
+   "tail": [
+    {
+     "step": 128,
+     "kind": "joint_actionable",
+     "owners": {
+      "p1": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      },
+      "p2": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      }
+     }
+    },
+    {
+     "step": 129,
+     "kind": "terminal",
+     "owners": {
+      "p1": {
+       "observation_request_present": false,
+       "terminated": true,
+       "reported_request": false,
+       "reported_equals_last_delivery": false,
+       "last_delivery_restored": true,
+       "deliveries_since_prev_boundary": 1,
+       "fresh_since_prev": 0,
+       "last_delivery_is_wait": false
+      },
+      "p2": {
+       "observation_request_present": false,
+       "terminated": true,
+       "reported_request": false,
+       "reported_equals_last_delivery": false,
+       "last_delivery_restored": true,
+       "deliveries_since_prev_boundary": 1,
+       "fresh_since_prev": 0,
+       "last_delivery_is_wait": false
+      }
+     }
+    }
+   ]
+  },
+  {
+   "seed": [
+    11,
+    12,
+    13,
+    14
+   ],
+   "boundaries": 17,
+   "kinds": {
+    "joint_actionable": 12,
+    "one_sided_forced_switch": 4
+   },
+   "tail": [
+    {
+     "step": 15,
+     "kind": "joint_actionable",
+     "owners": {
+      "p1": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      },
+      "p2": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      }
+     }
+    },
+    {
+     "error": "settling/v1/simulator-error"
+    }
+   ]
+  },
+  {
+   "seed": [
+    5,
+    6,
+    7,
+    8
+   ],
+   "boundaries": 35,
+   "kinds": {
+    "joint_actionable": 22,
+    "one_sided_forced_switch": 12,
+    "terminal": 1
+   },
+   "tail": [
+    {
+     "step": 33,
+     "kind": "joint_actionable",
+     "owners": {
+      "p1": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      },
+      "p2": {
+       "observation_request_present": true,
+       "terminated": false,
+       "reported_request": true,
+       "reported_equals_last_delivery": true,
+       "last_delivery_restored": false,
+       "deliveries_since_prev_boundary": 2,
+       "fresh_since_prev": 1,
+       "last_delivery_is_wait": false
+      }
+     }
+    },
+    {
+     "step": 34,
+     "kind": "terminal",
+     "owners": {
+      "p1": {
+       "observation_request_present": false,
+       "terminated": true,
+       "reported_request": false,
+       "reported_equals_last_delivery": false,
+       "last_delivery_restored": true,
+       "deliveries_since_prev_boundary": 1,
+       "fresh_since_prev": 0,
+       "last_delivery_is_wait": false
+      },
+      "p2": {
+       "observation_request_present": false,
+       "terminated": true,
+       "reported_request": false,
+       "reported_equals_last_delivery": false,
+       "last_delivery_restored": true,
+       "deliveries_since_prev_boundary": 1,
+       "fresh_since_prev": 0,
+       "last_delivery_is_wait": false
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

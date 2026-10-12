@@ -1,0 +1,49 @@
+{
+ "own_suite": {
+  "tests": 10,
+  "pass": 10,
+  "fail": 0,
+  "red_before": "8 of 10 failed, pipeline pin + no-key tests passed pre-change"
+ },
+ "corpus": "pins-pre == pins-post byte-identical (45 pins)",
+ "ts_core_12_files": {
+  "tests": 125,
+  "pass": 122,
+  "fail": 3,
+  "note": "3 revival.test failures reproduce on pre-change baseline dist"
+ },
+ "episode_focused": {
+  "tests": 71,
+  "pass": 70,
+  "fail": 1,
+  "note": "pipeline_episode_faithful: sha256 of artifacts/.../segment-start.json differs (data file, unrelated); CE-08A turn-limit test skipped (package focused script) / aborted when run unfiltered"
+ },
+ "knowledge_per_file": {
+  "request_knowledge": 12,
+  "request_knowledge_characterization": 19,
+  "perspective_knowledge": 62,
+  "perspective_knowledge_source": 21,
+  "perspective_field_semantics": 5,
+  "simulator_coverage": 10,
+  "fail": 0
+ },
+ "knowledge_combined_one_process": {
+  "tests": 129,
+  "pass": 80,
+  "fail": 49,
+  "note": "settling timeout cross-file interference with isolation=none; each file passes alone"
+ },
+ "python_unittest": {
+  "tests": 121,
+  "errors": 1,
+  "note": "import error from invocation path; field_semantics rerun with tests dir on path: 7 OK; the other 120 ran OK"
+ },
+ "contract_checker": "exit 0",
+ "coverage_checker": {
+  "exit": 1,
+  "error": "Local coverage source digest changed: 14a5d30f...",
+  "pre_change_digest": "8424f64d...",
+  "manifest": "8879baab..."
+ },
+ "git_diff_check": "exit 0 (CRLF warnings only)"
+}

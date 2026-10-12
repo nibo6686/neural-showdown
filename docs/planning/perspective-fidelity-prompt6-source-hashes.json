@@ -1,0 +1,886 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "changed_files": {
+    "trainer/tests/test_pipeline_record.py": {
+      "before_sha256": "db1e08de96e455fe65a5678e1222dbb429f2e2f03df1c15e04b77c0ff744796c",
+      "after_sha256": "7dabb2b46c0031461bc9d2eff059f747dec350311639b5f4e434068ecee3fbe2"
+    },
+    "sim-core/tests/record_identity.test.ts": {
+      "before_sha256": "52de4c95d726fa23a4138e9244befb47b3e8dd32520f7cf1213d9a11200dfc4e",
+      "after_sha256": "0f3ff11a0f0e2b9a93a99404275cc42efa5c94c3541ca4c5a6fd8affc3870324"
+    }
+  },
+  "protected_files": {
+    "docs/planning/perspective-fidelity-prompt4-characterization.log": {
+      "baseline_sha256": "569684d4c5d717f1025d0b4cf6470805ccd1966b7a5d720b47709fdc62ea5d15",
+      "current_sha256": "569684d4c5d717f1025d0b4cf6470805ccd1966b7a5d720b47709fdc62ea5d15"
+    },
+    "docs/planning/perspective-fidelity-prompt4-lead-review.md": {
+      "baseline_sha256": "9bdfd02b0b9310e729b9572a26ddd6105acdfd36ca711d8c97c358f668b5dcac",
+      "current_sha256": "9bdfd02b0b9310e729b9572a26ddd6105acdfd36ca711d8c97c358f668b5dcac"
+    },
+    "docs/planning/perspective-fidelity-prompt4-matrix.md": {
+      "baseline_sha256": "a12ddf9006d41e6c31056673697d09226032b5990a62b84696ea337afcf25e03",
+      "current_sha256": "a12ddf9006d41e6c31056673697d09226032b5990a62b84696ea337afcf25e03"
+    },
+    "docs/planning/perspective-fidelity-prompt4-progress.md": {
+      "baseline_sha256": "e949b4ba1508f268baf3f70377c2d5e923cb306e33023154945d013c1cd10382",
+      "current_sha256": "e949b4ba1508f268baf3f70377c2d5e923cb306e33023154945d013c1cd10382"
+    },
+    "docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json": {
+      "baseline_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0",
+      "current_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0"
+    },
+    "docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json": {
+      "baseline_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee",
+      "current_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee"
+    },
+    "docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-compact-reproduction.json": {
+      "baseline_sha256": "df2cf564042e2e2d6d3fb431701678aa0033987dc897750387dabaa7daca4bf3",
+      "current_sha256": "df2cf564042e2e2d6d3fb431701678aa0033987dc897750387dabaa7daca4bf3"
+    },
+    "docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-full-reproduction.json": {
+      "baseline_sha256": "47842c2c1e455d12b0970687ceaccdc61f95ca44410f918610a5cc115d975c85",
+      "current_sha256": "47842c2c1e455d12b0970687ceaccdc61f95ca44410f918610a5cc115d975c85"
+    },
+    "docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json": {
+      "baseline_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114",
+      "current_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114"
+    },
+    "docs/planning/perspective-fidelity-prompt4-red-witness.log": {
+      "baseline_sha256": "90e9292f4e8b1e4fefef72edbcbc3d1ec943fdc00e98cd43f9592c6a58e5366e",
+      "current_sha256": "90e9292f4e8b1e4fefef72edbcbc3d1ec943fdc00e98cd43f9592c6a58e5366e"
+    },
+    "docs/planning/perspective-fidelity-prompt4-report.md": {
+      "baseline_sha256": "608b4d4f38afaa7aaf0743cdd223ecc585973b66d199019eb2cb7f184f1103d7",
+      "current_sha256": "608b4d4f38afaa7aaf0743cdd223ecc585973b66d199019eb2cb7f184f1103d7"
+    },
+    "docs/planning/perspective-fidelity-prompt4-reproduction.md": {
+      "baseline_sha256": "6705ca7baab7a9b4195daba512d7b29b65b1dfef83592ed512f057211729baa3",
+      "current_sha256": "6705ca7baab7a9b4195daba512d7b29b65b1dfef83592ed512f057211729baa3"
+    },
+    "docs/planning/perspective-fidelity-prompt4-results.json": {
+      "baseline_sha256": "c88467013656d6dd2099239fb969a3130dafaeb1d48e3b9e008688629d717d71",
+      "current_sha256": "c88467013656d6dd2099239fb969a3130dafaeb1d48e3b9e008688629d717d71"
+    },
+    "docs/planning/perspective-fidelity-prompt4-source-hashes.json": {
+      "baseline_sha256": "728f02c8708af67c4b2d3a2976122b4c18ca6660d631f9f98e569ea30f1f02f1",
+      "current_sha256": "728f02c8708af67c4b2d3a2976122b4c18ca6660d631f9f98e569ea30f1f02f1"
+    },
+    "docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json": {
+      "baseline_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3",
+      "current_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3"
+    },
+    "docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json": {
+      "baseline_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1",
+      "current_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1"
+    },
+    "docs/planning/perspective-fidelity-prompt4-terrain-terminal-compact-reproduction.json": {
+      "baseline_sha256": "f045dd1dc22e12d2a8bd4db0313dd0390b6a24b3e7e1732af80f480fc0b4441e",
+      "current_sha256": "f045dd1dc22e12d2a8bd4db0313dd0390b6a24b3e7e1732af80f480fc0b4441e"
+    },
+    "docs/planning/perspective-fidelity-prompt4-terrain-terminal-full-reproduction.json": {
+      "baseline_sha256": "3e7f40e8524c91bbd62f664b125cbe8e462f2fc586f18d55b91089fe1ac4a3e9",
+      "current_sha256": "3e7f40e8524c91bbd62f664b125cbe8e462f2fc586f18d55b91089fe1ac4a3e9"
+    },
+    "docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json": {
+      "baseline_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5",
+      "current_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5"
+    },
+    "docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json": {
+      "baseline_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86",
+      "current_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86"
+    },
+    "docs/planning/perspective-fidelity-prompt4-weather-reproduction.json": {
+      "baseline_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1",
+      "current_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1"
+    },
+    "docs/planning/perspective-fidelity-prompt4-weather-terminal-compact-reproduction.json": {
+      "baseline_sha256": "cbacb155b55a4c5660e46b9b7918d91c1e85ee8cf89f8ec4f1510e899e697aee",
+      "current_sha256": "cbacb155b55a4c5660e46b9b7918d91c1e85ee8cf89f8ec4f1510e899e697aee"
+    },
+    "docs/planning/perspective-fidelity-prompt4-weather-terminal-full-reproduction.json": {
+      "baseline_sha256": "77ca4c111feb182fce77c411dce0af5ac5aa90192ac34ab208d019311b232e66",
+      "current_sha256": "77ca4c111feb182fce77c411dce0af5ac5aa90192ac34ab208d019311b232e66"
+    },
+    "docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json": {
+      "baseline_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928",
+      "current_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928"
+    },
+    "docs/planning/perspective-fidelity-prompt5-build.log": {
+      "baseline_sha256": "b585f85040d3285875ee6e37515eca21ac6de4214fdd6f4c41d48e2b71b5ec28",
+      "current_sha256": "b585f85040d3285875ee6e37515eca21ac6de4214fdd6f4c41d48e2b71b5ec28"
+    },
+    "docs/planning/perspective-fidelity-prompt5-compatibility-results.json": {
+      "baseline_sha256": "869ecc5a187a1e6f1ef90bf3a86fa1427bfb69fb1fa7c67b92fc1234c242d10c",
+      "current_sha256": "869ecc5a187a1e6f1ef90bf3a86fa1427bfb69fb1fa7c67b92fc1234c242d10c"
+    },
+    "docs/planning/perspective-fidelity-prompt5-dependencies.json": {
+      "baseline_sha256": "fe46393965a3541d098db6e755a49e2582d2aacd755540aa88ea346dfc76e37d",
+      "current_sha256": "fe46393965a3541d098db6e755a49e2582d2aacd755540aa88ea346dfc76e37d"
+    },
+    "docs/planning/perspective-fidelity-prompt5-fields.log": {
+      "baseline_sha256": "b8c0e143a8c907ff67f5c558f243ff0b796226144320e6a510b233dff8b040b7",
+      "current_sha256": "b8c0e143a8c907ff67f5c558f243ff0b796226144320e6a510b233dff8b040b7"
+    },
+    "docs/planning/perspective-fidelity-prompt5-identity-belief.log": {
+      "baseline_sha256": "7f2ae3f46985a06eb5acb8bfb747a37266864d13651addd0422e92defb6b448c",
+      "current_sha256": "7f2ae3f46985a06eb5acb8bfb747a37266864d13651addd0422e92defb6b448c"
+    },
+    "docs/planning/perspective-fidelity-prompt5-integration.log": {
+      "baseline_sha256": "f34e7ff8f74419d7b0fb83299ee68799cf8b646315458887d077af691a23fe5d",
+      "current_sha256": "f34e7ff8f74419d7b0fb83299ee68799cf8b646315458887d077af691a23fe5d"
+    },
+    "docs/planning/perspective-fidelity-prompt5-lead-review.md": {
+      "baseline_sha256": "1e0c9e11ec301de002e38805b5adf864789bc9cf1cf0eb2f232f64215b468729",
+      "current_sha256": "1e0c9e11ec301de002e38805b5adf864789bc9cf1cf0eb2f232f64215b468729"
+    },
+    "docs/planning/perspective-fidelity-prompt5-legacy-fixture-failures.json": {
+      "baseline_sha256": "6d2645375da0830ccf99cab7a85264737665c73dc4aa1c637e3b60068d89496a",
+      "current_sha256": "6d2645375da0830ccf99cab7a85264737665c73dc4aa1c637e3b60068d89496a"
+    },
+    "docs/planning/perspective-fidelity-prompt5-local.diff": {
+      "baseline_sha256": "bf221c7502325b0425e445d8bf8c692fd240814b74efc9bc09e1ef4d077c9b36",
+      "current_sha256": "bf221c7502325b0425e445d8bf8c692fd240814b74efc9bc09e1ef4d077c9b36"
+    },
+    "docs/planning/perspective-fidelity-prompt5-matrix.md": {
+      "baseline_sha256": "aff53137ef934b9589ff52a83494a5a8161ba84414d468135b6c0ef0a1dad39e",
+      "current_sha256": "aff53137ef934b9589ff52a83494a5a8161ba84414d468135b6c0ef0a1dad39e"
+    },
+    "docs/planning/perspective-fidelity-prompt5-progress.md": {
+      "baseline_sha256": "3f954621386735bfcdf7651bc90a6b877dddf956bef01704abbd8425d48d4e03",
+      "current_sha256": "3f954621386735bfcdf7651bc90a6b877dddf956bef01704abbd8425d48d4e03"
+    },
+    "docs/planning/perspective-fidelity-prompt5-pseudo_weather-lifecycle-ledger.json": {
+      "baseline_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0",
+      "current_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0"
+    },
+    "docs/planning/perspective-fidelity-prompt5-pseudo_weather-reproduction.json": {
+      "baseline_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee",
+      "current_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee"
+    },
+    "docs/planning/perspective-fidelity-prompt5-pseudo_weather-terminal-compact-reproduction.json": {
+      "baseline_sha256": "df2cf564042e2e2d6d3fb431701678aa0033987dc897750387dabaa7daca4bf3",
+      "current_sha256": "df2cf564042e2e2d6d3fb431701678aa0033987dc897750387dabaa7daca4bf3"
+    },
+    "docs/planning/perspective-fidelity-prompt5-pseudo_weather-terminal-full-reproduction.json": {
+      "baseline_sha256": "47842c2c1e455d12b0970687ceaccdc61f95ca44410f918610a5cc115d975c85",
+      "current_sha256": "47842c2c1e455d12b0970687ceaccdc61f95ca44410f918610a5cc115d975c85"
+    },
+    "docs/planning/perspective-fidelity-prompt5-pseudo_weather-terminal-ledger.json": {
+      "baseline_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114",
+      "current_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114"
+    },
+    "docs/planning/perspective-fidelity-prompt5-python-fields.log": {
+      "baseline_sha256": "ce33f69c8b955a8c68c3574155a94c25b3e4b03e24fdc60da7767120d361bcfa",
+      "current_sha256": "ce33f69c8b955a8c68c3574155a94c25b3e4b03e24fdc60da7767120d361bcfa"
+    },
+    "docs/planning/perspective-fidelity-prompt5-record-lineage.log": {
+      "baseline_sha256": "dd381705f0f05ed2068a048876a35bc117ba3d629e0f930d60f96c3be00a173e",
+      "current_sha256": "dd381705f0f05ed2068a048876a35bc117ba3d629e0f930d60f96c3be00a173e"
+    },
+    "docs/planning/perspective-fidelity-prompt5-report.md": {
+      "baseline_sha256": "73cf44b23f60cf402a585237e13fa71122f1d01f651adf373bafa89499fb5165",
+      "current_sha256": "73cf44b23f60cf402a585237e13fa71122f1d01f651adf373bafa89499fb5165"
+    },
+    "docs/planning/perspective-fidelity-prompt5-results.json": {
+      "baseline_sha256": "88c822ea3168f1541bf77f16507065d73420c71467b5d679e11eb719dbd4eb17",
+      "current_sha256": "88c822ea3168f1541bf77f16507065d73420c71467b5d679e11eb719dbd4eb17"
+    },
+    "docs/planning/perspective-fidelity-prompt5-source-hashes.json": {
+      "baseline_sha256": "ffd54bc88696e1be6e06d2d5ab473e2b62154f0e4c0a21c2a0dba70ab18cd7b6",
+      "current_sha256": "ffd54bc88696e1be6e06d2d5ab473e2b62154f0e4c0a21c2a0dba70ab18cd7b6"
+    },
+    "docs/planning/perspective-fidelity-prompt5-terrain-lifecycle-ledger.json": {
+      "baseline_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3",
+      "current_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3"
+    },
+    "docs/planning/perspective-fidelity-prompt5-terrain-reproduction.json": {
+      "baseline_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1",
+      "current_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1"
+    },
+    "docs/planning/perspective-fidelity-prompt5-terrain-terminal-compact-reproduction.json": {
+      "baseline_sha256": "f045dd1dc22e12d2a8bd4db0313dd0390b6a24b3e7e1732af80f480fc0b4441e",
+      "current_sha256": "f045dd1dc22e12d2a8bd4db0313dd0390b6a24b3e7e1732af80f480fc0b4441e"
+    },
+    "docs/planning/perspective-fidelity-prompt5-terrain-terminal-full-reproduction.json": {
+      "baseline_sha256": "3e7f40e8524c91bbd62f664b125cbe8e462f2fc586f18d55b91089fe1ac4a3e9",
+      "current_sha256": "3e7f40e8524c91bbd62f664b125cbe8e462f2fc586f18d55b91089fe1ac4a3e9"
+    },
+    "docs/planning/perspective-fidelity-prompt5-terrain-terminal-ledger.json": {
+      "baseline_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5",
+      "current_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5"
+    },
+    "docs/planning/perspective-fidelity-prompt5-transport.log": {
+      "baseline_sha256": "b3d5fbb1eebbfdb28595f36c13d9b862a599bbec2985c6f4b5a77c652313b8a3",
+      "current_sha256": "b3d5fbb1eebbfdb28595f36c13d9b862a599bbec2985c6f4b5a77c652313b8a3"
+    },
+    "docs/planning/perspective-fidelity-prompt5-weather-lifecycle-ledger.json": {
+      "baseline_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86",
+      "current_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86"
+    },
+    "docs/planning/perspective-fidelity-prompt5-weather-reproduction.json": {
+      "baseline_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1",
+      "current_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1"
+    },
+    "docs/planning/perspective-fidelity-prompt5-weather-terminal-compact-reproduction.json": {
+      "baseline_sha256": "cbacb155b55a4c5660e46b9b7918d91c1e85ee8cf89f8ec4f1510e899e697aee",
+      "current_sha256": "cbacb155b55a4c5660e46b9b7918d91c1e85ee8cf89f8ec4f1510e899e697aee"
+    },
+    "docs/planning/perspective-fidelity-prompt5-weather-terminal-full-reproduction.json": {
+      "baseline_sha256": "77ca4c111feb182fce77c411dce0af5ac5aa90192ac34ab208d019311b232e66",
+      "current_sha256": "77ca4c111feb182fce77c411dce0af5ac5aa90192ac34ab208d019311b232e66"
+    },
+    "docs/planning/perspective-fidelity-prompt5-weather-terminal-ledger.json": {
+      "baseline_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928",
+      "current_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928"
+    },
+    "sim-core/src/action_codec.ts": {
+      "baseline_sha256": "ff695d57ad5cd6e3c66cdb6f7bfa96c8c40e3a88fc6279ef441328da75cc5ce7",
+      "current_sha256": "ff695d57ad5cd6e3c66cdb6f7bfa96c8c40e3a88fc6279ef441328da75cc5ce7"
+    },
+    "sim-core/src/battle_helpers.ts": {
+      "baseline_sha256": "c4326af214945ebc68a098c761a501bb4f7468521bd955b8cec6b39d0dfbf2e9",
+      "current_sha256": "c4326af214945ebc68a098c761a501bb4f7468521bd955b8cec6b39d0dfbf2e9"
+    },
+    "sim-core/src/belief_fork.ts": {
+      "baseline_sha256": "07511814454509f8e912de269546bd9cea5d1984ec28c7bf086e630d4bb09c51",
+      "current_sha256": "07511814454509f8e912de269546bd9cea5d1984ec28c7bf086e630d4bb09c51"
+    },
+    "sim-core/src/belief_state.ts": {
+      "baseline_sha256": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec",
+      "current_sha256": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec"
+    },
+    "sim-core/src/canonical_action.ts": {
+      "baseline_sha256": "971178947f9c8850b8cab8f84683aed6bc91cde67b49a62639c6328d3e82ab70",
+      "current_sha256": "971178947f9c8850b8cab8f84683aed6bc91cde67b49a62639c6328d3e82ab70"
+    },
+    "sim-core/src/damage_calc.ts": {
+      "baseline_sha256": "e31c37cfe6e412d19ffe800197dc984dd1acfb9f4091ed0b55c677d03e00d72d",
+      "current_sha256": "e31c37cfe6e412d19ffe800197dc984dd1acfb9f4091ed0b55c677d03e00d72d"
+    },
+    "sim-core/src/effect_inventory.ts": {
+      "baseline_sha256": "a9da580d8d8b16c4a0cb6db9b2f525124c5dec46de9cacb0d729180df2ab058c",
+      "current_sha256": "a9da580d8d8b16c4a0cb6db9b2f525124c5dec46de9cacb0d729180df2ab058c"
+    },
+    "sim-core/src/env_manager.ts": {
+      "baseline_sha256": "4876872fb3073b79684503e52f0a443c77c4bce26224f7c58dca91cca2120d6a",
+      "current_sha256": "4876872fb3073b79684503e52f0a443c77c4bce26224f7c58dca91cca2120d6a"
+    },
+    "sim-core/src/observable_state.ts": {
+      "baseline_sha256": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4",
+      "current_sha256": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4"
+    },
+    "sim-core/src/pipeline_episode.ts": {
+      "baseline_sha256": "1ffe6eac146ba42ad56ada146190f7d988167bb8ce3ba4c1cf1dc36f02918368",
+      "current_sha256": "1ffe6eac146ba42ad56ada146190f7d988167bb8ce3ba4c1cf1dc36f02918368"
+    },
+    "sim-core/src/pipeline_episode_evidence.ts": {
+      "baseline_sha256": "322de6f3755bc91b03784ec5e970bfc72e1aa4a31bd905c2d0105fb1835beddf",
+      "current_sha256": "322de6f3755bc91b03784ec5e970bfc72e1aa4a31bd905c2d0105fb1835beddf"
+    },
+    "sim-core/src/pipeline_integration.ts": {
+      "baseline_sha256": "8d153ec950002742483d13e695b2459a18bdce07b46abea7f8f7ba5edcb631fb",
+      "current_sha256": "8d153ec950002742483d13e695b2459a18bdce07b46abea7f8f7ba5edcb631fb"
+    },
+    "sim-core/src/protocol_contract.ts": {
+      "baseline_sha256": "c069d33e8a142f1babf5ba91c12a05063b988126f2c53cfb7889ec87c9e95b04",
+      "current_sha256": "c069d33e8a142f1babf5ba91c12a05063b988126f2c53cfb7889ec87c9e95b04"
+    },
+    "sim-core/src/public_ability.ts": {
+      "baseline_sha256": "a3a02d4583a89baf1cb156819fc0ab99155f7758c1ab82043febd5ae6ce3f2da",
+      "current_sha256": "a3a02d4583a89baf1cb156819fc0ab99155f7758c1ab82043febd5ae6ce3f2da"
+    },
+    "sim-core/src/public_boosts.ts": {
+      "baseline_sha256": "0ccc007e707226e889ac413568b368b381813822369c29bf49c2a8dbd16d1910",
+      "current_sha256": "0ccc007e707226e889ac413568b368b381813822369c29bf49c2a8dbd16d1910"
+    },
+    "sim-core/src/public_field.ts": {
+      "baseline_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "current_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3"
+    },
+    "sim-core/src/public_health.ts": {
+      "baseline_sha256": "4a642a28c299a17b809981d9806af407425193c87499fba8b5158e4aa39cb79e",
+      "current_sha256": "4a642a28c299a17b809981d9806af407425193c87499fba8b5158e4aa39cb79e"
+    },
+    "sim-core/src/public_item.ts": {
+      "baseline_sha256": "dddd259c12e5bd7cf5d227cbd630047591f81ac68906fadeaad6268010e44535",
+      "current_sha256": "dddd259c12e5bd7cf5d227cbd630047591f81ac68906fadeaad6268010e44535"
+    },
+    "sim-core/src/rollout_parity_oracle.ts": {
+      "baseline_sha256": "5d648753427955ad7aa9dfa7ff9340de2b3556f844334d64db7fb61e009b0939",
+      "current_sha256": "5d648753427955ad7aa9dfa7ff9340de2b3556f844334d64db7fb61e009b0939"
+    },
+    "sim-core/src/server.ts": {
+      "baseline_sha256": "70435cbd5e3412185f7a48634ab33c1cea73e8e69788555847ff13c8ea2ec862",
+      "current_sha256": "70435cbd5e3412185f7a48634ab33c1cea73e8e69788555847ff13c8ea2ec862"
+    },
+    "sim-core/src/settling.ts": {
+      "baseline_sha256": "4d279f9048f5ea010940d32b03d970e75820e761349808fd1cf8bc08f34dece8",
+      "current_sha256": "4d279f9048f5ea010940d32b03d970e75820e761349808fd1cf8bc08f34dece8"
+    },
+    "sim-core/src/state_extractor.ts": {
+      "baseline_sha256": "672c2ccf70ceebff9e9504174925c606d063cdd12a7c2a729f2f837536010563",
+      "current_sha256": "672c2ccf70ceebff9e9504174925c606d063cdd12a7c2a729f2f837536010563"
+    },
+    "sim-core/src/transition.ts": {
+      "baseline_sha256": "870b896120be49e64cb96eeb863537794308ae24bc2885ddd47556898eeb5d0d",
+      "current_sha256": "870b896120be49e64cb96eeb863537794308ae24bc2885ddd47556898eeb5d0d"
+    },
+    "sim-core/src/typed_state_lifecycle.ts": {
+      "baseline_sha256": "b6f7aee19e45597d3c8f8eee2c4ba631764768efc29574d3861f1310f57b36ea",
+      "current_sha256": "b6f7aee19e45597d3c8f8eee2c4ba631764768efc29574d3861f1310f57b36ea"
+    },
+    "sim-core/src/types.ts": {
+      "baseline_sha256": "c71176cac65d136335678d3c79303840ba97c63d2ae979ee9d2d5666c3cff978",
+      "current_sha256": "c71176cac65d136335678d3c79303840ba97c63d2ae979ee9d2d5666c3cff978"
+    },
+    "sim-core/src/baselines/heuristic.ts": {
+      "baseline_sha256": "8bbf19bb29010cf663f4aedea8c5e058b8290d9cbc28ad9e55319195364a80c0",
+      "current_sha256": "8bbf19bb29010cf663f4aedea8c5e058b8290d9cbc28ad9e55319195364a80c0"
+    },
+    "sim-core/src/baselines/random.ts": {
+      "baseline_sha256": "5a0e0c2cd4b23af453e3692d0fdedf5068488f569898e08b81b148969811e2b2",
+      "current_sha256": "5a0e0c2cd4b23af453e3692d0fdedf5068488f569898e08b81b148969811e2b2"
+    },
+    "trainer/src/neural/action_features.py": {
+      "baseline_sha256": "2f6226f35dbf5780094beabbe5a5c2fb35fc40bd83d9ecad213125126e313351",
+      "current_sha256": "2f6226f35dbf5780094beabbe5a5c2fb35fc40bd83d9ecad213125126e313351"
+    },
+    "trainer/src/neural/action_mapper.py": {
+      "baseline_sha256": "afbaec7230282583d47bd690451cd1507ad758e57e6ba2ead1f3f1d378cf9259",
+      "current_sha256": "afbaec7230282583d47bd690451cd1507ad758e57e6ba2ead1f3f1d378cf9259"
+    },
+    "trainer/src/neural/action_recommender_diagnostic.py": {
+      "baseline_sha256": "942e2841e7f68b89c630af708092a26265b464c59130c64636aa9c1878429de0",
+      "current_sha256": "942e2841e7f68b89c630af708092a26265b464c59130c64636aa9c1878429de0"
+    },
+    "trainer/src/neural/action_side_effects.py": {
+      "baseline_sha256": "173fe5698ae38b5cff270eef95e11945a03109bb6e6255384c7a30faa33571f6",
+      "current_sha256": "173fe5698ae38b5cff270eef95e11945a03109bb6e6255384c7a30faa33571f6"
+    },
+    "trainer/src/neural/action_trace.py": {
+      "baseline_sha256": "75c5dde4dbfe312aa4d42fb6b3563724d7821a0b86ca078bb00039896668be08",
+      "current_sha256": "75c5dde4dbfe312aa4d42fb6b3563724d7821a0b86ca078bb00039896668be08"
+    },
+    "trainer/src/neural/action_value_search.py": {
+      "baseline_sha256": "e79f814df154489ffb687a66a65da184eeafb50797fea742a3136456208d4331",
+      "current_sha256": "e79f814df154489ffb687a66a65da184eeafb50797fea742a3136456208d4331"
+    },
+    "trainer/src/neural/agent_audit.py": {
+      "baseline_sha256": "31e5dfadeebc718151588326c1b20c94199740f8659729c0d3b95f5b4c00c439",
+      "current_sha256": "31e5dfadeebc718151588326c1b20c94199740f8659729c0d3b95f5b4c00c439"
+    },
+    "trainer/src/neural/analyze_action_bias.py": {
+      "baseline_sha256": "c0ee73d9a218652b0737c6140915180ca1dc223a4a4da4c7cd1fd75b61465533",
+      "current_sha256": "c0ee73d9a218652b0737c6140915180ca1dc223a4a4da4c7cd1fd75b61465533"
+    },
+    "trainer/src/neural/analyze_decisions.py": {
+      "baseline_sha256": "4cab24beb812c25cfbb7f111b0ebd634fce7c646b53175807edfa0961defad85",
+      "current_sha256": "4cab24beb812c25cfbb7f111b0ebd634fce7c646b53175807edfa0961defad85"
+    },
+    "trainer/src/neural/analyze_rollout_actions.py": {
+      "baseline_sha256": "3533a57f1d02925bbd81a48e624ca19a7b67d5404335b222dd0847d9154729ce",
+      "current_sha256": "3533a57f1d02925bbd81a48e624ca19a7b67d5404335b222dd0847d9154729ce"
+    },
+    "trainer/src/neural/analyze_state.py": {
+      "baseline_sha256": "3c71f51a48a48d2a381fe08c996f4b23823ed03df1fadec6120e7268df18b029",
+      "current_sha256": "3c71f51a48a48d2a381fe08c996f4b23823ed03df1fadec6120e7268df18b029"
+    },
+    "trainer/src/neural/analyze_tactical_failures.py": {
+      "baseline_sha256": "8ef26fff83008414aa9382e2948aeac62f9fee224315873581911e9e5a6ee06e",
+      "current_sha256": "8ef26fff83008414aa9382e2948aeac62f9fee224315873581911e9e5a6ee06e"
+    },
+    "trainer/src/neural/approx_battle_state.py": {
+      "baseline_sha256": "dc9617e7175e0ecc5c607e3b626febee329f105626934fbd103d1570822c3409",
+      "current_sha256": "dc9617e7175e0ecc5c607e3b626febee329f105626934fbd103d1570822c3409"
+    },
+    "trainer/src/neural/audit_vnext_live_inference_readiness.py": {
+      "baseline_sha256": "bd5294821bbbcab9f566dbcbd184f2e42a1cd59da2f6550a1ec78cb88648f6a6",
+      "current_sha256": "bd5294821bbbcab9f566dbcbd184f2e42a1cd59da2f6550a1ec78cb88648f6a6"
+    },
+    "trainer/src/neural/benchmark_vnext_featuregen.py": {
+      "baseline_sha256": "ffb2b11801e65c1168410626d90d469788a48a83ee12af8c85bcbf1534e4e0bb",
+      "current_sha256": "ffb2b11801e65c1168410626d90d469788a48a83ee12af8c85bcbf1534e4e0bb"
+    },
+    "trainer/src/neural/build_action_rank_dataset.py": {
+      "baseline_sha256": "472df712b9b47380839de0d2ad891ca448ec4b3d058a03fe6754c68a1623a205",
+      "current_sha256": "472df712b9b47380839de0d2ad891ca448ec4b3d058a03fe6754c68a1623a205"
+    },
+    "trainer/src/neural/build_action_value_dataset.py": {
+      "baseline_sha256": "d7ce6085e5061e907cfb8dd61329554edb963b90295b3ed824b7a02967db14b0",
+      "current_sha256": "d7ce6085e5061e907cfb8dd61329554edb963b90295b3ed824b7a02967db14b0"
+    },
+    "trainer/src/neural/build_agent_audit_reports.py": {
+      "baseline_sha256": "96ba47a71d2aff4f9509676966048495ca0fd9d3f96ec86b126a397eb649d55d",
+      "current_sha256": "96ba47a71d2aff4f9509676966048495ca0fd9d3f96ec86b126a397eb649d55d"
+    },
+    "trainer/src/neural/build_dataset.py": {
+      "baseline_sha256": "2dd81995cc76d7a4b5ff723eb44228edf7b016d48fa826f9c304eaa34ee68de7",
+      "current_sha256": "2dd81995cc76d7a4b5ff723eb44228edf7b016d48fa826f9c304eaa34ee68de7"
+    },
+    "trainer/src/neural/build_live_private_value_dataset.py": {
+      "baseline_sha256": "a2a0b74d24d3e8e42faa347c9331a7cd07aab76f001fb51dad7896e5afcd5c49",
+      "current_sha256": "a2a0b74d24d3e8e42faa347c9331a7cd07aab76f001fb51dad7896e5afcd5c49"
+    },
+    "trainer/src/neural/build_live_sim_value_dataset.py": {
+      "baseline_sha256": "be19301f11ddb8137fc39843169cd13cf062fca76f41044f90fecd6d656aff46",
+      "current_sha256": "be19301f11ddb8137fc39843169cd13cf062fca76f41044f90fecd6d656aff46"
+    },
+    "trainer/src/neural/build_replay_policy_dataset.py": {
+      "baseline_sha256": "739603ae660ea05ec82f16a61b65d0f484541200b9592c1e9cf25a5623c3d77d",
+      "current_sha256": "739603ae660ea05ec82f16a61b65d0f484541200b9592c1e9cf25a5623c3d77d"
+    },
+    "trainer/src/neural/build_replay_value_dataset.py": {
+      "baseline_sha256": "fb1c3d720c217712a157b24db4b2911592449ce250ec4b6783b92302685ada3b",
+      "current_sha256": "fb1c3d720c217712a157b24db4b2911592449ce250ec4b6783b92302685ada3b"
+    },
+    "trainer/src/neural/build_value_dataset.py": {
+      "baseline_sha256": "15972b27665797dde339605d502da2a8d3f73a338c2474c4f97b5b17c17935f7",
+      "current_sha256": "15972b27665797dde339605d502da2a8d3f73a338c2474c4f97b5b17c17935f7"
+    },
+    "trainer/src/neural/canonical_action.py": {
+      "baseline_sha256": "abe254756cf2dd6b96f5f3c162efd1912f9f652709ab5a6dd04d08ac95814dc5",
+      "current_sha256": "abe254756cf2dd6b96f5f3c162efd1912f9f652709ab5a6dd04d08ac95814dc5"
+    },
+    "trainer/src/neural/checkpoints.py": {
+      "baseline_sha256": "25f7448ef5bac1ad0cfa84b01b18ba29695779559a33d87cfb24099cd34dc85f",
+      "current_sha256": "25f7448ef5bac1ad0cfa84b01b18ba29695779559a33d87cfb24099cd34dc85f"
+    },
+    "trainer/src/neural/collect_selfplay.py": {
+      "baseline_sha256": "a48377ad370f0e37bb94939d18077dcd0e7a5d5c9c56fc352cf09ccbdb03c91b",
+      "current_sha256": "a48377ad370f0e37bb94939d18077dcd0e7a5d5c9c56fc352cf09ccbdb03c91b"
+    },
+    "trainer/src/neural/compare_action_rankers.py": {
+      "baseline_sha256": "a7fa69c4ce5bf0cdf700a9804fc2961d0aa3509896b33421226b013ed7fdb1b5",
+      "current_sha256": "a7fa69c4ce5bf0cdf700a9804fc2961d0aa3509896b33421226b013ed7fdb1b5"
+    },
+    "trainer/src/neural/compare_checkpoints.py": {
+      "baseline_sha256": "32882a2bcc5e6776e4f5bd7f2652a5bf1d7d9de017beadb973e2a00bc398ddd2",
+      "current_sha256": "32882a2bcc5e6776e4f5bd7f2652a5bf1d7d9de017beadb973e2a00bc398ddd2"
+    },
+    "trainer/src/neural/compare_replay_evals.py": {
+      "baseline_sha256": "81d81ed0cf639b181b51265e88392f90130343d78ed24ea8fa5d042d1bdc349a",
+      "current_sha256": "81d81ed0cf639b181b51265e88392f90130343d78ed24ea8fa5d042d1bdc349a"
+    },
+    "trainer/src/neural/compare_value_models.py": {
+      "baseline_sha256": "686d0042d83962680c2de28770771a66028eb365a80676155055c7e4e375c5ba",
+      "current_sha256": "686d0042d83962680c2de28770771a66028eb365a80676155055c7e4e375c5ba"
+    },
+    "trainer/src/neural/config.py": {
+      "baseline_sha256": "b0e11d90ad95664fd3bf6271b6bf49208addfac9a5b854cd44e3835ae731ef91",
+      "current_sha256": "b0e11d90ad95664fd3bf6271b6bf49208addfac9a5b854cd44e3835ae731ef91"
+    },
+    "trainer/src/neural/damage_engine.py": {
+      "baseline_sha256": "b705abc28f285f543c10949925312327f7cc9fd48b4cb4b04969bf5715507d4b",
+      "current_sha256": "b705abc28f285f543c10949925312327f7cc9fd48b4cb4b04969bf5715507d4b"
+    },
+    "trainer/src/neural/dataset_lineage.py": {
+      "baseline_sha256": "ec4b7ad5bc248ad848faaa169ea5c71d1c3216b709a374049ff733af9364dd75",
+      "current_sha256": "ec4b7ad5bc248ad848faaa169ea5c71d1c3216b709a374049ff733af9364dd75"
+    },
+    "trainer/src/neural/delayed_damage.py": {
+      "baseline_sha256": "8d53246c0c2032d386038b9c61cc1a584d81b0bb2ce9995c5b2338698de6fb12",
+      "current_sha256": "8d53246c0c2032d386038b9c61cc1a584d81b0bb2ce9995c5b2338698de6fb12"
+    },
+    "trainer/src/neural/diagnose_vnext_value_head.py": {
+      "baseline_sha256": "8a4ed9e87b7fc1f6c2c16cc995bc6acd1c270a8cf161449f3a279369078f0c86",
+      "current_sha256": "8a4ed9e87b7fc1f6c2c16cc995bc6acd1c270a8cf161449f3a279369078f0c86"
+    },
+    "trainer/src/neural/dynamic_move_mechanics_audit.py": {
+      "baseline_sha256": "0ec140922088e928dce8bc1e66c6ef475c81b713514386010e2872687ddcce2f",
+      "current_sha256": "0ec140922088e928dce8bc1e66c6ef475c81b713514386010e2872687ddcce2f"
+    },
+    "trainer/src/neural/end_of_turn.py": {
+      "baseline_sha256": "d179ffe0793aed44eff300431669c1f1871c06d1286942e7d7802acb6590212c",
+      "current_sha256": "d179ffe0793aed44eff300431669c1f1871c06d1286942e7d7802acb6590212c"
+    },
+    "trainer/src/neural/entry_hazards.py": {
+      "baseline_sha256": "76ab830d99890207df6bab65ba8bdda0075d60be08b2107e6556f27a4a064941",
+      "current_sha256": "76ab830d99890207df6bab65ba8bdda0075d60be08b2107e6556f27a4a064941"
+    },
+    "trainer/src/neural/env_client.py": {
+      "baseline_sha256": "1756c7fcb6df3ae75a797e2ec4b368cde9ef1d4321118213cc5c13550b083358",
+      "current_sha256": "1756c7fcb6df3ae75a797e2ec4b368cde9ef1d4321118213cc5c13550b083358"
+    },
+    "trainer/src/neural/eval.py": {
+      "baseline_sha256": "8590e7a24b43c1969fca8ae6c55eb8cfcb5d88c2b014690dbcb5a0b6548a12c1",
+      "current_sha256": "8590e7a24b43c1969fca8ae6c55eb8cfcb5d88c2b014690dbcb5a0b6548a12c1"
+    },
+    "trainer/src/neural/evaluate_vnext_action_rank.py": {
+      "baseline_sha256": "10c55dfde8e602c5f43019d18a9287c943a9c32fc5837211551da027f2107327",
+      "current_sha256": "10c55dfde8e602c5f43019d18a9287c943a9c32fc5837211551da027f2107327"
+    },
+    "trainer/src/neural/featurize.py": {
+      "baseline_sha256": "0bc5ca36bf799f44ee029b578cb851b86d935fea19dc10d8c358de818dd21af5",
+      "current_sha256": "0bc5ca36bf799f44ee029b578cb851b86d935fea19dc10d8c358de818dd21af5"
+    },
+    "trainer/src/neural/gen9randbats_mechanics_completeness_audit.py": {
+      "baseline_sha256": "6c73d757079d773e0d0c42d39320fb15e633b4988ba9593c21b64bce8f8ece0c",
+      "current_sha256": "6c73d757079d773e0d0c42d39320fb15e633b4988ba9593c21b64bce8f8ece0c"
+    },
+    "trainer/src/neural/import_showdown_logs.py": {
+      "baseline_sha256": "d1a7fb0562fe09dba48e0cd5985b87c5a82d78d4ca2032ad6d3505701d5a96ec",
+      "current_sha256": "d1a7fb0562fe09dba48e0cd5985b87c5a82d78d4ca2032ad6d3505701d5a96ec"
+    },
+    "trainer/src/neural/improve_loop.py": {
+      "baseline_sha256": "e05a13c0c0168ccf6c6b6fe55247d08dfce51379c2b7a741dc2d2701fb3378da",
+      "current_sha256": "e05a13c0c0168ccf6c6b6fe55247d08dfce51379c2b7a741dc2d2701fb3378da"
+    },
+    "trainer/src/neural/item_ability_counterfactual_diagnostic.py": {
+      "baseline_sha256": "3afc80f400b665834a48c5a53b783135eb24ba84baeeb7e37c2affa92702639d",
+      "current_sha256": "3afc80f400b665834a48c5a53b783135eb24ba84baeeb7e37c2affa92702639d"
+    },
+    "trainer/src/neural/latency.py": {
+      "baseline_sha256": "f630ba5e5e42d9da45688a551d048adbc23b8ff845438e1101d51d8f44b36cf8",
+      "current_sha256": "f630ba5e5e42d9da45688a551d048adbc23b8ff845438e1101d51d8f44b36cf8"
+    },
+    "trainer/src/neural/live_action_recommender.py": {
+      "baseline_sha256": "87cb29ffdf5fada396edc69dd1e57486c3d01d3cb81e5ae989d745c8986dd1fc",
+      "current_sha256": "87cb29ffdf5fada396edc69dd1e57486c3d01d3cb81e5ae989d745c8986dd1fc"
+    },
+    "trainer/src/neural/live_eval_calibration.py": {
+      "baseline_sha256": "de3fc66a7b918acd506edf14328e74a3af93ea27abb0565ce9c3c0e280e29113",
+      "current_sha256": "de3fc66a7b918acd506edf14328e74a3af93ea27abb0565ce9c3c0e280e29113"
+    },
+    "trainer/src/neural/live_eval_healthcheck.py": {
+      "baseline_sha256": "eaf820c7aeddc7d8a75a2b2b3492150d5604495bab1cc07c7a4a02d6d55fb63c",
+      "current_sha256": "eaf820c7aeddc7d8a75a2b2b3492150d5604495bab1cc07c7a4a02d6d55fb63c"
+    },
+    "trainer/src/neural/live_eval_server.py": {
+      "baseline_sha256": "40f3fe2a5652f7722e0d4f883cbbe5b20b46e69058385d27a6f5a58efe14cd94",
+      "current_sha256": "40f3fe2a5652f7722e0d4f883cbbe5b20b46e69058385d27a6f5a58efe14cd94"
+    },
+    "trainer/src/neural/live_opponent_beliefs.py": {
+      "baseline_sha256": "c03140b2571039a3f4f022eaa696ca103e50b6d82c2e3d634551267105732b45",
+      "current_sha256": "c03140b2571039a3f4f022eaa696ca103e50b6d82c2e3d634551267105732b45"
+    },
+    "trainer/src/neural/live_private_features.py": {
+      "baseline_sha256": "d96e0aae3009552a9286062e5fd6835485631427ac8dc059a3a249d12bb8b8a4",
+      "current_sha256": "d96e0aae3009552a9286062e5fd6835485631427ac8dc059a3a249d12bb8b8a4"
+    },
+    "trainer/src/neural/live_private_state.py": {
+      "baseline_sha256": "39e6ef3b6c6c9568325046ec367c820ea3ab1ae5a50e48b18492837a48be3b17",
+      "current_sha256": "39e6ef3b6c6c9568325046ec367c820ea3ab1ae5a50e48b18492837a48be3b17"
+    },
+    "trainer/src/neural/logging_helper.py": {
+      "baseline_sha256": "962f2b1b6348d942b2daec2cf4a36994b181480840cd545f4f8fa9e0c3f3771e",
+      "current_sha256": "962f2b1b6348d942b2daec2cf4a36994b181480840cd545f4f8fa9e0c3f3771e"
+    },
+    "trainer/src/neural/loop_detector.py": {
+      "baseline_sha256": "5952d131d8e06b98b0dc2a06a4b8aac0db052bd917151352d51fb8cd3f281c87",
+      "current_sha256": "5952d131d8e06b98b0dc2a06a4b8aac0db052bd917151352d51fb8cd3f281c87"
+    },
+    "trainer/src/neural/mechanics_audit.py": {
+      "baseline_sha256": "e179597677101c6d560ff513cfd6a94215fef1c2687054c2fb64556286819aab",
+      "current_sha256": "e179597677101c6d560ff513cfd6a94215fef1c2687054c2fb64556286819aab"
+    },
+    "trainer/src/neural/metadata_helper.py": {
+      "baseline_sha256": "10adafa11541345a19acbe9314251829539e2d181b11ef0e1ec411c3204c4468",
+      "current_sha256": "10adafa11541345a19acbe9314251829539e2d181b11ef0e1ec411c3204c4468"
+    },
+    "trainer/src/neural/meta_prior.py": {
+      "baseline_sha256": "21723d7ef3cd5d74fa71228836bf866352aef0e6fc9c005d7959eaeef81f1365",
+      "current_sha256": "21723d7ef3cd5d74fa71228836bf866352aef0e6fc9c005d7959eaeef81f1365"
+    },
+    "trainer/src/neural/moves_actions_counterfactual_diagnostic.py": {
+      "baseline_sha256": "fbfbb00893b9d2168666548b9c0fb2e7dbc775b46a5b082858fae5f86ddeb4d1",
+      "current_sha256": "fbfbb00893b9d2168666548b9c0fb2e7dbc775b46a5b082858fae5f86ddeb4d1"
+    },
+    "trainer/src/neural/multihit_trace.py": {
+      "baseline_sha256": "3d168a2363bca4608b2ec4fa51d2f59c2f3381acac7661cc06574b889e946e0e",
+      "current_sha256": "3d168a2363bca4608b2ec4fa51d2f59c2f3381acac7661cc06574b889e946e0e"
+    },
+    "trainer/src/neural/one_turn_branch.py": {
+      "baseline_sha256": "301172d7832f3acbfb1d8169333850eca9f126861a23e60ed3c08caae976689d",
+      "current_sha256": "301172d7832f3acbfb1d8169333850eca9f126861a23e60ed3c08caae976689d"
+    },
+    "trainer/src/neural/opponent_pool.py": {
+      "baseline_sha256": "be3fb3fa0112e38dfa320388d894686f50d252ecd6a77bc6c73d42a03bcfff54",
+      "current_sha256": "be3fb3fa0112e38dfa320388d894686f50d252ecd6a77bc6c73d42a03bcfff54"
+    },
+    "trainer/src/neural/opponent_set_belief.py": {
+      "baseline_sha256": "81f9b69a742d630f7d285a5ed7870072ab6fe6be78ac224fafd90d8eae8df2b0",
+      "current_sha256": "81f9b69a742d630f7d285a5ed7870072ab6fe6be78ac224fafd90d8eae8df2b0"
+    },
+    "trainer/src/neural/opponent_set_belief_replay_adapter.py": {
+      "baseline_sha256": "c6192d87ce4ec77893fa2e34da515353852c375ac216041634ae8860761e7189",
+      "current_sha256": "c6192d87ce4ec77893fa2e34da515353852c375ac216041634ae8860761e7189"
+    },
+    "trainer/src/neural/parse_replay_logs.py": {
+      "baseline_sha256": "7f02c81aaba5e29fae0c5f080822a4e9637e225adabb8698e33ad1cc814cd40d",
+      "current_sha256": "7f02c81aaba5e29fae0c5f080822a4e9637e225adabb8698e33ad1cc814cd40d"
+    },
+    "trainer/src/neural/pipeline_json_wire.py": {
+      "baseline_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "current_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff"
+    },
+    "trainer/src/neural/pipeline_record.py": {
+      "baseline_sha256": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c",
+      "current_sha256": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c"
+    },
+    "trainer/src/neural/prevention.py": {
+      "baseline_sha256": "ed66a598deba6b4dea150628135cebfe24edc6c93725852131971fbfa8e21d17",
+      "current_sha256": "ed66a598deba6b4dea150628135cebfe24edc6c93725852131971fbfa8e21d17"
+    },
+    "trainer/src/neural/protocol_contract.json": {
+      "baseline_sha256": "3a3e722253d8920e36ba7417b59dce5419f0855f90e8be1a0241f2d2aa6a2502",
+      "current_sha256": "3a3e722253d8920e36ba7417b59dce5419f0855f90e8be1a0241f2d2aa6a2502"
+    },
+    "trainer/src/neural/protocol_contract.py": {
+      "baseline_sha256": "3223c91bf49862064d847f13308bae209ea9ca9c60149ac8ec9861301d975683",
+      "current_sha256": "3223c91bf49862064d847f13308bae209ea9ca9c60149ac8ec9861301d975683"
+    },
+    "trainer/src/neural/provenance_contracts.py": {
+      "baseline_sha256": "239b51e064420fd9cff1bf5d2d93ec5041478e385812b5262686f68e73c92b01",
+      "current_sha256": "239b51e064420fd9cff1bf5d2d93ec5041478e385812b5262686f68e73c92b01"
+    },
+    "trainer/src/neural/public_ability.py": {
+      "baseline_sha256": "5b2f5464ed32105a1b4af759e7c045c748e121645b5da85558e71ed5d86eb485",
+      "current_sha256": "5b2f5464ed32105a1b4af759e7c045c748e121645b5da85558e71ed5d86eb485"
+    },
+    "trainer/src/neural/public_boosts.py": {
+      "baseline_sha256": "144e19ed5e74e352e909f48fc817197a5681d3ffa86245df99b7e90cac989ff0",
+      "current_sha256": "144e19ed5e74e352e909f48fc817197a5681d3ffa86245df99b7e90cac989ff0"
+    },
+    "trainer/src/neural/public_field.py": {
+      "baseline_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "current_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326"
+    },
+    "trainer/src/neural/public_health.py": {
+      "baseline_sha256": "f052f9c35aab351fe09e845f13f2188d18fe8a3c0950b37eb7990d4077ea1249",
+      "current_sha256": "f052f9c35aab351fe09e845f13f2188d18fe8a3c0950b37eb7990d4077ea1249"
+    },
+    "trainer/src/neural/public_item.py": {
+      "baseline_sha256": "69ae044685799ac3277c3841e2701bf7a01a4be7e52c4052dbff6ff1d44f28b9",
+      "current_sha256": "69ae044685799ac3277c3841e2701bf7a01a4be7e52c4052dbff6ff1d44f28b9"
+    },
+    "trainer/src/neural/randbats_meta_prior_audit.py": {
+      "baseline_sha256": "ccfdcb24f203fc344f57c0224e4a09ddaae44ebbdde08dd8385820cc348bef49",
+      "current_sha256": "ccfdcb24f203fc344f57c0224e4a09ddaae44ebbdde08dd8385820cc348bef49"
+    },
+    "trainer/src/neural/randbats_meta_prior_source.py": {
+      "baseline_sha256": "e7b3e368d159fe815ae0acf2bfbe234e6cdf7120bbec7ed2738c9b56bc6649e6",
+      "current_sha256": "e7b3e368d159fe815ae0acf2bfbe234e6cdf7120bbec7ed2738c9b56bc6649e6"
+    },
+    "trainer/src/neural/replay_fetch.py": {
+      "baseline_sha256": "3ff2ff47f870f0a6ae6cbd8d8d939dd4799b4d40bf8bfd9c9ec754808191f221",
+      "current_sha256": "3ff2ff47f870f0a6ae6cbd8d8d939dd4799b4d40bf8bfd9c9ec754808191f221"
+    },
+    "trainer/src/neural/replay_pool_profiler.py": {
+      "baseline_sha256": "faeff836d96f10770ce485d75aa3aa9b87d741888e8031280bbd2b53cd0cd4d3",
+      "current_sha256": "faeff836d96f10770ce485d75aa3aa9b87d741888e8031280bbd2b53cd0cd4d3"
+    },
+    "trainer/src/neural/replay_sample_manifest.py": {
+      "baseline_sha256": "59505e8efbbf9d8a968996d6ec205fd1948b589c07a0d13a0177625adb5a0586",
+      "current_sha256": "59505e8efbbf9d8a968996d6ec205fd1948b589c07a0d13a0177625adb5a0586"
+    },
+    "trainer/src/neural/resolved_action_impact.py": {
+      "baseline_sha256": "b206bd6fbea12e45b3672e00a6583bae29c686144466be0627d61dfdc8ed7d48",
+      "current_sha256": "b206bd6fbea12e45b3672e00a6583bae29c686144466be0627d61dfdc8ed7d48"
+    },
+    "trainer/src/neural/resolved_action_impact_diagnostic.py": {
+      "baseline_sha256": "866432fb3c4aa8b7001e63d631cd296d22f5aa4e8a76ec8b94b8e655f84500b0",
+      "current_sha256": "866432fb3c4aa8b7001e63d631cd296d22f5aa4e8a76ec8b94b8e655f84500b0"
+    },
+    "trainer/src/neural/rollout_parity.py": {
+      "baseline_sha256": "3962591cb342b3b7b1ddd4a924c8ed6f78af3c4aba318201bfe3705b4f6e7117",
+      "current_sha256": "3962591cb342b3b7b1ddd4a924c8ed6f78af3c4aba318201bfe3705b4f6e7117"
+    },
+    "trainer/src/neural/runner.py": {
+      "baseline_sha256": "85b3cb3e379e8747e443e3984edfe1c146074878209975e5b390a3afc7b99d57",
+      "current_sha256": "85b3cb3e379e8747e443e3984edfe1c146074878209975e5b390a3afc7b99d57"
+    },
+    "trainer/src/neural/runtime.py": {
+      "baseline_sha256": "61d9b7e60372bfc5b8d041619952f8de138ff7a0f4dc30b0f458e7c565c9fa00",
+      "current_sha256": "61d9b7e60372bfc5b8d041619952f8de138ff7a0f4dc30b0f458e7c565c9fa00"
+    },
+    "trainer/src/neural/run_agent_tournament.py": {
+      "baseline_sha256": "dd235c58b06f96d2eddebb33c65447bc2520c44839bd024cb0a0f9d5e4e75c49",
+      "current_sha256": "dd235c58b06f96d2eddebb33c65447bc2520c44839bd024cb0a0f9d5e4e75c49"
+    },
+    "trainer/src/neural/schema.py": {
+      "baseline_sha256": "c947f0a99d7480a47967707f9546f7f6e1bbfe3c97b9d37cd8f439fc3f359d58",
+      "current_sha256": "c947f0a99d7480a47967707f9546f7f6e1bbfe3c97b9d37cd8f439fc3f359d58"
+    },
+    "trainer/src/neural/sim_branch_evaluator.py": {
+      "baseline_sha256": "487b8e5c05bedb21a666e9973a7e61f96f825d057f227e103f04089a7e266f48",
+      "current_sha256": "487b8e5c05bedb21a666e9973a7e61f96f825d057f227e103f04089a7e266f48"
+    },
+    "trainer/src/neural/species_status_counterfactual_diagnostic.py": {
+      "baseline_sha256": "a2bc8168fe480b6617f4be346d833abdf2864ef8ac7f6d98a7c99de067e381bc",
+      "current_sha256": "a2bc8168fe480b6617f4be346d833abdf2864ef8ac7f6d98a7c99de067e381bc"
+    },
+    "trainer/src/neural/state_counterfactual_diagnostic.py": {
+      "baseline_sha256": "1dcdc2082a67a9438c17bf1a1ce08878e9a0af45a254f0b36186e1e52537528c",
+      "current_sha256": "1dcdc2082a67a9438c17bf1a1ce08878e9a0af45a254f0b36186e1e52537528c"
+    },
+    "trainer/src/neural/summary_writer.py": {
+      "baseline_sha256": "9b61c30386904fe3e32b15fac3082d33c544f14a51ff1fb0e1b57bf35ca01786",
+      "current_sha256": "9b61c30386904fe3e32b15fac3082d33c544f14a51ff1fb0e1b57bf35ca01786"
+    },
+    "trainer/src/neural/tactical_state.py": {
+      "baseline_sha256": "71257e4e3555f1ce8e90e420a251a0762a44ae12df6c26006a351b988d2a77be",
+      "current_sha256": "71257e4e3555f1ce8e90e420a251a0762a44ae12df6c26006a351b988d2a77be"
+    },
+    "trainer/src/neural/tera_field_counterfactual_diagnostic.py": {
+      "baseline_sha256": "6144416abb9cca5ccc83812c13ceb3e07b752e315397710bca9bb95bf50a51eb",
+      "current_sha256": "6144416abb9cca5ccc83812c13ceb3e07b752e315397710bca9bb95bf50a51eb"
+    },
+    "trainer/src/neural/test_live_eval_payload.py": {
+      "baseline_sha256": "a026e27d651c8e74c1b37394ad240936188a1b9460b12374a68d42e24ddc9572",
+      "current_sha256": "a026e27d651c8e74c1b37394ad240936188a1b9460b12374a68d42e24ddc9572"
+    },
+    "trainer/src/neural/test_sim_rollout.py": {
+      "baseline_sha256": "4e97c73d9bc62e03f9865992e229abc7fb62d26eb039f09e6831c9f062574c47",
+      "current_sha256": "4e97c73d9bc62e03f9865992e229abc7fb62d26eb039f09e6831c9f062574c47"
+    },
+    "trainer/src/neural/trace.py": {
+      "baseline_sha256": "fa270beba93a7bb94fa051209f32b76072c4d73116655fa2ddd5de4aab71cb44",
+      "current_sha256": "fa270beba93a7bb94fa051209f32b76072c4d73116655fa2ddd5de4aab71cb44"
+    },
+    "trainer/src/neural/train_action_ranker.py": {
+      "baseline_sha256": "98039d0646ddf25cde01884f3a171c5bbf377bd6cc7e5c516bd3467c4d22cf93",
+      "current_sha256": "98039d0646ddf25cde01884f3a171c5bbf377bd6cc7e5c516bd3467c4d22cf93"
+    },
+    "trainer/src/neural/train_action_value_ranker.py": {
+      "baseline_sha256": "2d4f4b5f2d8d5c89cb9e9566475e52bfccb359fc573d99fc84c48c81a191d0a6",
+      "current_sha256": "2d4f4b5f2d8d5c89cb9e9566475e52bfccb359fc573d99fc84c48c81a191d0a6"
+    },
+    "trainer/src/neural/train_bc.py": {
+      "baseline_sha256": "1488822b92e1153d71e41a0caba8ace1066edf13671a6e4b050b1ae213567b81",
+      "current_sha256": "1488822b92e1153d71e41a0caba8ace1066edf13671a6e4b050b1ae213567b81"
+    },
+    "trainer/src/neural/train_live_private_value.py": {
+      "baseline_sha256": "bfe3fa58b191fdcdc6f18a5ccce0eb26987a90ffb310270be2c7d544e655ada4",
+      "current_sha256": "bfe3fa58b191fdcdc6f18a5ccce0eb26987a90ffb310270be2c7d544e655ada4"
+    },
+    "trainer/src/neural/train_live_sim_value.py": {
+      "baseline_sha256": "b399abe32f4659925080a94f982fe6a04afd09c31c4c0d2364ff489013cfe079",
+      "current_sha256": "b399abe32f4659925080a94f982fe6a04afd09c31c4c0d2364ff489013cfe079"
+    },
+    "trainer/src/neural/train_ppo.py": {
+      "baseline_sha256": "6cea8d6511778ecd82a2b075e8e84e4f659f8ca292637781a885ad9dd8a7e5a2",
+      "current_sha256": "6cea8d6511778ecd82a2b075e8e84e4f659f8ca292637781a885ad9dd8a7e5a2"
+    },
+    "trainer/src/neural/train_replay_value.py": {
+      "baseline_sha256": "c718f1efe7c56bdb41ef68cfb9bd678edfab9a334e3fba10e26ba78ab6824abe",
+      "current_sha256": "c718f1efe7c56bdb41ef68cfb9bd678edfab9a334e3fba10e26ba78ab6824abe"
+    },
+    "trainer/src/neural/train_value.py": {
+      "baseline_sha256": "5df1ff8f522227540f371b761c526f54eca8287aa6ef171a9911a6e4d3d89dba",
+      "current_sha256": "5df1ff8f522227540f371b761c526f54eca8287aa6ef171a9911a6e4d3d89dba"
+    },
+    "trainer/src/neural/train_vnext_diagnostic.py": {
+      "baseline_sha256": "bfdc2df1683b05963d6ac90aa8330949b638e251be83dc53d238561f4f8206eb",
+      "current_sha256": "bfdc2df1683b05963d6ac90aa8330949b638e251be83dc53d238561f4f8206eb"
+    },
+    "trainer/src/neural/ts_identity.py": {
+      "baseline_sha256": "ea7518f20aa15c0f4d7b6b5766bd49d5f8fbe58b4ed388fd8e8eb7ce36cf3095",
+      "current_sha256": "ea7518f20aa15c0f4d7b6b5766bd49d5f8fbe58b4ed388fd8e8eb7ce36cf3095"
+    },
+    "trainer/src/neural/two_ply_branch.py": {
+      "baseline_sha256": "59736c6c69b2f0b909501afcaefed17205225c2d9100c77b818767b22c1b948b",
+      "current_sha256": "59736c6c69b2f0b909501afcaefed17205225c2d9100c77b818767b22c1b948b"
+    },
+    "trainer/src/neural/typed_state.py": {
+      "baseline_sha256": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd",
+      "current_sha256": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd"
+    },
+    "trainer/src/neural/v8_belief_features.py": {
+      "baseline_sha256": "0b35c12a908f68b0ab833a007dcf203be749a31287adad887975b04eb4959998",
+      "current_sha256": "0b35c12a908f68b0ab833a007dcf203be749a31287adad887975b04eb4959998"
+    },
+    "trainer/src/neural/validate_sim_core.py": {
+      "baseline_sha256": "e09b9bf1c9c97fa1bf545eebedd6cfe7b01cb14b941a7afab34ab5defe1eb32d",
+      "current_sha256": "e09b9bf1c9c97fa1bf545eebedd6cfe7b01cb14b941a7afab34ab5defe1eb32d"
+    },
+    "trainer/src/neural/validate_vnext_live_captures.py": {
+      "baseline_sha256": "222ef9b6b11736fbf207a0f9d6f24dbe849829f4198da969e6245a4f2bcf5848",
+      "current_sha256": "222ef9b6b11736fbf207a0f9d6f24dbe849829f4198da969e6245a4f2bcf5848"
+    },
+    "trainer/src/neural/value_features.py": {
+      "baseline_sha256": "9f60a7269023b5bbeab01e58ecd8ef0e72866593ca2234c5d8ef0d27b0ab6229",
+      "current_sha256": "9f60a7269023b5bbeab01e58ecd8ef0e72866593ca2234c5d8ef0d27b0ab6229"
+    },
+    "trainer/src/neural/vnext_inference.py": {
+      "baseline_sha256": "d5025789028c289dbcd619aedb53a8a59ac00ea7ff29c91b99e4896b6efbb316",
+      "current_sha256": "d5025789028c289dbcd619aedb53a8a59ac00ea7ff29c91b99e4896b6efbb316"
+    },
+    "trainer/src/neural/vnext_labels.py": {
+      "baseline_sha256": "33b0ae1fb15c595adbb21d3d2abf861fb9eee3c479492ca1c8c936177301122b",
+      "current_sha256": "33b0ae1fb15c595adbb21d3d2abf861fb9eee3c479492ca1c8c936177301122b"
+    },
+    "trainer/src/neural/vnext_live_shadow.py": {
+      "baseline_sha256": "bb6741a55797866e356d3f3fe0c43c3de2427b0af2056681de133bc779fab60b",
+      "current_sha256": "bb6741a55797866e356d3f3fe0c43c3de2427b0af2056681de133bc779fab60b"
+    },
+    "trainer/src/neural/__init__.py": {
+      "baseline_sha256": "ac1b5976f78cebb6ae3c473715b27ac52efd6aa488e1361b3ed0b82a99efc77c",
+      "current_sha256": "ac1b5976f78cebb6ae3c473715b27ac52efd6aa488e1361b3ed0b82a99efc77c"
+    },
+    "trainer/src/neural/models/action_ranker.py": {
+      "baseline_sha256": "b52e3554c582a0951c1b92be4a5bf4bfac0ddde1af9fc2d5756b9a4cc1bbcbbe",
+      "current_sha256": "b52e3554c582a0951c1b92be4a5bf4bfac0ddde1af9fc2d5756b9a4cc1bbcbbe"
+    },
+    "trainer/src/neural/models/policy_value_mlp.py": {
+      "baseline_sha256": "81523a914878ea70945a70658da08066ae5601c7f84ebefa5499b50cfa5e4f20",
+      "current_sha256": "81523a914878ea70945a70658da08066ae5601c7f84ebefa5499b50cfa5e4f20"
+    },
+    "trainer/src/neural/models/value_mlp.py": {
+      "baseline_sha256": "daba171de22f67bb415f732a43e2e0588383e9608c9592301770a59286ba43e3",
+      "current_sha256": "daba171de22f67bb415f732a43e2e0588383e9608c9592301770a59286ba43e3"
+    },
+    "trainer/src/neural/models/vnext_diagnostic.py": {
+      "baseline_sha256": "48f11806f8cc3915a5bd37c08dc9b25a21b98d3992b63f5844ba44f76ea28ed1",
+      "current_sha256": "48f11806f8cc3915a5bd37c08dc9b25a21b98d3992b63f5844ba44f76ea28ed1"
+    },
+    "trainer/src/neural/models/__init__.py": {
+      "baseline_sha256": "019e23bce3b2b2ce42204b83c4187d904f0139d33a51dfad82b4bd05ab82cb6e",
+      "current_sha256": "019e23bce3b2b2ce42204b83c4187d904f0139d33a51dfad82b4bd05ab82cb6e"
+    },
+    "docs/contracts/BELIEF_STATE.md": {
+      "baseline_sha256": "6c4028f14686d3f92e1d5b39a4340567aad9e28582d8f2da91f2744af9e04ecc",
+      "current_sha256": "6c4028f14686d3f92e1d5b39a4340567aad9e28582d8f2da91f2744af9e04ecc"
+    },
+    "docs/contracts/CANONICAL_ACTION.md": {
+      "baseline_sha256": "407222d4c385b7808c8ab8d9074bca1c48af6748b8aadf19998bd93cc0acc9a4",
+      "current_sha256": "407222d4c385b7808c8ab8d9074bca1c48af6748b8aadf19998bd93cc0acc9a4"
+    },
+    "docs/contracts/DATASET_LINEAGE.md": {
+      "baseline_sha256": "566874f191daec8a03be7a6d6a82f6effac486be3b4df50dfb1225e63d600164",
+      "current_sha256": "566874f191daec8a03be7a6d6a82f6effac486be3b4df50dfb1225e63d600164"
+    },
+    "docs/contracts/OBSERVABLE_STATE.md": {
+      "baseline_sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247",
+      "current_sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247"
+    },
+    "docs/contracts/PIPELINE_EPISODE.md": {
+      "baseline_sha256": "88673a45b1cddd03c54e54364aa082ec5746ee36da174e368c53dc35cbda8e9b",
+      "current_sha256": "88673a45b1cddd03c54e54364aa082ec5746ee36da174e368c53dc35cbda8e9b"
+    },
+    "docs/contracts/PIPELINE_INTEGRATION.md": {
+      "baseline_sha256": "bad3bfcdf0e7bcaca04ad91c4ae2790fabe077244886392db6455bbcd6a9a959",
+      "current_sha256": "bad3bfcdf0e7bcaca04ad91c4ae2790fabe077244886392db6455bbcd6a9a959"
+    },
+    "docs/contracts/SEARCH_SEMANTICS.md": {
+      "baseline_sha256": "8e814297bd91fb2fc9283d65633947d995e987bb807d15e7c5e21b00516bfc0d",
+      "current_sha256": "8e814297bd91fb2fc9283d65633947d995e987bb807d15e7c5e21b00516bfc0d"
+    },
+    "docs/contracts/SEEDED_TRANSITION.md": {
+      "baseline_sha256": "5428de8f64152ceee1a65d43f268b0c86751848191cf115aa9f3a37dfdc7fdf4",
+      "current_sha256": "5428de8f64152ceee1a65d43f268b0c86751848191cf115aa9f3a37dfdc7fdf4"
+    },
+    "docs/contracts/SIMULATOR_COVERAGE.md": {
+      "baseline_sha256": "6104bfd8c1ec1cb277435140ee7a0c25d004ba3ed6855c5c3a163668a6302bb6",
+      "current_sha256": "6104bfd8c1ec1cb277435140ee7a0c25d004ba3ed6855c5c3a163668a6302bb6"
+    },
+    "docs/contracts/TRANSITION_RESULT.md": {
+      "baseline_sha256": "bf85db8b02bab39001efe150529dba6e338f0d78eb7b98ded45f23f4188861dd",
+      "current_sha256": "bf85db8b02bab39001efe150529dba6e338f0d78eb7b98ded45f23f4188861dd"
+    }
+  },
+  "preexisting_fixture_helpers_unchanged": true,
+  "reused_matrix": "docs/planning/perspective-fidelity-prompt5-matrix.md",
+  "reuse_basis": "Production and dependency hashes unchanged; _bundle and _seal_bundle AST unchanged; dependent new Python field suite rerun."
+}

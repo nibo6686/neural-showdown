@@ -1,0 +1,332 @@
+{
+  "environment": {
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "unset": [
+      "PYTHONUTF8",
+      "PYTHONIOENCODING",
+      "historical REPORT/PROMPT variables"
+    ]
+  },
+  "commands": [
+    {
+      "name": "build",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": []
+    },
+    {
+      "name": "original_owner_provider",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/original_owner_provider.test.js"
+      ],
+      "exit": 1,
+      "expected_exit": 0,
+      "counts": [
+        "tests 16",
+        "pass 15",
+        "fail 1",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "env_manager",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/env_manager.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 17",
+        "pass 17",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "pipeline_integration",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/pipeline_integration.test.js"
+      ],
+      "exit": 1,
+      "expected_exit": 0,
+      "counts": [
+        "tests 10",
+        "pass 9",
+        "fail 1",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "settling",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/settling.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 18",
+        "pass 18",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "pipeline_episode_stop_repair",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/pipeline_episode_stop_repair.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 3",
+        "pass 3",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "perspective_knowledge_source",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/perspective_knowledge_source.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 21",
+        "pass 21",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "active_request_restore",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/active_request_restore.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 15",
+        "pass 15",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "public_move_history",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/public_move_history.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 6",
+        "pass 6",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "replay_import",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/replay_import.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 8",
+        "pass 8",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "original_owner_provider_characterization",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/original_owner_provider_characterization.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 10",
+        "pass 10",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "perspective_replay_characterization",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/perspective_replay_characterization.test.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "tests 3",
+        "pass 3",
+        "fail 0",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "episode-cleanup",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=initialization failure|invalid budgets/policy|invalid continuation|cleanup preserves",
+        "sim-core/dist/tests/pipeline_episode.test.js"
+      ],
+      "exit": 1,
+      "expected_exit": 0,
+      "counts": [
+        "tests 4",
+        "pass 3",
+        "fail 1",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "loader",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "trainer/tests",
+        "-p",
+        "test_local_replay_html_transport.py",
+        "-v"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "Ran 8 tests"
+      ]
+    },
+    {
+      "name": "python-characterization",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "trainer/tests",
+        "-p",
+        "test_perspective_replay_characterization.py",
+        "-v"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": [
+        "Ran 2 tests"
+      ]
+    },
+    {
+      "name": "ts-requirements",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "--test",
+        "sim-core/dist/tests/perspective_replay_characterization.test.js"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "counts": [
+        "tests 3",
+        "pass 2",
+        "fail 1",
+        "skipped 0"
+      ]
+    },
+    {
+      "name": "python-requirements",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "trainer/tests",
+        "-p",
+        "test_perspective_replay_characterization.py",
+        "-v"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "counts": [
+        "Ran 2 tests"
+      ]
+    },
+    {
+      "name": "wire",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "node",
+        "docs/planning/perspective-fidelity-prompt23-wire.cjs",
+        "check"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": []
+    },
+    {
+      "name": "diff-check",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "counts": []
+    }
+  ]
+}

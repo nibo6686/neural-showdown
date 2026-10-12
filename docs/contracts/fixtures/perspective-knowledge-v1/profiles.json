@@ -1,0 +1,3770 @@
+[
+  {
+    "kind": "profile",
+    "name": "addressed-owner-evidence/v1",
+    "policy": "simulator-causal/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "addressed-team-provider/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "roster_species",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_order",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "party_position",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "active_slot",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_size",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "starting_moves",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "current_moves",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_execution",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_incarnation",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "submitted_nature",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_evs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_ivs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_happiness",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "calculated_stats",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "hp_max",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "level",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "gender",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "shiny",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ball",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "details",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "starting_tera",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "hp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "fainted",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "status_observed_since",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_elapsed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "max_pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "lock",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boosts",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "persistent_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "persistent_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_turn_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_turn_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_move_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_move_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition",
+          "side_condition_layers"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "side_condition",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "side_condition_layers",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "weather_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "terrain",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "terrain_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pseudo_weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "room_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "field_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "field_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect",
+          "pending_power"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pending_intent",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_power",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "form",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "types",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "tera",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "transformed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "appearance",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "identity_reveal",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "item",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_held",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "ability",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ability_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boundary_kind",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "request_presence",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "id": "sha256:f0764fe031801d972fc758d3a0258cbb895960af8e15ffd47557675408bb4dfa"
+  },
+  {
+    "kind": "profile",
+    "name": "public-replay-owner-starting-evidence/v1",
+    "policy": "public-replay-owner-starting/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "indexed-public/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "roster_species",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_order",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "party_position",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "active_slot",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_size",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "starting_moves",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "current_moves",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_execution",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_incarnation",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "submitted_nature",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_evs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_ivs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_happiness",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "calculated_stats",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "hp_max",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "level",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "gender",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "shiny",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ball",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "details",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "starting_tera",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "hp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "fainted",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "status_observed_since",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_elapsed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "max_pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "lock",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boosts",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "persistent_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "persistent_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_turn_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_turn_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_move_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_move_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition",
+          "side_condition_layers"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "side_condition",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "side_condition_layers",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "weather_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "terrain",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "terrain_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pseudo_weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "room_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "field_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "field_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect",
+          "pending_power"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pending_intent",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_power",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "form",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "types",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "tera",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "transformed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "appearance",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "identity_reveal",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "item",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_held",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "ability",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ability_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boundary_kind",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "request_presence",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "id": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5"
+  },
+  {
+    "kind": "profile",
+    "name": "owner-loadout-complete/v1",
+    "policy": "simulator-causal/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "addressed-team-provider/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "roster_species",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_order",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "party_position",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "active_slot",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "roster_size",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "starting_moves",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "current_moves",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_execution",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "move_incarnation",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "submitted_nature",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_evs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_ivs",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "submitted_happiness",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "calculated_stats",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "hp_max",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "level",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "gender",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "shiny",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ball",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "details",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "starting_tera",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "hp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "fainted",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "status_observed_since",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_elapsed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "status_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "max_pp",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_disabled",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "move",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "maybe_trapped",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "lock",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boosts",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "persistent_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "persistent_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_turn_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_turn_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "single_move_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "single_move_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition",
+          "side_condition_layers"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "side_condition",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "side_condition_layers",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "condition_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "weather_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "weather_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "terrain",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "terrain_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pseudo_weather",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "room_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "field_remaining",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "field_effect",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect",
+          "pending_power"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "pending_intent",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_effect",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "pending_power",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "pending_effect_member",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "form",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "types",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "tera",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "transformed",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "appearance",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "identity_reveal",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "item",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_held",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "item_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "ability",
+            "applications": [
+              {
+                "context": "original",
+                "scope": "owner",
+                "subject": "roster",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "ability_effective",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "both",
+                "subject": "roster_or_appearance",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "property_rules": [
+          {
+            "property": "boundary_kind",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          },
+          {
+            "property": "request_presence",
+            "applications": [
+              {
+                "context": "current",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              },
+              {
+                "context": "request",
+                "scope": "owner",
+                "subject": "side",
+                "coverage": "all_relevant"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "id": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38"
+  }
+]

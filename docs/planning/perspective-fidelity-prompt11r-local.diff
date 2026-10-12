@@ -1,0 +1,340 @@
+--- candidate-before/sim-core/src/perspective_knowledge.ts
++++ candidate-after/sim-core/src/perspective_knowledge.ts
+@@ -58,6 +58,7 @@
+     const char = text[at];
+     if (char === '"') return string();
+     if (char === '[' || char === '{') {
++      requireStructure(depth < MAX_DEPTH, 'depth');
+       at++; space();
+       const close = char === '[' ? ']' : '}';
+       const array: unknown[] = []; const object: Row = {};
+@@ -115,6 +116,7 @@
+       emit(JSON.stringify(item));
+     } else {
+       requireStructure(typeof item === 'object' && item !== null,'JSON object type');
++      requireStructure(depth < MAX_DEPTH,'depth');
+       requireStructure(!active.has(item),'object cycle');
+       const proto = Object.getPrototypeOf(item);
+       requireStructure(Array.isArray(item) ? proto === Array.prototype : proto === Object.prototype || proto === null,'JSON object type');
+@@ -381,6 +383,7 @@
+     for (const ident of fact.evidence) {
+       const proof = get(ident,'evidence'); requireStructure([null,fact.owner].includes(proof.owner),'foreign private proof');
+       if (proof.scope === 'request') requireStructure(fact.observed_at === get(proof.source,'source').delivery_cursor || fact.state === 'unknown' && fact.observed_at === null,'request observation cursor');
++      else if (get(proof.source,'source').source_type === 'owner_initialization') requireStructure(fact.observed_at === get(proof.source,'source').delivery_cursor || fact.state === 'unknown' && fact.observed_at === null,'initialization observation cursor');
+       else if (proof.record_indices.length && !['boundary_kind','request_presence'].includes(fact.property)) requireStructure(fact.observed_at === Math.max(...proof.record_indices)+1,'observation cursor');
+     }
+     if (fact.certificate !== null) {
+@@ -420,7 +423,7 @@
+     }
+     ordered(start.crosswalk.map((r: Row) => r.appearance),'crosswalk order');
+     for (const cross of start.crosswalk) {
+-      const cert = get(cross.certificate,'certificate'); requireStructure(cert.owner === start.owner && cross.appearance.startsWith(start.owner + ':') && cross.roster === cert.subject,'crosswalk owner');
++      const cert = get(cross.certificate,'certificate'); requireStructure(cert.owner === start.owner && cross.appearance.startsWith(start.owner + ':') && cross.roster.startsWith(start.owner + ':') && cross.roster === cert.subject,'crosswalk owner');
+       requireStructure(cert.source === start.source,'crosswalk certificate source');
+       originalCertificate(cert);
+     }
+--- candidate-before/trainer/src/neural/perspective_knowledge.py
++++ candidate-after/trainer/src/neural/perspective_knowledge.py
+@@ -44,7 +44,7 @@
+             elif char == '"': quoted = True
+             elif char in '[{':
+                 nesting += 1
+-                require(nesting <= MAX_DEPTH + 1, 'depth')
++                require(nesting <= MAX_DEPTH, 'depth')
+             elif char in ']}': nesting -= 1
+         def pairs(entries):
+             result = {}
+@@ -97,6 +97,7 @@
+             if special: _parse(item, raw=True)
+             emit(json.dumps(item, ensure_ascii=False, separators=(',', ':')))
+         elif typ in (dict, list):
++            require(depth < MAX_DEPTH, 'depth')
+             require(id(item) not in active, 'object cycle')
+             require(len(item) <= 4096, 'container bound')
+             active.add(id(item))
+@@ -351,6 +352,8 @@
+             require(evidence['owner'] in (None,fact['owner']), 'foreign private proof')
+             if evidence['scope'] == 'request':
+                 require(fact['observed_at'] == get(evidence['source'],'source')['delivery_cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'request observation cursor')
++            elif get(evidence['source'],'source')['source_type'] == 'owner_initialization':
++                require(fact['observed_at'] == get(evidence['source'],'source')['delivery_cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'initialization observation cursor')
+             elif evidence['record_indices'] and fact['property'] not in ('boundary_kind','request_presence'):
+                 require(fact['observed_at'] == max(evidence['record_indices']) + 1, 'observation cursor')
+         if fact['certificate'] is not None:
+@@ -391,7 +394,7 @@
+         _ordered([c['appearance'] for c in start['crosswalk']], 'crosswalk order')
+         for cross in start['crosswalk']:
+             cert = get(cross['certificate'],'certificate')
+-            require(cert['owner'] == start['owner'] and cross['appearance'].startswith(start['owner'] + ':') and cross['roster'] == cert['subject'], 'crosswalk owner')
++            require(cert['owner'] == start['owner'] and cross['appearance'].startswith(start['owner'] + ':') and cross['roster'].startswith(start['owner'] + ':') and cross['roster'] == cert['subject'], 'crosswalk owner')
+             require(cert['source'] == start['source'], 'crosswalk certificate source')
+             _original_certificate(cert)
+     for current in tables['current']:
+--- candidate-before/sim-core/tests/perspective_knowledge.test.ts
++++ candidate-after/sim-core/tests/perspective_knowledge.test.ts
+@@ -409,3 +409,131 @@
+   } finally { rmSync(cwd, { recursive: true, force: true }); }
+   assert.equal(existsSync(cwd), false, 'temporary subprocess cwd is removed after errors');
+ });
++
++function revisionCrosswalk(owner: string, form: string): Row {
++  const audit = load('replay-full.json');
++  if (owner === 'p1') {
++    const start = audit.tables.starting.find((s: Row) => s.owner === owner);
++    const cert = structuredClone(audit.tables.certificate.find((c: Row) => c.owner === owner));
++    cert.property = 'identity_reveal'; cert.id = literalIdentity(cert);
++    audit.tables.certificate.push(cert);
++    start.crosswalk = [{appearance:'p1:appearance:1', roster:'p1:roster:1', certificate:cert.id}];
++  }
++  audit.form = form; return reseal(audit);
++}
++function revisionNested(count: number, style: string, leaf: any): any {
++  let value: any = style === 'object' ? {} : [];
++  if (leaf !== 'empty') value = style === 'object' ? {x:leaf} : [leaf];
++  for (let index = 1; index < count; index++) value = style === 'object' || style === 'mixed' && index % 2 ? {x:value} : [value];
++  return value;
++}
++function revisionCheck(audit: Row, guard?: RegExp): void {
++  assertSealed(audit); const before = literalCanonical(audit);
++  if (guard) {
++    assert.throws(() => checkKnowledgeStructure(audit), guard);
++    assert.throws(() => serializeKnowledgeWire(audit), guard);
++  } else {
++    assert.deepEqual(checkKnowledgeStructure(audit), diagnostic);
++    assert.deepEqual(checkKnowledgeStructure(parseKnowledgeJson(serializeKnowledgeWire(audit))), diagnostic);
++  }
++  assert.equal(literalCanonical(audit), before);
++}
++
++test('revision: mirrored owner crosswalks preserve exact certificate joins in all forms', () => {
++  for (const owner of ['p1','p2']) {
++    for (const form of ['full','ordinary','compact']) {
++      revisionCheck(revisionCrosswalk(owner,form));
++      const audit = revisionCrosswalk(owner,form), expanded = tables(audit);
++      const start = expanded.starting.find(s => s.owner === owner && s.crosswalk.length)!;
++      const cross = start.crosswalk[0], cert = expanded.certificate.find(c => c.id === cross.certificate)!;
++      cross.roster = cert.subject = (owner === 'p1' ? 'p2' : 'p1') + ':roster:1';
++      revisionCheck(reseal(audit), /crosswalk owner/);
++    }
++    for (const field of ['appearance','subject','owner','source']) {
++      const audit = revisionCrosswalk(owner,'full');
++      const start = audit.tables.starting.find((s: Row) => s.owner === owner && s.crosswalk.length);
++      const cross = start.crosswalk[0], cert = audit.tables.certificate.find((c: Row) => c.id === cross.certificate);
++      if (field === 'appearance') cross.appearance = (owner === 'p1' ? 'p2' : 'p1') + ':appearance:1';
++      else if (field === 'subject') cert.subject = owner + ':roster:2';
++      else if (field === 'owner') cert.owner = owner === 'p1' ? 'p2' : 'p1';
++      else {
++        const source = structuredClone(audit.tables.source[0]); source.records[0] = '|turn|1'; source.id = literalIdentity(source);
++        audit.tables.source.push(source); cert.source = source.id;
++        cert.witnesses = cert.witnesses.map((id: string) => {
++          const witness = structuredClone(audit.tables.evidence.find((e: Row) => e.id === id));
++          witness.source = source.id; witness.id = literalIdentity(witness); audit.tables.evidence.push(witness); return witness.id;
++        });
++      }
++      revisionCheck(reseal(audit), /crosswalk owner|certificate witness|crosswalk certificate source/);
++    }
++  }
++});
++
++test('revision: known, absent and explicit unknown initialization facts join delivery for both owners', () => {
++  for (const owner of ['p1','p2']) for (const state of ['known','known_absent','unknown']) for (const cursor of [0,null,99]) {
++    const audit = load('sim-full.json');
++    const fact = audit.tables.fact.find((f: Row) => f.owner === owner && f.freshness === 'immutable');
++    Object.assign(fact, {state,observed_at:cursor});
++    if (state !== 'known') Object.assign(fact, {value:null,precision:'not_applicable',reason:state === 'known_absent' ? 'none' : 'missing_original_authority'});
++    revisionCheck(reseal(audit), cursor === 0 || state === 'unknown' && cursor === null ? undefined : /initialization observation cursor/);
++  }
++});
++
++test('revision: retained public index and request delivery guards remain exact for both owners', () => {
++  for (const [owner, property, cursor] of [['p1','item',4],['p2','roster_species',6]]) {
++    const replay = load('replay-full.json');
++    const fact = replay.tables.fact.find((f: Row) => f.owner === owner && f.property === property && f.freshness === 'immutable');
++    assert.equal(fact.observed_at,cursor); revisionCheck(replay);
++    fact.observed_at = 99; revisionCheck(reseal(replay),/observation cursor/);
++    const sim = load('sim-full.json');
++    const requestFact = sim.tables.fact.find((f: Row) => f.owner === owner && f.property === 'maybe_trapped' && f.state === 'known');
++    assert.equal(requestFact.observed_at,3); revisionCheck(sim);
++    requestFact.observed_at = 99; revisionCheck(reseal(sim),/request observation cursor/);
++  }
++});
++
++test('revision: 31/32/33 containers are leaf-independent in parser, canonicalizer and raw requests', () => {
++  for (const count of [31,32,33]) for (const style of ['array','object','mixed']) for (const leaf of ['empty',0,false,null,'scalar']) {
++    const value = revisionNested(count,style,leaf), wire = literalCanonical(value), before = literalCanonical(value);
++    if (count <= 32) {
++      assert.deepEqual(parseKnowledgeJson(Buffer.from(wire)), value); assert.equal(canonicalKnowledgeJson(value).toString(),wire);
++    } else {
++      assert.throws(() => parseKnowledgeJson(wire), /depth/); assert.throws(() => canonicalKnowledgeJson(value), /depth/);
++    }
++    assert.equal(literalCanonical(value),before);
++    const audit = load('sim-full.json');
++    audit.tables.source.find((s: Row) => s.raw_request !== null).raw_request.json = wire;
++    revisionCheck(reseal(audit), count <= 32 ? undefined : /depth/);
++  }
++});
++
++test('revision: compiled TS bytes and resealed attacks reach clean Python CLI without encoding overrides', () => {
++  const invoke = (wire: Buffer) => spawnSync(pythonExecutable(), ['-m','neural.perspective_knowledge','--check-structure'], {
++    input:wire, env:pythonEnvironment(), encoding:'utf8', maxBuffer:1024*1024, timeout:30000,
++  });
++  const failures = new Set<string>();
++  for (const owner of ['p1','p2']) for (const form of ['full','ordinary','compact']) {
++    const good = revisionCrosswalk(owner,form), before = literalCanonical(good);
++    const result = invoke(serializeKnowledgeWire(good)); assert.ifError(result.error);
++    assert.equal(result.status,0,result.stderr); assert.deepEqual(JSON.parse(result.stdout),diagnostic); assert.equal(result.stderr,'');
++    assert.equal(literalCanonical(good),before);
++    const expanded = tables(good), start = expanded.starting.find(s => s.owner === owner && s.crosswalk.length)!;
++    const cross = start.crosswalk[0], cert = expanded.certificate.find(c => c.id === cross.certificate)!;
++    cross.roster = cert.subject = (owner === 'p1' ? 'p2' : 'p1') + ':roster:1'; reseal(good); assertSealed(good);
++    const failed = invoke(Buffer.from(literalCanonical(good))); assert.equal(failed.status,2); assert.equal(failed.stdout,''); failures.add(failed.stderr);
++  }
++  for (const owner of ['p1','p2']) {
++    const audit = load('sim-full.json'); audit.tables.fact.find((f: Row) => f.owner === owner && f.freshness === 'immutable').observed_at = 99;
++    reseal(audit); assertSealed(audit); const failed = invoke(Buffer.from(literalCanonical(audit)));
++    assert.equal(failed.status,2); assert.equal(failed.stdout,''); failures.add(failed.stderr);
++  }
++  for (const count of [32,33]) {
++    const audit = load('sim-full.json'); audit.tables.source.find((s: Row) => s.raw_request !== null).raw_request.json = '['.repeat(count)+']'.repeat(count);
++    reseal(audit); assertSealed(audit);
++    const result = invoke(count === 32 ? serializeKnowledgeWire(audit) : Buffer.from(literalCanonical(audit)));
++    assert.equal(result.status,count === 32 ? 0 : 2);
++    if (count === 32) assert.deepEqual(JSON.parse(result.stdout),diagnostic);
++    else {assert.equal(result.stdout,''); failures.add(result.stderr);}
++  }
++  assert.deepEqual([...failures], ['knowledge structure check failed' + (process.platform === 'win32' ? '\r\n' : '\n')]);
++});
+--- candidate-before/trainer/tests/test_perspective_knowledge.py
++++ candidate-after/trainer/tests/test_perspective_knowledge.py
+@@ -519,5 +519,131 @@
+         self.assertEqual(result.stdout, b"")
+ 
+ 
++
++def revision_form(audit, form):
++    audit['form'] = form
++    reseal(audit)
++    if form == 'compact':
++        audit['tables'] = {kind: {row['id']: row for row in rows}
++                           for kind, rows in audit['tables'].items()}
++        audit['id'] = independent_id(audit)
++    return audit
++
++
++def revision_crosswalk(owner, form):
++    audit = fixture('replay-full.json')
++    if owner == 'p1':
++        start = next(s for s in audit['tables']['starting'] if s['owner'] == owner)
++        cert = copy.deepcopy(next(c for c in audit['tables']['certificate'] if c['owner'] == owner))
++        cert['property'] = 'identity_reveal'
++        cert['id'] = independent_id(cert)
++        audit['tables']['certificate'].append(cert)
++        start['crosswalk'] = [{'appearance': 'p1:appearance:1', 'roster': 'p1:roster:1', 'certificate': cert['id']}]
++    return revision_form(audit, form)
++
++
++def revision_nested(count, style, leaf):
++    # Count the terminal empty container too; scalar leaves add no container.
++    value = [] if style != 'object' else {}
++    if leaf != 'empty': value = [leaf] if style != 'object' else {'x': leaf}
++    for index in range(1, count):
++        value = {'x': value} if style == 'object' or style == 'mixed' and index % 2 else [value]
++    return value
++
++
++class KnowledgeRevisionTests(unittest.TestCase):
++    def assert_sealed_immutable(self, audit, guard=None):
++        self.assertEqual(audit['id'], independent_id(audit))
++        for rows in audit['tables'].values():
++            for row in rows if isinstance(rows, list) else rows.values():
++                self.assertEqual(row['id'], independent_id(row))
++        before = independent_canonical(audit)
++        if guard:
++            with self.assertRaisesRegex(ValueError, guard): check_knowledge_structure(audit)
++            with self.assertRaisesRegex(ValueError, guard): serialize_knowledge_wire(audit)
++        else:
++            self.assertEqual(check_knowledge_structure(audit), DIAGNOSTIC)
++            self.assertEqual(check_knowledge_structure(parse_knowledge_json(serialize_knowledge_wire(audit))), DIAGNOSTIC)
++        self.assertEqual(independent_canonical(audit), before)
++
++    def test_owner_crosswalk_mirrors_forms_and_exact_certificate_joins(self):
++        for owner in ('p1', 'p2'):
++            for form in ('full', 'ordinary', 'compact'):
++                with self.subTest(owner=owner, form=form):
++                    self.assert_sealed_immutable(revision_crosswalk(owner, form))
++                    audit = revision_crosswalk(owner, 'full')
++                    start = next(s for s in audit['tables']['starting'] if s['owner'] == owner and s['crosswalk'])
++                    cross = start['crosswalk'][0]
++                    cert = next(c for c in audit['tables']['certificate'] if c['id'] == cross['certificate'])
++                    cross['roster'] = cert['subject'] = ('p2' if owner == 'p1' else 'p1') + ':roster:1'
++                    self.assert_sealed_immutable(revision_form(audit, form), 'crosswalk owner')
++            for field in ('appearance', 'subject', 'owner', 'source'):
++                audit = revision_crosswalk(owner, 'full')
++                start = next(s for s in audit['tables']['starting'] if s['owner'] == owner and s['crosswalk'])
++                cross = start['crosswalk'][0]
++                cert = next(c for c in audit['tables']['certificate'] if c['id'] == cross['certificate'])
++                if field == 'appearance': cross[field] = ('p2' if owner == 'p1' else 'p1') + ':appearance:1'
++                elif field == 'subject': cert[field] = owner + ':roster:2'
++                elif field == 'owner': cert[field] = 'p2' if owner == 'p1' else 'p1'
++                else:
++                    source = copy.deepcopy(audit['tables']['source'][0]); source['records'][0] = '|turn|1'
++                    source['id'] = independent_id(source); audit['tables']['source'].append(source); cert[field] = source['id']
++                    witnesses = []
++                    for ident in cert['witnesses']:
++                        witness = copy.deepcopy(next(e for e in audit['tables']['evidence'] if e['id'] == ident))
++                        witness['source'] = source['id']; witness['id'] = independent_id(witness)
++                        audit['tables']['evidence'].append(witness); witnesses.append(witness['id'])
++                    cert['witnesses'] = witnesses
++                reseal(audit)
++                self.assert_sealed_immutable(audit, 'crosswalk owner|certificate witness|crosswalk certificate source')
++
++    def test_initialization_known_absent_unknown_delivery_cursor_both_owners(self):
++        for owner in ('p1', 'p2'):
++            for state in ('known', 'known_absent', 'unknown'):
++                for cursor in (0, None, 99):
++                    with self.subTest(owner=owner, state=state, cursor=cursor):
++                        audit = fixture('sim-full.json')
++                        fact = next(f for f in audit['tables']['fact'] if f['owner'] == owner and f['freshness'] == 'immutable')
++                        fact['state'] = state; fact['observed_at'] = cursor
++                        if state != 'known': fact.update(value=None, precision='not_applicable', reason='none' if state == 'known_absent' else 'missing_original_authority')
++                        reseal(audit)
++                        self.assert_sealed_immutable(audit, None if cursor == 0 or state == 'unknown' and cursor is None else 'initialization observation cursor')
++
++    def test_retained_public_index_and_request_delivery_guards(self):
++        for owner, prop, cursor in (('p1', 'item', 4), ('p2', 'roster_species', 6)):
++            audit = fixture('replay-full.json')
++            fact = next(f for f in audit['tables']['fact'] if f['owner'] == owner and f['property'] == prop and f['freshness'] == 'immutable')
++            self.assertEqual(fact['observed_at'], cursor)
++            self.assert_sealed_immutable(audit)
++            fact['observed_at'] = 99; reseal(audit)
++            self.assert_sealed_immutable(audit, 'observation cursor')
++            audit = fixture('sim-full.json')
++            fact = next(f for f in audit['tables']['fact'] if f['owner'] == owner and f['property'] == 'maybe_trapped' and f['state'] == 'known')
++            self.assertEqual(fact['observed_at'], 3)
++            self.assert_sealed_immutable(audit)
++            fact['observed_at'] = 99; reseal(audit)
++            self.assert_sealed_immutable(audit, 'request observation cursor')
++
++    def test_exact_container_limit_parser_canonical_and_resealed_raw_request(self):
++        for count in (31, 32, 33):
++            for style in ('array', 'object', 'mixed'):
++                for leaf in ('empty', 0, False, None, 'scalar'):
++                    with self.subTest(count=count, style=style, leaf=leaf):
++                        value = revision_nested(count, style, leaf)
++                        wire = independent_canonical(value); before = copy.deepcopy(value)
++                        if count <= 32:
++                            self.assertEqual(parse_knowledge_json(wire), value)
++                            self.assertEqual(canonical_knowledge_json(value), wire)
++                        else:
++                            with self.assertRaisesRegex(ValueError, 'depth'): parse_knowledge_json(wire)
++                            with self.assertRaisesRegex(ValueError, 'depth'): canonical_knowledge_json(value)
++                        self.assertEqual(value, before)
++                        audit = fixture('sim-full.json')
++                        source = next(s for s in audit['tables']['source'] if s['raw_request'] is not None)
++                        source['raw_request']['json'] = wire.decode('utf-8'); reseal(audit)
++                        self.assert_sealed_immutable(audit, None if count <= 32 else 'depth')
++
++
++
+ if __name__ == "__main__":
+     unittest.main()

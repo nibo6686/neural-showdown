@@ -1,0 +1,8 @@
+{
+  "command": [
+    "node",
+    "-e",
+    "const assert=require('node:assert/strict');const {PipelineIntegrationSession:S}=require('./sim-core/dist/src/pipeline_integration');(async()=>{const s=await S.create({battle_id:'prompt25-red',format:'gen9randombattle',seed:[1,2,3,4]});try{assert.equal(typeof s.getRequestDeliveryHandle,'function','actual session lacks committed owner delivery ledger');}finally{await s.close();}})().catch(e=>{console.error(e);process.exitCode=1});"
+  ],
+  "exit": 1
+}

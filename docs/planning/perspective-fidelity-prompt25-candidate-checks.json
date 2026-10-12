@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "warning: LF will be replaced by CRLF in docs/contracts/BELIEF_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/DATASET_LINEAGE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/OBSERVABLE_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/PIPELINE_EPISODE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in sim-core/tests/public_consequence_test_helpers.ts.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in trainer/src/neural/compare_action_rankers.py.\nThe file will have its original line endings in your working directory\n"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "docs\\planning\\perspective-fidelity-prompt25-before-pipeline_integration.txt",
+      "sim-core/src/pipeline_integration.ts"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "apply",
+      "--numstat",
+      "docs\\planning\\perspective-fidelity-prompt25-candidate.diff"
+    ],
+    "exit": 0,
+    "stdout": "31\t4\tsim-core/src/pipeline_integration.ts\n140\t0\tsim-core/src/request_delivery_ledger.ts\n361\t0\tsim-core/tests/request_delivery_ledger.test.ts\n32\t0\tdocs/planning/perspective-fidelity-prompt25-api.md\n21\t0\tdocs/planning/perspective-fidelity-prompt25-matrix.md\n9\t0\tdocs/planning/perspective-fidelity-prompt25-review.md\n44\t0\tdocs/planning/perspective-fidelity-prompt25-report.md\n3\t0\tdocs/planning/perspective-fidelity-prompt25-progress.md\n20\t0\tdocs/planning/perspective-fidelity-prompt25-validate.py\n3\t0\tdocs/planning/perspective-fidelity-prompt25-wire.cjs\n59\t0\tdocs/planning/perspective-fidelity-prompt25-witnesses.cjs\n",
+    "stderr": ""
+  }
+]

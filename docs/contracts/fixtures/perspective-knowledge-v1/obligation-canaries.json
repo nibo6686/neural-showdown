@@ -1,0 +1,4531 @@
+{
+  "scope": "Selected-property structural expansion only; all audit/profile aggregate verdicts remain incomplete",
+  "positive": [
+    {
+      "case": "p1-two-roster-two-move-effects",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:957ddaf7b7aedecde4e916863ff2c7459918feb4ee7dd8610b458219cf7b0273"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a4eafb15467c39b1f61afd656c395914fdd0e4d5efd9c55249fb1dad6a9c082b"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:61b71e8ee928077d33b3bb139f38823b31ce57cceef7edc1a61b294ca33eb816"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e73459843271d8483eabfb097c0e7f950956e51764ef414d25255280cc5f5a80"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5d964fb26f9f4d1a0f02c1d1bbada33724558a31c9ecda6f6aa8bcb4efe36826"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "accept"
+    },
+    {
+      "case": "p2-two-roster-two-move-effects",
+      "owner": "p2",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5ee778ad334dd72a1e5839e848c05b1a0c33047685e7557a0a18ed9acb317e99"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:92a4707deb4cbed1219c3c775d42b13b9d43085eead49d3748f71ff8526fe192"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:9a0954e09a3466c6d30760fa7bcee735ed40d03c396c0e619e0aac5872b033a8"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:818b9d24a81d1defef79c6ce9f11f52ac25f208ac2438988358b79667bc5e34d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:669d77a0291d6fcf336b3a53adcffe7b14f20a072e9615c3ba9a7dc299c61427"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:27390bc42e77375aa4944bdaf16c9b5ff819f59d9b19d9657be4c276ece3cfef"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:c30bd7d77b04045778ad7dc5b1cfbb2ea17417e027fc86323feab74d45d07d34"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:192f966f0c5059aa2947846843f57f730216e486f6fc96a3c09c22d0938c42ae"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e5ec074496771892305dd584b764fdfc29bc2c34d84499f68c2a909d752f2d30"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:333b76b6eeafe02696b065839ba49142398bfe2aa033bc3519a0904de20471df"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3ee37db3d0821ae9ef42bd0ad0e5a50eed0af2365471096440a4d0869137a7ae"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1508b970d89f3e5e77c7b4aa64cf8a8998cdda09074bb70c99b1b431ecf0d870"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:71f4d2681544fc66027ec3cf12fdf8161fccf1cfcfd57307db860aff263ec486"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e6829d58d8023097c0bfb6e2f4be07977d70e9877a998f332469bfa80ee0cf1c"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:9efd5ce2eb9d5b0d0f11d3369f45c2434dae2dfce87c44d878bec1d5b06b816f"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:38579e5e9403e95c44ab51921051d5b44621b6330adf846c23ed00188e6649d5"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:2d2d32b22a7482af4203cdfc87d397b871bcf3ee08fc7025b490c0d71d5e95f3"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:c17fe0f8b36bc4e5b0d417e00773c2002f7fc0ff55760b41e483a00508108c4a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:84abf51dbc0884b2a636ba374471dc7f36d04ea4ed9fdc070611f8e09e7499e4"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:cd1b43ebb9e389dfcaf009c13d4de28b230b92f04290bca30988999de6018b10"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:2d80a2ceefbf4554a6de19e3aa6fc9dd1fd836d6c55fbed0c10809f6fbc80f72"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p1:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:6f4a5c972856e3dae1500cd10b1b67b1f01b037b2e1f6d06803dec0a79d0d059"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e5ec074496771892305dd584b764fdfc29bc2c34d84499f68c2a909d752f2d30"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:333b76b6eeafe02696b065839ba49142398bfe2aa033bc3519a0904de20471df"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:71f4d2681544fc66027ec3cf12fdf8161fccf1cfcfd57307db860aff263ec486"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e6829d58d8023097c0bfb6e2f4be07977d70e9877a998f332469bfa80ee0cf1c"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p2",
+            "subject": "p2:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:18e60691c36e8209866911adfdf678bed2589e992be39fced330f74c0c56f169"
+          }
+        }
+      ],
+      "expected": "accept"
+    }
+  ],
+  "negative": [
+    {
+      "case": "erased-roster2",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e73459843271d8483eabfb097c0e7f950956e51764ef414d25255280cc5f5a80"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5d964fb26f9f4d1a0f02c1d1bbada33724558a31c9ecda6f6aa8bcb4efe36826"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "coverage missing subject"
+    },
+    {
+      "case": "erased-move2",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:957ddaf7b7aedecde4e916863ff2c7459918feb4ee7dd8610b458219cf7b0273"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e73459843271d8483eabfb097c0e7f950956e51764ef414d25255280cc5f5a80"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5d964fb26f9f4d1a0f02c1d1bbada33724558a31c9ecda6f6aa8bcb4efe36826"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "coverage missing subject"
+    },
+    {
+      "case": "erased-effect2",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:957ddaf7b7aedecde4e916863ff2c7459918feb4ee7dd8610b458219cf7b0273"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a4eafb15467c39b1f61afd656c395914fdd0e4d5efd9c55249fb1dad6a9c082b"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:61b71e8ee928077d33b3bb139f38823b31ce57cceef7edc1a61b294ca33eb816"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "coverage missing subject"
+    },
+    {
+      "case": "missing-roster2-property",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a4eafb15467c39b1f61afd656c395914fdd0e4d5efd9c55249fb1dad6a9c082b"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:61b71e8ee928077d33b3bb139f38823b31ce57cceef7edc1a61b294ca33eb816"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e73459843271d8483eabfb097c0e7f950956e51764ef414d25255280cc5f5a80"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5d964fb26f9f4d1a0f02c1d1bbada33724558a31c9ecda6f6aa8bcb4efe36826"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "coverage missing property"
+    },
+    {
+      "case": "wrong-context",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:957ddaf7b7aedecde4e916863ff2c7459918feb4ee7dd8610b458219cf7b0273"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a4eafb15467c39b1f61afd656c395914fdd0e4d5efd9c55249fb1dad6a9c082b"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:61b71e8ee928077d33b3bb139f38823b31ce57cceef7edc1a61b294ca33eb816"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a04f054beebd9d4651a5d949d65645d06d75df4370fd9c5bf08fd1d1a24257ff"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e73459843271d8483eabfb097c0e7f950956e51764ef414d25255280cc5f5a80"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "Spikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a58309c60b83700d6d3e9202867f73d4a8ed6a51da29c574d2754fa565f2613a"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": "ToxicSpikes",
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5d964fb26f9f4d1a0f02c1d1bbada33724558a31c9ecda6f6aa8bcb4efe36826"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "property context"
+    },
+    {
+      "case": "collection-sentinel-not-members",
+      "owner": "p1",
+      "profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "aggregate": "incomplete",
+      "selected": {
+        "original": [
+          "roster_species",
+          "starting_moves"
+        ],
+        "current": [
+          "party_position",
+          "current_moves",
+          "pp",
+          "max_pp",
+          "side_condition_layers",
+          "weather",
+          "pending_power"
+        ],
+        "request": [
+          "pp",
+          "max_pp",
+          "maybe_trapped"
+        ]
+      },
+      "facts": [
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:bc248658282df4811b78de2255c32ebe082446870229d724e2f83dcc2d1e7667"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "roster_species",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "text",
+              "data": "Pikachu"
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:e3f389251e6059f0e0d0f8c015664b241267e80b7580b9666546da0ef8788150"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:5dc4c41cafe11dc6b450b06c0269871750f8795678f1433cb72c498d90a42204"
+          }
+        },
+        {
+          "context": "original",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "starting_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "immutable",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f48fde0726e25ca77560fc4fb0327d876211dfaf42c2f3821ae2dd399e016462"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:470a3fda12670a44e195daf0f4b25c2f898a8b753b311fec5ee6c1b06b97fde0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K01",
+            "property": "party_position",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "integer",
+              "data": 1
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f2018fb7d634238cb56a88aa8807706a4f6a7d084f412a603b0433377958ab12"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:8dd45aaa0adf79898673df2c696451e7bdfa6eebe1d60b17f405e6288a2528f0"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2",
+            "family": "K02",
+            "property": "current_moves",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "texts",
+              "data": [
+                "Tackle",
+                "Protect"
+              ]
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:957ddaf7b7aedecde4e916863ff2c7459918feb4ee7dd8610b458219cf7b0273"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:3692bcd14262e986a4adb102180dc825da96abf95a50c7eb2f80b3832bc30a3d"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:a4eafb15467c39b1f61afd656c395914fdd0e4d5efd9c55249fb1dad6a9c082b"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:673f67c61eae419b7e2ef31d5acc026e46ef795facb058902ae86e7220539154"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:2:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:61b71e8ee928077d33b3bb139f38823b31ce57cceef7edc1a61b294ca33eb816"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K14",
+            "property": "weather",
+            "effect_key": "RainDance",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:1baf3ba0aa1a0ea6b2602f503496613ff27392af6cd225ce3cf5f85ff90ba9a1"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p2:side",
+            "family": "K15",
+            "property": "pending_power",
+            "effect_key": "FutureSight",
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:492a93318ab9e60ab1dc609a75840c943ddcc4be8552ab0f65cb92c8c0b2b919"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:32fbdf3993639d00bb6ea50e6a5a7b281094d712a49c060b03c1b7d8f2d8fdd6"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:0a6e1a5196ed1acc1e9a1a92adc569c8bee5add727d8a4a12cef1175192d0abc"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:1:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:f72d4232de97a3a32a8753b5294a6205f5eb2258ccf75fa66eb0ec200f0f56ab"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1:move:2:incarnation:0",
+            "family": "K07",
+            "property": "max_pp",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "not_emitted",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:317bfb276953dac558ae0a7d79cb4e361adb052725d8183d6da30de8a891812e"
+          }
+        },
+        {
+          "context": "request",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:roster:1",
+            "family": "K08",
+            "property": "maybe_trapped",
+            "effect_key": null,
+            "state": "known",
+            "value": {
+              "type": "boolean",
+              "data": false
+            },
+            "reason": "none",
+            "freshness": "current",
+            "precision": "exact",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:56a72b6d29fd12fa1d9b19eb318a68a96a338e3a7455c1e1b9cc60d958e340c5"
+          }
+        },
+        {
+          "context": "current",
+          "fact": {
+            "kind": "fact",
+            "owner": "p1",
+            "subject": "p1:side",
+            "family": "K13",
+            "property": "side_condition_layers",
+            "effect_key": null,
+            "state": "unknown",
+            "value": null,
+            "reason": "unimplemented_family",
+            "freshness": "current",
+            "precision": "not_applicable",
+            "observed_at": null,
+            "evidence": [],
+            "certificate": null,
+            "id": "sha256:727879156582c48a2ea34ac1738f791d877d28dbcf6eb2aba789690408f19652"
+          }
+        }
+      ],
+      "expected": "reject",
+      "rejection_code": "coverage missing subject"
+    }
+  ]
+}

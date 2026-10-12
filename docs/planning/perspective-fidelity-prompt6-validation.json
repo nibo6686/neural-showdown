@@ -1,0 +1,162 @@
+[
+  {
+    "command": "D:/Anaconda/envs/neuralgpu/python.exe -m pytest trainer/tests/test_pipeline_record.py -q --tb=no -k \"ce04d1 or ce04d2 or ce04e1 or ce04e2 or ce04e3\"",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 1,
+    "counts": "130 failure entries, 3 main tests passed, 256 subtests passed",
+    "seconds": 2.92,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-red-python.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "node --test --test-isolation=none --test-reporter=spec --test-name-pattern=\"Python identity canonicalization\" dist/tests/record_identity.test.js",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "exit_code": 1,
+    "counts": "0/1 passed; Unicode deepStrictEqual mismatch",
+    "seconds": 0.266789,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-red-scalar.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "../trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "D:/Anaconda/envs/neuralgpu/python.exe -m pytest trainer/tests/test_pipeline_record.py -q --tb=short -k \"ce04d1 or ce04d2 or ce04e1 or ce04e2 or ce04e3 or ce04_field_fixture\"",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 0,
+    "counts": "6 passed, 464 subtests passed (80 new semantic controls)",
+    "seconds": 4.21,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-green-fixtures.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "D:/Anaconda/envs/neuralgpu/python.exe -m pytest trainer/tests/test_pipeline_record.py -q --tb=short -k \"ce04_callback_a_ability_templates or rehashed_singleturn_and_singlemove\"",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 0,
+    "counts": "2 passed, 576 subtests passed",
+    "seconds": 5.03,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-prompt1.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "D:/Anaconda/envs/neuralgpu/python.exe -m pytest trainer/tests/test_pipeline_record.py trainer/tests/test_dataset_lineage.py trainer/tests/test_typed_state.py -q --tb=short",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 0,
+    "counts": "63 passed, 4944 subtests passed",
+    "seconds": 26.15,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-record-lineage-typed.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "node --test --test-isolation=none --test-reporter=spec --test-name-pattern=\"Python identity canonicalization\" dist/tests/record_identity.test.js",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "exit_code": 0,
+    "counts": "1/1 passed",
+    "seconds": 0.3194269,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-green-scalar.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "../trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "node --test --test-isolation=none --test-reporter=spec dist/tests/record_identity.test.js dist/tests/belief_state.test.js",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "exit_code": 0,
+    "counts": "15/15 passed",
+    "seconds": 51.3277865,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-identity-belief.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "../trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "node --test --test-isolation=none --test-reporter=spec dist/tests/pipeline_utf8_transport.test.js",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "exit_code": 0,
+    "counts": "3/3 passed",
+    "seconds": 2.8760678,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-utf8.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "../trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "D:/Anaconda/envs/neuralgpu/python.exe -m pytest trainer/tests/test_perspective_field_semantics.py -q --tb=short",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 0,
+    "counts": "7 passed, 30 subtests passed",
+    "seconds": 6.75,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-python-field.log",
+    "environment": {
+      "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+      "PYTHONPATH": "trainer/src",
+      "PYTHONUTF8": null,
+      "PYTHONIOENCODING": null
+    }
+  },
+  {
+    "command": "npm run build",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "exit_code": 0,
+    "counts": "tsc completed",
+    "seconds": 6.7386627,
+    "timeouts": 0,
+    "log": "docs/planning/perspective-fidelity-prompt6-build.log",
+    "environment": {}
+  },
+  {
+    "command": "git diff --check",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "exit_code": 0,
+    "timeouts": 0
+  },
+  {
+    "supplemental_probe": "Node spawnSync Python environment inspection",
+    "initial_exit_code": 1,
+    "initial_error": "PowerShell stripped JS argument quotes before node -e; no Python child started",
+    "corrected_command": "PowerShell ASCII here-string piped to node -; spawnSync(process.env.PYTHON, [\"-c\", code], {encoding:\"utf8\",env:process.env})",
+    "corrected_exit_code": 0,
+    "environment_log": "docs/planning/perspective-fidelity-prompt6-environment.log",
+    "timeouts": 0
+  }
+]

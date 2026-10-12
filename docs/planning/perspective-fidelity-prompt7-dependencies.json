@@ -1,0 +1,274 @@
+{
+  "boundary": "Prompt 7 / M01, independent review pending",
+  "file_list_before_count": 121,
+  "file_list_after_count": 137,
+  "added": [
+    {
+      "manifest_path": "../trainer/src/neural/pipeline_json_wire.py",
+      "repo_path": "trainer/src/neural/pipeline_json_wire.py",
+      "role": "Byte-based JSON ingress and explicit UTF-8 diagnostics",
+      "direct_importer_or_caller": "trainer/src/neural/pipeline_record.py; sim-core/tests/{pipeline_episode,record_identity,pipeline_utf8_transport,perspective_field_semantics}.test.ts",
+      "sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "evidence": "Prompt 2 lead review"
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_field.py",
+      "repo_path": "trainer/src/neural/public_field.py",
+      "role": "Python retained-public-field semantic guard",
+      "direct_importer_or_caller": "trainer/src/neural/typed_state.py; trainer/tests/test_perspective_field_semantics.py",
+      "sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "evidence": "Prompt 5 lead review"
+    },
+    {
+      "manifest_path": "src/public_field.ts",
+      "repo_path": "sim-core/src/public_field.ts",
+      "role": "TypeScript retained-public-field semantic guard",
+      "direct_importer_or_caller": "sim-core/src/observable_state.ts; sim-core/src/belief_state.ts",
+      "sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "evidence": "Prompt 5 lead review"
+    },
+    {
+      "manifest_path": "tests/pipeline_utf8_transport.test.ts",
+      "repo_path": "sim-core/tests/pipeline_utf8_transport.test.ts",
+      "role": "Real Node/Python transport and publication regression",
+      "direct_importer_or_caller": "Node test runner; direct neural.pipeline_record and identity subprocesses",
+      "sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "evidence": "Prompt 2 lead review and Prompt 6 regression evidence"
+    },
+    {
+      "manifest_path": "tests/perspective_field_semantics.test.ts",
+      "repo_path": "sim-core/tests/perspective_field_semantics.test.ts",
+      "role": "Actual TS/Python ordinary/full/envelope/compact field regression",
+      "direct_importer_or_caller": "Node test runner; actual pipeline modules and Python CLI",
+      "sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "evidence": "Prompt 5 lead review/matrix; Prompt 4 source fixtures"
+    },
+    {
+      "manifest_path": "../trainer/tests/test_perspective_field_semantics.py",
+      "repo_path": "trainer/tests/test_perspective_field_semantics.py",
+      "role": "Python ordinary publication/field-schema regression",
+      "direct_importer_or_caller": "pytest; neural.pipeline_record API and subprocess CLI; imports test_pipeline_record._bundle/_seal_bundle",
+      "sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "evidence": "Prompt 5 lead review; Prompt 6 current regression"
+    },
+    {
+      "manifest_path": "../docs/contracts/OBSERVABLE_STATE.md",
+      "repo_path": "docs/contracts/OBSERVABLE_STATE.md",
+      "role": "Existing field admission contract clarified by accepted repair",
+      "direct_importer_or_caller": "Prompt 5 implementation/review semantic reference; no runtime doc importer",
+      "sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247",
+      "evidence": "Prompt 5 lead review"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json",
+      "role": "Preserved independent source truth/resealed false-state input",
+      "direct_importer_or_caller": "sim-core/tests/perspective_field_semantics.test.ts:322 (ledgers) or :368 (reproductions); trainer/tests/test_perspective_field_semantics.py:25/49 (reproductions only)",
+      "sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee",
+      "evidence": "Prompt 4 source proof and Prompt 5 accepted matrix"
+    }
+  ],
+  "removed": [],
+  "accepted_deltas_verified": {
+    "sim-core/src/belief_state.ts": {
+      "expected_sha256": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec",
+      "manifest_path": "src/belief_state.ts",
+      "listed": true
+    },
+    "sim-core/src/observable_state.ts": {
+      "expected_sha256": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4",
+      "manifest_path": "src/observable_state.ts",
+      "listed": true
+    },
+    "sim-core/tests/perspective_field_semantics.test.ts": {
+      "expected_sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "manifest_path": "tests/perspective_field_semantics.test.ts",
+      "listed": true
+    },
+    "sim-core/src/public_field.ts": {
+      "expected_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "manifest_path": "src/public_field.ts",
+      "listed": true
+    },
+    "trainer/src/neural/public_field.py": {
+      "expected_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "manifest_path": "../trainer/src/neural/public_field.py",
+      "listed": true
+    },
+    "docs/contracts/OBSERVABLE_STATE.md": {
+      "expected_sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247",
+      "manifest_path": "../docs/contracts/OBSERVABLE_STATE.md",
+      "listed": true
+    },
+    "trainer/src/neural/pipeline_record.py": {
+      "expected_sha256": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c",
+      "manifest_path": "../trainer/src/neural/pipeline_record.py",
+      "listed": true
+    },
+    "trainer/src/neural/typed_state.py": {
+      "expected_sha256": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd",
+      "manifest_path": "../trainer/src/neural/typed_state.py",
+      "listed": true
+    },
+    "trainer/tests/test_perspective_field_semantics.py": {
+      "expected_sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "review": "perspective-fidelity-prompt5-lead-review.md",
+      "validation": "perspective-fidelity-prompt5-matrix.md",
+      "current_sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "manifest_path": "../trainer/tests/test_perspective_field_semantics.py",
+      "listed": true
+    },
+    "trainer/tests/test_pipeline_record.py": {
+      "expected_sha256": "7dabb2b46c0031461bc9d2eff059f747dec350311639b5f4e434068ecee3fbe2",
+      "review": "perspective-fidelity-prompt6-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json",
+      "current_sha256": "7dabb2b46c0031461bc9d2eff059f747dec350311639b5f4e434068ecee3fbe2",
+      "manifest_path": "../trainer/tests/test_pipeline_record.py",
+      "listed": true
+    },
+    "sim-core/tests/record_identity.test.ts": {
+      "expected_sha256": "0f3ff11a0f0e2b9a93a99404275cc42efa5c94c3541ca4c5a6fd8affc3870324",
+      "review": "perspective-fidelity-prompt6-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json",
+      "current_sha256": "0f3ff11a0f0e2b9a93a99404275cc42efa5c94c3541ca4c5a6fd8affc3870324",
+      "manifest_path": "tests/record_identity.test.ts",
+      "listed": true
+    },
+    "README.md": {
+      "expected_sha256": "927dbda9329216d48ce9ed513037de59593662c2d800153d5f6503210a26ba5b",
+      "review": "perspective-fidelity-prompt2-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json (matching-source transport 3/3)",
+      "current_sha256": "927dbda9329216d48ce9ed513037de59593662c2d800153d5f6503210a26ba5b",
+      "manifest_path": "../README.md",
+      "listed": true
+    },
+    "trainer/src/neural/pipeline_json_wire.py": {
+      "expected_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "review": "perspective-fidelity-prompt2-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json (matching-source transport 3/3)",
+      "current_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "manifest_path": "../trainer/src/neural/pipeline_json_wire.py",
+      "listed": true
+    },
+    "sim-core/tests/pipeline_episode.test.ts": {
+      "expected_sha256": "bfd64c021d53901748a02e2e7941e2f45dcbf31d627275ed086a8fa97376c49a",
+      "review": "perspective-fidelity-prompt2-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json (matching-source transport 3/3)",
+      "current_sha256": "bfd64c021d53901748a02e2e7941e2f45dcbf31d627275ed086a8fa97376c49a",
+      "manifest_path": "tests/pipeline_episode.test.ts",
+      "listed": true
+    },
+    "sim-core/tests/pipeline_utf8_transport.test.ts": {
+      "expected_sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "review": "perspective-fidelity-prompt2-lead-review.md",
+      "validation": "perspective-fidelity-prompt6-validation.json (matching-source transport 3/3)",
+      "current_sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "manifest_path": "tests/pipeline_utf8_transport.test.ts",
+      "listed": true
+    }
+  },
+  "candidate_sha256": "8879baab101f4981ee3412f89faf5a8d13996975f5844503083f30ed90ee242b",
+  "reviewed_sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+  "nonowned_manifest_literal_text_preserved": true,
+  "prior_evidence_reuse": [
+    "Prompt 2 transport acceptance",
+    "Prompt 5 200-call matrix and lead review",
+    "Prompt 6 regression evidence and fresh lead review"
+  ],
+  "limitations": [
+    "No new semantic classification or source/format identity change",
+    "No scoped attestation refreshed; live checker must fail pending independent review",
+    "Broader state/owner/replay knowledge and fidelity gaps excluded",
+    "No planning logs registered; only nine directly read original Prompt 4 JSON files",
+    "Historical invocation limitations and exclusions remain as recorded"
+  ],
+  "other_dependency_omissions_found": []
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "PK-02A strict parsing, identity, schema and structural joins only",
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "encoding_overrides_in_children": {"PYTHONUTF8": null, "PYTHONIOENCODING": null},
+  "python": "D:/Anaconda/envs/neuralgpu/python.exe",
+  "pythonpath": "trainer/src (absolute in CLI test children)",
+  "commands": [
+    {"cwd": "sim-core", "argv": ["npm", "run", "build"], "exit_code": 0},
+    {"cwd": ".", "argv": ["D:/Anaconda/envs/neuralgpu/python.exe", "-m", "unittest", "trainer.tests.test_perspective_knowledge"], "exit_code": 0, "tests": 21, "failures": 0, "errors": 0, "duration_seconds": 11.517},
+    {"cwd": "sim-core", "env": {"PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe"}, "argv": ["node", "--test", "--test-reporter=tap", "dist/tests/perspective_knowledge.test.js"], "exit_code": 0, "tests": 54, "passed": 54, "failed": 0, "skipped": 0, "duration_seconds": 9.1076406},
+    {"cwd": ".", "argv": ["D:/Anaconda/envs/neuralgpu/python.exe", "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"], "exit_code": 0, "positive": 26, "negative": 43, "identity_vectors": 16, "representation_positive": 13, "representation_negative": 14, "coverage_positive": 2, "coverage_negative": 6},
+    {"cwd": ".", "argv": ["git", "diff", "--check"], "exit_code": 0},
+    {"cwd": ".", "argv": ["D:/Anaconda/envs/neuralgpu/python.exe", "docs/planning/perspective-fidelity-prompt11-check-candidate.py"], "exit_code": 0, "protected_unchanged": 1088, "owned_candidate_files": 4, "direct_whitespace_checks": 4, "paired_differential_cases": 69, "positive_structure_pass": 26, "negative_structure_reject": 37, "semantic_or_assurance_unverified": 6}
+  ],
+  "strict_ingress": ["UTF8/BOM", "duplicate decoded keys", "lone surrogates", "nonfinite values", "fraction/exponent/negative-zero lexemes", "bounded raw_request nested JSON", "ASCII outer keys", "object cycles/types/array descriptors", "depth/size/container/scalar limits"],
+  "identity": "16 frozen independent preimages, literal all-controls and Unicode vectors; no normalization; exact pk/v1 domains",
+  "structural_joins": "Both owners, all forms, typed closure/reachability, original/current/request scope, causal suffix invariance, source roots/refinement, certificate metadata, named effects/timers, boundary/binding and transitive terminal restoration",
+  "cli": "Actual compiled TS bytes -> Python explicit --check-structure, cwd independence, constant private-safe error/exit2/empty stdout, recovery and temporary cleanup; cold missing/tampered dependency rejection",
+  "legacy": "Owned v1/v2 Unicode fixture bundle identities and in-memory validated DATA bytes unchanged before/after new structure checks; opt-in production-entrypoint assertions",
+  "remaining_runtime_gates": ["source/provider authority", "per-property truth and allowed unknown semantics", "source-derived obligation expansion", "family writer support", "actual legacy envelope verification", "trusted consumer projection generation/publication", "real restored continuation"],
+  "no_full_node_suite_or_long_witness": true,
+  "source_semantics_verified": false,
+  "completeness": "not_established",
+  "manifest_or_attestation_updated": false
+}

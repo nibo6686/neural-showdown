@@ -1,0 +1,47 @@
+{
+  "scope": "Direct dependencies of the Prompt 12 PK-02B-Source candidate, for later M02 provenance reconciliation. No manifest or attestation is updated by this task.",
+  "new_files_owned": [
+    "sim-core/src/perspective_knowledge_source.ts",
+    "trainer/src/neural/perspective_knowledge_source.py",
+    "sim-core/tests/perspective_knowledge_source.test.ts",
+    "trainer/tests/test_perspective_knowledge_source.py",
+    "docs/planning/perspective-fidelity-prompt12-witness.cjs (test-owned harness + audit builder shared by both test suites)"
+  ],
+  "runtime_imports": {
+    "typescript": {
+      "./perspective_knowledge": ["checkKnowledgeStructure", "canonicalKnowledgeJson", "knowledgeIdentity", "parseKnowledgeJson"],
+      "./belief_state": ["validateObservableBattleState", "serializeBeliefState"],
+      "./pipeline_integration": ["validatePipelineLinkedRecordBundle", "PipelineLinkedRecordBundle (type)"],
+      "node:crypto": ["createHash"]
+    },
+    "python": {
+      "neural.perspective_knowledge": ["check_knowledge_structure", "canonical_knowledge_json", "knowledge_identity", "parse_knowledge_json"],
+      "neural.pipeline_record": ["validate_pipeline_bundle", "_prefix (private helper reused for nonactor observation prefix validation)"],
+      "neural.ts_identity": ["verify_observation", "verify_belief"],
+      "neural.typed_state": ["validate_public_typed_state"],
+      "neural.public_boosts": ["validate_public_boosts"]
+    }
+  },
+  "semantic_copies_requiring_drift_review": {
+    "sim-core/src/perspective_knowledge_source.ts legacyDataRecordId": "Re-implements the DATA-001 identity payload of trainer/src/neural/dataset_lineage.py _identity_payload/expected_record_id and ensure_ascii canonical JSON (no import possible across runtimes). Drift in dataset_lineage identity fields or canonicalization breaks parity; guarded by 5 literal Unicode vectors and by TS-vs-Python record ID equality on real bundles."
+  },
+  "contract_data_reached_through_the_accepted_cores": {
+    "docs/contracts/fixtures/perspective-knowledge-v1/schema.json": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+    "docs/contracts/fixtures/perspective-knowledge-v1/profiles.json": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-types.json": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+    "docs/contracts/fixtures/perspective-knowledge-v1/typed-references.json": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da"
+  },
+  "test_and_witness_dependencies": [
+    "sim-core/src/pipeline_integration.ts createPipelineIntegrationSession, projectPipelineProtocolPrefix (witness projects the harness spectator ledger with the accepted projection)",
+    "sim-core/src/canonical_action.ts canonicalActionFromLegalAction",
+    "sim-core/node_modules/pokemon-showdown 0.11.10: BattleStream, Teams.generate/pack, dist/sim/battle extractChannelMessages",
+    "trainer/src/neural/dataset_lineage.py expected_record_id, prefix_hash (independent oracle in tests)",
+    "docs/contracts/fixtures/perspective-knowledge-v1: identity-vectors.json, sim-ordinary.json, replay-full/ordinary/compact.json, replay-suffix-full/compact.json (structure canaries and hand-audited replay oracle)",
+    "docs/planning/perspective-fidelity-prompt12-witness.cjs requires built sim-core/dist and PYTHON for independent DATA record IDs"
+  ],
+  "not_depended_on": [
+    "env_manager, state_extractor, action normalization, capture, pipeline publication or episode envelope code paths",
+    "any attestation, manifest, status file or dataset"
+  ]
+}

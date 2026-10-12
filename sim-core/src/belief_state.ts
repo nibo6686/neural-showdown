@@ -1,5 +1,6 @@
 import { assertPublicItemsMatchEvidence } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
+import { assertPublicFieldMatchesEvidence } from './public_field';
 import { assertPublicHealthMatchesEvidence, boundOwnedTarget } from './public_health';
 import { opponentPublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
@@ -473,6 +474,7 @@ function assertObservation(observation: ObservableBattleState): void {
   exactKeys(view.field.side_conditions, ['self', 'opponent'], 'Observation side conditions');
   assertNumberRecord(view.field.side_conditions.self, 'Observation self side conditions');
   assertNumberRecord(view.field.side_conditions.opponent, 'Observation opponent side conditions');
+  assertPublicFieldMatchesEvidence(observation.protocol_prefix, view.field);
   if (!Array.isArray(view.self_team) || !Array.isArray(view.opponent_team)) {
     throw new BeliefStateError('Observation teams must be arrays.');
   }

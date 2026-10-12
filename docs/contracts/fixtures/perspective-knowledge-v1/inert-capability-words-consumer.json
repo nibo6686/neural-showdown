@@ -1,0 +1,103 @@
+{
+  "kind": "projection",
+  "schema": "perspective-knowledge-consumer/v1",
+  "owner": "p1",
+  "policy": "simulator-causal/v1",
+  "boundary": 5,
+  "required_profile": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+  "result": "incomplete",
+  "starting": [
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1",
+      "family": "K18",
+      "property": "item",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "audit_store restoration_handle full_replay_url"
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 0,
+      "effect_key": null
+    }
+  ],
+  "starting_crosswalk": [],
+  "current": [
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1:move:1:incarnation:0",
+      "family": "K07",
+      "property": "pp",
+      "state": "unknown",
+      "value": null,
+      "reason": "not_emitted",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": null,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:appearance:1",
+      "family": "K18",
+      "property": "item",
+      "state": "known_absent",
+      "value": null,
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 4,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1:move:1:incarnation:0",
+      "family": "K07",
+      "property": "max_pp",
+      "state": "known",
+      "value": {
+        "type": "integer",
+        "data": 56
+      },
+      "reason": "none",
+      "freshness": "last_known",
+      "precision": "exact",
+      "observed_at": 3,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K20",
+      "property": "boundary_kind",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "restored"
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 7,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K20",
+      "property": "request_presence",
+      "state": "inapplicable",
+      "value": null,
+      "reason": "proved_rule_inapplicable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": 7,
+      "effect_key": null
+    }
+  ],
+  "request": null,
+  "id": "sha256:3fc31f24c90b478bddad973af45bdfbcf1ff347ac719ba38c06c6bc50a5a5a47"
+}

@@ -1,0 +1,212 @@
+{
+  "status": "Hand-authored structural/proof subset only. Relevant family unsupported; no complete audit/production acceptance.",
+  "objects": [
+    {
+      "kind": "origin",
+      "battle_key": "fixture-Éclair-😀",
+      "format": "gen9randombattle",
+      "engine": "pokemon-showdown@0.11.10",
+      "rule_version": "pk-rules/v1",
+      "id": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f"
+    },
+    {
+      "kind": "prefix",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "parser": "indexed-public/v1",
+      "records": [
+        "|start",
+        "|-sidestart|p1: Éclair|Reflect",
+        "|-sidestart|p1: Éclair|Spikes"
+      ],
+      "id": "sha256:570b7b135df562ee7881c67b677fa08c9530b915c351a8ea8d94b8eabb28e46e"
+    },
+    {
+      "kind": "source",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "source_type": "public_prefix",
+      "owner": null,
+      "provider": "indexed-public/v1",
+      "delivery_seq": null,
+      "delivery_cursor": null,
+      "phase": "chronological",
+      "team": [],
+      "records": [
+        "|start",
+        "|-sidestart|p1: Éclair|Reflect",
+        "|-sidestart|p1: Éclair|Spikes"
+      ],
+      "raw_request": null,
+      "id": "sha256:32733d9a872e25d4d60db53017a4a505d216b15f42cb68e6d71505939cc76ac3"
+    },
+    {
+      "kind": "evidence",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "owner": null,
+      "scope": "public",
+      "source": "sha256:32733d9a872e25d4d60db53017a4a505d216b15f42cb68e6d71505939cc76ac3",
+      "prefix": "sha256:570b7b135df562ee7881c67b677fa08c9530b915c351a8ea8d94b8eabb28e46e",
+      "record_indices": [
+        1
+      ],
+      "team_slot": null,
+      "writer": "side-condition-start/v1",
+      "id": "sha256:680ce117fb4cade499bc729694a7123d7bc0620001ec9fd84fb08d6dd9b677cf"
+    },
+    {
+      "kind": "fact",
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K13",
+      "property": "side_condition",
+      "effect_key": "Reflect",
+      "state": "known",
+      "value": {
+        "type": "effect",
+        "data": {
+          "name": "Reflect",
+          "source_subject": null,
+          "observed_since": 2,
+          "elapsed": null,
+          "remaining": null
+        }
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 2,
+      "evidence": [
+        "sha256:680ce117fb4cade499bc729694a7123d7bc0620001ec9fd84fb08d6dd9b677cf"
+      ],
+      "certificate": null,
+      "id": "sha256:a3d508551991ed7974572958a69f97e0d665d3db025dfe36ac74e2e5bee9d95d"
+    },
+    {
+      "kind": "evidence",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "owner": null,
+      "scope": "public",
+      "source": "sha256:32733d9a872e25d4d60db53017a4a505d216b15f42cb68e6d71505939cc76ac3",
+      "prefix": "sha256:570b7b135df562ee7881c67b677fa08c9530b915c351a8ea8d94b8eabb28e46e",
+      "record_indices": [
+        2
+      ],
+      "team_slot": null,
+      "writer": "side-condition-start/v1",
+      "id": "sha256:60bfc4f3bba7af3606c7a92527aacacc8ccdfa92cce653306c8bafa1e453163f"
+    },
+    {
+      "kind": "fact",
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K13",
+      "property": "side_condition",
+      "effect_key": "Spikes",
+      "state": "known",
+      "value": {
+        "type": "effect",
+        "data": {
+          "name": "Spikes",
+          "source_subject": null,
+          "observed_since": 3,
+          "elapsed": null,
+          "remaining": null
+        }
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 3,
+      "evidence": [
+        "sha256:60bfc4f3bba7af3606c7a92527aacacc8ccdfa92cce653306c8bafa1e453163f"
+      ],
+      "certificate": null,
+      "id": "sha256:dac45fa0818a203e5d63a5bf9e4ba6eefb2a4962f5de4ce8241ee5a259607aea"
+    },
+    {
+      "kind": "current",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "owner": "p1",
+      "prefix": "sha256:570b7b135df562ee7881c67b677fa08c9530b915c351a8ea8d94b8eabb28e46e",
+      "cursor": 3,
+      "parent": null,
+      "facts": [
+        "sha256:a3d508551991ed7974572958a69f97e0d665d3db025dfe36ac74e2e5bee9d95d",
+        "sha256:dac45fa0818a203e5d63a5bf9e4ba6eefb2a4962f5de4ce8241ee5a259607aea"
+      ],
+      "id": "sha256:4d0d8accf1acf5919ca3883eca1fac4d32c069eef7f7678b0486388f11bdabe2"
+    },
+    {
+      "kind": "fact",
+      "owner": "p2",
+      "subject": "p1:side",
+      "family": "K13",
+      "property": "side_condition",
+      "effect_key": "Reflect",
+      "state": "known",
+      "value": {
+        "type": "effect",
+        "data": {
+          "name": "Reflect",
+          "source_subject": null,
+          "observed_since": 2,
+          "elapsed": null,
+          "remaining": null
+        }
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 2,
+      "evidence": [
+        "sha256:680ce117fb4cade499bc729694a7123d7bc0620001ec9fd84fb08d6dd9b677cf"
+      ],
+      "certificate": null,
+      "id": "sha256:bba315fe1c85a42d710bac4ba8e55c6df126e5e3622a2e391585f24649063b64"
+    },
+    {
+      "kind": "fact",
+      "owner": "p2",
+      "subject": "p1:side",
+      "family": "K13",
+      "property": "side_condition",
+      "effect_key": "Spikes",
+      "state": "known",
+      "value": {
+        "type": "effect",
+        "data": {
+          "name": "Spikes",
+          "source_subject": null,
+          "observed_since": 3,
+          "elapsed": null,
+          "remaining": null
+        }
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 3,
+      "evidence": [
+        "sha256:60bfc4f3bba7af3606c7a92527aacacc8ccdfa92cce653306c8bafa1e453163f"
+      ],
+      "certificate": null,
+      "id": "sha256:f14f321242f79c3b2a3c135b0a874315ab983cdecf36f4d44fd8a806a60841c9"
+    },
+    {
+      "kind": "current",
+      "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+      "owner": "p2",
+      "prefix": "sha256:570b7b135df562ee7881c67b677fa08c9530b915c351a8ea8d94b8eabb28e46e",
+      "cursor": 3,
+      "parent": null,
+      "facts": [
+        "sha256:bba315fe1c85a42d710bac4ba8e55c6df126e5e3622a2e391585f24649063b64",
+        "sha256:f14f321242f79c3b2a3c135b0a874315ab983cdecf36f4d44fd8a806a60841c9"
+      ],
+      "id": "sha256:2f4438f4ffcde87a77076ff29312550d28fcc9b77cd813ac8fab411c07faa26a"
+    }
+  ],
+  "expected_names": [
+    "Reflect",
+    "Spikes"
+  ]
+}

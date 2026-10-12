@@ -1,0 +1,193 @@
+diff --git a/sim-core/src/env_manager.ts b/sim-core/src/env_manager.ts
+index fa780b8..f53f577 100644
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { isDeepStrictEqual } from 'node:util';
+ import { Battle, BattleStream, Dex, Teams, getPlayerStreams } from 'pokemon-showdown';
+ import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
+ import { cloneChoiceRequest, removeChoiceFromRequest, normalizeRequest } from './action_codec';
+@@ -51,6 +52,8 @@ type PlayerStream = {
+ const TERMINAL_REQUEST_HISTORY_KEY = '__neural_terminal_request_history';
+ const TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v1' as const;
+ const TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v2' as const;
++const ACTIVE_REQUEST_OVERRIDES_KEY = '__neural_active_request_overrides';
++const ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION = 'active-request-overrides/v1' as const;
+ const PRIVATE_SPECTATOR_COMMANDS = new Set(['request', 'error', 'split', 'debug', 'showteam']);
+ 
+ /** The spectator channel is the sole source of public-prefix evidence. */
+@@ -348,6 +351,100 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
+   };
+ }
+ 
++/** A safe, public-value-free error for the optional live-request restoration key. */
++export class ActiveRequestOverrideValidationError extends Error {
++  readonly code = 'active-request-override/invalid' as const;
++  readonly path: string;
++  readonly reason: string;
++
++  constructor(path: string, reason: string) {
++    super(`Invalid active request override at ${path}: ${reason}.`);
++    this.name = 'ActiveRequestOverrideValidationError';
++    this.path = path;
++    this.reason = reason;
++  }
++}
++
++function overrideInvalid(path: string, reason: string): never {
++  throw new ActiveRequestOverrideValidationError(path, reason);
++}
++
++function overrideRecord(value: unknown, path: string): Record<string, unknown> {
++  if (!value || typeof value !== 'object' || Array.isArray(value)) overrideInvalid(path, 'must be an object');
++  return value as Record<string, unknown>;
++}
++
++const has = (record: Record<string, unknown>, key: string) => Object.prototype.hasOwnProperty.call(record, key);
++
++function readActiveRequestOverrides(serialized: Record<string, unknown>): Partial<Record<PlayerID, Record<string, unknown>>> | null {
++  if (serialized[ACTIVE_REQUEST_OVERRIDES_KEY] === undefined) return null;
++  const wrapper = overrideRecord(serialized[ACTIVE_REQUEST_OVERRIDES_KEY], ACTIVE_REQUEST_OVERRIDES_KEY);
++  if (Object.keys(wrapper).sort().join() !== 'requests,schema_version' || wrapper.schema_version !== ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION) {
++    overrideInvalid(ACTIVE_REQUEST_OVERRIDES_KEY, 'must be exactly the supported schema_version and requests');
++  }
++  const requests = overrideRecord(wrapper.requests, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`);
++  if (!Object.keys(requests).length) overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`, 'must contain at least one request');
++  const out: Partial<Record<PlayerID, Record<string, unknown>>> = {};
++  for (const [key, value] of Object.entries(requests)) {
++    if (key !== 'p1' && key !== 'p2') overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`, 'must address an owned player');
++    const request = overrideRecord(value, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}`);
++    if (overrideRecord(request.side, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}.side`).id !== key) {
++      overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}.side.id`, 'must name the addressed player');
++    }
++    out[key] = request;
++  }
++  return out;
++}
++
++/**
++ * Accepts only the edits Showdown's rejected-choice paths make in place to a
++ * live request (side.js updateRequestForPokemon): maybeTrapped removed with
++ * trapped:true added, and a move row gaining disabled:true with a string
++ * disabledSource. Anything else, and a no-op, is rejected: the result becomes
++ * side.activeRequest, which the engine's choose paths treat as authority.
++ */
++function validateActiveRequestOverride(live: Record<string, unknown>, base: unknown, path: string): void {
++  if (!base || typeof base !== 'object') overrideInvalid(path, 'has no regenerated request to edit');
++  const regenerated = base as Record<string, unknown>;
++  if (Object.keys(live).sort().join() !== Object.keys(regenerated).sort().join()) overrideInvalid(path, 'has keys that differ from the regenerated request');
++  for (const key of Object.keys(live)) {
++    if (key !== 'active' && !isDeepStrictEqual(live[key], regenerated[key])) overrideInvalid(`${path}.${key}`, 'is not an engine-legal edit');
++  }
++  if (!Array.isArray(live.active) || !Array.isArray(regenerated.active) || live.active.length !== regenerated.active.length) {
++    overrideInvalid(`${path}.active`, 'must edit the regenerated active entries');
++  }
++  let edits = 0;
++  for (const [index, entry] of (live.active as unknown[]).entries()) {
++    const at = `${path}.active.${index}`;
++    const edited = overrideRecord(entry, at);
++    const original = overrideRecord((regenerated.active as unknown[])[index], at);
++    const fixed = (key: string) => key !== 'moves' && key !== 'maybeTrapped' && key !== 'trapped';
++    const keys = new Set([...Object.keys(edited), ...Object.keys(original)].filter(fixed));
++    for (const key of keys) if (has(edited, key) !== has(original, key) || !isDeepStrictEqual(edited[key], original[key])) overrideInvalid(`${at}.${key}`, 'is not an engine-legal edit');
++    const sameTrap = ['maybeTrapped', 'trapped'].every((key) => has(edited, key) === has(original, key) && isDeepStrictEqual(edited[key], original[key]));
++    if (!sameTrap) {
++      if (original.maybeTrapped !== true || has(original, 'trapped') || has(edited, 'maybeTrapped') || edited.trapped !== true) {
++        overrideInvalid(at, 'trapped may only replace maybeTrapped');
++      }
++      edits++;
++    }
++    if (!Array.isArray(edited.moves) || !Array.isArray(original.moves) || edited.moves.length !== original.moves.length) overrideInvalid(`${at}.moves`, 'must edit the regenerated moves');
++    for (const [slot, row] of edited.moves.entries()) {
++      const rowPath = `${at}.moves.${slot}`;
++      const before = overrideRecord(original.moves[slot], rowPath), after = overrideRecord(row, rowPath);
++      if (isDeepStrictEqual(before, after)) continue;
++      const fixedRow = (key: string) => key !== 'disabled' && key !== 'disabledSource';
++      const rowKeys = new Set([...Object.keys(before), ...Object.keys(after)].filter(fixedRow));
++      for (const key of rowKeys) if (has(after, key) !== has(before, key) || !isDeepStrictEqual(after[key], before[key])) overrideInvalid(`${rowPath}.${key}`, 'is not an engine-legal edit');
++      if (before.disabled === true || has(before, 'disabledSource') || after.disabled !== true || typeof after.disabledSource !== 'string') {
++        overrideInvalid(rowPath, 'may only gain disabled:true with a string disabledSource');
++      }
++      edits++;
++    }
++  }
++  if (!edits) overrideInvalid(path, 'does not edit the regenerated request');
++}
++
+ function normalizeStepResultOptions(options?: StepResultOptions): Required<StepResultOptions> {
+   return {
+     view_players: options?.view_players?.length ? [...options.view_players] : [...PLAYERS],
+@@ -699,11 +796,22 @@ export class LocalBattleEnv {
+     // Validate a cloned snapshot before disrupting a running battle. The
+     // optional history is opaque restoration metadata, not simulator input.
+     const terminalHistory = readTerminalRequestHistory(serialized);
+-    const { [TERMINAL_REQUEST_HISTORY_KEY]: _history, ...simulatorSnapshot } = serialized;
++    const requestOverrides = readActiveRequestOverrides(serialized);
++    const { [TERMINAL_REQUEST_HISTORY_KEY]: _history, [ACTIVE_REQUEST_OVERRIDES_KEY]: _overrides, ...simulatorSnapshot } = serialized;
+     const snapshot = structuredClone(simulatorSnapshot) as Record<string, unknown>;
+     if (terminalHistory && !snapshot.ended) {
+       terminalHistoryInvalid(TERMINAL_REQUEST_HISTORY_KEY, 'is only valid for terminal snapshots');
+     }
++    if (requestOverrides) {
++      if (snapshot.ended) overrideInvalid(ACTIVE_REQUEST_OVERRIDES_KEY, 'is only valid for live snapshots');
++      const regenerated = Battle.fromJSON(structuredClone(snapshot) as any);
++      try {
++        for (const [player, request] of Object.entries(requestOverrides)) {
++          validateActiveRequestOverride(request, regenerated.sides.find((side) => side.id === player)?.activeRequest,
++            `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${player}`);
++        }
++      } finally { regenerated.destroy(); }
++    }
+     await this.destroyBattle();
+     this.logLines = [];
+     this.logCursor = 0;
+@@ -725,6 +833,8 @@ export class LocalBattleEnv {
+     battle.sentEnd = false;
+     battle.sendUpdates();
+     for (const side of battle.sides) {
++      const override = requestOverrides?.[side.id as PlayerID];
++      if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
+       if (side?.activeRequest) {
+         if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
+           this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
+@@ -753,7 +863,7 @@ export class LocalBattleEnv {
+     const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
+     if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
+     const serialized = battle.toJSON() as Record<string, unknown>;
+-    if (!battle.ended) return serialized;
++    if (!battle.ended) return this.withActiveRequestOverrides(battle, serialized);
+     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
+     const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
+     for (const player of PLAYERS) {
+@@ -779,6 +889,31 @@ export class LocalBattleEnv {
+     };
+   }
+ 
++  /**
++   * Showdown's toJSON omits side.activeRequest and fromJSON regenerates it, so
++   * an in-place edit made by a rejected choice is lost on restore. Carry a
++   * live request only when it differs from the regenerated one by an
++   * engine-legal edit; every other snapshot is unchanged (an unexplained
++   * difference is not carried, which preserves the previous bytes).
++   */
++  private withActiveRequestOverrides(battle: Battle, serialized: Record<string, unknown>): Record<string, unknown> {
++    const regenerated = Battle.fromJSON(structuredClone(serialized) as any);
++    const requests: Record<string, unknown> = {};
++    try {
++      for (const side of battle.sides) {
++        const live = side?.activeRequest, base = regenerated.sides.find((entry) => entry.id === side.id)?.activeRequest;
++        if (!live || isDeepStrictEqual(live, base)) continue;
++        try { validateActiveRequestOverride(live as unknown as Record<string, unknown>, base, side.id); } catch (error) {
++          if (error instanceof ActiveRequestOverrideValidationError) continue;
++          throw error;
++        }
++        requests[side.id] = structuredClone(live);
++      }
++    } finally { regenerated.destroy(); }
++    if (!Object.keys(requests).length) return serialized;
++    return {...serialized, [ACTIVE_REQUEST_OVERRIDES_KEY]: {schema_version: ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION, requests}};
++  }
++
+   private initializeStreams(): void {
+     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
+     // _write synchronously emits requests then sendUpdates. Count at the source,

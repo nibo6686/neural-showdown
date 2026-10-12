@@ -1,0 +1,125 @@
+import { PlayerStateExtractor } from './state_extractor';
+import { validateObservableProtocolPrefix, validateRawProtocolRecord } from './observable_state';
+import type { BattleView, PlayerID } from './types';
+
+export interface ReplayImportContext {
+  env_id: string;
+  format: string;
+  perspective: PlayerID;
+}
+
+export type ReplayRecordKind = 'protocol' | 'room-presence' | 'replay-rated' | 'framing' | 'tier';
+export interface ReplaySourceRow {
+  readonly source_index: number;
+  readonly record: string;
+  readonly kind: ReplayRecordKind;
+  readonly routed_index: number | null;
+}
+export interface ReplayImportResult {
+  readonly source_cursor: number;
+  readonly source_rows: readonly ReplaySourceRow[];
+  readonly source_to_routed: readonly (number | null)[];
+  readonly routed_to_source: readonly number[];
+  readonly protocol_prefix: readonly string[];
+  readonly view: BattleView;
+}
+
+export class ReplayImportError extends Error {
+  constructor(
+    public readonly stage: 'input' | 'admission' | 'extraction' | 'prefix',
+    public readonly source_index: number | null,
+    public readonly record: string | null,
+    reason: unknown,
+  ) {
+    super(`Replay import ${stage} at source ${source_index ?? 'input'}: ${String(reason)}`);
+    this.name = 'ReplayImportError';
+  }
+}
+
+function freezeTree<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    for (const child of Object.values(value)) freezeTree(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+/** Internal, untrusted trace of a selected decoded replay prefix. */
+export function importReplayPrefix(
+  records: readonly string[], sourceCursor: number, context: ReplayImportContext,
+): ReplayImportResult {
+  if (!Array.isArray(records) || !Number.isSafeInteger(sourceCursor)
+    || sourceCursor < 0 || sourceCursor > records.length
+    || !context || typeof context.env_id !== 'string' || !context.env_id.trim()
+    || typeof context.format !== 'string' || !context.format.trim()
+    || !['p1', 'p2'].includes(context.perspective)) {
+    throw new ReplayImportError('input', null, null, 'Invalid records, source cursor or extractor context.');
+  }
+  const sourceRows: ReplaySourceRow[] = [];
+  const sourceToRouted: (number | null)[] = [];
+  const routedToSource: number[] = [];
+  const prefix: string[] = [];
+  let started = false;
+  for (let index = 0; index < sourceCursor; index++) {
+    const record = records[index];
+    try {
+      if (typeof record !== 'string' || /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/u.test(record)) {
+        throw new Error('Expected one control-free protocol record.');
+      }
+      const command = record.split('|')[1];
+      let kind: ReplayRecordKind = 'protocol';
+      if (!started && record === '|rated|') kind = 'replay-rated';
+      else if (!started && record.startsWith('|j|')) {
+        const name = record.slice(4);
+        if (!record.startsWith('|j|☆') || !name || name.trim() !== name || name.includes('|')) {
+          throw new Error('Unsupported room-presence metadata.');
+        }
+        kind = 'room-presence';
+      } else {
+        if (command === 'request' || command === 'split') throw new Error('Private transport is not replay evidence.');
+        validateRawProtocolRecord(record);
+        if (record === '|') kind = 'framing';
+        else if (command === 'tier') kind = 'tier';
+      }
+      const routedIndex = kind === 'protocol' ? prefix.length : null;
+      sourceRows.push({ source_index: index, record, kind, routed_index: routedIndex });
+      sourceToRouted.push(routedIndex);
+      if (routedIndex !== null) {
+        prefix.push(record);
+        routedToSource.push(index);
+      }
+      if (command === 'start') started = true;
+    } catch (error) {
+      throw new ReplayImportError('admission', index, typeof record === 'string' ? record : null, error);
+    }
+  }
+
+  // Nothing reaches an extractor until the entire selected source prefix admits.
+  let current = routedToSource.at(-1) ?? sourceCursor - 1;
+  let view: BattleView;
+  try {
+    const extractor = new PlayerStateExtractor(context.env_id, context.format, context.perspective);
+    for (let index = 0; index < prefix.length; index++) {
+      current = routedToSource[index];
+      extractor.consumeChunk(prefix[index]);
+      extractor.consumePublicHealingWishRecord(prefix[index]);
+      view = extractor.getView();
+      try {
+        validateObservableProtocolPrefix(prefix.slice(0, index + 1), context.perspective, view);
+      } catch (error) {
+        throw new ReplayImportError('prefix', current, sourceRows[current].record, error);
+      }
+    }
+    view = extractor.getView();
+  } catch (error) {
+    if (error instanceof ReplayImportError) throw error;
+    throw new ReplayImportError('extraction', current < 0 ? null : current, sourceRows[current]?.record ?? null, error);
+  }
+  try {
+    validateObservableProtocolPrefix(prefix, context.perspective, view);
+  } catch (error) {
+    throw new ReplayImportError('prefix', current < 0 ? null : current, sourceRows[current]?.record ?? null, error);
+  }
+  return freezeTree({ source_cursor: sourceCursor, source_rows: sourceRows,
+    source_to_routed: sourceToRouted, routed_to_source: routedToSource, protocol_prefix: prefix, view });
+}

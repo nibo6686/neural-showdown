@@ -1,3 +1,6 @@
+import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
+import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+import { isDeepStrictEqual } from 'node:util';
 import { Battle, BattleStream, Dex, Teams, getPlayerStreams } from 'pokemon-showdown';
 import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
 import { cloneChoiceRequest, removeChoiceFromRequest, normalizeRequest } from './action_codec';
@@ -51,6 +54,8 @@ type PlayerStream = {
 const TERMINAL_REQUEST_HISTORY_KEY = '__neural_terminal_request_history';
 const TERMINAL_REQUEST_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v1' as const;
 const TERMINAL_SWITCH_HISTORY_SCHEMA_VERSION = 'terminal-request-history/v2' as const;
+const ACTIVE_REQUEST_OVERRIDES_KEY = '__neural_active_request_overrides';
+const ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION = 'active-request-overrides/v1' as const;
 const PRIVATE_SPECTATOR_COMMANDS = new Set(['request', 'error', 'split', 'debug', 'showteam']);
 
 /** The spectator channel is the sole source of public-prefix evidence. */
@@ -348,6 +353,113 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
   };
 }
 
+/** A safe, public-value-free error for the optional live-request restoration key. */
+export class ActiveRequestOverrideValidationError extends Error {
+  readonly code = 'active-request-override/invalid' as const;
+  readonly path: string;
+  readonly reason: string;
+
+  constructor(path: string, reason: string) {
+    super(`Invalid active request override at ${path}: ${reason}.`);
+    this.name = 'ActiveRequestOverrideValidationError';
+    this.path = path;
+    this.reason = reason;
+  }
+}
+
+/** Observability for the byte-preserving fallback in serializeBattle; inert unless read or hooked. */
+export const activeRequestOverrideDiagnostics: {
+  dropped: number;
+  onDrop: ((info: {player: PlayerID; path: string; reason: string}) => void) | null;
+} = {dropped: 0, onDrop: null};
+
+function overrideInvalid(path: string, reason: string): never {
+  throw new ActiveRequestOverrideValidationError(path, reason);
+}
+
+function overrideRecord(value: unknown, path: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) overrideInvalid(path, 'must be an object');
+  return value as Record<string, unknown>;
+}
+
+const has = (record: Record<string, unknown>, key: string) => Object.prototype.hasOwnProperty.call(record, key);
+
+function readActiveRequestOverrides(serialized: Record<string, unknown>): Partial<Record<PlayerID, Record<string, unknown>>> | null {
+  if (serialized[ACTIVE_REQUEST_OVERRIDES_KEY] === undefined) return null;
+  const wrapper = overrideRecord(serialized[ACTIVE_REQUEST_OVERRIDES_KEY], ACTIVE_REQUEST_OVERRIDES_KEY);
+  if (Object.keys(wrapper).sort().join() !== 'requests,schema_version' || wrapper.schema_version !== ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION) {
+    overrideInvalid(ACTIVE_REQUEST_OVERRIDES_KEY, 'must be exactly the supported schema_version and requests');
+  }
+  const requests = overrideRecord(wrapper.requests, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`);
+  if (!Object.keys(requests).length) overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`, 'must contain at least one request');
+  const out: Partial<Record<PlayerID, Record<string, unknown>>> = {};
+  for (const [key, value] of Object.entries(requests)) {
+    if (key !== 'p1' && key !== 'p2') overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests`, 'must address an owned player');
+    const request = overrideRecord(value, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}`);
+    if (overrideRecord(request.side, `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}.side`).id !== key) {
+      overrideInvalid(`${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${key}.side.id`, 'must name the addressed player');
+    }
+    out[key] = request;
+  }
+  return out;
+}
+
+/**
+ * Accepts only the edits Showdown's rejected-choice paths make in place to a
+ * live request (side.js updateRequestForPokemon): maybeTrapped removed with
+ * trapped:true added, and a move row gaining disabled:true with a string
+ * disabledSource. Anything else, and a no-op, is rejected: the result becomes
+ * side.activeRequest, which the engine's choose paths treat as authority.
+ */
+function validateActiveRequestOverride(live: Record<string, unknown>, regeneratedSide: Battle['sides'][number] | undefined, path: string): void {
+  const base = regeneratedSide?.activeRequest;
+  if (!base || typeof base !== 'object') overrideInvalid(path, 'has no regenerated request to edit');
+  const regenerated = base as unknown as Record<string, unknown>;
+  if (Object.keys(live).sort().join() !== Object.keys(regenerated).sort().join()) overrideInvalid(path, 'has keys that differ from the regenerated request');
+  for (const key of Object.keys(live)) {
+    if (key !== 'active' && !isDeepStrictEqual(live[key], regenerated[key])) overrideInvalid(`${path}.${key}`, 'is not an engine-legal edit');
+  }
+  if (!Array.isArray(live.active) || !Array.isArray(regenerated.active) || live.active.length !== regenerated.active.length) {
+    overrideInvalid(`${path}.active`, 'must edit the regenerated active entries');
+  }
+  let edits = 0;
+  for (const [index, entry] of (live.active as unknown[]).entries()) {
+    const at = `${path}.active.${index}`;
+    const edited = overrideRecord(entry, at);
+    const original = overrideRecord((regenerated.active as unknown[])[index], at);
+    const fixed = (key: string) => key !== 'moves' && key !== 'maybeTrapped' && key !== 'trapped';
+    const keys = new Set([...Object.keys(edited), ...Object.keys(original)].filter(fixed));
+    for (const key of keys) if (has(edited, key) !== has(original, key) || !isDeepStrictEqual(edited[key], original[key])) overrideInvalid(`${at}.${key}`, 'is not an engine-legal edit');
+    const sameTrap = ['maybeTrapped', 'trapped'].every((key) => has(edited, key) === has(original, key) && isDeepStrictEqual(edited[key], original[key]));
+    if (!sameTrap) {
+      if (original.maybeTrapped !== true || has(original, 'trapped') || has(edited, 'maybeTrapped') || edited.trapped !== true) {
+        overrideInvalid(at, 'trapped may only replace maybeTrapped');
+      }
+      // The edit is only reachable when the engine's own state says the Pokemon is trapped.
+      if (!regeneratedSide?.active[index]?.trapped) overrideInvalid(at, 'trapped edit on a Pokemon that is not trapped in the regenerated battle');
+      edits++;
+    }
+    if (!Array.isArray(edited.moves) || !Array.isArray(original.moves) || edited.moves.length !== original.moves.length) overrideInvalid(`${at}.moves`, 'must edit the regenerated moves');
+    for (const [slot, row] of edited.moves.entries()) {
+      const rowPath = `${at}.moves.${slot}`;
+      const before = overrideRecord(original.moves[slot], rowPath), after = overrideRecord(row, rowPath);
+      if (isDeepStrictEqual(before, after)) continue;
+      const fixedRow = (key: string) => key !== 'disabled' && key !== 'disabledSource';
+      const rowKeys = new Set([...Object.keys(before), ...Object.keys(after)].filter(fixedRow));
+      for (const key of rowKeys) if (has(after, key) !== has(before, key) || !isDeepStrictEqual(after[key], before[key])) overrideInvalid(`${rowPath}.${key}`, 'is not an engine-legal edit');
+      if (before.disabled === true || has(before, 'disabledSource') || after.disabled !== true || typeof after.disabledSource !== 'string') {
+        overrideInvalid(rowPath, 'may only gain disabled:true with a string disabledSource');
+      }
+      // Likewise a disabled edit needs the move to be genuinely disabled in the regenerated battle.
+      const pokemon = regeneratedSide?.active[index];
+      const hidden = pokemon?.getMoves(pokemon.getLockedMove(), false).find((move) => move.id === before.id);
+      if (!hidden?.disabled) overrideInvalid(rowPath, 'disabled edit on a move that is not disabled in the regenerated battle');
+      edits++;
+    }
+  }
+  if (!edits) overrideInvalid(path, 'does not edit the regenerated request');
+}
+
 function normalizeStepResultOptions(options?: StepResultOptions): Required<StepResultOptions> {
   return {
     view_players: options?.view_players?.length ? [...options.view_players] : [...PLAYERS],
@@ -358,6 +470,7 @@ function normalizeStepResultOptions(options?: StepResultOptions): Required<StepR
 }
 
 interface ManagedPlayerDeps {
+  receiveRequestRecord: (record: string) => void;
   env: LocalBattleEnv;
   player: PlayerID;
   stream: PlayerStream;
@@ -372,6 +485,7 @@ class ManagedPlayer {
   readonly player: PlayerID;
   readonly tracker: PlayerStateExtractor;
 
+  private readonly receiveRequestRecord: (record: string) => void;
   private readonly env: LocalBattleEnv;
   private readonly stream: PlayerStream;
   private readonly controller: ControllerType;
@@ -386,6 +500,7 @@ class ManagedPlayer {
   private invalidChoices: Set<string>;
 
   constructor(deps: ManagedPlayerDeps) {
+    this.receiveRequestRecord = deps.receiveRequestRecord;
     this.env = deps.env;
     this.player = deps.player;
     this.stream = deps.stream;
@@ -403,6 +518,9 @@ class ManagedPlayer {
   async start(): Promise<void> {
     for await (const chunk of this.stream) {
       if (this.settling.stopped) return;
+      for (const record of chunk.split('\n')) {
+        if (record.trimStart().startsWith('|request|')) this.receiveRequestRecord(record);
+      }
       this.tracker.consumeChunk(chunk);
       for (const rawLine of chunk.split('\n')) {
         const line = rawLine.trim();
@@ -623,6 +741,8 @@ export class LocalBattleEnv {
   readonly seed: [number, number, number, number];
   readonly controllers: Record<PlayerID, ControllerSpec>;
 
+  #requestTrace: RequestEmissionTrace | null = null;
+  readonly #originalCreation: OriginalOwnerCreation | undefined;
   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
   private readonly heuristicAgent: HeuristicBaselineAgent;
   private battleStream: BattleStream | null;
@@ -643,7 +763,10 @@ export class LocalBattleEnv {
     seed?: number[],
     controllers?: Partial<Record<PlayerID, ControllerSpec>>,
     settlingOptions: SettlingOptions = {},
+    originalCreation?: OriginalOwnerCreation,
   ) {
+    this.#originalCreation = originalCreation;
+    originalCreation?.bind(this);
     this.id = id;
     this.format = format;
     this.seed = createSeed(seed);
@@ -672,80 +795,121 @@ export class LocalBattleEnv {
   }
 
   async resetWithOptions(options?: StepResultOptions): Promise<StepResult> {
-    await this.destroyBattle();
-    this.logLines = [];
-    this.logCursor = 0;
-    this.lastError = null;
-    this.initialized = true;
+    this.#originalCreation?.begin(this);
+    try {
+      await this.destroyBattle();
+      this.logLines = [];
+      this.logCursor = 0;
+      this.lastError = null;
+      this.initialized = true;
 
-    this.initializeStreams();
-    if (!this.streams) throw new Error('Battle streams failed to initialize.');
-    const p1Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 11) }));
-    const p2Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 29) }));
+      this.initializeStreams();
+      if (!this.streams) throw new Error('Battle streams failed to initialize.');
+      const prepare = (owner: PlayerID, offset: number): string => {
+        const generated = Teams.generate(this.format, { seed: offsetSeed(this.seed, offset) });
+        const packingCopy = this.#originalCreation?.capture(this, owner, generated) ?? generated;
+        const packed = Teams.pack(packingCopy);
+        this.#originalCreation?.associate(this, owner, packed);
+        return packed;
+      };
+      const p1Team = prepare('p1', 11);
+      const p2Team = prepare('p2', 29);
 
-    const payload = [
-      `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
-      `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
-      `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
-    ].join('\n');
+      const payload = [
+        `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
+        `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
+        `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
+      ].join('\n');
 
-    await this.streams.omniscient.write(payload);
-    const result = await this.drainUntilExternalDecision(options);
-    this.logCursor = this.logLines.length;
-    return result;
+      await this.streams.omniscient.write(payload);
+      const result = await this.drainUntilExternalDecision(options);
+      this.logCursor = this.logLines.length;
+      return result;
+    } catch (error) {
+      this.#originalCreation?.abortStaging();
+      this.#requestTrace?.invalidate();
+      this.#requestTrace = null;
+      throw error;
+    }
+  }
+
+  /** Privileged pre-submission diagnostics; never an authorizing handle. */
+  inspectStagedOriginalOwner(owner: PlayerID): OriginalOwnerEvidence {
+    if (!this.#originalCreation) throw new Error('original-owner/v1/no-creation');
+    return this.#originalCreation.diagnostic(this, owner);
   }
 
   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
+    this.#originalCreation?.abandonForRestore(this);
     // Validate a cloned snapshot before disrupting a running battle. The
     // optional history is opaque restoration metadata, not simulator input.
     const terminalHistory = readTerminalRequestHistory(serialized);
-    const { [TERMINAL_REQUEST_HISTORY_KEY]: _history, ...simulatorSnapshot } = serialized;
+    const requestOverrides = readActiveRequestOverrides(serialized);
+    const { [TERMINAL_REQUEST_HISTORY_KEY]: _history, [ACTIVE_REQUEST_OVERRIDES_KEY]: _overrides, ...simulatorSnapshot } = serialized;
     const snapshot = structuredClone(simulatorSnapshot) as Record<string, unknown>;
     if (terminalHistory && !snapshot.ended) {
       terminalHistoryInvalid(TERMINAL_REQUEST_HISTORY_KEY, 'is only valid for terminal snapshots');
     }
-    await this.destroyBattle();
-    this.logLines = [];
-    this.logCursor = 0;
-    this.lastError = null;
-    this.initialized = true;
-    this.initializeStreams();
-    if (!this.battleStream) throw new Error('Battle stream failed to initialize.');
-    const stream = this.battleStream as unknown as {
-      battle: Battle | null;
-      pushMessage: (type: string, data: string | string[]) => void;
-    };
-    // Battle.fromJSON may retain nested references from the supplied object;
-    // clone the simulator-only snapshot so exact branches cannot share mutable
-    // state with their source or siblings.
-    const battle = Battle.fromJSON(snapshot);
-    battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
-    stream.battle = battle;
-    battle.sentLogPos = 0;
-    battle.sentEnd = false;
-    battle.sendUpdates();
-    for (const side of battle.sides) {
-      if (side?.activeRequest) {
-        if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
-          this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
+    if (requestOverrides) {
+      if (snapshot.ended) overrideInvalid(ACTIVE_REQUEST_OVERRIDES_KEY, 'is only valid for live snapshots');
+      const regenerated = Battle.fromJSON(structuredClone(snapshot) as any);
+      try {
+        for (const [player, request] of Object.entries(requestOverrides)) {
+          validateActiveRequestOverride(request, regenerated.sides.find((side) => side.id === player),
+            `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${player}`);
         }
-        side.emitRequest(side.activeRequest);
-      }
+      } finally { regenerated.destroy(); }
     }
-    // Terminal battles emit no new private requests. Restore only the
-    // addressed request history that originally populated each owner's view;
-    // it is deliberately not a live request and never enters the log prefix.
-    if (battle.ended && terminalHistory) {
-      for (const player of PLAYERS) {
-        const rawRequest = terminalHistory.requests[player];
-        if (rawRequest) this.players?.[player].restoreTerminalRequestData(rawRequest);
-        const submitted = terminalHistory.submitted_switches?.[player];
-        if (submitted) this.players?.[player].tracker.restoreSubmittedSwitch(submitted);
+    try {
+      await this.destroyBattle();
+      this.logLines = [];
+      this.logCursor = 0;
+      this.lastError = null;
+      this.initialized = true;
+      this.initializeStreams();
+      if (!this.battleStream) throw new Error('Battle stream failed to initialize.');
+      const stream = this.battleStream as unknown as {
+        battle: Battle | null;
+        pushMessage: (type: string, data: string | string[]) => void;
+      };
+      // Battle.fromJSON may retain nested references from the supplied object;
+      // clone the simulator-only snapshot so exact branches cannot share mutable
+      // state with their source or siblings.
+      const battle = Battle.fromJSON(snapshot);
+      battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
+      stream.battle = battle;
+      battle.sentLogPos = 0;
+      battle.sentEnd = false;
+      battle.sendUpdates();
+      for (const side of battle.sides) {
+        const override = requestOverrides?.[side.id as PlayerID];
+        if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
+        if (side?.activeRequest) {
+          if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
+            this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
+          }
+          this.#requestTrace!.atProducer('restore_reemit', () => side.emitRequest(side.activeRequest!));
+        }
       }
+      // Terminal battles emit no new private requests. Restore only the
+      // addressed request history that originally populated each owner's view;
+      // it is deliberately not a live request and never enters the log prefix.
+      if (battle.ended && terminalHistory) {
+        for (const player of PLAYERS) {
+          const rawRequest = terminalHistory.requests[player];
+          if (rawRequest) this.players?.[player].restoreTerminalRequestData(rawRequest);
+          const submitted = terminalHistory.submitted_switches?.[player];
+          if (submitted) this.players?.[player].tracker.restoreSubmittedSwitch(submitted);
+        }
+      }
+      const result = await this.drainUntilExternalDecision(options);
+      this.logCursor = this.logLines.length;
+      return result;
+    } catch (error) {
+      this.#requestTrace?.invalidate();
+      this.#requestTrace = null;
+      throw error;
     }
-    const result = await this.drainUntilExternalDecision(options);
-    this.logCursor = this.logLines.length;
-    return result;
   }
 
   serializeBattle(): Record<string, unknown> {
@@ -753,7 +917,7 @@ export class LocalBattleEnv {
     const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
     if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
     const serialized = battle.toJSON() as Record<string, unknown>;
-    if (!battle.ended) return serialized;
+    if (!battle.ended) return this.withActiveRequestOverrides(battle, serialized);
     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
     const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
     for (const player of PLAYERS) {
@@ -779,12 +943,45 @@ export class LocalBattleEnv {
     };
   }
 
+  /**
+   * Showdown's toJSON omits side.activeRequest and fromJSON regenerates it, so
+   * an in-place edit made by a rejected choice is lost on restore. Carry a
+   * live request only when it differs from the regenerated one by an
+   * engine-legal edit; every other snapshot is unchanged (an unexplained
+   * difference is not carried, which preserves the previous bytes).
+   */
+  private withActiveRequestOverrides(battle: Battle, serialized: Record<string, unknown>): Record<string, unknown> {
+    const regenerated = Battle.fromJSON(structuredClone(serialized) as any);
+    const requests: Record<string, unknown> = {};
+    try {
+      for (const side of battle.sides) {
+        const live = side?.activeRequest, twin = regenerated.sides.find((entry) => entry.id === side.id);
+        if (!live || isDeepStrictEqual(live, twin?.activeRequest)) continue;
+        try { validateActiveRequestOverride(live as unknown as Record<string, unknown>, twin, side.id); } catch (error) {
+          if (!(error instanceof ActiveRequestOverrideValidationError)) throw error;
+          // Byte-preserving fallback: the old snapshot is returned, but the drop is observable.
+          activeRequestOverrideDiagnostics.dropped++;
+          activeRequestOverrideDiagnostics.onDrop?.({player: side.id as PlayerID, path: error.path, reason: error.reason});
+          continue;
+        }
+        requests[side.id] = structuredClone(live);
+      }
+    } finally { regenerated.destroy(); }
+    if (!Object.keys(requests).length) return serialized;
+    return {...serialized, [ACTIVE_REQUEST_OVERRIDES_KEY]: {schema_version: ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION, requests}};
+  }
+
   private initializeStreams(): void {
+    const trace = this.#requestTrace = new RequestEmissionTrace();
     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
     // _write synchronously emits requests then sendUpdates. Count at the source,
     // before getPlayerStreams asynchronously fans out each message.
     this.battleStream = new class extends BattleStream {
+      override _write(chunk: string): void {
+        trace.atProducer('native_emission', () => super._write(chunk));
+      }
       override pushMessage(type: string, data: string): void {
+        trace.emitted(type, data);
         settling.emitted(type, data);
         super.pushMessage(type, data);
       }
@@ -798,11 +995,15 @@ export class LocalBattleEnv {
       }
     }({ keepAlive: true });
     this.streams = getPlayerStreams(this.battleStream);
+    trace.bind('p1', this.streams.p1);
+    trace.bind('p2', this.streams.p2);
+    const ownerStreams = this.streams;
     this.players = {
       p1: new ManagedPlayer({
         env: this,
         player: 'p1',
         stream: this.streams.p1 as unknown as PlayerStream,
+        receiveRequestRecord: (record) => trace.received('p1', ownerStreams.p1, record),
         controller: this.controllers.p1.controller,
         tracker: new PlayerStateExtractor(this.id, this.format, 'p1'),
         randomAgent: this.randomAgents.p1,
@@ -813,6 +1014,7 @@ export class LocalBattleEnv {
         env: this,
         player: 'p2',
         stream: this.streams.p2 as unknown as PlayerStream,
+        receiveRequestRecord: (record) => trace.received('p2', ownerStreams.p2, record),
         controller: this.controllers.p2.controller,
         tracker: new PlayerStateExtractor(this.id, this.format, 'p2'),
         randomAgent: this.randomAgents.p2,
@@ -945,6 +1147,7 @@ export class LocalBattleEnv {
   }
 
   async close(): Promise<void> {
+    this.#originalCreation?.abortStaging();
     await this.destroyBattle();
     this.initialized = false;
   }
@@ -955,6 +1158,17 @@ export class LocalBattleEnv {
       throw new Error(`Unsupported agent ${agent}.`);
     }
     return this.players?.[player].suggest(agent) as BaselineDecision;
+  }
+
+  /** Privileged owner-only diagnostics; no current request or publication authority. */
+  getRequestEmissionTraceHandle(owner: PlayerID): RequestTraceHandle {
+    if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
+    return this.#requestTrace.handle(owner);
+  }
+
+  inspectRequestEmissionTrace(handle: RequestTraceHandle, owner: PlayerID): readonly RequestEmissionReceipt[] {
+    if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
+    return this.#requestTrace.inspect(handle, owner);
   }
 
   diagnostics(): Record<string, unknown> {
@@ -1057,6 +1271,8 @@ export class LocalBattleEnv {
   }
 
   private async destroyCurrentBattle(): Promise<void> {
+    this.#requestTrace?.invalidate();
+    this.#requestTrace = null;
     this.settling.fail('cancelled');
     const stream = this.battleStream;
     if (stream) {

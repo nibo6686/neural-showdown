@@ -1,0 +1,18 @@
+# Prompt 4 progress
+
+- Scope: V01 proof only. Owned files: new `sim-core/tests/perspective_field_semantics.test.ts` and `docs/planning/perspective-fidelity-prompt4-*`. No Python test needed unless it supplies an independent path beyond actual CLI probes.
+- Baseline: main `accab655c26ada18124e790b16d5770c8bd17894`; accepted Prompt 1/2 files remain read-only. Interpreter `D:\Anaconda\envs\neuralgpu\python.exe`, Python 3.11.14.
+- Read implement-plan/review-plan-tests, worker Prompt 4, lead plan, Prompt 3 lead review/K14/V01 and repository protocol/current reconciliation. Source lookup confirms TS admits nullable strings/string arrays; Python field validation requires exact keys. Neither source inspection alone establishes bypass.
+- Fixture plan: bounded source-generated snapshot episodes for weather, terrain and Trick Room; independent explicit writer/truth ledger; controls before attacks. Reseal locally using independently implemented canonical hashes, then verify with Python `ts_identity` and direct joins. Actual ordinary/full/envelope/compact CLI uses encoding overrides unset. Terminal/restoration variants use supported in-memory snapshots only.
+- No production, contracts, manifest, reviewed hashes, aggregate status, datasets, replay, installs, network, training, commits or publication authorized.
+
+## Completed evidence
+
+- Six bounded real snapshot episodes: weather lifecycle six commits, terrain lifecycle three, Trick Room lifecycle three; terminal weather/terrain one each and Trick Room two. Every boundary matched explicit ordered public-writer ledgers for both perspectives. Separate terminal snapshot restoration checked valid field views only.
+- Independent JSON resealing updates all observation references, belief histories/parents/IDs, run summary identity, origin/commit joins, terminal references and envelope identity. Snapshot/action-based transition identities remain unchanged. Python `ts_identity` and direct joins pass before semantic probes.
+- Final focused run: exit 0, 1 characterization passed / 3 explicitly skipped red witnesses, 33.059s; 200 actual CLI calls. 24 false-value attacks admitted by TS observations/records/episodes and Python ordinary/full/envelope. Twelve terminal compact attacks publish; twelve lifecycle compact calls reject only original-to-terminal closure, as unchanged controls do.
+- Distinct missing/extra-key controls: six TS schema rejections; six ordinary Python admissions, while full/envelope/compact reject exact-key schema. No semantic guard rejection observed.
+- RED-only run: exit 1, all three expected-rejection witnesses fail because actual publication exits 0 with nonempty stdout (weather 1327 / terrain 1326 / pseudo-weather 1355 bytes). Saved log retains failures.
+- Parent independently replayed nine saved payloads (three ordinary, three terminal full, three terminal compact) with byte transport and encoding overrides unset: all exit 0, empty stderr, expected row/identity joins. Parent checked eight accepted Prompt 1/2 file hashes unchanged and HEAD unchanged.
+- Fixture/probe corrections were confined to the new test: JSON-array/receipt parsing, recognizing unsupported lifecycle compact closure, recording ordinary schema divergence, measuring cloned observations before bound validators. Three initial characterization attempts exited 1 for these probe assumptions; no production repair.
+- Frozen new test SHA-256: `d45b573e28f4523ef39e5fab357cfb711f73b8473f2ebb2a2078f840bdc91ef1`. Exact 20-file source context is in `perspective-fidelity-prompt4-source-hashes.json`. No self-attestation. Return to lead for review; V02 remains unauthorized.

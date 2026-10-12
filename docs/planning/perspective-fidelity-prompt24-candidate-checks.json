@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "warning: LF will be replaced by CRLF in docs/contracts/BELIEF_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/DATASET_LINEAGE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/OBSERVABLE_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/PIPELINE_EPISODE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in sim-core/tests/public_consequence_test_helpers.ts.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in trainer/src/neural/compare_action_rankers.py.\nThe file will have its original line endings in your working directory\n"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "docs\\planning\\perspective-fidelity-prompt24-before-env_manager.txt",
+      "sim-core/src/env_manager.ts"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "apply",
+      "--numstat",
+      "docs\\planning\\perspective-fidelity-prompt24-candidate.diff"
+    ],
+    "exit": 0,
+    "stdout": "82\t43\tsim-core/src/env_manager.ts\n95\t0\tsim-core/src/request_emission_trace.ts\n245\t0\tsim-core/tests/request_emission_trace.test.ts\n15\t0\tdocs/planning/perspective-fidelity-prompt24-api.md\n19\t0\tdocs/planning/perspective-fidelity-prompt24-matrix.md\n8\t0\tdocs/planning/perspective-fidelity-prompt24-review.md\n41\t0\tdocs/planning/perspective-fidelity-prompt24-report.md\n3\t0\tdocs/planning/perspective-fidelity-prompt24-progress.md\n20\t0\tdocs/planning/perspective-fidelity-prompt24-validate.py\n3\t0\tdocs/planning/perspective-fidelity-prompt24-wire.cjs\n27\t0\tdocs/planning/perspective-fidelity-prompt24-witnesses.cjs\n",
+    "stderr": ""
+  }
+]

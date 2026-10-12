@@ -1,0 +1,29 @@
+CE-08B cleanup cancelled
+CE-08B cleanup cancelled-after-commit
+CE-08B cleanup error
+CE-08B cleanup terminal
+✔ initialization failure returns a versioned failed outcome with no committed boundary (6.434ms)
+✔ invalid budgets/policy fail explicitly; cleanup failure retains committed records (404.9715ms)
+✔ invalid continuation options retain the existing committed origin and close its session (54.1826ms)
+✖ CE-08B cleanup preserves preceding diagnostics and terminal precedence (647.6078ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1362.2769
+
+✖ failing tests:
+
+test at sim-core\dist\tests\pipeline_episode.test.js:2147:25
+✖ CE-08B cleanup preserves preceding diagnostics and terminal precedence (647.6078ms)
+  Error: original-owner/v1/creation-restore-forbidden
+      at LocalBattleEnv.resetFromSerialized (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\env_manager.js:747:19)
+      at env_manager_1.LocalBattleEnv.resetWithOptions (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\pipeline_episode.test.js:2158:104)
+      at PipelineIntegrationSession.create (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:277:55)
+      at createPipelineIntegrationSession (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:565:39)
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\pipeline_episode.test.js:2162:89)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)

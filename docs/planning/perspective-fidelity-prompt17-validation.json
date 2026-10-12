@@ -1,0 +1,216 @@
+[
+  {
+    "label": "build",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "argv": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": null,
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 4.891,
+    "log": "perspective-fidelity-prompt17-build.log",
+    "counts": []
+  },
+  {
+    "label": "python-requirements-final",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_perspective_replay_characterization",
+      "-v"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": true,
+    "matrix": "python-requirements-final",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "seconds": 2.375,
+    "log": "perspective-fidelity-prompt17-python-requirements-final.log",
+    "counts": [
+      "Ran 2 tests",
+      "FAILED (failures=2)"
+    ]
+  },
+  {
+    "label": "ts-requirements-final",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/perspective_replay_characterization.test.js"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": true,
+    "matrix": "ts-requirements-final",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "seconds": 2.266,
+    "log": "perspective-fidelity-prompt17-ts-requirements-final.log",
+    "counts": [
+      "tests 3",
+      "pass 2",
+      "fail 1"
+    ]
+  },
+  {
+    "label": "python-characterization",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_perspective_replay_characterization",
+      "-v"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": "python-characterization",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.359,
+    "log": "perspective-fidelity-prompt17-python-characterization.log",
+    "counts": [
+      "Ran 2 tests",
+      "OK"
+    ]
+  },
+  {
+    "label": "ts-characterization",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/perspective_replay_characterization.test.js"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": "ts-characterization",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.234,
+    "log": "perspective-fidelity-prompt17-ts-characterization.log",
+    "counts": [
+      "tests 3",
+      "pass 3",
+      "fail 0"
+    ]
+  },
+  {
+    "label": "existing-parser",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "-v",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_protocol_log_parser_extracts_battle_events",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_disconnect_line_followed_by_win_preserves_winner",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_inactive_timer_line_followed_by_win_preserves_winner"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": null,
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.25,
+    "log": "perspective-fidelity-prompt17-existing-parser.log",
+    "counts": [
+      "Ran 3 tests",
+      "OK"
+    ]
+  },
+  {
+    "label": "existing-reconstruction",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "-v",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_completed_team_assigns_moves_to_active_species_not_actor_alias",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_public_illusion_replace_updates_active_identity",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_public_illusion_replace_restores_true_bench_switch",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_ditto_transform_exposes_current_stint_copied_move",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_ditto_transform_excludes_future_transform_stint_move",
+      "trainer.tests.test_benchmark_vnext_featuregen.VNextFeaturegenBenchmarkTest.test_transform_copied_moves_not_globally_backfilled_into_species"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": null,
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.391,
+    "log": "perspective-fidelity-prompt17-existing-reconstruction.log",
+    "counts": [
+      "Ran 6 tests",
+      "OK"
+    ]
+  },
+  {
+    "label": "existing-extractor",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/state_extractor.test.js"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": null,
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.422,
+    "log": "perspective-fidelity-prompt17-existing-extractor.log",
+    "counts": [
+      "tests 18",
+      "pass 18",
+      "fail 0"
+    ]
+  },
+  {
+    "label": "diff-check",
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "encoding_overrides": "unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "requirements": false,
+    "matrix": null,
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.094,
+    "log": "perspective-fidelity-prompt17-diff-check.log",
+    "counts": []
+  }
+]

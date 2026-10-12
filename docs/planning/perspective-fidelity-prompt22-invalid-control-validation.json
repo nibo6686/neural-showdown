@@ -1,0 +1,50 @@
+[
+  {
+    "label": "build",
+    "argv": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+    "extra_environment": {},
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 4.5,
+    "output": "",
+    "counts": [],
+    "raw_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_output_base64": ""
+  },
+  {
+    "label": "source-characterization",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/original_owner_provider_characterization.test.js"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "extra_environment": {
+      "PROMPT22_REPORT": "C:\\Users\\cloud\\Downloads\\neural\\final\\docs\\planning\\perspective-fidelity-prompt22-source-matrix.json"
+    },
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "exit_code": 1,
+    "expected_exit": 0,
+    "seconds": 0.594,
+    "output": "\u2714 actual environment generates and packs two arrays before submission; production original authority is absent (313.4349ms)\n\u2714 packing cannot reconstruct submission omissions or generator metadata (0.3818ms)\n\u2716 initial Trace, Imposter and form effects precede first request for p1 (8.2188ms)\n\u2714 duplicate identities and actual switch preserve original order only through privileged association for p1 (7.8055ms)\n\u2714 Illusion display and disclosure do not change the acting object for p1 (4.3325ms)\n\u2714 wait, restoration reemit and terminal history cannot create fresh or original delivery for p1 (12.2418ms)\n\u2716 initial Trace, Imposter and form effects precede first request for p2 (3.5736ms)\n\u2714 duplicate identities and actual switch preserve original order only through privileged association for p2 (2.9752ms)\n\u2714 Illusion display and disclosure do not change the acting object for p2 (2.7901ms)\n\u2714 wait, restoration reemit and terminal history cannot create fresh or original delivery for p2 (9.0178ms)\n\u2139 tests 10\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 2\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 522.8474\n\n\u2716 failing tests:\n\ntest at sim-core\\dist\\tests\\original_owner_provider_characterization.test.js:80:29\n\u2716 initial Trace, Imposter and form effects precede first request for p1 (8.2188ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'Zacian'\n  - 'Zacian-Crowned'\n           ^\n  \n      at TestContext.<anonymous> (C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core\\dist\\tests\\original_owner_provider_characterization.test.js:109:30)\n      at async Test.run (node:internal/test_runner/test:1208:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'Zacian',\n    expected: 'Zacian-Crowned',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at sim-core\\dist\\tests\\original_owner_provider_characterization.test.js:80:29\n\u2716 initial Trace, Imposter and form effects precede first request for p2 (3.5736ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'Zacian'\n  - 'Zacian-Crowned'\n           ^\n  \n      at TestContext.<anonymous> (C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core\\dist\\tests\\original_owner_provider_characterization.test.js:109:30)\n      at async Test.run (node:internal/test_runner/test:1208:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'Zacian',\n    expected: 'Zacian-Crowned',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+    "counts": [
+      "tests 10",
+      "pass 8",
+      "fail 2"
+    ],
+    "raw_output_sha256": "bb3832dfa0696dbaad706115c19fcd2872d7ccbc4e083106820b41bef25f8d2f",
+    "raw_output_base64": "4pyUIGFjdHVhbCBlbnZpcm9ubWVudCBnZW5lcmF0ZXMgYW5kIHBhY2tzIHR3byBhcnJheXMgYmVmb3JlIHN1Ym1pc3Npb247IHByb2R1Y3Rpb24gb3JpZ2luYWwgYXV0aG9yaXR5IGlzIGFic2VudCAoMzEzLjQzNDltcykK4pyUIHBhY2tpbmcgY2Fubm90IHJlY29uc3RydWN0IHN1Ym1pc3Npb24gb21pc3Npb25zIG9yIGdlbmVyYXRvciBtZXRhZGF0YSAoMC4zODE4bXMpCuKcliBpbml0aWFsIFRyYWNlLCBJbXBvc3RlciBhbmQgZm9ybSBlZmZlY3RzIHByZWNlZGUgZmlyc3QgcmVxdWVzdCBmb3IgcDEgKDguMjE4OG1zKQrinJQgZHVwbGljYXRlIGlkZW50aXRpZXMgYW5kIGFjdHVhbCBzd2l0Y2ggcHJlc2VydmUgb3JpZ2luYWwgb3JkZXIgb25seSB0aHJvdWdoIHByaXZpbGVnZWQgYXNzb2NpYXRpb24gZm9yIHAxICg3LjgwNTVtcykK4pyUIElsbHVzaW9uIGRpc3BsYXkgYW5kIGRpc2Nsb3N1cmUgZG8gbm90IGNoYW5nZSB0aGUgYWN0aW5nIG9iamVjdCBmb3IgcDEgKDQuMzMyNW1zKQrinJQgd2FpdCwgcmVzdG9yYXRpb24gcmVlbWl0IGFuZCB0ZXJtaW5hbCBoaXN0b3J5IGNhbm5vdCBjcmVhdGUgZnJlc2ggb3Igb3JpZ2luYWwgZGVsaXZlcnkgZm9yIHAxICgxMi4yNDE4bXMpCuKcliBpbml0aWFsIFRyYWNlLCBJbXBvc3RlciBhbmQgZm9ybSBlZmZlY3RzIHByZWNlZGUgZmlyc3QgcmVxdWVzdCBmb3IgcDIgKDMuNTczNm1zKQrinJQgZHVwbGljYXRlIGlkZW50aXRpZXMgYW5kIGFjdHVhbCBzd2l0Y2ggcHJlc2VydmUgb3JpZ2luYWwgb3JkZXIgb25seSB0aHJvdWdoIHByaXZpbGVnZWQgYXNzb2NpYXRpb24gZm9yIHAyICgyLjk3NTJtcykK4pyUIElsbHVzaW9uIGRpc3BsYXkgYW5kIGRpc2Nsb3N1cmUgZG8gbm90IGNoYW5nZSB0aGUgYWN0aW5nIG9iamVjdCBmb3IgcDIgKDIuNzkwMW1zKQrinJQgd2FpdCwgcmVzdG9yYXRpb24gcmVlbWl0IGFuZCB0ZXJtaW5hbCBoaXN0b3J5IGNhbm5vdCBjcmVhdGUgZnJlc2ggb3Igb3JpZ2luYWwgZGVsaXZlcnkgZm9yIHAyICg5LjAxNzhtcykK4oS5IHRlc3RzIDEwCuKEuSBzdWl0ZXMgMArihLkgcGFzcyA4CuKEuSBmYWlsIDIK4oS5IGNhbmNlbGxlZCAwCuKEuSBza2lwcGVkIDAK4oS5IHRvZG8gMArihLkgZHVyYXRpb25fbXMgNTIyLjg0NzQKCuKcliBmYWlsaW5nIHRlc3RzOgoKdGVzdCBhdCBzaW0tY29yZVxkaXN0XHRlc3RzXG9yaWdpbmFsX293bmVyX3Byb3ZpZGVyX2NoYXJhY3Rlcml6YXRpb24udGVzdC5qczo4MDoyOQrinJYgaW5pdGlhbCBUcmFjZSwgSW1wb3N0ZXIgYW5kIGZvcm0gZWZmZWN0cyBwcmVjZWRlIGZpcnN0IHJlcXVlc3QgZm9yIHAxICg4LjIxODhtcykKICBBc3NlcnRpb25FcnJvciBbRVJSX0FTU0VSVElPTl06IEV4cGVjdGVkIHZhbHVlcyB0byBiZSBzdHJpY3RseSBlcXVhbDoKICArIGFjdHVhbCAtIGV4cGVjdGVkCiAgCiAgKyAnWmFjaWFuJwogIC0gJ1phY2lhbi1Dcm93bmVkJwogICAgICAgICAgIF4KICAKICAgICAgYXQgVGVzdENvbnRleHQuPGFub255bW91cz4gKEM6XFVzZXJzXGNsb3VkXERvd25sb2Fkc1xuZXVyYWxcZmluYWxcc2ltLWNvcmVcZGlzdFx0ZXN0c1xvcmlnaW5hbF9vd25lcl9wcm92aWRlcl9jaGFyYWN0ZXJpemF0aW9uLnRlc3QuanM6MTA5OjMwKQogICAgICBhdCBhc3luYyBUZXN0LnJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjEyMDg6NykKICAgICAgYXQgYXN5bmMgVGVzdC5wcm9jZXNzUGVuZGluZ1N1YnRlc3RzIChub2RlOmludGVybmFsL3Rlc3RfcnVubmVyL3Rlc3Q6ODMxOjcpIHsKICAgIGdlbmVyYXRlZE1lc3NhZ2U6IHRydWUsCiAgICBjb2RlOiAnRVJSX0FTU0VSVElPTicsCiAgICBhY3R1YWw6ICdaYWNpYW4nLAogICAgZXhwZWN0ZWQ6ICdaYWNpYW4tQ3Jvd25lZCcsCiAgICBvcGVyYXRvcjogJ3N0cmljdEVxdWFsJywKICAgIGRpZmY6ICdzaW1wbGUnCiAgfQoKdGVzdCBhdCBzaW0tY29yZVxkaXN0XHRlc3RzXG9yaWdpbmFsX293bmVyX3Byb3ZpZGVyX2NoYXJhY3Rlcml6YXRpb24udGVzdC5qczo4MDoyOQrinJYgaW5pdGlhbCBUcmFjZSwgSW1wb3N0ZXIgYW5kIGZvcm0gZWZmZWN0cyBwcmVjZWRlIGZpcnN0IHJlcXVlc3QgZm9yIHAyICgzLjU3MzZtcykKICBBc3NlcnRpb25FcnJvciBbRVJSX0FTU0VSVElPTl06IEV4cGVjdGVkIHZhbHVlcyB0byBiZSBzdHJpY3RseSBlcXVhbDoKICArIGFjdHVhbCAtIGV4cGVjdGVkCiAgCiAgKyAnWmFjaWFuJwogIC0gJ1phY2lhbi1Dcm93bmVkJwogICAgICAgICAgIF4KICAKICAgICAgYXQgVGVzdENvbnRleHQuPGFub255bW91cz4gKEM6XFVzZXJzXGNsb3VkXERvd25sb2Fkc1xuZXVyYWxcZmluYWxcc2ltLWNvcmVcZGlzdFx0ZXN0c1xvcmlnaW5hbF9vd25lcl9wcm92aWRlcl9jaGFyYWN0ZXJpemF0aW9uLnRlc3QuanM6MTA5OjMwKQogICAgICBhdCBhc3luYyBUZXN0LnJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjEyMDg6NykKICAgICAgYXQgYXN5bmMgVGVzdC5wcm9jZXNzUGVuZGluZ1N1YnRlc3RzIChub2RlOmludGVybmFsL3Rlc3RfcnVubmVyL3Rlc3Q6ODMxOjcpIHsKICAgIGdlbmVyYXRlZE1lc3NhZ2U6IHRydWUsCiAgICBjb2RlOiAnRVJSX0FTU0VSVElPTicsCiAgICBhY3R1YWw6ICdaYWNpYW4nLAogICAgZXhwZWN0ZWQ6ICdaYWNpYW4tQ3Jvd25lZCcsCiAgICBvcGVyYXRvcjogJ3N0cmljdEVxdWFsJywKICAgIGRpZmY6ICdzaW1wbGUnCiAgfQo="
+  }
+]

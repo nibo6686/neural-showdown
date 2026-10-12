@@ -1,0 +1,194 @@
+{
+  "environment": {
+    "PYTHON": "D:/Anaconda/envs/neuralgpu/python.exe",
+    "PYTHONUTF8": null,
+    "PYTHONIOENCODING": null,
+    "global_environment_changed": false
+  },
+  "commands": [
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 1,
+      "result": "Expected original listed-source digest drift",
+      "seconds": 1.57665,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-baseline-checker.log"
+    },
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs --reachability-self-test",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 1,
+      "result": "All 16 rehashed omissions lack omission-specific rejection before guard; assertion fails",
+      "seconds": 7.66563,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-red-omissions.log"
+    },
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs --reachability-self-test",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 0,
+      "result": "16 omissions, 7 source mutations, missing listed file, 2 positive controls and existing synthetic controls pass",
+      "seconds": 7.78003,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-green-controls.log"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+      "exit_code": 0,
+      "result": "TypeScript build passes",
+      "seconds": 8.51178,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-build.log"
+    },
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 1,
+      "result": "Only unreviewed local candidate digest obstruction",
+      "seconds": 3.62121,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-final-checker.log"
+    },
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs --self-test",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 1,
+      "result": "Synthetic controls pass; only live candidate/reviewed gate rejects",
+      "seconds": 3.78119,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-final-self-test.log"
+    },
+    {
+      "command": "node sim-core/scripts/check-simulator-coverage.cjs --reachability-self-test",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+      "exit_code": 0,
+      "result": "All bounded controls pass; existing control-only flag exits0 independently of live attestation",
+      "seconds": 7.99027,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-final-controls.log"
+    },
+    {
+      "command": "node --test --test-isolation=none --test-reporter=spec --test-name-pattern=\"coverage checker covers|coverage self-tests preserve\" dist/tests/simulator_coverage.test.js",
+      "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final\\sim-core",
+      "exit_code": 0,
+      "result": "2 passed, no skips/failures",
+      "seconds": 15.3985008,
+      "timeouts": 0,
+      "log": "docs/planning/perspective-fidelity-prompt7-ts-harness.log"
+    }
+  ],
+  "controls": {
+    "rehashed_omissions": [
+      {
+        "file": "../trainer/src/neural/pipeline_json_wire.py",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../trainer/src/neural/public_field.py",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "src/public_field.ts",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "tests/pipeline_utf8_transport.test.ts",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "tests/perspective_field_semantics.test.ts",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../trainer/tests/test_perspective_field_semantics.py",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/contracts/OBSERVABLE_STATE.md",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      },
+      {
+        "file": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json",
+        "red_missing_specific_rejection": true,
+        "green_rejects_specific_required_source": true,
+        "candidate_digest_recomputed": true
+      }
+    ],
+    "mutations": {
+      "isolated_copies_only": true,
+      "new_helpers_and_tests": 6,
+      "existing_source": "src/observable_state.ts",
+      "actual_checker_digest_error_function_used": true
+    },
+    "missing_listed_file": "../trainer/src/neural/pipeline_json_wire.py",
+    "review_gate": "Actual checker and --self-test exit1, semantic-review mismatch only; reviewed fields unchanged"
+  },
+  "whitespace": {
+    "command": "git diff --check",
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,967 @@
+{
+  "algorithm": "SHA-256 of sorted manifest path UTF-8 + NUL + UTF-8 file content normalized CRLF to LF + NUL, repeated for each listed file; lone CR retained",
+  "input_count": 137,
+  "candidate_sha256": "8879baab101f4981ee3412f89faf5a8d13996975f5844503083f30ed90ee242b",
+  "reviewed_sha256_unchanged": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+  "inputs": [
+    {
+      "manifest_path": "../README.md",
+      "repo_path": "README.md",
+      "raw_sha256": "927dbda9329216d48ce9ed513037de59593662c2d800153d5f6503210a26ba5b",
+      "normalized_sha256": "577c0f133c2c06daa39bb3b44dfdb83dcf6496ad1e17a586e715ddd97fbc7c11",
+      "normalized_bytes": 47565
+    },
+    {
+      "manifest_path": "../artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json",
+      "repo_path": "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json",
+      "raw_sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+      "normalized_sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+      "normalized_bytes": 51325
+    },
+    {
+      "manifest_path": "../artifacts/validation/faithful-flag-2026-10-09/segment-start.json",
+      "repo_path": "artifacts/validation/faithful-flag-2026-10-09/segment-start.json",
+      "raw_sha256": "2fc4c08a25803ab8d931183968c43f3b220317eca6aaffe131ad652bf55a78de",
+      "normalized_sha256": "a468592b1374317504445184242a8438112d381eb18e59931816c3d25b0127c5",
+      "normalized_bytes": 111452
+    },
+    {
+      "manifest_path": "../artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_review_blockers.py",
+      "repo_path": "artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_review_blockers.py",
+      "raw_sha256": "8c8fb3c5dfa8e9bfd7ea184329cf0c6d20bf0b628cbe311c2a5a473cf0e244d2",
+      "normalized_sha256": "83c5575f66c15a6382049fbc5e69d54aac67ea53654293b91065a49149dd261c",
+      "normalized_bytes": 8713
+    },
+    {
+      "manifest_path": "../artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_unknown_command.py",
+      "repo_path": "artifacts/validation/protocol-boundary-review-2026-09-25/reproduce_unknown_command.py",
+      "raw_sha256": "44c6f9f0a60483be03876c25ec12ab09efa27289ac2967017c78647ccadda31f",
+      "normalized_sha256": "71791f0e950d5b72c6afdcae7b8df5165a06c6fb42b86854a489bd13c4e44d3d",
+      "normalized_bytes": 1351
+    },
+    {
+      "manifest_path": "../artifacts/validation/protocol-boundary-review-2026-09-25/review-blockers-result.json",
+      "repo_path": "artifacts/validation/protocol-boundary-review-2026-09-25/review-blockers-result.json",
+      "raw_sha256": "3466b300e1f407c592956f23b3da5e5117518650f66d679fd18fe763861a13ad",
+      "normalized_sha256": "a0e0a6917ae3f6f2d1fe3206a4340d02f1961d8ff6e85aad49b9ff7939f55b84",
+      "normalized_bytes": 6675
+    },
+    {
+      "manifest_path": "../artifacts/validation/protocol-boundary-review-2026-09-25/unknown-command-result.json",
+      "repo_path": "artifacts/validation/protocol-boundary-review-2026-09-25/unknown-command-result.json",
+      "raw_sha256": "658b8cedbd57d619b4f317ca72066db17755d86bcf67dfad57e2be8e975d5a5a",
+      "normalized_sha256": "6fa45f7ebb2ca13a28fdf97776967143f477ea0bfd794a7d34f978c96e166c17",
+      "normalized_bytes": 286
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-alias-review-2026-09-25/alias-v1.json",
+      "repo_path": "artifacts/validation/psych-up-alias-review-2026-09-25/alias-v1.json",
+      "raw_sha256": "04340cc195cdcd8472385934c4e6aada0326c4ab29ac37647f7c801fc0ecb435",
+      "normalized_sha256": "04340cc195cdcd8472385934c4e6aada0326c4ab29ac37647f7c801fc0ecb435",
+      "normalized_bytes": 34710
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-alias-review-2026-09-25/alias-v2.json",
+      "repo_path": "artifacts/validation/psych-up-alias-review-2026-09-25/alias-v2.json",
+      "raw_sha256": "3b6a513eb6663ad822cf77928aa5797b06ba0032381ee66b14588cef1ceb004a",
+      "normalized_sha256": "3b6a513eb6663ad822cf77928aa5797b06ba0032381ee66b14588cef1ceb004a",
+      "normalized_bytes": 16911
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-alias-review-2026-09-25/valid-v1.json",
+      "repo_path": "artifacts/validation/psych-up-alias-review-2026-09-25/valid-v1.json",
+      "raw_sha256": "c23bdece49b0a5d3866d092c94bbf3a6baacd17898b961650e5cb53a8f081a4a",
+      "normalized_sha256": "c23bdece49b0a5d3866d092c94bbf3a6baacd17898b961650e5cb53a8f081a4a",
+      "normalized_bytes": 31886
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-alias-review-2026-09-25/valid-v2.json",
+      "repo_path": "artifacts/validation/psych-up-alias-review-2026-09-25/valid-v2.json",
+      "raw_sha256": "4a54638514e84f0fbc978dc7b989cb37ac4f05f2c4b859c2cdb84e8a77743166",
+      "normalized_sha256": "4a54638514e84f0fbc978dc7b989cb37ac4f05f2c4b859c2cdb84e8a77743166",
+      "normalized_bytes": 15714
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-review-2026-09-25/malformed-43.json",
+      "repo_path": "artifacts/validation/psych-up-review-2026-09-25/malformed-43.json",
+      "raw_sha256": "f2e4dfd2e303c5e510638a46dfcb878b39b1150e055a9a6572cd11972fd2a901",
+      "normalized_sha256": "f2e4dfd2e303c5e510638a46dfcb878b39b1150e055a9a6572cd11972fd2a901",
+      "normalized_bytes": 16891
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-review-2026-09-25/malformed-48.json",
+      "repo_path": "artifacts/validation/psych-up-review-2026-09-25/malformed-48.json",
+      "raw_sha256": "8e886e3266af408751b4f492ee1af3aba304b6cef114d06da8c71988f7483784",
+      "normalized_sha256": "8e886e3266af408751b4f492ee1af3aba304b6cef114d06da8c71988f7483784",
+      "normalized_bytes": 16901
+    },
+    {
+      "manifest_path": "../artifacts/validation/psych-up-review-2026-09-25/malformed-50.json",
+      "repo_path": "artifacts/validation/psych-up-review-2026-09-25/malformed-50.json",
+      "raw_sha256": "d55c0bfe1d9b6d7e9157f2e80c8c956e0ac961d74d5ef3ab1d5929c2141761ba",
+      "normalized_sha256": "d55c0bfe1d9b6d7e9157f2e80c8c956e0ac961d74d5ef3ab1d5929c2141761ba",
+      "normalized_bytes": 16905
+    },
+    {
+      "manifest_path": "../docs/PROJECT_STATUS.md",
+      "repo_path": "docs/PROJECT_STATUS.md",
+      "raw_sha256": "338c0885910dc2e801b2b21537c5e216a22fcfbf437d3f79d7bcce6c2b3d6edf",
+      "normalized_sha256": "cf023ffb57b1a70355736ec4642df3012ba586f3442445c82f736c8e4b6f3cac",
+      "normalized_bytes": 20346
+    },
+    {
+      "manifest_path": "../docs/architecture.md",
+      "repo_path": "docs/architecture.md",
+      "raw_sha256": "48bbba232030b632b92cf439a9cdc573139096ae6b696961e9963eefc04cb054",
+      "normalized_sha256": "c71f43ce0333de4d304efffb80ad2731e6cb2bb3c0daecedda685bfdd89a48e1",
+      "normalized_bytes": 10523
+    },
+    {
+      "manifest_path": "../docs/contracts/OBSERVABLE_STATE.md",
+      "repo_path": "docs/contracts/OBSERVABLE_STATE.md",
+      "raw_sha256": "ec04042c4880ab0c87d73ea154140301fc9595297317b94eacbb799ce5c90247",
+      "normalized_sha256": "b4f00a7e1fab8f30fb3ac3be103620c625c46f9ec9aa95ba2c4bd4df416543b3",
+      "normalized_bytes": 54535
+    },
+    {
+      "manifest_path": "../docs/contracts/PIPELINE_EPISODE.md",
+      "repo_path": "docs/contracts/PIPELINE_EPISODE.md",
+      "raw_sha256": "88673a45b1cddd03c54e54364aa082ec5746ee36da174e368c53dc35cbda8e9b",
+      "normalized_sha256": "c812ebdf0e5f34bfb34520f08806cf8e2f16976b6dd5f10e8960d4c7a6e50e7f",
+      "normalized_bytes": 28994
+    },
+    {
+      "manifest_path": "../docs/contracts/SEEDED_TRANSITION.md",
+      "repo_path": "docs/contracts/SEEDED_TRANSITION.md",
+      "raw_sha256": "5428de8f64152ceee1a65d43f268b0c86751848191cf115aa9f3a37dfdc7fdf4",
+      "normalized_sha256": "86ecfa17f059de5289ccf67a89ca7a7880ada16adec5fba3a14bf8731c31d67a",
+      "normalized_bytes": 15054
+    },
+    {
+      "manifest_path": "../docs/contracts/SIMULATOR_COVERAGE.md",
+      "repo_path": "docs/contracts/SIMULATOR_COVERAGE.md",
+      "raw_sha256": "6104bfd8c1ec1cb277435140ee7a0c25d004ba3ed6855c5c3a163668a6302bb6",
+      "normalized_sha256": "f8cfa9a8ce90c9fd57c2d3f3de1fa90262d4e22e846c08db5bc6a551c1fdcd63",
+      "normalized_bytes": 55611
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
+      "raw_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0",
+      "normalized_sha256": "103c7aae8055274c8a3237915c038c74952469c8831db425fd4ede581712eea0",
+      "normalized_bytes": 527
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json",
+      "raw_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee",
+      "normalized_sha256": "21c950a2ef604f5bea3bfaa7c4efa640326bd817d146072ed9aaf6c6675914ee",
+      "normalized_bytes": 24346
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
+      "raw_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114",
+      "normalized_sha256": "3d3d5c929d08027938150b7be76e06b092427c55b9c7bcfa54cad7230dadd114",
+      "normalized_bytes": 297
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
+      "raw_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3",
+      "normalized_sha256": "a685000718e205e2d479de7aa9c65e2562150b8cb816195f7583ac46b11db1c3",
+      "normalized_bytes": 1036
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
+      "raw_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1",
+      "normalized_sha256": "5964c99fc733e5fb3a5ef4fce8d41e8fd8bdf100e3e7f37ca49dba1f1dace4a1",
+      "normalized_bytes": 27555
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
+      "raw_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5",
+      "normalized_sha256": "a2719ff0c3911e800ef7db8850d23d44b95ad36b2ec07b52de7e142c97feacc5",
+      "normalized_bytes": 309
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
+      "raw_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86",
+      "normalized_sha256": "1467f52eae0440863206a5cc0e96c67093dbab869c5a4ea0529cb46f23421f86",
+      "normalized_bytes": 1109
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
+      "raw_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1",
+      "normalized_sha256": "c3b1da0f99cd6f48b091233f200813f7eb75acb2e771e09e87d3f2428b7a9af1",
+      "normalized_bytes": 24374
+    },
+    {
+      "manifest_path": "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+      "repo_path": "docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
+      "raw_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928",
+      "normalized_sha256": "49f566eaea16286bdbd742a5f5c5dced2ba70a14437205fa7beb21a3626fe928",
+      "normalized_bytes": 247
+    },
+    {
+      "manifest_path": "../docs/refactor/COMPLETE_EPISODE_CLOSURE_AUDIT.md",
+      "repo_path": "docs/refactor/COMPLETE_EPISODE_CLOSURE_AUDIT.md",
+      "raw_sha256": "313af5425e1dd4d2c2d72b1db10a7ef41dc8fea42c420687448c440e6fa6fb5b",
+      "normalized_sha256": "6ccabed0590aebf1d7c90a125cdff8338b08fa0d635319fa5a9e623eaadeb527",
+      "normalized_bytes": 605558
+    },
+    {
+      "manifest_path": "../docs/refactor/STATUS.md",
+      "repo_path": "docs/refactor/STATUS.md",
+      "raw_sha256": "689c32826ecac9521b46dea69e5b91f19217a0f4dafd59741354b13b4daf50cf",
+      "normalized_sha256": "460ac06e5a08847e81b8fddf71f0d102d87ead94be6a7a0d45271a5b07358b1d",
+      "normalized_bytes": 34528
+    },
+    {
+      "manifest_path": "../docs/requirements/spec.md",
+      "repo_path": "docs/requirements/spec.md",
+      "raw_sha256": "a7b373ca2fdd4fe22ed309e2c2e3e000ef43eb6328e56bca1e18da4086204a41",
+      "normalized_sha256": "60269b9f4071190283db85b545c5b9d8449d7b9b42517d2684ad0028c96d133a",
+      "normalized_bytes": 37541
+    },
+    {
+      "manifest_path": "../docs/workflows.md",
+      "repo_path": "docs/workflows.md",
+      "raw_sha256": "037725a95284642a79df60aec5613e4c16c5b3ac8cce1b6b70a60da67ccf44bd",
+      "normalized_sha256": "ca06ec25bc12d9c5b77d1cfe200775ffbe4afa6d985a36a7f06eafe0b53e0ad5",
+      "normalized_bytes": 6989
+    },
+    {
+      "manifest_path": "../scripts/generate_cross_platform_simulator_record.ps1",
+      "repo_path": "scripts/generate_cross_platform_simulator_record.ps1",
+      "raw_sha256": "76f85daf402e76731f57ab6681f58056014cf68049edb6fad1aaf297032b6231",
+      "normalized_sha256": "673126db7373dab5d3c19662e7771a5ed03dc4a2eeb325db31fe444e9f166941",
+      "normalized_bytes": 1784
+    },
+    {
+      "manifest_path": "../scripts/validate_windows_simulator_record.ps1",
+      "repo_path": "scripts/validate_windows_simulator_record.ps1",
+      "raw_sha256": "b42aaf8f22c95a23f5ae68c3c1888ac8d5a56dcf0fddb95f52756a85930e68c3",
+      "normalized_sha256": "e03a91f0e1cf3db34a78f33f5940751cde75e738adc6cd2323f9c8408d409ed5",
+      "normalized_bytes": 5698
+    },
+    {
+      "manifest_path": "../tests/fixtures/canonical_action_v1.json",
+      "repo_path": "tests/fixtures/canonical_action_v1.json",
+      "raw_sha256": "81e5c87317fe6151140b351844e64195629a19acc21dad08462e1b15ab845b68",
+      "normalized_sha256": "5e65c78cf714701ae6da965e3b09f9b01585e3cb5ae596e6ad35b8c2a1c87d2d",
+      "normalized_bytes": 7635
+    },
+    {
+      "manifest_path": "../tests/fixtures/observable_state_v1.json",
+      "repo_path": "tests/fixtures/observable_state_v1.json",
+      "raw_sha256": "c429db3d510b0dc9390ed845adc857ef9c111d05f060e1c2613ef48dc943b3f7",
+      "normalized_sha256": "01bd667fc62425d89b3f8f216d1eac1756a8d63e9052668a836bb0c8d095b79b",
+      "normalized_bytes": 5174
+    },
+    {
+      "manifest_path": "../tests/fixtures/observable_state_v2_per_side_gen9randombattle.json",
+      "repo_path": "tests/fixtures/observable_state_v2_per_side_gen9randombattle.json",
+      "raw_sha256": "95421b17a5c7a6dc40f04bb445c9f0adf95555e3df64d8e383e7e68d940d3aa8",
+      "normalized_sha256": "1b4a04d7358b0cafa5afd70c3a79b661f65832e4ce298f7571db4b7b5cb47a33",
+      "normalized_bytes": 3674
+    },
+    {
+      "manifest_path": "../trainer/pyproject.toml",
+      "repo_path": "trainer/pyproject.toml",
+      "raw_sha256": "b644a7f8f578d92a010f1f05352c2617d5337bb07c6659ece80a342ec291a73a",
+      "normalized_sha256": "69b63a4d29261f2e9f1609e08610c3c8955c5d4aedd739a079fec591a4053f37",
+      "normalized_bytes": 929
+    },
+    {
+      "manifest_path": "../trainer/requirements/macos-trainer-live.txt",
+      "repo_path": "trainer/requirements/macos-trainer-live.txt",
+      "raw_sha256": "bf229cdfef5df3894509e5c0a7903479d461b5d5825a28cdcb59baab740b2c3d",
+      "normalized_sha256": "93b4af0e5d168a205cce86e4805743b4bbc6fe668fc7c9e1052f2c5b516d6ebf",
+      "normalized_bytes": 40079
+    },
+    {
+      "manifest_path": "../trainer/requirements/simulator-record.txt",
+      "repo_path": "trainer/requirements/simulator-record.txt",
+      "raw_sha256": "bf4de2916f8ed6c06fb6889ec1a08440f6bab9c255baee382754a7f3766fcb17",
+      "normalized_sha256": "401506d07d080218f8f34b620f5fcf235ab0760463851864d55d4fd6904ca11b",
+      "normalized_bytes": 6106
+    },
+    {
+      "manifest_path": "../trainer/src/neural/canonical_action.py",
+      "repo_path": "trainer/src/neural/canonical_action.py",
+      "raw_sha256": "abe254756cf2dd6b96f5f3c162efd1912f9f652709ab5a6dd04d08ac95814dc5",
+      "normalized_sha256": "50058882685ef8e7d825f62c7adc037ccf7deca0ef4b8dfb6717bbe057767aea",
+      "normalized_bytes": 8224
+    },
+    {
+      "manifest_path": "../trainer/src/neural/pipeline_json_wire.py",
+      "repo_path": "trainer/src/neural/pipeline_json_wire.py",
+      "raw_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "normalized_sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "normalized_bytes": 610
+    },
+    {
+      "manifest_path": "../trainer/src/neural/pipeline_record.py",
+      "repo_path": "trainer/src/neural/pipeline_record.py",
+      "raw_sha256": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c",
+      "normalized_sha256": "be7cad8208de961dd95c2b076ac2fb79ed14e6a918eceebced6ccc1b03aba8ad",
+      "normalized_bytes": 87412
+    },
+    {
+      "manifest_path": "../trainer/src/neural/protocol_contract.json",
+      "repo_path": "trainer/src/neural/protocol_contract.json",
+      "raw_sha256": "3a3e722253d8920e36ba7417b59dce5419f0855f90e8be1a0241f2d2aa6a2502",
+      "normalized_sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+      "normalized_bytes": 155958
+    },
+    {
+      "manifest_path": "../trainer/src/neural/protocol_contract.py",
+      "repo_path": "trainer/src/neural/protocol_contract.py",
+      "raw_sha256": "3223c91bf49862064d847f13308bae209ea9ca9c60149ac8ec9861301d975683",
+      "normalized_sha256": "c5c3016514613a5d6fb0c611b9fa7b8256b6dcb26e7ab54cab210496582a6aab",
+      "normalized_bytes": 66070
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_ability.py",
+      "repo_path": "trainer/src/neural/public_ability.py",
+      "raw_sha256": "5b2f5464ed32105a1b4af759e7c045c748e121645b5da85558e71ed5d86eb485",
+      "normalized_sha256": "6a3512c50afb706f70c1b17da3adae968960b58b2a4d3a3a8a1534ece751b3d4",
+      "normalized_bytes": 13847
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_boosts.py",
+      "repo_path": "trainer/src/neural/public_boosts.py",
+      "raw_sha256": "144e19ed5e74e352e909f48fc817197a5681d3ffa86245df99b7e90cac989ff0",
+      "normalized_sha256": "bd1dc29abf624841812baf292e83d5af257ac1706707888d1c8f23a215b18bdd",
+      "normalized_bytes": 7218
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_field.py",
+      "repo_path": "trainer/src/neural/public_field.py",
+      "raw_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "normalized_sha256": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+      "normalized_bytes": 4187
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_health.py",
+      "repo_path": "trainer/src/neural/public_health.py",
+      "raw_sha256": "f052f9c35aab351fe09e845f13f2188d18fe8a3c0950b37eb7990d4077ea1249",
+      "normalized_sha256": "023f6002bc1dd1a82c65f6091eed071ae1d36729a3255f6d0f74b2a98c3373fb",
+      "normalized_bytes": 11829
+    },
+    {
+      "manifest_path": "../trainer/src/neural/public_item.py",
+      "repo_path": "trainer/src/neural/public_item.py",
+      "raw_sha256": "69ae044685799ac3277c3841e2701bf7a01a4be7e52c4052dbff6ff1d44f28b9",
+      "normalized_sha256": "85b7f8069e1169ee6eea27f30418781720aa81964237cb9a5aac6e1f9d0f39c1",
+      "normalized_bytes": 15247
+    },
+    {
+      "manifest_path": "../trainer/src/neural/ts_identity.py",
+      "repo_path": "trainer/src/neural/ts_identity.py",
+      "raw_sha256": "ea7518f20aa15c0f4d7b6b5766bd49d5f8fbe58b4ed388fd8e8eb7ce36cf3095",
+      "normalized_sha256": "d9086a839312293258fa7a011b4965811253a9f85f66c4998219368c6cf84651",
+      "normalized_bytes": 13074
+    },
+    {
+      "manifest_path": "../trainer/src/neural/typed_state.py",
+      "repo_path": "trainer/src/neural/typed_state.py",
+      "raw_sha256": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd",
+      "normalized_sha256": "ad87df3db3b822ff2dedab47e5eec3a3f232d09cf7eafda9806393056585923d",
+      "normalized_bytes": 12723
+    },
+    {
+      "manifest_path": "../trainer/tests/test_canonical_action.py",
+      "repo_path": "trainer/tests/test_canonical_action.py",
+      "raw_sha256": "9c85bb0d094493b60df8d59055c74fe9b2e6ac2cdeaaaaa5a1aad38edfab51b1",
+      "normalized_sha256": "552b90eb8ac8afd23df0f4d69f89502c11de5ecbea7ec807010db5d590ce33a0",
+      "normalized_bytes": 4031
+    },
+    {
+      "manifest_path": "../trainer/tests/test_major_status_contract.py",
+      "repo_path": "trainer/tests/test_major_status_contract.py",
+      "raw_sha256": "54dbde042023d970c5678aa9c9d2ae34ddccca4674e27947c161ca9d28d2f7f9",
+      "normalized_sha256": "600687a4076df64e7ea2dd25984c9631debafee434e0fb6fdf236996ab75301e",
+      "normalized_bytes": 2216
+    },
+    {
+      "manifest_path": "../trainer/tests/test_perspective_field_semantics.py",
+      "repo_path": "trainer/tests/test_perspective_field_semantics.py",
+      "raw_sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "normalized_sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "normalized_bytes": 10622
+    },
+    {
+      "manifest_path": "../trainer/tests/test_pipeline_record.py",
+      "repo_path": "trainer/tests/test_pipeline_record.py",
+      "raw_sha256": "7dabb2b46c0031461bc9d2eff059f747dec350311639b5f4e434068ecee3fbe2",
+      "normalized_sha256": "d72f998b67541d26bdbd4c7fbd66e7fc6fdddf5411fd982ab9f7727f19953fa9",
+      "normalized_bytes": 118975
+    },
+    {
+      "manifest_path": "../trainer/tests/test_public_consequences.py",
+      "repo_path": "trainer/tests/test_public_consequences.py",
+      "raw_sha256": "0b7d3ea2e24b6c633edbc6d797f18d3746e260d58c41f10ce653f17763c57bad",
+      "normalized_sha256": "8116f34d16f656fb2d09fa11b5e9360c03f968dce74561179772c72d4b9ede70",
+      "normalized_bytes": 24402
+    },
+    {
+      "manifest_path": "../trainer/tests/test_typed_state.py",
+      "repo_path": "trainer/tests/test_typed_state.py",
+      "raw_sha256": "3b9c27bf759c1df9f839f1cdde3d28b359a7569b8134b0a1c2f6eea5ef387b93",
+      "normalized_sha256": "e556553a7df4cef57556d868755706b31438bd00859fb325c7c0eb28c1b46655",
+      "normalized_bytes": 5857
+    },
+    {
+      "manifest_path": "package.json",
+      "repo_path": "sim-core/package.json",
+      "raw_sha256": "8de607454441c88b06738114826981d516029a9c815cc02c3bb3c624e190a16b",
+      "normalized_sha256": "1a81e29560c44c3997437e4f2cf22e2312e71e32448f600394dd5c0d1413f3f4",
+      "normalized_bytes": 849
+    },
+    {
+      "manifest_path": "scripts/check-simulator-coverage.cjs",
+      "repo_path": "sim-core/scripts/check-simulator-coverage.cjs",
+      "raw_sha256": "cebda32430964e9c4912c526a2098d05cc1250754e7fe26f479f1ead9b10cd83",
+      "normalized_sha256": "0fb298da28d44900f091fe8d25f972b2f3e4959a46ec2b4af8c9a7470778d777",
+      "normalized_bytes": 94023
+    },
+    {
+      "manifest_path": "scripts/recover-ce08a-adversarial.cjs",
+      "repo_path": "sim-core/scripts/recover-ce08a-adversarial.cjs",
+      "raw_sha256": "edd4cc4c46c4042d8ca3b52fd43a01ebafbeecd2e34c1508575153c755902e19",
+      "normalized_sha256": "d58a71b2e1e2cf9599cde14789a35cbfbd1fee28a79fa5752fdc7dd6c0e719e0",
+      "normalized_bytes": 9084
+    },
+    {
+      "manifest_path": "scripts/simulator-record-comparison.cjs",
+      "repo_path": "sim-core/scripts/simulator-record-comparison.cjs",
+      "raw_sha256": "d1f6c7e0c862160b99796a4c22225c1c23481a0fce2e6cf8fc034839b0e1aab5",
+      "normalized_sha256": "e513ef62327e241b4eeaa861b4c549339a3b6fef3197f35ad25245f75197e98a",
+      "normalized_bytes": 20085
+    },
+    {
+      "manifest_path": "src/action_codec.ts",
+      "repo_path": "sim-core/src/action_codec.ts",
+      "raw_sha256": "ff695d57ad5cd6e3c66cdb6f7bfa96c8c40e3a88fc6279ef441328da75cc5ce7",
+      "normalized_sha256": "9e82daa190bf2c55d480e958a22ab9ac646dcd8f687d4bae25fcb27cf2c1ac78",
+      "normalized_bytes": 9019
+    },
+    {
+      "manifest_path": "src/baselines/heuristic.ts",
+      "repo_path": "sim-core/src/baselines/heuristic.ts",
+      "raw_sha256": "8bbf19bb29010cf663f4aedea8c5e058b8290d9cbc28ad9e55319195364a80c0",
+      "normalized_sha256": "0e7ebdf965834cd2090a90e6d173b7dcce1a9a15ea5ac36a3fb588ab3deb2710",
+      "normalized_bytes": 13563
+    },
+    {
+      "manifest_path": "src/battle_helpers.ts",
+      "repo_path": "sim-core/src/battle_helpers.ts",
+      "raw_sha256": "c4326af214945ebc68a098c761a501bb4f7468521bd955b8cec6b39d0dfbf2e9",
+      "normalized_sha256": "6a79251137efa04c18150a5a0512756c23e33877224ae46c58624facbc37f994",
+      "normalized_bytes": 4138
+    },
+    {
+      "manifest_path": "src/belief_state.ts",
+      "repo_path": "sim-core/src/belief_state.ts",
+      "raw_sha256": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec",
+      "normalized_sha256": "6502f498eef9b59a42961aec6de3a1b31ed4effca544f61d2d009212f4d12e96",
+      "normalized_bytes": 72042
+    },
+    {
+      "manifest_path": "src/canonical_action.ts",
+      "repo_path": "sim-core/src/canonical_action.ts",
+      "raw_sha256": "971178947f9c8850b8cab8f84683aed6bc91cde67b49a62639c6328d3e82ab70",
+      "normalized_sha256": "bb18e6eecdcb4276242d9d6767c4533141e0ebab499afe6ed7669b2d620552ee",
+      "normalized_bytes": 9874
+    },
+    {
+      "manifest_path": "src/effect_inventory.ts",
+      "repo_path": "sim-core/src/effect_inventory.ts",
+      "raw_sha256": "a9da580d8d8b16c4a0cb6db9b2f525124c5dec46de9cacb0d729180df2ab058c",
+      "normalized_sha256": "5076ac35c8d0a05833eddff08d6067ed74b73997b3134fd5e5e2dcf2279810e9",
+      "normalized_bytes": 4363
+    },
+    {
+      "manifest_path": "src/env_manager.ts",
+      "repo_path": "sim-core/src/env_manager.ts",
+      "raw_sha256": "4876872fb3073b79684503e52f0a443c77c4bce26224f7c58dca91cca2120d6a",
+      "normalized_sha256": "1a2e4b6593077b0065edcdad07c7ebe95413a3ef6791caac4e75df72650e7247",
+      "normalized_bytes": 55676
+    },
+    {
+      "manifest_path": "src/observable_state.ts",
+      "repo_path": "sim-core/src/observable_state.ts",
+      "raw_sha256": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4",
+      "normalized_sha256": "5663dee6c82d3ab69b32b6ff5859813807f0eac2acccd9f120762f58ee1209be",
+      "normalized_bytes": 74993
+    },
+    {
+      "manifest_path": "src/pipeline_episode.ts",
+      "repo_path": "sim-core/src/pipeline_episode.ts",
+      "raw_sha256": "1ffe6eac146ba42ad56ada146190f7d988167bb8ce3ba4c1cf1dc36f02918368",
+      "normalized_sha256": "353aac765d4995796818485d254fdbd09416b5c715981f052e0d6f5eb8415fcd",
+      "normalized_bytes": 21013
+    },
+    {
+      "manifest_path": "src/pipeline_episode_evidence.ts",
+      "repo_path": "sim-core/src/pipeline_episode_evidence.ts",
+      "raw_sha256": "322de6f3755bc91b03784ec5e970bfc72e1aa4a31bd905c2d0105fb1835beddf",
+      "normalized_sha256": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+      "normalized_bytes": 33059
+    },
+    {
+      "manifest_path": "src/pipeline_integration.ts",
+      "repo_path": "sim-core/src/pipeline_integration.ts",
+      "raw_sha256": "8d153ec950002742483d13e695b2459a18bdce07b46abea7f8f7ba5edcb631fb",
+      "normalized_sha256": "5e509d6dff1500d7a05630772a80f76c0c4f1c34a5f61462757e4b8b04c5fc70",
+      "normalized_bytes": 36520
+    },
+    {
+      "manifest_path": "src/protocol_contract.ts",
+      "repo_path": "sim-core/src/protocol_contract.ts",
+      "raw_sha256": "c069d33e8a142f1babf5ba91c12a05063b988126f2c53cfb7889ec87c9e95b04",
+      "normalized_sha256": "65fc6f3eb2b91b150fd1b0af096aa6ab685e13fa395d091a762aced803934642",
+      "normalized_bytes": 36390
+    },
+    {
+      "manifest_path": "src/public_ability.ts",
+      "repo_path": "sim-core/src/public_ability.ts",
+      "raw_sha256": "a3a02d4583a89baf1cb156819fc0ab99155f7758c1ab82043febd5ae6ce3f2da",
+      "normalized_sha256": "cd02e081265ad427fca3f26c4a6a74497f006b23ea33f86d8dae1929b6478180",
+      "normalized_bytes": 14109
+    },
+    {
+      "manifest_path": "src/public_boosts.ts",
+      "repo_path": "sim-core/src/public_boosts.ts",
+      "raw_sha256": "0ccc007e707226e889ac413568b368b381813822369c29bf49c2a8dbd16d1910",
+      "normalized_sha256": "9c4f92d10d4c390ad1662a59f985d631c790a051e3030c3dcd5e486693039c1a",
+      "normalized_bytes": 5811
+    },
+    {
+      "manifest_path": "src/public_field.ts",
+      "repo_path": "sim-core/src/public_field.ts",
+      "raw_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "normalized_sha256": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+      "normalized_bytes": 3331
+    },
+    {
+      "manifest_path": "src/public_health.ts",
+      "repo_path": "sim-core/src/public_health.ts",
+      "raw_sha256": "4a642a28c299a17b809981d9806af407425193c87499fba8b5158e4aa39cb79e",
+      "normalized_sha256": "d268166d2b8f6b69d8f5d0905e93bf42b8d3f918a3a7071d1201f3fdf2bdca6d",
+      "normalized_bytes": 16542
+    },
+    {
+      "manifest_path": "src/public_item.ts",
+      "repo_path": "sim-core/src/public_item.ts",
+      "raw_sha256": "dddd259c12e5bd7cf5d227cbd630047591f81ac68906fadeaad6268010e44535",
+      "normalized_sha256": "98502db79fb5b92db057e140478106b273ade9134f8a5fab8a3368721dfd4a74",
+      "normalized_bytes": 14044
+    },
+    {
+      "manifest_path": "src/settling.ts",
+      "repo_path": "sim-core/src/settling.ts",
+      "raw_sha256": "4d279f9048f5ea010940d32b03d970e75820e761349808fd1cf8bc08f34dece8",
+      "normalized_sha256": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+      "normalized_bytes": 4937
+    },
+    {
+      "manifest_path": "src/state_extractor.ts",
+      "repo_path": "sim-core/src/state_extractor.ts",
+      "raw_sha256": "672c2ccf70ceebff9e9504174925c606d063cdd12a7c2a729f2f837536010563",
+      "normalized_sha256": "caf69c8f945e7404b2e50487a4d8ca1f9e76d62f6ceb42b3ddcd026c49caf51e",
+      "normalized_bytes": 56620
+    },
+    {
+      "manifest_path": "src/transition.ts",
+      "repo_path": "sim-core/src/transition.ts",
+      "raw_sha256": "870b896120be49e64cb96eeb863537794308ae24bc2885ddd47556898eeb5d0d",
+      "normalized_sha256": "7e604e40508fad26c6482034b0a29239e90f691240e8a51f59364f9e654f82f5",
+      "normalized_bytes": 19708
+    },
+    {
+      "manifest_path": "src/typed_state_lifecycle.ts",
+      "repo_path": "sim-core/src/typed_state_lifecycle.ts",
+      "raw_sha256": "b6f7aee19e45597d3c8f8eee2c4ba631764768efc29574d3861f1310f57b36ea",
+      "normalized_sha256": "a133a8c23d94993aab0ad3a6e8f4b921aaa65f76cf0eb8aa08ff392eea75f083",
+      "normalized_bytes": 11160
+    },
+    {
+      "manifest_path": "src/types.ts",
+      "repo_path": "sim-core/src/types.ts",
+      "raw_sha256": "c71176cac65d136335678d3c79303840ba97c63d2ae979ee9d2d5666c3cff978",
+      "normalized_sha256": "3594671834fc26d06e73aabb80844cd83605c836404f2bddb7dcf3fb2648d4dc",
+      "normalized_bytes": 5802
+    },
+    {
+      "manifest_path": "tests/ability_callback.test.ts",
+      "repo_path": "sim-core/tests/ability_callback.test.ts",
+      "raw_sha256": "1c82222a03b17eee96c9c775f29b458a418edcc1cae109d131ff0f83e46d1113",
+      "normalized_sha256": "7606cc59795206c7a7c5f23128248da8a28874db2669f2d092f12ca4d926a4f4",
+      "normalized_bytes": 29742
+    },
+    {
+      "manifest_path": "tests/action_codec.test.ts",
+      "repo_path": "sim-core/tests/action_codec.test.ts",
+      "raw_sha256": "9901cdae365884dd350c602f5db509789a7fdd965594228ebb37ae2cb726a206",
+      "normalized_sha256": "9901cdae365884dd350c602f5db509789a7fdd965594228ebb37ae2cb726a206",
+      "normalized_bytes": 6002
+    },
+    {
+      "manifest_path": "tests/added_types.test.ts",
+      "repo_path": "sim-core/tests/added_types.test.ts",
+      "raw_sha256": "a204b95ebf65ecc6d739a7606fce48a6eebde1a51decf119a35185faf082e4aa",
+      "normalized_sha256": "23d1992b5fd9638c36438c9f1a4beb77f38d652ac2490f643e89117d7d91c46d",
+      "normalized_bytes": 10855
+    },
+    {
+      "manifest_path": "tests/belief_state.test.ts",
+      "repo_path": "sim-core/tests/belief_state.test.ts",
+      "raw_sha256": "512b5277d32ff13c53155c4545085f6b461c27ca532539b2dd41220d9ee5a6d7",
+      "normalized_sha256": "770a0eefe11c287752e156ba3f8e9b571d0833f5a64c442a32049e565dda5aed",
+      "normalized_bytes": 23762
+    },
+    {
+      "manifest_path": "tests/canonical_action.test.ts",
+      "repo_path": "sim-core/tests/canonical_action.test.ts",
+      "raw_sha256": "9197d84980e9d2e022eb175433f643f613a6268ce531f58ea87216564a6bd938",
+      "normalized_sha256": "0a22642dc470c888c9d08ec928605bf4e923ce63037b69228541c55e61d5b29e",
+      "normalized_bytes": 4436
+    },
+    {
+      "manifest_path": "tests/court_change.test.ts",
+      "repo_path": "sim-core/tests/court_change.test.ts",
+      "raw_sha256": "b97610776cd832e33482d4e0da618d9fc19e569acd7264c6b7e3794f161c2d4d",
+      "normalized_sha256": "aae4e554c7b129cd35c5a45b31a02ee93949be2eb280ffe62336a843775f4878",
+      "normalized_bytes": 13619
+    },
+    {
+      "manifest_path": "tests/entry_hazard.test.ts",
+      "repo_path": "sim-core/tests/entry_hazard.test.ts",
+      "raw_sha256": "394c0984548b68151a4b1737534ee41b9a2a1042c233389e3e6be0748970b487",
+      "normalized_sha256": "a9192421a3542e39e96d6cc1def9d838425c23b44804dbaca9c82abc63babcd6",
+      "normalized_bytes": 16142
+    },
+    {
+      "manifest_path": "tests/env_manager.test.ts",
+      "repo_path": "sim-core/tests/env_manager.test.ts",
+      "raw_sha256": "8aa5f203bd9b05aa8aac7fc254554e9224747ce21b120511dc5df7c5a8e58f09",
+      "normalized_sha256": "867c44976688d5db3ab80f5a5fc32ca659d62c19d27f1ae58ee4be9a2f89e90e",
+      "normalized_bytes": 18743
+    },
+    {
+      "manifest_path": "tests/forced_switch.test.ts",
+      "repo_path": "sim-core/tests/forced_switch.test.ts",
+      "raw_sha256": "fd49dccd092897250f34e9edc00ed23187f2e3d814eed63b9845cab796f91749",
+      "normalized_sha256": "03ff9021865481001e57c6f27bbd8b9256a24b8dfaab8d31a13467d7ecb192eb",
+      "normalized_bytes": 20480
+    },
+    {
+      "manifest_path": "tests/future_sight.test.ts",
+      "repo_path": "sim-core/tests/future_sight.test.ts",
+      "raw_sha256": "36a9d4c110bfd8873c405f6a9e69c09388d2eae8c3ed67febd330925b17b698d",
+      "normalized_sha256": "baa1557fc206bf3c4972199292b5d94764fec33751d3ad5ae455cfc210c166f8",
+      "normalized_bytes": 13756
+    },
+    {
+      "manifest_path": "tests/healing_wish.test.ts",
+      "repo_path": "sim-core/tests/healing_wish.test.ts",
+      "raw_sha256": "b3faaba7afd0d2747cb55602196cf56348c210950ff52b2f6ce78814e2737da4",
+      "normalized_sha256": "67f5904769f5123c45df7f3cb739d79e3b3626353d2d07486646e2d6433bfce2",
+      "normalized_bytes": 12099
+    },
+    {
+      "manifest_path": "tests/helpers/state_lifecycle.ts",
+      "repo_path": "sim-core/tests/helpers/state_lifecycle.ts",
+      "raw_sha256": "6c498e37e27794bc534fdc3cfbd771c43f4a53f09854a7ba1a54eeb2f5aea1e5",
+      "normalized_sha256": "d4f44d6ed5f35a406950af0f9b11c9ff172b1b23dec190eb7ead8ab144bf1e70",
+      "normalized_bytes": 3714
+    },
+    {
+      "manifest_path": "tests/illusion.test.ts",
+      "repo_path": "sim-core/tests/illusion.test.ts",
+      "raw_sha256": "143b3fdafc0ed039e6786c4d59a05bdb56c25d27acae0f3c8ee9b0b8d66871e3",
+      "normalized_sha256": "2af13415a40133e0889015f386d48a272feb264626840c86124c33a2c8736463",
+      "normalized_bytes": 45903
+    },
+    {
+      "manifest_path": "tests/item.test.ts",
+      "repo_path": "sim-core/tests/item.test.ts",
+      "raw_sha256": "60c4f5983cf905e29853bf0ebd0b20fc5dfb7ae6068cb7a7e2a1da92872de604",
+      "normalized_sha256": "9cbabfa74f35615e9b88abe3239accf308eb45cbb03157955cc4621f3e02acae",
+      "normalized_bytes": 14672
+    },
+    {
+      "manifest_path": "tests/item_identity.test.ts",
+      "repo_path": "sim-core/tests/item_identity.test.ts",
+      "raw_sha256": "beefaebd5bf7c0db707081d5f51969c81d16e1323ec2a18d52ce5605d4ad1472",
+      "normalized_sha256": "9e5667a03a2470ad4447b131347ea5b467fbf140c9ede5564c39f59cceed536b",
+      "normalized_bytes": 77684
+    },
+    {
+      "manifest_path": "tests/major_status.test.ts",
+      "repo_path": "sim-core/tests/major_status.test.ts",
+      "raw_sha256": "85392bbc78ae00f78847457788250790f40e4ffb9104f42b1e34cb00b411de3c",
+      "normalized_sha256": "972332abe17baa77ae6ef5dee31d4fe41e27b1f04d10c65d2d80657322a7acb0",
+      "normalized_bytes": 4935
+    },
+    {
+      "manifest_path": "tests/observable_state.test.ts",
+      "repo_path": "sim-core/tests/observable_state.test.ts",
+      "raw_sha256": "d5669fad762a978979e30036ee7f885808f718cc1c35b3b4522e27af04b36756",
+      "normalized_sha256": "9e609b38df6be3697288ea3e5aa8c007a7f9b28e738280ce8c58ba9beb0bbc6f",
+      "normalized_bytes": 31329
+    },
+    {
+      "manifest_path": "tests/observable_state_fixture.test.ts",
+      "repo_path": "sim-core/tests/observable_state_fixture.test.ts",
+      "raw_sha256": "1e0855e82101bce3c3f4433b46c190c669df5da69dcdd79045d925c09f8a5a6e",
+      "normalized_sha256": "b886bad2a5db48ff5329b6b09da4bd7eef608bdb055ea9ca892a673a804de7d8",
+      "normalized_bytes": 12220
+    },
+    {
+      "manifest_path": "tests/perspective_field_semantics.test.ts",
+      "repo_path": "sim-core/tests/perspective_field_semantics.test.ts",
+      "raw_sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "normalized_sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "normalized_bytes": 36230
+    },
+    {
+      "manifest_path": "tests/pipeline_episode.test.ts",
+      "repo_path": "sim-core/tests/pipeline_episode.test.ts",
+      "raw_sha256": "bfd64c021d53901748a02e2e7941e2f45dcbf31d627275ed086a8fa97376c49a",
+      "normalized_sha256": "bc4933f27cbefa82bae20e67470cd709ade5409109e4686f91b29ef3fdb81901",
+      "normalized_bytes": 133693
+    },
+    {
+      "manifest_path": "tests/pipeline_episode_faithful.test.ts",
+      "repo_path": "sim-core/tests/pipeline_episode_faithful.test.ts",
+      "raw_sha256": "9faf2629a4fdaeb21f1c9653e679f57727950e0d6cfe962fe42758abd8c599d6",
+      "normalized_sha256": "693c11af6946eb39fc6a9a8bec6c480c1024d81ae83ed851d15b7bc0a026d845",
+      "normalized_bytes": 14678
+    },
+    {
+      "manifest_path": "tests/pipeline_episode_saved_helpers.ts",
+      "repo_path": "sim-core/tests/pipeline_episode_saved_helpers.ts",
+      "raw_sha256": "d176ac75d72415852ba1ce7b3fa9efc939cb6c8d4c265b0175b4f7b46ed80be5",
+      "normalized_sha256": "95bfd6436598753fa0a24bfec1a1de401585f6c3d8ea2c210cae67cc239fcb2c",
+      "normalized_bytes": 7842
+    },
+    {
+      "manifest_path": "tests/pipeline_episode_stop_repair.test.ts",
+      "repo_path": "sim-core/tests/pipeline_episode_stop_repair.test.ts",
+      "raw_sha256": "1c0d43d9608307e9bcb1cb66afcee189bf6fc29ceb54e092cb2da31615e7b031",
+      "normalized_sha256": "c62098985a9df8fff7291ba8bc4413ea7a27271c9abe3198958846c663e79ebd",
+      "normalized_bytes": 8690
+    },
+    {
+      "manifest_path": "tests/pipeline_integration.test.ts",
+      "repo_path": "sim-core/tests/pipeline_integration.test.ts",
+      "raw_sha256": "b28546be086a6d65253e44b0f5276494e7fc61a8a113a13cea537207156a9455",
+      "normalized_sha256": "e830ef61aa2c31f95ee6d43a3acd1e60bd9d03c688ccb8c046020a3c4723abde",
+      "normalized_bytes": 63644
+    },
+    {
+      "manifest_path": "tests/pipeline_utf8_transport.test.ts",
+      "repo_path": "sim-core/tests/pipeline_utf8_transport.test.ts",
+      "raw_sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "normalized_sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "normalized_bytes": 4908
+    },
+    {
+      "manifest_path": "tests/protocol_contract_validation.test.ts",
+      "repo_path": "sim-core/tests/protocol_contract_validation.test.ts",
+      "raw_sha256": "1b384a337eea078841df8f85148bbdbdc5c5442850032024727d25a9b51f0fed",
+      "normalized_sha256": "7ada0d5096ae07287895a9a37d56275a61c867cb188d9819a53e78749356932c",
+      "normalized_bytes": 43436
+    },
+    {
+      "manifest_path": "tests/psych_up.test.ts",
+      "repo_path": "sim-core/tests/psych_up.test.ts",
+      "raw_sha256": "1933bc583f4a77685a730e184f6c7dd8144d60040f2ece61bbb45bb9fac98b91",
+      "normalized_sha256": "b7cca09ddf4f6bdc1b7158daa4baadcc43164bc2911ef42f80659f061ff475ab",
+      "normalized_bytes": 14542
+    },
+    {
+      "manifest_path": "tests/psych_up_validation.test.ts",
+      "repo_path": "sim-core/tests/psych_up_validation.test.ts",
+      "raw_sha256": "242eb80b5f564d3904dcf2c75de5400d12fedb0d1bde8a6dbdb00572e615a5c4",
+      "normalized_sha256": "6658d788fa6f1456bfd6648e9eb3124fbeb1657006c636a292dbc18b303fc945",
+      "normalized_bytes": 8767
+    },
+    {
+      "manifest_path": "tests/public_consequence_test_helpers.ts",
+      "repo_path": "sim-core/tests/public_consequence_test_helpers.ts",
+      "raw_sha256": "1c71be5e61d8b4e89023223ff74604a022187ddaca606b935d7b463cbcd37a0c",
+      "normalized_sha256": "8bd8c77bcecfa8cb05d5696ef9e86c924ce9bc1216ed27c22c936757c53e789b",
+      "normalized_bytes": 20859
+    },
+    {
+      "manifest_path": "tests/public_consequences.test.ts",
+      "repo_path": "sim-core/tests/public_consequences.test.ts",
+      "raw_sha256": "b1df23aab209166e491b4bb8fbcce0e5c88f985cfd9fc6131a61352fa86d42a1",
+      "normalized_sha256": "48250e82424214a81a4005525453cdd528de6d056322dbe1b4ce49bab173f0ae",
+      "normalized_bytes": 16521
+    },
+    {
+      "manifest_path": "tests/public_stages.test.ts",
+      "repo_path": "sim-core/tests/public_stages.test.ts",
+      "raw_sha256": "9eb62e1c77405a9603ed536adcb707229db38223e9e0c885ac212d92060e68c0",
+      "normalized_sha256": "2ba9e0bea0b610ee779fd08ba0461446e69f217c88d6d025d26c00750f3be7b4",
+      "normalized_bytes": 31374
+    },
+    {
+      "manifest_path": "tests/record_identity.test.ts",
+      "repo_path": "sim-core/tests/record_identity.test.ts",
+      "raw_sha256": "0f3ff11a0f0e2b9a93a99404275cc42efa5c94c3541ca4c5a6fd8affc3870324",
+      "normalized_sha256": "75d220c7bf50f8849ecf29558652eb0e4da4e3848a8cb6fd01ae273ad696ce0e",
+      "normalized_bytes": 14347
+    },
+    {
+      "manifest_path": "tests/repeat_use.test.ts",
+      "repo_path": "sim-core/tests/repeat_use.test.ts",
+      "raw_sha256": "325ad83415243ca1dbfd3ad92d65c8b5a1064b76b9fb7bb884c49984d44dc821",
+      "normalized_sha256": "98dcb9b8964d861a6c6fa1b792089e11d2d489f51e6e11e3ce6dc75522beeb00",
+      "normalized_bytes": 10139
+    },
+    {
+      "manifest_path": "tests/revival.test.ts",
+      "repo_path": "sim-core/tests/revival.test.ts",
+      "raw_sha256": "8924c87118f835369f3c9c2db9970d51b660efba451a2cf892f816478207163a",
+      "normalized_sha256": "f033a2f16bb14cccfb5318853dcdb70aafe47a03c0bf5a0dcc943ac90a4b912e",
+      "normalized_bytes": 23899
+    },
+    {
+      "manifest_path": "tests/roost.test.ts",
+      "repo_path": "sim-core/tests/roost.test.ts",
+      "raw_sha256": "3f8233814e02a3d341449b799d63924b5c04b9d8885be993bcb0a10ae8b6cdd0",
+      "normalized_sha256": "b9eb10bf5204265964f652d5cc84a7a13a17c4be694dd44e5bacc43ad8276569",
+      "normalized_bytes": 33392
+    },
+    {
+      "manifest_path": "tests/screen.test.ts",
+      "repo_path": "sim-core/tests/screen.test.ts",
+      "raw_sha256": "09bb003c11c8b52a7b0dd96013288a0caac97554601d4de67f8b1009a71f7d74",
+      "normalized_sha256": "862b17e3170c217227e4993b0548a0fc283b3d69f70ff18426e7aa6484b65bff",
+      "normalized_bytes": 11236
+    },
+    {
+      "manifest_path": "tests/selective_boosts.test.ts",
+      "repo_path": "sim-core/tests/selective_boosts.test.ts",
+      "raw_sha256": "562996a44010dcf5f6e02297c73396fc92ec2556be2c7b0d63dc3412f5dec7d0",
+      "normalized_sha256": "8175b0d851c51848be806073d66b6d3f9cc869f57ecdd877920a237eacf53aee",
+      "normalized_bytes": 12271
+    },
+    {
+      "manifest_path": "tests/settling.test.ts",
+      "repo_path": "sim-core/tests/settling.test.ts",
+      "raw_sha256": "298c2d57647d5c0f69b1603b49506c375147f138023223d2b288fd219a9552ff",
+      "normalized_sha256": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b",
+      "normalized_bytes": 11458
+    },
+    {
+      "manifest_path": "tests/simulator_coverage.test.ts",
+      "repo_path": "sim-core/tests/simulator_coverage.test.ts",
+      "raw_sha256": "d9922df22aa0c2c19a920c6a1039e79f1e3094d51647b7b2f02b5e0b87ed47ad",
+      "normalized_sha256": "759a64d7a44183a89a0a292eaba464ed937698790e97e7159dfee6692262b689",
+      "normalized_bytes": 14225
+    },
+    {
+      "manifest_path": "tests/singlemove.test.ts",
+      "repo_path": "sim-core/tests/singlemove.test.ts",
+      "raw_sha256": "4abba8f2102fc4102d76ef58ac2b9fe69513a57063e4ed62c64608f14c08f1a4",
+      "normalized_sha256": "729000786aab74d94bd6235431978db9d5fc00a12cc66e6a80cd36620ed7e742",
+      "normalized_bytes": 12169
+    },
+    {
+      "manifest_path": "tests/slot_consequence_fixtures.ts",
+      "repo_path": "sim-core/tests/slot_consequence_fixtures.ts",
+      "raw_sha256": "5a212fa6bfa4589786e3c217782c57551b5eadf1da728f08258976538631f673",
+      "normalized_sha256": "80f8236264ba8c15ba341a5de68b058defc4abee2840601e4d5573e859e9dee6",
+      "normalized_bytes": 4140
+    },
+    {
+      "manifest_path": "tests/soak.test.ts",
+      "repo_path": "sim-core/tests/soak.test.ts",
+      "raw_sha256": "287c08c89e66d3aab918b97b06fbd5c8fce9861208173c81def0f32b82c58f94",
+      "normalized_sha256": "824d03964d5ffb8df54686911d664a706c1184ee7553e8a924ced070af5c1b29",
+      "normalized_bytes": 13207
+    },
+    {
+      "manifest_path": "tests/spirit_shackle.test.ts",
+      "repo_path": "sim-core/tests/spirit_shackle.test.ts",
+      "raw_sha256": "926787e88b34f27b976831a2559494f4c299f0b1dca4f817aa7a67f08bfee1c2",
+      "normalized_sha256": "a5ff0a1405c298f3442e7991eb0da168886feed9499e5660f36a5dd81b27e19e",
+      "normalized_bytes": 21136
+    },
+    {
+      "manifest_path": "tests/state_extractor.test.ts",
+      "repo_path": "sim-core/tests/state_extractor.test.ts",
+      "raw_sha256": "b9ba96347c3371ff33d00f969c1ee24656df7b02f27661feaf4f948dca34aae9",
+      "normalized_sha256": "285b5dff556935a20702004a7233a18e517c1404f7face971ddd30057f522c70",
+      "normalized_bytes": 19706
+    },
+    {
+      "manifest_path": "tests/terrain.test.ts",
+      "repo_path": "sim-core/tests/terrain.test.ts",
+      "raw_sha256": "1af9fd46fe2abd66687c3157eeb2f3c99bc970661eac93c6761e95f262d2f60c",
+      "normalized_sha256": "2c0c3617bb576b4d33c5e39e1910e43875ce82e538ebc8ff1b571672ab467fa7",
+      "normalized_bytes": 12356
+    },
+    {
+      "manifest_path": "tests/transform_boosts.test.ts",
+      "repo_path": "sim-core/tests/transform_boosts.test.ts",
+      "raw_sha256": "7b10e16d9d221ab542a194ed145d243d17fe9e604808a55b424932918061ab8c",
+      "normalized_sha256": "eb0263f251a1a129ae1c4508fe90bb804e830441510e5e9015defa4c1750ded2",
+      "normalized_bytes": 12167
+    },
+    {
+      "manifest_path": "tests/transform_types.test.ts",
+      "repo_path": "sim-core/tests/transform_types.test.ts",
+      "raw_sha256": "189a88d837eb45ec8d0a5abd5110bad08ea99473925a372244b8500878500fc1",
+      "normalized_sha256": "677b3b1502deb1f4d6996f6a59127c84e6501a1125eafacee76f7ca2f38915ba",
+      "normalized_bytes": 11997
+    },
+    {
+      "manifest_path": "tests/trick_room.test.ts",
+      "repo_path": "sim-core/tests/trick_room.test.ts",
+      "raw_sha256": "f0c9291d005fbde1e6f68fb27d876f7bceaf9f4bae96d0ca1806fe3ad5b962bf",
+      "normalized_sha256": "f4797bd1c71da1c9cc6c391c0583e21f5ba1a4c8dea4661db34f6354334990d8",
+      "normalized_bytes": 11331
+    },
+    {
+      "manifest_path": "tests/typed_state_lifecycle.test.ts",
+      "repo_path": "sim-core/tests/typed_state_lifecycle.test.ts",
+      "raw_sha256": "00ca60fe90f0f01b94765796e5650bc546112ef0a13e06c447fd6c3dd320956c",
+      "normalized_sha256": "9e1d4956c7508ef43057b77cf9e49066deeb661ebf66a8244c29dd903f7718f5",
+      "normalized_bytes": 6570
+    },
+    {
+      "manifest_path": "tests/weather.test.ts",
+      "repo_path": "sim-core/tests/weather.test.ts",
+      "raw_sha256": "1ef94bfa5d11c8f5b66eee242439c79e8243e7675754fbbcff6345937191dd47",
+      "normalized_sha256": "f4d48522928b31796c47c35526148b64a22d47c8198025815c1392db2ebab61f",
+      "normalized_bytes": 10756
+    },
+    {
+      "manifest_path": "tests/wish.test.ts",
+      "repo_path": "sim-core/tests/wish.test.ts",
+      "raw_sha256": "997ec3ebad808e733d91747059c4febce98ddd7a1b97ba25f42dca823ce7ca85",
+      "normalized_sha256": "b46adde74e2df1b2e79c068f123fedbbb16c97ebd98216ca545ce9468c5df097",
+      "normalized_bytes": 11274
+    },
+    {
+      "manifest_path": "tests/wish_fixture.ts",
+      "repo_path": "sim-core/tests/wish_fixture.ts",
+      "raw_sha256": "148139270c2ceb0d97ba1c6e16982345dec83b3c0cb90f23f557a7f0aed3093e",
+      "normalized_sha256": "c83a6a1b785b14747ac9a8c4471f0f853d2f6d06aca8aa1f9b0684bd1dac6334",
+      "normalized_bytes": 1780
+    }
+  ]
+}

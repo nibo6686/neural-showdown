@@ -1,0 +1,1719 @@
+--- /dev/null
++++ candidate-after/sim-core/src/request_knowledge.ts
+@@ -0,0 +1,173 @@
++import { createHash } from 'node:crypto';
++import { parseKnowledgeJson } from './perspective_knowledge';
++
++/**
++ * request-knowledge/v1 sidecar (Prompt 14 / S01b). Pure builder from the exact addressed request text, the
++ * owner and the already-validated v1/v2 observation of the same boundary. It never feeds legal-action
++ * construction and never changes an observation. Null means "the raw key was absent", never a default.
++ * See docs/contracts/REQUEST_KNOWLEDGE.md.
++ */
++export const REQUEST_KNOWLEDGE_SCHEMA = 'request-knowledge/v1';
++export const FRESH_DELIVERY = 'fresh_delivery';
++const MAX_RAW_SCALARS = 65536;
++const OBSERVATION_SCHEMAS = ['observable-battle-state/v1', 'observable-battle-state/v2'];
++const OWNERS = ['p1', 'p2'];
++
++export class RequestKnowledgeError extends Error {
++  constructor(readonly code: string) { super(code); this.name = 'RequestKnowledgeError'; }
++}
++// eslint-disable-next-line @typescript-eslint/no-explicit-any
++type Json = any;
++const need = (condition: unknown, code: string): void => { if (!condition) throw new RequestKnowledgeError(code); };
++const isObject = (value: Json): boolean => typeof value === 'object' && value !== null && !Array.isArray(value);
++const isInt = (value: Json): boolean => Number.isInteger(value) && value >= 0 && value <= 2147483647;
++const onlyKeys = (value: Json, allowed: string[], code: string): void => need(Object.keys(value).every(key => allowed.includes(key)), code);
++
++export interface RequestKnowledge {
++  schema_version: string; id: string; battle_id: string; perspective: string; observation_schema_version: string;
++  observation_id: string; event_cursor: number; presence: string; request_present: boolean; raw_request: string | null;
++  rqid: number | null; active: Json;
++}
++
++function scalars(text: string): number { let n = 0; for (const _ of text) n++; return n; }
++
++/** Canonical form of PERSPECTIVE_KNOWLEDGE.md for this record class: ASCII keys sorted, minimal integers, no normalization. */
++export function canonicalRequestKnowledgeJson(value: Json, key = ''): string {
++  if (value === null) return 'null';
++  if (typeof value === 'boolean') return value ? 'true' : 'false';
++  if (typeof value === 'number') { need(isInt(value), 'wire-number'); return String(value); }
++  if (typeof value === 'string') { need(scalars(value) <= (key === 'raw_request' ? MAX_RAW_SCALARS : 256), 'wire-size'); need(!/[\ud800-\udfff]/.test(value.replace(/[\ud800-\udbff][\udc00-\udfff]/g, '')), 'wire-surrogate'); return JSON.stringify(value); }
++  if (Array.isArray(value)) return '[' + value.map((entry: Json) => canonicalRequestKnowledgeJson(entry)).join(',') + ']';
++  need(isObject(value), 'wire-type');
++  return '{' + Object.keys(value).sort().map(key => { need(/^[\x00-\x7f]*$/.test(key), 'wire-key'); return JSON.stringify(key) + ':' + canonicalRequestKnowledgeJson(value[key], key); }).join(',') + '}';
++}
++
++export function requestKnowledgeId(record: Json): string {
++  const { id: _id, ...body } = record;
++  return 'rkn-' + createHash('sha256').update(REQUEST_KNOWLEDGE_SCHEMA + '\n', 'ascii').update(canonicalRequestKnowledgeJson(body), 'utf8').digest('hex');
++}
++
++const fainted = (condition: string): boolean => /(^| )fnt$/.test(condition);
++
++/** Strict singles grammar of one addressed request; unknown keys fail closed. */
++function parseRaw(owner: string, text: string): { kind: string; raw: Json } {
++  need(typeof text === 'string' && scalars(text) <= MAX_RAW_SCALARS, 'raw-size');
++  let raw: Json;
++  try { raw = parseKnowledgeJson(text); } catch { throw new RequestKnowledgeError('raw-json'); }
++  need(isObject(raw), 'raw-grammar');
++  need(!raw.teamPreview, 'team-preview');
++  onlyKeys(raw, ['active', 'wait', 'forceSwitch', 'side', 'rqid', 'noCancel'], 'raw-grammar');
++  need(['active', 'wait', 'forceSwitch'].filter(key => key in raw).length === 1, 'raw-grammar');
++  need(!('rqid' in raw) || isInt(raw.rqid), 'raw-grammar');
++  need(!('noCancel' in raw) || (raw.noCancel === true && 'forceSwitch' in raw), 'raw-grammar');
++  need(isObject(raw.side) && Array.isArray(raw.side.pokemon) && raw.side.pokemon.length >= 1, 'raw-grammar');
++  need(raw.side.pokemon.length <= 6 && typeof raw.side.name === 'string', 'raw-grammar');
++  need(Object.keys(raw.side).every(key => ['name', 'id', 'pokemon'].includes(key)), 'raw-grammar');
++  need(raw.side.id === owner, 'wrong-owner');
++  for (const pokemon of raw.side.pokemon) {
++    need(isObject(pokemon) && typeof pokemon.ident === 'string' && typeof pokemon.condition === 'string' && typeof pokemon.active === 'boolean', 'raw-grammar');
++    need(pokemon.ident.startsWith(owner + ': '), 'wrong-owner');
++  }
++  need(raw.side.pokemon.filter((p: Json) => p.active).length <= 1, 'doubles');
++  need(raw.side.pokemon.filter((p: Json) => p.active).length === 1, 'raw-grammar');
++  if ('wait' in raw) { need(raw.wait === true, 'raw-grammar'); return { kind: 'waiting', raw }; }
++  if ('forceSwitch' in raw) {
++    need(Array.isArray(raw.forceSwitch), 'raw-grammar');
++    need(raw.forceSwitch.length <= 1, 'doubles');
++    need(raw.forceSwitch.length === 1 && raw.forceSwitch[0] === true, 'raw-grammar');
++    return { kind: raw.side.pokemon.some((p: Json) => p.reviving === true) ? 'revival_selection' : 'forced_switch', raw };
++  }
++  need(Array.isArray(raw.active), 'raw-grammar');
++  need(raw.active.length <= 1, 'doubles');
++  need(raw.active.length === 1 && isObject(raw.active[0]), 'raw-grammar');
++  return { kind: 'actionable', raw };
++}
++
++function deriveActive(raw: Json): Json {
++  const source = raw.active[0];
++  onlyKeys(source, ['moves', 'maybeDisabled', 'maybeTrapped', 'trapped', 'canTerastallize'], 'raw-grammar');
++  for (const key of ['maybeDisabled', 'maybeTrapped', 'trapped']) need(!(key in source) || source[key] === true, 'raw-grammar');
++  need(!('canTerastallize' in source) || typeof source.canTerastallize === 'string', 'raw-grammar');
++  need(Array.isArray(source.moves) && source.moves.length >= 1 && source.moves.length <= 4, 'raw-grammar');
++  const rows = source.moves.map((row: Json, index: number) => {
++    need(isObject(row), 'raw-grammar');
++    onlyKeys(row, ['move', 'id', 'pp', 'maxpp', 'target', 'disabled'], 'raw-grammar');
++    need(typeof row.move === 'string' && row.move !== '' && typeof row.id === 'string' && row.id !== '', 'raw-grammar');
++    need(scalars(row.move) <= 256 && scalars(row.id) <= 256 && (!('target' in row) || (typeof row.target === 'string' && scalars(row.target) <= 256)), 'raw-grammar');
++    need(!('pp' in row) || isInt(row.pp), 'raw-grammar');
++    need(!('maxpp' in row) || isInt(row.maxpp), 'raw-grammar');
++    need(!('target' in row) || typeof row.target === 'string', 'raw-grammar');
++    need(!('disabled' in row) || typeof row.disabled === 'boolean', 'raw-grammar');
++    return { slot: index + 1, id: row.id, name: row.move, pp: 'pp' in row ? row.pp : null, max_pp: 'maxpp' in row ? row.maxpp : null,
++      target: 'target' in row ? row.target : null, disabled: 'disabled' in row ? row.disabled : null };
++  });
++  const lockedShape = rows.length === 1 && rows[0].pp === null && rows[0].max_pp === null;
++  const lock = !lockedShape ? 'no_hard_lock' : rows[0].id === 'recharge' ? 'recharge' : rows[0].id === 'struggle' ? 'struggle' : 'locked_move';
++  const switchIn = raw.side.pokemon.some((p: Json) => !p.active && !fainted(p.condition));
++  need(!(source.trapped === true && source.maybeTrapped === true), 'raw-grammar');
++  // Pinned singles source rule (pokemon.js getMoveRequestData): trapped/maybeTrapped are only emitted while a switch-in exists.
++  const trapped = source.trapped === true ? true : switchIn ? false : null;
++  const maybeTrapped = source.maybeTrapped === true ? true : source.trapped === true ? false : switchIn ? false : null;
++  return {
++    lock, trapped, maybe_trapped: maybeTrapped, maybe_disabled: source.maybeDisabled === true, switch_in_available: switchIn,
++    derivation: {
++      lock: lockedShape ? 'bare_single_row' : 'pp_bearing_rows',
++      trapped: source.trapped === true ? 'raw_true' : switchIn ? 'omitted_with_switch_in' : 'omitted_without_switch_in',
++      maybe_trapped: source.maybeTrapped === true ? 'raw_true' : source.trapped === true ? 'superseded_by_trapped' : switchIn ? 'omitted_with_switch_in' : 'omitted_without_switch_in',
++      maybe_disabled: source.maybeDisabled === true ? 'raw_true' : 'omitted_singles_rule',
++    },
++    moves: rows,
++  };
++}
++
++/** Join to the unchanged observation: every carried request fact must equal `value ?? legacy default`, and legality must follow the request. */
++function joinObservation(owner: string, kind: string, raw: Json, active: Json, observation: Json): void {
++  const request = observation.request;
++  need(isObject(request) && request.player === owner && !request.team_preview, request && request.team_preview ? 'team-preview' : 'observation-mismatch');
++  need(request.wait === (kind === 'waiting') && request.force_switch === (kind === 'forced_switch' || kind === 'revival_selection'), 'presence-mismatch');
++  need((request.rqid ?? null) === (raw.rqid ?? null), 'observation-mismatch');
++  need(raw.side.pokemon.length === request.side.length && raw.side.pokemon.every((p: Json, i: number) => request.side[i].ident === p.ident
++    && request.side[i].condition === p.condition && request.side[i].active === p.active && (request.side[i].reviving === true) === (p.reviving === true)), 'observation-mismatch');
++  const availability = observation.decision_availability;
++  need(kind === 'waiting' || (availability.available && request.legal_actions.available_indices.length > 0), 'no-legal-actions');
++  if (!active) { need(request.active === null, 'observation-mismatch'); return; }
++  const seen = request.active;
++  need(isObject(seen) && seen.moves.length === active.moves.length, 'observation-mismatch');
++  active.moves.forEach((row: Json, i: number) => {
++    const carried = seen.moves[i];
++    need(carried.slot === row.slot && carried.id === row.id && carried.move === row.name && carried.pp === (row.pp ?? 0)
++      && carried.maxpp === (row.max_pp ?? 0) && carried.target === (row.target ?? 'normal') && carried.disabled === (row.disabled ?? false), 'observation-mismatch');
++  });
++  need(seen.trapped === (active.trapped === true) && request.trapped === (active.trapped === true), 'observation-mismatch');
++  need(seen.can_switch === (active.trapped !== true && active.switch_in_available), 'observation-mismatch');
++  // A numbered move action must be a request-supplied, enabled row with PP (or the request-supplied Struggle row).
++  for (const action of request.legal_actions.actions) {
++    if (!action || (action.kind !== 'move' && action.kind !== 'move_tera') || action.slot === null) continue;
++    const row = active.moves[action.slot - 1];
++    need(row && row.disabled !== true && ((row.pp !== null && row.pp > 0) || (row.id === 'struggle' && row.pp === null)), 'legality-mismatch');
++  }
++}
++
++export function buildRequestKnowledge(owner: string, rawText: string | null, observation: Json, provenance: string): RequestKnowledge {
++  need(provenance === FRESH_DELIVERY, 'provenance');
++  need(OWNERS.includes(owner) && isObject(observation) && observation.perspective === owner, 'wrong-owner');
++  need(OBSERVATION_SCHEMAS.includes(observation.schema_version) && /^obs-[0-9a-f]{64}$/.test(observation.observation_id)
++    && isInt(observation.event_cursor) && typeof observation.battle_id === 'string' && observation.battle_id !== '' && scalars(observation.battle_id) <= 256, 'observation-mismatch');
++  let presence: string; let raw: Json = null; let active: Json = null;
++  if (observation.view.terminated) { presence = 'terminal'; need(rawText === null && observation.request === null, 'presence-mismatch'); }
++  else if (observation.request === null) { presence = 'requestless'; need(rawText === null, 'presence-mismatch'); }
++  else {
++    need(typeof rawText === 'string', 'presence-mismatch');
++    const parsed = parseRaw(owner, rawText as string);
++    presence = parsed.kind; raw = parsed.raw;
++    active = presence === 'actionable' ? deriveActive(raw) : null;
++    joinObservation(owner, presence, raw, active, observation);
++  }
++  const record = {
++    schema_version: REQUEST_KNOWLEDGE_SCHEMA, id: '', battle_id: observation.battle_id, perspective: owner,
++    observation_schema_version: observation.schema_version, observation_id: observation.observation_id, event_cursor: observation.event_cursor,
++    presence, request_present: rawText !== null, raw_request: rawText, rqid: raw && 'rqid' in raw ? raw.rqid : null, active,
++  };
++  record.id = requestKnowledgeId(record);
++  return record;
++}
+--- /dev/null
++++ candidate-after/trainer/src/neural/request_knowledge.py
+@@ -0,0 +1,412 @@
++"""request-knowledge/v1 sidecar (Prompt 14 / S01b), Python side.
++
++``build_request_knowledge`` mirrors the TypeScript builder. ``validate_request_knowledge`` is an independent
++checker: it re-derives every field from ``raw_request`` with its own grammar and joins the result to the
++unchanged v1/v2 observation. Without a delivery registry it is structure-only about who was delivered the
++text. Pure functions; nothing here feeds legal-action construction. See docs/contracts/REQUEST_KNOWLEDGE.md.
++"""
++import hashlib
++import json
++import re
++import sys
++
++from neural.perspective_knowledge import KnowledgeStructureError, parse_knowledge_json
++from neural.ts_identity import verify_observation
++
++SCHEMA = 'request-knowledge/v1'
++FRESH_DELIVERY = 'fresh_delivery'
++OWNERS = ('p1', 'p2')
++OBSERVATION_SCHEMAS = ('observable-battle-state/v1', 'observable-battle-state/v2')
++PRESENCES = ('actionable', 'waiting', 'forced_switch', 'revival_selection', 'requestless', 'terminal')
++LOCKS = ('no_hard_lock', 'locked_move', 'recharge', 'struggle')
++MAX_RAW_SCALARS = 65536
++MAX_INT = 2147483647
++TOP_KEYS = ('schema_version', 'id', 'battle_id', 'perspective', 'observation_schema_version', 'observation_id', 'event_cursor',
++            'presence', 'request_present', 'raw_request', 'rqid', 'active')
++ACTIVE_KEYS = ('lock', 'trapped', 'maybe_trapped', 'maybe_disabled', 'switch_in_available', 'derivation', 'moves')
++DERIVATION_VALUES = {
++    'lock': ('bare_single_row', 'pp_bearing_rows'),
++    'trapped': ('raw_true', 'omitted_with_switch_in', 'omitted_without_switch_in'),
++    'maybe_trapped': ('raw_true', 'superseded_by_trapped', 'omitted_with_switch_in', 'omitted_without_switch_in'),
++    'maybe_disabled': ('raw_true', 'omitted_singles_rule'),
++}
++MOVE_KEYS = ('slot', 'id', 'name', 'pp', 'max_pp', 'target', 'disabled')
++
++
++class RequestKnowledgeError(ValueError):
++    def __init__(self, code):
++        super().__init__(code)
++        self.code = code
++
++
++def _need(condition, code):
++    if not condition:
++        raise RequestKnowledgeError(code)
++
++
++def _is_int(value):
++    return type(value) is int and 0 <= value <= MAX_INT
++
++
++def _is_str(value, limit=256):
++    return type(value) is str and len(value) <= limit and not any(0xD800 <= ord(c) <= 0xDFFF for c in value)
++
++
++def canonical_request_knowledge_json(value):
++    """Canonical bytes: ASCII keys sorted, minimal integers, UTF-8 strings, no normalization; floats and bool-as-int reject."""
++    def visit(item, key=''):
++        if item is None: return 'null'
++        if type(item) is bool: return 'true' if item else 'false'
++        if type(item) is int:
++            _need(0 <= item <= MAX_INT, 'wire-number'); return str(item)
++        if type(item) is str:
++            _need(_is_str(item, MAX_RAW_SCALARS if key == 'raw_request' else 256), 'wire-size'); return json.dumps(item, ensure_ascii=False)
++        if type(item) is list: return '[' + ','.join(visit(entry) for entry in item) + ']'
++        _need(type(item) is dict and all(type(k) is str and k.isascii() for k in item), 'wire-type')
++        return '{' + ','.join(json.dumps(k) + ':' + visit(item[k], k) for k in sorted(item)) + '}'
++    return visit(value).encode('utf-8')
++
++
++def request_knowledge_id(record):
++    body = {k: v for k, v in record.items() if k != 'id'}
++    return 'rkn-' + hashlib.sha256((SCHEMA + '\n').encode('ascii') + canonical_request_knowledge_json(body)).hexdigest()
++
++
++def _fainted(condition):
++    return condition == 'fnt' or condition.endswith(' fnt')
++
++
++# ------------------------------------------------------------------------------------------------ builder
++
++
++def _parse_raw(owner, text):
++    _need(type(text) is str and len(text) <= MAX_RAW_SCALARS, 'raw-size')
++    try:
++        raw = parse_knowledge_json(text)
++    except KnowledgeStructureError:
++        raise RequestKnowledgeError('raw-json') from None
++    _need(type(raw) is dict, 'raw-grammar')
++    _need(not raw.get('teamPreview'), 'team-preview')
++    _need(set(raw) <= {'active', 'wait', 'forceSwitch', 'side', 'rqid', 'noCancel'}, 'raw-grammar')
++    _need(sum(key in raw for key in ('active', 'wait', 'forceSwitch')) == 1, 'raw-grammar')
++    _need('rqid' not in raw or _is_int(raw['rqid']), 'raw-grammar')
++    _need('noCancel' not in raw or (raw['noCancel'] is True and 'forceSwitch' in raw), 'raw-grammar')
++    side = raw.get('side')
++    _need(type(side) is dict and set(side) <= {'name', 'id', 'pokemon'} and type(side.get('name')) is str, 'raw-grammar')
++    _need(type(side.get('pokemon')) is list and 1 <= len(side['pokemon']) <= 6, 'raw-grammar')
++    _need(side.get('id') == owner, 'wrong-owner')
++    for pokemon in side['pokemon']:
++        _need(type(pokemon) is dict and type(pokemon.get('ident')) is str and type(pokemon.get('condition')) is str
++              and type(pokemon.get('active')) is bool, 'raw-grammar')
++        _need(pokemon['ident'].startswith(owner + ': '), 'wrong-owner')
++    actives = sum(p['active'] for p in side['pokemon'])
++    _need(actives <= 1, 'doubles')
++    _need(actives == 1, 'raw-grammar')
++    if 'wait' in raw:
++        _need(raw['wait'] is True, 'raw-grammar')
++        return 'waiting', raw
++    if 'forceSwitch' in raw:
++        _need(type(raw['forceSwitch']) is list, 'raw-grammar')
++        _need(len(raw['forceSwitch']) <= 1, 'doubles')
++        _need(raw['forceSwitch'] == [True], 'raw-grammar')
++        return ('revival_selection' if any(p.get('reviving') is True for p in side['pokemon']) else 'forced_switch'), raw
++    _need(type(raw['active']) is list, 'raw-grammar')
++    _need(len(raw['active']) <= 1, 'doubles')
++    _need(len(raw['active']) == 1 and type(raw['active'][0]) is dict, 'raw-grammar')
++    return 'actionable', raw
++
++
++def _derive_active(raw):
++    source = raw['active'][0]
++    _need(set(source) <= {'moves', 'maybeDisabled', 'maybeTrapped', 'trapped', 'canTerastallize'}, 'raw-grammar')
++    _need(all(source.get(key, True) is True for key in ('maybeDisabled', 'maybeTrapped', 'trapped')), 'raw-grammar')
++    _need('canTerastallize' not in source or type(source['canTerastallize']) is str, 'raw-grammar')
++    _need(type(source.get('moves')) is list and 1 <= len(source['moves']) <= 4, 'raw-grammar')
++    rows = []
++    for index, row in enumerate(source['moves']):
++        _need(type(row) is dict and set(row) <= {'move', 'id', 'pp', 'maxpp', 'target', 'disabled'}, 'raw-grammar')
++        _need(type(row.get('move')) is str and row['move'] and type(row.get('id')) is str and row['id'], 'raw-grammar')
++        _need(_is_str(row['move']) and _is_str(row['id']) and ('target' not in row or _is_str(row['target'])), 'raw-grammar')
++        _need('pp' not in row or _is_int(row['pp']), 'raw-grammar')
++        _need('maxpp' not in row or _is_int(row['maxpp']), 'raw-grammar')
++        _need('target' not in row or type(row['target']) is str, 'raw-grammar')
++        _need('disabled' not in row or type(row['disabled']) is bool, 'raw-grammar')
++        rows.append({'slot': index + 1, 'id': row['id'], 'name': row['move'], 'pp': row.get('pp'), 'max_pp': row.get('maxpp'),
++                     'target': row.get('target'), 'disabled': row.get('disabled')})
++    locked_shape = len(rows) == 1 and rows[0]['pp'] is None and rows[0]['max_pp'] is None
++    lock = 'no_hard_lock' if not locked_shape else {'recharge': 'recharge', 'struggle': 'struggle'}.get(rows[0]['id'], 'locked_move')
++    switch_in = any(not p['active'] and not _fainted(p['condition']) for p in raw['side']['pokemon'])
++    _need(not ('trapped' in source and 'maybeTrapped' in source), 'raw-grammar')
++    omitted = 'omitted_with_switch_in' if switch_in else 'omitted_without_switch_in'
++    trapped = True if 'trapped' in source else (False if switch_in else None)
++    maybe_trapped = True if 'maybeTrapped' in source else (False if 'trapped' in source or switch_in else None)
++    return {
++        'lock': lock, 'trapped': trapped, 'maybe_trapped': maybe_trapped, 'maybe_disabled': 'maybeDisabled' in source,
++        'switch_in_available': switch_in,
++        'derivation': {
++            'lock': 'bare_single_row' if locked_shape else 'pp_bearing_rows',
++            'trapped': 'raw_true' if 'trapped' in source else omitted,
++            'maybe_trapped': 'raw_true' if 'maybeTrapped' in source else ('superseded_by_trapped' if 'trapped' in source else omitted),
++            'maybe_disabled': 'raw_true' if 'maybeDisabled' in source else 'omitted_singles_rule',
++        },
++        'moves': rows,
++    }
++
++
++def _builder_join(owner, kind, raw, active, observation):
++    request = observation['request']
++    _need(type(request) is dict and request.get('player') == owner and not request.get('team_preview'),
++          'team-preview' if type(request) is dict and request.get('team_preview') else 'observation-mismatch')
++    _need(request['wait'] is (kind == 'waiting') and request['force_switch'] is (kind in ('forced_switch', 'revival_selection')), 'presence-mismatch')
++    _need(request.get('rqid') == raw.get('rqid'), 'observation-mismatch')
++    pokemon = raw['side']['pokemon']
++    _need(len(pokemon) == len(request['side']) and all(
++        seen['ident'] == p['ident'] and seen['condition'] == p['condition'] and seen['active'] is p['active']
++        and (seen.get('reviving') is True) == (p.get('reviving') is True) for seen, p in zip(request['side'], pokemon)), 'observation-mismatch')
++    _need(kind == 'waiting' or (observation['decision_availability']['available'] and request['legal_actions']['available_indices']), 'no-legal-actions')
++    if active is None:
++        _need(request['active'] is None, 'observation-mismatch')
++        return
++    seen = request['active']
++    _need(type(seen) is dict and len(seen['moves']) == len(active['moves']), 'observation-mismatch')
++    for row, carried in zip(active['moves'], seen['moves']):
++        _need(carried['slot'] == row['slot'] and carried['id'] == row['id'] and carried['move'] == row['name']
++              and carried['pp'] == (0 if row['pp'] is None else row['pp']) and carried['maxpp'] == (0 if row['max_pp'] is None else row['max_pp'])
++              and carried['target'] == ('normal' if row['target'] is None else row['target'])
++              and carried['disabled'] is (row['disabled'] is True), 'observation-mismatch')
++    _need(seen['trapped'] is (active['trapped'] is True) and request['trapped'] is (active['trapped'] is True), 'observation-mismatch')
++    _need(seen['can_switch'] is (active['trapped'] is not True and active['switch_in_available']), 'observation-mismatch')
++    _check_legality(request, active['moves'])
++
++
++def _check_legality(request, rows):
++    """A numbered move action needs a request-supplied enabled row with PP, or the request-supplied Struggle row."""
++    for action in request['legal_actions']['actions']:
++        if action is None or action['kind'] not in ('move', 'move_tera') or action['slot'] is None:
++            continue
++        row = rows[action['slot'] - 1] if 1 <= action['slot'] <= len(rows) else None
++        _need(row is not None and row['disabled'] is not True
++              and ((row['pp'] is not None and row['pp'] > 0) or (row['id'] == 'struggle' and row['pp'] is None)), 'legality-mismatch')
++
++
++def build_request_knowledge(owner, raw_text, observation, provenance):
++    _need(provenance == FRESH_DELIVERY, 'provenance')
++    _need(owner in OWNERS and type(observation) is dict and observation.get('perspective') == owner, 'wrong-owner')
++    _need(observation.get('schema_version') in OBSERVATION_SCHEMAS and re.fullmatch(r'obs-[0-9a-f]{64}', str(observation.get('observation_id')))
++          and _is_int(observation.get('event_cursor')) and _is_str(observation.get('battle_id')) and observation['battle_id'], 'observation-mismatch')
++    raw, active = None, None
++    if observation['view']['terminated']:
++        presence = 'terminal'
++        _need(raw_text is None and observation['request'] is None, 'presence-mismatch')
++    elif observation['request'] is None:
++        presence = 'requestless'
++        _need(raw_text is None, 'presence-mismatch')
++    else:
++        _need(type(raw_text) is str, 'presence-mismatch')
++        presence, raw = _parse_raw(owner, raw_text)
++        active = _derive_active(raw) if presence == 'actionable' else None
++        _builder_join(owner, presence, raw, active, observation)
++    record = {
++        'schema_version': SCHEMA, 'id': '', 'battle_id': observation['battle_id'], 'perspective': owner,
++        'observation_schema_version': observation['schema_version'], 'observation_id': observation['observation_id'],
++        'event_cursor': observation['event_cursor'], 'presence': presence, 'request_present': raw_text is not None,
++        'raw_request': raw_text, 'rqid': None if raw is None else raw.get('rqid'), 'active': active,
++    }
++    record['id'] = request_knowledge_id(record)
++    return record
++
++
++# ---------------------------------------------------------------------------------------------- validator
++
++
++def _wire(record):
++    """(1) Strict wire shape: exact keys, bool is not int, no floats, bounded strings."""
++    _need(type(record) is dict and tuple(sorted(record)) == tuple(sorted(TOP_KEYS)), 'wire-keys')
++    _need(record['schema_version'] == SCHEMA and type(record['id']) is str and re.fullmatch(r'rkn-[0-9a-f]{64}', record['id']), 'wire-type')
++    _need(_is_str(record['battle_id']) and record['battle_id'] and record['perspective'] in OWNERS
++          and record['observation_schema_version'] in OBSERVATION_SCHEMAS and type(record['observation_id']) is str
++          and re.fullmatch(r'obs-[0-9a-f]{64}', record['observation_id']) and _is_int(record['event_cursor']), 'wire-type')
++    _need(record['presence'] in PRESENCES and type(record['request_present']) is bool, 'wire-type')
++    _need(record['raw_request'] is None or _is_str(record['raw_request'], MAX_RAW_SCALARS), 'wire-size')
++    _need(record['rqid'] is None or _is_int(record['rqid']), 'wire-type')
++    _need(record['request_present'] is (record['raw_request'] is not None), 'wire-type')
++    active = record['active']
++    if active is None:
++        return
++    _need(type(active) is dict and tuple(sorted(active)) == tuple(sorted(ACTIVE_KEYS)), 'wire-keys')
++    _need(active['lock'] in LOCKS and type(active['switch_in_available']) is bool and type(active['maybe_disabled']) is bool, 'wire-type')
++    _need(all(active[k] is None or type(active[k]) is bool for k in ('trapped', 'maybe_trapped')), 'wire-type')
++    derivation = active['derivation']
++    _need(type(derivation) is dict and sorted(derivation) == sorted(DERIVATION_VALUES)
++          and all(derivation[k] in DERIVATION_VALUES[k] for k in DERIVATION_VALUES), 'wire-keys')
++    _need(type(active['moves']) is list and 1 <= len(active['moves']) <= 4, 'wire-size')
++    for move in active['moves']:
++        _need(type(move) is dict and tuple(sorted(move)) == tuple(sorted(MOVE_KEYS)), 'wire-keys')
++        _need(_is_int(move['slot']) and _is_str(move['id']) and _is_str(move['name']), 'wire-type')
++        _need(all(move[k] is None or _is_int(move[k]) for k in ('pp', 'max_pp')), 'wire-type')
++        _need(move['target'] is None or _is_str(move['target']), 'wire-type')
++        _need(move['disabled'] is None or type(move['disabled']) is bool, 'wire-type')
++
++
++def _audit(perspective, text):
++    """(2) Independent grammar: returns what the raw text alone entitles the record to say."""
++    try:
++        raw = parse_knowledge_json(text)
++    except KnowledgeStructureError:
++        raise RequestKnowledgeError('raw-json') from None
++    _need(isinstance(raw, dict) and 'teamPreview' not in raw, 'team-preview')
++    kinds = [k for k in ('active', 'wait', 'forceSwitch') if k in raw]
++    _need(len(kinds) == 1 and not set(raw) - {kinds[0], 'side', 'rqid', 'noCancel'}, 'raw-grammar')
++    side = raw.get('side')
++    _need(isinstance(side, dict) and not set(side) - {'name', 'id', 'pokemon'} and isinstance(side.get('name'), str)
++          and isinstance(side.get('pokemon'), list) and 1 <= len(side['pokemon']) <= 6, 'raw-grammar')
++    _need(side.get('id') == perspective, 'wrong-owner')
++    _need(all(isinstance(p, dict) and isinstance(p.get('ident'), str) and isinstance(p.get('condition'), str)
++              and type(p.get('active')) is bool for p in side['pokemon']), 'raw-grammar')
++    _need(all(p['ident'].split(': ', 1)[0] == perspective for p in side['pokemon']), 'wrong-owner')
++    _need(sum(1 for p in side['pokemon'] if p['active']) == 1, 'doubles' if sum(1 for p in side['pokemon'] if p['active']) > 1 else 'raw-grammar')
++    if kinds[0] == 'forceSwitch':
++        _need(isinstance(raw['forceSwitch'], list) and len(raw['forceSwitch']) <= 1, 'doubles')
++        _need(raw['forceSwitch'] == [True], 'raw-grammar')
++    _need(kinds[0] != 'wait' or raw['wait'] is True, 'raw-grammar')
++    _need('rqid' not in raw or _is_int(raw['rqid']), 'raw-grammar')
++    _need('noCancel' not in raw or (raw['noCancel'] is True and kinds[0] == 'forceSwitch'), 'raw-grammar')
++    return kinds[0], raw, side['pokemon']
++
++
++def _expected_flags(source, bench):
++    """Pinned singles source rule: trapped/maybeTrapped are only emitted while a switch-in exists; maybeDisabled is always emitted."""
++    return {
++        'trapped': (True, 'raw_true') if source.get('trapped') is True else ((False, 'omitted_with_switch_in') if bench else (None, 'omitted_without_switch_in')),
++        'maybe_trapped': (True, 'raw_true') if source.get('maybeTrapped') is True
++        else (False, 'superseded_by_trapped') if source.get('trapped') is True
++        else ((False, 'omitted_with_switch_in') if bench else (None, 'omitted_without_switch_in')),
++        'maybe_disabled': (True, 'raw_true') if source.get('maybeDisabled') is True else (False, 'omitted_singles_rule'),
++    }
++
++
++def validate_request_knowledge(record, observation, *, delivery_registry=None):
++    """Re-derive and join; raises RequestKnowledgeError(code). Returns the authority actually established."""
++    _wire(record)
++    try:
++        verify_observation(observation, 'observation')
++    except Exception:
++        raise RequestKnowledgeError('observation-identity') from None
++    # (6) stale cursor / observation, and the join keys.
++    _need(record['observation_id'] == observation['observation_id'] and record['event_cursor'] == observation['event_cursor'], 'stale')
++    _need(record['battle_id'] == observation['battle_id'] and record['observation_schema_version'] == observation['schema_version'], 'observation-mismatch')
++    # (5) owner: the record, the observation and (below) the raw text must all name the same side.
++    owner = record['perspective']
++    _need(observation['perspective'] == owner, 'wrong-owner')
++    request, terminated = observation['request'], observation['view']['terminated']
++    text = record['raw_request']
++    if terminated or request is None:
++        _need(request is None, 'presence-mismatch')
++        _need(record['presence'] == ('terminal' if terminated else 'requestless') and text is None and not record['request_present']
++              and record['rqid'] is None and record['active'] is None, 'presence-mismatch')
++    else:
++        _need(text is not None, 'presence-mismatch')
++        kind, raw, pokemon = _audit(owner, text)
++        _need(request.get('player') == owner, 'wrong-owner')
++        expected = {'wait': 'waiting', 'forceSwitch': 'revival_selection' if any(p.get('reviving') is True for p in pokemon) else 'forced_switch',
++                    'active': 'actionable'}[kind]
++        _need(record['presence'] == expected, 'presence-mismatch')
++        _need(record['rqid'] == raw.get('rqid'), 'false-certainty')
++        _validate_active(record, raw, kind, pokemon, request, observation)
++        _validate_join(request, observation, record, pokemon, raw)
++    # delivery authority
++    authority = 'structure_only'
++    if delivery_registry is not None:
++        from neural.perspective_knowledge_source import SourceRegistry, _REGISTRIES
++        data = _REGISTRIES.get(delivery_registry) if type(delivery_registry) is SourceRegistry else None
++        _need(data is not None, 'registry-type')
++        if text is not None:
++            # The text must be the LATEST delivery to this owner at this cursor: an earlier one (for example the
++            # pre-rejection request) is stale even though it was genuinely delivered.
++            latest = max(((seq, held) for (o, seq), (cursor, held) in data['requests'].items()
++                          if o == owner and cursor == record['event_cursor']), default=None)
++            _need(latest is not None and latest[1] == text, 'registry-delivery')
++        # Only a request text can be bound to a delivery; requestless/terminal claims stay structure-only.
++        authority = 'registry_bound' if text is not None else 'structure_only'
++    _need(record['id'] == request_knowledge_id(record), 'id')
++    return {'record_id': record['id'], 'presence': record['presence'], 'delivery_authority': authority}
++
++
++def _validate_active(record, raw, kind, pokemon, request, observation):
++    active = record['active']
++    if kind != 'active':
++        _need(active is None, 'false-certainty')
++        return
++    source = raw['active']
++    _need(isinstance(source, list) and len(source) == 1 and isinstance(source[0], dict), 'doubles' if isinstance(source, list) and len(source) > 1 else 'raw-grammar')
++    source = source[0]
++    _need(not set(source) - {'moves', 'maybeDisabled', 'maybeTrapped', 'trapped', 'canTerastallize'}, 'raw-grammar')
++    _need(isinstance(source.get('canTerastallize', ''), str), 'raw-grammar')
++    _need(all(source[k] is True for k in ('maybeDisabled', 'maybeTrapped', 'trapped') if k in source), 'raw-grammar')
++    _need(not ('trapped' in source and 'maybeTrapped' in source), 'raw-grammar')
++    rows = source.get('moves')
++    _need(isinstance(rows, list) and 1 <= len(rows) <= 4, 'raw-grammar')
++    _need(active is not None and len(active['moves']) == len(rows), 'false-certainty')
++    for slot, (row, claimed) in enumerate(zip(rows, active['moves']), start=1):
++        _need(isinstance(row, dict) and not set(row) - {'move', 'id', 'pp', 'maxpp', 'target', 'disabled'}, 'raw-grammar')
++        _need(isinstance(row.get('move'), str) and row['move'] and isinstance(row.get('id'), str) and row['id'], 'raw-grammar')
++        _need(all(_is_int(row[k]) for k in ('pp', 'maxpp') if k in row) and ('target' not in row or isinstance(row['target'], str))
++              and ('disabled' not in row or type(row['disabled']) is bool), 'raw-grammar')
++        _need(claimed['slot'] == slot and claimed['id'] == row['id'] and claimed['name'] == row['move'], 'false-certainty')
++        for key, raw_key in (('pp', 'pp'), ('max_pp', 'maxpp'), ('target', 'target'), ('disabled', 'disabled')):
++            # Absent in the raw row means unknown (null) - never a default; present means exactly that value.
++            _need(claimed[key] == (row[raw_key] if raw_key in row else None) and type(claimed[key]) is type(row.get(raw_key)), 'false-certainty')
++    bare = len(rows) == 1 and 'pp' not in rows[0] and 'maxpp' not in rows[0]
++    _need(active['lock'] == (rows[0]['id'] if bare and rows[0]['id'] in ('recharge', 'struggle') else 'locked_move' if bare else 'no_hard_lock'), 'false-certainty')
++    _need(active['derivation']['lock'] == ('bare_single_row' if bare else 'pp_bearing_rows'), 'false-certainty')
++    bench = any(not p['active'] and not _fainted(p['condition']) for p in pokemon)
++    _need(active['switch_in_available'] is bench, 'false-certainty')
++    for key, (value, derivation) in _expected_flags(source, bench).items():
++        _need(active[key] is value and active['derivation'][key] == derivation, 'false-certainty')
++    _need(active['trapped'] is not True or active['maybe_trapped'] is not True, 'false-certainty')
++
++
++def _validate_join(request, observation, record, pokemon, raw):
++    """(3) The unchanged observation carries `value ?? legacy default`; (4) legality still follows the request only."""
++    _need(request['wait'] is (record['presence'] == 'waiting')
++          and request['force_switch'] is (record['presence'] in ('forced_switch', 'revival_selection')), 'presence-mismatch')
++    _need(request.get('team_preview') is False, 'team-preview')
++    _need(request.get('rqid') == record['rqid'], 'observation-mismatch')
++    _need(len(request['side']) == len(pokemon) and all(
++        seen['ident'] == p['ident'] and seen['condition'] == p['condition'] and seen['active'] is p['active']
++        and (seen.get('reviving') is True) == (p.get('reviving') is True) for seen, p in zip(request['side'], pokemon)), 'observation-mismatch')
++    if record['presence'] != 'waiting':
++        _need(observation['decision_availability']['available'] and request['legal_actions']['available_indices'], 'no-legal-actions')
++    active = record['active']
++    if active is None:
++        _need(request['active'] is None, 'observation-mismatch')
++        return
++    seen = request['active']
++    _need(seen is not None and len(seen['moves']) == len(active['moves']), 'observation-mismatch')
++    for claimed, carried in zip(active['moves'], seen['moves']):
++        legacy = {'pp': 0, 'maxpp': 0, 'target': 'normal', 'disabled': False}
++        for key, carried_key in (('pp', 'pp'), ('max_pp', 'maxpp'), ('target', 'target'), ('disabled', 'disabled')):
++            value = claimed[key] if claimed[key] is not None else legacy[carried_key]
++            _need(carried[carried_key] == value and type(carried[carried_key]) is type(value), 'observation-mismatch')
++        _need(carried['slot'] == claimed['slot'] and carried['id'] == claimed['id'] and carried['move'] == claimed['name'], 'observation-mismatch')
++    known_trap = active['trapped'] is True
++    _need(seen['trapped'] is known_trap and request['trapped'] is known_trap
++          and seen['can_switch'] is (not known_trap and active['switch_in_available']), 'observation-mismatch')
++    _check_legality(request, active['moves'])
++
++
++def main(argv=None):
++    """CLI for cross-runtime checks. Reads a UTF-8 JSON list on stdin; writes one UTF-8 line per item to stdout bytes."""
++    argv = sys.argv[1:] if argv is None else argv
++    _need(len(argv) == 1 and argv[0] in ('build', 'validate'), 'cli')
++    lines = []
++    for item in json.loads(sys.stdin.buffer.read().decode('utf-8')):
++        if argv[0] == 'build':
++            lines.append(canonical_request_knowledge_json(build_request_knowledge(item['owner'], item['raw_request'], item['observation'], FRESH_DELIVERY)))
++        else:
++            lines.append(json.dumps(validate_request_knowledge(item['record'], item['observation']), ensure_ascii=False).encode('utf-8'))
++    sys.stdout.buffer.write(b'\n'.join(lines) + b'\n')
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ candidate-after/sim-core/tests/request_knowledge.test.ts
+@@ -0,0 +1,416 @@
++import assert from 'node:assert/strict';
++import { createHash } from 'node:crypto';
++import { spawnSync } from 'node:child_process';
++import { readFileSync } from 'node:fs';
++import path from 'node:path';
++import test from 'node:test';
++import { buildLegalActionSet, normalizeRequest } from '../src/action_codec';
++import { buildRequestKnowledge, canonicalRequestKnowledgeJson, requestKnowledgeId, RequestKnowledgeError } from '../src/request_knowledge';
++
++/**
++ * Prompt 14 / S01b. Expected values come from the exact addressed raw text (an independent `?? null` reader in
++ * this file) and from the hand-audited literal tables below, never from the builder under test. Cases and
++ * observations come from the test-owned Prompt 13/14 witness (pinned BattleStream harness text + real legacy sessions).
++ */
++const repositoryRoot = path.resolve(__dirname, '../../..');
++// eslint-disable-next-line @typescript-eslint/no-var-requires
++const witness = require(path.join(repositoryRoot, 'docs/planning/perspective-fidelity-prompt14-witness.cjs'));
++const FRESH = 'fresh_delivery';
++const V1 = 'observable-battle-state/v1';
++const V2 = 'observable-battle-state/v2';
++type Json = any;
++const OWNERS = ['p1', 'p2'] as const;
++const captured: Promise<Record<string, Json>> = witness.captureAll14();
++
++const clone = (value: Json): Json => JSON.parse(JSON.stringify(value));
++const canon = (value: Json): string => (Array.isArray(value) ? '[' + value.map(canon).join(',') + ']'
++  : value && typeof value === 'object' ? '{' + Object.keys(value).sort().map((k) => JSON.stringify(k) + ':' + canon(value[k])).join(',') + '}' : JSON.stringify(value));
++const sha = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
++const reseal = (observation: Json): Json => {
++  const { observation_id: _id, protocol_prefix: _prefix, ...identity } = observation;
++  return { ...observation, observation_id: 'obs-' + sha(canon(identity)) };
++};
++const deepFreeze = (value: Json): Json => { if (value && typeof value === 'object') { Object.values(value).forEach(deepFreeze); Object.freeze(value); } return value; };
++const observationOf = (c: Json, owner: string, version = V2): Json => c.versions[version].observations[owner];
++const rawTextOf = (c: Json, owner: string, version = V2): string | null => {
++  const observation = observationOf(c, owner, version);
++  return observation.view.terminated || observation.request === null ? null : c.raw[owner].json;
++};
++const build = (c: Json, owner: string, version = V2): Json => buildRequestKnowledge(owner, rawTextOf(c, owner, version), observationOf(c, owner, version), FRESH);
++const codeOf = (fn: () => unknown): string => { try { fn(); } catch (error) { assert.ok(error instanceof RequestKnowledgeError, String(error)); return error.code; } return 'NO_ERROR'; };
++
++/** Independent reader: what the raw row text alone entitles a record to say (absent key -> null). */
++function independentMoves(text: string): Json[] {
++  return JSON.parse(text).active[0].moves.map((row: Json, index: number) => ({
++    slot: index + 1, id: row.id, name: row.move, pp: row.pp ?? null, max_pp: row.maxpp ?? null, target: row.target ?? null, disabled: row.disabled ?? null,
++  }));
++}
++
++// ---------------------------------------------------------------- hand-audited literal tables (audited against the raw texts)
++const D = (t: string, m: string, d: string, l = 'pp_bearing_rows') => ({ lock: l, trapped: t, maybe_trapped: m, maybe_disabled: d });
++const BARE = 'bare_single_row';
++const WITH = 'omitted_with_switch_in', WITHOUT = 'omitted_without_switch_in', SIM = 'omitted_singles_rule';
++const PLAIN = { lock: 'no_hard_lock', trapped: false, maybe_trapped: false, maybe_disabled: false, switch_in_available: true, derivation: D(WITH, WITH, SIM) };
++const LOCKED = (lock: string) => ({ ...PLAIN, lock, trapped: true, derivation: D('raw_true', 'superseded_by_trapped', SIM, BARE) });
++const STRUGGLE = { ...PLAIN, lock: 'struggle', derivation: D(WITH, WITH, SIM, BARE) };
++const FLAGS: Record<string, [string, Json]> = {
++  two_turn_locked_move: ['p1', LOCKED('locked_move')], two_turn_locked_move_mirror: ['p2', LOCKED('locked_move')],
++  recharge: ['p1', LOCKED('recharge')], recharge_mirror: ['p2', LOCKED('recharge')],
++  struggle_fallback: ['p1', STRUGGLE], struggle_fallback_mirror: ['p2', STRUGGLE],
++  maybe_disabled_imprison: ['p1', { ...PLAIN, maybe_disabled: true, derivation: D(WITH, WITH, 'raw_true') }],
++  maybe_disabled_imprison_mirror: ['p2', { ...PLAIN, maybe_disabled: true, derivation: D(WITH, WITH, 'raw_true') }],
++  maybe_trapped_shadow_tag: ['p1', { ...PLAIN, maybe_trapped: true, derivation: D(WITH, 'raw_true', SIM) }],
++  maybe_trapped_shadow_tag_mirror: ['p2', { ...PLAIN, maybe_trapped: true, derivation: D(WITH, 'raw_true', SIM) }],
++  known_trapped_mean_look: ['p1', { ...PLAIN, trapped: true, derivation: D('raw_true', 'superseded_by_trapped', SIM) }],
++  known_trapped_mean_look_mirror: ['p2', { ...PLAIN, trapped: true, derivation: D('raw_true', 'superseded_by_trapped', SIM) }],
++  struggle_maybe_disabled: ['p1', { ...STRUGGLE, maybe_disabled: true, derivation: D(WITH, WITH, 'raw_true', BARE) }],
++  struggle_all_pp_zero: ['p1', STRUGGLE],
++  outrage_lock: ['p1', LOCKED('locked_move')], rollout_lock: ['p1', LOCKED('locked_move')], uproar_lock: ['p1', LOCKED('locked_move')],
++  maybe_trapped_empty_bench: ['p1', { ...PLAIN, trapped: null, maybe_trapped: null, switch_in_available: false, derivation: D(WITHOUT, WITHOUT, SIM) }],
++  locked_empty_bench: ['p1', { ...LOCKED('locked_move'), trapped: null, maybe_trapped: null, switch_in_available: false, derivation: D(WITHOUT, WITHOUT, SIM, BARE) }],
++  trapped_after_rejection: ['p1', { ...PLAIN, trapped: true, derivation: D('raw_true', 'superseded_by_trapped', SIM) }],
++};
++const R = (id: string, pp: number | null, max: number | null, target: string | null, disabled: boolean | null) => [id, pp, max, target, disabled];
++const LOCKROW = (id: string) => [R(id, null, null, null, null)];
++/** Subject-owner move rows, (id, pp, maxpp, target, disabled), from the raw texts. */
++const MOVES: Record<string, Json[]> = {
++  ordinary_slots: [R('tackle', 56, 56, 'normal', false), R('rest', 8, 8, 'self', false), R('curse', 16, 16, 'self', false), R('bodyslam', 24, 24, 'normal', false)],
++  choice_lock_soft: [R('tackle', 55, 56, 'normal', false), R('rest', 8, 8, 'self', true), R('curse', 16, 16, 'self', true), R('bodyslam', 24, 24, 'normal', true)],
++  encore_soft: [R('tackle', 55, 56, 'normal', false), R('growl', 64, 64, 'allAdjacentFoes', true), R('thunderwave', 32, 32, 'normal', true), R('splash', 64, 64, 'self', true)],
++  two_turn_locked_move: LOCKROW('solarbeam'), two_turn_locked_move_mirror: LOCKROW('solarbeam'), recharge: LOCKROW('recharge'), recharge_mirror: LOCKROW('recharge'),
++  struggle_fallback: [R('struggle', null, null, 'randomNormal', false)], struggle_fallback_mirror: [R('struggle', null, null, 'randomNormal', false)],
++  real_pp_zero: [R('destinybond', 0, 8, 'self', true), R('splash', 64, 64, 'self', false)],
++  maybe_disabled_imprison: [R('tackle', 56, 56, 'normal', false), R('rest', 8, 8, 'self', false), R('curse', 16, 16, 'self', false), R('splash', 63, 64, 'self', false)],
++  maybe_disabled_imprison_mirror: [R('tackle', 56, 56, 'normal', false), R('rest', 8, 8, 'self', false), R('curse', 16, 16, 'self', false), R('splash', 63, 64, 'self', false)],
++  maybe_trapped_shadow_tag: [R('tackle', 56, 56, 'normal', false), R('splash', 64, 64, 'self', false)],
++  maybe_trapped_shadow_tag_mirror: [R('tackle', 56, 56, 'normal', false), R('splash', 64, 64, 'self', false)],
++  known_trapped_mean_look: [R('tackle', 56, 56, 'normal', false), R('splash', 63, 64, 'self', false)],
++  known_trapped_mean_look_mirror: [R('tackle', 56, 56, 'normal', false), R('splash', 63, 64, 'self', false)],
++  struggle_maybe_disabled: [R('struggle', null, null, 'randomNormal', false)], struggle_all_pp_zero: [R('struggle', null, null, 'randomNormal', false)],
++  outrage_lock: LOCKROW('outrage'), rollout_lock: LOCKROW('rollout'), uproar_lock: LOCKROW('uproar'), locked_empty_bench: LOCKROW('solarbeam'),
++  maybe_trapped_empty_bench: [R('tackle', 56, 56, 'normal', false), R('splash', 64, 64, 'self', false)],
++  trapped_after_rejection: [R('tackle', 56, 56, 'normal', false), R('splash', 64, 64, 'self', false)],
++  unicode_names: [R('tackle', 56, 56, 'normal', false), R('splash', 64, 64, 'self', false)],
++};
++/** Non-subject owner rows per case (hand-audited from the raw texts); every one is a plain request. */
++const SPLASH63 = [R('splash', 63, 64, 'self', false)], SPLASH64 = [R('splash', 64, 64, 'self', false)];
++const SPLASH_TACKLE = [R('splash', 64, 64, 'self', false), R('tackle', 56, 56, 'normal', false)];
++const IMPRISON = [R('imprison', 15, 16, 'self', false), R('tackle', 56, 56, 'normal', false)];
++const TAUNT = [R('taunt', 31, 32, 'normal', false), R('splash', 64, 64, 'self', false)];
++const SPITE = [R('spite', 14, 16, 'normal', false), R('splash', 64, 64, 'self', false)];
++const MEANLOOK = [R('meanlook', 7, 8, 'normal', false), R('splash', 64, 64, 'self', false)];
++const OTHER: Record<string, Json[]> = {
++  ordinary_slots: SPLASH_TACKLE, choice_lock_soft: SPLASH63, encore_soft: [R('encore', 7, 8, 'normal', false), R('splash', 64, 64, 'self', false)],
++  two_turn_locked_move: SPLASH63, two_turn_locked_move_mirror: SPLASH63, recharge: SPLASH63, recharge_mirror: SPLASH63,
++  struggle_fallback: TAUNT, struggle_fallback_mirror: TAUNT, real_pp_zero: SPITE,
++  maybe_disabled_imprison: IMPRISON, maybe_disabled_imprison_mirror: IMPRISON, maybe_trapped_shadow_tag: SPLASH64, maybe_trapped_shadow_tag_mirror: SPLASH64,
++  known_trapped_mean_look: MEANLOOK, known_trapped_mean_look_mirror: MEANLOOK,
++  struggle_maybe_disabled: [R('imprison', 15, 16, 'self', false), R('splash', 64, 64, 'self', false)], struggle_all_pp_zero: SPITE,
++  outrage_lock: SPLASH63, rollout_lock: SPLASH63, uproar_lock: SPLASH63, maybe_trapped_empty_bench: SPLASH64, locked_empty_bench: SPLASH63,
++  trapped_after_rejection: SPLASH64, unicode_names: SPLASH_TACKLE,
++};
++/** Exact subject-owner lock per case; every other actionable record is no_hard_lock (soft locks Choice/Encore/PP-0 included). */
++const LOCK: Record<string, string> = {
++  two_turn_locked_move: 'locked_move', two_turn_locked_move_mirror: 'locked_move', recharge: 'recharge', recharge_mirror: 'recharge',
++  struggle_fallback: 'struggle', struggle_fallback_mirror: 'struggle', struggle_maybe_disabled: 'struggle', struggle_all_pp_zero: 'struggle',
++  outrage_lock: 'locked_move', rollout_lock: 'locked_move', uproar_lock: 'locked_move', locked_empty_bench: 'locked_move',
++};
++const PRESENCE: Record<string, Record<string, string>> = {
++  waiting_and_forced_switch: { p1: 'waiting', p2: 'forced_switch' }, revival_selection_and_waiting: { p1: 'revival_selection', p2: 'waiting' },
++  terminal_requestless: { p1: 'terminal', p2: 'terminal' },
++};
++const NON_ACTIONABLE = new Set(Object.keys(PRESENCE));
++
++test('CONTROL: 28 cases (20 prompt13 + 8 decision-6/Unicode), observation pins reproduce byte-for-byte, helper reseal reproduces identities', async () => {
++  const cases = await captured;
++  assert.equal(Object.keys(cases).length, 28);
++  const pins = JSON.parse(readFileSync(path.join(repositoryRoot, 'docs/planning/perspective-fidelity-prompt13-observation-pins.json'), 'utf8')).pins;
++  assert.equal(Object.keys(pins).length, 20);
++  let checked = 0;
++  for (const [id, entries] of Object.entries<Json>(pins)) {
++    for (const [key, pin] of Object.entries<Json>(entries)) {
++      const [version, owner] = key.split('/');
++      const observation = observationOf(cases[id], owner, `observable-battle-state/${version}`);
++      assert.equal(observation.observation_id, pin.observation_id, `${id} ${key}`);
++      assert.equal(sha(canon(observation)), pin.observation_sha256, `${id} ${key}`);
++      assert.equal(sha(canon(observation.request)), pin.request_sha256, `${id} ${key}`);
++      checked += 1;
++    }
++  }
++  assert.equal(checked, 80);
++  for (const c of Object.values<Json>(cases)) for (const owner of OWNERS) assert.equal(reseal(observationOf(c, owner)).observation_id, observationOf(c, owner).observation_id);
++});
++
++test('records match raw text and hand-audited literals for every case, owner and version; ids are recomputed independently', async () => {
++  const cases = await captured;
++  let built = 0;
++  for (const [id, c] of Object.entries(cases)) {
++    for (const version of [V1, V2]) for (const owner of OWNERS) {
++      if (id === 'trapped_after_rejection' && owner === 'p1') continue; // observation is the stale restored one; see restoration test
++      const record = build(c, owner, version);
++      built += 1;
++      const label = `${id} ${version} ${owner}`;
++      const observation = observationOf(c, owner, version);
++      const expectedPresence = PRESENCE[id]?.[owner] ?? 'actionable';
++      assert.equal(record.presence, expectedPresence, label);
++      assert.equal(record.schema_version, 'request-knowledge/v1');
++      assert.deepEqual([record.battle_id, record.perspective, record.observation_schema_version, record.observation_id, record.event_cursor],
++        [observation.battle_id, owner, version, observation.observation_id, observation.event_cursor], label);
++      assert.equal(record.request_present, expectedPresence !== 'terminal');
++      assert.equal(record.raw_request, expectedPresence === 'terminal' ? null : c.raw[owner].json, label);
++      assert.equal(record.rqid, null, label);
++      assert.equal(record.id, 'rkn-' + sha('request-knowledge/v1\n' + canon((({ id: _i, ...rest }) => rest)(record))), label); // independent canonical + hash
++      if (expectedPresence !== 'actionable') { assert.equal(record.active, null, label); continue; }
++      const [subject, flags] = FLAGS[id] ?? ['p1', PLAIN];
++      const expected = owner === subject ? flags : PLAIN;
++      const { moves, ...core } = record.active;
++      assert.deepEqual(core, expected, label);
++      assert.deepEqual(moves, independentMoves(c.raw[owner].json), label); // raw-derived expectation
++      const literal = owner === subject ? MOVES[id] : OTHER[id];
++      assert.ok(literal, `missing hand-audited literal for ${label}`);
++      assert.deepEqual(moves.map((m: Json) => [m.id, m.pp, m.max_pp, m.target, m.disabled]), literal, label); // literal
++      assert.equal(record.active.lock, owner === subject ? (LOCK[id] ?? 'no_hard_lock') : 'no_hard_lock', label);
++    }
++  }
++  assert.equal(built, 110);
++});
++
++test('group 1: locked, recharge and Struggle records carry nulls and a lock, ordinary rows are non-null, both owners', async () => {
++  const cases = await captured;
++  for (const id of ['two_turn_locked_move', 'two_turn_locked_move_mirror', 'recharge', 'recharge_mirror', 'outrage_lock', 'rollout_lock', 'uproar_lock']) {
++    const owner = id.endsWith('_mirror') ? 'p2' : 'p1';
++    const record = build(cases[id], owner);
++    assert.equal(record.active.trapped, true);
++    assert.equal(record.active.lock, LOCK[id], id);
++    assert.equal(record.active.derivation.lock, 'bare_single_row');
++    assert.deepEqual(Object.keys(JSON.parse(record.raw_request).active[0].moves[0]), ['move', 'id']);
++    for (const key of ['pp', 'max_pp', 'target', 'disabled']) assert.equal(record.active.moves[0][key], null, `${id} ${key}`);
++  }
++  for (const id of ['struggle_fallback', 'struggle_fallback_mirror', 'struggle_maybe_disabled', 'struggle_all_pp_zero']) {
++    const owner = id.endsWith('_mirror') ? 'p2' : 'p1';
++    const row = build(cases[id], owner).active.moves[0];
++    assert.deepEqual([row.pp, row.max_pp, row.target, row.disabled], [null, null, 'randomNormal', false], id);
++    assert.equal(build(cases[id], owner).active.lock, 'struggle', id);
++  }
++  for (const owner of OWNERS) for (const row of build(cases.ordinary_slots, owner).active.moves) {
++    for (const key of ['pp', 'max_pp', 'target', 'disabled']) assert.notEqual(row[key], null);
++  }
++  assert.equal(build(cases.recharge, 'p1').active.lock, 'recharge');
++  assert.equal(build(cases.recharge, 'p1').active.moves[0].name, 'Recharge');
++});
++
++test('group 2: real PP 0 differs from absent PP; an explicit zero/normal/false raw row differs from an omitted raw row under the same observation', async () => {
++  const cases = await captured;
++  const zero = build(cases.real_pp_zero, 'p1').active.moves[0];
++  assert.deepEqual([zero.pp, zero.max_pp, zero.disabled], [0, 8, true]);
++  const locked = cases.two_turn_locked_move;
++  const omitted = build(locked, 'p1');
++  const explicitText = JSON.stringify((() => { const r = JSON.parse(locked.raw.p1.json); Object.assign(r.active[0].moves[0], { pp: 0, maxpp: 0, target: 'normal', disabled: false }); return r; })());
++  const explicit = buildRequestKnowledge('p1', explicitText, observationOf(locked, 'p1'), FRESH); // the legacy observation cannot tell them apart
++  assert.deepEqual(explicit.active.moves[0], { slot: 1, id: 'solarbeam', name: 'Solar Beam', pp: 0, max_pp: 0, target: 'normal', disabled: false });
++  assert.equal(explicit.active.lock, 'no_hard_lock');
++  assert.equal(explicit.active.derivation.lock, 'pp_bearing_rows');
++  assert.equal(omitted.active.lock, 'locked_move');
++  assert.notEqual(explicit.id, omitted.id);
++});
++
++test('group 3: maybeDisabled, maybeTrapped, known trap and nothing are four distinct records; absent without a switch-in is null', async () => {
++  const cases = await captured;
++  const ids = new Set(['maybe_disabled_imprison', 'maybe_trapped_shadow_tag', 'known_trapped_mean_look', 'ordinary_slots'].map((id) => build(cases[id], 'p1').id));
++  assert.equal(ids.size, 4);
++  const flags = (id: string) => { const a = build(cases[id], 'p1').active; return [a.trapped, a.maybe_trapped, a.maybe_disabled]; };
++  assert.deepEqual(flags('maybe_disabled_imprison'), [false, false, true]);
++  assert.deepEqual(flags('maybe_trapped_shadow_tag'), [false, true, false]);
++  assert.deepEqual(flags('known_trapped_mean_look'), [true, false, false]);
++  assert.deepEqual(flags('maybe_trapped_empty_bench'), [null, null, false]);
++  assert.deepEqual(flags('locked_empty_bench'), [null, null, false]);
++  // The flag text is the only difference: stripping it from the raw (same observation) changes the record, not the legal set.
++  for (const [id, key] of [['maybe_disabled_imprison', 'maybeDisabled'], ['maybe_trapped_shadow_tag', 'maybeTrapped']]) {
++    const c = cases[id];
++    const raw = JSON.parse(c.raw.p1.json); delete raw.active[0][key];
++    const stripped = buildRequestKnowledge('p1', JSON.stringify(raw), observationOf(c, 'p1'), FRESH);
++    assert.notEqual(stripped.id, build(c, 'p1').id);
++    assert.deepEqual(buildLegalActionSet(raw), buildLegalActionSet(JSON.parse(c.raw.p1.json)));
++    assert.deepEqual(observationOf(c, 'p1').request.legal_actions, buildLegalActionSet(JSON.parse(c.raw.p1.json)));
++  }
++});
++
++test('group 4: waiting, forced switch, revival and terminal have no active slots, correct presence, null raw only for terminal, both owners', async () => {
++  const cases = await captured;
++  const wf = cases.waiting_and_forced_switch; const rv = cases.revival_selection_and_waiting; const term = cases.terminal_requestless;
++  for (const [c, owner, presence] of [[wf, 'p1', 'waiting'], [wf, 'p2', 'forced_switch'], [rv, 'p1', 'revival_selection'], [rv, 'p2', 'waiting'], [term, 'p1', 'terminal'], [term, 'p2', 'terminal']] as Json[]) {
++    const record = build(c, owner);
++    assert.equal(record.presence, presence); assert.equal(record.active, null);
++    assert.equal(record.request_present, presence !== 'terminal');
++    assert.equal(record.raw_request === null, presence === 'terminal');
++  }
++  assert.equal(build(wf, 'p1').raw_request!.startsWith('{"wait":true'), true);
++  assert.equal(build(rv, 'p1').raw_request!.includes('"reviving":true'), true);
++  // The terminal owners had real earlier requests; a terminal record must not be built from them.
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', term.raw.p1.json, observationOf(term, 'p1'), FRESH)), 'presence-mismatch');
++  // Requestless (non-terminal, no request) is accepted only with null raw.
++  const requestless = reseal({ ...clone(observationOf(wf, 'p1')), request: null, decision_availability: { available: false, reason: 'requestless', legal_action_indices: null } });
++  assert.equal(buildRequestKnowledge('p1', null, requestless, FRESH).presence, 'requestless');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', wf.raw.p1.json, requestless, FRESH)), 'presence-mismatch');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', null, observationOf(wf, 'p1'), FRESH)), 'presence-mismatch');
++});
++
++/** Fresh (post-rejection) observation consistent with the harness text: the legacy normalizer applied to the freshly delivered request. */
++function freshObservation(c: Json): { observation: Json; text: string; stale: Json } {
++  const stale = observationOf(c, 'p1');
++  const text = c.raw_history.p1[1];
++  const { raw: _raw, ...request } = normalizeRequest('p1', JSON.parse(text));
++  const observation = reseal({ ...clone(stale), request: clone(request), decision_availability: { available: true, reason: 'request', legal_action_indices: request.legal_actions.available_indices } });
++  return { observation, text, stale };
++}
++
++test('group 5 and decision 3: rejection rollback gives two distinct records; a restored-session request is refused, fresh text builds trapped:true', async () => {
++  const c = (await captured).trapped_after_rejection;
++  const { observation, text, stale } = freshObservation(c);
++  const before = buildRequestKnowledge('p1', c.raw_history.p1[0], stale, FRESH); // genuinely delivered earlier; matches the restored observation
++  const after = buildRequestKnowledge('p1', text, observation, FRESH);
++  assert.equal(text, c.raw.p1.json);
++  assert.deepEqual([before.active.trapped, before.active.maybe_trapped], [false, true]);
++  assert.deepEqual([after.active.trapped, after.active.maybe_trapped, after.active.derivation.trapped], [true, false, 'raw_true']);
++  assert.notEqual(before.id, after.id);
++  assert.notEqual(before.observation_id, after.observation_id);
++  // Restored StepResult.requests are refused by provenance, whatever the text.
++  for (const provenance of ['restored_session', 'restored', '', 'FRESH_DELIVERY']) assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw_history.p1[0], stale, provenance)), 'provenance');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw_history.p1[0], stale, undefined as unknown as string)), 'provenance');
++  // The live restored request is the stale pre-rejection text: it must not be joinable to the fresh observation, nor the fresh text to the stale one.
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw_history.p1[0], observation, FRESH)), 'observation-mismatch');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', text, stale, FRESH)), 'observation-mismatch');
++  assert.equal(observationOf(c, 'p1').request.active.trapped, false); // the restored observation is the stale one
++});
++
++test('group 6: building never changes observations or legal sets, is pure and deterministic, and sidecar code cannot reach legal-action construction', async () => {
++  const cases = await captured;
++  for (const [id, c] of Object.entries(cases)) for (const owner of OWNERS) {
++    if (id === 'trapped_after_rejection' && owner === 'p1') continue;
++    const observation = deepFreeze(clone(observationOf(c, owner)));
++    const before = canon(observation);
++    const first = buildRequestKnowledge(owner, rawTextOf(c, owner), observation, FRESH);
++    const second = buildRequestKnowledge(owner, rawTextOf(c, owner), observation, FRESH);
++    assert.equal(canon(observation), before, id);
++    assert.deepEqual(first, second);
++    if (observation.request && !observation.request.wait) assert.deepEqual(observation.request.legal_actions, buildLegalActionSet(JSON.parse(c.raw[owner].json)), id);
++  }
++  const source = readFileSync(path.join(repositoryRoot, 'sim-core/src/request_knowledge.ts'), 'utf8');
++  assert.equal(/from '\.\/(action_codec|env_manager|state_extractor|pipeline_)/.test(source), false);
++  assert.equal(/buildLegalActionSet|normalizeRequest/.test(source), false);
++});
++
++test('builder grammar negatives: doubles, team preview, no_legal_actions, unknown keys, wrong owner, wrong presence, duplicate key, oversize', async () => {
++  const cases = await captured;
++  const c = cases.maybe_trapped_shadow_tag;
++  const observation = observationOf(c, 'p1');
++  const raw = JSON.parse(c.raw.p1.json);
++  const withRaw = (mutate: (r: Json) => void, obs = observation) => { const r = clone(raw); mutate(r); return codeOf(() => buildRequestKnowledge('p1', JSON.stringify(r), obs, FRESH)); };
++  assert.equal(withRaw((r) => r.active.push(clone(r.active[0]))), 'doubles');
++  assert.equal(withRaw((r) => { r.side.pokemon[1].active = true; }), 'doubles');
++  assert.equal(withRaw((r) => { r.teamPreview = true; }), 'team-preview');
++  assert.equal(withRaw((r) => { r.active[0].canMegaEvo = true; }), 'raw-grammar');
++  assert.equal(withRaw((r) => { r.active[0].moves[0].extra = 1; }), 'raw-grammar');
++  assert.equal(withRaw((r) => { r.active[0].trapped = false; }), 'raw-grammar');
++  assert.equal(withRaw((r) => { r.active[0].trapped = true; }), 'raw-grammar'); // trapped and maybeTrapped together
++  assert.equal(withRaw((r) => { r.active[0].moves[0].pp = 1.5; }), 'raw-json');
++  assert.equal(withRaw((r) => { r.side.id = 'p2'; }), 'wrong-owner');
++  assert.equal(withRaw((r) => { r.side.pokemon.forEach((p: Json) => { p.ident = p.ident.replace('p1:', 'p2:'); }); }), 'wrong-owner');
++  assert.equal(withRaw((r) => { r.active[0].moves[0].pp = 3; }), 'observation-mismatch');
++  assert.equal(withRaw((r) => { r.active[0].moves[0].disabled = true; }), 'observation-mismatch');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json.replace('"maybeTrapped":true', '"maybeTrapped":true,"maybeTrapped":true'), observation, FRESH)), 'raw-json');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', ' '.repeat(65537) + c.raw.p1.json, observation, FRESH)), 'raw-size');
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p2.json, observation, FRESH)), 'wrong-owner'); // other owner's raw
++  assert.equal(codeOf(() => buildRequestKnowledge('p2', c.raw.p2.json, observation, FRESH)), 'wrong-owner'); // other owner's observation
++  assert.equal(codeOf(() => buildRequestKnowledge('p3', c.raw.p1.json, observation, FRESH)), 'wrong-owner');
++  // Doubles in a forced-switch request.
++  const forced = cases.waiting_and_forced_switch;
++  const forcedRaw = JSON.parse(forced.raw.p2.json); forcedRaw.forceSwitch = [true, false];
++  assert.equal(codeOf(() => buildRequestKnowledge('p2', JSON.stringify(forcedRaw), observationOf(forced, 'p2'), FRESH)), 'doubles');
++  // Legality drift: a numbered move action the request does not support.
++  const tampered = clone(observation); tampered.request.legal_actions.actions[0] = { ...tampered.request.legal_actions.actions[0], slot: 9 };
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, tampered, FRESH)), 'legality-mismatch');
++  // no_legal_actions (synthetic: engine paths never produce it) is rejected, not mapped.
++  const none = clone(observation); none.request.legal_actions.available_indices = [];
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, none, FRESH)), 'no-legal-actions');
++  const unavailable = clone(observation); unavailable.decision_availability.available = false;
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, unavailable, FRESH)), 'no-legal-actions');
++  const preview = clone(observation); preview.request.team_preview = true;
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, preview, FRESH)), 'team-preview');
++});
++
++test('Unicode names: the exact non-ASCII text round-trips through the record and the canonical bytes', async () => {
++  const c = (await captured).unicode_names;
++  const record = build(c, 'p1');
++  assert.ok(record.raw_request.includes('p1: Ñandú 日本'));
++  assert.equal(JSON.parse(record.raw_request).side.pokemon[0].ident, 'p1: Ñandú 日本');
++  const bytes = Buffer.from(canonicalRequestKnowledgeJson(record), 'utf8');
++  assert.deepEqual(JSON.parse(bytes.toString('utf8')), record);
++  assert.equal(requestKnowledgeId(record), record.id);
++});
++
++// ------------------------------------------------------------------------------------------ cross-runtime
++function runPython(args: string[], input: string) {
++  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
++  assert.ok(!Object.keys(env).some((key) => ['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
++  return spawnSync(process.env.PYTHON || 'python3', args, {
++    cwd: repositoryRoot, env: { ...env, PYTHONPATH: path.resolve(repositoryRoot, 'trainer/src') }, input: Buffer.from(input, 'utf8'), timeout: 120_000, maxBuffer: 1 << 28,
++  });
++}
++
++test('parity: Python builds byte-identical canonical records (110 case/version/owner) and its independent validator accepts them (UTF-8 env unset)', async () => {
++  const cases = await captured;
++  const jobs: Json[] = []; const expected: string[] = [];
++  for (const [id, c] of Object.entries(cases)) for (const version of [V1, V2]) for (const owner of OWNERS) {
++    if (id === 'trapped_after_rejection' && owner === 'p1') continue;
++    jobs.push({ owner, raw_request: rawTextOf(c, owner, version), observation: observationOf(c, owner, version) });
++    expected.push(canonicalRequestKnowledgeJson(build(c, owner, version)));
++  }
++  assert.equal(jobs.length, 110);
++  const built = runPython(['-m', 'neural.request_knowledge', 'build'], JSON.stringify(jobs));
++  assert.equal(built.status, 0, built.stderr.toString('utf8'));
++  const lines = built.stdout.toString('utf8').split('\n'); lines.pop();
++  assert.equal(lines.length, 110);
++  lines.forEach((line, index) => assert.equal(line, expected[index], `job ${index}`));
++  assert.ok(lines.some((line) => line.includes('Ñandú 日本')), 'non-ASCII text survives Python UTF-8 output');
++  const validated = runPython(['-m', 'neural.request_knowledge', 'validate'], JSON.stringify(jobs.map((job, index) => ({ record: JSON.parse(lines[index]), observation: job.observation }))));
++  assert.equal(validated.status, 0, validated.stderr.toString('utf8'));
++  const results = validated.stdout.toString('utf8').split('\n'); results.pop();
++  assert.equal(results.length, 110);
++  results.forEach((line, index) => assert.deepEqual(JSON.parse(line), { record_id: JSON.parse(lines[index]).id, presence: JSON.parse(lines[index]).presence, delivery_authority: 'structure_only' }));
++});
++
++test('correction round: 256-scalar caps, wait+noCancel, canonical string cap, non-null rqid positive path', async () => {
++  const cases = await captured;
++  const c = cases.ordinary_slots; const base = observationOf(c, 'p1');
++  // battle_id and canonical string caps (raw_request alone may be long).
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, reseal({ ...clone(base), battle_id: 'b'.repeat(257) }), FRESH)), 'observation-mismatch');
++  assert.equal(buildRequestKnowledge('p1', c.raw.p1.json, reseal({ ...clone(base), battle_id: 'b'.repeat(256) }), FRESH).battle_id.length, 256);
++  assert.equal(codeOf(() => canonicalRequestKnowledgeJson({ battle_id: 'x'.repeat(257) })), 'wire-size');
++  assert.equal(codeOf(() => canonicalRequestKnowledgeJson({ id: 'x'.repeat(257) })), 'wire-size');
++  assert.equal(canonicalRequestKnowledgeJson({ raw_request: 'x'.repeat(300) }).length > 300, true);
++  // Move id/name/target over 256 scalars never builds (raw parser or row grammar rejects).
++  for (const key of ['move', 'id', 'target']) {
++    const raw = JSON.parse(c.raw.p1.json); raw.active[0].moves[0][key] = 'm'.repeat(257);
++    assert.ok(['raw-json', 'raw-grammar'].includes(codeOf(() => buildRequestKnowledge('p1', JSON.stringify(raw), base, FRESH))), key);
++  }
++  // noCancel is only legal with forceSwitch.
++  const wf = cases.waiting_and_forced_switch;
++  const waiting = JSON.parse(wf.raw.p1.json); waiting.noCancel = true;
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', JSON.stringify(waiting), observationOf(wf, 'p1'), FRESH)), 'raw-grammar');
++  const active = JSON.parse(c.raw.p1.json); active.noCancel = true;
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', JSON.stringify(active), base, FRESH)), 'raw-grammar');
++  assert.equal(buildRequestKnowledge('p2', wf.raw.p2.json, observationOf(wf, 'p2'), FRESH).presence, 'forced_switch'); // real forceSwitch carries noCancel
++  // The pinned stream emits no rqid; hand-audited literal positive: rqid 7 in the text, in the normalized observation, in the record.
++  const raw = JSON.parse(c.raw.p1.json); raw.rqid = 7;
++  const text = JSON.stringify(raw);
++  const { raw: _raw, ...request } = normalizeRequest('p1', raw);
++  assert.equal(request.rqid, 7);
++  const observation = reseal({ ...clone(base), request: clone(request) });
++  const record = buildRequestKnowledge('p1', text, observation, FRESH);
++  assert.equal(record.rqid, 7);
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', text, base, FRESH)), 'observation-mismatch'); // observation says rqid null
++  raw.rqid = '7';
++  assert.equal(codeOf(() => buildRequestKnowledge('p1', JSON.stringify(raw), observation, FRESH)), 'raw-grammar');
++  assert.notEqual(record.id, buildRequestKnowledge('p1', c.raw.p1.json, base, FRESH).id);
++});
+--- /dev/null
++++ candidate-after/trainer/tests/test_request_knowledge.py
+@@ -0,0 +1,416 @@
++"""Prompt 14 / S01b: request-knowledge/v1 Python builder, independent validator and TS parity.
++
++Expected values come from the exact addressed raw text (hand-written literals below, audited against the
++witness raw texts) and from forged variants of them, never from the builder under test. Cases and
++unchanged v1/v2 observations come from the test-owned witness (pinned BattleStream text + real legacy sessions).
++"""
++import copy
++import json
++import os
++import subprocess
++import sys
++import unittest
++from pathlib import Path
++
++from neural.perspective_knowledge_source import SourceRegistryBuilder
++from neural.request_knowledge import (
++    FRESH_DELIVERY, RequestKnowledgeError, build_request_knowledge, canonical_request_knowledge_json, request_knowledge_id,
++    validate_request_knowledge,
++)
++from neural.ts_identity import observation_digest
++
++ROOT = Path(__file__).resolve().parents[2]
++WITNESS = ROOT / 'docs/planning/perspective-fidelity-prompt14-witness.cjs'
++V1, V2 = 'observable-battle-state/v1', 'observable-battle-state/v2'
++OWNERS = ('p1', 'p2')
++_DATA = None
++
++
++def _clean_env():
++    return {k: v for k, v in os.environ.items() if k.upper() not in ('PYTHONUTF8', 'PYTHONIOENCODING')}
++
++
++def setUpModule():
++    global _DATA
++    env = _clean_env()
++    env['PYTHON'] = sys.executable
++    run = subprocess.run(['node', str(WITNESS)], cwd=str(ROOT), env=env, capture_output=True, timeout=600)
++    if run.returncode != 0:
++        raise RuntimeError('witness failed: ' + run.stderr.decode('utf-8', 'replace')[:500])
++    _DATA = json.loads(run.stdout.decode('utf-8'))
++
++
++def observation(case_id, owner, version=V2):
++    return copy.deepcopy(_DATA['cases'][case_id]['versions'][version]['observations'][owner])
++
++
++def raw_text(case_id, owner):
++    return _DATA['cases'][case_id]['raw'][owner]['json']
++
++
++def forge_record(record, mutate):
++    forged = copy.deepcopy(record)
++    mutate(forged)
++    forged['id'] = request_knowledge_id(forged)
++    return forged
++
++
++def forge_observation(obs, mutate):
++    forged = copy.deepcopy(obs)
++    mutate(forged)
++    forged['observation_id'] = observation_digest(forged)
++    return forged
++
++
++def fresh(case_id, owner, version=V2):
++    obs = observation(case_id, owner, version)
++    text = None if obs['view']['terminated'] or obs['request'] is None else raw_text(case_id, owner)
++    return build_request_knowledge(owner, text, obs, FRESH_DELIVERY), obs
++
++
++def bind(record, obs):
++    """Re-point a record at a (forged, resealed) observation so only the semantic check can reject it."""
++    return forge_record(record, lambda r: r.update(observation_id=obs['observation_id']))
++
++
++class RequestKnowledgeBase(unittest.TestCase):
++    def rejects(self, code, record, obs, **kwargs):
++        with self.assertRaises(RequestKnowledgeError) as caught:
++            validate_request_knowledge(record, obs, **kwargs)
++        self.assertEqual(caught.exception.code, code)
++
++    def refuses(self, code, *args):
++        with self.assertRaises(RequestKnowledgeError) as caught:
++            build_request_knowledge(*args)
++        self.assertEqual(caught.exception.code, code)
++
++
++# (lock, trapped, maybe_trapped, maybe_disabled, switch_in_available, moves as (id, pp, max_pp, target, disabled)); hand-audited vs raw text.
++R = lambda *a: a
++HAND = {
++    ('ordinary_slots', 'p1'): ('no_hard_lock', False, False, False, True, [R('tackle', 56, 56, 'normal', False), R('rest', 8, 8, 'self', False), R('curse', 16, 16, 'self', False), R('bodyslam', 24, 24, 'normal', False)]),
++    ('ordinary_slots', 'p2'): ('no_hard_lock', False, False, False, True, [R('splash', 64, 64, 'self', False), R('tackle', 56, 56, 'normal', False)]),
++    ('two_turn_locked_move', 'p1'): ('locked_move', True, False, False, True, [R('solarbeam', None, None, None, None)]),
++    ('recharge_mirror', 'p2'): ('recharge', True, False, False, True, [R('recharge', None, None, None, None)]),
++    ('struggle_fallback', 'p1'): ('struggle', False, False, False, True, [R('struggle', None, None, 'randomNormal', False)]),
++    ('struggle_maybe_disabled', 'p1'): ('struggle', False, False, True, True, [R('struggle', None, None, 'randomNormal', False)]),
++    ('struggle_all_pp_zero', 'p1'): ('struggle', False, False, False, True, [R('struggle', None, None, 'randomNormal', False)]),
++    ('real_pp_zero', 'p1'): ('no_hard_lock', False, False, False, True, [R('destinybond', 0, 8, 'self', True), R('splash', 64, 64, 'self', False)]),
++    ('maybe_disabled_imprison', 'p1'): ('no_hard_lock', False, False, True, True, [R('tackle', 56, 56, 'normal', False), R('rest', 8, 8, 'self', False), R('curse', 16, 16, 'self', False), R('splash', 63, 64, 'self', False)]),
++    ('maybe_trapped_shadow_tag_mirror', 'p2'): ('no_hard_lock', False, True, False, True, [R('tackle', 56, 56, 'normal', False), R('splash', 64, 64, 'self', False)]),
++    ('known_trapped_mean_look', 'p1'): ('no_hard_lock', True, False, False, True, [R('tackle', 56, 56, 'normal', False), R('splash', 63, 64, 'self', False)]),
++    ('maybe_trapped_empty_bench', 'p1'): ('no_hard_lock', None, None, False, False, [R('tackle', 56, 56, 'normal', False), R('splash', 64, 64, 'self', False)]),
++    ('locked_empty_bench', 'p1'): ('locked_move', None, None, False, False, [R('solarbeam', None, None, None, None)]),
++    ('outrage_lock', 'p1'): ('locked_move', True, False, False, True, [R('outrage', None, None, None, None)]),
++    ('rollout_lock', 'p1'): ('locked_move', True, False, False, True, [R('rollout', None, None, None, None)]),
++    ('uproar_lock', 'p1'): ('locked_move', True, False, False, True, [R('uproar', None, None, None, None)]),
++    ('choice_lock_soft', 'p1'): ('no_hard_lock', False, False, False, True, [R('tackle', 55, 56, 'normal', False), R('rest', 8, 8, 'self', True), R('curse', 16, 16, 'self', True), R('bodyslam', 24, 24, 'normal', True)]),
++    ('unicode_names', 'p1'): ('no_hard_lock', False, False, False, True, [R('tackle', 56, 56, 'normal', False), R('splash', 64, 64, 'self', False)]),
++}
++PRESENCE = {('waiting_and_forced_switch', 'p1'): 'waiting', ('waiting_and_forced_switch', 'p2'): 'forced_switch',
++            ('revival_selection_and_waiting', 'p1'): 'revival_selection', ('revival_selection_and_waiting', 'p2'): 'waiting',
++            ('terminal_requestless', 'p1'): 'terminal', ('terminal_requestless', 'p2'): 'terminal'}
++
++
++class Parity(RequestKnowledgeBase):
++    def test_python_builds_exactly_the_typescript_records_and_validates_them(self):
++        count = 0
++        for case_id, records in _DATA['records'].items():
++            for key, ts_record in records.items():
++                version, owner = 'observable-battle-state/' + key[:2], key[3:]
++                record, obs = fresh(case_id, owner, version)
++                self.assertEqual(record, ts_record, (case_id, key))
++                self.assertEqual(canonical_request_knowledge_json(record), canonical_request_knowledge_json(ts_record))
++                self.assertEqual(validate_request_knowledge(ts_record, obs), {'record_id': ts_record['id'], 'presence': ts_record['presence'], 'delivery_authority': 'structure_only'})
++                count += 1
++        self.assertEqual(count, 110)
++        self.assertEqual(len(_DATA['cases']), 28)
++
++    def test_hand_audited_literals(self):
++        for (case_id, owner), expected in HAND.items():
++            record, _ = fresh(case_id, owner)
++            active = record['active']
++            self.assertEqual((record['presence'], active['lock'], active['trapped'], active['maybe_trapped'], active['maybe_disabled'], active['switch_in_available']),
++                             ('actionable',) + expected[:5], (case_id, owner))
++            self.assertEqual([(m['id'], m['pp'], m['max_pp'], m['target'], m['disabled']) for m in active['moves']], expected[5], (case_id, owner))
++        for (case_id, owner), presence in PRESENCE.items():
++            record, _ = fresh(case_id, owner)
++            self.assertEqual((record['presence'], record['active'], record['request_present'], record['raw_request'] is None), (presence, None, presence != 'terminal', presence == 'terminal'))
++
++    def test_derivation_enums_name_the_rule(self):
++        self.assertEqual(fresh('maybe_trapped_shadow_tag', 'p1')[0]['active']['derivation'],
++                         {'lock': 'pp_bearing_rows', 'trapped': 'omitted_with_switch_in', 'maybe_trapped': 'raw_true', 'maybe_disabled': 'omitted_singles_rule'})
++        self.assertEqual(fresh('known_trapped_mean_look', 'p1')[0]['active']['derivation'],
++                         {'lock': 'pp_bearing_rows', 'trapped': 'raw_true', 'maybe_trapped': 'superseded_by_trapped', 'maybe_disabled': 'omitted_singles_rule'})
++        self.assertEqual(fresh('locked_empty_bench', 'p1')[0]['active']['derivation'],
++                         {'lock': 'bare_single_row', 'trapped': 'omitted_without_switch_in', 'maybe_trapped': 'omitted_without_switch_in', 'maybe_disabled': 'omitted_singles_rule'})
++
++
++class FalseCertainty(RequestKnowledgeBase):
++    def case(self, case_id, owner='p1'):
++        return fresh(case_id, owner)
++
++    def test_every_false_certainty_is_rejected_even_when_the_id_is_resealed(self):
++        def moves(**changes):
++            return lambda r: r['active']['moves'][0].update(changes)
++        def flags(**changes):
++            return lambda r: r['active'].update(changes)
++        def derivation(**changes):
++            return lambda r: r['active']['derivation'].update(changes)
++        cases = [
++            ('two_turn_locked_move', moves(pp=15, max_pp=16)), ('two_turn_locked_move', moves(disabled=False)), ('two_turn_locked_move', moves(target='normal')),
++            ('two_turn_locked_move', flags(lock='no_hard_lock')), ('recharge', flags(lock='locked_move')), ('struggle_fallback', flags(lock='locked_move')),
++            ('struggle_fallback', moves(pp=0)), ('known_trapped_mean_look', flags(trapped=False)),
++            ('known_trapped_mean_look', lambda r: (r['active'].update(trapped=False), r['active']['derivation'].update(trapped='omitted_with_switch_in'))),
++            ('maybe_trapped_shadow_tag', flags(maybe_trapped=False)), ('maybe_trapped_shadow_tag', flags(maybe_trapped=None)),
++            ('maybe_disabled_imprison', flags(maybe_disabled=False)), ('maybe_trapped_empty_bench', flags(trapped=False)),
++            ('maybe_trapped_empty_bench', flags(switch_in_available=True)), ('locked_empty_bench', flags(trapped=True)),
++            ('ordinary_slots', moves(pp=None)), ('ordinary_slots', moves(pp=55)), ('ordinary_slots', moves(disabled=None)),
++            ('real_pp_zero', moves(pp=None)), ('maybe_trapped_shadow_tag', derivation(maybe_trapped='omitted_with_switch_in')),
++            ('maybe_disabled_imprison', derivation(maybe_disabled='omitted_singles_rule')),
++            ('waiting_and_forced_switch', lambda r: r.update(active=copy.deepcopy(fresh('ordinary_slots', 'p1')[0]['active']))),
++            ('ordinary_slots', lambda r: r.update(rqid=3)),
++            ('two_turn_locked_move', derivation(lock='pp_bearing_rows')), ('ordinary_slots', derivation(lock='bare_single_row')),
++        ]
++        for case_id, mutate in cases:
++            record, obs = self.case(case_id)
++            self.rejects('false-certainty', forge_record(record, mutate), obs)
++            self.assertEqual(validate_request_knowledge(record, obs)['record_id'], record['id'])
++
++    def test_wire_negatives(self):
++        record, obs = self.case('maybe_trapped_shadow_tag')
++        cases = {
++            'wire-keys': [lambda r: r.update(extra=1), lambda r: r.pop('rqid'), lambda r: r['active'].update(extra=1), lambda r: r['active'].pop('lock'),
++                          lambda r: r['active']['derivation'].pop('trapped'), lambda r: r['active']['moves'][0].update(extra=1), lambda r: r['active']['moves'][0].pop('pp')],
++            'wire-type': [lambda r: r.update(event_cursor=True), lambda r: r.update(rqid=True), lambda r: r['active']['moves'][0].update(slot=True),
++                          lambda r: r['active']['moves'][0].update(pp=True), lambda r: r['active']['moves'][0].update(pp=56.0), lambda r: r['active']['moves'][0].update(disabled=0),
++                          lambda r: r.update(request_present=1), lambda r: r.update(battle_id='x' * 257), lambda r: r['active'].update(trapped='false'),
++                          lambda r: r['active'].update(maybe_disabled=None), lambda r: r.update(presence='no_legal_actions'), lambda r: r.update(presence='team_preview'),
++                          lambda r: r.update(schema_version='request-knowledge/v2')],
++            'wire-size': [lambda r: r.update(raw_request=r['raw_request'] + ' ' * 65537), lambda r: r['active'].update(moves=r['active']['moves'] * 3)],
++        }
++        for code, mutations in cases.items():
++            for mutate in mutations:
++                forged = copy.deepcopy(record); mutate(forged)
++                self.rejects(code, forged, obs)
++        with self.assertRaises(RequestKnowledgeError):
++            canonical_request_knowledge_json({'a': 1.5})
++        with self.assertRaises(RequestKnowledgeError):
++            canonical_request_knowledge_json({'a': True and 2 ** 31})
++        self.rejects('wire-keys', 'not a dict', obs)
++
++    def test_duplicate_key_and_unknown_raw_keys(self):
++        record, obs = self.case('maybe_trapped_shadow_tag')
++        dup = record['raw_request'].replace('"maybeTrapped":true', '"maybeTrapped":true,"maybeTrapped":true')
++        self.assertNotEqual(dup, record['raw_request'])
++        self.rejects('raw-json', forge_record(record, lambda r: r.update(raw_request=dup)), obs)
++        self.refuses('raw-json', 'p1', dup, obs, FRESH_DELIVERY)
++        raw = json.loads(record['raw_request']); raw['active'][0]['canMegaEvo'] = True
++        self.rejects('raw-grammar', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), obs)
++        raw = json.loads(record['raw_request']); raw['active'][0]['moves'][0]['pp'] = 1.5
++        self.rejects('raw-json', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), obs)
++
++    def test_doubles_team_preview_and_no_legal_actions_are_rejected_not_mapped(self):
++        record, obs = self.case('maybe_trapped_shadow_tag')
++        raw = json.loads(record['raw_request']); raw['active'].append(copy.deepcopy(raw['active'][0]))
++        text = json.dumps(raw, separators=(',', ':'))
++        self.rejects('doubles', forge_record(record, lambda r: r.update(raw_request=text)), obs)
++        self.refuses('doubles', 'p1', text, obs, FRESH_DELIVERY)
++        raw = json.loads(record['raw_request']); raw['side']['pokemon'][1]['active'] = True
++        self.refuses('doubles', 'p1', json.dumps(raw, separators=(',', ':')), obs, FRESH_DELIVERY)
++        forced_record, forced_obs = self.case('waiting_and_forced_switch', 'p2')
++        raw = json.loads(forced_record['raw_request']); raw['forceSwitch'] = [True, False]
++        self.rejects('doubles', forge_record(forced_record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), forced_obs)
++        raw = json.loads(record['raw_request']); raw['teamPreview'] = True
++        self.rejects('team-preview', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), obs)
++        preview = forge_observation(obs, lambda o: o['request'].update(team_preview=True))
++        self.refuses('team-preview', 'p1', record['raw_request'], preview, FRESH_DELIVERY)
++        none = forge_observation(obs, lambda o: o['request']['legal_actions'].update(available_indices=[]))
++        self.refuses('no-legal-actions', 'p1', record['raw_request'], none, FRESH_DELIVERY)
++        self.rejects('no-legal-actions', bind(record, none), none)
++        unavailable = forge_observation(obs, lambda o: o['decision_availability'].update(available=False))
++        self.refuses('no-legal-actions', 'p1', record['raw_request'], unavailable, FRESH_DELIVERY)
++
++    def test_legality_invariant_is_recomputed_from_the_raw_request(self):
++        record, obs = self.case('two_turn_locked_move')
++        # A numbered move action for a null-PP locked row is a legality fabrication.
++        fabricated = forge_observation(obs, lambda o: o['request']['legal_actions']['actions'].__setitem__(1, {'index': 1, 'kind': 'move', 'choice': 'move 1', 'label': 'move:Solar Beam', 'move': 'Solar Beam', 'slot': 1}))
++        self.rejects('legality-mismatch', bind(record, fabricated), fabricated)
++        disabled_record, disabled_obs = self.case('choice_lock_soft')
++        enabled = forge_observation(disabled_obs, lambda o: o['request']['legal_actions']['actions'].__setitem__(1, {'index': 1, 'kind': 'move', 'choice': 'move 2', 'label': 'move:Rest', 'move': 'Rest', 'slot': 2}))
++        self.rejects('legality-mismatch', bind(disabled_record, enabled), enabled)
++
++
++class CorrectionRound(RequestKnowledgeBase):
++    def test_forged_presence_and_forged_active_on_terminal(self):
++        record, obs = fresh('ordinary_slots', 'p1')
++        for presence in ('waiting', 'forced_switch', 'revival_selection', 'requestless', 'terminal'):
++            self.rejects('presence-mismatch', forge_record(record, lambda r: r.update(presence=presence)), obs)
++        terminal, terminal_obs = fresh('terminal_requestless', 'p1')
++        self.rejects('presence-mismatch', forge_record(terminal, lambda r: r.update(active=copy.deepcopy(record['active']))), terminal_obs)
++        self.rejects('presence-mismatch', forge_record(terminal, lambda r: r.update(presence='actionable')), terminal_obs)
++
++    def test_terminated_observation_must_carry_no_request(self):
++        terminal, terminal_obs = fresh('terminal_requestless', 'p1')
++        live = observation('ordinary_slots', 'p1')
++        weird = forge_observation(live, lambda o: o['view'].update(terminated=True))
++        self.rejects('presence-mismatch', forge_record(terminal, lambda r: r.update(observation_id=weird['observation_id'], battle_id=weird['battle_id'], event_cursor=weird['event_cursor'])), weird)
++        self.refuses('presence-mismatch', 'p1', raw_text('ordinary_slots', 'p1'), weird, FRESH_DELIVERY)
++
++    def test_caps_and_wait_no_cancel_in_builder(self):
++        live = observation('ordinary_slots', 'p1')
++        long_id = forge_observation(live, lambda o: o.update(battle_id='b' * 257))
++        self.refuses('observation-mismatch', 'p1', raw_text('ordinary_slots', 'p1'), long_id, FRESH_DELIVERY)
++        self.assertEqual(len(build_request_knowledge('p1', raw_text('ordinary_slots', 'p1'), forge_observation(live, lambda o: o.update(battle_id='b' * 256)), FRESH_DELIVERY)['battle_id']), 256)
++        for value in ({'battle_id': 'x' * 257}, {'id': 'x' * 257}):
++            with self.assertRaises(RequestKnowledgeError):
++                canonical_request_knowledge_json(value)
++        self.assertGreater(len(canonical_request_knowledge_json({'raw_request': 'x' * 300})), 300)
++        for key in ('move', 'id', 'target'):
++            raw = json.loads(raw_text('ordinary_slots', 'p1')); raw['active'][0]['moves'][0][key] = 'm' * 257
++            with self.assertRaises(RequestKnowledgeError) as caught:
++                build_request_knowledge('p1', json.dumps(raw, separators=(',', ':')), live, FRESH_DELIVERY)
++            self.assertIn(caught.exception.code, ('raw-json', 'raw-grammar'))
++        waiting = observation('waiting_and_forced_switch', 'p1')
++        raw = json.loads(raw_text('waiting_and_forced_switch', 'p1')); raw['noCancel'] = True
++        self.refuses('raw-grammar', 'p1', json.dumps(raw, separators=(',', ':')), waiting, FRESH_DELIVERY)
++        record, _ = fresh('waiting_and_forced_switch', 'p1')
++        self.rejects('raw-grammar', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), waiting)
++        raw = json.loads(raw_text('ordinary_slots', 'p1')); raw['noCancel'] = True
++        self.refuses('raw-grammar', 'p1', json.dumps(raw, separators=(',', ':')), live, FRESH_DELIVERY)
++
++    def test_non_null_rqid_positive_path(self):
++        # The pinned stream emits no rqid: hand-audited literal (rqid 7 in the text, request.rqid 7 in the observation).
++        base = observation('ordinary_slots', 'p1')
++        raw = json.loads(raw_text('ordinary_slots', 'p1')); raw['rqid'] = 7
++        text = json.dumps(raw, separators=(',', ':'))
++        obs = forge_observation(base, lambda o: o['request'].update(rqid=7))
++        record = build_request_knowledge('p1', text, obs, FRESH_DELIVERY)
++        self.assertEqual(record['rqid'], 7)
++        self.assertEqual(validate_request_knowledge(record, obs)['record_id'], record['id'])
++        self.rejects('false-certainty', forge_record(record, lambda r: r.update(rqid=None)), obs)
++        self.rejects('false-certainty', forge_record(record, lambda r: r.update(rqid=8)), obs)
++        self.refuses('observation-mismatch', 'p1', text, base, FRESH_DELIVERY)
++        self.rejects('observation-mismatch', bind(record, base), base)
++        raw['rqid'] = '7'
++        self.refuses('raw-grammar', 'p1', json.dumps(raw, separators=(',', ':')), obs, FRESH_DELIVERY)
++
++
++class OwnerAndFreshness(RequestKnowledgeBase):
++    def test_wrong_owner_in_every_position(self):
++        record, obs = fresh('two_turn_locked_move', 'p1')
++        self.rejects('wrong-owner', forge_record(record, lambda r: r.update(perspective='p2')), obs)
++        other_record, other_obs = fresh('two_turn_locked_move', 'p2')
++        # Other owner's raw under p1's identity, record and observation jointly resealed as p1.
++        self.rejects('wrong-owner', forge_record(record, lambda r: r.update(raw_request=other_record['raw_request'])), obs)
++        wrong_player = forge_observation(obs, lambda o: o['request'].update(player='p2'))
++        self.rejects('wrong-owner', bind(record, wrong_player), wrong_player)
++        # p1's raw presented as p2 everywhere except the raw itself.
++        flipped_obs = forge_observation(obs, lambda o: (o.update(perspective='p2'), o['request'].update(player='p2')))
++        self.rejects('wrong-owner', forge_record(record, lambda r: r.update(perspective='p2', observation_id=flipped_obs['observation_id'])), flipped_obs)
++        self.refuses('wrong-owner', 'p2', record['raw_request'], flipped_obs, FRESH_DELIVERY)
++        self.refuses('wrong-owner', 'p2', record['raw_request'], obs, FRESH_DELIVERY)
++        self.refuses('wrong-owner', 'p1', other_record['raw_request'], obs, FRESH_DELIVERY)
++        self.refuses('wrong-owner', 'p3', record['raw_request'], obs, FRESH_DELIVERY)
++        # A raw whose roster idents name the other owner is rejected even if side.id was rewritten.
++        raw = json.loads(other_record['raw_request']); raw['side']['id'] = 'p1'
++        self.rejects('wrong-owner', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), obs)
++
++    def test_validator_raw_grammar_is_as_strict_as_the_builder(self):
++        record, obs = fresh('maybe_trapped_shadow_tag', 'p1')
++        for mutate in (lambda r: r.update(rqid=None), lambda r: r.update(noCancel=True), lambda r: r['active'][0].update(canTerastallize=5)):
++            raw = json.loads(record['raw_request']); mutate(raw)
++            self.rejects('raw-grammar', forge_record(record, lambda r: r.update(raw_request=json.dumps(raw, separators=(',', ':')))), obs)
++
++    def test_stale_cursor_and_stale_observation(self):
++        record, obs = fresh('maybe_trapped_shadow_tag', 'p1')
++        self.rejects('stale', forge_record(record, lambda r: r.update(event_cursor=record['event_cursor'] + 1)), obs)
++        self.rejects('stale', forge_record(record, lambda r: r.update(event_cursor=record['event_cursor'] - 1)), obs)
++        self.rejects('stale', record, observation('ordinary_slots', 'p1'))
++        self.rejects('stale', forge_record(record, lambda r: r.update(observation_id='obs-' + '0' * 64)), obs)
++        self.rejects('observation-identity', record, {**obs, 'battle_id': 'tampered'})  # not resealed: legacy identity check catches it
++
++    def test_resealed_record_and_observation_cannot_fabricate_what_the_raw_omits(self):
++        record, obs = fresh('two_turn_locked_move', 'p1')
++        def fabricate_obs(o):
++            o['request']['active']['moves'][0].update(pp=15, maxpp=16)
++        forged_obs = forge_observation(obs, fabricate_obs)
++        self.rejects('observation-mismatch', bind(record, forged_obs), forged_obs)
++        forged_record = forge_record(record, lambda r: r['active']['moves'][0].update(pp=15, max_pp=16))
++        forged_record['observation_id'] = forged_obs['observation_id']
++        forged_record['id'] = request_knowledge_id(forged_record)
++        self.rejects('false-certainty', forged_record, forged_obs)
++
++    def test_jointly_resealed_record_raw_and_observation_is_structure_only_and_needs_the_registry(self):
++        record, obs = fresh('two_turn_locked_move', 'p1')
++        raw = json.loads(record['raw_request'])
++        raw['active'][0]['moves'][0].update(pp=15, maxpp=16, target='normal', disabled=False)
++        forged_text = json.dumps(raw, separators=(',', ':'))
++        forged_obs = forge_observation(obs, lambda o: o['request']['active']['moves'][0].update(pp=15, maxpp=16))
++        forged = build_request_knowledge('p1', forged_text, forged_obs, FRESH_DELIVERY)
++        self.assertEqual(validate_request_knowledge(forged, forged_obs)['delivery_authority'], 'structure_only')
++
++        def registry(text, cursor=obs['event_cursor'], owner='p1'):
++            builder = SourceRegistryBuilder()
++            builder.add_request_delivery(owner, 0, cursor, text)
++            return builder.freeze()
++        self.rejects('registry-delivery', forged, forged_obs, delivery_registry=registry(record['raw_request']))
++        self.assertEqual(validate_request_knowledge(record, obs, delivery_registry=registry(record['raw_request']))['delivery_authority'], 'registry_bound')
++        # Wrong owner key, wrong cursor, wrong type.
++        self.rejects('registry-delivery', record, obs, delivery_registry=registry(record['raw_request'], owner='p2'))
++        self.rejects('registry-delivery', record, obs, delivery_registry=registry(record['raw_request'], cursor=obs['event_cursor'] + 1))
++        self.rejects('registry-type', record, obs, delivery_registry=object())
++        # Requestless/terminal claims cannot be bound by a registry: stay structure-only.
++        terminal, terminal_obs = fresh('terminal_requestless', 'p1')
++        self.assertEqual(validate_request_knowledge(terminal, terminal_obs, delivery_registry=registry('{}', cursor=0))['delivery_authority'], 'structure_only')
++
++    def test_restored_request_is_refused_and_a_stale_but_once_delivered_text_loses_to_the_registry(self):
++        case = _DATA['cases']['trapped_after_rejection']
++        stale_obs = observation('trapped_after_rejection', 'p1')
++        first, second = case['raw_history']['p1']
++        self.assertEqual(second, case['raw']['p1']['json'])
++        for provenance in ('restored_session', '', None, 'fresh'):
++            self.refuses('provenance', 'p1', first, stale_obs, provenance)
++
++        def trap(o):
++            o['request']['trapped'] = True
++            o['request']['active'].update(trapped=True, can_switch=False)
++            actions = o['request']['legal_actions']
++            actions['mask'][8] = False; actions['actions'][8] = None; actions['available_indices'] = [0, 1]
++            o['decision_availability']['legal_action_indices'] = [0, 1]
++        fresh_obs = forge_observation(stale_obs, trap)
++        before = build_request_knowledge('p1', first, stale_obs, FRESH_DELIVERY)
++        after = build_request_knowledge('p1', second, fresh_obs, FRESH_DELIVERY)
++        self.assertEqual((before['active']['trapped'], before['active']['maybe_trapped']), (False, True))
++        self.assertEqual((after['active']['trapped'], after['active']['maybe_trapped'], after['active']['derivation']['trapped']), (True, False, 'raw_true'))
++        self.assertNotEqual(before['id'], after['id'])
++        self.refuses('observation-mismatch', 'p1', first, fresh_obs, FRESH_DELIVERY)
++        self.refuses('observation-mismatch', 'p1', second, stale_obs, FRESH_DELIVERY)
++        builder = SourceRegistryBuilder()
++        builder.add_request_delivery('p1', 0, stale_obs['event_cursor'], first)
++        builder.add_request_delivery('p1', 1, stale_obs['event_cursor'], second)
++        registry = builder.freeze()
++        self.assertEqual(validate_request_knowledge(before, stale_obs)['delivery_authority'], 'structure_only')  # self-consistent, so structure alone cannot tell
++        self.rejects('registry-delivery', before, stale_obs, delivery_registry=registry)  # the registry knows a later delivery superseded it
++        self.assertEqual(validate_request_knowledge(after, fresh_obs, delivery_registry=registry)['delivery_authority'], 'registry_bound')
++
++
++class Publication(RequestKnowledgeBase):
++    def test_unicode_names_round_trip_with_utf8_environment_unset(self):
++        self.assertNotIn('PYTHONUTF8', _clean_env()); self.assertNotIn('PYTHONIOENCODING', _clean_env())
++        record, obs = fresh('unicode_names', 'p1')
++        name = 'p1: Ñandú 日本'
++        self.assertEqual(json.loads(record['raw_request'])['side']['pokemon'][0]['ident'], name)
++        payload = json.dumps([{'owner': 'p1', 'raw_request': record['raw_request'], 'observation': obs}], ensure_ascii=False).encode('utf-8')
++        env = _clean_env(); env['PYTHONPATH'] = str(ROOT / 'trainer/src')
++        run = subprocess.run([sys.executable, '-m', 'neural.request_knowledge', 'build'], input=payload, env=env, capture_output=True, timeout=120, cwd=str(ROOT))
++        self.assertEqual(run.returncode, 0, run.stderr.decode('utf-8', 'replace'))
++        self.assertEqual(run.stdout, canonical_request_knowledge_json(record) + b'\n')
++        self.assertIn(name.encode('utf-8'), run.stdout)
++        self.assertEqual(json.loads(run.stdout.decode('utf-8')), record)
++        ts_record = _DATA['records']['unicode_names']['v2/p1']
++        self.assertEqual(canonical_request_knowledge_json(ts_record), run.stdout[:-1])
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- /dev/null
++++ candidate-after/docs/contracts/REQUEST_KNOWLEDGE.md
+@@ -0,0 +1,53 @@
++# request-knowledge/v1 — S01b candidate sidecar
++
++Status: local candidate for lead review, 2026-10-10 (Prompt 14). Non-publishing: no bundle, episode, dataset or observation carries it yet (S01c). It does not edit `PERSPECTIVE_KNOWLEDGE.md`, observable v1/v2, `pipeline_*`, the action codec or any schema. Runtime: `sim-core/src/request_knowledge.ts` (`buildRequestKnowledge`) and `trainer/src/neural/request_knowledge.py` (`build_request_knowledge`, independent `validate_request_knowledge`). Design: `docs/planning/perspective-fidelity-prompt13-design.md`; decisions: `prompt13-lead-review.md` 1-6.
++
++## Inputs and refusals
++
++`build(owner, raw_text, observation, provenance)`: the exact addressed JSON text of the owner's request (or `null`), the already-validated v1/v2 observation of the same boundary, and a provenance token. Only `fresh_delivery` is accepted: a request freshly delivered to that owner. The token is **procedural and advisory only**: it is a caller assertion, not evidence. The builders (TS and Python) check just the token; the TypeScript side has no registry check at all, and only the Python validator can consult a delivery registry. Snapshot-restored `StepResult.requests` must be passed as anything else and are refused (`provenance`); restored-branch repair is S01c. A text that is self-consistent but stale (for example a pre-rejection request re-emitted by a restored session) cannot be detected from text alone; the Python validator detects it only when a delivery registry knows a later delivery to the same owner at the same cursor.
++
++Fail-closed grammar (singles only): exactly one of `active` (1 entry), `wait:true`, `forceSwitch:[true]`; keys `side` (`id`, `name`, `pokemon` 1..6), optional `rqid`, `noCancel`. `active[0]` keys: `moves` (1..4 rows of `move,id,pp,maxpp,target,disabled`), `maybeDisabled`, `maybeTrapped`, `trapped` (each only `true`), `canTerastallize`. Unknown keys, doubles (more than one `active`/`forceSwitch` entry or active roster member), `teamPreview`, duplicate JSON keys, floats, `pp`/`maxpp` not in 0..2147483647 and raw text over 65536 Unicode scalars reject. `side.id` and every roster `ident` prefix must equal the owner.
++
++## Record (exact key set; ASCII keys; no floats; booleans never integers)
++
++`schema_version` (`request-knowledge/v1`), `id` (`rkn-<64hex>`), `battle_id`, `perspective`, `observation_schema_version`, `observation_id`, `event_cursor` (= observation cursor), `presence`, `request_present`, `raw_request` (exact text or null; null iff `request_present` false), `rqid` (int or null), `active`.
++
++`active` is null unless `presence=actionable`; otherwise `lock`, `trapped`, `maybe_trapped`, `maybe_disabled`, `switch_in_available`, `derivation`, `moves[]` (`slot,id,name,pp,max_pp,target,disabled`). Move values are null iff the raw key is absent; a real `0` stays `0`. `lock`: a single row with neither `pp` nor `maxpp` is `recharge` (`id=recharge`), `struggle` (`id=struggle`) or `locked_move` (any other id; Outrage, Rollout, Uproar, Solar Beam); otherwise `no_hard_lock`. Soft locks (Choice item, Encore, PP 0, Taunt, Imprison disables) are **not modelled as locks**: they appear only as `disabled` booleans on pp-bearing rows and the record says `no_hard_lock`. `derivation.lock` is `bare_single_row` (the rule above applied) or `pp_bearing_rows`.
++
++All record strings are at most 256 Unicode scalars (`battle_id`, move `id`/`name`/`target`, ...); only `raw_request` may reach 65536. Over-length values reject in both builders and in the canonicalizer.
++
++`id` = `rkn-` + sha256 of `request-knowledge/v1\n` + canonical JSON of the record without `id` (ASCII keys sorted, minimal integers, UTF-8 strings, no normalization).
++
++## Presence table (from `classifyPipelineRequestState`)
++
++| observation | raw text | presence |
++|---|---|---|
++| terminated view | null | `terminal` |
++| not terminated, `request` null | null | `requestless` |
++| `wait` | `wait:true` | `waiting` |
++| roster member `reviving` | `forceSwitch:[true]` | `revival_selection` |
++| `force_switch` | `forceSwitch:[true]` | `forced_switch` |
++| otherwise with legal actions | `active` | `actionable` |
++| `no_legal_actions` (not waiting, unavailable or no indices) | any | rejected `no-legal-actions` |
++| `team_preview` | `teamPreview` | rejected `team-preview` |
++
++A terminal observation has no request even when the owner held earlier ones; a terminal record is never built from them. This is not the pipeline `boundary_kind` (a joint property) but the K20 per-perspective side value.
++
++## Tri-state flags and derivation
++
++`trapped`, `maybe_trapped`: `true` iff the raw key is `true`. `false` is permitted only as a rule-derived value from the pinned singles source (`pokemon.js getMoveRequestData` 740-749): the engine emits them only while a switch-in (non-active, non-fainted roster member) exists, so absent with `switch_in_available` is `false`. Absent without a switch-in is `null` (unknown, `not_emitted`), including a locked row with an empty bench. When `trapped` is true the engine does not report `maybeTrapped`, so `maybe_trapped` is `false` with `superseded_by_trapped`. The source emits `maybeDisabled` only when it is true (singles last active, independent of the bench): absent means false in singles (`omitted_singles_rule`), so it is never null. `derivation` names the rule per field: `lock` in {`bare_single_row`, `pp_bearing_rows`}; `trapped` in {`raw_true`, `omitted_with_switch_in`, `omitted_without_switch_in`}; `maybe_trapped` adds `superseded_by_trapped`; `maybe_disabled` in {`raw_true`, `omitted_singles_rule`}. Both `true` together rejects. **Vocabulary (lead decision, PERSPECTIVE_KNOWLEDGE.md not amended):** the derived-false values (`trapped`/`maybe_trapped` false from omission, `maybe_disabled` false, `maybe_trapped` false under `superseded_by_trapped`) are sidecar-local, rule-derived values under the pinned singles source rule. They are NOT PERSPECTIVE `known_absent` and not a default. The S01c K-fact adapter must emit them as `unknown` unless a rule-evidence form is added by a reviewed contract revision; only `raw_true` flags and raw-present move values are source facts.
++
++## Roster/broadcast rule (for lead review; PERSPECTIVE_KNOWLEDGE.md unedited)
++
++- Request subject (`:roster:R:move:M:incarnation:N` for `pp`, `max_pp`, `disabled`, `maybe_disabled`): the move row `slot` of the fresh addressed active inventory (request expansion is exactly that inventory). `maybe_disabled` is per active in the engine; the adapter broadcasts the single boolean to every row of the active inventory (all rows share one value, identical derivation).
++- Roster subject (`trapped`, `maybe_trapped`, `lock`): the roster identity of the raw `side.pokemon` entry with `active:true` (1-based position in that list) for the owner; bench members receive no fact from this record (not emitted: unknown for requests, as the contract already states).
++- Side subject (`boundary_kind`, `request_presence`): `presence` and `request_present`.
++- `null` move/flag values map to `unknown` with reason `not_emitted`; raw-present move values and `raw_true` flags map to known with the type in `property-types.json` (`lock` text, others boolean/integer/text). Derived-false flags map to `unknown` (see Vocabulary above). `rqid`: the pinned stream emits none; the positive path is covered by a hand-audited literal (rqid 7 in text, observation request and record).
++
++## Python validator `validate_request_knowledge(record, observation, *, delivery_registry=None)`
++
++Raises `RequestKnowledgeError.code`; returns `{record_id, presence, delivery_authority}` with `delivery_authority` `structure_only` without a registry and `registry_bound` with one. Order: (1) strict wire (`wire-keys`, `wire-type`, `wire-size`); observation identity (`observation-identity`, legacy `verify_observation`); (6) stale join keys (`stale`, `observation-mismatch`); (5) owner agreement among record, observation, `request.player`, raw `side.id`, roster idents (`wrong-owner`); (2) independent re-derivation of every field from `raw_request` with its own grammar (`raw-json`, `raw-grammar`, `doubles`, `team-preview`, `presence-mismatch`, `false-certainty`); (3) the observation carries `value ?? legacy default` per move, `trapped`, `can_switch`, roster and rqid (`observation-mismatch`, `no-legal-actions`); (4) a numbered move action must be an enabled row with PP, or the request-supplied Struggle row (`legality-mismatch`); registry: the text must be the latest delivery to this owner at `event_cursor` (`registry-delivery`, `registry-type`); finally `id`. A jointly resealed record, raw text and observation passes as `structure_only`; only an independently held addressed-delivery registry (Prompt 12 `SourceRegistry`, delivery cursor = observation cursor, a lead-confirmed seam assumption) detects it.
++
++## Limits
++
++Test-owned witness only (no authenticated delivery provider); singles gen9 only; bench PP, `canTerastallize`, soft-lock reasons, retained last-known PP and hidden Pressure are not modelled; locked rows with an empty bench keep `trapped` null although `getMoves` sets it internally (conservative).
+--- /dev/null
++++ candidate-after/docs/planning/perspective-fidelity-prompt14-witness.cjs
+@@ -0,0 +1,109 @@
++'use strict';
++/**
++ * Prompt 14 (S01b) test-owned witness. Reuses the Prompt 13 harness (exact addressed `|request|` text from a
++ * pinned BattleStream, restored legacy sessions for the unchanged observations) and adds the lead's
++ * decision-6 cases. Nothing here is production capture. The CLI prints one JSON document:
++ *   { cases: {id: captured case}, records: {id: {p1, p2}} }   (records built by the TS module under test)
++ * `records` is only used for TS/Python parity; expected values in tests come from raw text and literals.
++ */
++const path = require('node:path');
++const w13 = require('./perspective-fidelity-prompt13-witness.cjs');
++
++const root = path.resolve(__dirname, '../..');
++const OTHER = 'Blissey\n- Splash\n';
++
++const EXTRA_SCENARIOS = {
++  // Struggle because the only move is hidden-disabled by foe Imprison (maybeDisabled with Struggle).
++  struggle_maybe_disabled: {
++    p1: `Snorlax\nAbility: Immunity\n- Splash\n\n${OTHER}`,
++    p2: `Alakazam\nAbility: Magic Guard\n- Imprison\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }],
++  },
++  // Struggle because every move reached PP 0 (Spite drains the only move).
++  struggle_all_pp_zero: {
++    p1: `Pikachu\nAbility: Static\n- Destiny Bond\n\n${OTHER}`,
++    p2: `Shuckle\nAbility: Sturdy\n- Spite\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }, { p1: 'move 1', p2: 'move 1' }],
++  },
++  outrage_lock: {
++    p1: `Snorlax\nAbility: Immunity\n- Outrage\n- Splash\n\n${OTHER}`,
++    p2: `Blissey\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }],
++  },
++  rollout_lock: {
++    p1: `Golem\nAbility: Sturdy\n- Rollout\n- Splash\n\n${OTHER}`,
++    p2: `Blissey\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }],
++  },
++  uproar_lock: {
++    p1: `Snorlax\nAbility: Immunity\n- Uproar\n- Splash\n\n${OTHER}`,
++    p2: `Blissey\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }],
++  },
++  // Empty bench: switch-in unavailable, so trapped/maybeTrapped are not emitted and must stay unknown.
++  maybe_trapped_empty_bench: {
++    p1: `Snorlax\nAbility: Immunity\n- Tackle\n- Splash\n`,
++    p2: `Wobbuffet\nAbility: Shadow Tag\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [],
++  },
++  locked_empty_bench: {
++    p1: `Venusaur\nAbility: Chlorophyll\n- Solar Beam\n- Splash\n`,
++    p2: `Blissey\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [{ p1: 'move 1', p2: 'move 1' }],
++  },
++  // Non-ASCII nickname travels in the exact addressed text.
++  unicode_names: {
++    p1: `Ñandú 日本 (Snorlax)\nAbility: Immunity\n- Tackle\n- Splash\n\n${OTHER}`,
++    p2: `Blissey\n- Splash\n- Tackle\n\nSnorlax\nAbility: Immunity\n- Splash\n`,
++    rounds: [],
++  },
++};
++Object.assign(w13.SCENARIOS, EXTRA_SCENARIOS);
++
++const EXTRA_CASES = [
++  { id: 'struggle_maybe_disabled', scenario: 'struggle_maybe_disabled', checkpoint: 'round1' },
++  { id: 'struggle_all_pp_zero', scenario: 'struggle_all_pp_zero', checkpoint: 'round2' },
++  { id: 'outrage_lock', scenario: 'outrage_lock', checkpoint: 'round1' },
++  { id: 'rollout_lock', scenario: 'rollout_lock', checkpoint: 'round1' },
++  { id: 'uproar_lock', scenario: 'uproar_lock', checkpoint: 'round1' },
++  { id: 'maybe_trapped_empty_bench', scenario: 'maybe_trapped_empty_bench', checkpoint: 'start' },
++  { id: 'locked_empty_bench', scenario: 'locked_empty_bench', checkpoint: 'round1' },
++  { id: 'unicode_names', scenario: 'unicode_names', checkpoint: 'start' },
++];
++
++async function captureAll14() {
++  const cache = {};
++  const cases = {};
++  for (const def of [...w13.CASES, ...EXTRA_CASES]) cases[def.id] = await w13.captureCase(def, cache);
++  return cases;
++}
++
++const sim = (name) => require(path.join(root, 'sim-core/dist/src', name));
++const FRESH = 'fresh_delivery';
++
++/** Records for parity: every (case, version, owner) built by the TS module from the harness text and the unchanged observation. */
++function buildRecords(cases) {
++  const { buildRequestKnowledge } = sim('request_knowledge.js');
++  const records = {};
++  for (const [id, c] of Object.entries(cases)) {
++    records[id] = {};
++    for (const version of w13.VERSIONS) {
++      for (const owner of ['p1', 'p2']) {
++        if (id === 'trapped_after_rejection' && owner === 'p1') continue; // observation is the stale restored one; covered by tests
++        const observation = c.versions[version].observations[owner];
++        const terminal = observation.view.terminated;
++        const rawText = terminal || !observation.request ? null : c.raw[owner].json;
++        records[id][`${version.slice(-2)}/${owner}`] = buildRequestKnowledge(owner, rawText, observation, FRESH);
++      }
++    }
++  }
++  return records;
++}
++
++module.exports = { ...w13, EXTRA_CASES, EXTRA_SCENARIOS, captureAll14, buildRecords };
++if (require.main === module) {
++  (async () => {
++    const cases = await captureAll14();
++    process.stdout.write(JSON.stringify({ cases, records: process.argv[2] === '--cases-only' ? null : buildRecords(cases) }));
++  })().catch((e) => { console.error(e); process.exitCode = 1; });
++}
+--- /dev/null
++++ candidate-after/docs/planning/perspective-fidelity-prompt14-check-candidate.py
+@@ -0,0 +1,119 @@
++"""Prompt 14 (S01b) scoped validation/preservation. Reproduces the commands in validation.json.
++
++Run from anywhere: python docs/planning/perspective-fidelity-prompt14-check-candidate.py
++Encoding overrides are removed from the child environment. No production file is written; the only
++outputs are perspective-fidelity-prompt14-* evidence files.
++"""
++import difflib
++import hashlib
++import json
++import os
++import re
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++PLAN = ROOT / 'docs/planning'
++PREFIX = 'perspective-fidelity-prompt14-'
++OWNED = ['sim-core/src/request_knowledge.ts', 'trainer/src/neural/request_knowledge.py', 'sim-core/tests/request_knowledge.test.ts',
++         'trainer/tests/test_request_knowledge.py', 'docs/contracts/REQUEST_KNOWLEDGE.md']
++EVIDENCE_HELPERS = ['docs/planning/perspective-fidelity-prompt14-witness.cjs', 'docs/planning/perspective-fidelity-prompt14-check-candidate.py']
++BASELINE = PLAN / 'perspective-fidelity-prompt12-source-baseline.json'
++sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
++write = lambda name, value: (PLAN / (PREFIX + name)).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
++env = {k: v for k, v in os.environ.items() if k.upper() not in ('PYTHONUTF8', 'PYTHONIOENCODING')}
++env['PYTHONPATH'] = str(ROOT / 'trainer/src'); env['PYTHON'] = sys.executable
++
++COMMANDS = [
++    ('sim-core', ['npm.cmd', 'run', 'build'], 'build.log', 'fresh tsc build'),
++    ('sim-core', ['node', '--test', '--test-isolation=none', 'dist/tests/request_knowledge.test.js'], 'ts-validation.log', 'new TS request-knowledge suite'),
++    ('.', [sys.executable, '-m', 'unittest', 'trainer.tests.test_request_knowledge', '-v'], 'python-validation.log', 'new Python request-knowledge suite'),
++    ('sim-core', ['node', '--test', '--test-isolation=none', 'dist/tests/request_knowledge_characterization.test.js'], 'ts-characterization.log', 'unchanged Prompt 13 TS characterization (current observation behavior)'),
++    ('.', [sys.executable, '-m', 'unittest', 'trainer.tests.test_request_knowledge_characterization'], 'python-characterization.log', 'unchanged Prompt 13 Python characterization'),
++    ('sim-core', ['node', '--test', '--test-isolation=none', 'dist/tests/action_codec.test.js', 'dist/tests/observable_state.test.js',
++                  'dist/tests/pipeline_integration.test.js', 'dist/tests/record_identity.test.js'], 'ts-retained.log', 'retained TS request/observation/pipeline/identity suites'),
++    ('sim-core', ['node', '--test', '--test-isolation=none', 'dist/tests/perspective_knowledge.test.js', 'dist/tests/perspective_knowledge_source.test.js'], 'ts-knowledge.log', 'retained TS perspective-knowledge core + source suites (imported parser)'),
++    ('.', [sys.executable, '-m', 'unittest', 'trainer.tests.test_pipeline_record', 'trainer.tests.test_perspective_knowledge', 'trainer.tests.test_perspective_knowledge_source'], 'python-retained.log', 'retained Python pipeline record + perspective-knowledge suites'),
++    ('.', [sys.executable, 'docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py'], 'contract.log', 'retained perspective-knowledge contract checker'),
++    ('.', ['git', 'diff', '--check'], 'diff-check.log', 'tracked-file whitespace (CRLF warnings pre-existing)'),
++]
++
++
++def counts(log):
++    text = log.decode('utf-8', errors='replace')
++    out = {}
++    for key in ('tests', 'pass', 'fail', 'cancelled', 'skipped'):
++        match = re.search(r'ℹ ' + key + r' (\d+)', text)
++        if match:
++            out[key] = int(match.group(1))
++    ran = re.search(r'Ran (\d+) tests? in', text)
++    if ran:
++        out['tests'] = int(ran.group(1)); out['fail'] = 0 if re.search(r'^OK', text, re.M) else None
++    return out
++
++
++results = []
++for cwd, args, log, label in COMMANDS:
++    start = time.monotonic()
++    run = subprocess.run(args, cwd=ROOT / cwd, env=env, capture_output=True, timeout=1500)
++    (PLAN / (PREFIX + log)).write_bytes(run.stdout + run.stderr)
++    results.append({'label': label, 'cwd': cwd, 'argv': [Path(a).name if a == sys.executable else a for a in args], 'exit_code': run.returncode,
++                    'elapsed_seconds': round(time.monotonic() - start, 3), 'counts': counts(run.stdout + run.stderr), 'log': PREFIX + log})
++    write('validation.json', {'encoding_overrides_unset': True, 'python': sys.executable, 'commands': results})
++    print(label, 'exit', run.returncode, results[-1]['counts'], flush=True)
++    assert run.returncode == 0, label
++
++# Evidence: ids of every record built by the TS module under test (regression pins, not independent oracles).
++witness = subprocess.run(['node', str(PLAN / (PREFIX + 'witness.cjs'))], cwd=ROOT, env=env, capture_output=True, timeout=600)
++assert witness.returncode == 0, witness.stderr.decode('utf-8', 'replace')[:400]
++data = json.loads(witness.stdout.decode('utf-8'))
++ids = {case: {key: record['id'] for key, record in records.items()} for case, records in data['records'].items()}
++write('record-ids.json', {'purpose': 'rkn ids built by sim-core/dist/src/request_knowledge.js from the prompt13/14 witness (28 cases); regression pins',
++                          'cases': len(data['cases']), 'records': sum(len(v) for v in ids.values()), 'ids': ids})
++
++# Protected baseline: every protected file byte-identical; every other change is mine or a lead planning file.
++base = json.loads(BASELINE.read_bytes())
++head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
++assert head == base['head']
++mine = lambda p: p.startswith('docs/planning/' + PREFIX)
++changes = {p: {'expected': h, 'current': sha(ROOT / p) if (ROOT / p).is_file() else None}
++           for p, h in base['hashes'].items() if not (ROOT / p).is_file() or sha(ROOT / p) != h}
++# Lead planning files may drift (they are the lead's); everything else protected must be byte-identical.
++lead_protected_drift = {p: c for p, c in changes.items() if p.startswith('docs/planning/') and not mine(p)}
++changes = {p: c for p, c in changes.items() if p not in lead_protected_drift}
++# Prompt 12-source files were accepted after the baseline was taken: must equal their accepted candidate hashes.
++accepted = json.loads((PLAN / 'perspective-fidelity-prompt12-source-hashes.json').read_bytes())['candidate_files']
++accepted.update(json.loads((PLAN / 'perspective-fidelity-prompt13-hashes.json').read_bytes())['candidate_files'])  # Prompt 13 accepted candidate files
++accepted_check = {p: {'accepted': v['after'], 'current': sha(ROOT / p) if (ROOT / p).is_file() else None} for p, v in accepted.items() if p.startswith(('sim-core/', 'trainer/'))}
++accepted_changes = {p: v for p, v in accepted_check.items() if v['accepted'] != v['current']}
++listed = subprocess.check_output(['git', 'ls-files', '-o', '-m', '--exclude-standard'], cwd=ROOT, text=True).splitlines()
++known = set(base['hashes']) | set(base['post_12c_planning_files_not_in_the_12c_inventory']) | set(OWNED) | set(accepted_check)
++lead_new = sorted(p for p in listed if p not in known and not mine(p) and p.startswith('docs/planning/'))
++unexpected = sorted(p for p in listed if p not in known and not mine(p) and not p.startswith('docs/planning/') and not p.startswith('.claude/'))
++lead_now = {p: (sha(ROOT / p) if (ROOT / p).is_file() else None) for p in base['post_12c_planning_files_not_in_the_12c_inventory']}
++lead_drift = {p: h for p, h in lead_now.items() if h != base['post_12c_planning_files_not_in_the_12c_inventory'][p]}
++
++diff, candidate = [], {}
++for name in OWNED + EVIDENCE_HELPERS:
++    current = (ROOT / name).read_text(encoding='utf-8')
++    assert all(line.rstrip() == line for line in current.splitlines()), 'trailing whitespace in ' + name
++    diff.extend(difflib.unified_diff([], current.splitlines(keepends=True), fromfile='/dev/null', tofile='candidate-after/' + name))
++    candidate[name] = {'before': None, 'after': sha(ROOT / name)}
++(PLAN / (PREFIX + 'local.diff')).write_text(''.join(diff), encoding='utf-8')
++write('hashes.json', {'head': head, 'baseline': BASELINE.name, 'protected_entries': len(base['hashes']), 'protected_unchanged': len(base['hashes']) - len(changes),
++                      'protected_changes': changes, 'lead_planning_protected_drift': lead_protected_drift, 'accepted_prompt12_source_files': accepted_check,
++                      'baseline_sha256': sha(BASELINE), 'candidate_files': candidate, 'diff_sha256': sha(PLAN / (PREFIX + 'local.diff')),
++                      'unexpected_changed_or_untracked_files_outside_scope': unexpected,
++                      'lead_planning_files_not_in_baseline_inventory': lead_new,
++                      'lead_planning_files_recorded': len(lead_now), 'lead_planning_files_drift_since_baseline': lead_drift})
++write('artifact-hashes.json', {'owned_candidate_hashes': {k: v['after'] for k, v in candidate.items()},
++                               'direct_dependency_hashes_unchanged_by_this_task': {name: sha(ROOT / name) for name in [
++                                   'sim-core/src/action_codec.ts', 'sim-core/src/observable_state.ts', 'sim-core/src/state_extractor.ts', 'sim-core/src/env_manager.ts',
++                                   'sim-core/src/pipeline_integration.ts', 'sim-core/src/types.ts', 'trainer/src/neural/pipeline_record.py', 'trainer/src/neural/ts_identity.py',
++                                   'sim-core/src/perspective_knowledge.ts', 'trainer/src/neural/perspective_knowledge.py', 'trainer/src/neural/ts_identity.py',
++                                   'trainer/src/neural/perspective_knowledge_source.py', 'docs/contracts/PERSPECTIVE_KNOWLEDGE.md', 'docs/planning/perspective-fidelity-prompt13-witness.cjs',
++                                   'sim-core/node_modules/pokemon-showdown/package.json', 'sim-core/node_modules/pokemon-showdown/dist/sim/pokemon.js']}})
++print('protected', len(base['hashes']), 'changes', len(changes), 'lead drift (protected)', list(lead_protected_drift), 'unexpected', unexpected, 'lead new', lead_new, 'lead drift', list(lead_drift), flush=True)
++assert not changes and not unexpected and not accepted_changes, (changes, unexpected, accepted_changes)

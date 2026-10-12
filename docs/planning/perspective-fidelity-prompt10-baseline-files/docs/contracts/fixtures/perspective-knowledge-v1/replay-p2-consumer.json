@@ -1,0 +1,81 @@
+{
+  "kind": "projection",
+  "schema": "perspective-knowledge-consumer/v1",
+  "owner": "p2",
+  "policy": "public-replay-owner-starting/v1",
+  "boundary": 5,
+  "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+  "result": "incomplete",
+  "starting": [
+    {
+      "owner": "p2",
+      "subject": "p2:roster:1",
+      "family": "K02",
+      "property": "starting_moves",
+      "state": "known",
+      "value": {
+        "type": "texts",
+        "data": [
+          "Tackle"
+        ]
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 5,
+      "effect_key": null
+    }
+  ],
+  "starting_crosswalk": [
+    {
+      "appearance": "p2:appearance:1",
+      "roster": "p2:roster:1"
+    }
+  ],
+  "current": [
+    {
+      "owner": "p2",
+      "subject": "p2:roster:1",
+      "family": "K07",
+      "property": "pp",
+      "state": "unknown",
+      "value": null,
+      "reason": "private_request_unavailable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": null,
+      "effect_key": null
+    },
+    {
+      "owner": "p2",
+      "subject": "p2:side",
+      "family": "K20",
+      "property": "boundary_kind",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "restored"
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 7,
+      "effect_key": null
+    },
+    {
+      "owner": "p2",
+      "subject": "p2:side",
+      "family": "K20",
+      "property": "request_presence",
+      "state": "inapplicable",
+      "value": null,
+      "reason": "proved_rule_inapplicable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": 7,
+      "effect_key": null
+    }
+  ],
+  "request": null,
+  "id": "sha256:68dcc5e4d9bd3090ddfbaa102c64ac83e488b08b5036925d49d825f457ac32e3"
+}

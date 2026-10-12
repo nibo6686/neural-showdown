@@ -454,7 +454,8 @@ function pythonPublishBundles(bundles: EpisodeRecord[]) {
     const response = spawnSync(process.env.PYTHON || 'python3', ['-c', `import io,json,sys
 from unittest.mock import patch
 from neural.pipeline_record import main
-items=json.load(sys.stdin)
+from neural.pipeline_json_wire import load_json
+items=load_json(sys.stdin)
 for bundle in items:
  out,err=io.StringIO(),io.StringIO()
  with patch('sys.stdin',io.StringIO(json.dumps(bundle))),patch('sys.stdout',out),patch('sys.stderr',err): result=main()
@@ -696,9 +697,10 @@ function assertRehashedForeignOriginJoins(result: PipelineEpisodeResult) {
 }
 function pythonCheckOriginRecordIdentity(record: PipelineEpisodeResult['records']['p1'][number] | PipelineEpisodeResult['records']['p1'], prefixContradiction = false) {
   const code = [
-    'import json, sys',
+    'import sys',
     'from neural.ts_identity import verify_bundle_identities, verify_observation, belief_digest',
-    'for bundle in json.load(sys.stdin):',
+    'from neural.pipeline_json_wire import load_json',
+    'for bundle in load_json(sys.stdin):',
     ...(prefixContradiction ? [
       '    for which in ("input", "successor"):',
       '        observation, belief = bundle[which + "_observation"], bundle[which + "_belief"]',

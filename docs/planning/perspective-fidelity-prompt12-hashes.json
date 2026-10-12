@@ -1,0 +1,33 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "branch": "main",
+  "protected_unchanged": 1171,
+  "protected_changes": {},
+  "external_arrivals": {},
+  "accepted_prompt11r_candidate_hashes": {
+    "sim-core/src/perspective_knowledge.ts": {
+      "before": "48243641fb91df1e7af9f31d9b194c6dea480146dc38cc1e66a17ad2d3920f0d",
+      "after": "510a654ff487f7e4abea40a369b04bcf7cd495a6877d42cbbf5400cec6326dbe"
+    },
+    "trainer/src/neural/perspective_knowledge.py": {
+      "before": "5f862f032b57863dcbbcdf05e84259d2810c09ed75b5c4e74ab0233e71dfa27f",
+      "after": "68803b0680ca2bd4df14f800dd890d9b80d153e419a3c76fa5744a713ccc9935"
+    },
+    "sim-core/tests/perspective_knowledge.test.ts": {
+      "before": "ca625e0cbe11b29abe4832ea46902dafab3dee2478fd721e692c091aca8dcb96",
+      "after": "47b7a4010aed127d2ca9409e72f094b6852c053329d5260ce4e7eb7016c34b1f"
+    },
+    "trainer/tests/test_perspective_knowledge.py": {
+      "before": "1048551a5c6b76c656d04b67b2908808e8da321f7e07275927ce6a09e4d2c7c8",
+      "after": "6c5c41e25ebe120eab913ef550ba62c6c82c1c66d1ca4ced97e777dea957e0c4"
+    }
+  },
+  "runtime_candidate_created": false,
+  "owned_runtime_paths_absent": [
+    "sim-core/src/perspective_knowledge_source.ts",
+    "trainer/src/neural/perspective_knowledge_source.py",
+    "sim-core/tests/perspective_knowledge_source.test.ts",
+    "trainer/tests/test_perspective_knowledge_source.py"
+  ],
+  "runtime_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

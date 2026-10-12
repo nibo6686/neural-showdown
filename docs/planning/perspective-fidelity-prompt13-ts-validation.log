@@ -1,0 +1,27 @@
+✔ CONTROL: exact addressed text from the independent harness equals the live request and its normalization equals the pipeline observation (1525.3978ms)
+✔ CONTROL: every addressed request text round-trips exactly through JSON parse/stringify and fits the contract raw bound (2.5143ms)
+✔ CONTROL: v1 and v2 observations carry byte-identical request views for every case (1.0337ms)
+✔ CONTROL: ordinary slots emit pp/maxpp/target/disabled and the observation preserves them (both owners) (0.6921ms)
+✔ CONTROL: legal actions derive only from the current addressed request, and absent PP never creates a legal move (4.4553ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: two_turn_locked_move omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false (0.4531ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: two_turn_locked_move_mirror omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false (0.3051ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: recharge omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false (0.1372ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: recharge_mirror omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false (0.175ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: Struggle fallback omits pp/maxpp, keeps randomNormal, and is indistinguishable from pp=0 except through maxpp (0.3444ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: real PP 0 and "PP absent" both become pp=0; only a maxpp==0 convention separates them; omitted target equals ordinary "normal" (0.615ms)
+✔ CURRENT_BEHAVIOR_LOSSY K07: waiting, forced-switch, revival and terminal observations carry no active slots and the bench roster has no PP at all (0.4016ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: maybe_disabled_imprison drops maybeDisabled and presents hidden-disabled moves as definitely enabled (0.3767ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: maybe_disabled_imprison_mirror drops maybeDisabled and presents hidden-disabled moves as definitely enabled (0.2088ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: maybe_trapped_shadow_tag drops maybeTrapped and reports not-trapped with switching available (0.3425ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: maybe_trapped_shadow_tag_mirror drops maybeTrapped and reports not-trapped with switching available (0.1984ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: a rejected switch re-emits the request with trapped:true and no maybeTrapped; the pre-rejection maybe is unrecorded and the restored branch re-emits the stale request (0.4148ms)
+✔ CURRENT_BEHAVIOR_LOSSY K08: known trap, lock-induced trap and soft locks collapse into undifferentiated booleans (no reason, no lock identity) (0.2247ms)
+✔ CURRENT_BEHAVIOR_LOSSY: actual Python publication accepts every actionable bundle (v1 and v2, both owners) with no request-knowledge in the published record (8984.6529ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11019.1775

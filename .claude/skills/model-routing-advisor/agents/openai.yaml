@@ -1,0 +1,7 @@
+interface:
+  display_name: "Model Routing Advisor"
+  short_description: "Choose a model and delegate bounded work"
+  default_prompt: "Use $model-routing-advisor to preflight this task, recommend the least expensive verified model and lowest sufficient reasoning level, and immediately delegate eligible bounded work to at most one subagent with the exact override."
+
+policy:
+  allow_implicit_invocation: true

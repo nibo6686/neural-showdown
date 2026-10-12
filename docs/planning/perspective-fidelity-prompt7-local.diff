@@ -1,0 +1,206 @@
+--- a/sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json
++++ b/sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json
+@@ -8393,9 +8393,25 @@
+       "../artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json",
+       "tests/pipeline_episode_faithful.test.ts",
+       "tests/pipeline_episode_saved_helpers.ts",
+-      "../artifacts/validation/faithful-flag-2026-10-09/segment-start.json"
++      "../artifacts/validation/faithful-flag-2026-10-09/segment-start.json",
++      "../trainer/src/neural/pipeline_json_wire.py",
++      "../trainer/src/neural/public_field.py",
++      "src/public_field.ts",
++      "tests/pipeline_utf8_transport.test.ts",
++      "tests/perspective_field_semantics.test.ts",
++      "../trainer/tests/test_perspective_field_semantics.py",
++      "../docs/contracts/OBSERVABLE_STATE.md",
++      "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
++      "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
++      "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
++      "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json"
+     ],
+-    "sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
++    "sha256": "8879baab101f4981ee3412f89faf5a8d13996975f5844503083f30ed90ee242b",
+     "reviewed_sha256": "dced76bcc1b24ebb015fdc45befc6b584f1b7bf623ddbb3447906be45e37b757",
+     "prior_reviewed_sha256": "1c96450fa2e53d73e229a61dc1c916d28e503d914ca2607b6c6052ad49891308",
+     "prior_windows_reviewed_sha256": "58e8a6ff8aab60b59d86e376f1872fb6cd3930dc4f2444eb1490187ca7cef34f",
+--- a/sim-core/scripts/check-simulator-coverage.cjs
++++ b/sim-core/scripts/check-simulator-coverage.cjs
+@@ -65,6 +65,25 @@
+   'sim/teams.ts',
+ ];
+ 
++const perspectiveFidelitySources = [
++  "../trainer/src/neural/pipeline_json_wire.py",
++  "../trainer/src/neural/public_field.py",
++  "src/public_field.ts",
++  "tests/pipeline_utf8_transport.test.ts",
++  "tests/perspective_field_semantics.test.ts",
++  "../trainer/tests/test_perspective_field_semantics.py",
++  "../docs/contracts/OBSERVABLE_STATE.md",
++  "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
++  "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
++  "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
++  "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json"
++];
++
+ function expectedReachabilityRoute(classification) {
+   return {
+     direct_reachable: 'candidate_path',
+@@ -483,6 +502,15 @@
+   return hash.digest('hex');
+ }
+ 
++function localCoverageSourceErrors(value, sourceRoot = root) {
++  try {
++    const localDigest = localSourceDigest(value.local_coverage_sources.files, sourceRoot);
++    return localDigest === value.local_coverage_sources.sha256 ? [] : [`Local coverage source digest changed: ${localDigest}`];
++  } catch (error) {
++    return [error.message];
++  }
++}
++
+ function staticEmitterTokens() {
+   const found = new Set();
+   const call = /\b(?:this|battle|target|source|pokemon|side|field)\.add\(\s*(['"`])([^'"`]+)\1/g;
+@@ -660,6 +688,11 @@
+   const found = [];
+   const requiredFields = ['id', 'category', 'source_files', 'source_symbols', 'semantics_ref', 'classification', 'review_status'];
+   if (value.manifest_schema !== 'simulator-coverage/v2') found.push('unsupported manifest schema');
++  for (const file of perspectiveFidelitySources) {
++    if (!Array.isArray(value.local_coverage_sources?.files) || !value.local_coverage_sources.files.includes(file)) {
++      found.push(`Missing required perspective fidelity source: ${file}`);
++    }
++  }
+   if (!value.simulator || value.simulator.source_tree_sha256 !== value.simulator.reviewed_source_tree_sha256) found.push('source digest is not bound to a separate semantic-review digest');
+   if (!value.local_coverage_sources || value.local_coverage_sources.sha256 !== value.local_coverage_sources.reviewed_sha256) found.push('local coverage sources are not bound to a separate semantic-review digest');
+   if (!value.review || value.review.status !== value.review_status || value.review.reviewed_source_tree_sha256 !== value.simulator?.reviewed_source_tree_sha256) found.push('review attestation is missing or digest-mismatched');
+@@ -999,12 +1032,7 @@
+   if (drift) errors.push(drift);
+ }
+ if (installedSource.digest !== manifest.simulator.source_tree_sha256) errors.push(`Simulator source digest changed: ${installedSource.digest}`);
+-try {
+-  const localDigest = localSourceDigest(manifest.local_coverage_sources.files);
+-  if (localDigest !== manifest.local_coverage_sources.sha256) errors.push(`Local coverage source digest changed: ${localDigest}`);
+-} catch (error) {
+-  errors.push(error.message);
+-}
++errors.push(...localCoverageSourceErrors(manifest));
+ 
+ const emittedDiff = setDiff(staticEmitterTokens(), (manifest.protocol?.emitted_static_tokens || []).map((item) => item.token));
+ if (emittedDiff.added.length || emittedDiff.removed.length) errors.push(`Static emitter inventory drift: ${JSON.stringify(emittedDiff)}`);
+@@ -1058,6 +1086,53 @@
+     tests.push(['missing listed lock source fails closed', missingLockRejected]);
+   } finally {
+     fs.rmSync(localSourceRoot, { recursive: true, force: true });
++  }
++  const fidelityControl = JSON.parse(JSON.stringify(manifest));
++  fidelityControl.local_coverage_sources.files = [...new Set([
++    ...fidelityControl.local_coverage_sources.files, ...perspectiveFidelitySources,
++  ])];
++  fidelityControl.local_coverage_sources.sha256 = localSourceDigest(fidelityControl.local_coverage_sources.files);
++  tests.push(['perspective fidelity complete required-source list is admitted',
++    !manifestErrors(fidelityControl, candidateIndex, dex).some((item) => item.startsWith('Missing required perspective fidelity source:'))]);
++  for (const file of perspectiveFidelitySources) {
++    const omitted = JSON.parse(JSON.stringify(fidelityControl));
++    omitted.local_coverage_sources.files = omitted.local_coverage_sources.files.filter((name) => name !== file);
++    omitted.local_coverage_sources.sha256 = localSourceDigest(omitted.local_coverage_sources.files);
++    const rejected = localCoverageSourceErrors(omitted).length === 0
++      && manifestErrors(omitted, candidateIndex, dex).includes(`Missing required perspective fidelity source: ${file}`);
++    console.log(`Rehashed perspective fidelity omission ${file}: ${rejected ? 'rejected' : 'NOT rejected'}`);
++    tests.push([`rehashed perspective fidelity omission fails closed: ${file}`, rejected]);
++  }
++  const fidelityFixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'simulator-coverage-fidelity-'));
++  const fixtureSourceRoot = path.join(fidelityFixtureRoot, 'sim-core');
++  const mutationSources = perspectiveFidelitySources.slice(0, 6).concat('src/observable_state.ts');
++  try {
++    for (const file of mutationSources) {
++      const target = path.resolve(fixtureSourceRoot, file);
++      assert.ok(target.startsWith(fidelityFixtureRoot + path.sep));
++      fs.mkdirSync(path.dirname(target), { recursive: true });
++      fs.copyFileSync(path.resolve(root, file), target);
++    }
++    const fixture = { local_coverage_sources: {
++      files: mutationSources, sha256: localSourceDigest(mutationSources, fixtureSourceRoot),
++    } };
++    tests.push(['perspective fidelity unchanged isolated sources match their candidate digest',
++      localCoverageSourceErrors(fixture, fixtureSourceRoot).length === 0]);
++    for (const file of mutationSources) {
++      const target = path.resolve(fixtureSourceRoot, file);
++      const original = fs.readFileSync(target);
++      fs.appendFileSync(target, '\n__provenance_mutation__\n');
++      tests.push([`perspective fidelity source mutation fails closed: ${file}`,
++        localCoverageSourceErrors(fixture, fixtureSourceRoot).some((item) => item.startsWith('Local coverage source digest changed:'))]);
++      fs.writeFileSync(target, original);
++    }
++    fs.unlinkSync(path.resolve(fixtureSourceRoot, mutationSources[0]));
++    tests.push(['perspective fidelity missing listed file fails closed',
++      localCoverageSourceErrors(fixture, fixtureSourceRoot).includes(`Missing local coverage source: ${mutationSources[0]}`)]);
++  } finally {
++    assert.equal(path.dirname(fidelityFixtureRoot), os.tmpdir());
++    assert.ok(path.basename(fidelityFixtureRoot).startsWith('simulator-coverage-fidelity-'));
++    fs.rmSync(fidelityFixtureRoot, { recursive: true, force: true });
+   }
+   tests.push(['new condition ID', setDiff(['known', '__new_condition__'], ['known']).added.includes('__new_condition__')]);
+   tests.push(['new protocol token', setDiff(['known', '__new_protocol__'], ['known']).added.includes('__new_protocol__')]);
+--- a/sim-core/tests/simulator_coverage.test.ts
++++ b/sim-core/tests/simulator_coverage.test.ts
+@@ -216,6 +216,34 @@
+   const checker = path.resolve(__dirname, '../../scripts/check-simulator-coverage.cjs');
+   const result = spawnSync(process.execPath, [checker, '--reachability-self-test'], { encoding: 'utf8' });
+   assert.equal(result.status, 0, result.stderr || result.stdout);
++  assert.match(result.stdout, /perspective fidelity complete required-source list is admitted/);
++  assert.match(result.stdout, /perspective fidelity unchanged isolated sources match their candidate digest/);
++  const requiredFidelitySources = [
++    "../trainer/src/neural/pipeline_json_wire.py",
++    "../trainer/src/neural/public_field.py",
++    "src/public_field.ts",
++    "tests/pipeline_utf8_transport.test.ts",
++    "tests/perspective_field_semantics.test.ts",
++    "../trainer/tests/test_perspective_field_semantics.py",
++    "../docs/contracts/OBSERVABLE_STATE.md",
++    "../docs/planning/perspective-fidelity-prompt4-weather-lifecycle-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-weather-terminal-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-weather-reproduction.json",
++    "../docs/planning/perspective-fidelity-prompt4-terrain-lifecycle-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-terrain-terminal-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-terrain-reproduction.json",
++    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-lifecycle-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-terminal-ledger.json",
++    "../docs/planning/perspective-fidelity-prompt4-pseudo_weather-reproduction.json"
++  ];
++  for (const file of requiredFidelitySources) {
++    assert.ok(result.stdout.includes(`Rehashed perspective fidelity omission ${file}: rejected`), file);
++  }
++  for (const file of requiredFidelitySources.slice(0, 6).concat('src/observable_state.ts')) {
++    assert.ok(result.stdout.includes(`perspective fidelity source mutation fails closed: ${file}`), file);
++  }
++  assert.match(result.stdout, /perspective fidelity missing listed file fails closed/);
++  assert.match(result.stdout, /local digest-only update does not attest semantic review/);
+   assert.match(result.stdout, /format config root drift fails closed/);
+   assert.match(result.stdout, /listed lock content changes local source digest/);
+   assert.match(result.stdout, /omitting listed lock changes local source digest/);
+@@ -240,3 +268,14 @@
+   }
+   assert.match(result.stdout, /B05\/B06 no-route proof fails closed when direct candidate roots appear/);
+ });
++
++
++test('coverage self-tests preserve the actual checker gate exit and diagnostics', () => {
++  const checker = path.resolve(__dirname, '../../scripts/check-simulator-coverage.cjs');
++  const live = spawnSync(process.execPath, [checker], { encoding: 'utf8' });
++  const controls = spawnSync(process.execPath, [checker, '--self-test'], { encoding: 'utf8' });
++  assert.notEqual(live.status, null, live.error?.message);
++  assert.equal(controls.status, live.status, controls.stderr || controls.stdout);
++  assert.equal(controls.stderr, live.stderr);
++  assert.match(controls.stdout, /Synthetic drift self-tests passed/);
++});

@@ -1,0 +1,11 @@
+# Prompt 7 progress
+
+M01 provenance only. Sole writer, Sol 6.1, no further delegation. HEAD accab655c26ada18124e790b16d5770c8bd17894. Existing dirty work preserved. Owned manifest list/candidate sha256, checker required-source/self-tests, TS harness only if needed; task artifacts. Baseline hashes captured before editing; prior planning/evidence, runtime/contracts and accepted tests protected.
+
+Coverage review: rehashing a shortened list must still fail specific required-source checks; mutation must fail actual local digest check. Temporary mirrored inputs only. Existing self-test flags differ: reachability self-test exits0 after controls; --self-test continues live gate and must exit1 on unreviewed drift. TS harness must distinguish them. Reviewed/attestation fields and all other manifest data must be byte-equivalent.
+
+Chunk 1: isolated resealed omissions for all 16 additions reproduced red (specific omission not rejected), exit1. Added 16 required-source checks, 7 isolated mutations (six helpers/tests + existing observable_state.ts), missing-file control, and actual shared digest-error path. Manifest adds six helpers/tests, OBSERVABLE_STATE contract and nine directly consumed Prompt4 JSON inputs only. TS harness asserts each control and compares --self-test to actual live gate. Reviewed fields not touched. Candidate digest pending final checker/harness freeze.
+
+Chunk 2 freeze: all 16 omissions green; six helpers/tests plus existing source mutations reject through actual shared checker path; missing listed file rejects. Candidate digest 8879baab101f4981ee3412f89faf5a8d13996975f5844503083f30ed90ee242b covers 137 exact inputs. Build exit0. Focused TS checker harness2/2 exit0 (15.399s). Actual checker and --self-test each exit1 solely for preserved candidate/reviewed mismatch; --reachability-self-test exit0. Non-owned manifest literal bytes and258 protected files unchanged. Fifteen accepted delta hashes match prior reviews and all are listed. No semantic matrix rerun needed. Dependency/digest/diff packet emitted; final memo next.
+
+Final artifacts: reviewed-field literal-byte comparison, dependency packet, all137 digest inputs, exact command/control exits and <1000-word memo complete. Temporary baseline removed; candidate frozen. Required gate remains intentional exit1; return for independent review/attestation decision only.

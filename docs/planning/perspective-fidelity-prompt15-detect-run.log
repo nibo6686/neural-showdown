@@ -1,0 +1,93 @@
+✔ belief sampling is deterministic and independent of true hidden bench sets (766.7397ms)
+✔ belief sampling preserves publicly revealed opponent moves (99.674ms)
+✔ belief sampling preserves synthetic public item ability and tera constraints (73.9052ms)
+✔ real switch lifecycle for p1 preserves typed state, prefix and privacy through restoration (665.0416ms)
+✔ real drag lifecycle for p1 preserves typed state, prefix and privacy through restoration (79.6248ms)
+✔ real faint lifecycle for p1 preserves typed state, prefix and privacy through restoration (82.7013ms)
+✔ real shed-tail lifecycle for p1 preserves typed state, prefix and privacy through restoration (152.0348ms)
+✔ real failed-shed-tail lifecycle for p1 preserves typed state, prefix and privacy through restoration (47.975ms)
+✔ real switch lifecycle for p2 preserves typed state, prefix and privacy through restoration (37.4172ms)
+✔ real drag lifecycle for p2 preserves typed state, prefix and privacy through restoration (61.7829ms)
+✔ real faint lifecycle for p2 preserves typed state, prefix and privacy through restoration (64.872ms)
+✔ real shed-tail lifecycle for p2 preserves typed state, prefix and privacy through restoration (70.9246ms)
+✔ real failed-shed-tail lifecycle for p2 preserves typed state, prefix and privacy through restoration (63.6644ms)
+✔ same seed produces the same initial self team state (145.7818ms)
+✔ seeded random controllers settle repeated terminal battles without external input (856.2487ms)
+✔ response shaping can return only p1 without log delta or possible roles (23.1266ms)
+✔ invalid external choices return the pending request instead of hanging (25.0659ms)
+✔ canonical submissions reject stale actions before raw choice forwarding (42.1103ms)
+✔ real forced-switch waits are opt-in, private, non-actionable and preserved by restoration (122.0399ms)
+✔ submitted requests stay absent through restoration while the other player can still choose (191.1471ms)
+✔ real Shed Tail p1 matches uninterrupted state and publishes repeatable actor records and both beliefs (1207.4826ms)
+✔ real Shed Tail p2 matches uninterrupted state and publishes repeatable actor records and both beliefs (514.7217ms)
+✔ real ko forced switch publishes one deterministic actor record and both successor beliefs (2204.1994ms)
+✔ real pivot forced switch publishes one deterministic actor record and both successor beliefs (1291.2162ms)
+✔ post-execution rejection and malformed projection discard forced-switch candidates completely (725.3309ms)
+✔ versioned preflight rejects malformed roles, waiting actions, stale requests and Revival Blessing before writes (140.958ms)
+✔ post-commit disposal failure does not masquerade as forced-switch rejection and is retried on close (315.2348ms)
+Ability authority control: plain Air Lock/p1/observable-battle-state/v1
+Ability plain Air Lock/p1/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: plain Air Lock/p1/observable-battle-state/v2
+Ability plain Air Lock/p1/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: plain Air Lock/p2/observable-battle-state/v1
+Ability plain Air Lock/p2/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: plain Air Lock/p2/observable-battle-state/v2
+Ability plain Air Lock/p2/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: boost Intimidate/p1/observable-battle-state/v1
+Ability boost Intimidate/p1/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: boost Intimidate/p1/observable-battle-state/v2
+Ability boost Intimidate/p1/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: boost Intimidate/p2/observable-battle-state/v1
+Ability boost Intimidate/p2/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: boost Intimidate/p2/observable-battle-state/v2
+Ability boost Intimidate/p2/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Imposter cleanup/p1/observable-battle-state/v1
+Ability Imposter cleanup/p1/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Imposter cleanup/p1/observable-battle-state/v2
+Ability Imposter cleanup/p1/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Imposter cleanup/p2/observable-battle-state/v1
+Ability Imposter cleanup/p2/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Imposter cleanup/p2/observable-battle-state/v2
+Ability Imposter cleanup/p2/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Terapagos silent replacement/p1/observable-battle-state/v1
+Ability Terapagos silent replacement/p1/observable-battle-state/v1: 16 joined controls; ordinary reject atomically
+Ability authority control: Terapagos silent replacement/p1/observable-battle-state/v2
+Ability Terapagos silent replacement/p1/observable-battle-state/v2: 16 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Terapagos silent replacement/p2/observable-battle-state/v1
+Ability Terapagos silent replacement/p2/observable-battle-state/v1: 16 joined controls; ordinary reject atomically
+Ability authority control: Terapagos silent replacement/p2/observable-battle-state/v2
+Ability Terapagos silent replacement/p2/observable-battle-state/v2: 16 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Terapagos public replacement/p1/observable-battle-state/v1
+Ability Terapagos public replacement/p1/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Terapagos public replacement/p1/observable-battle-state/v2
+Ability Terapagos public replacement/p1/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Terapagos public replacement/p2/observable-battle-state/v1
+Ability Terapagos public replacement/p2/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Terapagos public replacement/p2/observable-battle-state/v2
+Ability Terapagos public replacement/p2/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Ogerpon public replacement/p1/observable-battle-state/v1
+Ability Ogerpon public replacement/p1/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Ogerpon public replacement/p1/observable-battle-state/v2
+Ability Ogerpon public replacement/p1/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Ability authority control: Ogerpon public replacement/p2/observable-battle-state/v1
+Ability Ogerpon public replacement/p2/observable-battle-state/v1: 18 joined controls; ordinary reject atomically
+Ability authority control: Ogerpon public replacement/p2/observable-battle-state/v2
+Ability Ogerpon public replacement/p2/observable-battle-state/v2: 18 joined controls; ordinary/full/envelope reject atomically
+Trace copied-ability control: p1/observable-battle-state/v1
+Trace p1/observable-battle-state/v1: 13 joined controls; ordinary reject atomically
+Trace copied-ability control: p1/observable-battle-state/v2
+Trace p1/observable-battle-state/v2: 13 joined controls; ordinary/full/envelope reject atomically
+Trace copied-ability control: p2/observable-battle-state/v1
+Trace p2/observable-battle-state/v1: 13 joined controls; ordinary reject atomically
+Trace copied-ability control: p2/observable-battle-state/v2
+Trace p2/observable-battle-state/v2: 13 joined controls; ordinary/full/envelope reject atomically
+Trace terminal cleanup publication: p1
+Trace terminal cleanup publication: p2
+CE-08A isolated turn-limit: native commits started
+CE-08A isolated turn-limit: 100 commits, 6798ms
+CE-08A isolated turn-limit: 200 commits, 22928ms
+CE-08A isolated turn-limit: 300 commits, 45838ms
+CE-08A isolated turn-limit: 400 commits, 75396ms
+CE-08A isolated turn-limit: 500 commits, 112894ms
+CE-08A isolated turn-limit: 600 commits, 157906ms
+CE-08A isolated turn-limit: 700 commits, 212739ms

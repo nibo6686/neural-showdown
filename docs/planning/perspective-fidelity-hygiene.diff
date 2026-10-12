@@ -1,0 +1,43 @@
+diff --git a/.gitattributes b/.gitattributes
+index 5e81ad0..bb3e3a9 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -1,2 +1,4 @@
+ artifacts/checkpoints/*.pt filter=lfs diff=lfs merge=lfs -text
+ artifacts/checkpoints/*.pth filter=lfs diff=lfs merge=lfs -text
++artifacts/validation/faithful-flag-2026-10-09/segment-start.json -text
++artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json -text
+diff --git a/sim-core/tests/public_consequence_test_helpers.ts b/sim-core/tests/public_consequence_test_helpers.ts
+index 17b651a..156240b 100644
+--- a/sim-core/tests/public_consequence_test_helpers.ts
++++ b/sim-core/tests/public_consequence_test_helpers.ts
+@@ -64,7 +64,7 @@ export function rehash(candidate: Record<string, any>): void {
+ 
+ export function python(value: unknown, identityOnly = false) {
+   const result = spawnSync(process.env.PYTHON || 'python3', identityOnly
+-    ? ['-c', 'import json,sys; from neural.ts_identity import verify_bundle_identities; verify_bundle_identities(json.load(sys.stdin))']
++    ? ['-c', 'import json,sys; from neural.ts_identity import verify_bundle_identities; verify_bundle_identities(json.loads(sys.stdin.buffer.read().decode("utf8")))']
+     : ['-m', 'neural.pipeline_record'], {
+     input: JSON.stringify(value), encoding: 'utf8',
+     timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
+@@ -227,7 +227,7 @@ from unittest.mock import patch
+ from neural.pipeline_record import main
+ from neural.ts_identity import verify_bundle_identities
+ results=[]
+-for encoded in json.load(sys.stdin):
++for encoded in json.loads(sys.stdin.buffer.read().decode('utf8')):
+  identity_error=''
+  try: verify_bundle_identities(json.loads(encoded))
+  except Exception as error: identity_error=str(error)
+diff --git a/sim-core/tests/revival.test.ts b/sim-core/tests/revival.test.ts
+index f7a0670..f4cd59d 100644
+--- a/sim-core/tests/revival.test.ts
++++ b/sim-core/tests/revival.test.ts
+@@ -78,6 +78,7 @@ Reserve (Blissey)
+ - Splash
+ `)!;
+   const p2 = Teams.import(`Pawmot
++Ability: Iron Fist
+ - Revival Blessing
+ - Splash
+ 

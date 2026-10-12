@@ -1,2 +1,8 @@
 artifacts/checkpoints/*.pt filter=lfs diff=lfs merge=lfs -text
 artifacts/checkpoints/*.pth filter=lfs diff=lfs merge=lfs -text
+artifacts/validation/faithful-flag-2026-10-09/segment-start.json -text
+artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json -text
+# Handoff: preserve raw evidence/fixture bytes across platform EOL settings.
+docs/planning/** -text
+docs/contracts/fixtures/** -text
+trainer/tests/fixtures/perspective-replay/** -text

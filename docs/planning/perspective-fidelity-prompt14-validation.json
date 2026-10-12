@@ -1,0 +1,182 @@
+{
+  "encoding_overrides_unset": true,
+  "python": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+  "commands": [
+    {
+      "label": "fresh tsc build",
+      "cwd": "sim-core",
+      "argv": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.89,
+      "counts": {},
+      "log": "perspective-fidelity-prompt14-build.log"
+    },
+    {
+      "label": "new TS request-knowledge suite",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/request_knowledge.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.469,
+      "counts": {
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt14-ts-validation.log"
+    },
+    {
+      "label": "new Python request-knowledge suite",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_request_knowledge",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.453,
+      "counts": {
+        "tests": 19,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt14-python-validation.log"
+    },
+    {
+      "label": "unchanged Prompt 13 TS characterization (current observation behavior)",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/request_knowledge_characterization.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.422,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt14-ts-characterization.log"
+    },
+    {
+      "label": "unchanged Prompt 13 Python characterization",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_request_knowledge_characterization"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.875,
+      "counts": {
+        "tests": 8,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt14-python-characterization.log"
+    },
+    {
+      "label": "retained TS request/observation/pipeline/identity suites",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/action_codec.test.js",
+        "dist/tests/observable_state.test.js",
+        "dist/tests/pipeline_integration.test.js",
+        "dist/tests/record_identity.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 59.843,
+      "counts": {
+        "tests": 44,
+        "pass": 44,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt14-ts-retained.log"
+    },
+    {
+      "label": "retained TS perspective-knowledge core + source suites (imported parser)",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/perspective_knowledge.test.js",
+        "dist/tests/perspective_knowledge_source.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 64.063,
+      "counts": {
+        "tests": 83,
+        "pass": 83,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt14-ts-knowledge.log"
+    },
+    {
+      "label": "retained Python pipeline record + perspective-knowledge suites",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_pipeline_record",
+        "trainer.tests.test_perspective_knowledge",
+        "trainer.tests.test_perspective_knowledge_source"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 125.265,
+      "counts": {
+        "tests": 93,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt14-python-retained.log"
+    },
+    {
+      "label": "retained perspective-knowledge contract checker",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.469,
+      "counts": {},
+      "log": "perspective-fidelity-prompt14-contract.log"
+    },
+    {
+      "label": "tracked-file whitespace (CRLF warnings pre-existing)",
+      "cwd": ".",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "counts": {},
+      "log": "perspective-fidelity-prompt14-diff-check.log"
+    }
+  ]
+}

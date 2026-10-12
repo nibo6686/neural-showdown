@@ -1,0 +1,156 @@
+{
+  "encoding_overrides_unset": true,
+  "python": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+  "commands": [
+    {
+      "label": "fresh tsc build",
+      "cwd": "sim-core",
+      "argv": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.203,
+      "counts": {},
+      "log": "perspective-fidelity-prompt12-source-build.log"
+    },
+    {
+      "label": "new TS paired suite",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/perspective_knowledge_source.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.782,
+      "counts": {
+        "tests": 21,
+        "pass": 21,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-ts-source.log"
+    },
+    {
+      "label": "new Python paired suite",
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_perspective_knowledge_source"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 29.312,
+      "counts": {
+        "tests": 19,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-python-source.log"
+    },
+    {
+      "label": "retained TS knowledge core suite",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/perspective_knowledge.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 47.375,
+      "counts": {
+        "tests": 62,
+        "pass": 62,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-ts-core.log"
+    },
+    {
+      "label": "retained Python knowledge core suite",
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_perspective_knowledge"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 70.641,
+      "counts": {
+        "tests": 28,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-python-core.log"
+    },
+    {
+      "label": "retained contract checker",
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.468,
+      "counts": {},
+      "log": "perspective-fidelity-prompt12-source-contract.log"
+    },
+    {
+      "label": "ordinary affected TS legacy validators",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/pipeline_integration.test.js",
+        "dist/tests/record_identity.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 60.407,
+      "counts": {
+        "tests": 15,
+        "pass": 15,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-ts-legacy.log"
+    },
+    {
+      "label": "ordinary affected Python legacy validators",
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_pipeline_record"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.047,
+      "counts": {
+        "tests": 46,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt12-source-python-legacy.log"
+    },
+    {
+      "label": "tracked-file whitespace (CRLF warnings pre-existing)",
+      "cwd": ".",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "counts": {},
+      "log": "perspective-fidelity-prompt12-source-diff-check.log"
+    }
+  ]
+}

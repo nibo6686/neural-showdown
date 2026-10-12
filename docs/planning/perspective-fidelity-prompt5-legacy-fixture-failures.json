@@ -1,0 +1,27 @@
+{
+  "selected_methods": 5,
+  "actual_tests_run": 5,
+  "successful": false,
+  "groups": {
+    "test_ce04d1_entry_hazard_records_publish_only_pinned_forms": {
+      "Typed lifecycle evidence mismatch: input observation field fields are not exact; missing=['pseudo_weather', 'terrain', 'weather'], unexpected=[]": 1
+    },
+    "test_ce04d2_screen_records_publish_only_pinned_generated_forms": {
+      "Typed lifecycle evidence mismatch: input observation field fields are not exact; missing=['pseudo_weather', 'terrain', 'weather'], unexpected=[]": 1
+    },
+    "test_ce04e1_weather_records_publish_only_pinned_generated_forms": {
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: field writers require a field view, including after a public clear": 32,
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: weather upkeep disagrees with its public start": 8,
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: weather ends without a public start": 8
+    },
+    "test_ce04e2_terrain_records_publish_only_pinned_generated_forms": {
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: field writers require a field view, including after a public clear": 40,
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: terrain ends without its current public start": 24
+    },
+    "test_ce04e3_trick_room_records_publish_only_pinned_generated_forms": {
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: field writers require a field view, including after a public clear": 8,
+      "Typed lifecycle evidence mismatch: Public field evidence mismatch: Trick Room writer disagrees with its public lifecycle": 8
+    }
+  },
+  "failure_entries": 130
+}

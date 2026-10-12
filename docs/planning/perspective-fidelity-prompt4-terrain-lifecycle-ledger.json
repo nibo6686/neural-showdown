@@ -1,0 +1,32 @@
+[
+  {
+    "value": "electricterrain",
+    "writers": [
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin"
+    ]
+  },
+  {
+    "value": "grassyterrain",
+    "writers": [
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Grass"
+    ]
+  },
+  {
+    "value": null,
+    "writers": [
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Grass",
+      "|-fieldend|move: Grassy Terrain"
+    ]
+  },
+  {
+    "value": "electricterrain",
+    "writers": [
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin",
+      "|-fieldstart|move: Grassy Terrain|[from] ability: Grassy Surge|[of] p1a: Grass",
+      "|-fieldend|move: Grassy Terrain",
+      "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin"
+    ]
+  }
+]

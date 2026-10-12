@@ -1,0 +1,1220 @@
+{
+  "readiness": false,
+  "mode": "semantic requirements",
+  "rows": [
+    {
+      "fixture": "random",
+      "stage": "loader/player identity",
+      "index": 369,
+      "record": "|raw|kaiser_me's rating: 1090 → <strong>1063<\\/strong><br \\/>(-27 for losing)",
+      "expected": "kaiser_me",
+      "actual": "kaiser_me",
+      "classification": "positive"
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "stage": "legacy caller shape",
+      "through_turn": 0,
+      "actual": {
+        "player_side": "p1",
+        "active_species": "Skuntank",
+        "team": [
+          {
+            "ident": "p1: Skuntank",
+            "species": "Skuntank",
+            "details": "Skuntank",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Knock Off",
+              "Taunt"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Perrserker",
+            "species": "Perrserker",
+            "details": "Perrserker",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "U-turn"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Toxapex",
+            "species": "Toxapex",
+            "details": "Toxapex",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Liquidation",
+              "Recover",
+              "Toxic Spikes"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": "Grass"
+          },
+          {
+            "ident": "p1: Piloswine",
+            "species": "Piloswine",
+            "details": "Piloswine",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Earthquake",
+              "Ice Shard",
+              "Icicle Crash",
+              "Stealth Rock"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Mandibuzz",
+            "species": "Mandibuzz",
+            "details": "Mandibuzz",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Foul Play",
+              "U-turn"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Falinks",
+            "species": "Falinks",
+            "details": "Falinks",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Close Combat",
+              "No Retreat"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "knockoff",
+            "name": "Knock Off",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          },
+          {
+            "id": "taunt",
+            "name": "Taunt",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Knock Off",
+            "disabled": false
+          },
+          {
+            "kind": "move",
+            "label": "Taunt",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Perrserker",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Toxapex",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Piloswine",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Mandibuzz",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Falinks",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "unverified reconstruction; NOT authentic request",
+      "unknown_obligations": [
+        "integer HP",
+        "PP/maxPP",
+        "legal actions",
+        "starting attribution"
+      ]
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "stage": "legacy PP certainty",
+      "expected": null,
+      "actual": [
+        {
+          "name": "Knock Off",
+          "pp": 1,
+          "maxpp": 1
+        },
+        {
+          "name": "Taunt",
+          "pp": 1,
+          "maxpp": 1
+        }
+      ],
+      "classification": "fabricated certainty"
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "stage": "turn-only cutoff",
+      "actual_cursor": 20,
+      "classification": "cannot express same-turn record cutoff"
+    },
+    {
+      "fixture": "random",
+      "owner": "p2",
+      "stage": "legacy caller shape",
+      "through_turn": 0,
+      "actual": {
+        "player_side": "p2",
+        "active_species": "Dondozo",
+        "team": [
+          {
+            "ident": "p2: Dondozo",
+            "species": "Dondozo",
+            "details": "Dondozo",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Wave Crash"
+            ],
+            "item": "Leftovers",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Toxtricity",
+            "species": "Toxtricity",
+            "details": "Toxtricity",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Overdrive"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Kilowattrel",
+            "species": "Kilowattrel",
+            "details": "Kilowattrel",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Hurricane"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Cinccino",
+            "species": "Cinccino",
+            "details": "Cinccino",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Bullet Seed",
+              "Tidy Up"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Ting-Lu",
+            "species": "Ting-Lu",
+            "details": "Ting-Lu",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Earthquake",
+              "Heavy Slam",
+              "Spikes"
+            ],
+            "item": null,
+            "ability": "Vessel of Ruin",
+            "base_ability": "Vessel of Ruin",
+            "tera_type": "Poison"
+          },
+          {
+            "ident": "p2: Kleavor",
+            "species": "Kleavor",
+            "details": "Kleavor",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "X-Scissor"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "wavecrash",
+            "name": "Wave Crash",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Wave Crash",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Toxtricity",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Kilowattrel",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Cinccino",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Ting-Lu",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Kleavor",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "unverified reconstruction; NOT authentic request",
+      "unknown_obligations": [
+        "integer HP",
+        "PP/maxPP",
+        "legal actions",
+        "starting attribution"
+      ]
+    },
+    {
+      "fixture": "random",
+      "owner": "p2",
+      "stage": "legacy PP certainty",
+      "expected": null,
+      "actual": [
+        {
+          "name": "Wave Crash",
+          "pp": 1,
+          "maxpp": 1
+        }
+      ],
+      "classification": "fabricated certainty"
+    },
+    {
+      "fixture": "random",
+      "owner": "p2",
+      "stage": "turn-only cutoff",
+      "actual_cursor": 20,
+      "classification": "cannot express same-turn record cutoff"
+    },
+    {
+      "fixture": "random",
+      "index": 18,
+      "cursor": 19,
+      "owner": "p1",
+      "subject": "p1a: Skuntank",
+      "appearance": "p1a: Skuntank@18",
+      "property": "hp_text",
+      "expected": "310/310",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 1.0,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "random",
+      "index": 18,
+      "cursor": 19,
+      "owner": "p2",
+      "subject": "p1a: Skuntank",
+      "appearance": "p1a: Skuntank@18",
+      "property": "hp_text",
+      "expected": "310/310",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 1.0,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "random",
+      "index": 27,
+      "cursor": 28,
+      "owner": "p1",
+      "subject": "p1a: Skuntank",
+      "appearance": "p1a: Skuntank@18",
+      "property": "hp_text",
+      "expected": "163/310",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|-damage|p1a: Skuntank|163\\/310",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 0.5258064516129032,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "random",
+      "index": 27,
+      "cursor": 28,
+      "owner": "p2",
+      "subject": "p1a: Skuntank",
+      "appearance": "p1a: Skuntank@18",
+      "property": "hp_text",
+      "expected": "163/310",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|-damage|p1a: Skuntank|163\\/310",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 0.5258064516129032,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "index": 39,
+      "cursor": 40,
+      "record": "|-damage|p1a: Skuntank|132\\/310|[from] item: Life Orb",
+      "subject": "Skuntank",
+      "property": "item",
+      "expected": "Life Orb",
+      "actual": null,
+      "classification": "lost revelation"
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "index": 149,
+      "cursor": 150,
+      "record": "|-heal|p1a: Toxapex|99\\/216|[from] item: Leftovers",
+      "subject": "Toxapex",
+      "property": "item",
+      "expected": "Leftovers",
+      "actual": null,
+      "classification": "lost revelation"
+    },
+    {
+      "fixture": "random",
+      "owner": "p1",
+      "index": 42,
+      "cursor": 43,
+      "record": "|-damage|p2a: Dondozo|80\\/362|[from] ability: Aftermath|[of] p1a: Skuntank",
+      "subject": "Skuntank",
+      "property": "ability",
+      "expected": "Aftermath",
+      "actual": null,
+      "classification": "lost revelation"
+    },
+    {
+      "fixture": "ou",
+      "stage": "loader/player identity",
+      "index": 304,
+      "record": "|player|p2|",
+      "expected": "loob",
+      "actual": "loob",
+      "classification": "positive"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p1",
+      "stage": "legacy caller shape",
+      "through_turn": 0,
+      "actual": {
+        "player_side": "p1",
+        "active_species": "Kyurem",
+        "team": [
+          {
+            "ident": "p1: Kyurem",
+            "species": "Kyurem",
+            "details": "Kyurem",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Freeze-Dry",
+              "Ice Beam"
+            ],
+            "item": null,
+            "ability": "Pressure",
+            "base_ability": "Pressure",
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Great Tusk",
+            "species": "Great Tusk",
+            "details": "Great Tusk",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Headlong Rush",
+              "Rapid Spin",
+              "Stealth Rock"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Corviknight",
+            "species": "Corviknight",
+            "details": "Corviknight",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Roost",
+              "U-turn"
+            ],
+            "item": "Rocky Helmet",
+            "ability": "Pressure",
+            "base_ability": "Pressure",
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Kingambit",
+            "species": "Kingambit",
+            "details": "Kingambit",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Kowtow Cleave"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Slowking-Galar",
+            "species": "Slowking-Galar",
+            "details": "Slowking-Galar",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p1: Slowking",
+            "species": "Slowking",
+            "details": "Slowking",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Chilly Reception",
+              "Thunder Wave"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "freeze-dry",
+            "name": "Freeze-Dry",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          },
+          {
+            "id": "icebeam",
+            "name": "Ice Beam",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Freeze-Dry",
+            "disabled": false
+          },
+          {
+            "kind": "move",
+            "label": "Ice Beam",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Great Tusk",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Corviknight",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Kingambit",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Slowking-Galar",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Slowking",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "unverified reconstruction; NOT authentic request",
+      "unknown_obligations": [
+        "integer HP",
+        "PP/maxPP",
+        "legal actions",
+        "starting attribution"
+      ]
+    },
+    {
+      "fixture": "ou",
+      "owner": "p1",
+      "stage": "legacy PP certainty",
+      "expected": null,
+      "actual": [
+        {
+          "name": "Freeze-Dry",
+          "pp": 1,
+          "maxpp": 1
+        },
+        {
+          "name": "Ice Beam",
+          "pp": 1,
+          "maxpp": 1
+        }
+      ],
+      "classification": "fabricated certainty"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p1",
+      "stage": "turn-only cutoff",
+      "actual_cursor": 42,
+      "classification": "cannot express same-turn record cutoff"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p2",
+      "stage": "legacy caller shape",
+      "through_turn": 0,
+      "actual": {
+        "player_side": "p2",
+        "active_species": "Ting-Lu",
+        "team": [
+          {
+            "ident": "p2: Ting-Lu",
+            "species": "Ting-Lu",
+            "details": "Ting-Lu",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Stealth Rock"
+            ],
+            "item": null,
+            "ability": "Vessel of Ruin",
+            "base_ability": "Vessel of Ruin",
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Iron Crown",
+            "species": "Iron Crown",
+            "details": "Iron Crown",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Calm Mind",
+              "Psychic"
+            ],
+            "item": "Booster Energy",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Ogerpon-Wellspring",
+            "species": "Ogerpon-Wellspring",
+            "details": "Ogerpon-Wellspring",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Ogerpon",
+            "species": "Ogerpon",
+            "details": "Ogerpon",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Ivy Cudgel",
+              "Knock Off"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Gliscor",
+            "species": "Gliscor",
+            "details": "Gliscor",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Earthquake",
+              "Protect",
+              "Toxic Spikes"
+            ],
+            "item": null,
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          },
+          {
+            "ident": "p2: Kingambit",
+            "species": "Kingambit",
+            "details": "Kingambit",
+            "active": false,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Swords Dance"
+            ],
+            "item": "Air Balloon",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "stealthrock",
+            "name": "Stealth Rock",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Stealth Rock",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Iron Crown",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Ogerpon-Wellspring",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Ogerpon",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Gliscor",
+            "disabled": false
+          },
+          {
+            "kind": "switch",
+            "label": "Kingambit",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "unverified reconstruction; NOT authentic request",
+      "unknown_obligations": [
+        "integer HP",
+        "PP/maxPP",
+        "legal actions",
+        "starting attribution"
+      ]
+    },
+    {
+      "fixture": "ou",
+      "owner": "p2",
+      "stage": "legacy PP certainty",
+      "expected": null,
+      "actual": [
+        {
+          "name": "Stealth Rock",
+          "pp": 1,
+          "maxpp": 1
+        }
+      ],
+      "classification": "fabricated certainty"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p2",
+      "stage": "turn-only cutoff",
+      "actual_cursor": 42,
+      "classification": "cannot express same-turn record cutoff"
+    },
+    {
+      "fixture": "ou",
+      "index": 47,
+      "cursor": 48,
+      "owner": "p1",
+      "subject": "p2a: Ting-Lu",
+      "appearance": "p2a: Ting-Lu@39",
+      "property": "hp_text",
+      "expected": "32/100",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|-damage|p2a: Ting-Lu|32\\/100",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 0.32,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "ou",
+      "index": 47,
+      "cursor": 48,
+      "owner": "p2",
+      "subject": "p2a: Ting-Lu",
+      "appearance": "p2a: Ting-Lu@39",
+      "property": "hp_text",
+      "expected": "32/100",
+      "knownness": "known",
+      "precision": "public displayed fraction; not addressed private HP",
+      "evidence": "|-damage|p2a: Ting-Lu|32\\/100",
+      "reason_unknown": null,
+      "stage": "loader -> parser HP",
+      "actual": null,
+      "expected_ratio": 0.32,
+      "classification": "load/HP transport failure"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p2",
+      "index": 124,
+      "cursor": 125,
+      "record": "|-heal|p2a: Gliscor|74\\/100 tox|[from] ability: Poison Heal",
+      "subject": "Gliscor",
+      "property": "ability",
+      "expected": "Poison Heal",
+      "actual": null,
+      "classification": "lost revelation"
+    },
+    {
+      "fixture": "ou",
+      "owner": "p2",
+      "index": 224,
+      "cursor": 225,
+      "record": "|-damage|p1a: Corviknight|64\\/100|[from] item: Rocky Helmet|[of] p2a: Ting-Lu",
+      "subject": "Ting-Lu",
+      "property": "item",
+      "expected": "Rocky Helmet",
+      "actual": null,
+      "classification": "lost revelation"
+    }
+  ],
+  "synthetic_rows": [
+    {
+      "synthetic": "Transform/acquisition",
+      "owner": "p1",
+      "source": [
+        "|switch|p1a: Ditto|Ditto|100/100",
+        "|switch|p2a: Target|Gengar|100/100",
+        "|turn|1",
+        "|-transform|p1a: Ditto|p2a: Target",
+        "|move|p1a: Ditto|Shadow Ball|p2a: Target",
+        "|turn|2",
+        "|-item|p1a: Ditto|Leftovers|[from] move: Trick"
+      ],
+      "property": "starting originals",
+      "expected": {
+        "moves": [],
+        "item": null
+      },
+      "actual": {
+        "moves": [
+          "Shadow Ball"
+        ],
+        "item": "Leftovers"
+      },
+      "classification": "chronology leak / invalid original attribution"
+    },
+    {
+      "synthetic": "both-owner causal suffix",
+      "owner": "p1",
+      "cursor": 3,
+      "expected": {
+        "player_side": "p1",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p1: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Shadow Ball"
+            ],
+            "item": "Leftovers",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "shadowball",
+            "name": "Shadow Ball",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Shadow Ball",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "actual": {
+        "player_side": "p1",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p1: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Sludge Bomb"
+            ],
+            "item": "Life Orb",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "sludgebomb",
+            "name": "Sludge Bomb",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Sludge Bomb",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "chronology leak"
+    },
+    {
+      "synthetic": "duplicate species/nickname ambiguity",
+      "owner": "p1",
+      "source": [
+        "|switch|p1a: Pikachu|Pikachu|100/100",
+        "|move|p1a: Pikachu|Thunderbolt|p2a: Target",
+        "|switch|p1a: Pikachu|Pikachu|100/100",
+        "|move|p1a: Pikachu|Surf|p2a: Target"
+      ],
+      "actual": [
+        "Surf",
+        "Thunderbolt"
+      ],
+      "expected": "appearance relation unresolved; no blind starting crosswalk",
+      "classification": "identity ambiguity"
+    },
+    {
+      "synthetic": "Transform/acquisition",
+      "owner": "p2",
+      "source": [
+        "|switch|p2a: Ditto|Ditto|100/100",
+        "|switch|p1a: Target|Gengar|100/100",
+        "|turn|1",
+        "|-transform|p2a: Ditto|p1a: Target",
+        "|move|p2a: Ditto|Shadow Ball|p1a: Target",
+        "|turn|2",
+        "|-item|p2a: Ditto|Leftovers|[from] move: Trick"
+      ],
+      "property": "starting originals",
+      "expected": {
+        "moves": [],
+        "item": null
+      },
+      "actual": {
+        "moves": [
+          "Shadow Ball"
+        ],
+        "item": "Leftovers"
+      },
+      "classification": "chronology leak / invalid original attribution"
+    },
+    {
+      "synthetic": "both-owner causal suffix",
+      "owner": "p2",
+      "cursor": 3,
+      "expected": {
+        "player_side": "p2",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p2: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Shadow Ball"
+            ],
+            "item": "Leftovers",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "shadowball",
+            "name": "Shadow Ball",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Shadow Ball",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "actual": {
+        "player_side": "p2",
+        "active_species": "Ditto",
+        "team": [
+          {
+            "ident": "p2: Ditto",
+            "species": "Ditto",
+            "details": "Ditto",
+            "active": true,
+            "hp_fraction": 1.0,
+            "fainted": false,
+            "moves": [
+              "Sludge Bomb"
+            ],
+            "item": "Life Orb",
+            "ability": null,
+            "base_ability": null,
+            "tera_type": null
+          }
+        ],
+        "active_moves": [
+          {
+            "id": "sludgebomb",
+            "name": "Sludge Bomb",
+            "pp": 1,
+            "maxpp": 1,
+            "disabled": false,
+            "can_tera": false
+          }
+        ],
+        "force_switch": false,
+        "wait": false,
+        "trapped": false,
+        "legal_actions": [
+          {
+            "kind": "move",
+            "label": "Sludge Bomb",
+            "disabled": false
+          }
+        ],
+        "can_tera": false,
+        "struggle_available": false
+      },
+      "classification": "chronology leak"
+    },
+    {
+      "synthetic": "duplicate species/nickname ambiguity",
+      "owner": "p2",
+      "source": [
+        "|switch|p2a: Pikachu|Pikachu|100/100",
+        "|move|p2a: Pikachu|Thunderbolt|p1a: Target",
+        "|switch|p2a: Pikachu|Pikachu|100/100",
+        "|move|p2a: Pikachu|Surf|p1a: Target"
+      ],
+      "actual": [
+        "Surf",
+        "Thunderbolt"
+      ],
+      "expected": "appearance relation unresolved; no blind starting crosswalk",
+      "classification": "identity ambiguity"
+    }
+  ]
+}

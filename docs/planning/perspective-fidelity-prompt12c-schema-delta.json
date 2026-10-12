@@ -1,0 +1,117 @@
+{
+  "only_nine_pattern_leaves": true,
+  "requiredness_nullability_unchanged": true,
+  "paths": [
+    {
+      "path": [
+        "$defs",
+        "owner_binding",
+        "properties",
+        "observation_id",
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "owner_binding",
+        "properties",
+        "belief_id",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "owner_binding",
+        "properties",
+        "actor_record_id",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|datarec-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "input_observation",
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "successor_observation",
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "input_belief",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "successor_belief",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "transition",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|transition-)[0-9a-f]{64}$"
+    },
+    {
+      "path": [
+        "$defs",
+        "binding",
+        "properties",
+        "actor_record",
+        "anyOf",
+        0,
+        "pattern"
+      ],
+      "before": "^sha256:[0-9a-f]{64}$",
+      "after": "^(?:sha256:|datarec-)[0-9a-f]{64}$"
+    }
+  ]
+}

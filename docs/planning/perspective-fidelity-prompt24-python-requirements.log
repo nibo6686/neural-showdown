@@ -1,0 +1,35 @@
+test_loader_and_legacy_reconstruction (test_perspective_replay_characterization.SuppliedReplayCharacterizationTest.test_loader_and_legacy_reconstruction) ... FAIL
+test_synthetic_original_attribution_and_suffix_noninterference (test_perspective_replay_characterization.SuppliedReplayCharacterizationTest.test_synthetic_original_attribution_and_suffix_noninterference) ... FAIL
+
+======================================================================
+FAIL: test_loader_and_legacy_reconstruction (test_perspective_replay_characterization.SuppliedReplayCharacterizationTest.test_loader_and_legacy_reconstruction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_perspective_replay_characterization.py", line 89, in test_loader_and_legacy_reconstruction
+    self.assertEqual([r for r in rows if r["classification"] in ("identity error", "load/HP transport failure", "fabricated certainty", "lost revelation")], [], "Preserved source-backed requirement reds; see matrix")
+AssertionError: Lists differ: [{'fixture': 'random', 'owner': 'p1', 'sta[2100 chars]on'}] != []
+
+First list contains 9 additional elements.
+First extra element 0:
+{'fixture': 'random', 'owner': 'p1', 'stage': 'legacy PP certainty', 'expected': None, 'actual': [{'name': 'Knock Off', 'pp': 1, 'maxpp': 1}, {'name': 'Taunt', 'pp': 1, 'maxpp': 1}], 'classification': 'fabricated certainty'}
+
+Diff is 2503 characters long. Set self.maxDiff to None to see it. : Preserved source-backed requirement reds; see matrix
+
+======================================================================
+FAIL: test_synthetic_original_attribution_and_suffix_noninterference (test_perspective_replay_characterization.SuppliedReplayCharacterizationTest.test_synthetic_original_attribution_and_suffix_noninterference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_perspective_replay_characterization.py", line 116, in test_synthetic_original_attribution_and_suffix_noninterference
+    self.assertEqual([r for r in rows if r["classification"] in ("chronology leak", "chronology leak / invalid original attribution")], [], "Synthetic attribution requirements remain red")
+AssertionError: Lists differ: [{'synthetic': 'Transform/acquisition', 'o[3693 chars]ak'}] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+{'synthetic': 'Transform/acquisition', 'owner': 'p1', 'source': ['|switch|p1a: Ditto|Ditto|100/100', '|switch|p2a: Target|Gengar|100/100', '|turn|1', '|-transform|p1a: Ditto|p2a: Target', '|move|p1a: Ditto|Shadow Ball|p2a: Target', '|turn|2', '|-item|p1a: Ditto|Leftovers|[from] move: Trick'], 'property': 'eligible starting-original revelations (empty is not a known empty original loadout)', 'expected': {'moves': [], 'item': None}, 'actual': {'moves': ['Shadow Ball'], 'item': 'Leftovers'}, 'classification': 'chronology leak / invalid original attribution'}
+
+Diff is 6639 characters long. Set self.maxDiff to None to see it. : Synthetic attribution requirements remain red
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.032s
+
+FAILED (failures=2)

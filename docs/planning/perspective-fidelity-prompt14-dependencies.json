@@ -1,0 +1,44 @@
+{
+  "scope": "Direct dependencies of the Prompt 14 S01b request-knowledge candidate, for later M02 provenance reconciliation. No manifest or attestation is updated by this task.",
+  "new_files_owned": [
+    "sim-core/src/request_knowledge.ts",
+    "trainer/src/neural/request_knowledge.py",
+    "sim-core/tests/request_knowledge.test.ts",
+    "trainer/tests/test_request_knowledge.py",
+    "docs/contracts/REQUEST_KNOWLEDGE.md",
+    "docs/planning/perspective-fidelity-prompt14-witness.cjs (test-owned: extends the prompt13 witness with decision-6 and Unicode cases; also prints TS-built records for parity)",
+    "docs/planning/perspective-fidelity-prompt14-check-candidate.py"
+  ],
+  "runtime_imports": {
+    "typescript": {
+      "./perspective_knowledge": ["parseKnowledgeJson (strict duplicate-key/float/BOM/depth ingress for the raw request; also imposes strings <=256 scalars, ints -6..2147483647, ASCII keys)"],
+      "node:crypto": ["createHash"]
+    },
+    "python": {
+      "neural.perspective_knowledge": ["parse_knowledge_json", "KnowledgeStructureError"],
+      "neural.ts_identity": ["verify_observation (observation identity/prefix cursor, used by the validator)"],
+      "neural.perspective_knowledge_source (lazy, only when a registry is passed)": ["SourceRegistry", "_REGISTRIES (module-private weak map read directly; trusted-caller scope, no public accessor exists)"]
+    }
+  },
+  "semantic_copies_requiring_drift_review": {
+    "legacy normalizeMove defaults (sim-core/src/action_codec.ts)": "The observation join assumes absent pp/maxpp -> 0, target -> 'normal', disabled -> false and trapped/can_switch/legal-move rules (disabled or (pp<=0 and id!=='struggle') skipped). Copied in request_knowledge.ts joinObservation and request_knowledge.py _builder_join/_validate_join/_check_legality; a change to normalizeMove/buildLegalActionSet legality breaks the join by design.",
+    "classifyPipelineRequestState (sim-core/src/pipeline_integration.ts)": "The presence table is re-derived (terminated, request null, wait, reviving, force_switch, availability) rather than imported; keep in step.",
+    "isFainted/parseCondition (sim-core/src/battle_helpers.ts)": "switch_in_available uses a local 'fnt' suffix test on the roster condition.",
+    "pinned simulator source pokemon-showdown@0.11.10 dist/sim/pokemon.js getMoveRequestData 729-780 and getMoves 615-660": "The absent => false rule (trapped/maybeTrapped only emitted while a switch-in exists; maybeDisabled for singles last active; locked rows via getMoves) is a source reading, recorded as derivation enums. An engine upgrade must re-audit it."
+  },
+  "contract_data_reached": {
+    "docs/contracts/PERSPECTIVE_KNOWLEDGE.md": "Read only (property contexts for pp/max_pp/disabled/maybe_disabled/trapped/maybe_trapped/lock/boundary_kind/request_presence); not edited. The broadcast/roster mapping lives in docs/contracts/REQUEST_KNOWLEDGE.md for lead review.",
+    "docs/planning/perspective-fidelity-prompt13-observation-pins.json": "Read by the TS test to prove v1/v2 observation sha256 pins (80) are unchanged."
+  },
+  "test_and_witness_dependencies": [
+    "docs/planning/perspective-fidelity-prompt13-witness.cjs (SCENARIOS, CASES, captureCase, VERSIONS exported; mutated in memory by the prompt14 witness)",
+    "sim-core/src/pipeline_integration.ts createPipelineIntegrationSession (via the prompt13 witness)",
+    "sim-core/src/action_codec.ts normalizeRequest, buildLegalActionSet (tests only; the sidecar source does not import them, and a test asserts that)",
+    "sim-core/node_modules/pokemon-showdown 0.11.10 BattleStream, Teams.pack/import",
+    "trainer/src/neural/ts_identity.py observation_digest (test forger), trainer/src/neural/perspective_knowledge_source.py SourceRegistryBuilder (test registry)"
+  ],
+  "m02_actions": [
+    "register the two new modules, two tests, REQUEST_KNOWLEDGE.md, prompt14 witness and check script in the module inventory and dependency map",
+    "decide whether request-knowledge/v1 ids belong in the id/identity registry (rkn- prefix) and whether the canonical serializer here (own recursive canonical, not PK canonical: raw_request may be 65536 scalars) should be unified"
+  ]
+}

@@ -1,0 +1,1331 @@
+[
+  {
+    "kind": "profile",
+    "name": "addressed-owner-evidence/v1",
+    "policy": "simulator-causal/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "addressed-team-provider/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      }
+    ],
+    "id": "sha256:b52c61aed8b42378c06f8a3c5080a91720a68139b49249d907aff02c2bce1001"
+  },
+  {
+    "kind": "profile",
+    "name": "public-replay-owner-starting-evidence/v1",
+    "policy": "public-replay-owner-starting/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "indexed-public/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted",
+          "never_revealed",
+          "ambiguous_carrier",
+          "private_request_unavailable"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      }
+    ],
+    "id": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5"
+  },
+  {
+    "kind": "profile",
+    "name": "owner-loadout-complete/v1",
+    "policy": "simulator-causal/v1",
+    "engine": "pokemon-showdown@0.11.10",
+    "source_version": "addressed-team-provider/v1",
+    "rule_version": "pk-rules/v1",
+    "writer_version": "pk-writers/v1",
+    "obligations": [
+      {
+        "family": "K01",
+        "properties": [
+          "roster_species",
+          "roster_order",
+          "party_position",
+          "active_slot",
+          "roster_size"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K02",
+        "properties": [
+          "starting_moves",
+          "current_moves",
+          "move_execution",
+          "move_incarnation"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K03",
+        "properties": [
+          "submitted_nature",
+          "submitted_evs",
+          "submitted_ivs",
+          "submitted_happiness",
+          "calculated_stats",
+          "hp_max"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K04",
+        "properties": [
+          "level",
+          "gender",
+          "shiny",
+          "ball",
+          "details",
+          "starting_tera"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K05",
+        "properties": [
+          "hp",
+          "fainted",
+          "status"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K06",
+        "properties": [
+          "status_observed_since",
+          "status_elapsed",
+          "status_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K07",
+        "properties": [
+          "pp",
+          "max_pp"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K08",
+        "properties": [
+          "disabled",
+          "maybe_disabled",
+          "trapped",
+          "maybe_trapped",
+          "lock"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K09",
+        "properties": [
+          "boosts"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K10",
+        "properties": [
+          "persistent_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K11",
+        "properties": [
+          "single_turn_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K12",
+        "properties": [
+          "single_move_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K13",
+        "properties": [
+          "side_condition"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K14",
+        "properties": [
+          "weather",
+          "weather_effective",
+          "terrain",
+          "pseudo_weather",
+          "field_remaining"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K15",
+        "properties": [
+          "pending_intent",
+          "pending_effect"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K16",
+        "properties": [
+          "form",
+          "types",
+          "tera",
+          "transformed"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K17",
+        "properties": [
+          "appearance",
+          "identity_reveal"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      },
+      {
+        "family": "K18",
+        "properties": [
+          "item",
+          "item_held",
+          "item_effective"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K19",
+        "properties": [
+          "ability",
+          "ability_effective"
+        ],
+        "unknown": [],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": true
+      },
+      {
+        "family": "K20",
+        "properties": [
+          "boundary_kind",
+          "request_presence"
+        ],
+        "unknown": [
+          "hidden_opponent",
+          "hidden_timer",
+          "not_emitted"
+        ],
+        "opponent_unknown": [
+          "hidden_opponent",
+          "hidden_timer"
+        ],
+        "inapplicable": [
+          "proved_rule_inapplicable"
+        ],
+        "original_required": false
+      }
+    ],
+    "id": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537"
+  }
+]

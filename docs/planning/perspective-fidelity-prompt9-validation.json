@@ -1,0 +1,46 @@
+{
+  "scope": "Documentation/fixture checks, not production schema/semantic/runtime acceptance",
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "commands": [
+    {
+      "command": "Remove-Item Env:PYTHONUTF8 -ErrorAction SilentlyContinue; Remove-Item Env:PYTHONIOENCODING -ErrorAction SilentlyContinue",
+      "purpose": "unset encoding overrides for all Python children",
+      "exit_code": 0
+    },
+    {
+      "command": "& D:/Anaconda/envs/neuralgpu/python.exe docs/contracts/fixtures/perspective-knowledge-v1/author_fixtures.py",
+      "purpose": "reproduce hand-authored contract artifacts only, no datasets",
+      "exit_code": 0
+    },
+    {
+      "command": "& D:/Anaconda/envs/neuralgpu/python.exe docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py",
+      "exit_code": 0,
+      "positive": 15,
+      "negative": 31,
+      "vectors": 16,
+      "effect_subset_canaries": 1,
+      "compact_parity": true,
+      "causal_suffix_invariance": true
+    },
+    {
+      "command": "& D:/Anaconda/envs/neuralgpu/python.exe docs/planning/perspective-fidelity-prompt9-check-preservation.py",
+      "exit_code": 0,
+      "protected_unchanged": 900,
+      "authorized_additive_changes": 4,
+      "expected_digest_drift_inputs": 2
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "note": "Git line-ending conversion advisories only"
+    }
+  ],
+  "encoding_overrides_present": false,
+  "remaining_check_failures": [],
+  "expected_provenance_drift": true,
+  "independent_review": "No remaining blockers within read-only bounded schema/identity/privacy and test-plan scopes",
+  "lead_acceptance": false,
+  "runtime_adoption": false,
+  "runtime_tests_run": false,
+  "datasets_training_publication_commit_attestation_updates": false
+}

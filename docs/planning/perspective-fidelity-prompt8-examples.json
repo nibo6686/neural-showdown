@@ -1,0 +1,3198 @@
+{
+  "artifact_status": "hand-authored draft contract examples; not accepted schema/fixtures or executed observations",
+  "schema_note": "Semantic assertions use symbolic evidence labels, not real digests/production ID strings. No runtime helper supplies truth. Each case states selected obligations only, not full profile completion.",
+  "policy_bindings": {
+    "simulator-causal/v1": "Only addressed owner or exact prefix-public proofs; future evidence forbidden",
+    "public-replay-owner-starting/v1": "Full raw/canonical source digest + parser/rules/policy version + owner + original attribution certificate; hindsight only owner_starting"
+  },
+  "source_note": "Original owner initialization evidence is a proposed reviewed delivery seam, currently unavailable; examples requiring it do not claim current runtime support. Public semantic events are independent expected ledgers, not an assertion that all mechanics fit current grammar/format.",
+  "case_count": 23,
+  "cases": [
+    {
+      "case_id": "EX01-owner-start-retention",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "S0p1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "original_owner_witness",
+          "detail": "Alpha; original item Oran Berry, ability Static, Tackle slot1. Proposed explicit legitimate pre-effect owner delivery, not engine control read.",
+          "source_kind": "proposed_owner_initialization"
+        },
+        {
+          "evidence_ref": "S0p2",
+          "public_record_ordinal": null,
+          "owner": "p2",
+          "kind": "original_owner_witness",
+          "detail": "Beta; original item Leftovers, ability Pressure, Protect slot1. Same proposed authority.",
+          "source_kind": "proposed_owner_initialization"
+        },
+        {
+          "evidence_ref": "S1p1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "addressed_request",
+          "detail": "Tackle PP=10, maxPP=16, definite disabled=false; legitimate active move request.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "S1p1",
+            "public_cursor_at_delivery": 0,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "S1p2",
+          "public_record_ordinal": null,
+          "owner": "p2",
+          "kind": "addressed_request",
+          "detail": "Protect PP=16; legitimate active request.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p2",
+            "request_sequence_label": "S1p2",
+            "public_cursor_at_delivery": 0,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "S2",
+          "public_record_ordinal": 4,
+          "owner": "p1",
+          "kind": "consumption",
+          "detail": "Unmodified original Oran Berry consumed; absence begins here.",
+          "source_kind": "public_prefix"
+        },
+        {
+          "evidence_ref": "S3p1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "addressed_request",
+          "detail": "Later Tackle PP=9, active request.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "S3p1",
+            "public_cursor_at_delivery": 4,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "S4",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "waiting",
+          "detail": "Reported wait has roster but no active PP.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "S4",
+            "public_cursor_at_delivery": 8,
+            "source_payload": "reported wait with roster, no active PP/action authority"
+          }
+        },
+        {
+          "evidence_ref": "S5",
+          "public_record_ordinal": 12,
+          "owner": null,
+          "kind": "terminal",
+          "detail": "No action request for either owner.",
+          "source_kind": "public_prefix"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial",
+          "public_event_cursor": 0,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 10,
+                  "freshness": "current",
+                  "observed_at": 0,
+                  "valid_from": 0,
+                  "evidence_refs": [
+                    "S1p1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": "S1p1",
+              "action_authority": "only supplied addressed current request",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 16,
+                  "freshness": "current",
+                  "observed_at": 0,
+                  "valid_from": 0,
+                  "evidence_refs": [
+                    "S1p2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": "S1p2",
+              "action_authority": "only supplied addressed current request",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 4,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 9,
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S3p1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": "S3p1",
+              "action_authority": "only supplied addressed current request",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.consumed_item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "waiting-requestless",
+          "public_event_cursor": 8,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 9,
+                  "freshness": "last_known",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S3p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 16,
+                  "freshness": "last_known",
+                  "observed_at": 0,
+                  "valid_from": 0,
+                  "evidence_refs": [
+                    "S1p2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "terminal-restored",
+          "public_event_cursor": 12,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 9,
+                  "freshness": "last_known",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "S3p1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "S0p2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 16,
+                  "freshness": "last_known",
+                  "observed_at": 0,
+                  "valid_from": 0,
+                  "evidence_refs": [
+                    "S1p2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Starting facts unchanged at all four boundaries; owner proofs never enter opposite context.",
+        "Report wait is not a choice; null request does not erase knowledge.",
+        "Restore both owners from bound context/history; latest roster cache alone insufficient."
+      ]
+    },
+    {
+      "case_id": "EX02-replay-late-original-reveals",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "R1",
+          "public_record_ordinal": 1,
+          "owner": "p1",
+          "kind": "appearance",
+          "detail": "Unique Alpha appearance and original carrier continuity.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R2",
+          "public_record_ordinal": 2,
+          "owner": "p2",
+          "kind": "appearance",
+          "detail": "Unique Beta appearance and original carrier continuity.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R7",
+          "public_record_ordinal": 7,
+          "owner": "p1",
+          "kind": "ordinary_ability_reveal",
+          "detail": "Static; supported origin proof excludes every earlier ability change/copy/form/ambiguous interval.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R8",
+          "public_record_ordinal": 8,
+          "owner": "p1",
+          "kind": "original_item_consumption",
+          "detail": "Oran Berry; supported unmodified possession chain from original carrier, no transfers.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R9",
+          "public_record_ordinal": 9,
+          "owner": "p2",
+          "kind": "ordinary_ability_reveal",
+          "detail": "Pressure; same independent original continuity certificate.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R10",
+          "public_record_ordinal": 10,
+          "owner": "p2",
+          "kind": "original_item_reveal",
+          "detail": "Leftovers; supported original ownership proof.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "R12",
+          "public_record_ordinal": 12,
+          "owner": null,
+          "kind": "terminal",
+          "detail": "Public outcome.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial",
+          "public_event_cursor": 2,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "immutable",
+                  "observed_at": 7,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R7"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 8,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "public.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "not yet revealed"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "immutable",
+                  "observed_at": 9,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R9"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 10,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R10"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "not yet revealed"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 8,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 8,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 8,
+                  "valid_from": 8,
+                  "evidence_refs": [
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "public.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "later owner proof cannot backfill opponent current knowledge"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 10,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R10"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "current",
+                  "observed_at": 7,
+                  "valid_from": 7,
+                  "evidence_refs": [
+                    "R7"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 8,
+                  "valid_from": 8,
+                  "evidence_refs": [
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "waiting-requestless",
+          "public_event_cursor": 10,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 8,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "public.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "current",
+                  "observed_at": 10,
+                  "valid_from": 10,
+                  "evidence_refs": [
+                    "R10"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 10,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R10"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 8,
+                  "valid_from": 8,
+                  "evidence_refs": [
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "terminal",
+          "public_event_cursor": 12,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "immutable",
+                  "observed_at": 7,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R7"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Oran Berry",
+                  "freshness": "immutable",
+                  "observed_at": 8,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R1",
+                    "R8"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "immutable",
+                  "observed_at": 9,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R9"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 10,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "R2",
+                    "R10"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Future observed_at is allowed only in that owner starting object with full-source/policy/certificate.",
+        "All replay requests are null and no action masks exist.",
+        "No assertion of full profile completion from these selected fields."
+      ]
+    },
+    {
+      "case_id": "EX03-never-revealed",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "N1",
+          "public_record_ordinal": 1,
+          "owner": "p1",
+          "kind": "appearance",
+          "detail": "Alpha",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "N2",
+          "public_record_ordinal": 2,
+          "owner": "p2",
+          "kind": "appearance",
+          "detail": "Beta",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "terminal",
+          "public_event_cursor": 20,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "never revealed"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "public replay supplies no PP"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": {
+                "consumer_required_profile": "public-replay-owner-starting-evidence/v1",
+                "producer_profile": "public-replay-owner-starting-evidence/v1",
+                "selected_family_verdicts": {
+                  "starting.unrevealed": "legitimate-source-unknown:never-revealed",
+                  "current.private_PP_or_trap": "legitimate-source-unknown:public-source-unavailable"
+                },
+                "aggregate": "selected obligations permitted; full profile not evaluated; owner-loadout-complete blocked",
+                "not_full_profile_evidence": true
+              }
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "never revealed"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.trapped",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no addressed request"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": {
+                "consumer_required_profile": "public-replay-owner-starting-evidence/v1",
+                "producer_profile": "public-replay-owner-starting-evidence/v1",
+                "selected_family_verdicts": {
+                  "starting.unrevealed": "legitimate-source-unknown:never-revealed",
+                  "current.private_PP_or_trap": "legitimate-source-unknown:public-source-unavailable"
+                },
+                "aggregate": "selected obligations permitted; full profile not evaluated; owner-loadout-complete blocked",
+                "not_full_profile_evidence": true
+              }
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "No guessed item/ability, HP=1, PP=1, disabled=false or false trap."
+      ]
+    },
+    {
+      "case_id": "EX04-transfer-not-original",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "T0",
+          "public_record_ordinal": 1,
+          "owner": "p1",
+          "kind": "original-item attribution witness",
+          "detail": "Supported original Leftovers reveal with unique carrier and complete preceding original-possession certificate. T2 is subsequent transfer, not the original proof.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "T1",
+          "public_record_ordinal": 3,
+          "owner": "p1",
+          "kind": "transfer",
+          "detail": "p1 receives Choice Scarf from p2 via Trick; original recipient item not proven.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "T2",
+          "public_record_ordinal": 4,
+          "owner": "p2",
+          "kind": "transfer",
+          "detail": "p2 receives Leftovers from p1; original ownership chain for p1 Leftovers independently established.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 4,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 1,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "T0"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.item",
+                  "knownness": "known",
+                  "value": "Choice Scarf",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "T1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "donor original chain not established"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "T2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Transferred current item never becomes recipient original; proof of donor original requires continuity, not ownership at transfer alone."
+      ]
+    },
+    {
+      "case_id": "EX05-transfer-consumption",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "Q1",
+          "public_record_ordinal": 4,
+          "owner": "p1",
+          "kind": "acquisition",
+          "detail": "p1 receives acquired Sitrus Berry.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "Q2",
+          "public_record_ordinal": 5,
+          "owner": "p1",
+          "kind": "consumption",
+          "detail": "Acquired Sitrus Berry consumed.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "terminal",
+          "public_event_cursor": 8,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "acquired consumption is not original proof"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.item",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "Q2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.consumed_item",
+                  "knownness": "known",
+                  "value": "Sitrus Berry",
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "Q2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "unrevealed"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Named enditem is historical possession, never a currently held item.",
+        "Recycle would create a new current acquisition/return event, not replace original."
+      ]
+    },
+    {
+      "case_id": "EX06-copied-acquired-called-moves",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "M1",
+          "public_record_ordinal": 3,
+          "owner": "p1",
+          "kind": "copied_move",
+          "detail": "Mimic obtains Tackle current virtual slot.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "M2",
+          "public_record_ordinal": 4,
+          "owner": "p2",
+          "kind": "persistent_acquisition",
+          "detail": "Sketch acquires Flamethrower in current/base slots after origin.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "M3",
+          "public_record_ordinal": 5,
+          "owner": "p1",
+          "kind": "called_execution",
+          "detail": "Metronome calls Surf; source tags preserved.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 5,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.move.Tackle",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "copy does not establish original membership"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.move.Tackle",
+                  "knownness": "known",
+                  "value": "Tackle",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "M1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.move.Surf",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "called execution not original membership"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.move.Flamethrower",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "persistent acquisition remains non-original"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.move.Flamethrower",
+                  "knownness": "known",
+                  "value": "Flamethrower",
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "M2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Current/base mutation does not certify original moves.",
+        "Source-mechanics stress case; no gen9random reachability claim."
+      ]
+    },
+    {
+      "case_id": "EX07-Transform-current-not-starting",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "X1",
+          "public_record_ordinal": 3,
+          "owner": "p1",
+          "kind": "Transform",
+          "detail": "p1 copies p2 public form/types; private target stats/complete moves absent.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "X2",
+          "public_record_ordinal": 7,
+          "owner": "p1",
+          "kind": "copied_execution",
+          "detail": "Later copied Flamethrower revealed.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle-before-reveal",
+          "public_event_cursor": 3,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.move.Flamethrower",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "Transform copy is not original"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.copied_moves",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "later execution cannot backfill current slots"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.effective_stats",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "target private stats not public"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.copied_moves",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "not yet revealed"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.moves",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "selected public source lacks complete original slots"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "midbattle-after-reveal",
+          "public_event_cursor": 7,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.move.Flamethrower",
+                  "knownness": "known",
+                  "value": "Flamethrower",
+                  "freshness": "current",
+                  "observed_at": 7,
+                  "valid_from": 7,
+                  "evidence_refs": [
+                    "X2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.move.Flamethrower",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "copied execution"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.move.Flamethrower",
+                  "knownness": "known",
+                  "value": "Flamethrower",
+                  "freshness": "current",
+                  "observed_at": 7,
+                  "valid_from": 7,
+                  "evidence_refs": [
+                    "X2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Future copied own/opponent move scan prohibited.",
+        "Request baseStoredStats must not be relabeled transformed effective stats."
+      ]
+    },
+    {
+      "case_id": "EX08-Illusion-owner-crosswalk-only",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "I1",
+          "public_record_ordinal": 1,
+          "owner": "p1",
+          "kind": "appearance",
+          "detail": "Displayed Alpha; true identity unresolved at this prefix.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "I2",
+          "public_record_ordinal": 6,
+          "owner": "p1",
+          "kind": "replace",
+          "detail": "Unique same-stint reveal resolves original carrier as Zoroark, with full source identity certificate.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial",
+          "public_event_cursor": 1,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.species",
+                  "knownness": "known",
+                  "value": "Zoroark",
+                  "freshness": "immutable",
+                  "observed_at": 6,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "I1",
+                    "I2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "current.true_roster_identity",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "chronological appearance unresolved until reveal",
+                  "subject_kind": "causal_appearance"
+                },
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "current.display",
+                  "knownness": "known",
+                  "value": "Alpha",
+                  "freshness": "current",
+                  "observed_at": 1,
+                  "valid_from": 1,
+                  "evidence_refs": [
+                    "I1"
+                  ],
+                  "unknown_reason": null,
+                  "subject_kind": "causal_appearance"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "public.true_roster_identity",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "future opponent reveal excluded",
+                  "subject_kind": "causal_appearance"
+                },
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "public.display",
+                  "knownness": "known",
+                  "value": "Alpha",
+                  "freshness": "current",
+                  "observed_at": 1,
+                  "valid_from": 1,
+                  "evidence_refs": [
+                    "I1"
+                  ],
+                  "unknown_reason": null,
+                  "subject_kind": "causal_appearance"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 6,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "current.true_roster_identity",
+                  "knownness": "known",
+                  "value": "Zoroark",
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": 6,
+                  "evidence_refs": [
+                    "I2"
+                  ],
+                  "unknown_reason": null,
+                  "subject_kind": "causal_appearance"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:appearance:I1",
+                  "subject_owner": "p1",
+                  "key": "public.true_roster_identity",
+                  "knownness": "known",
+                  "value": "Zoroark",
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": 6,
+                  "evidence_refs": [
+                    "I2"
+                  ],
+                  "unknown_reason": null,
+                  "subject_kind": "causal_appearance"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Owner-starting crosswalk never relabels earlier dynamic facts/public appearance bytes.",
+        "Original owner subject p1:r1 and causal appearance p1:appearance:I1 are separate IDs before I2; no shared subject token discloses future crosswalk.",
+        "At I2 append public identity link p1:appearance:I1 -> resolved original carrier; do not rewrite any earlier subject or dynamic history.",
+        "Fully reseal prefix-1 current appearance subject to future p1:r1 before I2 -> semantic future-identity join rejection, even if true_roster_identity stays unknown."
+      ]
+    },
+    {
+      "case_id": "EX09-ambiguous-carrier",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "A1",
+          "public_record_ordinal": 2,
+          "owner": "p1",
+          "kind": "appearance",
+          "detail": "Duplicate species/nickname; departed unrevealed Illusion possible.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "A2",
+          "public_record_ordinal": 5,
+          "owner": "p1",
+          "kind": "item_reveal",
+          "detail": "Named item cannot uniquely join original individual.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "terminal",
+          "public_event_cursor": 9,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:unresolved-carrier:A1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": 5,
+                  "valid_from": null,
+                  "evidence_refs": [
+                    "A1",
+                    "A2"
+                  ],
+                  "unknown_reason": "ambiguous carrier",
+                  "subject_kind": "unresolved_original_attribution"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "blocked-attribution for identity-dependent exact obligation"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:appearance:A1",
+                  "subject_owner": "p1",
+                  "key": "public.carrier_identity",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": null,
+                  "evidence_refs": [
+                    "A1",
+                    "A2"
+                  ],
+                  "unknown_reason": "unresolved appearance",
+                  "subject_kind": "causal_appearance"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "unrevealed"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "No species/nickname merger; faint without replace supplies no reveal.",
+        "No resolved starting roster ID is assigned to ambiguous A1; unknown attribution is attached to the unresolved carrier, not a fabricated r1."
+      ]
+    },
+    {
+      "case_id": "EX10-PP-omitted-versus-zero",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "P1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "addressed_request",
+          "detail": "Active slot PP=5/maxPP=16.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "P1",
+            "public_cursor_at_delivery": 3,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "P2",
+          "public_record_ordinal": null,
+          "owner": "p2",
+          "kind": "addressed_request",
+          "detail": "Active slot PP=0/maxPP=16.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p2",
+            "request_sequence_label": "P2",
+            "public_cursor_at_delivery": 6,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "P3",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "locked_request",
+          "detail": "Locked/recharge action omits PP/maxPP.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "P3",
+            "public_cursor_at_delivery": 6,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 6,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 5,
+                  "freshness": "last_known",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "P1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp.bench_slot",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "never emitted"
+                },
+                {
+                  "subject": "p1:r1:slot1:incarnation-original",
+                  "subject_owner": "p1",
+                  "key": "current.maxPP.slot1",
+                  "knownness": "known",
+                  "value": 16,
+                  "freshness": "last_known",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "P1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1:bench-slot",
+                  "subject_owner": "p1",
+                  "key": "current.maxPP.bench_slot",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "last_known",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "never emitted"
+                }
+              ],
+              "request_reference": "P3",
+              "action_authority": "only supplied addressed current request",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.pp.slot1",
+                  "knownness": "known",
+                  "value": 0,
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": 6,
+                  "evidence_refs": [
+                    "P2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1:slot1:incarnation-original",
+                  "subject_owner": "p2",
+                  "key": "current.maxPP.slot1",
+                  "knownness": "known",
+                  "value": 16,
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": 6,
+                  "evidence_refs": [
+                    "P2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": "P2",
+              "action_authority": "only supplied addressed current request",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Omission is no replacement; zero is explicit known0.",
+        "Slot incarnation, request seq and freshness are bound; chosen move does not independently deduct PP.",
+        "Transform/acquisition replaces slot incarnation; retained original-slot PP/maxPP must not be joined to new virtual slot. New never-emitted virtual PP is unknown, not copied last-known by move name.",
+        "Explicit PP=0 remains known0 while its emitted maxPP remains16; omitted maxPP never becomes0."
+      ]
+    },
+    {
+      "case_id": "EX11-first-request-after-Trace",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "F1",
+          "public_record_ordinal": 2,
+          "owner": "p1",
+          "kind": "Trace",
+          "detail": "Current copied ability Pressure from p2.",
+          "source_kind": "public_prefix"
+        },
+        {
+          "evidence_ref": "F2",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "addressed_request",
+          "detail": "Current ability Pressure; no pre-effect original witness in admitted capture.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "F2",
+            "public_cursor_at_delivery": 2,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial-capture-after-effect",
+          "public_event_cursor": 2,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "original witness missing"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "current",
+                  "observed_at": 2,
+                  "valid_from": 2,
+                  "evidence_refs": [
+                    "F1",
+                    "F2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": "F2",
+              "action_authority": "only supplied addressed current request",
+              "assurance": {
+                "consumer_required_profile": "addressed-owner-evidence/v1",
+                "producer_profile": "addressed-owner-evidence/v1",
+                "selected_family_verdicts": {
+                  "starting.ability": "blocked-missing-required-evidence:original-witness",
+                  "current.revealed_ability": "supported-complete:eligible prefix proof"
+                },
+                "aggregate": "blocked",
+                "not_full_profile_evidence": true
+              }
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.current_ability",
+                  "knownness": "known",
+                  "value": "Pressure",
+                  "freshness": "current",
+                  "observed_at": 2,
+                  "valid_from": 2,
+                  "evidence_refs": [
+                    "F1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no original addressed proof supplied"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": {
+                "consumer_required_profile": "addressed-owner-evidence/v1",
+                "producer_profile": "addressed-owner-evidence/v1",
+                "selected_family_verdicts": {
+                  "starting.ability": "blocked-missing-required-evidence:original-witness",
+                  "current.revealed_ability": "supported-complete:eligible prefix proof"
+                },
+                "aggregate": "blocked",
+                "not_full_profile_evidence": true
+              }
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "First current request and mutable baseAbility cannot universally prove original.",
+        "Hidden packed generated teams are not accepted owner evidence."
+      ]
+    },
+    {
+      "case_id": "EX12-same-turn-prefix",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "U1",
+          "public_record_ordinal": 4,
+          "owner": "p1",
+          "kind": "damage",
+          "detail": "Public HP bucket40/100 within turn2.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "U2",
+          "public_record_ordinal": 5,
+          "owner": "p1",
+          "kind": "heal",
+          "detail": "Later same turn HP bucket80/100.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle-before-heal",
+          "public_event_cursor": 4,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.hp",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "40/100",
+                    "precision": "public"
+                  },
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "U1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.hp",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "40/100",
+                    "precision": "public"
+                  },
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "U1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "midbattle-after-heal",
+          "public_event_cursor": 5,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.hp",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "80/100",
+                    "precision": "public"
+                  },
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "U2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.hp",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "80/100",
+                    "precision": "public"
+                  },
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "U2"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Exact ordinal cutoff, not inclusive turn cutoff.",
+        "Public replay never invents exact own HP from bucket."
+      ]
+    },
+    {
+      "case_id": "EX13-causal-future-suffix",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "C1",
+          "public_record_ordinal": 3,
+          "owner": "p1",
+          "kind": "status",
+          "detail": "Public burn.",
+          "source_kind": "public_prefix"
+        },
+        {
+          "evidence_ref": "C2",
+          "public_record_ordinal": 9,
+          "owner": "p1",
+          "kind": "cure",
+          "detail": "Future cure.",
+          "source_kind": "public_prefix"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 3,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.status",
+                  "knownness": "known",
+                  "value": "brn",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "C1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.status",
+                  "knownness": "known",
+                  "value": "brn",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "C1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Append arbitrary C2 and future private/public suffix: earlier observation/current/starting knownness, proofs and IDs unchanged for both owners.",
+        "Future evidence cannot establish causal original facts at earlier boundaries."
+      ]
+    },
+    {
+      "case_id": "EX14-replay-owner-suffix-exception",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "B1",
+          "public_record_ordinal": 2,
+          "owner": "p1",
+          "kind": "appearance",
+          "detail": "Unique original carrier, unchanged supported history.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "B2",
+          "public_record_ordinal": 8,
+          "owner": "p1",
+          "kind": "original_ability_reveal",
+          "detail": "Static; valid complete-original attribution certificate.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial-complete-source",
+          "public_event_cursor": 2,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.ability",
+                  "knownness": "known",
+                  "value": "Static",
+                  "freshness": "immutable",
+                  "observed_at": 8,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "B1",
+                    "B2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no causal reveal yet"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "future opponent reveal excluded"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.ability",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "never revealed"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Compare source without B2: p1 starting ability changes from unknown to known only in new full-source context.",
+        "p1/p2 chronological values, evidence refs, current_state_id, requests, actions and observation bytes unchanged; full-source/starting/knowledge-wrapper IDs may change.",
+        "Cannot cite B2 as causal direct_observed belief evidence.",
+        "Serialized chronological proof payloads, prefix_source_id and evidence IDs remain byte-identical across suffix sources in ordinary/full/compact. Full-source digest exists only in original-attribution proof/wrapper, never generic chronological source_digest."
+      ]
+    },
+    {
+      "case_id": "EX15-wrong-policy-source-reject",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [],
+      "boundaries": [
+        {
+          "kind": "initial",
+          "public_event_cursor": 0,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "For each p1 and p2, relabel retrospective event8 starting proof as simulator-causal -> reject policy/time eligibility.",
+        "For each owner, use digest/source A with certificate referring to source B -> reject source proof join even after all content IDs resealed.",
+        "Legacy reconstructed_public_prefix label never admits retrospective owner facts under new wrapper."
+      ]
+    },
+    {
+      "case_id": "EX16-private-owner-proof-reject",
+      "regime": "simulator-causal/v1",
+      "events": [],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 4,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "For both owners, import opposite-owner raw request/proof into context -> reject before publication; a matching private digest is not visibility authority.",
+        "A correctly addressed source cannot join wrong battle/roster/slot-incarnation/parent; resealed negatives must reject semantically."
+      ]
+    },
+    {
+      "case_id": "EX17-revival-terminal-restoration",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "V0",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "original_owner_witness",
+          "detail": "Original item Leftovers.",
+          "source_kind": "proposed_owner_initialization"
+        },
+        {
+          "evidence_ref": "V1",
+          "public_record_ordinal": 4,
+          "owner": "p1",
+          "kind": "faint",
+          "detail": "Public faint.",
+          "source_kind": "public_prefix"
+        },
+        {
+          "evidence_ref": "V2",
+          "public_record_ordinal": 7,
+          "owner": "p1",
+          "kind": "revival",
+          "detail": "Public supported revival HP result; no new active PP.",
+          "source_kind": "public_prefix"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "revival-wait",
+          "public_event_cursor": 7,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "V0"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.fainted",
+                  "knownness": "known",
+                  "value": false,
+                  "freshness": "current",
+                  "observed_at": 7,
+                  "valid_from": 7,
+                  "evidence_refs": [
+                    "V2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no active PP source"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.fainted",
+                  "knownness": "known",
+                  "value": false,
+                  "freshness": "current",
+                  "observed_at": 7,
+                  "valid_from": 7,
+                  "evidence_refs": [
+                    "V2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.pp",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no PP witness supplied"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        },
+        {
+          "kind": "terminal-restored",
+          "public_event_cursor": 10,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.item",
+                  "knownness": "known",
+                  "value": "Leftovers",
+                  "freshness": "immutable",
+                  "observed_at": 0,
+                  "valid_from": "origin",
+                  "evidence_refs": [
+                    "V0"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pp",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no PP witness supplied"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.item",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "no original witness supplied"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Requests null/no fabricated action; nonactor contexts retained.",
+        "Delete original/context history from restored/compact dictionary then reseal -> reject required proof, not accept latest roster as original authority."
+      ]
+    },
+    {
+      "case_id": "EX18-unavailable-metadata-and-cosmetics",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "D1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "owner_details",
+          "detail": "Legitimate addressed details shiny/level/gender and ball=Pokeball; no nature/EV/IV/happiness.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "D1",
+            "public_cursor_at_delivery": 0,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial",
+          "public_event_cursor": 0,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.ball",
+                  "knownness": "known",
+                  "value": "Pokeball",
+                  "freshness": "current",
+                  "observed_at": 0,
+                  "valid_from": 0,
+                  "evidence_refs": [
+                    "D1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "starting.nature",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "source unavailable"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": {
+                "consumer_required_profile": "owner-loadout-complete (proposed)",
+                "producer_profile": "owner-loadout-complete (proposed)",
+                "selected_family_verdicts": {
+                  "required.nature_or_EVs": "blocked-missing-required-evidence:source-unavailable",
+                  "emitted.ball": "supported-complete for p1 only; opposite visibility excluded"
+                },
+                "aggregate": "blocked",
+                "not_full_profile_evidence": true
+              }
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.ball",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "opponent private owner source excluded"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "starting.EVs",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "immutable",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "source unavailable"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": {
+                "consumer_required_profile": "owner-loadout-complete (proposed)",
+                "producer_profile": "owner-loadout-complete (proposed)",
+                "selected_family_verdicts": {
+                  "required.nature_or_EVs": "blocked-missing-required-evidence:source-unavailable",
+                  "emitted.ball": "supported-complete for p1 only; opposite visibility excluded"
+                },
+                "aggregate": "blocked",
+                "not_full_profile_evidence": true
+              }
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "No hidden-set read/stat inversion.",
+        "Cosmetic exclusion must name reviewed profile/rationale; cannot silently satisfy all-legitimate-emitted obligation."
+      ]
+    },
+    {
+      "case_id": "EX19-uncertainty-absence-and-stale-health",
+      "regime": "simulator-causal/v1",
+      "events": [
+        {
+          "evidence_ref": "H1",
+          "public_record_ordinal": null,
+          "owner": "p1",
+          "kind": "addressed_request",
+          "detail": "Exact HP64/100; maybeTrapped=true, definite trapped not established.",
+          "source_kind": "addressed_request",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "H1",
+            "public_cursor_at_delivery": 2,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "H2",
+          "public_record_ordinal": 5,
+          "owner": "p1",
+          "kind": "public_damage",
+          "detail": "New public bucket50/100, exact result unavailable.",
+          "source_kind": "public_prefix"
+        },
+        {
+          "evidence_ref": "H3",
+          "public_record_ordinal": 6,
+          "owner": "p2",
+          "kind": "public_status_cure",
+          "detail": "Explicit cure.",
+          "source_kind": "public_prefix"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "waiting-requestless",
+          "public_event_cursor": 6,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.hp_exact",
+                  "knownness": "known",
+                  "value": {
+                    "hp": 64,
+                    "max": 100
+                  },
+                  "freshness": "last_known",
+                  "observed_at": 2,
+                  "valid_from": 2,
+                  "evidence_refs": [
+                    "H1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.hp_public",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "50/100"
+                  },
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "H2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.trapped",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 2,
+                  "valid_from": null,
+                  "evidence_refs": [
+                    "H1"
+                  ],
+                  "unknown_reason": "only maybe flag"
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.maybeTrapped",
+                  "knownness": "known",
+                  "value": true,
+                  "freshness": "last_known",
+                  "observed_at": 2,
+                  "valid_from": 2,
+                  "evidence_refs": [
+                    "H1"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "public.hp",
+                  "knownness": "known",
+                  "value": {
+                    "bucket": "50/100"
+                  },
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "H2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.status",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": 6,
+                  "evidence_refs": [
+                    "H3"
+                  ],
+                  "unknown_reason": null
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Retained exact HP not current after public change.",
+        "Explicit cure differs from omitted unknown; maybe flag never collapses into false or true definite trap."
+      ]
+    },
+    {
+      "case_id": "EX20-field-status-and-intent",
+      "regime": "public-replay-owner-starting/v1",
+      "events": [
+        {
+          "evidence_ref": "W1",
+          "public_record_ordinal": 3,
+          "owner": null,
+          "kind": "weather_start",
+          "detail": "SunnyDay public writer.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "W2",
+          "public_record_ordinal": 4,
+          "owner": "p1",
+          "kind": "public_suppressor",
+          "detail": "Known suppressor active; no weather end.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "W3",
+          "public_record_ordinal": 5,
+          "owner": "p2",
+          "kind": "status_observation",
+          "detail": "Already sleeping on first observed entry; actual onset unknown.",
+          "source_kind": "public_replay"
+        },
+        {
+          "evidence_ref": "W4",
+          "public_record_ordinal": 6,
+          "owner": "p1",
+          "kind": "attempted_slot_setup",
+          "detail": "Wish attempt without sufficient public success evidence.",
+          "source_kind": "public_replay"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "midbattle",
+          "public_event_cursor": 6,
+          "expected_by_perspective": {
+            "p1": {
+              "facts": [
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.field.weather",
+                  "knownness": "known",
+                  "value": "sunnyday",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "W1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.field.effective_weather",
+                  "knownness": "known_absent",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 4,
+                  "valid_from": 4,
+                  "evidence_refs": [
+                    "W2"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p1:r1",
+                  "subject_owner": "p1",
+                  "key": "current.pending_wish",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 6,
+                  "valid_from": null,
+                  "evidence_refs": [
+                    "W4"
+                  ],
+                  "unknown_reason": "attempt not established pending success"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            },
+            "p2": {
+              "facts": [
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.field.weather",
+                  "knownness": "known",
+                  "value": "sunnyday",
+                  "freshness": "current",
+                  "observed_at": 3,
+                  "valid_from": 3,
+                  "evidence_refs": [
+                    "W1"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.status_observed_since",
+                  "knownness": "known",
+                  "value": 5,
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": 5,
+                  "evidence_refs": [
+                    "W3"
+                  ],
+                  "unknown_reason": null
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.status_onset",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": 5,
+                  "valid_from": null,
+                  "evidence_refs": [
+                    "W3"
+                  ],
+                  "unknown_reason": "onset predates observation or unproven"
+                },
+                {
+                  "subject": "p2:r1",
+                  "subject_owner": "p2",
+                  "key": "current.sleep_remaining",
+                  "knownness": "unknown",
+                  "value": null,
+                  "freshness": "current",
+                  "observed_at": null,
+                  "valid_from": null,
+                  "evidence_refs": [],
+                  "unknown_reason": "hidden timer"
+                }
+              ],
+              "request_reference": null,
+              "action_authority": "none",
+              "assurance": "partial; required-family verdicts explicit"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Field/weather ID persists under suppression; no end fabricated.",
+        "Observed-since != onset; no hidden duration.",
+        "Public intent may be known, hidden success/timer/recipient not invented."
+      ]
+    },
+    {
+      "case_id": "EX21-consumer-proof-traversal-reject",
+      "regime": "both supported regimes, separately bound",
+      "events": [
+        {
+          "evidence_ref": "Zp1",
+          "owner": "p1",
+          "source_kind": "addressed_request",
+          "kind": "private canary",
+          "detail": "p1-only sentinel in trusted proof store",
+          "delivery_coordinates": {
+            "owner": "p1",
+            "request_sequence_label": "Zp1",
+            "public_cursor_at_delivery": 0,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "Zp2",
+          "owner": "p2",
+          "source_kind": "addressed_request",
+          "kind": "private canary",
+          "detail": "p2-only sentinel in trusted proof store",
+          "delivery_coordinates": {
+            "owner": "p2",
+            "request_sequence_label": "Zp2",
+            "public_cursor_at_delivery": 0,
+            "source_payload": "raw addressed keys explicitly specified by the independent ledger"
+          }
+        },
+        {
+          "evidence_ref": "Zfuture",
+          "owner": null,
+          "public_record_ordinal": 12,
+          "source_kind": "public_replay",
+          "kind": "unrelated future dynamic",
+          "detail": "future HP/status event not an original-fact certificate"
+        }
+      ],
+      "boundaries": [
+        {
+          "kind": "initial-restored-consumer-projection",
+          "public_event_cursor": 2,
+          "expected_by_perspective": {
+            "p1": {
+              "allowed_private_proof_owner": "p1",
+              "forbidden_raw_or_reachable_refs": [
+                "Zp2",
+                "Zfuture",
+                "both-owner-audit-dictionary",
+                "full-replay-raw-source"
+              ],
+              "request_reference": null
+            },
+            "p2": {
+              "allowed_private_proof_owner": "p2",
+              "forbidden_raw_or_reachable_refs": [
+                "Zp1",
+                "Zfuture",
+                "both-owner-audit-dictionary",
+                "full-replay-raw-source"
+              ],
+              "request_reference": null
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Trusted validator may inspect full evidence, consumer receives strictly scoped projection only.",
+        "Both owners: reseal projection with cross-owner/future dictionary reference or fetch capability -> reject before publication.",
+        "Inspect serialized consumer output and every resolvable history/proof/restoration reference; audit envelope is not a consumer input.",
+        "Permitted own original-fact backfill can cite opaque validated commitments without granting full replay retrieval."
+      ]
+    },
+    {
+      "case_id": "EX22-assurance-profile-negatives",
+      "regime": "each supported regime with consumer-required profile",
+      "events": [],
+      "boundaries": [
+        {
+          "kind": "initial-and-terminal",
+          "public_event_cursor": 2,
+          "expected_by_perspective": {
+            "p1": {
+              "consumer_required_profile": "owner-loadout-complete (proposed)",
+              "expected": "reject weaker evidence-relative producer profile or omitted required obligation"
+            },
+            "p2": {
+              "consumer_required_profile": "owner-loadout-complete (proposed)",
+              "expected": "same rejection independently"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Both owners: remove a required family then reseal all IDs -> missing-obligation rejection.",
+        "Both owners: label unavailable required original ability inapplicable without source/rule -> dishonest verdict rejection.",
+        "Both owners: unsupported relevant writer cannot become legitimate-source-unknown to obtain complete assurance.",
+        "Both owners: producer selected weaker evidence-relative profile cannot satisfy stronger consumer-required profile.",
+        "Legitimate unknown under public-replay profile is not mislabeled exact original-loadout completion."
+      ]
+    },
+    {
+      "case_id": "EX23-restoration-continuation-and-grafts",
+      "regime": "simulator-causal/v1 plus separate replay dictionary restoration controls",
+      "events": [],
+      "boundaries": [
+        {
+          "kind": "preterminal-restore-continue",
+          "public_event_cursor": 8,
+          "expected_by_perspective": {
+            "p1": {
+              "expected_comparison": "all eligible chronological/starting facts, proofs, IDs, freshness, current request and publication joins equal uninterrupted branch at same committed boundary"
+            },
+            "p2": {
+              "expected_comparison": "same independent comparison for waiting/nonactor owner, with null action authority when applicable"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "Valid short serialize -> restore -> continue control must publish through ordinary/full/compact.",
+        "Fully reseal coherent wrong-battle or wrong-owner original/current histories -> reject source/owner authority.",
+        "Fully reseal parent history from a sibling fork with same latest fields -> reject branch continuity.",
+        "Graft a stale request onto requestless terminal after restore -> reject resurrected action authority.",
+        "Expand compact dictionaries first, then independently validate all joins and semantics; missing origin never certifies original coverage."
+      ]
+    }
+  ]
+}

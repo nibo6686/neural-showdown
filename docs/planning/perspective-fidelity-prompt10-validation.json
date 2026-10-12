@@ -1,0 +1,83 @@
+{
+  "scope": "Contract/fixture only; no production acceptance",
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "encoding_overrides": {
+    "PYTHONUTF8": null,
+    "PYTHONIOENCODING": null
+  },
+  "commands": [
+    {
+      "argv": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "docs/planning/perspective-fidelity-prompt10-reproduce.py"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "stdout": "{\"scope\": \"immutable baseline reproduction\", \"lead_findings_reproduced\": 6, \"details\": [{\"finding\": 1, \"observed_gap\": \"prose says all control hex; implementations use short escapes\", \"contract_has_hex_only\": true, \"actual_lf_json\": \"\\\"\\\\n\\\"\"}, {\"finding\": 2, \"observed_gap\": \"cross-source parent accepted\", \"sources_differ\": true, \"rejection\": null}, {\"finding\": 3, \"observed_gap\": \"required layer/power properties unrepresentable\", \"missing_properties\": [\"side_condition_layers\", \"pending_power\"]}, {\"finding\": 4, \"observed_gap\": \"field_remaining only interval with null effect key; no target union\", \"old_types\": [\"interval\"]}, {\"finding\": 5, \"observed_gap\": \"inert text incorrectly rejects\", \"projection_rejection\": \"capability\", \"inert_hash_rejection\": \"reference closure\"}, {\"finding\": 6, \"observed_gap\": \"family flags cannot expand per-property/context/subject\", \"has_property_context_manifest\": false}]}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/author_fixtures.py"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:/Anaconda/envs/neuralgpu/python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "stdout": "{\"scope\": \"contract fixtures only; no production semantic acceptance\", \"counts\": {\"positive\": 26, \"negative\": 43, \"vectors\": 16}, \"effect_subset_canaries\": 1, \"compact_parity\": true, \"causal_suffix_invariance\": true, \"revision_checks\": {\"representation_positive\": 13, \"representation_negative\": 14, \"coverage_positive\": 2, \"coverage_negative\": 6, \"literal_all_controls\": true, \"same_source_refinement\": true, \"changed_source_fork\": true, \"all_form_suffix_invariance\": true}}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "stdout": "",
+      "stderr": "warning: LF will be replaced by CRLF in docs/contracts/BELIEF_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/DATASET_LINEAGE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/OBSERVABLE_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/PIPELINE_EPISODE.md.\nThe file will have its original line endings in your working directory\n"
+    }
+  ],
+  "checker_results": {
+    "scope": "contract fixtures only; no production semantic acceptance",
+    "counts": {
+      "positive": 26,
+      "negative": 43,
+      "vectors": 16
+    },
+    "effect_subset_canaries": 1,
+    "compact_parity": true,
+    "causal_suffix_invariance": true,
+    "revision_checks": {
+      "representation_positive": 13,
+      "representation_negative": 14,
+      "coverage_positive": 2,
+      "coverage_negative": 6,
+      "literal_all_controls": true,
+      "same_source_refinement": true,
+      "changed_source_fork": true,
+      "all_form_suffix_invariance": true
+    }
+  },
+  "protected_unchanged": 927,
+  "baseline_snapshots_unchanged": 57,
+  "changed_existing": 55,
+  "new_core_files": 33,
+  "candidate_files_direct_whitespace_checked": 88,
+  "provenance_comparison_digest": "8424f64d539a6528a18531f91ee5606200b69c0f98193d4c3e6fd86de2e0c7fc",
+  "drift_inputs": [
+    "docs/contracts/OBSERVABLE_STATE.md",
+    "docs/contracts/PIPELINE_EPISODE.md"
+  ],
+  "attestation_updated": false
+}

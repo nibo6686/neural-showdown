@@ -1,0 +1,74 @@
+{
+  "encoding_overrides_unset": true,
+  "python": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+  "commands": [
+    {
+      "cwd": "sim-core",
+      "argv": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.375,
+      "log": "perspective-fidelity-prompt12c-build.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "node",
+        "docs/planning/perspective-fidelity-prompt12c-legacy-witness.cjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.062,
+      "log": "perspective-fidelity-prompt12c-legacy-validation.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_perspective_knowledge",
+        "trainer.tests.test_pipeline_record.PipelineRecordTest.test_valid_linked_bundle_builds_checkpoint_free_data_record",
+        "trainer.tests.test_pipeline_record.PipelineRecordTest.test_unicode_prefix_hashes_keep_typescript_and_data_envelopes_distinct"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 66.359,
+      "log": "perspective-fidelity-prompt12c-python-validation.log"
+    },
+    {
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "dist/tests/perspective_knowledge.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 44.329,
+      "log": "perspective-fidelity-prompt12c-ts-validation.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.125,
+      "log": "perspective-fidelity-prompt12c-contract.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "perspective-fidelity-prompt12c-diff-check.log"
+    }
+  ]
+}

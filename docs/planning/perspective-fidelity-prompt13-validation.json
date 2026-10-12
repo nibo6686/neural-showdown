@@ -1,0 +1,122 @@
+{
+  "encoding_overrides_unset": true,
+  "python": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+  "commands": [
+    {
+      "label": "fresh tsc build",
+      "cwd": "sim-core",
+      "argv": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.187,
+      "counts": {},
+      "log": "perspective-fidelity-prompt13-build.log"
+    },
+    {
+      "label": "new TS characterization suite",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/request_knowledge_characterization.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.125,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt13-ts-validation.log"
+    },
+    {
+      "label": "new Python characterization suite",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_request_knowledge_characterization",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.329,
+      "counts": {
+        "tests": 8,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt13-python-validation.log"
+    },
+    {
+      "label": "retained TS request/observation/pipeline/identity suites",
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-isolation=none",
+        "dist/tests/action_codec.test.js",
+        "dist/tests/observable_state.test.js",
+        "dist/tests/pipeline_integration.test.js",
+        "dist/tests/record_identity.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 63.203,
+      "counts": {
+        "tests": 44,
+        "pass": 44,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "log": "perspective-fidelity-prompt13-ts-retained.log"
+    },
+    {
+      "label": "retained Python pipeline record suite",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_pipeline_record"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 26.984,
+      "counts": {
+        "tests": 46,
+        "fail": 0
+      },
+      "log": "perspective-fidelity-prompt13-python-retained.log"
+    },
+    {
+      "label": "retained perspective-knowledge contract checker",
+      "cwd": ".",
+      "argv": [
+        "python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.891,
+      "counts": {},
+      "log": "perspective-fidelity-prompt13-contract.log"
+    },
+    {
+      "label": "tracked-file whitespace (CRLF warnings pre-existing)",
+      "cwd": ".",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.109,
+      "counts": {},
+      "log": "perspective-fidelity-prompt13-diff-check.log"
+    }
+  ]
+}

@@ -1,0 +1,913 @@
+{
+  "scope": "Structural differential only; document semantic-negative expectations are not imported runtime authority",
+  "positive": 26,
+  "document_negative": 43,
+  "negative_structure_reject": 37,
+  "semantic_or_assurance_unverified": [
+    "negative-authority-label-forgery.json",
+    "negative-false-item.json",
+    "negative-unsupported-complete.json",
+    "negative-crosswalk-chronological-relabel.json",
+    "negative-false-original-value.json",
+    "negative-false-replay-reproof.json"
+  ],
+  "cases": [
+    {
+      "file": "sim-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "missing-original-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-concurrent-effects-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-ordinary.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-compact.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-p1-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-p2-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-ordinary.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-compact.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-p1-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-p2-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-p1-actionable-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "sim-p1-wait-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-suffix-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-suffix-ordinary.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "replay-suffix-compact.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-hash-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-self-hash-full.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-hash-ordinary.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-self-hash-ordinary.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-hash-compact.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-self-hash-compact.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-capability-words-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-missing-hash-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "inert-array-consumer.json",
+      "required": null,
+      "document_expectation": "positive",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-missing-key.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-extra-key.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-wrong-type.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-wrong-discriminant.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-duplicate.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "table duplicate/order",
+      "python": {
+        "status": "structural_reject",
+        "code": "table duplicate/order"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "table duplicate/order"
+      }
+    },
+    {
+      "file": "negative-dangling-reference.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "dangling/wrong reference",
+      "python": {
+        "status": "structural_reject",
+        "code": "dangling/wrong reference"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "dangling/wrong reference"
+      }
+    },
+    {
+      "file": "negative-wrong-owner.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "request proof",
+      "python": {
+        "status": "structural_reject",
+        "code": "request proof"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "request proof"
+      }
+    },
+    {
+      "file": "negative-wrong-policy.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "knowledge join",
+      "python": {
+        "status": "structural_reject",
+        "code": "knowledge join"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "knowledge join"
+      }
+    },
+    {
+      "file": "negative-wrong-source.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "public future traversal",
+      "python": {
+        "status": "structural_reject",
+        "code": "public future traversal"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "public future traversal"
+      }
+    },
+    {
+      "file": "negative-broken-origin.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "knowledge join",
+      "python": {
+        "status": "structural_reject",
+        "code": "dangling/wrong reference"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "dangling/wrong reference"
+      }
+    },
+    {
+      "file": "negative-broken-parent.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "current parent/cursor",
+      "python": {
+        "status": "structural_reject",
+        "code": "current parent/cursor"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "current parent/cursor"
+      }
+    },
+    {
+      "file": "negative-broken-request.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "request delivery join",
+      "python": {
+        "status": "structural_reject",
+        "code": "request delivery join"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "request delivery join"
+      }
+    },
+    {
+      "file": "negative-broken-history.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "history/legacy binding join",
+      "python": {
+        "status": "structural_reject",
+        "code": "history/legacy binding join"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "history/legacy binding join"
+      }
+    },
+    {
+      "file": "negative-authority-label-forgery.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "source-label authority forgery",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-weaker-profile.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "weaker profile",
+      "python": {
+        "status": "structural_reject",
+        "code": "required profile"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "required profile"
+      }
+    },
+    {
+      "file": "negative-dishonest-unknown.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "dishonest unknown",
+      "python": {
+        "status": "structural_reject",
+        "code": "unknown owner scope"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "unknown owner scope"
+      }
+    },
+    {
+      "file": "negative-dishonest-inapplicable.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "dishonest inapplicable",
+      "python": {
+        "status": "structural_reject",
+        "code": "nonknown proof shape"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "nonknown proof shape"
+      }
+    },
+    {
+      "file": "negative-false-item.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "false consumed item",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-compact-private-traversal.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "current fact/certificate",
+      "python": {
+        "status": "structural_reject",
+        "code": "current fact/certificate"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "current fact/certificate"
+      }
+    },
+    {
+      "file": "negative-compact-future-traversal.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "record range",
+      "python": {
+        "status": "structural_reject",
+        "code": "record range"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "record range"
+      }
+    },
+    {
+      "file": "negative-unsupported-complete.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "unsupported completeness promotion",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-crosswalk-chronological-relabel.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "causal appearance oracle",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-crosswalk-foreign-owner.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "crosswalk owner",
+      "python": {
+        "status": "structural_reject",
+        "code": "crosswalk owner"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "crosswalk owner"
+      }
+    },
+    {
+      "file": "negative-starting-revision-fork.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "revision join",
+      "python": {
+        "status": "structural_reject",
+        "code": "revision join"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "revision join"
+      }
+    },
+    {
+      "file": "negative-false-original-value.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "original value oracle",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-certificate-property.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "certificate property/subject",
+      "python": {
+        "status": "structural_reject",
+        "code": "certificate property/subject"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "certificate property/subject"
+      }
+    },
+    {
+      "file": "negative-foreign-original-source.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "original source owner",
+      "python": {
+        "status": "structural_reject",
+        "code": "original source owner"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "original source owner"
+      }
+    },
+    {
+      "file": "negative-wrong-value-tag.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "property value tag",
+      "python": {
+        "status": "structural_reject",
+        "code": "property value tag"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "property value tag"
+      }
+    },
+    {
+      "file": "negative-wrong-effect-identity.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "effect identity",
+      "python": {
+        "status": "structural_reject",
+        "code": "effect identity"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "effect identity"
+      }
+    },
+    {
+      "file": "negative-in-range-future-source.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "public future traversal",
+      "python": {
+        "status": "structural_reject",
+        "code": "public future traversal"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "public future traversal"
+      }
+    },
+    {
+      "file": "negative-unreachable-entry.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "unreachable entry",
+      "python": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      }
+    },
+    {
+      "file": "negative-cross-source-parent.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "revision source",
+      "python": {
+        "status": "structural_reject",
+        "code": "revision source"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "revision source"
+      }
+    },
+    {
+      "file": "negative-old-source-carryover.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "starting evidence",
+      "python": {
+        "status": "structural_reject",
+        "code": "starting evidence"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "starting evidence"
+      }
+    },
+    {
+      "file": "negative-same-source-proved-change.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "immutable refinement",
+      "python": {
+        "status": "structural_reject",
+        "code": "immutable refinement"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "immutable refinement"
+      }
+    },
+    {
+      "file": "negative-false-replay-reproof.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "replay original value oracle",
+      "python": {
+        "status": "structure_valid",
+        "code": null
+      },
+      "typescript": {
+        "status": "structure_valid",
+        "code": null
+      }
+    },
+    {
+      "file": "negative-old-source-fact-certificate.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "starting certificate source",
+      "python": {
+        "status": "structural_reject",
+        "code": "starting certificate source/witnesses"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "starting certificate source/witnesses"
+      }
+    },
+    {
+      "file": "negative-old-source-crosswalk-certificate.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "crosswalk certificate source",
+      "python": {
+        "status": "structural_reject",
+        "code": "crosswalk certificate source"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "crosswalk certificate source"
+      }
+    },
+    {
+      "file": "negative-stripped-replay-certificate.json",
+      "required": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+      "document_expectation": "replay original certificate",
+      "python": {
+        "status": "structural_reject",
+        "code": "replay original certificate"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "replay original certificate"
+      }
+    },
+    {
+      "file": "negative-inert-orphan-full.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "unreachable entry",
+      "python": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      }
+    },
+    {
+      "file": "negative-inert-orphan-compact.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "unreachable entry",
+      "python": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "unreachable entry"
+      }
+    },
+    {
+      "file": "negative-consumer-privileged-field.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-consumer-nested-capability.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "union mismatch",
+      "python": {
+        "status": "structural_reject",
+        "code": "schema union"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "schema union"
+      }
+    },
+    {
+      "file": "negative-consumer-foreign-starting.json",
+      "required": "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38",
+      "document_expectation": "projection starting owner",
+      "python": {
+        "status": "structural_reject",
+        "code": "property context"
+      },
+      "typescript": {
+        "status": "structural_reject",
+        "code": "property context"
+      }
+    }
+  ]
+}

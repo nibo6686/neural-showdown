@@ -1,0 +1,46 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "docs/planning/perspective-fidelity-prompt23-before-env_manager.txt",
+        "sim-core/src/env_manager.ts"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "stdout": "",
+      "stderr": "",
+      "meaning": "diff exists; no whitespace diagnostics"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "docs/planning/perspective-fidelity-prompt23-before-pipeline_integration.txt",
+        "sim-core/src/pipeline_integration.ts"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "stdout": "",
+      "stderr": "",
+      "meaning": "diff exists; no whitespace diagnostics"
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--numstat",
+        "docs/planning/perspective-fidelity-prompt23-candidate.diff"
+      ],
+      "exit": 0,
+      "meaning": "read-only patch parse; no files applied"
+    }
+  ]
+}

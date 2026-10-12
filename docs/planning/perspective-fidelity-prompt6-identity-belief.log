@@ -1,0 +1,23 @@
+✔ belief fixture has deterministic ordered candidates, serialization, and identity (31.8078ms)
+✔ ordered history hashing preserves canonical Unicode identities and rejects rehashed prefix lies (17.0447ms)
+✔ belief snapshots clone and freeze nested inputs and later snapshots preserve their parent (6.0719ms)
+✔ future, stale, mismatched, and cross-perspective evidence is rejected (8.5423ms)
+✔ derived evidence requires existing evidence and imported parents are fully revalidated (2.4175ms)
+✔ raw request payloads and incomplete observable snapshots cannot enter belief lineage (2.4449ms)
+✔ contradictory evidence remains explicit and missing evidence leaves candidates possible (0.8534ms)
+✔ transition lineage joins the parent observation, output observation, branch, and revision (22.4128ms)
+✔ simulator-only truth is separately scoped and never enters an observable projection (1.5896ms)
+✔ unsupported belief and observation schemas fail closed (0.5332ms)
+✔ observable-battle-state/v1 Python verifies current, successor and nested identities before publication (8790.6673ms)
+✔ observable-battle-state/v2 Python verifies current, successor and nested identities before publication (5398.3227ms)
+✔ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (72.4986ms)
+✔ observable-battle-state/v1 two-transition historical reference fields reject malformed values at every position (17447.8802ms)
+✔ observable-battle-state/v2 two-transition historical reference fields reject malformed values at every position (19222.9111ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51327.7865

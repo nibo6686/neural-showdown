@@ -1,6 +1,8 @@
 import argparse
 import html
+from html.parser import HTMLParser
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -40,13 +42,63 @@ def _load_ranker(path: Path, device: torch.device) -> Tuple[Optional[ActionRanke
     return model, {**checkpoint, "path": str(path), "loaded": True}
 
 
+class _ReplayLogHTMLParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.blocks: List[List[str]] = []
+        self.active: Optional[List[str]] = None
+
+    def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
+        if tag != "script" or not any(key == "class" and "battle-log-data" in (value or "").split() for key, value in attrs):
+            return
+        if any(sum(key == name for key, _ in attrs) != 1 for name in ("class", "type")) or dict(attrs).get("type") != "text/plain":
+            raise ValueError("Malformed saved HTML replay: ambiguous or unsupported log-block attributes.")
+        self.active = []
+        self.blocks.append(self.active)
+
+    def handle_data(self, data: str) -> None:
+        if self.active is not None:
+            self.active.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script":
+            self.active = None
+
+
+def _saved_html_protocol(text: str) -> List[str]:
+    parser = _ReplayLogHTMLParser()
+    parser.feed(text)
+    parser.close()
+    if len(parser.blocks) != 1 or parser.active is not None:
+        raise ValueError("Malformed saved HTML replay: expected exactly one complete battle-log-data block.")
+    records = []
+    for line in "".join(parser.blocks[0]).split("\n"):
+        line = line.removesuffix("\r")
+        if not line.startswith("|"):
+            continue
+        # HTML5 unescape may drop/remap numeric controls; reject before that loss.
+        for match in re.finditer(r"&#(x[0-9a-f]+|[0-9]+);?", line, re.IGNORECASE):
+            token = match.group(1)
+            codepoint = int(token[1:], 16) if token.lower().startswith("x") else int(token)
+            if codepoint < 32 or 127 <= codepoint <= 159 or codepoint in (8232, 8233):
+                raise ValueError("Malformed saved HTML replay: encoded record controls are unsupported.")
+        # Decode only the serializer's literal slash escape, before one entity pass.
+        record = html.unescape(line.replace("\\/", "/"))
+        if record.split("|", 2)[1] != line.split("|", 2)[1]:
+            raise ValueError("Malformed saved HTML replay: entity decoding changes the protocol command.")
+        if any(ord(char) < 32 or 127 <= ord(char) <= 159 or ord(char) in (8232, 8233) for char in record):
+            raise ValueError("Malformed saved HTML replay: record controls are unsupported.")
+        records.append(record)
+    if not records:
+        raise ValueError("Malformed saved HTML replay: battle-log-data has no protocol records.")
+    return records
+
+
 def _load_replay(replay: str, *, replay_dir: Path, trajectories_path: Path, format_name: str) -> Dict[str, Any]:
     path = Path(replay)
     if path.exists() and path.suffix.lower() in {".html", ".htm"}:
-        text = html.unescape(path.read_text(encoding="utf-8", errors="replace"))
-        protocol_lines = [line.strip() for line in text.splitlines() if line.strip().startswith("|")]
-        if protocol_lines:
-            return parse_protocol_log(protocol_lines, replay_id=path.stem, format_name=format_name, source_path=str(path))
+        protocol_lines = _saved_html_protocol(path.read_text(encoding="utf-8"))
+        return parse_protocol_log(protocol_lines, replay_id=path.stem, format_name=format_name, source_path=str(path))
     return load_replay_trajectory(
         replay,
         replay_dir=replay_dir,

@@ -1,0 +1,200 @@
+[
+  {
+    "label": "import-resolution",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-c",
+      "from pathlib import Path; import neural.compare_action_rankers as m; assert Path(m.__file__).resolve() == Path('trainer/src/neural/compare_action_rankers.py').resolve()"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {},
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.281,
+    "counts": []
+  },
+  {
+    "label": "loader",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_local_replay_html_transport",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {
+      "LOCAL_REPLAY_HTML_REPORT": "C:\\Users\\cloud\\Downloads\\neural\\final\\docs\\planning\\perspective-fidelity-prompt18-after-probe.json"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.313,
+    "counts": [
+      "Ran 8 tests"
+    ],
+    "test_count": 8
+  },
+  {
+    "label": "transport-requirement",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {},
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.343,
+    "counts": [],
+    "test_count": 1
+  },
+  {
+    "label": "python-characterization",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_perspective_replay_characterization",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {
+      "PERSPECTIVE_REPLAY_REPORT": "C:\\Users\\cloud\\Downloads\\neural\\final\\docs\\planning\\perspective-fidelity-prompt18-python-characterization.json"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.266,
+    "counts": [
+      "Ran 2 tests"
+    ],
+    "test_count": 2
+  },
+  {
+    "label": "python-requirements",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "trainer.tests.test_perspective_replay_characterization",
+      "-v"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {
+      "PERSPECTIVE_REPLAY_REQUIREMENTS": "1",
+      "PERSPECTIVE_REPLAY_REPORT": "C:\\Users\\cloud\\Downloads\\neural\\final\\docs\\planning\\perspective-fidelity-prompt18-python-requirements.json"
+    },
+    "exit_code": 1,
+    "expected_exit": 1,
+    "seconds": 2.375,
+    "counts": [
+      "Ran 2 tests",
+      "FAILED (failures=2)"
+    ],
+    "test_count": 2
+  },
+  {
+    "label": "existing-parser",
+    "argv": [
+      "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+      "-m",
+      "unittest",
+      "-v",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_protocol_log_parser_extracts_battle_events",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_disconnect_line_followed_by_win_preserves_winner",
+      "trainer.tests.test_public_replays.PublicReplayParserTest.test_inactive_timer_line_followed_by_win_preserves_winner"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {},
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.25,
+    "counts": [
+      "Ran 3 tests"
+    ],
+    "test_count": 3
+  },
+  {
+    "label": "ts-characterization",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/perspective_replay_characterization.test.js"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {},
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 2.093,
+    "counts": [
+      "tests 3",
+      "pass 3",
+      "fail 0"
+    ]
+  },
+  {
+    "label": "ts-requirements",
+    "argv": [
+      "node",
+      "--test",
+      "--test-isolation=none",
+      "sim-core/dist/tests/perspective_replay_characterization.test.js"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {
+      "PERSPECTIVE_REPLAY_REQUIREMENTS": "1"
+    },
+    "exit_code": 1,
+    "expected_exit": 1,
+    "seconds": 2.094,
+    "counts": [
+      "tests 3",
+      "pass 2",
+      "fail 1"
+    ]
+  },
+  {
+    "label": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+    "encoding_overrides": "both unset",
+    "PYTHON": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+    "PYTHONPATH": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\src",
+    "extra_environment": {},
+    "exit_code": 0,
+    "expected_exit": 0,
+    "seconds": 0.094,
+    "counts": []
+  }
+]

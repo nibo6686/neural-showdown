@@ -1,0 +1,32 @@
+weather/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+weather/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+terrain/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+terrain/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+pseudo_weather/lifecycle: controls, 4 false-value attacks, terminal restoration=false; results persisted
+pseudo_weather/terminal: controls, 4 false-value attacks, terminal restoration=true; results persisted
+V01 repaired regression: 200 real publication invocations; false fields reject atomically.
+✔ V01 repaired: source controls and fully resealed false field values through actual publication (31454.234ms)
+✔ V01 SAVED WITNESS: weather contradiction must reject before publication (158.5515ms)
+✔ V01 SAVED WITNESS: terrain contradiction must reject before publication (164.8571ms)
+✔ V01 SAVED WITNESS: pseudo_weather contradiction must reject before publication (163.0868ms)
+✔ field evidence applies to real waiting/requestless reports and v1/v2 ordinary callers (4023.0782ms)
+✔ pinned terrain emitters expose only the finite generated fieldstart templates (7.4728ms)
+✔ terrain p1: replace, clear, restore, and publish the public ID only (531.2422ms)
+✔ terrain p2: replace, clear, restore, and publish the public ID only (518.6875ms)
+✔ terrain expiry/terminal do not fabricate source, duration, or clear records (6.9524ms)
+✔ pinned Trick Room condition emits generated start, reapplication clear, expiry, switch, and terminal forms (13.8337ms)
+✔ Trick Room p1: public state, source-backed order, restore, rollback, and publish (795.1106ms)
+✔ Trick Room p2: public state, source-backed order, restore, rollback, and publish (769.6205ms)
+✔ Trick Room accepts only source-shaped public field forms before projection (1.0224ms)
+✔ pinned weather emitters retain only the exact generated public lifecycle forms (10.0071ms)
+✔ weather p1: set, replace, suppress, restore, and publish only public weather (318.8643ms)
+✔ weather p2: set, replace, suppress, restore, and publish only public weather (302.1068ms)
+✔ weather clear is not fabricated at terminal and the exact source family rejects before extraction (1.7538ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39402.444

@@ -1,0 +1,51 @@
+test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) ...
+  test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|&#119;in|injected') ... FAIL
+  test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|wi&#110;|injected') ... FAIL
+  test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|win&#124;injected') ... FAIL
+  test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|win&vert;injected') ... FAIL
+  test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|&VerticalLine;win|injected') ... FAIL
+
+======================================================================
+FAIL: test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|&#119;in|injected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 147, in test_encoded_command_tokens_cannot_be_promoted_to_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|wi&#110;|injected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 147, in test_encoded_command_tokens_cannot_be_promoted_to_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|win&#124;injected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 147, in test_encoded_command_tokens_cannot_be_promoted_to_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|win&vert;injected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 147, in test_encoded_command_tokens_cannot_be_promoted_to_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_encoded_command_tokens_cannot_be_promoted_to_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_command_tokens_cannot_be_promoted_to_commands) (record='|&VerticalLine;win|injected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 147, in test_encoded_command_tokens_cannot_be_promoted_to_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.046s
+
+FAILED (failures=5)

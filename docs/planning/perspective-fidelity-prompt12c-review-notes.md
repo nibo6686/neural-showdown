@@ -1,0 +1,5 @@
+Reviewer /root/p12c_schema_review, fresh-context gpt-6.1-sol, read-only, no writes/delegation.
+Independent schema-tree delta: exactly nine external regex leaves; requiredness/nullability/internal nodes unchanged. Both runtime changes only schema pin, actual5e5553…acce. Wire version/profile IDs unchanged; schema content hash intentionally changed.
+243 expectations independently checked with hardcoded field-domain/nullability oracle(51positive192negative). Historical checker26/43/16 plus newpacket passed. Additive tests preserve previous test content, independent resealers, exact unverified diagnostics and encoding-unset TS->Python transport. No blocker.
+Reviewer caveat: recorded witness flags are not live authority, surrounding audit chronology is synthetic; parent final runner separately reruns actual validators and verifies fresh witness equality. Direct checker tests each scalar field alone; coordinated runtime mutations may touch matching same-category references.
+Final parent integration:62TS/30Python; matrix69unchanged; all1,187protected files unchanged; schema/pins-only exactdelta confirmed. Lead review pending, no source seam resumption.

@@ -1,0 +1,706 @@
+diff --git a/sim-core/src/env_manager.ts b/sim-core/src/env_manager.ts
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { isDeepStrictEqual } from 'node:util';
+ import { Battle, BattleStream, Dex, Teams, getPlayerStreams } from 'pokemon-showdown';
+ import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
+@@ -733,6 +734,7 @@
+   readonly seed: [number, number, number, number];
+   readonly controllers: Record<PlayerID, ControllerSpec>;
+ 
++  readonly #originalCreation: OriginalOwnerCreation | undefined;
+   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
+   private readonly heuristicAgent: HeuristicBaselineAgent;
+   private battleStream: BattleStream | null;
+@@ -753,7 +755,10 @@
+     seed?: number[],
+     controllers?: Partial<Record<PlayerID, ControllerSpec>>,
+     settlingOptions: SettlingOptions = {},
++    originalCreation?: OriginalOwnerCreation,
+   ) {
++    this.#originalCreation = originalCreation;
++    originalCreation?.bind(this);
+     this.id = id;
+     this.format = format;
+     this.seed = createSeed(seed);
+@@ -782,30 +787,50 @@
+   }
+ 
+   async resetWithOptions(options?: StepResultOptions): Promise<StepResult> {
+-    await this.destroyBattle();
+-    this.logLines = [];
+-    this.logCursor = 0;
+-    this.lastError = null;
+-    this.initialized = true;
+-
+-    this.initializeStreams();
+-    if (!this.streams) throw new Error('Battle streams failed to initialize.');
+-    const p1Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 11) }));
+-    const p2Team = Teams.pack(Teams.generate(this.format, { seed: offsetSeed(this.seed, 29) }));
+-
+-    const payload = [
+-      `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
+-      `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
+-      `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
+-    ].join('\n');
+-
+-    await this.streams.omniscient.write(payload);
+-    const result = await this.drainUntilExternalDecision(options);
+-    this.logCursor = this.logLines.length;
+-    return result;
++    this.#originalCreation?.begin(this);
++    try {
++      await this.destroyBattle();
++      this.logLines = [];
++      this.logCursor = 0;
++      this.lastError = null;
++      this.initialized = true;
++
++      this.initializeStreams();
++      if (!this.streams) throw new Error('Battle streams failed to initialize.');
++      const prepare = (owner: PlayerID, offset: number): string => {
++        const generated = Teams.generate(this.format, { seed: offsetSeed(this.seed, offset) });
++        const packingCopy = this.#originalCreation?.capture(this, owner, generated) ?? generated;
++        const packed = Teams.pack(packingCopy);
++        this.#originalCreation?.associate(this, owner, packed);
++        return packed;
++      };
++      const p1Team = prepare('p1', 11);
++      const p2Team = prepare('p2', 29);
++
++      const payload = [
++        `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
++        `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
++        `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
++      ].join('\n');
++
++      await this.streams.omniscient.write(payload);
++      const result = await this.drainUntilExternalDecision(options);
++      this.logCursor = this.logLines.length;
++      return result;
++    } catch (error) {
++      this.#originalCreation?.abortStaging();
++      throw error;
++    }
++  }
++
++  /** Privileged pre-submission diagnostics; never an authorizing handle. */
++  inspectStagedOriginalOwner(owner: PlayerID): OriginalOwnerEvidence {
++    if (!this.#originalCreation) throw new Error('original-owner/v1/no-creation');
++    return this.#originalCreation.diagnostic(this, owner);
+   }
+ 
+   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
++    this.#originalCreation?.abandonForRestore(this);
+     // Validate a cloned snapshot before disrupting a running battle. The
+     // optional history is opaque restoration metadata, not simulator input.
+     const terminalHistory = readTerminalRequestHistory(serialized);
+@@ -1096,6 +1121,7 @@
+   }
+ 
+   async close(): Promise<void> {
++    this.#originalCreation?.abortStaging();
+     await this.destroyBattle();
+     this.initialized = false;
+   }
+diff --git a/sim-core/src/pipeline_integration.ts b/sim-core/src/pipeline_integration.ts
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { carryTerminalOwner, withTerminalOwner } from './public_health';
+ import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
+ import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
+@@ -357,6 +358,7 @@
+ export class PipelineIntegrationSession {
+   readonly battle_id: string;
+   readonly format: string;
++  readonly #originalCreation: OriginalOwnerCreation;
+   private readonly seed: number[];
+   private environment: LocalBattleEnv;
+   private snapshot: SeededBattleSnapshot | null;
+@@ -380,6 +382,7 @@
+     this.format = options.format;
+     this.seed = [...options.seed];
+     this.settlingOptions = { ...options.settling };
++    this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: SIMULATOR_REVISION });
+     this.environment = this.newEnvironment('initial');
+     this.snapshot = null;
+     this.rawPrefix = [];
+@@ -394,11 +397,22 @@
+       session.rawPrefix = [...initial.log_delta];
+       session.snapshot = session.environment.captureSeededSnapshot(null);
+       session.currentBoundaryValue = session.buildInitialBoundary(initial, session.snapshot);
++      session.#originalCreation.activate();
+       return session;
+     } catch (error) {
++      session.#originalCreation.revoke();
+       await session.environment.close();
+       throw error;
+     }
++  }
++
++  /** Privileged process-local owner access, outside observation and wire APIs. */
++  getOriginalOwnerHolding(owner: PlayerID): OriginalOwnerHandle {
++    return this.#originalCreation.holding(owner);
++  }
++
++  readOriginalOwnerHolding(handle: OriginalOwnerHandle, owner: PlayerID, packed?: string): OriginalOwnerEvidence {
++    return this.#originalCreation.read(handle, owner, packed);
+   }
+ 
+   get boundary(): PipelineBoundary {
+@@ -630,6 +644,7 @@
+   async close(): Promise<void> {
+     if (this.closed) return;
+     this.closed = true;
++    this.#originalCreation.revoke();
+     await this.environment.close();
+     for (const retired of this.retiredEnvironments) {
+       await retired.close();
+@@ -671,6 +686,7 @@
+       this.seed,
+       { p1: { controller: 'external' }, p2: { controller: 'external' } },
+       this.settlingOptions,
++      suffix === 'initial' ? this.#originalCreation : undefined,
+     );
+   }
+ 
+diff --git a/sim-core/src/original_owner_provider.ts b/sim-core/src/original_owner_provider.ts
+--- /dev/null
++++ b/sim-core/src/original_owner_provider.ts
+@@ -0,0 +1,126 @@
++import type { PlayerID } from './types';
++
++const SUBMITTED_FIELDS = ['name', 'species', 'item', 'ability', 'moves', 'nature', 'evs', 'gender',
++  'ivs', 'shiny', 'level', 'happiness', 'hpType', 'pokeball', 'gigantamax', 'dynamaxLevel', 'teraType'] as const;
++export type OriginalOwnerHandle = Readonly<object>;
++export interface OriginalOwnerEvidence {
++  readonly owner: PlayerID;
++  readonly labels: Readonly<{ battle_id: string; format: string; simulator_revision: string }>;
++  readonly raw_team: readonly unknown[];
++  readonly packed_team: string;
++  readonly creation_sequence: 0;
++  readonly creation_cursor: 0;
++  readonly field_presence: readonly Readonly<Record<string, 'present' | 'undefined' | 'omitted'>>[];
++  readonly non_submitted_fields: readonly Readonly<{ generator_metadata: readonly PropertyKey[]; unsupported: readonly PropertyKey[] }>[];
++}
++
++function fail(message: string): never { throw new Error(`original-owner/v1/${message}`); }
++function ownerIndex(owner: PlayerID): number {
++  if (owner !== 'p1' && owner !== 'p2') fail('invalid-owner');
++  return owner === 'p1' ? 0 : 1;
++}
++
++// Raw generator data, including own undefined and non-enumerable properties,
++// cannot pass through JSON or the lossy packer to establish originals.
++function detach<T>(value: T, seen = new Map<object, object>()): T {
++  if (typeof value === 'function') fail('unsupported-raw-value');
++  if (value === null || typeof value !== 'object') return value;
++  const prior = seen.get(value);
++  if (prior) return prior as T;
++  const proto = Object.getPrototypeOf(value);
++  if (!Array.isArray(value) && proto !== Object.prototype && proto !== null) fail('unsupported-raw-object');
++  const copy = Array.isArray(value) ? [] : Object.create(proto);
++  seen.set(value, copy);
++  for (const key of Reflect.ownKeys(value)) {
++    if (Array.isArray(value) && key === 'length') continue;
++    const property = Object.getOwnPropertyDescriptor(value, key)!;
++    if (!('value' in property)) fail('unsupported-raw-accessor');
++    Object.defineProperty(copy, key, { value: detach(property.value, seen), enumerable: property.enumerable,
++      writable: true, configurable: true });
++  }
++  if (Array.isArray(value)) copy.length = value.length;
++  return copy;
++}
++function freeze<T>(value: T, seen = new Set<object>()): T {
++  if (value === null || typeof value !== 'object' || seen.has(value)) return value;
++  seen.add(value);
++  for (const key of Reflect.ownKeys(value)) freeze((value as any)[key], seen);
++  return Object.freeze(value);
++}
++
++/** Internal, process-local creation controller. Never carried by wire APIs. */
++export class OriginalOwnerCreation {
++  #phase: 'new' | 'capturing' | 'staged' | 'active' | 'restored_without_originals' | 'invalid' = 'new';
++  #environment: object | null = null;
++  #raw: (readonly unknown[] | undefined)[] = [];
++  #evidence: (OriginalOwnerEvidence | undefined)[] = [];
++  #handles: OriginalOwnerHandle[] = [];
++  readonly #labels: OriginalOwnerEvidence['labels'];
++
++  constructor(labels: OriginalOwnerEvidence['labels']) { this.#labels = freeze(detach(labels)); }
++  bind(environment: object): void {
++    if (this.#phase !== 'new' || this.#environment) fail('duplicate-enrollment');
++    this.#environment = environment;
++  }
++  begin(environment: object): void {
++    if (this.#phase !== 'new' || this.#environment !== environment) fail('duplicate-or-foreign-creation');
++    this.#phase = 'capturing';
++  }
++  capture<T extends unknown[]>(environment: object, owner: PlayerID, generated: T): T {
++    const index = ownerIndex(owner);
++    if (this.#phase !== 'capturing' || this.#environment !== environment || this.#raw[index]) fail('invalid-capture');
++    if (!Array.isArray(generated) || !generated.length || generated.some(set => !set || typeof set !== 'object' || Array.isArray(set))) fail('invalid-team');
++    this.#raw[index] = freeze(detach(generated));
++    return detach(generated);
++  }
++  associate(environment: object, owner: PlayerID, packed: string): void {
++    const index = ownerIndex(owner), raw = this.#raw[index];
++    if (this.#phase !== 'capturing' || this.#environment !== environment || !raw || this.#evidence[index]) fail('invalid-association');
++    if (typeof packed !== 'string' || !packed) fail('invalid-packed-team');
++    const field_presence = raw.map(set => Object.fromEntries(SUBMITTED_FIELDS.map(field => [field,
++      !Object.hasOwn(set as object, field) ? 'omitted' as const : (set as any)[field] === undefined ? 'undefined' as const : 'present' as const])));
++    const non_submitted_fields = raw.map(set => ({
++      generator_metadata: Object.hasOwn(set as object, 'role') ? ['role'] : [],
++      unsupported: Reflect.ownKeys(set as object).filter(key => key !== 'role' && !SUBMITTED_FIELDS.includes(key as any)),
++    }));
++    this.#evidence[index] = freeze({ owner, labels: this.#labels, raw_team: raw, packed_team: packed,
++      creation_sequence: 0, creation_cursor: 0, field_presence, non_submitted_fields });
++    if (this.#evidence[0] && this.#evidence[1]) this.#phase = 'staged';
++  }
++  diagnostic(environment: object, owner: PlayerID): OriginalOwnerEvidence {
++    const row = this.#evidence[ownerIndex(owner)];
++    if (this.#phase !== 'staged' || this.#environment !== environment || !row) fail('not-staged');
++    return row;
++  }
++  abandonForRestore(environment: object): void {
++    if (this.#phase !== 'new' || this.#environment !== environment) fail('creation-restore-forbidden');
++    this.revoke();
++    this.#phase = 'restored_without_originals';
++  }
++  activate(): boolean {
++    // Preserve the legacy unstarted restore path without minting originals.
++    if (this.#phase === 'restored_without_originals') return false;
++    if (this.#phase !== 'staged') fail('not-staged');
++    this.#handles = [Object.freeze(Object.create(null)), Object.freeze(Object.create(null))];
++    this.#phase = 'active';
++    this.#environment = null;
++    this.#raw = [];
++    return true;
++  }
++  holding(owner: PlayerID): OriginalOwnerHandle {
++    const index = ownerIndex(owner);
++    if (this.#phase !== 'active') fail('inactive');
++    return this.#handles[index];
++  }
++  read(handle: OriginalOwnerHandle, owner: PlayerID, packed?: string): OriginalOwnerEvidence {
++    const index = ownerIndex(owner);
++    if (this.#phase !== 'active' || handle !== this.#handles[index]) fail('foreign-or-forged-holding');
++    const row = this.#evidence[index]!;
++    if (packed !== undefined && packed !== row.packed_team) fail('packed-association-mismatch');
++    return row;
++  }
++  abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
++  revoke(): void {
++    this.#phase = 'invalid'; this.#environment = null; this.#raw = []; this.#evidence = []; this.#handles = [];
++  }
++}
+diff --git a/sim-core/tests/original_owner_provider.test.ts b/sim-core/tests/original_owner_provider.test.ts
+--- /dev/null
++++ b/sim-core/tests/original_owner_provider.test.ts
+@@ -0,0 +1,258 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { BattleStream, Teams } from 'pokemon-showdown';
++import { OriginalOwnerCreation } from '../src/original_owner_provider';
++import { LocalBattleEnv } from '../src/env_manager';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import type { PlayerID } from '../src/types';
++
++const labels = { battle_id: 'prompt23', format: 'gen9randombattle', simulator_revision: 'test-only' };
++const options = { battle_id: labels.battle_id, format: labels.format, seed: [1,2,3,4] };
++const own = (s: PipelineIntegrationSession, p: PlayerID) => s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(p), p);
++const literal = () => ({ name: 'Same', species: 'Snorlax', ability: 'Immunity', item: '', moves: ['Splash'],
++  evs: { hp:0,atk:0,def:0,spa:0,spd:0,spe:0 }, ivs: { hp:31,atk:31,def:31,spa:31,spd:31,spe:31 }, role: 'control' });
++function stage(raw1: any[], raw2: any[]) {
++  const c = new OriginalOwnerCreation(labels), env = {}; c.bind(env); c.begin(env);
++  const a = c.capture(env, 'p1', raw1), b = c.capture(env, 'p2', raw2);
++  c.associate(env, 'p1', Teams.pack(a)); c.associate(env, 'p2', Teams.pack(b));
++  return { c, env, a, b };
++}
++
++test('literal presence, equal packing, zeros, metadata and recursive detached freezing', () => {
++  const first = literal(), second = { ...literal(), nature: undefined, happiness:255, pokeball:'', gender:'', level:100,
++    extra: { nested:undefined, values:[0,''] } };
++  Object.defineProperty(second, 'hidden', { value: undefined, enumerable:false });
++  const { c, env, a, b } = stage([first], [second]);
++  assert.throws(() => c.holding('p1'), /inactive/);
++  const d1 = c.diagnostic(env, 'p1'), d2 = c.diagnostic(env, 'p2');
++  assert.equal(d1.packed_team, 'Same|Snorlax||Immunity|Splash|||||||');
++  assert.equal(d1.packed_team, d2.packed_team);
++  assert.deepEqual(Object.keys(d1.field_presence[0]), ['name','species','item','ability','moves','nature','evs','gender','ivs','shiny','level','happiness','hpType','pokeball','gigantamax','dynamaxLevel','teraType']);
++  assert.equal(d1.field_presence[0].nature, 'omitted');
++  assert.equal(d1.field_presence[0].happiness, 'omitted'); assert.equal(d1.field_presence[0].pokeball, 'omitted');
++  assert.equal(d2.field_presence[0].nature, 'undefined');
++  assert.equal(d2.field_presence[0].gender, 'present');
++  const raw = d2.raw_team[0] as any;
++  assert.ok(Object.hasOwn(raw, 'nature')); assert.ok(Object.hasOwn(raw.extra, 'nested')); assert.ok(Object.hasOwn(raw, 'hidden'));
++  assert.equal(raw.nature, undefined); assert.equal(raw.item, ''); assert.equal(raw.gender, '');
++  assert.equal(raw.evs.hp, 0); assert.deepEqual(raw.extra.values, [0,'']);
++  assert.deepEqual(d2.non_submitted_fields[0], { generator_metadata:['role'], unsupported:['extra','hidden'] });
++  first.moves.push('Tackle'); a[0].moves.push('Rest'); a[0].evs.hp = 4;
++  second.extra.values.push('changed'); b[0].ivs.hp = 0; b.reverse();
++  assert.deepEqual((d1.raw_team[0] as any).moves, ['Splash']); assert.equal((d1.raw_team[0] as any).evs.hp, 0);
++  assert.equal(raw.ivs.hp, 31); assert.deepEqual(raw.extra.values, [0,'']);
++  for (const value of [d2, d2.raw_team, raw, raw.moves, raw.evs, raw.ivs, raw.extra, raw.extra.values]) assert.ok(Object.isFrozen(value));
++  assert.throws(() => raw.moves.push('Rest'), TypeError); assert.throws(() => { raw.evs.hp = 99; }, TypeError);
++  const zero = literal(); zero.ivs.hp = 0;
++  const z = stage([zero], [literal()]); assert.equal((z.c.diagnostic(z.env,'p1').raw_team[0] as any).ivs.hp,0);
++  assert.equal(z.c.diagnostic(z.env,'p1').packed_team, 'Same|Snorlax||Immunity|Splash||||0,,,,,|||');
++  c.activate(); assert.throws(() => c.read(d1, 'p1'), /foreign-or-forged/);
++});
++
++test('reference authority rejects copied, transported, owner, occurrence, packed swaps and duplicate issuance', () => {
++  const one = stage([literal()], [{...literal(), name:'Other'}]), two = stage([literal()], [literal()]);
++  one.c.activate(); two.c.activate(); const handle = one.c.holding('p1');
++  for (const forged of [{}, {...handle}, JSON.parse(JSON.stringify(handle)), structuredClone(handle), two.c.holding('p1')]) {
++    assert.throws(() => one.c.read(forged,'p1'), /foreign-or-forged/);
++  }
++  assert.throws(() => one.c.read(handle,'p2'), /foreign-or-forged/);
++  assert.throws(() => one.c.read(handle,'p1',one.c.read(one.c.holding('p2'),'p2').packed_team), /association-mismatch/);
++  assert.throws(() => one.c.activate(), /not-staged/); assert.throws(() => one.c.begin(one.env), /duplicate-or-foreign/);
++  assert.throws(() => one.c.bind({}), /duplicate-enrollment/);
++  one.c.revoke(); assert.throws(() => one.c.read(handle,'p1'), /foreign-or-forged/);
++});
++
++test('missing either owner and foreign enrollment cannot activate partial authority', () => {
++  for (const owner of ['p1','p2'] as const) {
++    const c = new OriginalOwnerCreation(labels), env = {}; c.bind(env);
++    assert.throws(() => c.begin({}), /foreign/); c.begin(env);
++    const raw = c.capture(env,owner,[literal()]); c.associate(env,owner,Teams.pack(raw as any));
++    assert.throws(() => c.abandonForRestore(env), /restore-forbidden/);
++    assert.throws(() => c.activate(), /not-staged/); assert.throws(() => c.diagnostic(env,owner), /not-staged/);
++    assert.throws(() => c.capture(env,owner,[literal()]), /invalid-capture/);
++    c.abortStaging(); assert.throws(() => c.holding(owner), /inactive/);
++  }
++});
++
++test('restore abandonment requires the exact unstarted enrollment; staged state cannot be bypassed', () => {
++  const c=new OriginalOwnerCreation(labels), env={}; c.bind(env);
++  assert.throws(()=>c.abandonForRestore({}),/restore-forbidden/);
++  c.abandonForRestore(env); assert.equal(c.activate(),false);
++  assert.throws(()=>c.holding('p1'),/inactive/); assert.throws(()=>c.holding('p2'),/inactive/);
++  assert.throws(()=>c.begin(env),/duplicate-or-foreign/); assert.throws(()=>c.abandonForRestore(env),/restore-forbidden/);
++  const staged=stage([literal()],[literal()]);
++  assert.throws(()=>staged.c.abandonForRestore(staged.env),/restore-forbidden/);
++  staged.c.activate(); assert.throws(()=>staged.c.abandonForRestore(staged.env),/restore-forbidden/);
++  staged.c.revoke(); assert.throws(()=>staged.c.abandonForRestore(staged.env),/restore-forbidden/);
++});
++
++test('legacy unstarted serialized restore preserves old session behavior without either original authority', async () => {
++  const reset=LocalBattleEnv.prototype.resetWithOptions;
++  const donor=new LocalBattleEnv('restore-donor',options.format,options.seed);
++  let session:PipelineIntegrationSession|undefined;
++  try {
++    await donor.reset(); const snapshot=donor.serializeBattle();
++    LocalBattleEnv.prototype.resetWithOptions=function(opts) { return this.resetFromSerialized(structuredClone(snapshot),opts); };
++    session=await PipelineIntegrationSession.create(options);
++    for(const p of ['p1','p2'] as const) assert.throws(()=>session!.getOriginalOwnerHolding(p),/inactive/);
++    await session.step();
++    for(const p of ['p1','p2'] as const) assert.throws(()=>session!.getOriginalOwnerHolding(p),/inactive/);
++    await session.close(); assert.throws(()=>session!.getOriginalOwnerHolding('p1'),/inactive/);
++    LocalBattleEnv.prototype.resetWithOptions=function(opts) { return this.resetFromSerialized({ended:true},opts); };
++    await assert.rejects(PipelineIntegrationSession.create(options));
++  } finally { LocalBattleEnv.prototype.resetWithOptions=reset; await session?.close(); await donor.close(); }
++});
++
++test('literal presence and roster/move order survive the actual creation route', async () => {
++  const input = [
++    [{ ...literal(), moves:['Splash','Rest'], extra:{ value:undefined } }, { ...literal(), name:'Bench', ability:'Thick Fat' }],
++    [{ ...literal(), nature:undefined, gender:'', happiness:255, pokeball:'', extra:{ value:undefined } },
++      { ...literal(), name:'Bench', nature:'', ivs:{ ...literal().ivs,hp:0 } }],
++  ];
++  const expected=structuredClone(input), generate=Teams.generate, pack=Teams.pack;
++  const packed: string[]=[]; let calls=0;
++  Teams.generate=function() { return input[calls++] as any; };
++  Teams.pack=function(team) { const value=pack.call(this,team); packed.push(value); return value; };
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    s=await PipelineIntegrationSession.create(options);
++    for(const [i,p] of (['p1','p2'] as const).entries()) {
++      const evidence=own(s,p); assert.deepEqual(evidence.raw_team,expected[i]); assert.equal(evidence.packed_team,packed[i]);
++      assert.deepEqual(evidence.raw_team.map((set:any)=>set.name),['Same','Bench']);
++      assert.ok(Object.hasOwn((evidence.raw_team[0] as any).extra,'value'));
++      assert.deepEqual(evidence.non_submitted_fields[0],{generator_metadata:['role'],unsupported:['extra']});
++      input[i].reverse(); input[i][0].moves.push('Tackle'); input[i][0].evs.hp=252;
++      assert.deepEqual(evidence.raw_team,expected[i]);
++    }
++    assert.equal(own(s,'p1').field_presence[0].nature,'omitted');
++    assert.equal(own(s,'p2').field_presence[0].nature,'undefined');
++    assert.equal((own(s,'p2').raw_team[1] as any).ivs.hp,0);
++  } finally { Teams.generate=generate; Teams.pack=pack; await s?.close(); }
++});
++
++test('duplicate nicknames stage intact but existing boundary rejection cannot activate originals', async () => {
++  const generate=Teams.generate, activate=OriginalOwnerCreation.prototype.activate, reset=LocalBattleEnv.prototype.resetWithOptions;
++  const expected=[literal(),{...literal(),ability:'Thick Fat'}]; let env:LocalBattleEnv|undefined, activated=0;
++  Teams.generate=function() { return structuredClone(expected) as any; };
++  OriginalOwnerCreation.prototype.activate=function() { activated++; return activate.call(this); };
++  LocalBattleEnv.prototype.resetWithOptions=async function(...args) {
++    env=this; const result=await reset.apply(this,args);
++    assert.deepEqual(this.inspectStagedOriginalOwner('p1').raw_team,expected);
++    assert.deepEqual(this.inspectStagedOriginalOwner('p2').raw_team,expected); return result;
++  };
++  try {
++    await assert.rejects(PipelineIntegrationSession.create(options), /Public health evidence mismatch: p1: Same requires exactly one self_team row/);
++    assert.equal(activated,0); assert.throws(()=>env!.inspectStagedOriginalOwner('p1'),/not-staged/);
++  } finally {Teams.generate=generate; OriginalOwnerCreation.prototype.activate=activate; LocalBattleEnv.prototype.resetWithOptions=reset;}
++});
++
++test('actual native session captures both six-member teams before payload; packing input is detached', async () => {
++  const generate = Teams.generate, pack = Teams.pack, reset = LocalBattleEnv.prototype.resetWithOptions;
++  const write = BattleStream.prototype.write;
++  let env: LocalBattleEnv | undefined, writes = 0; const raw: any[][] = [], generated: any[][] = [], packed: string[] = [], packing: any[][] = [];
++  Teams.generate = function(...args) { const team = generate.apply(this,args); raw.push(structuredClone(team)); generated.push(team); return team; };
++  Teams.pack = function(team) { packing.push(team!); const bytes = pack.call(this,team); packed.push(bytes); return bytes; };
++  LocalBattleEnv.prototype.resetWithOptions = async function(...args) { env = this; return reset.apply(this,args); };
++  BattleStream.prototype.write = function(input: any) {
++    if (typeof input === 'string' && input.startsWith('>start')) {
++      writes++;
++      for (const [i,p] of (['p1','p2'] as const).entries()) {
++        const d = env!.inspectStagedOriginalOwner(p); assert.deepEqual(d.raw_team,raw[i]); assert.equal(d.raw_team.length,6);
++        assert.equal(d.packed_team,packed[i]); assert.equal(JSON.parse(input.split('\n')[i+1].slice(11)).team,d.packed_team);
++        assert.notEqual(d.raw_team,packing[i]); assert.notEqual(d.raw_team[0],packing[i][0]);
++        (packing[i][0] as any).moves.push('test-only-after-pack');
++        generated[i].reverse(); generated[i][0].moves.push('generated-after-pack'); generated[i][0].evs.hp=0; generated[i][0].ivs.hp=0;
++        assert.deepEqual(d.raw_team,raw[i]);
++      }
++    }
++    return write.call(this,input);
++  };
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create(options); assert.equal(writes,1);
++    for (const [i,p] of (['p1','p2'] as const).entries()) {
++      assert.deepEqual(own(s,p).raw_team,raw[i]); assert.equal(own(s,p).packed_team,packed[i]);
++      assert.ok(raw[i].every(set => Object.hasOwn(set,'role') && !Object.hasOwn(set,'nature')));
++      assert.equal(own(s,p).creation_cursor,0); assert.equal(own(s,p).creation_sequence,0);
++    }
++    assert.throws(() => env!.inspectStagedOriginalOwner('p1'), /not-staged/);
++    await assert.rejects(env!.reset(), /duplicate-or-foreign/);
++    await assert.rejects(env!.resetFromSerialized(env!.serializeBattle()), /restore-forbidden/);
++  } finally { Teams.generate=generate; Teams.pack=pack; LocalBattleEnv.prototype.resetWithOptions=reset; BattleStream.prototype.write=write; await s?.close(); }
++});
++
++for (const owner of ['p1','p2'] as const) {
++  test(`synthetic initial effects retain pre-effect originals through actual session provider for ${owner}`, async () => {
++    const cases = [
++      { label:'Trace', text:'Alakazam\nAbility: Trace\n- Splash', species:'Alakazam', current:'Alakazam', ability:'naturalcure', originalAbility:'Trace', originalMove:'Splash', move:'splash' },
++      { label:'Imposter', text:'Ditto\nAbility: Imposter\n- Transform', species:'Ditto', current:'Blissey', ability:'naturalcure', originalAbility:'Imposter', originalMove:'Transform', move:'softboiled' },
++      { label:'Schooling', text:'Wishiwashi\nAbility: Schooling\nLevel: 100\n- Splash', species:'Wishiwashi', current:'Wishiwashi-School', ability:'schooling', originalAbility:'Schooling', originalMove:'Splash', move:'splash' },
++      { label:'Crowned', text:'Zacian @ Rusted Sword\nAbility: Intrepid Sword\n- Iron Head', species:'Zacian', current:'Zacian-Crowned', ability:'intrepidsword', originalAbility:'Intrepid Sword', originalMove:'Iron Head', move:'behemothblade' },
++    ];
++    for (const c of cases) {
++      const generate = Teams.generate; let calls = 0;
++      Teams.generate = function() { const p = calls++ === 0 ? 'p1':'p2'; return Teams.import(p===owner ? c.text : 'Blissey\nAbility: Natural Cure\n- Soft-Boiled')!; };
++      let s: PipelineIntegrationSession | undefined;
++      try {
++        s = await PipelineIntegrationSession.create({...options,battle_id:`prompt23-${owner}-${c.label}`});
++        const original = own(s,owner).raw_team[0] as any;
++        assert.equal(original.species,c.species); assert.equal(original.ability,c.originalAbility); assert.deepEqual(original.moves,[c.originalMove]);
++        const env = (s as any).environment as LocalBattleEnv, battle = (env as any).battleStream.battle;
++        assert.equal(battle[owner].active[0].species.name,c.current); assert.equal(battle[owner].active[0].ability,c.ability);
++        assert.equal(battle[owner].activeRequest.active[0].moves[0].id,c.move);
++        if (c.label==='Crowned') assert.deepEqual(battle[owner].active[0].baseMoves,['behemothblade']);
++        const other = owner==='p1' ? 'p2':'p1'; assert.equal((own(s,other).raw_team[0] as any).species,'Blissey');
++      } finally { Teams.generate=generate; await s?.close(); }
++    }
++  });
++}
++
++test('session isolation, successful replacement, rejection, bare restore, synchronous close revocation', async () => {
++  const s = await PipelineIntegrationSession.create(options), twin = await PipelineIntegrationSession.create(options);
++  const handle = s.getOriginalOwnerHolding('p1'), original = own(s,'p1'), env = (s as any).environment as LocalBattleEnv;
++  const diagnostic = LocalBattleEnv.prototype.diagnostics, close = LocalBattleEnv.prototype.close;
++  const restored = new LocalBattleEnv('bare',options.format,options.seed);
++  try {
++    assert.throws(() => twin.readOriginalOwnerHolding(handle,'p1'), /foreign-or-forged/);
++    assert.throws(() => s.readOriginalOwnerHolding(handle,'p2'), /foreign-or-forged/);
++    const serialized = env.serializeBattle(); await restored.resetFromSerialized(serialized);
++    assert.throws(() => restored.inspectStagedOriginalOwner('p1'), /no-creation/);
++    LocalBattleEnv.prototype.diagnostics = function() { const d = diagnostic.call(this) as any;
++      return this.id.includes('pipeline-step-') ? {...d,players:{...d.players,p1:{...d.players.p1,last_choice_error:{message:'synthetic rejection'}}}} : d; };
++    await assert.rejects(s.step(), /rejected-action/); assert.equal(own(s,'p1'),original);
++    LocalBattleEnv.prototype.diagnostics = diagnostic;
++    const next = await s.step(); assert.equal(next.boundary.step_index,1); assert.notEqual((s as any).environment,env);
++    assert.equal(own(s,'p1'),original); assert.equal(s.getOriginalOwnerHolding('p1'),handle);
++    const wire = JSON.stringify({snapshot:serialized,boundary:s.boundary,next,diagnostics:env.diagnostics()});
++    assert.ok(!wire.includes('raw_team') && !wire.includes('packed_team') && !wire.includes('field_presence'));
++    LocalBattleEnv.prototype.close = async function() { assert.throws(() => s.readOriginalOwnerHolding(handle,'p1'), /foreign-or-forged/);
++      await close.call(this); throw new Error('synthetic cleanup failure'); };
++    await assert.rejects(s.close(), /cleanup failure/); assert.throws(() => s.getOriginalOwnerHolding('p1'), /inactive/);
++    assert.ok(Object.isFrozen(original.raw_team)); assert.equal(twin.readOriginalOwnerHolding(twin.getOriginalOwnerHolding('p1'),'p1').owner,'p1');
++  } finally { LocalBattleEnv.prototype.diagnostics=diagnostic; LocalBattleEnv.prototype.close=close; await s.close(); await twin.close(); await restored.close(); }
++});
++
++for (const phase of ['generation','packing','missing-p1','missing-p2','submission','settling','boundary','cleanup'] as const) {
++  test(`actual creation ${phase} failure leaves no usable issuance`, async () => {
++    const generate=Teams.generate, pack=Teams.pack, write=BattleStream.prototype.write;
++    const proto=PipelineIntegrationSession.prototype as any, boundary=proto.buildInitialBoundary;
++    const activate=OriginalOwnerCreation.prototype.activate, revoke=OriginalOwnerCreation.prototype.revoke;
++    const close=LocalBattleEnv.prototype.close;
++    let calls=0, activated=0; const controllers=new Set<OriginalOwnerCreation>(); let escaped: PipelineIntegrationSession | undefined;
++    OriginalOwnerCreation.prototype.activate=function() { activated++; return activate.call(this); };
++    OriginalOwnerCreation.prototype.revoke=function() { controllers.add(this); return revoke.call(this); };
++    if(phase==='generation') Teams.generate=function(...args) { if(++calls===2) throw new Error('synthetic generation failure'); return generate.apply(this,args); };
++    if(phase==='missing-p1'||phase==='missing-p2') Teams.generate=function(...args) { return ++calls===(phase==='missing-p1'?1:2) ? [] : generate.apply(this,args); };
++    if(phase==='packing') Teams.pack=function(raw) { if(++calls===2) throw new Error('synthetic packing failure'); return pack.call(this,raw); };
++    if(phase==='submission') BattleStream.prototype.write=function(input:any) { if(typeof input==='string' && input.startsWith('>start')) throw new Error('synthetic submission failure'); return write.call(this,input); };
++    if(phase==='boundary'||phase==='cleanup') proto.buildInitialBoundary=function() { escaped=this; assert.throws(()=>this.getOriginalOwnerHolding('p1'),/inactive/); throw new Error('synthetic boundary failure'); };
++    if(phase==='cleanup') LocalBattleEnv.prototype.close=async function() { await close.call(this); throw new Error('synthetic cleanup failure'); };
++    try {
++      await assert.rejects(PipelineIntegrationSession.create({...options,settling:phase==='settling'?{max_messages:1}:undefined}), /synthetic|settling|invalid-team/);
++      assert.equal(activated,0); assert.ok(controllers.size>0);
++      for(const c of controllers) { assert.throws(()=>c.holding('p1'),/inactive/); assert.throws(()=>c.holding('p2'),/inactive/); }
++      if(escaped) assert.throws(()=>escaped!.getOriginalOwnerHolding('p1'),/inactive/);
++    } finally { Teams.generate=generate; Teams.pack=pack; BattleStream.prototype.write=write; proto.buildInitialBoundary=boundary;
++      OriginalOwnerCreation.prototype.activate=activate; OriginalOwnerCreation.prototype.revoke=revoke; LocalBattleEnv.prototype.close=close; }
++  });
++}
+diff --git a/docs/planning/perspective-fidelity-prompt23-api.md b/docs/planning/perspective-fidelity-prompt23-api.md
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-api.md
+@@ -0,0 +1,19 @@
++# Prompt23 private original-owner API and lifetime
++
++Local candidate for lead review; no registry, knowledge, delivery, publication or completeness adoption.
++
++`PipelineIntegrationSession.getOriginalOwnerHolding(owner)` returns an opaque frozen process-local reference. `readOriginalOwnerHolding(handle, owner, packed?)` checks that exact session's addressed reference and optional exact packed-string association, then returns recursively frozen private evidence. Public labels cannot mint or transport authority. Privileged session access is outside all result/view/snapshot/bundle APIs. Holding or copying a diagnostic row does not grant a handle. An owner row contains no other-owner manager, seed, or audit capability.
++
++Evidence keys: owner; labels {battle_id, format, simulator_revision}; raw_team; packed_team; creation_sequence:0; creation_cursor:0; field_presence; non_submitted_fields. The raw array preserves original order, move order, own keys, own undefined, non-enumerable data, nested fields, zeros and empty values. Retention and packing use separate detached copies. No JSON/unpack/default/normalization/stat calculation is used. Raw values must be primitive values or plain/null-prototype data objects/arrays; functions, accessors and non-data object prototypes fail closed rather than being silently dropped. The genuine pinned generator produces supported plain data.
++
++The reviewed packer inventory is name, species, item, ability, moves, nature, evs, gender, ivs, shiny, level, happiness, hpType, pokeball, gigantamax, dynamaxLevel, teraType. Each top-level field is recorded as present, undefined or omitted. Nested presence survives in raw_team. role is classified only as private non-submitted generator metadata. Other own keys remain in raw_team and are classified unsupported for future adoption. No category grants original fact/wire eligibility.
++
++Internal `OriginalOwnerCreation` is a trusted producer controller, held in ECMAScript-private session/env fields. bind/begin are exact-reference and one-shot; capture runs immediately after each actual Teams.generate and before packing a separate copy; associate records the precise string used by that owner's player payload. Both evidence rows must exist before staged diagnostics are available or payload is written. `LocalBattleEnv.inspectStagedOriginalOwner(owner)` is privileged diagnostic-only pre-write access: it yields no authorizing reference.
++
++State transitions: new -> capturing -> staged -> active -> invalid. Session activation occurs immediately after successful settling, snapshot and initial boundary construction. Any generation/packing/submission/settling/boundary failure revokes all staged holdings. Close revokes synchronously before async cleanup. Environment retirement is an active no-op for authority; originals remain session-held through accepted and rejected candidates. Snapshot restores/candidates gain no original, current-carrier or request-delivery authority.
++
++Legacy compatibility: only the exact bound environment in new may abandon enrollment for the existing unstarted serialized-restore path. It clears all retained state and enters terminal restored_without_originals. Boundary success returns the legacy session with no holdings, never authority. activate returns false only in that explicit state; partial native staging, invalid, active or unstarted states cannot bypass staging. Native capture/staging/active/invalid restore attempts reject. Standalone environments retain their old reset/restore behavior and no session-original authority. No new restore/fork API is introduced.
++
++Errors are ordinary Error with original-owner/v1/ prefix: invalid-owner, unsupported-raw-value/object/accessor, duplicate-enrollment, duplicate-or-foreign-creation, invalid-capture, invalid-team, invalid-association, invalid-packed-team, not-staged, creation-restore-forbidden, inactive, foreign-or-forged-holding, packed-association-mismatch, no-creation. All owner handles become unusable after close/failure; previously obtained frozen diagnostics remain data only. Cleanup failure does not retain authority and preserves existing cleanup error behavior.
++
++The trust boundary is reference possession within trusted production code, not a security sandbox against arbitrary in-process monkeypatching. Test-created controllers cannot impersonate a real session's private controller. SourceRegistryBuilder remains original_provider:not_adopted. Sequence/cursor zero is creation provenance only; no delivery ledger, identity crosswalk, carrier, Python bridge or future/opponent evidence is implied.
+diff --git a/docs/planning/perspective-fidelity-prompt23-matrix.md b/docs/planning/perspective-fidelity-prompt23-matrix.md
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-matrix.md
+@@ -0,0 +1,24 @@
++# Prompt23 proof matrix
++
++| Boundary | Independent oracle/control | Result |
++|---|---|---|
++| Real pre-edit session | holder API absent assertion | preserved red exit1 |
++| Actual native session -> env -> generate -> copy -> pack -> payload | pre-write both raw arrays length6; raw/order deep equality; literal payload JSON strings; independent mutable generated and packing copies | green |
++| Raw presence | literal omitted nature/happiness/ball; own undefined nature/hidden/nested; empty item/gender; EV0/IV0; seventeen literal keys | green |
++| Equal packing distinct raw | Same\|Snorlax\|\|Immunity\|Splash\|\|\|\|\|\|\|; omission vs own undefined/default-empty | green; no reconstructed defaults |
++| Role/unknown | literal raw role plus nested extra; classified metadata/unsupported | green; no fact eligibility |
++| Both-owner Trace | Alakazam/Trace/Splash retained; current ability naturalcure, request splash | green twice, synthetic actual provider wiring |
++| Both-owner Imposter | Ditto/Imposter/Transform retained; current Blissey/naturalcure, request softboiled | green twice |
++| Both-owner Schooling | Wishiwashi/Schooling/Splash retained; current Wishiwashi-School | green twice |
++| Both-owner Crowned | Zacian/Rusted Sword/Iron Head retained; current Zacian-Crowned, base/request behemothblade | green twice |
++| Authority | plain/copy/JSON/structuredClone/foreign session or owner, identical labels, swapped expected packed string | all reject |
++| Issuance | duplicate enrollment/activate/begin; native reset/restore reuse; missing p1 or p2 | reject without partial authority |
++| Lifetime | accepted step retires initial env; rejected candidate preserves holding; bare restore exposes none; cleanup throws after synchronous revocation | green |
++| Creation failures | second generation/packing, missing owner, submission, settling message-limit, boundary and cleanup faults | no usable issuance |
++| Legacy fixture restore | exact unstarted enrollment abandoned; neither owner holding through step/close; invalid snapshot fails | green, no mint |
++| Duplicate names | raw two Same/Snorlax rows retained/staged; existing health validator says requires exactly one self_team row | preserved fail-closed; no activation |
++| Wire preservation | pre-task/post-task fixed clock v1/v2 StepResult, snapshots, boundaries, transition and bundles | byte equality including IDs |
++| Prior gates | source21, restore15, history6, adapter8, HTML loader8, characterization5 | fresh passes |
++| Broader requirements | separate TS requirement mode1 failure, Python2 failures | preserved red exit1 each |
++
++All mock/literal controllers are independent examples; actual production-route tests establish retention only. No current carrier/request source binding or registry eligibility follows.
+diff --git a/docs/planning/perspective-fidelity-prompt23-review.md b/docs/planning/perspective-fidelity-prompt23-review.md
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-review.md
+@@ -0,0 +1,9 @@
++# Prompt23 independent review
++
++Source/oracle: celebi, requested gpt-6.1-sol/high, read-only. Inspected pinned generation/packing/initial mutation and actual env/session seams. Confirmed seventeen submitted fields, private role, pre-request Trace/Imposter/Schooling/Crowned mutation, initial environment retirement, synchronous session revocation need and exact regression targets. Initial literal casing oracle was corrected against pinned Teams.packName (sim/teams.ts:343-347), which explicitly preserves case. No source reviewer writes or descendant delegation.
++
++Candidate: fresh sandshrew, requested gpt-6.1-sol/high, read-only. Reviewed provider and owned env/session changes against saved pre-task sources, tests and required plan. No scoped runtime blocker. Actual session controller is #private, reads check held owner references, staging precedes submission, activation follows boundary, retirement does not revoke active holdings, and close/failure revoke before cleanup.
++
++Regression finding and resolution: existing protected tests bypass native initial reset using serialized restore. Initial guard broke their old behavior. Reviewer approved only exact bound/new-state abandonment, permanently unauthoritative, with no inactive blanket fallback. Capturing/staged/active/invalid restore remains forbidden. New controls prove legacy restore has neither holding through step/close and invalid restore fails; genuine native creation still requires two staged owners. Final reviewer disposition: scoped candidate passes, no blocking findings. Build19/19 was parent-reported; reviewer did not run shared-global suites. Parent owns final fresh regression/wire/hash gates.
++
++Remaining limits: no source/adoption/completeness acceptance. Duplicate nickname health-boundary admission remains the prior unsupported case; retain raw duplicate diagnostics but mint no authority on rejected boundary. Three broader replay requirement failures remain separate red evidence. No model other than Sol6.1 requested; effective runtime model settings not exposed.
+diff --git a/docs/planning/perspective-fidelity-prompt23-report.md b/docs/planning/perspective-fidelity-prompt23-report.md
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-report.md
+@@ -0,0 +1,31 @@
++# Prompt23 local candidate — S02a retention
++
++Scope: private pre-effect owner originals only; return for lead review. main/HEAD accab655c26ada18124e790b16d5770c8bd17894 is unchanged. Existing dirty work was the baseline. No commits, staging, publication, datasets/training, attestations or later tasks.
++
++Files: new original_owner_provider.ts and original_owner_provider.test.ts; narrow env_manager.ts and pipeline_integration.ts wiring; task evidence. Saved pre-task source copies define the candidate-relative diff; prior local source changes are excluded. API/lifetime details are in prompt23-api.md; proof controls in prompt23-matrix.md. Source registry remains original_provider:not_adopted.
++
++The session owns an ECMAScript-private creation controller and owner-specific opaque handles. Complete detached raw teams are frozen immediately after each generate and before packing another mutable copy. Both holdings stage before submission and bind the exact submitted owner strings. Activation follows settled initial boundary construction. Failure/close revokes synchronously, including cleanup failures; successful environment retirement and rejected candidates preserve session originals. No raw presence/default reconstruction or fact eligibility is adopted.
++
++Legacy test compatibility required one correction: an exact unstarted enrolled environment can permanently abandon original issuance for its existing serialized restore. Neither owner gets a holding through step/close. Native partial/staged/active/invalid paths cannot take that exception. Two initial regression failures are preserved in first-run logs; protected tests were not edited. Duplicate-nickname originals stage intact, but the unchanged health validator rejects the initial boundary ('p1: Same requires exactly one self_team row'); no authority activates. This is recorded, not repaired.
++
++Validation environment: D:/Anaconda/envs/neuralgpu/python.exe; absolute trainer/src PYTHONPATH and Node PYTHON selection; PYTHONUTF8, PYTHONIOENCODING and historical report variables unset. Commands.json records exact argv/cwd/counts/exits; validate.py reproduces final batch. Node files run separately; no full Node suite or 1,000-turn witness.
++
++| Command group (node --test sim-core/dist/tests/NAME.test.js) | Pass/count | Exit |
++|---|---:|---:|
++| original_owner_provider |19/19|0|
++| env_manager; pipeline_integration; settling |17/17;10/10;18/18|0 each|
++| pipeline_episode_stop_repair; focused pipeline_episode cleanup |3/3;4/4|0 each|
++| perspective_knowledge_source; active_request_restore |21/21;15/15|0 each|
++| public_move_history; replay_import; original_owner_provider_characterization |6/6;8/8;10/10|0 each|
++| perspective_replay_characterization |3/3|0|
++| Python unittest loader; Python characterization |8/8;2/2|0 each|
++
++Total144 focused passes. Build command from sim-core: node node_modules/typescript/bin/tsc -p tsconfig.json, exit0. git diff --check, exit0. Separate requirement-mode TS remains2/3 (one failure), Python0/2 (two failures), exit1 each; unchanged broader failures remain visible.
++
++Pre-edit real session holder assertion failed exit1 ('undefined' versus 'function'), preserved red.log. New actual native pre-write checks retain both six-member teams, original roster/move order and actual player payload strings. Literal controls prove own undefined/omission, nested undefined, zero/empty fields, private role/unknown fields and equal packing with different raw evidence; mutation tests cover generated/packing arrays, moves, EVs/IVs and recursive freeze. Both-owner synthetic Trace, Imposter, Schooling and Crowned cases retain pre-effect inputs while native first requests/base fields change. Forge/copy/transport/foreign owner/occurrence, packed-swap and duplicate/missing-owner controls reject.
++
++node docs/planning/perspective-fidelity-prompt23-wire.cjs check exits0: pre-task/post-task fixed-clock v1/v2 StepResult, snapshot, boundary, transition and bundle bytes/IDs equal. Final preservation:1,507 protected files unchanged; config unchanged;21 pinned dependencies match preserved Prompt22 hashes. Compiler101 ->103:99 unchanged, exactly env_manager.js/pipeline_integration.js changed and provider.js/provider.test.js added; no deletions/out-of-scope outputs. Full before/after hashes in preservation.json; candidate hashes and evidence inventory separately recorded.
++
++Independent read-only celebi source/oracle and fresh sandshrew candidate review used requested Sol6.1/high, no Astra. Final disposition: no scoped blocker; strict restore exception reviewed with regression controls. Parent owns all writes and local validation.
++
++Remaining dependencies: S01c delivery ledger, causal identity crosswalk/carrier proofs, registry/provider adoption, trusted Python bridge and knowledge/publication layers remain unimplemented. Raw generator data support is explicitly bounded to primitives/plain data/arrays; unsupported object/accessor/function inputs reject. Retention does not establish current selectability, carrier identity, perspective completeness or source-authority adoption. Expected source-provenance drift is recorded without changing attestations or faithful_complete_episode. Stop for lead decision; Prompt24 not begun.
+diff --git a/docs/planning/perspective-fidelity-prompt23-progress.md b/docs/planning/perspective-fidelity-prompt23-progress.md
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-progress.md
+@@ -0,0 +1,11 @@
++# Prompt23 progress
++
++Pre-edit baseline recorded; sole writer owns provider/env/session/new tests. Read-only source review completed. No authority adoption. Required real-path red precedes edits.
++
++Provider and narrow env/session wiring implemented. Real pre-edit red is preserved. Initial candidate13 tests:12 pass/1 independent literal packer casing failure; corrected against actual packName source (preserves case). Pre/post v1/v2 wire comparison passes. Fresh independent sandshrew review underway; source oracle celebi completed. Protected baseline1,509 existing files,101 compiler outputs. No historical report regeneration.
++
++Additional production literal control revealed existing duplicate-nickname boundary failure: public health requires exactly one self_team row. Preserve exact failure; assert staged raw duplicates unchanged and no activation, plus distinct-name positive literal/order control. No validator repair authorized. Regression batch running with overrides/report vars unset.
++
++Strict unstarted restore abandonment implemented following independent reviewer guidance; explicit terminal no-authority state only, native partial staging still fails. New19/19 pass, build passes. Final batch underway, independent final candidate review has no blocker. API/matrix/review artifacts saved. Waiting for fresh regressions, preservation inventories and candidate-relative diff; no later work.
++
++Final validation runner exit0:144 focused tests pass, separate requirement modes retain1 TS/2 Python failures with expected exit1. v1/v2 full selected wire bytes/IDs identical.1,507 protected files/config unchanged;21 pinned dependency hashes match accepted Prompt22;99/101 original compiler files unchanged and exactly4 owned consequences (2 changes/2 additions). Independent review no blocker. Completing diff/inventory, then stop for lead review.
+diff --git a/docs/planning/perspective-fidelity-prompt23-validate.py b/docs/planning/perspective-fidelity-prompt23-validate.py
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-validate.py
+@@ -0,0 +1,19 @@
++import os,sys,pathlib,subprocess,json,re
++root=pathlib.Path(__file__).resolve().parents[2]; out=root/'docs/planning'; stem='perspective-fidelity-prompt23-'; env=dict(os.environ)
++for k in list(env):
++ if k in ('PYTHONUTF8','PYTHONIOENCODING','PERSPECTIVE_REPLAY_REQUIREMENTS') or 'REPORT' in k or k.startswith('PROMPT'):env.pop(k,None)
++env['PYTHON']=r'D:\Anaconda\envs\neuralgpu\python.exe';env['PYTHONPATH']=str(root/'trainer/src')
++rows=[]
++def run(name,args,cwd=root,expected=0,changes=None):
++ e=dict(env);e.update(changes or {});p=subprocess.run(args,cwd=cwd,env=e,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); data=p.stdout.decode('utf-8',errors='replace'); (out/(stem+name+'.log')).write_text(data,encoding='utf-8'); row={'name':name,'cwd':str(cwd),'command':args,'exit':p.returncode,'expected_exit':expected,'counts':re.findall(r'(?:tests|pass|fail|skipped) \d+|Ran \d+ tests?',data)}; rows.append(row); print(json.dumps(row),flush=True);(out/(stem+'commands.json')).write_text(json.dumps({'environment':{'PYTHON':env['PYTHON'],'PYTHONPATH':env['PYTHONPATH'],'unset':['PYTHONUTF8','PYTHONIOENCODING','historical REPORT/PROMPT variables']},'commands':rows},indent=2)+'\n',encoding='utf-8');return p.returncode
++if run('build',['node','node_modules/typescript/bin/tsc','-p','tsconfig.json'],root/'sim-core')!=0:sys.exit(1)
++for name in ['original_owner_provider','env_manager','pipeline_integration','settling','pipeline_episode_stop_repair','perspective_knowledge_source','active_request_restore','public_move_history','replay_import','original_owner_provider_characterization','perspective_replay_characterization']:
++ run(name,['node','--test',f'sim-core/dist/tests/{name}.test.js'])
++run('episode-cleanup',['node','--test','--test-name-pattern=initialization failure|invalid budgets/policy|invalid continuation|cleanup preserves','sim-core/dist/tests/pipeline_episode.test.js'])
++run('loader',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_local_replay_html_transport.py','-v'])
++run('python-characterization',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'])
++run('ts-requirements',['node','--test','sim-core/dist/tests/perspective_replay_characterization.test.js'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('python-requirements',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('wire',['node','docs/planning/perspective-fidelity-prompt23-wire.cjs','check'])
++run('diff-check',['git','diff','--check'])
++sys.exit(any(r['exit']!=r['expected_exit'] for r in rows))
+diff --git a/docs/planning/perspective-fidelity-prompt23-wire.cjs b/docs/planning/perspective-fidelity-prompt23-wire.cjs
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt23-wire.cjs
+@@ -0,0 +1,3 @@
++const fs=require('node:fs'); const {PipelineIntegrationSession:S}=require('../../sim-core/dist/src/pipeline_integration'); const {LocalBattleEnv:E}=require('../../sim-core/dist/src/env_manager'); Date.now=()=>1700000000000;
++(async()=>{let rows=[];for(const schema of ['observable-battle-state/v1','observable-battle-state/v2']) {const results=[];const reset=E.prototype.resetWithOptions;E.prototype.resetWithOptions=async function(...args){const r=await reset.apply(this,args);results.push(r);return r;};let s;try{s=await S.create({battle_id:'prompt23-preservation',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:schema});const initial=s.boundary;const snapshot=s.environment.captureSeededSnapshot(null);const next=await s.step();rows.push({schema,results,initial,snapshot,next});}finally{E.prototype.resetWithOptions=reset;if(s)await s.close();}} const bytes=JSON.stringify(rows);if(process.argv[2]==='check'){require('node:assert/strict').equal(bytes,fs.readFileSync(__dirname+'/perspective-fidelity-prompt23-wire-before.json','utf8'));console.log('v1/v2 StepResult, boundary, snapshot, transition, bundles bytes identical');}else fs.writeFileSync(__dirname+'/perspective-fidelity-prompt23-wire-before.json',bytes);})().catch(e=>{console.error(e);process.exitCode=1});
++

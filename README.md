@@ -1108,6 +1108,16 @@ source digest differs from the separately reviewed digest. See the existing
 closure audit for exact matrices, source profiles, hashes, and remaining gates.
 
 
+The `neural.pipeline_record` JSON bridge reads process-pipe bytes directly and
+writes UTF-8 publication and diagnostic bytes, preserving accented Pokémon names
+and content identities on Windows without `PYTHONUTF8` or `PYTHONIOENCODING`.
+Embedded `main()` calls retain text-stream support, including `StringIO`.
+Inline Python bridge consumers use `neural.pipeline_json_wire.load_json(sys.stdin)`
+to read the same wire format. Node subprocesses honor the `PYTHON` interpreter
+override. After building, run the focused transport checks with
+`node --test --test-isolation=none --test-reporter=spec sim-core/dist/tests/pipeline_utf8_transport.test.js`;
+these checks clear encoding overrides only in their child environments.
+
 For routine episode checks, use the focused npm command. It builds, reports live results, and explicitly skips the 1,000-commit fixture:
 
 ```bash

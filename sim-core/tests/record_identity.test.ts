@@ -103,7 +103,7 @@ test('Python identity canonicalization matches TypeScript JSON scalar and UTF-16
   let n = 123456789;
   for (let i = 0; i < 1000; i++) { n = (Math.imul(n, 1664525) + 1013904223) >>> 0; numbers.push((n / 0xffffffff) * 10 ** ((i % 600) - 300)); }
   const fixtures: any[] = [{ '\ue000': 1, '\u{10000}': 2, '2': 3, '10': 4 }, { text: 'é e\u0301 😀 \ud800 \udfff\n\t' }, {}, { optional: null }, ...numbers];
-  const p = python(fixtures, 'import json,sys\nfrom neural.ts_identity import canonical,digest\nx=json.load(sys.stdin)\nprint(json.dumps([[canonical(v),digest(v)] for v in x],ensure_ascii=True))');
+  const p = python(fixtures, 'import json,sys\nfrom neural.ts_identity import canonical,digest\nfrom neural.pipeline_json_wire import load_json\nx=load_json(sys.stdin)\nprint(json.dumps([[canonical(v),digest(v)] for v in x],ensure_ascii=True))');
   assert.equal(p.status, 0, p.stderr); assert.deepEqual(JSON.parse(p.stdout), fixtures.map(v => [canonical(v), hash(v)]));
   assert.notEqual(hash({}), hash({ optional: null }));
 });

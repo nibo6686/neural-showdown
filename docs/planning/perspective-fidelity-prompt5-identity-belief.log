@@ -1,0 +1,63 @@
+✔ belief fixture has deterministic ordered candidates, serialization, and identity (12.6945ms)
+✔ ordered history hashing preserves canonical Unicode identities and rejects rehashed prefix lies (5.3385ms)
+✔ belief snapshots clone and freeze nested inputs and later snapshots preserve their parent (3.0205ms)
+✔ future, stale, mismatched, and cross-perspective evidence is rejected (4.7692ms)
+✔ derived evidence requires existing evidence and imported parents are fully revalidated (2.229ms)
+✔ raw request payloads and incomplete observable snapshots cannot enter belief lineage (1.5116ms)
+✔ contradictory evidence remains explicit and missing evidence leaves candidates possible (3.3176ms)
+✔ transition lineage joins the parent observation, output observation, branch, and revision (5.8534ms)
+✔ simulator-only truth is separately scoped and never enters an observable projection (1.159ms)
+✔ unsupported belief and observation schemas fail closed (0.4464ms)
+✔ observable-battle-state/v1 Python verifies current, successor and nested identities before publication (6384.1432ms)
+✔ observable-battle-state/v2 Python verifies current, successor and nested identities before publication (5385.329ms)
+✖ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (91.5917ms)
+✔ observable-battle-state/v1 two-transition historical reference fields reject malformed values at every position (18266.1338ms)
+✔ observable-battle-state/v2 two-transition historical reference fields reject malformed values at every position (17658.5727ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 14
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47996.3829
+
+✖ failing tests:
+
+test at dist\tests\record_identity.test.js:143:25
+✖ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (91.5917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+  +     '{"10":4,"2":3,"î€€":1,"ð\\udc90€€":2}',
+  +     '08a6ac20632d71d4c2f6d75f318c10259e44e3c2fe01c941546f6ccb0e3b65f4'
+  -     '{"10":4,"2":3,"𐀀":2,"":1}',
+  -     'bf4a6658821cf213439fa47fea89ee6ce9b7542db1abec99a1c0a4539d99a94a'
+      ],
+      [
+  +     '{"text":"Ã© eÌ\\udc81 ðŸ˜€ \\ud800 \\udfff\\n\\t"}',
+  +     'e16bfc5b8c9bda2dd91ad212faff6fed96db1e5dc3fe1ade8812da053023bda2'
+  -     '{"text":"é é 😀 \\ud800 \\udfff\\n\\t"}',
+  -     'a64b6b886eb6ac66bcfb29fc282c31c346071d35e3d522f81afcdc4d8138893a'
+      ],
+      [
+        '{}',
+        '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'
+      ],
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\record_identity.test.js:153:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [Array],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

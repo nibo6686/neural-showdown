@@ -1,0 +1,40 @@
+[
+  {
+    "finding": 1,
+    "observed_gap": "prose says all control hex; implementations use short escapes",
+    "contract_has_hex_only": true,
+    "actual_lf_json": "\"\\n\""
+  },
+  {
+    "finding": 2,
+    "observed_gap": "cross-source parent accepted",
+    "sources_differ": true,
+    "rejection": null
+  },
+  {
+    "finding": 3,
+    "observed_gap": "required layer/power properties unrepresentable",
+    "missing_properties": [
+      "side_condition_layers",
+      "pending_power"
+    ]
+  },
+  {
+    "finding": 4,
+    "observed_gap": "field_remaining only interval with null effect key; no target union",
+    "old_types": [
+      "interval"
+    ]
+  },
+  {
+    "finding": 5,
+    "observed_gap": "inert text incorrectly rejects",
+    "projection_rejection": "capability",
+    "inert_hash_rejection": "reference closure"
+  },
+  {
+    "finding": 6,
+    "observed_gap": "family flags cannot expand per-property/context/subject",
+    "has_property_context_manifest": false
+  }
+]

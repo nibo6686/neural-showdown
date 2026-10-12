@@ -1,0 +1,2367 @@
+--- /dev/null
++++ candidate-after/sim-core/src/perspective_knowledge_source.ts
+@@ -0,0 +1,463 @@
++/**
++ * PK-02B-Source: non-publishing source and legacy verification seam.
++ *
++ * A trusted local creation owner builds a registry capability and a legacy
++ * context capability inside this process; `checkKnowledgeSourceBinding` then
++ * joins an already structurally valid audit to them. Capabilities live in
++ * module-private WeakMaps keyed by the capability object, so plain objects,
++ * copies, serialized handles and audit fields cannot stand in for them. This is
++ * a trusted-caller boundary, not authentication against code already controlling
++ * the process. Source presence never certifies fact values: fact semantics,
++ * original attribution, obligation completeness and aggregate completeness stay
++ * unverified/not_established, and nothing here publishes or emits a projection.
++ */
++import { createHash } from 'node:crypto';
++import {
++  canonicalKnowledgeJson, checkKnowledgeStructure, knowledgeIdentity, parseKnowledgeJson,
++} from './perspective_knowledge';
++import { serializeBeliefState, validateObservableBattleState } from './belief_state';
++import { validatePipelineLinkedRecordBundle, type PipelineLinkedRecordBundle } from './pipeline_integration';
++
++type Row = Record<string, any>;
++const LIVE_POLICY = 'simulator-causal/v1';
++const OWNERS = ['p1', 'p2'];
++const ORIGIN_CONSTANTS: Row = { format: 'gen9randombattle', engine: 'pokemon-showdown@0.11.10', rule_version: 'pk-rules/v1' };
++const NATIVE: Record<string, RegExp> = {
++  observation: /^obs-[0-9a-f]{64}$/, belief: /^belief-[0-9a-f]{64}$/, transition: /^transition-[0-9a-f]{64}$/, actor_record: /^datarec-[0-9a-f]{64}$/,
++};
++const REGISTRY_TOKEN = Symbol('registry');
++const LEGACY_TOKEN = Symbol('legacy');
++
++/** Payload-independent failure: `code` is a fixed string, never audit or source content. */
++export class KnowledgeSourceError extends Error {
++  readonly code: string;
++  constructor(code: string) { super(code); this.code = code; }
++}
++function fail(code: string): never { throw new KnowledgeSourceError(code); }
++function need(condition: unknown, code: string): asserts condition { if (!condition) fail(code); }
++function same(a: unknown, b: unknown): boolean { return canonicalKnowledgeJson(a).equals(canonicalKnowledgeJson(b)); }
++function snapshot<T>(value: T, code: string): T {
++  try { return parseKnowledgeJson(canonicalKnowledgeJson(value)) as T; } catch { return fail(code); }
++}
++function deepFreeze<T>(value: T): T {
++  if (value !== null && typeof value === 'object') { for (const item of Object.values(value)) deepFreeze(item); Object.freeze(value); }
++  return value;
++}
++function isPrefix(shorter: readonly string[], longer: readonly string[]): boolean {
++  return shorter.length <= longer.length && shorter.every((line, index) => line === longer[index]);
++}
++
++// ---------------------------------------------------------------- registry
++
++interface RegistryData {
++  origin: Row | null;
++  initialization: Map<string, Row[]>;
++  requests: Map<string, { cursor: number; json: string }>;
++  ledger: string[] | null;
++  replay: string[] | null;
++}
++const registries = new WeakMap<object, RegistryData>();
++
++export interface RegistryAvailability {
++  readonly origin: boolean;
++  /** Test-owned initialization witnesses only. No production original provider is adopted. */
++  readonly initialization_witness_owners: readonly string[];
++  readonly original_provider: 'not_adopted';
++  readonly request_deliveries: number;
++  readonly public_ledger: boolean;
++  readonly replay_source: boolean;
++}
++
++/** Opaque frozen registry capability. Only `SourceRegistryBuilder.freeze` creates one. */
++export class SourceRegistry {
++  readonly availability: RegistryAvailability;
++  constructor(token: symbol, data: RegistryData) {
++    if (token !== REGISTRY_TOKEN) fail('capability/registry');
++    registries.set(this, data);
++    this.availability = deepFreeze({
++      origin: data.origin !== null,
++      initialization_witness_owners: [...data.initialization.keys()].sort(),
++      original_provider: 'not_adopted' as const,
++      request_deliveries: data.requests.size,
++      public_ledger: data.ledger !== null,
++      replay_source: data.replay !== null,
++    });
++    Object.freeze(this);
++  }
++}
++
++function checkedRecords(records: unknown, code: string): string[] {
++  need(Array.isArray(records), code);
++  return snapshot(records as string[], code);
++}
++
++/**
++ * Trusted-owner construction. Every method deep-copies its inputs; the builder
++ * becomes unusable after `freeze`. There is no audit-scanning factory.
++ */
++export class SourceRegistryBuilder {
++  #data: RegistryData | null = { origin: null, initialization: new Map(), requests: new Map(), ledger: null, replay: null };
++
++  #open(): RegistryData { need(this.#data, 'registry/frozen'); return this.#data; }
++
++  setOrigin(origin: Record<string, unknown>): void {
++    const data = this.#open(); need(data.origin === null, 'registry/duplicate');
++    const copy = snapshot(origin, 'registry/origin') as Row;
++    need(Object.keys(copy).sort().join() === 'battle_key,engine,format,rule_version' && typeof copy.battle_key === 'string' && copy.battle_key.length > 0, 'registry/origin');
++    for (const [key, value] of Object.entries(ORIGIN_CONSTANTS)) need(copy[key] === value, 'registry/origin');
++    data.origin = deepFreeze(copy);
++  }
++
++  /** Test-owned initialization witness: never evidence that a production provider exists. */
++  addInitializationWitness(owner: string, team: readonly Row[]): void {
++    const data = this.#open(); need(OWNERS.includes(owner) && !data.initialization.has(owner), 'registry/initialization');
++    const copy = snapshot(team as Row[], 'registry/initialization');
++    need(Array.isArray(copy) && copy.length >= 1 && copy.length <= 6 && copy.every((set, i) => set !== null && typeof set === 'object' && set.slot === i + 1), 'registry/initialization');
++    data.initialization.set(owner, deepFreeze(copy));
++  }
++
++  addRequestDelivery(owner: string, sequence: number, cursor: number, json: string): void {
++    const data = this.#open(); const key = `${owner}:${sequence}`;
++    need(OWNERS.includes(owner) && Number.isInteger(sequence) && sequence >= 0 && Number.isInteger(cursor) && cursor >= 0 && typeof json === 'string' && !data.requests.has(key), 'registry/request');
++    snapshot({ raw_request: { json } }, 'registry/request'); // exact text must obey the raw-request limits
++    data.requests.set(key, { cursor, json });
++  }
++
++  setPublicLedger(records: readonly string[]): void {
++    const data = this.#open(); need(data.ledger === null, 'registry/duplicate');
++    data.ledger = deepFreeze(checkedRecords(records, 'registry/ledger'));
++  }
++
++  /** Explicit owner-selected local replay source evidence; no external loading. */
++  setReplaySource(records: readonly string[]): void {
++    const data = this.#open(); need(data.replay === null, 'registry/duplicate');
++    data.replay = deepFreeze(checkedRecords(records, 'registry/replay'));
++  }
++
++  freeze(): SourceRegistry {
++    const data = this.#open();
++    for (const owner of OWNERS) {
++      const cursors = [...data.requests].filter(([key]) => key.startsWith(owner + ':')).map(([key, v]) => [Number(key.slice(3)), v.cursor]).sort((a, b) => a[0] - b[0]);
++      need(cursors.every(([seq, cursor], i) => seq === i && (i === 0 || cursor >= cursors[i - 1][1]) && (data.ledger === null || cursor <= data.ledger.length)), 'registry/request-order');
++    }
++    this.#data = null; // builder cannot mutate the frozen capability
++    for (const value of data.requests.values()) Object.freeze(value);
++    return new SourceRegistry(REGISTRY_TOKEN, Object.freeze(data) as RegistryData);
++  }
++}
++
++// ----------------------------------------------------------- legacy context
++
++/** Normalized facts an adapter extracts from a locally validated legacy object. */
++export interface LegacyPairEvidence {
++  owner: string;
++  battle_id: string;
++  input_observation: string;
++  successor_observation: string;
++  input_belief: string;
++  successor_belief: string;
++  /** Null together with actor_record for nonactor evidence. */
++  transition: string | null;
++  actor_record: string | null;
++  input_prefix: string[];
++  successor_prefix: string[];
++}
++/** Later envelope kinds plug in here; `verify` must call the actual existing validators. */
++export interface LegacyEnvelopeAdapter {
++  readonly schema_version: string;
++  verify(envelope: unknown): LegacyPairEvidence;
++}
++
++function pythonCanonicalJson(value: unknown): string {
++  const visit = (item: any): string => {
++    if (Array.isArray(item)) return '[' + item.map(visit).join(',') + ']';
++    if (item !== null && typeof item === 'object') return '{' + Object.keys(item).sort().map((k) => JSON.stringify(k) + ':' + visit(item[k])).join(',') + '}';
++    return JSON.stringify(item);
++  };
++  // Python json.dumps(ensure_ascii=True): everything outside space..~ becomes lower-case \uXXXX per UTF-16 unit.
++  return visit(value).replace(/[^ -~]/g, (char) => '\\u' + char.charCodeAt(0).toString(16).padStart(4, '0'));
++}
++const sha256Hex = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
++
++/**
++ * DATA-001 `record_id` of an actor record, computed with the existing Python
++ * identity payload and ensure_ascii canonical bytes. Identity only: no DATA
++ * object is built or emitted and hashing grants no authority.
++ */
++export function legacyDataRecordId(fields: {
++  battle_id: string; perspective: string; protocol_prefix: readonly string[];
++  observation_id: string; action_id: string; belief_id: string; transition_id: string;
++}): string {
++  return 'datarec-' + sha256Hex(pythonCanonicalJson({
++    schema_version: 'dataset-record/v1', battle_id: fields.battle_id, replay_id: `sim:${fields.battle_id}`, source_kind: 'sim_core',
++    perspective: fields.perspective, observation_cursor: fields.protocol_prefix.length,
++    observation_prefix_hash: sha256Hex(pythonCanonicalJson([...fields.protocol_prefix])),
++    observation_id: fields.observation_id, action_id: fields.action_id, belief_id: fields.belief_id, transition_id: fields.transition_id,
++  }));
++}
++
++const ordinaryBundleAdapter: LegacyEnvelopeAdapter = {
++  schema_version: 'pipeline-linked-record/v1',
++  verify(envelope: unknown): LegacyPairEvidence {
++    const bundle = structuredClone(envelope) as PipelineLinkedRecordBundle;
++    validatePipelineLinkedRecordBundle(bundle); // actual existing validator; throws on any defect
++    return {
++      owner: bundle.perspective, battle_id: bundle.battle_id,
++      input_observation: bundle.input_observation.observation_id, successor_observation: bundle.successor_observation.observation_id,
++      input_belief: bundle.input_belief.belief_id, successor_belief: bundle.successor_belief.belief_id,
++      transition: bundle.transition.transition_id,
++      actor_record: legacyDataRecordId({
++        battle_id: bundle.battle_id, perspective: bundle.perspective, protocol_prefix: bundle.input_observation.protocol_prefix,
++        observation_id: bundle.input_observation.observation_id, action_id: bundle.action.action_id,
++        belief_id: bundle.input_belief.belief_id, transition_id: bundle.transition.transition_id,
++      }),
++      input_prefix: [...bundle.input_observation.protocol_prefix], successor_prefix: [...bundle.successor_observation.protocol_prefix],
++    };
++  },
++};
++
++interface ContextData {
++  pairs: Map<string, LegacyPairEvidence>;
++  observations: Map<string, { owner: string; battle_id: string; belief: string; prefix: string[] }>;
++  kinds: Set<string>;
++}
++const contexts = new WeakMap<object, ContextData>();
++
++export interface LegacyAvailability {
++  readonly pairs: number;
++  readonly nonactor_pairs: number;
++  readonly envelope_kinds: readonly string[];
++}
++/** Opaque frozen locally verified legacy-context capability. */
++export class LegacyContext {
++  readonly availability: LegacyAvailability;
++  constructor(token: symbol, data: ContextData) {
++    if (token !== LEGACY_TOKEN) fail('capability/legacy');
++    contexts.set(this, data);
++    this.availability = deepFreeze({
++      pairs: data.pairs.size, nonactor_pairs: [...data.pairs.values()].filter((p) => p.transition === null).length,
++      envelope_kinds: [...data.kinds].sort(),
++    });
++    Object.freeze(this);
++  }
++}
++
++const pairKey = (owner: string, input: string, successor: string): string => `${owner}|${input}|${successor}`;
++
++export class LegacyContextBuilder {
++  #data: ContextData | null = { pairs: new Map(), observations: new Map(), kinds: new Set() };
++  readonly #adapters = new Map<string, LegacyEnvelopeAdapter>([[ordinaryBundleAdapter.schema_version, ordinaryBundleAdapter]]);
++
++  constructor(extraAdapters: readonly LegacyEnvelopeAdapter[] = []) {
++    for (const adapter of extraAdapters) {
++      need(adapter && typeof adapter.schema_version === 'string' && typeof adapter.verify === 'function' && !this.#adapters.has(adapter.schema_version), 'legacy/adapter');
++      this.#adapters.set(adapter.schema_version, adapter);
++    }
++  }
++  #open(): ContextData { need(this.#data, 'legacy/frozen'); return this.#data; }
++
++  /** Verifies a supplied envelope with its adapter; unsupported kinds fail explicitly. */
++  addEnvelope(envelope: unknown): void {
++    const data = this.#open();
++    const kind = envelope !== null && typeof envelope === 'object' ? (envelope as Row).schema_version : undefined;
++    const adapter = typeof kind === 'string' ? this.#adapters.get(kind) : undefined;
++    need(adapter, 'legacy/unsupported-envelope-kind');
++    let evidence: LegacyPairEvidence;
++    try { evidence = adapter.verify(envelope); } catch (error) {
++      if (error instanceof KnowledgeSourceError) throw error;
++      return fail('legacy/validator-rejected');
++    }
++    this.record(data, evidence, adapter.schema_version);
++  }
++
++  /** Real validated observation/belief evidence for an owner that did not act; no DATA row exists. */
++  addNonactorEvidence(evidence: {
++    owner: string;
++    input: { observation: unknown; belief: unknown };
++    successor: { observation: unknown; belief: unknown };
++  }): void {
++    const data = this.#open();
++    let copy: Row;
++    try { copy = structuredClone(evidence) as Row; } catch { return fail('legacy/validator-rejected'); }
++    try {
++      const sides = [copy.input, copy.successor];
++      for (const side of sides) {
++        validateObservableBattleState(side.observation); serializeBeliefState(side.belief);
++        const observation = side.observation as Row, belief = side.belief as Row;
++        need(belief.observation.observation_id === observation.observation_id && belief.battle_id === observation.battle_id
++          && belief.perspective === observation.perspective && observation.perspective === copy.owner
++          && same(belief.source_protocol_prefix, observation.protocol_prefix), 'legacy/validator-rejected');
++      }
++      const [before, after] = [copy.input.observation as Row, copy.successor.observation as Row];
++      need(before.battle_id === after.battle_id && isPrefix(before.protocol_prefix, after.protocol_prefix)
++        && copy.successor.belief.parent_belief_id === copy.input.belief.belief_id, 'legacy/validator-rejected');
++      this.record(data, {
++        owner: copy.owner, battle_id: before.battle_id,
++        input_observation: before.observation_id, successor_observation: after.observation_id,
++        input_belief: copy.input.belief.belief_id, successor_belief: copy.successor.belief.belief_id,
++        transition: null, actor_record: null, input_prefix: [...before.protocol_prefix], successor_prefix: [...after.protocol_prefix],
++      }, 'nonactor-observation-belief');
++    } catch (error) {
++      if (error instanceof KnowledgeSourceError) throw error;
++      fail('legacy/validator-rejected');
++    }
++  }
++
++  private record(data: ContextData, e: LegacyPairEvidence, kind: string): void {
++    const shaped = e && OWNERS.includes(e.owner) && typeof e.battle_id === 'string' && NATIVE.observation.test(e.input_observation)
++      && NATIVE.observation.test(e.successor_observation) && NATIVE.belief.test(e.input_belief) && NATIVE.belief.test(e.successor_belief)
++      && (e.transition === null) === (e.actor_record === null)
++      && (e.transition === null || NATIVE.transition.test(e.transition) && NATIVE.actor_record.test(e.actor_record!))
++      && Array.isArray(e.input_prefix) && Array.isArray(e.successor_prefix) && isPrefix(e.input_prefix, e.successor_prefix);
++    need(shaped, 'legacy/adapter-result');
++    let pair: LegacyPairEvidence;
++    try { pair = deepFreeze(structuredClone(e)); } catch { return fail('legacy/adapter-result'); }
++    const key = pairKey(pair.owner, pair.input_observation, pair.successor_observation);
++    need(!data.pairs.has(key), 'legacy/duplicate');
++    for (const [observation, belief, prefix] of [[pair.input_observation, pair.input_belief, pair.input_prefix], [pair.successor_observation, pair.successor_belief, pair.successor_prefix]] as const) {
++      const known = data.observations.get(observation);
++      need(!known || known.owner === pair.owner && known.belief === belief && known.battle_id === pair.battle_id && same(known.prefix, prefix), 'legacy/inconsistent');
++      data.observations.set(observation, { owner: pair.owner, battle_id: pair.battle_id, belief, prefix: [...prefix] });
++    }
++    data.pairs.set(key, pair); data.kinds.add(kind);
++  }
++
++  freeze(): LegacyContext {
++    const data = this.#open(); this.#data = null;
++    return new LegacyContext(LEGACY_TOKEN, data);
++  }
++}
++
++// -------------------------------------------------------------------- check
++
++export interface KnowledgeSourceDiagnostic {
++  readonly structure_valid: true;
++  readonly source_verification: {
++    readonly scope: 'declared_source_rows_exact_match';
++    readonly verified: true;
++    readonly sources: number;
++    readonly prefixes: number;
++    readonly request_deliveries: number;
++    readonly original_delivery: 'test_only_unverified' | 'partial' | 'absent';
++    readonly replay_source: boolean;
++  };
++  readonly legacy_verification: {
++    readonly scope: 'declared_external_positions' | 'not_checked';
++    readonly verified: boolean;
++    readonly boundaries: number;
++    readonly bindings: number;
++    readonly envelope_kinds: readonly string[];
++  };
++  readonly fact_semantics: 'unverified';
++  readonly original_attribution: 'unverified';
++  readonly obligation_completeness: 'not_established';
++  readonly completeness: 'not_established';
++  readonly missing_capabilities: readonly string[];
++  readonly unsupported_capabilities: readonly string[];
++  readonly published: false;
++}
++
++function expand(audit: Row): Record<string, Row[]> {
++  return Object.fromEntries(Object.entries(audit.tables).map(([kind, rows]) => [kind,
++    audit.form === 'compact' ? (Object.values(rows as Row) as Row[]) : (rows as Row[])]));
++}
++
++function joinSources(tables: Record<string, Row[]>, audit: Row, data: RegistryData, policy: string) {
++  const origin = tables.origin.find((row) => row.id === audit.origin)!;
++  need(data.origin !== null, 'source/missing-origin');
++  const expected: Row = { kind: 'origin', ...data.origin };
++  const { id: _held, ...heldBody } = origin;
++  need(origin.id === knowledgeIdentity(expected) && same(heldBody, expected), 'source/foreign-origin');
++  const ledger = policy === LIVE_POLICY ? data.ledger : data.replay;
++  const initOwners = new Set<string>(); let deliveries = 0, replay = false;
++  // Fixed type order keeps the first reported code deterministic.
++  const rank: Record<string, number> = { owner_initialization: 0, owner_request: 1, public_replay: 2, public_prefix: 3 };
++  for (const source of [...tables.source].sort((a, b) => rank[a.source_type] - rank[b.source_type])) {
++    switch (source.source_type) {
++      case 'owner_initialization': {
++        const held = data.initialization.get(source.owner);
++        need(held, 'source/missing-original-authority');
++        need(same(source.team, held) && source.raw_request === null && source.records.length === 0, 'source/original-team');
++        initOwners.add(source.owner); break;
++      }
++      case 'owner_request': {
++        const held = data.requests.get(`${source.owner}:${source.delivery_seq}`);
++        need(held, 'source/missing-request-delivery');
++        need(held.cursor === source.delivery_cursor, 'source/request-cursor');
++        need(source.raw_request !== null && held.json === source.raw_request.json && source.records.length === 0, 'source/request-text');
++        deliveries++; break;
++      }
++      case 'public_prefix':
++        need(ledger, 'source/missing-public-ledger');
++        need(isPrefix(source.records, ledger), 'source/public-prefix'); break;
++      default: // public_replay
++        need(data.replay, 'source/missing-replay-source');
++        need(same(source.records, data.replay), 'source/replay-source');
++        replay = true;
++    }
++  }
++  for (const prefix of tables.prefix) { need(ledger, 'source/missing-public-ledger'); need(isPrefix(prefix.records, ledger), 'source/prefix'); }
++  return { initOwners, deliveries, replay };
++}
++
++function joinLegacy(tables: Record<string, Row[]>, audit: Row, data: ContextData) {
++  const byId = new Map<string, Row>(Object.values(tables).flat().map((row) => [row.id, row]));
++  const get = (id: string): Row => byId.get(id)!;
++  const origin = get(audit.origin);
++  for (const boundary of tables.boundary) {
++    for (const row of boundary.bindings) {
++      const seen = data.observations.get(row.observation_id);
++      need(seen && seen.owner === row.owner && seen.battle_id === origin.battle_key, 'legacy/observation');
++      need(row.belief_id === seen.belief, 'legacy/belief');
++      const current = get(get(row.knowledge).current);
++      need(same(get(current.prefix).records, seen.prefix), 'legacy/prefix');
++      need(boundary.index > 0 || row.actor_record_id === null, 'legacy/initial-actor');
++    }
++  }
++  for (const binding of tables.binding) {
++    const pair = data.pairs.get(pairKey(binding.owner, binding.input_observation, binding.successor_observation));
++    need(pair && pair.battle_id === origin.battle_key, 'legacy/missing-pair');
++    need(binding.input_belief === pair.input_belief && binding.successor_belief === pair.successor_belief, 'legacy/belief');
++    need(binding.transition === pair.transition, 'legacy/transition');
++    need(binding.actor_record === pair.actor_record, 'legacy/actor-record');
++  }
++  return { boundaries: tables.boundary.length, bindings: tables.binding.length };
++}
++
++/**
++ * Entry check: accepted structure first, then declared source and legacy joins.
++ * `legacy` may be null to run the source join alone; that is reported as a
++ * missing capability, never as success of the legacy scope.
++ */
++export function checkKnowledgeSourceBinding(
++  audit: unknown, registry: SourceRegistry, legacy: LegacyContext | null, requiredProfile: string,
++): KnowledgeSourceDiagnostic {
++  need(typeof requiredProfile === 'string', 'profile');
++  const copy = snapshot(audit, 'structure') as Row; // one immutable view for every later step
++  try { checkKnowledgeStructure(copy, requiredProfile); }
++  catch { return fail('structure'); }
++  const registryData = typeof registry === 'object' && registry !== null ? registries.get(registry) : undefined;
++  need(registryData, 'capability/registry');
++  const legacyData = legacy === null ? null : (typeof legacy === 'object' ? contexts.get(legacy) : undefined);
++  need(legacy === null || legacyData, 'capability/legacy');
++  const tables = expand(copy);
++  const policy = tables.profile.find((row) => row.id === copy.required_profile)!.policy as string;
++  const source = joinSources(tables, copy, registryData, policy);
++  const joined = legacyData ? joinLegacy(tables, copy, legacyData) : null;
++  return deepFreeze({
++    structure_valid: true,
++    source_verification: {
++      scope: 'declared_source_rows_exact_match', verified: true, sources: tables.source.length, prefixes: tables.prefix.length,
++      request_deliveries: source.deliveries, original_delivery: source.initOwners.size === 2 ? 'test_only_unverified' : source.initOwners.size === 1 ? 'partial' : 'absent', replay_source: source.replay,
++    },
++    legacy_verification: {
++      scope: joined ? 'declared_external_positions' : 'not_checked', verified: joined !== null,
++      boundaries: joined?.boundaries ?? 0, bindings: joined?.bindings ?? 0, envelope_kinds: legacyData ? [...legacyData.kinds].sort() : [],
++    },
++    fact_semantics: 'unverified', original_attribution: 'unverified',
++    obligation_completeness: 'not_established', completeness: 'not_established',
++    missing_capabilities: [...(joined ? [] : ['legacy_context']), ...(source.initOwners.size === 2 ? [] : ['original_delivery_authority']), 'original_provider'],
++    unsupported_capabilities: ['original_provider', 'fact_semantics', 'original_attribution', 'family_obligations'],
++    published: false,
++  }) as KnowledgeSourceDiagnostic;
++}
+--- /dev/null
++++ candidate-after/trainer/src/neural/perspective_knowledge_source.py
+@@ -0,0 +1,403 @@
++"""PK-02B-Source: non-publishing source and legacy verification seam.
++
++A trusted local creation owner builds a registry capability and a legacy-context
++capability inside this process; ``check_knowledge_source_binding`` joins an
++already structurally valid audit to them. Capabilities are recognised only by
++module-private weak-key membership, so dictionaries, copies, pickles and audit
++fields cannot stand in. This is a trusted-caller boundary, not authentication
++against code already controlling the process. Source presence never certifies
++fact values; fact semantics, original attribution, obligation completeness and
++aggregate completeness stay unverified/not_established. Nothing is published.
++"""
++import copy
++import json
++import re
++import weakref
++
++from neural.perspective_knowledge import (
++    canonical_knowledge_json, check_knowledge_structure, knowledge_identity, parse_knowledge_json,
++)
++from neural.pipeline_record import _prefix as _legacy_prefix, validate_pipeline_bundle
++from neural.public_boosts import validate_public_boosts
++from neural.ts_identity import verify_belief, verify_observation
++from neural.typed_state import validate_public_typed_state
++
++LIVE_POLICY = 'simulator-causal/v1'
++OWNERS = ('p1', 'p2')
++ORIGIN_CONSTANTS = {'format': 'gen9randombattle', 'engine': 'pokemon-showdown@0.11.10', 'rule_version': 'pk-rules/v1'}
++_NATIVE = {
++    'observation': re.compile(r'obs-[0-9a-f]{64}'), 'belief': re.compile(r'belief-[0-9a-f]{64}'),
++    'transition': re.compile(r'transition-[0-9a-f]{64}'), 'actor_record': re.compile(r'datarec-[0-9a-f]{64}'),
++}
++_TOKEN = object()
++_REGISTRIES = weakref.WeakKeyDictionary()
++_CONTEXTS = weakref.WeakKeyDictionary()
++
++
++class KnowledgeSourceError(ValueError):
++    """Payload-independent failure: ``code`` is a fixed string, never audit or source content."""
++
++    def __init__(self, code):
++        super().__init__(code)
++        self.code = code
++
++
++def _need(condition, code):
++    if not condition:
++        raise KnowledgeSourceError(code)
++
++
++def _same(a, b):
++    return canonical_knowledge_json(a) == canonical_knowledge_json(b)
++
++
++def _snapshot(value, code):
++    try:
++        return parse_knowledge_json(canonical_knowledge_json(value))
++    except Exception:
++        pass
++    # Raised after the handler so no payload-bearing __context__ is retained.
++    raise KnowledgeSourceError(code)
++
++
++def _is_prefix(shorter, longer):
++    return len(shorter) <= len(longer) and list(longer[:len(shorter)]) == list(shorter)
++
++
++class _Opaque:
++    """Capability base: immutable, no copy/pickle path."""
++    __slots__ = ('availability', '__weakref__')
++
++    def __setattr__(self, name, value):
++        raise AttributeError('capability is immutable')
++
++    def __copy__(self):
++        raise TypeError('capability cannot be copied')
++
++    def __deepcopy__(self, memo):
++        raise TypeError('capability cannot be copied')
++
++    def __reduce_ex__(self, protocol):
++        raise TypeError('capability cannot be serialized')
++
++
++class SourceRegistry(_Opaque):
++    """Opaque frozen registry capability. Only ``SourceRegistryBuilder.freeze`` creates one."""
++    __slots__ = ()
++
++    def __init__(self, token, data):
++        _need(token is _TOKEN, 'capability/registry')
++        _REGISTRIES[self] = data
++        object.__setattr__(self, 'availability', {
++            'origin': data['origin'] is not None,
++            # Test-owned initialization witnesses only. No production original provider is adopted.
++            'initialization_witness_owners': sorted(data['initialization']),
++            'original_provider': 'not_adopted',
++            'request_deliveries': len(data['requests']),
++            'public_ledger': data['ledger'] is not None,
++            'replay_source': data['replay'] is not None,
++        })
++
++
++class SourceRegistryBuilder:
++    """Trusted-owner construction. Inputs are deep-copied; the builder is unusable after ``freeze``."""
++
++    def __init__(self):
++        self._data = {'origin': None, 'initialization': {}, 'requests': {}, 'ledger': None, 'replay': None}
++
++    def _open(self):
++        _need(self._data is not None, 'registry/frozen')
++        return self._data
++
++    def set_origin(self, origin):
++        data = self._open(); _need(data['origin'] is None, 'registry/duplicate')
++        copy = _snapshot(origin, 'registry/origin')
++        _need(type(copy) is dict and sorted(copy) == ['battle_key', 'engine', 'format', 'rule_version']
++              and type(copy['battle_key']) is str and copy['battle_key'], 'registry/origin')
++        _need(all(copy[key] == value for key, value in ORIGIN_CONSTANTS.items()), 'registry/origin')
++        data['origin'] = copy
++
++    def add_initialization_witness(self, owner, team):
++        """Test-owned witness: never evidence that a production provider exists."""
++        data = self._open(); _need(owner in OWNERS and owner not in data['initialization'], 'registry/initialization')
++        copy = _snapshot(team, 'registry/initialization')
++        _need(type(copy) is list and 1 <= len(copy) <= 6
++              and all(type(s) is dict and s.get('slot') == i + 1 for i, s in enumerate(copy)), 'registry/initialization')
++        data['initialization'][owner] = copy
++
++    def add_request_delivery(self, owner, sequence, cursor, json_text):
++        data = self._open(); key = (owner, sequence)
++        _need(owner in OWNERS and type(sequence) is int and sequence >= 0 and type(cursor) is int and cursor >= 0
++              and type(json_text) is str and key not in data['requests'], 'registry/request')
++        _snapshot({'raw_request': {'json': json_text}}, 'registry/request')  # exact text must obey raw-request limits
++        data['requests'][key] = (cursor, json_text)
++
++    def set_public_ledger(self, records):
++        data = self._open(); _need(data['ledger'] is None, 'registry/duplicate')
++        _need(type(records) in (list, tuple), 'registry/ledger')
++        data['ledger'] = _snapshot(list(records), 'registry/ledger')
++
++    def set_replay_source(self, records):
++        """Explicit owner-selected local replay source evidence; no external loading."""
++        data = self._open(); _need(data['replay'] is None, 'registry/duplicate')
++        _need(type(records) in (list, tuple), 'registry/replay')
++        data['replay'] = _snapshot(list(records), 'registry/replay')
++
++    def freeze(self):
++        data = self._open()
++        for owner in OWNERS:
++            rows = sorted((seq, cursor) for (o, seq), (cursor, _) in data['requests'].items() if o == owner)
++            _need(all(seq == i and (i == 0 or cursor >= rows[i - 1][1])
++                      and (data['ledger'] is None or cursor <= len(data['ledger'])) for i, (seq, cursor) in enumerate(rows)),
++                  'registry/request-order')
++        self._data = None
++        return SourceRegistry(_TOKEN, copy.deepcopy(data))
++
++
++# ----------------------------------------------------------- legacy context
++
++
++class LegacyEnvelopeAdapter:
++    """Later envelope kinds plug in here; ``verify`` must call the actual existing validators.
++
++    ``verify`` returns a dict with owner, battle_id, input_observation, successor_observation,
++    input_belief, successor_belief, transition, actor_record (the last two null together for
++    nonactor evidence), input_prefix and successor_prefix.
++    """
++    schema_version = None
++
++    def verify(self, envelope):
++        raise NotImplementedError
++
++
++class _OrdinaryBundleAdapter(LegacyEnvelopeAdapter):
++    schema_version = 'pipeline-linked-record/v1'
++
++    def verify(self, envelope):
++        bundle = json.loads(json.dumps(envelope))  # snapshot
++        record = validate_pipeline_bundle(bundle)  # actual existing validator; DATA object stays internal
++        return {
++            'owner': bundle['perspective'], 'battle_id': bundle['battle_id'],
++            'input_observation': bundle['input_observation']['observation_id'],
++            'successor_observation': bundle['successor_observation']['observation_id'],
++            'input_belief': bundle['input_belief']['belief_id'], 'successor_belief': bundle['successor_belief']['belief_id'],
++            'transition': bundle['transition']['transition_id'], 'actor_record': record['record_id'],
++            'input_prefix': list(bundle['input_observation']['protocol_prefix']),
++            'successor_prefix': list(bundle['successor_observation']['protocol_prefix']),
++        }
++
++
++class LegacyContext(_Opaque):
++    """Opaque frozen locally verified legacy-context capability."""
++    __slots__ = ()
++
++    def __init__(self, token, data):
++        _need(token is _TOKEN, 'capability/legacy')
++        _CONTEXTS[self] = data
++        object.__setattr__(self, 'availability', {
++            'pairs': len(data['pairs']),
++            'nonactor_pairs': sum(1 for p in data['pairs'].values() if p['transition'] is None),
++            'envelope_kinds': sorted(data['kinds']),
++        })
++
++
++def _pair_key(owner, input_observation, successor_observation):
++    return (owner, input_observation, successor_observation)
++
++
++class LegacyContextBuilder:
++    def __init__(self, extra_adapters=()):
++        self._data = {'pairs': {}, 'observations': {}, 'kinds': set()}
++        ordinary = _OrdinaryBundleAdapter()
++        self._adapters = {ordinary.schema_version: ordinary}
++        for adapter in extra_adapters:
++            _need(isinstance(adapter, LegacyEnvelopeAdapter) and isinstance(adapter.schema_version, str)
++                  and adapter.schema_version not in self._adapters, 'legacy/adapter')
++            self._adapters[adapter.schema_version] = adapter
++
++    def _open(self):
++        _need(self._data is not None, 'legacy/frozen')
++        return self._data
++
++    def add_envelope(self, envelope):
++        """Verifies a supplied envelope with its adapter; unsupported kinds fail explicitly."""
++        data = self._open()
++        kind = envelope.get('schema_version') if isinstance(envelope, dict) else None
++        adapter = self._adapters.get(kind) if isinstance(kind, str) else None
++        _need(adapter is not None, 'legacy/unsupported-envelope-kind')
++        evidence = None
++        try:
++            evidence = adapter.verify(envelope)
++        except KnowledgeSourceError:
++            raise
++        except Exception:
++            pass
++        _need(evidence is not None, 'legacy/validator-rejected')
++        self._record(data, evidence, adapter.schema_version)
++
++    def add_nonactor_evidence(self, owner, input_pair, successor_pair):
++        """Real validated observation/belief evidence for an owner that did not act; no DATA row exists.
++
++        Each pair is ``(observation, belief)``.
++        """
++        data = self._open()
++        evidence = None
++        try:
++            copy = json.loads(json.dumps([owner, list(input_pair), list(successor_pair)]))
++            owner, (before, before_belief), (after, after_belief) = copy
++            for label, observation, belief in (('input', before, before_belief), ('successor', after, after_belief)):
++                verify_observation(observation, label)
++                validate_public_typed_state(observation, label)
++                if observation['schema_version'] == 'observable-battle-state/v2':
++                    validate_public_boosts(observation)
++                _legacy_prefix(observation, label)
++                verify_belief(belief, observation, label)
++                _need(belief['battle_id'] == observation['battle_id'] and belief['perspective'] == observation['perspective'] == owner
++                      and belief['source_protocol_prefix'] == observation['protocol_prefix'], 'legacy/validator-rejected')
++            _need(before['battle_id'] == after['battle_id'] and _is_prefix(before['protocol_prefix'], after['protocol_prefix'])
++                  and after_belief['parent_belief_id'] == before_belief['belief_id'], 'legacy/validator-rejected')
++            evidence = {
++                'owner': owner, 'battle_id': before['battle_id'],
++                'input_observation': before['observation_id'], 'successor_observation': after['observation_id'],
++                'input_belief': before_belief['belief_id'], 'successor_belief': after_belief['belief_id'],
++                'transition': None, 'actor_record': None,
++                'input_prefix': list(before['protocol_prefix']), 'successor_prefix': list(after['protocol_prefix']),
++            }
++        except KnowledgeSourceError:
++            raise
++        except Exception:
++            pass
++        _need(evidence is not None, 'legacy/validator-rejected')
++        self._record(data, evidence, 'nonactor-observation-belief')
++
++    def _record(self, data, e, kind):
++        shaped = (isinstance(e, dict) and e.get('owner') in OWNERS and type(e.get('battle_id')) is str
++                  and _NATIVE['observation'].fullmatch(str(e.get('input_observation')))
++                  and _NATIVE['observation'].fullmatch(str(e.get('successor_observation')))
++                  and _NATIVE['belief'].fullmatch(str(e.get('input_belief'))) and _NATIVE['belief'].fullmatch(str(e.get('successor_belief')))
++                  and (e.get('transition') is None) == (e.get('actor_record') is None)
++                  and (e.get('transition') is None or (_NATIVE['transition'].fullmatch(str(e['transition']))
++                                                       and _NATIVE['actor_record'].fullmatch(str(e['actor_record']))))
++                  and isinstance(e.get('input_prefix'), list) and isinstance(e.get('successor_prefix'), list)
++                  and _is_prefix(e['input_prefix'], e['successor_prefix']))
++        _need(shaped, 'legacy/adapter-result')
++        pair = json.loads(json.dumps(e)); key = _pair_key(pair['owner'], pair['input_observation'], pair['successor_observation'])
++        _need(key not in data['pairs'], 'legacy/duplicate')
++        for observation, belief, prefix in ((pair['input_observation'], pair['input_belief'], pair['input_prefix']),
++                                            (pair['successor_observation'], pair['successor_belief'], pair['successor_prefix'])):
++            known = data['observations'].get(observation)
++            _need(known is None or (known['owner'] == pair['owner'] and known['belief'] == belief
++                                    and known['battle_id'] == pair['battle_id'] and known['prefix'] == prefix), 'legacy/inconsistent')
++            data['observations'][observation] = {'owner': pair['owner'], 'battle_id': pair['battle_id'], 'belief': belief, 'prefix': list(prefix)}
++        data['pairs'][key] = pair; data['kinds'].add(kind)
++
++    def freeze(self):
++        data = self._open(); self._data = None
++        return LegacyContext(_TOKEN, copy.deepcopy(data))
++
++
++# -------------------------------------------------------------------- check
++
++
++def _expand(audit):
++    return {kind: (list(rows.values()) if audit['form'] == 'compact' else list(rows)) for kind, rows in audit['tables'].items()}
++
++
++def _join_sources(tables, audit, data, policy):
++    origin = next(row for row in tables['origin'] if row['id'] == audit['origin'])
++    _need(data['origin'] is not None, 'source/missing-origin')
++    expected = {'kind': 'origin', **data['origin']}
++    _need(origin['id'] == knowledge_identity(expected) and _same({k: v for k, v in origin.items() if k != 'id'}, expected), 'source/foreign-origin')
++    ledger = data['ledger'] if policy == LIVE_POLICY else data['replay']
++    init_owners = set(); deliveries = 0; replay = False
++    # Fixed type order keeps the first reported code deterministic.
++    rank = {'owner_initialization': 0, 'owner_request': 1, 'public_replay': 2, 'public_prefix': 3}
++    for source in sorted(tables['source'], key=lambda row: rank[row['source_type']]):
++        kind = source['source_type']
++        if kind == 'owner_initialization':
++            held = data['initialization'].get(source['owner'])
++            _need(held is not None, 'source/missing-original-authority')
++            _need(_same(source['team'], held) and source['raw_request'] is None and not source['records'], 'source/original-team')
++            init_owners.add(source['owner'])
++        elif kind == 'owner_request':
++            held = data['requests'].get((source['owner'], source['delivery_seq']))
++            _need(held is not None, 'source/missing-request-delivery')
++            _need(held[0] == source['delivery_cursor'], 'source/request-cursor')
++            _need(source['raw_request'] is not None and held[1] == source['raw_request']['json'] and not source['records'], 'source/request-text')
++            deliveries += 1
++        elif kind == 'public_prefix':
++            _need(ledger is not None, 'source/missing-public-ledger')
++            _need(_is_prefix(source['records'], ledger), 'source/public-prefix')
++        else:  # public_replay
++            _need(data['replay'] is not None, 'source/missing-replay-source')
++            _need(_same(source['records'], data['replay']), 'source/replay-source')
++            replay = True
++    for prefix in tables['prefix']:
++        _need(ledger is not None, 'source/missing-public-ledger')
++        _need(_is_prefix(prefix['records'], ledger), 'source/prefix')
++    return init_owners, deliveries, replay
++
++
++def _join_legacy(tables, audit, data):
++    by_id = {row['id']: row for rows in tables.values() for row in rows}
++    origin = by_id[audit['origin']]
++    for boundary in tables['boundary']:
++        for row in boundary['bindings']:
++            seen = data['observations'].get(row['observation_id'])
++            _need(seen is not None and seen['owner'] == row['owner'] and seen['battle_id'] == origin['battle_key'], 'legacy/observation')
++            _need(row['belief_id'] == seen['belief'], 'legacy/belief')
++            current = by_id[by_id[row['knowledge']]['current']]
++            _need(by_id[current['prefix']]['records'] == seen['prefix'], 'legacy/prefix')
++            _need(boundary['index'] > 0 or row['actor_record_id'] is None, 'legacy/initial-actor')
++    for binding in tables['binding']:
++        pair = data['pairs'].get(_pair_key(binding['owner'], binding['input_observation'], binding['successor_observation']))
++        _need(pair is not None and pair['battle_id'] == origin['battle_key'], 'legacy/missing-pair')
++        _need(binding['input_belief'] == pair['input_belief'] and binding['successor_belief'] == pair['successor_belief'], 'legacy/belief')
++        _need(binding['transition'] == pair['transition'], 'legacy/transition')
++        _need(binding['actor_record'] == pair['actor_record'], 'legacy/actor-record')
++    return len(tables['boundary']), len(tables['binding'])
++
++
++def check_knowledge_source_binding(audit, registry, legacy, required_profile):
++    """Entry check: accepted structure first, then declared source and legacy joins.
++
++    ``legacy`` may be None to run the source join alone; that is reported as a
++    missing capability, never as success of the legacy scope.
++    """
++    _need(type(required_profile) is str, 'profile')
++    copy = _snapshot(audit, 'structure')  # one immutable view for every later step
++    structure_ok = False
++    try:
++        check_knowledge_structure(copy, required_profile)
++        structure_ok = True
++    except Exception:
++        pass
++    _need(structure_ok, 'structure')
++    registry_data = _REGISTRIES.get(registry) if type(registry) is SourceRegistry else None
++    _need(registry_data is not None, 'capability/registry')
++    legacy_data = None
++    if legacy is not None:
++        legacy_data = _CONTEXTS.get(legacy) if type(legacy) is LegacyContext else None
++        _need(legacy_data is not None, 'capability/legacy')
++    tables = _expand(copy)
++    policy = next(row for row in tables['profile'] if row['id'] == copy['required_profile'])['policy']
++    init_owners, deliveries, replay = _join_sources(tables, copy, registry_data, policy)
++    joined = _join_legacy(tables, copy, legacy_data) if legacy_data is not None else None
++    return {
++        'structure_valid': True,
++        'source_verification': {
++            'scope': 'declared_source_rows_exact_match', 'verified': True, 'sources': len(tables['source']),
++            'prefixes': len(tables['prefix']), 'request_deliveries': deliveries,
++            'original_delivery': 'test_only_unverified' if len(init_owners) == 2 else ('partial' if init_owners else 'absent'), 'replay_source': replay,
++        },
++        'legacy_verification': {
++            'scope': 'declared_external_positions' if joined else 'not_checked', 'verified': joined is not None,
++            'boundaries': joined[0] if joined else 0, 'bindings': joined[1] if joined else 0,
++            'envelope_kinds': sorted(legacy_data['kinds']) if legacy_data else [],
++        },
++        'fact_semantics': 'unverified', 'original_attribution': 'unverified',
++        'obligation_completeness': 'not_established', 'completeness': 'not_established',
++        'missing_capabilities': ([] if joined else ['legacy_context']) + ([] if len(init_owners) == 2 else ['original_delivery_authority']) + ['original_provider'],
++        'unsupported_capabilities': ['original_provider', 'fact_semantics', 'original_attribution', 'family_obligations'],
++        'published': False,
++    }
+--- /dev/null
++++ candidate-after/sim-core/tests/perspective_knowledge_source.test.ts
+@@ -0,0 +1,597 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { createHash } from 'node:crypto';
++import { spawnSync } from 'node:child_process';
++import { readFileSync } from 'node:fs';
++import path from 'node:path';
++import { canonicalKnowledgeJson, checkKnowledgeStructure, knowledgeIdentity } from '../src/perspective_knowledge';
++import * as sourceModule from '../src/perspective_knowledge_source';
++import {
++  KnowledgeSourceError, LegacyContext, LegacyContextBuilder, SourceRegistry, SourceRegistryBuilder,
++  checkKnowledgeSourceBinding, legacyDataRecordId, type LegacyEnvelopeAdapter,
++} from '../src/perspective_knowledge_source';
++
++type Row = Record<string, any>;
++const root = path.resolve(__dirname, '../../..');
++const fixtures = path.join(root, 'docs/contracts/fixtures/perspective-knowledge-v1');
++const load = (name: string): any => JSON.parse(readFileSync(path.join(fixtures, name), 'utf8'));
++// Test-owned witness: real pinned BattleStream harness + real PipelineIntegrationSession (see script header).
++// eslint-disable-next-line @typescript-eslint/no-var-requires
++const witnessModule = require(path.join(root, 'docs/planning/perspective-fidelity-prompt12-witness.cjs'));
++const FORMS = ['ordinary', 'full', 'compact'] as const;
++const VERSIONS = ['observable-battle-state/v1', 'observable-battle-state/v2'] as const;
++const OWNERS = ['p1', 'p2'];
++
++// ---- independent literal oracle (same approach as perspective_knowledge.test.ts) ----
++function literalCanonical(value: any): string {
++  if (Array.isArray(value)) return '[' + value.map(literalCanonical).join(',') + ']';
++  if (value !== null && typeof value === 'object') {
++    return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + literalCanonical(value[k])).join(',') + '}';
++  }
++  return JSON.stringify(value);
++}
++function literalIdentity(row: Row): string {
++  const payload = Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id'));
++  return 'sha256:' + createHash('sha256').update('pk/v1/' + row.kind + '\n' + literalCanonical(payload), 'utf8').digest('hex');
++}
++function tables(audit: Row): Record<string, Row[]> {
++  return Object.fromEntries(Object.entries(audit.tables).map(([kind, rows]) => [kind,
++    (Array.isArray(rows) ? rows : Object.values(rows as Row)).slice().sort((a: Row, b: Row) => a.id.localeCompare(b.id)),
++  ]));
++}
++const singleEdges: Record<string, string[]> = {
++  origin: [], source: ['origin'], prefix: ['origin'], evidence: ['origin', 'source', 'prefix'],
++  certificate: ['source'], fact: ['certificate'], starting: ['origin', 'source', 'parent'],
++  current: ['origin', 'prefix', 'parent'], request: ['origin', 'source', 'prefix'],
++  knowledge: ['origin', 'starting', 'current', 'request'], profile: [],
++  verdict: ['knowledge', 'profile'], boundary: ['origin', 'parent', 'restored_from'],
++  binding: ['origin', 'input_knowledge', 'successor_knowledge'],
++};
++const listEdges: Record<string, string[]> = { certificate: ['witnesses'], fact: ['evidence'], starting: ['facts'], current: ['facts'], request: ['facts'] };
++function reseal(audit: Row): Row {
++  const expanded = tables(audit);
++  const byOldId = new Map<string, Row>();
++  for (const rows of Object.values(expanded)) for (const row of rows) byOldId.set(row.id, row);
++  const completed = new Map<string, string>();
++  function replace(id: string | null): string | null {
++    if (id === null || !byOldId.has(id)) return id;
++    if (completed.has(id)) return completed.get(id)!;
++    const row = byOldId.get(id)!;
++    for (const field of singleEdges[row.kind]) row[field] = replace(row[field]);
++    for (const field of listEdges[row.kind] ?? []) row[field] = row[field].map(replace).sort();
++    if (row.kind === 'starting') for (const crosswalk of row.crosswalk) crosswalk.certificate = replace(crosswalk.certificate);
++    if (row.kind === 'boundary') for (const binding of row.bindings) { binding.knowledge = replace(binding.knowledge); binding.verdict = replace(binding.verdict); }
++    row.id = literalIdentity(row);
++    completed.set(id, row.id);
++    return row.id;
++  }
++  for (const id of byOldId.keys()) replace(id);
++  for (const field of ['origin', 'required_profile', 'target_boundary']) audit[field] = replace(audit[field]);
++  audit.tables = Object.fromEntries(Object.entries(expanded).map(([kind, rows]) => [kind,
++    audit.form === 'compact' ? Object.fromEntries(rows.sort((a, b) => a.id.localeCompare(b.id)).map(row => [row.id, row])) : rows.sort((a, b) => a.id.localeCompare(b.id)),
++  ]));
++  audit.id = literalIdentity(audit);
++  return audit;
++}
++/** Deep-copies the audit, applies an in-place mutation to its rows and reseals every identity. */
++function mutated(audit: Row, change: (rows: Record<string, Row[]>) => void): Row {
++  const copy = structuredClone(audit);
++  change(tables(copy));
++  return reseal(copy);
++}
++
++// ---- trusted local creation owner helpers ----
++interface Witness { version: string; battle_id: string; origin: Row; team_sets: Row; ledger: string[]; requests: Row; bundles: Row; python_record_ids: Row; cursors: number[]; audits: Row; nonactor_audit: Row; sourceless_audit: Row; }
++const witnesses: Promise<Record<string, Witness>> = (async () => {
++  const result: Record<string, Witness> = {};
++  for (const version of VERSIONS) {
++    const w = await witnessModule.capture(version);
++    w.audits = Object.fromEntries(FORMS.map(form => [form, witnessModule.buildAudit(w, form)]));
++    w.nonactor_audit = witnessModule.buildAudit(w, 'ordinary', { nonactor: ['p2'] });
++    w.sourceless_audit = witnessModule.buildAudit(w, 'ordinary', { sourceless: true });
++    result[version] = w;
++  }
++  return result;
++})();
++
++interface RegistryOptions { omitInitialization?: string[]; omitRequests?: string[]; cursorShift?: Record<string, number>; ledger?: string[] | null; origin?: Row | null; replay?: string[] }
++function makeRegistry(w: Witness, options: RegistryOptions = {}): SourceRegistry {
++  const builder = new SourceRegistryBuilder();
++  if (options.origin !== null) builder.setOrigin(options.origin ?? w.origin);
++  const ledger = options.ledger === undefined ? w.ledger : options.ledger;
++  for (const owner of OWNERS) {
++    if (!options.omitInitialization?.includes(owner)) builder.addInitializationWitness(owner, w.team_sets[owner]);
++    for (const r of w.requests[owner]) {
++      if (options.omitRequests?.includes(`${owner}:${r.sequence}`)) continue;
++      if (ledger !== null && r.cursor > ledger.length) continue;
++      builder.addRequestDelivery(owner, r.sequence, r.cursor + (options.cursorShift?.[`${owner}:${r.sequence}`] ?? 0), r.json);
++    }
++  }
++  if (ledger !== null) builder.setPublicLedger(ledger);
++  if (options.replay) builder.setReplaySource(options.replay);
++  return builder.freeze();
++}
++function makeLegacy(w: Witness, nonactor: string[] = [], extra: LegacyEnvelopeAdapter[] = []): LegacyContext {
++  const builder = new LegacyContextBuilder(extra);
++  for (const owner of OWNERS) {
++    if (nonactor.includes(owner)) {
++      const b = w.bundles[owner];
++      builder.addNonactorEvidence({ owner, input: { observation: b.input_observation, belief: b.input_belief }, successor: { observation: b.successor_observation, belief: b.successor_belief } });
++    } else builder.addEnvelope(w.bundles[owner]);
++  }
++  return builder.freeze();
++}
++const profileOf = (audit: Row): string => audit.required_profile;
++function code(run: () => unknown): string {
++  try { run(); } catch (error) {
++    assert.ok(error instanceof KnowledgeSourceError, 'rejections are typed payload-independent errors');
++    assert.equal(error.message, error.code);
++    return error.code;
++  }
++  return assert.fail('expected rejection');
++}
++const sourceRow = (rows: Record<string, Row[]>, type: string, owner: string | null, seq?: number): Row =>
++  rows.source.find(s => s.source_type === type && s.owner === owner && (seq === undefined || s.delivery_seq === seq))!;
++
++// ======================================================================= witness
++test('witness: independent harness ledger/cursors equal legacy observations; python IDs are native', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version];
++    assert.deepEqual(w.cursors.length, 2);
++    for (const owner of OWNERS) {
++      const bundle = w.bundles[owner];
++      assert.equal(bundle.input_observation.event_cursor, w.requests[owner][0].cursor);
++      assert.equal(bundle.successor_observation.event_cursor, w.requests[owner][1].cursor);
++      assert.deepEqual(bundle.successor_observation.protocol_prefix, w.ledger.slice(0, w.requests[owner][1].cursor));
++      assert.match(w.python_record_ids[owner], /^datarec-[0-9a-f]{64}$/);
++      assert.equal(JSON.parse(w.requests[owner][1].json).side.id, owner, 'raw addressed request stays owner-specific');
++    }
++    assert.notDeepEqual(w.team_sets.p1, w.team_sets.p2);
++    assert.equal(w.bundles.p1.transition.transition_id, w.bundles.p2.transition.transition_id);
++  }
++});
++
++// ============================================================ positives, all forms
++test('actual source and legacy positives: both schemas, both owners, ordinary/full/compact, structure first', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++    assert.deepEqual(registry.availability, { origin: true, initialization_witness_owners: ['p1', 'p2'], original_provider: 'not_adopted', request_deliveries: 4, public_ledger: true, replay_source: false });
++    assert.deepEqual(legacy.availability, { pairs: 2, nonactor_pairs: 0, envelope_kinds: ['pipeline-linked-record/v1'] });
++    for (const form of FORMS) {
++      const audit = w.audits[form];
++      const before = literalCanonical(audit);
++      const result = checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit));
++      assert.equal(literalCanonical(audit), before, 'caller audit is not mutated');
++      // Expected counts are derived from the independent capture, not from the audit.
++      assert.deepEqual(result, {
++        structure_valid: true,
++        source_verification: { scope: 'declared_source_rows_exact_match', verified: true, sources: 2 + 4 + 2, prefixes: 2, request_deliveries: 4, original_delivery: 'test_only_unverified', replay_source: false },
++        legacy_verification: { scope: 'declared_external_positions', verified: true, boundaries: 2, bindings: 2, envelope_kinds: ['pipeline-linked-record/v1'] },
++        fact_semantics: 'unverified', original_attribution: 'unverified', obligation_completeness: 'not_established', completeness: 'not_established',
++        missing_capabilities: ['original_provider'], unsupported_capabilities: ['original_provider', 'fact_semantics', 'original_attribution', 'family_obligations'], published: false,
++      });
++      assert.ok(Object.isFrozen(result));
++      // Accepted structure alone stays unchanged and still claims nothing about source/legacy.
++      assert.deepEqual(checkKnowledgeStructure(audit), { structure_valid: true, source_semantics_verified: false, completeness: 'not_established', legacy_envelope_verified: false });
++    }
++  }
++});
++
++test('nonactor row uses actual validated observation/belief evidence; fabricated DATA and mislabeled actors reject', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w);
++    const mixed = makeLegacy(w, ['p2']);
++    assert.deepEqual(mixed.availability, { pairs: 2, nonactor_pairs: 1, envelope_kinds: ['nonactor-observation-belief', 'pipeline-linked-record/v1'] });
++    const ok = checkKnowledgeSourceBinding(w.nonactor_audit, registry, mixed, profileOf(w.nonactor_audit));
++    assert.equal(ok.legacy_verification.verified, true);
++    assert.equal(ok.completeness, 'not_established');
++    // Audit asserts an actor DATA row for p2 but only nonactor evidence exists: fabricated DATA.
++    for (const form of FORMS) assert.equal(code(() => checkKnowledgeSourceBinding(w.audits[form], registry, mixed, profileOf(w.audits[form]))), 'legacy/transition');
++    // Audit says nonactor while the context holds a real actor bundle for that pair.
++    assert.equal(code(() => checkKnowledgeSourceBinding(w.nonactor_audit, registry, makeLegacy(w), profileOf(w.nonactor_audit))), 'legacy/transition');
++  }
++});
++
++test('requestless/source-less incomplete canary remains incomplete and names the missing capability', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const audit = w.sourceless_audit;
++    for (const registry of [makeRegistry(w), makeRegistry(w, { omitInitialization: OWNERS })]) {
++      const result = checkKnowledgeSourceBinding(audit, registry, makeLegacy(w), profileOf(audit));
++      assert.equal(result.source_verification.original_delivery, 'absent');
++      assert.deepEqual(result.missing_capabilities, ['original_delivery_authority', 'original_provider']);
++      assert.equal(result.completeness, 'not_established'); assert.equal(result.original_attribution, 'unverified');
++    }
++  }
++});
++
++test('legacy context may be omitted: source join alone is partial and says so', async () => {
++  const w = (await witnesses)[VERSIONS[0]]; const audit = w.audits.full;
++  const result = checkKnowledgeSourceBinding(audit, makeRegistry(w), null, profileOf(audit));
++  assert.deepEqual(result.legacy_verification, { scope: 'not_checked', verified: false, boundaries: 0, bindings: 0, envelope_kinds: [] });
++  assert.deepEqual(result.missing_capabilities, ['legacy_context', 'original_provider']);
++  assert.equal(result.source_verification.verified, true);
++});
++
++test('false fact values with correct source joins stay fact-semantics-unverified', async () => {
++  const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++  for (const form of FORMS) {
++    const lie = mutated(w.audits[form], rows => { rows.fact.find(f => f.property === 'roster_species' && f.owner === 'p1')!.value.data = 'Missingno'; });
++    assert.notEqual(lie.id, w.audits[form].id);
++    const result = checkKnowledgeSourceBinding(lie, registry, legacy, profileOf(lie));
++    assert.equal(result.fact_semantics, 'unverified'); assert.equal(result.completeness, 'not_established');
++    assert.equal(result.source_verification.verified, true, 'source presence is not a certificate of values');
++  }
++});
++
++// ================================================================ source negatives
++test('resealed source negatives reject in every form for both schemas', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++    const cases: [string, string, (rows: Record<string, Row[]>) => void][] = [
++      ['source/request-text', 'pretty-printed (normalized) request', rows => { const s = sourceRow(rows, 'owner_request', 'p1', 1); s.raw_request.json = JSON.stringify(JSON.parse(s.raw_request.json), null, 1); }],
++      ['source/request-text', 'key-sorted (normalized) request', rows => { const s = sourceRow(rows, 'owner_request', 'p2', 1); const parsed = JSON.parse(s.raw_request.json); s.raw_request.json = JSON.stringify(Object.fromEntries(Object.entries(parsed).reverse())); }],
++      ['source/request-text', 'trailing whitespace changes exact text', rows => { sourceRow(rows, 'owner_request', 'p1', 0).raw_request.json += ' '; }],
++      ['source/request-text', 'foreign owner request text', rows => {
++        const a = sourceRow(rows, 'owner_request', 'p1', 0), b = sourceRow(rows, 'owner_request', 'p2', 0);
++        [a.raw_request.json, b.raw_request.json] = [b.raw_request.json, a.raw_request.json];
++      }],
++      ['source/missing-request-delivery', 'changed delivery sequence', rows => {
++        const s = sourceRow(rows, 'owner_request', 'p1', 1); s.delivery_seq = 7;
++        rows.request.find(r => r.source === s.id)!.sequence = 7;
++      }],
++      ['source/original-team', 'altered submitted team', rows => { sourceRow(rows, 'owner_initialization', 'p1').team[0].species = 'Forged'; }],
++      ['source/original-team', 'foreign owner team', rows => {
++        const a = sourceRow(rows, 'owner_initialization', 'p1'), b = sourceRow(rows, 'owner_initialization', 'p2');
++        [a.team, b.team] = [b.team, a.team];
++      }],
++      ['source/public-prefix', 'wrong public record', rows => {
++        const longest = [...rows.prefix].sort((a, b) => b.records.length - a.records.length)[0];
++        const source = rows.source.find(s => s.source_type === 'public_prefix' && s.records.length === longest.records.length)!;
++        longest.records[longest.records.length - 1] = '|forged'; source.records[source.records.length - 1] = '|forged';
++      }],
++    ];
++    for (const form of FORMS) for (const [expected, label, change] of cases) {
++      const audit = mutated(w.audits[form], change);
++      assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit))), expected, `${form}: ${label}`);
++    }
++  }
++});
++
++test('foreign battle origin, missing authority, changed cursor and future prefix reject', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const audit = w.audits.ordinary; const legacy = makeLegacy(w);
++    const foreign = witnessModule.buildAudit(w, 'ordinary', { origin: { ...w.origin, battle_key: 'someone-else' } });
++    assert.equal(code(() => checkKnowledgeSourceBinding(foreign, makeRegistry(w), legacy, profileOf(foreign))), 'source/foreign-origin');
++    const expectations: [string, RegistryOptions][] = [
++      ['source/missing-origin', { origin: null }],
++      ['source/missing-original-authority', { omitInitialization: ['p2'] }],
++      ['source/missing-request-delivery', { omitRequests: ['p1:1'] }],
++      ['source/missing-public-ledger', { ledger: null }],
++      ['source/request-cursor', { cursorShift: { 'p2:1': -1 } }],
++      ['source/request-cursor', { cursorShift: { 'p2:0': 1 } }],
++      ['source/foreign-origin', { origin: { ...w.origin, battle_key: 'someone-else' } }],
++    ];
++    for (const [expected, options] of expectations) assert.equal(code(() => checkKnowledgeSourceBinding(audit, makeRegistry(w, options), legacy, profileOf(audit))), expected, JSON.stringify(Object.keys(options)));
++    // Registry holds only the first causal prefix: deliveries and prefixes beyond it are future evidence.
++    const early = makeRegistry(w, { ledger: w.ledger.slice(0, w.cursors[0]) });
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, early, legacy, profileOf(audit))), 'source/missing-request-delivery');
++    // A ledger with one different earlier record is not the delivered spectator ledger.
++    const wrong = w.ledger.slice(); wrong[3] = '|forged';
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, makeRegistry(w, { ledger: wrong }), legacy, profileOf(audit))), 'source/public-prefix');
++  }
++});
++
++// ============================================================ legacy negatives
++test('resealed wrong legacy joins reject in every form', async () => {
++  const all = await witnesses;
++  const fake = (prefix: string, digit: string) => prefix + digit.repeat(64);
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++    for (const owner of OWNERS) {
++    const other = owner === 'p1' ? 'p2' : 'p1';
++    const cases: [string, string, (rows: Record<string, Row[]>) => void][] = [
++      ['legacy/observation', 'fabricated observation', rows => {
++        const binding = rows.binding.find(b => b.owner === owner)!; const old = binding.input_observation; binding.input_observation = fake('obs-', 'b');
++        for (const boundary of rows.boundary) for (const row of boundary.bindings) if (row.observation_id === old) row.observation_id = binding.input_observation;
++      }],
++      ['legacy/belief', 'fabricated belief', rows => {
++        const binding = rows.binding.find(b => b.owner === owner)!; const old = binding.successor_belief; binding.successor_belief = fake('belief-', 'c');
++        for (const boundary of rows.boundary) for (const row of boundary.bindings) if (row.belief_id === old) row.belief_id = binding.successor_belief;
++      }],
++      ['legacy/transition', 'fabricated transition', rows => { rows.binding.find(b => b.owner === owner)!.transition = fake('transition-', 'a'); }],
++      ['legacy/actor-record', 'wrong actor DATA record', rows => {
++        const binding = rows.binding.find(b => b.owner === owner)!; binding.actor_record = w.python_record_ids[other];
++        for (const boundary of rows.boundary) for (const row of boundary.bindings) if (row.owner === owner && row.actor_record_id !== null) row.actor_record_id = binding.actor_record;
++      }],
++      ['legacy/observation', 'sha256 placeholder never joins a native object', rows => {
++        const binding = rows.binding.find(b => b.owner === owner)!; const old = binding.input_observation; binding.input_observation = fake('sha256:', 'd');
++        for (const boundary of rows.boundary) for (const row of boundary.bindings) if (row.observation_id === old) row.observation_id = binding.input_observation;
++      }],
++      ['legacy/initial-actor', 'DATA row claimed at the origin boundary', rows => {
++        const first = rows.boundary.find(b => b.index === 0)!; first.bindings.find((r: Row) => r.owner === owner)!.actor_record_id = w.python_record_ids[owner];
++      }],
++    ];
++    for (const form of FORMS) for (const [expected, label, change] of cases) {
++      const audit = mutated(w.audits[form], change);
++      assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit))), expected, `${owner} ${form}: ${label}`);
++    }
++    }
++    // Cross-schema/other-battle legacy objects never satisfy this origin.
++    const foreign = all[VERSIONS[version === VERSIONS[0] ? 1 : 0]];
++    assert.equal(code(() => checkKnowledgeSourceBinding(w.audits.ordinary, registry, makeLegacy(foreign), profileOf(w.audits.ordinary))), 'legacy/observation');
++  }
++});
++
++test('wrong history prefix is caught through the adapter seam; arbitrary booleans and digests are not evidence', async () => {
++  const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const audit = w.audits.ordinary;
++  const ordinary = (envelope: any) => {
++    const b = new LegacyContextBuilder(); b.addEnvelope(envelope); return b;
++  };
++  // Test-only adapter wrapping the actual validator and then tampering the history prefix.
++  const tamper: LegacyEnvelopeAdapter = {
++    schema_version: 'test-tampered-history/v1',
++    verify(envelope: any) {
++      const probe = ordinary(envelope.bundle); assert.ok(probe);
++      const b = envelope.bundle;
++      return { owner: b.perspective, battle_id: b.battle_id, input_observation: b.input_observation.observation_id, successor_observation: b.successor_observation.observation_id,
++        input_belief: b.input_belief.belief_id, successor_belief: b.successor_belief.belief_id, transition: b.transition.transition_id, actor_record: w.python_record_ids[b.perspective],
++        input_prefix: [...b.input_observation.protocol_prefix.slice(0, -1), '|forged'], successor_prefix: [...b.input_observation.protocol_prefix.slice(0, -1), '|forged', ...b.successor_observation.protocol_prefix.slice(b.input_observation.protocol_prefix.length)] };
++    },
++  };
++  const builder = new LegacyContextBuilder([tamper]);
++  for (const owner of OWNERS) builder.addEnvelope({ schema_version: 'test-tampered-history/v1', bundle: w.bundles[owner] });
++  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, builder.freeze(), profileOf(audit))), 'legacy/prefix');
++  // A real extension adapter that calls the existing validators is accepted through the same seam.
++  const wrap: LegacyEnvelopeAdapter = {
++    schema_version: 'test-wrapper/v1',
++    verify(envelope: any) {
++      const inner = new LegacyContextBuilder(); inner.addEnvelope(envelope.bundle);
++      const b = envelope.bundle;
++      return { owner: b.perspective, battle_id: b.battle_id, input_observation: b.input_observation.observation_id, successor_observation: b.successor_observation.observation_id,
++        input_belief: b.input_belief.belief_id, successor_belief: b.successor_belief.belief_id, transition: b.transition.transition_id, actor_record: w.python_record_ids[b.perspective],
++        input_prefix: [...b.input_observation.protocol_prefix], successor_prefix: [...b.successor_observation.protocol_prefix] };
++    },
++  };
++  const wrapped = new LegacyContextBuilder([wrap]);
++  for (const owner of OWNERS) wrapped.addEnvelope({ schema_version: 'test-wrapper/v1', bundle: w.bundles[owner] });
++  assert.equal(checkKnowledgeSourceBinding(audit, registry, wrapped.freeze(), profileOf(audit)).legacy_verification.verified, true);
++  // Digest-shaped placeholders or booleans returned by an adapter are not legacy evidence.
++  const forged: LegacyEnvelopeAdapter = { schema_version: 'test-forged/v1', verify: () => ({ owner: 'p1', battle_id: w.battle_id, input_observation: 'sha256:' + '1'.repeat(64), successor_observation: 'sha256:' + '2'.repeat(64),
++    input_belief: 'sha256:' + '3'.repeat(64), successor_belief: 'sha256:' + '4'.repeat(64), transition: null, actor_record: null, input_prefix: [], successor_prefix: [] }) };
++  assert.equal(code(() => new LegacyContextBuilder([forged]).addEnvelope({ schema_version: 'test-forged/v1' })), 'legacy/adapter-result');
++  assert.equal(code(() => new LegacyContextBuilder().addEnvelope({ schema_version: 'pipeline-linked-record/v1', verified: true })), 'legacy/validator-rejected');
++  assert.equal(code(() => new LegacyContextBuilder().addEnvelope(true as any)), 'legacy/unsupported-envelope-kind');
++  assert.equal(code(() => new LegacyContextBuilder([{ schema_version: 'pipeline-linked-record/v1', verify: () => { throw new Error('x'); } }])), 'legacy/adapter');
++});
++
++test('unsupported legacy envelope kinds fail explicitly; tampered ordinary bundles fail the real validator', async () => {
++  const w = (await witnesses)[VERSIONS[1]];
++  for (const kind of ['pipeline-forced-switch-record/v1', 'pipeline-revival-record/v1', 'pipeline-episode-evidence/v2', 'pipeline-episode-evidence/v1', 'pipeline-episode-publication-sweep/v1', 'unknown/v9']) {
++    const envelope = { ...structuredClone(w.bundles.p1), schema_version: kind };
++    assert.equal(code(() => new LegacyContextBuilder().addEnvelope(envelope)), 'legacy/unsupported-envelope-kind', kind);
++  }
++  const tamper = (change: (b: any) => void) => { const b = structuredClone(w.bundles.p1); change(b); return b; };
++  for (const bad of [
++    tamper(b => { b.battle_id = 'other'; }), tamper(b => { b.transition.transition_id = 'transition-' + 'e'.repeat(64); }),
++    tamper(b => { b.successor_belief.parent_belief_id = 'belief-' + 'f'.repeat(64); }), tamper(b => { b.input_observation.protocol_prefix.push('|forged'); }),
++    tamper(b => { b.action.action_id = 'act-' + '0'.repeat(64); }),
++  ]) assert.equal(code(() => new LegacyContextBuilder().addEnvelope(bad)), 'legacy/validator-rejected');
++  // Nonactor evidence also needs genuinely validated objects.
++  const b = w.bundles.p2; const pair = (side: 'input' | 'successor') => ({ observation: b[side + '_observation'], belief: b[side + '_belief'] });
++  const swapped = { owner: 'p1', input: pair('input'), successor: pair('successor') };
++  assert.equal(code(() => new LegacyContextBuilder().addNonactorEvidence(swapped)), 'legacy/validator-rejected');
++  const forgedBelief = structuredClone(pair('successor')); forgedBelief.belief.belief_id = 'belief-' + '9'.repeat(64);
++  assert.equal(code(() => new LegacyContextBuilder().addNonactorEvidence({ owner: 'p2', input: pair('input'), successor: forgedBelief })), 'legacy/validator-rejected');
++  assert.equal(code(() => new LegacyContextBuilder().addNonactorEvidence({ owner: 'p2', input: pair('successor'), successor: pair('input') })), 'legacy/validator-rejected');
++});
++
++
++test('forged labels, legacy-normalized request text and complete claims never succeed', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++    const audit = w.audits.ordinary;
++    // The session's normalized request object is not the delivered addressed text.
++    const delivered = w.requests.p1[0].json;
++    const normalized = JSON.stringify(w.bundles.p1.input_observation.request);
++    assert.notEqual(normalized, delivered);
++    const swapped = mutated(audit, rows => { sourceRow(rows, 'owner_request', 'p1', 0).raw_request.json = normalized; });
++    assert.equal(code(() => checkKnowledgeSourceBinding(swapped, registry, legacy, profileOf(swapped))), 'source/request-text');
++    // Forged source labels are rejected by structure or by the source join; never accepted.
++    const labels: ((rows: Record<string, Row[]>) => void)[] = [
++      rows => { sourceRow(rows, 'owner_initialization', 'p1').phase = 'chronological'; },
++      rows => { sourceRow(rows, 'owner_initialization', 'p1').provider = 'addressed-request/v1'; },
++      rows => { sourceRow(rows, 'owner_request', 'p2', 1).owner = 'p1'; },
++      rows => { sourceRow(rows, 'owner_request', 'p1', 1).delivery_cursor = 3; },
++      rows => { sourceRow(rows, 'owner_initialization', 'p2').team[0].extra = 'x'; },
++    ];
++    for (const change of labels) {
++      const forged = mutated(audit, change);
++      const failure = code(() => checkKnowledgeSourceBinding(forged, registry, legacy, profileOf(forged)));
++      assert.equal(failure, 'structure'); // closed schema/addressing rules reject every forged label before the source join
++    }
++    // A producer-claimed complete verdict cannot turn missing/unsupported authority into completeness.
++    const claim = mutated(audit, rows => { for (const v of rows.verdict) v.result = 'strong_complete'; });
++    assert.equal(checkKnowledgeSourceBinding(claim, registry, legacy, profileOf(claim)).completeness, 'not_established');
++    // A failed check leaves both capabilities usable and unchanged.
++    const again = checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit));
++    assert.equal(again.source_verification.verified, true);
++    assert.deepEqual(registry.availability.initialization_witness_owners, ['p1', 'p2']);
++  }
++});
++
++test('boundary-row-only mutations are rejected by the accepted structure check, not by the new joins', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) {
++    const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++    const second = (rows: Record<string, Row[]>, owner: string) => rows.boundary.find(b => b.index === 1)!.bindings.find((r: Row) => r.owner === owner)!;
++    const changes: ((rows: Record<string, Row[]>) => void)[] = [
++      rows => { second(rows, 'p1').actor_record_id = w.python_record_ids.p2; },
++      rows => { second(rows, 'p1').observation_id = 'obs-' + 'b'.repeat(64); },
++      rows => { const b = rows.boundary.find(x => x.index === 1)!; [b.bindings[0].owner, b.bindings[1].owner] = [b.bindings[1].owner, b.bindings[0].owner]; },
++    ];
++    for (const form of FORMS) for (const change of changes) {
++      const audit = mutated(w.audits[form], change);
++      assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit))), 'structure');
++    }
++  }
++});
++
++// ======================================================= capability and privacy
++test('plain, copied, serialized or audit-supplied capabilities cannot stand in; builders are not capabilities', async () => {
++  const w = (await witnesses)[VERSIONS[0]]; const audit = w.audits.full; const registry = makeRegistry(w); const legacy = makeLegacy(w);
++  const forgedRegistries: any[] = [
++    {}, { ...registry }, Object.create(registry), Object.assign(Object.create(Object.getPrototypeOf(registry)), registry),
++    JSON.parse(JSON.stringify(registry)), structuredClone(registry), registry.availability, null, undefined, 'registry', new SourceRegistryBuilder(),
++    { origin: w.origin, initialization: w.team_sets, requests: w.requests, ledger: w.ledger },
++  ];
++  for (const fake of forgedRegistries) assert.equal(code(() => checkKnowledgeSourceBinding(audit, fake, legacy, profileOf(audit))), 'capability/registry');
++  for (const fake of [{}, { ...legacy }, Object.create(legacy), JSON.parse(JSON.stringify(legacy)), legacy.availability, new LegacyContextBuilder(), { pairs: [] }, true, 0] as any[]) {
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, fake, profileOf(audit))), 'capability/legacy');
++  }
++  assert.equal(code(() => new SourceRegistry(Symbol('forged'), {} as any)), 'capability/registry');
++  assert.equal(code(() => new LegacyContext(Symbol('forged'), {} as any)), 'capability/legacy');
++  // Audit-supplied registry/provider/receipt fields are closed-schema extra keys and reject in the accepted structure check.
++  for (const form of FORMS) {
++    const withRegistry = structuredClone(w.audits[form]); withRegistry.registry = { origin: w.origin }; withRegistry.id = knowledgeIdentity(withRegistry);
++    assert.equal(code(() => checkKnowledgeSourceBinding(withRegistry, registry, legacy, profileOf(withRegistry))), 'structure');
++  }
++  // Structure comes first: a forged capability does not change the structural decision for a malformed audit.
++  assert.equal(code(() => checkKnowledgeSourceBinding({ kind: 'audit' }, {} as any, {} as any, 'x')), 'structure');
++  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, 'sha256:' + '0'.repeat(64))), 'structure');
++  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, 7 as any)), 'profile');
++});
++
++test('builders are one-shot and freeze authority; caller input mutation after registration changes nothing', async () => {
++  const w = structuredClone((await witnesses)[VERSIONS[0]]) as Witness; const audit = JSON.parse(JSON.stringify(w.audits.ordinary)); // detach shared references from the mutated caller objects
++  const rb = new SourceRegistryBuilder(); rb.setOrigin(w.origin);
++  for (const owner of OWNERS) { rb.addInitializationWitness(owner, w.team_sets[owner]); for (const r of w.requests[owner]) rb.addRequestDelivery(owner, r.sequence, r.cursor, r.json); }
++  rb.setPublicLedger(w.ledger);
++  assert.equal(code(() => rb.setPublicLedger(w.ledger)), 'registry/duplicate');
++  assert.equal(code(() => rb.addInitializationWitness('p1', w.team_sets.p1)), 'registry/initialization');
++  assert.equal(code(() => rb.addRequestDelivery('p1', 0, 1, '{}')), 'registry/request');
++  assert.equal(code(() => rb.addRequestDelivery('p3', 9, 1, '{}')), 'registry/request');
++  assert.equal(code(() => rb.addRequestDelivery('p1', 9, 1, '{"a":1,"a":2}')), 'registry/request');
++  const registry = rb.freeze();
++  assert.equal(code(() => rb.setReplaySource([])), 'registry/frozen');
++  assert.equal(code(() => rb.freeze()), 'registry/frozen');
++  const lb = new LegacyContextBuilder(); for (const owner of OWNERS) lb.addEnvelope(w.bundles[owner]);
++  assert.equal(code(() => lb.addEnvelope(w.bundles.p1)), 'legacy/duplicate');
++  const legacy = lb.freeze();
++  assert.equal(code(() => lb.addEnvelope(w.bundles.p2)), 'legacy/frozen');
++  const bundleBefore = literalCanonical(w.bundles);
++  // Mutate every caller-owned object after registration.
++  w.team_sets.p1[0].species = 'Mutated'; w.ledger[0] = '|mutated'; w.ledger.push('|extra'); w.origin.battle_key = 'mutated';
++  w.bundles.p1.transition.transition_id = 'transition-' + '0'.repeat(64); w.bundles.p2.input_observation.protocol_prefix.push('|x');
++  assert.equal(checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit)).source_verification.verified, true);
++  // An audit crafted to agree with the mutated caller objects is still rejected.
++  const crafted = mutated(audit, rows => { sourceRow(rows, 'owner_initialization', 'p1').team[0].species = 'Mutated'; });
++  assert.equal(code(() => checkKnowledgeSourceBinding(crafted, registry, legacy, profileOf(crafted))), 'source/original-team');
++  assert.notEqual(literalCanonical(w.bundles), bundleBefore);
++});
++
++test('capabilities expose no privileged data; diagnostics are payload-independent; module has no publication path', async () => {
++  const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const legacy = makeLegacy(w); const audit = w.audits.ordinary;
++  for (const capability of [registry, legacy]) {
++    assert.deepEqual(Object.keys(capability), ['availability']);
++    assert.deepEqual(Object.getOwnPropertySymbols(capability), []);
++    assert.ok(Object.isFrozen(capability) && Object.isFrozen((capability as any).availability));
++    const text = JSON.stringify(capability);
++    for (const secret of [w.team_sets.p1[0].species, w.requests.p1[0].json.slice(0, 20), w.bundles.p1.input_observation.observation_id, w.battle_id, '|switch']) assert.ok(!text.includes(secret));
++  }
++  const privateText = [w.team_sets.p1[0].species, w.battle_id, w.requests.p1[1].json.slice(0, 24), w.bundles.p1.input_observation.observation_id, w.ledger[3]];
++  const bad = mutated(audit, rows => { sourceRow(rows, 'owner_request', 'p1', 1).raw_request.json += ' '; });
++  for (const run of [() => checkKnowledgeSourceBinding(bad, registry, legacy, profileOf(bad)), () => checkKnowledgeSourceBinding(audit, {} as any, legacy, profileOf(audit)),
++    () => new LegacyContextBuilder().addEnvelope({ schema_version: 'pipeline-linked-record/v1', battle_id: privateText[1] })]) {
++    try { run(); assert.fail('rejection expected'); } catch (error: any) {
++      assert.ok(error instanceof KnowledgeSourceError); assert.match(error.code, /^[a-z-]+\/[a-z-]+$|^structure$|^profile$/);
++      assert.equal(error.message, error.code); assert.equal(Object.keys(error).join(), 'code');
++      for (const secret of privateText) assert.ok(!String(error.stack).includes(secret));
++    }
++  }
++  // No projection, publication, CLI or registry import/export surface exists.
++  assert.deepEqual(Object.keys(sourceModule).sort(), ['KnowledgeSourceError', 'LegacyContext', 'LegacyContextBuilder', 'SourceRegistry', 'SourceRegistryBuilder', 'checkKnowledgeSourceBinding', 'legacyDataRecordId']);
++  const result = checkKnowledgeSourceBinding(audit, registry, legacy, profileOf(audit));
++  assert.equal(result.published, false);
++  assert.ok(!('projection' in result) && !('registry' in result) && !('assurance' in result));
++});
++
++// ========================================================== replay (distinct regime)
++test('replay: explicit hand-audited local source held in memory; no attribution or legacy authority follows', () => {
++  // Hand-audited oracle metadata for the checked-in replay fixtures (literal U+00C9 and U+1F600).
++  const oracleOrigin = { battle_key: 'fixture-\u00c9clair-\u{1F600}', format: 'gen9randombattle', engine: 'pokemon-showdown@0.11.10', rule_version: 'pk-rules/v1' };
++  const oracleReplay = ['|start', '|switch|p1a: \u00c9clair|Pikachu, L80|100/100', '|switch|p2a: Beta|Gengar, L80|100/100', '|-enditem|p1a: \u00c9clair|Oran Berry|[eat]',
++    '|move|p2a: Beta|Tackle|p1a: \u00c9clair', '|replace|p2a: Beta|Zoroark, L80|100/100', '|win|\u00c9clair'];
++  const registryFor = (records: string[] | null, origin: Row | null = oracleOrigin) => {
++    const builder = new SourceRegistryBuilder(); if (origin) builder.setOrigin(origin as any);
++    if (records) builder.setReplaySource(records); return builder.freeze();
++  };
++  const oracleSuffix = [...oracleReplay.slice(0, 6), '|win|Beta']; // hand-audited changed complete replay source
++  for (const [name, replay] of [['replay-full.json', oracleReplay], ['replay-ordinary.json', oracleReplay], ['replay-compact.json', oracleReplay], ['replay-suffix-full.json', oracleSuffix], ['replay-suffix-compact.json', oracleSuffix]] as [string, string[]][]) {
++    const audit = load(name);
++    const other = replay === oracleReplay ? oracleSuffix : oracleReplay;
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(other), null, profileOf(audit))), 'source/replay-source', name);
++    const result = checkKnowledgeSourceBinding(audit, registryFor(replay), null, profileOf(audit));
++    assert.equal(result.source_verification.replay_source, true, name);
++    assert.equal(result.source_verification.original_delivery, 'absent');
++    assert.equal(result.original_attribution, 'unverified'); assert.equal(result.completeness, 'not_established');
++    assert.deepEqual(result.missing_capabilities, ['legacy_context', 'original_delivery_authority', 'original_provider']);
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(null), null, profileOf(audit))), 'source/missing-replay-source');
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(replay.slice(0, 5)), null, profileOf(audit))), 'source/replay-source');
++    const changed = replay.slice(); changed[2] = '|switch|p2a: Beta|Gengar, L81|100/100';
++    assert.ok(code(() => checkKnowledgeSourceBinding(audit, registryFor(changed), null, profileOf(audit))).startsWith('source/'));
++    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(replay, { ...oracleOrigin, battle_key: 'foreign' }), null, profileOf(audit))), 'source/foreign-origin');
++  }
++  // Placeholder sha256 legacy stand-ins never join real legacy objects.
++  const audit = load('replay-full.json');
++  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(oracleReplay), new LegacyContextBuilder().freeze(), profileOf(audit))), 'legacy/observation');
++});
++
++test('hand-authored structure canaries are not source positives', () => {
++  const audit = load('sim-ordinary.json');
++  assert.equal(checkKnowledgeStructure(audit).structure_valid, true);
++  const registry = new SourceRegistryBuilder().freeze();
++  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, null, profileOf(audit))), 'source/missing-origin');
++});
++
++// ================================================== DATA identity adapter parity
++test('DATA-001 identity adapter equals the Python identity payload for ASCII, control, BMP and astral prefixes', () => {
++  // Expected digests were produced by trainer/src/neural/dataset_lineage.expected_record_id (independent Python oracle).
++  const vectors: [string, string[], string][] = [
++    ['ascii', ['|start', '|switch|p1a: Alpha|Pikachu, L80|100/100'], 'datarec-7e1d02d5c7e300eaa7bc8c50a729e8e068122603341ae9b523e9f94299e9da6b'],
++    ['control', ['|ctl\u0001\u001f|tab\t|nl\n|cr\r|del\u007f|bs\b|ff\f|q"|bs\\|sl/'], 'datarec-1e9742c83a45eb2a90f0ac44afa2eb837a93582a11b7d122765432a4614a1dc0'],
++    ['bmp', ['|bmp \u00c9\u00e9\u3042 \u20ac|\ufffd\uffff'], 'datarec-9bca5bf6f8789057cae374f712b27047b14b9c397cf545b0eb174746a99a5420'],
++    ['astral', ['|astral \u{1F600} \u{1D11E}|end'], 'datarec-78d4b16002a4794496e5b4d65f2bf70dc41a6907cf54d763283db90faa2556e3'],
++    ['empty', [], 'datarec-62c8c45e54ac375c8ebb40f844d478f47f81c4d4351baa0d43308d74b04ea083'],
++  ];
++  const h = (c: string) => c.repeat(64);
++  for (const [name, prefix, expected] of vectors) {
++    assert.equal(legacyDataRecordId({ battle_id: 'vec-' + name, perspective: 'p1', protocol_prefix: prefix, observation_id: 'obs-' + h('1'), action_id: 'act-' + h('2'), belief_id: 'belief-' + h('3'), transition_id: 'transition-' + h('4') }), expected, name);
++  }
++});
++
++test('real bundles: TypeScript adapter DATA IDs equal the independent Python validator IDs', async () => {
++  const all = await witnesses;
++  for (const version of VERSIONS) for (const owner of OWNERS) {
++    const b = all[version].bundles[owner];
++    assert.equal(legacyDataRecordId({ battle_id: b.battle_id, perspective: owner, protocol_prefix: b.input_observation.protocol_prefix, observation_id: b.input_observation.observation_id,
++      action_id: b.action.action_id, belief_id: b.input_belief.belief_id, transition_id: b.transition.transition_id }), all[version].python_record_ids[owner]);
++  }
++});
++
++test('old identities and the existing Python --check-structure output are unchanged', async () => {
++  const vectors = load('identity-vectors.json');
++  for (const vector of vectors) assert.equal(knowledgeIdentity(vector.object), vector.id);
++  const w = (await witnesses)[VERSIONS[0]];
++  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase()))) as NodeJS.ProcessEnv;
++  env.PYTHONPATH = path.join(root, 'trainer/src');
++  const py = spawnSync(process.env.PYTHON || 'D:/Anaconda/envs/neuralgpu/python.exe', ['-m', 'neural.perspective_knowledge', '--check-structure'], { cwd: root, env, input: canonicalKnowledgeJson(w.audits.ordinary), encoding: 'utf8', timeout: 60000 });
++  assert.equal(py.status, 0, py.stderr);
++  assert.equal(py.stdout, '{"structure_valid":true,"source_semantics_verified":false,"completeness":"not_established","legacy_envelope_verified":false}\n');
++});
+--- /dev/null
++++ candidate-after/trainer/tests/test_perspective_knowledge_source.py
+@@ -0,0 +1,625 @@
++import copy
++import hashlib
++import json
++import os
++import pickle
++import subprocess
++import sys
++import unittest
++from pathlib import Path
++
++from neural import perspective_knowledge_source as source_module
++from neural.dataset_lineage import DATASET_RECORD_SCHEMA, expected_record_id, prefix_hash
++from neural.perspective_knowledge import check_knowledge_structure, knowledge_identity
++from neural.perspective_knowledge_source import (
++    KnowledgeSourceError, LegacyContext, LegacyContextBuilder, LegacyEnvelopeAdapter, SourceRegistry,
++    SourceRegistryBuilder, check_knowledge_source_binding,
++)
++
++ROOT = Path(__file__).resolve().parents[2]
++FIXTURES = ROOT / 'docs/contracts/fixtures/perspective-knowledge-v1'
++WITNESS = ROOT / 'docs/planning/perspective-fidelity-prompt12-witness.cjs'
++FORMS = ('ordinary', 'full', 'compact')
++OWNERS = ('p1', 'p2')
++_WITNESSES = None
++
++
++def load(name):
++    return json.loads((FIXTURES / name).read_text(encoding='utf-8'))
++
++
++def setUpModule():
++    """Trusted local owner side: run the pinned witness harness (Node), then hold its data natively."""
++    global _WITNESSES
++    env = {k: v for k, v in os.environ.items() if k.upper() not in ('PYTHONUTF8', 'PYTHONIOENCODING')}
++    env['PYTHON'] = sys.executable
++    run = subprocess.run(['node', str(WITNESS)], cwd=str(ROOT), env=env, capture_output=True, timeout=300)
++    if run.returncode != 0:
++        raise RuntimeError('witness harness failed')
++    _WITNESSES = json.loads(run.stdout.decode('utf-8'))
++
++
++# ---- independent literal oracle ----
++def literal_canonical(value):
++    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
++
++
++def literal_identity(row):
++    payload = {k: v for k, v in row.items() if k != 'id'}
++    return 'sha256:' + hashlib.sha256(('pk/v1/' + row['kind'] + '\n' + literal_canonical(payload)).encode('utf-8')).hexdigest()
++
++
++def tables_of(audit):
++    return {kind: sorted(rows.values() if isinstance(rows, dict) else rows, key=lambda r: r['id']) for kind, rows in audit['tables'].items()}
++
++
++SINGLE = {
++    'origin': [], 'source': ['origin'], 'prefix': ['origin'], 'evidence': ['origin', 'source', 'prefix'],
++    'certificate': ['source'], 'fact': ['certificate'], 'starting': ['origin', 'source', 'parent'],
++    'current': ['origin', 'prefix', 'parent'], 'request': ['origin', 'source', 'prefix'],
++    'knowledge': ['origin', 'starting', 'current', 'request'], 'profile': [], 'verdict': ['knowledge', 'profile'],
++    'boundary': ['origin', 'parent', 'restored_from'], 'binding': ['origin', 'input_knowledge', 'successor_knowledge'],
++}
++LISTS = {'certificate': ['witnesses'], 'fact': ['evidence'], 'starting': ['facts'], 'current': ['facts'], 'request': ['facts']}
++
++
++def reseal(audit):
++    expanded = tables_of(audit)
++    by_old = {row['id']: row for rows in expanded.values() for row in rows}
++    done = {}
++
++    def replace(ident):
++        if ident is None or ident not in by_old:
++            return ident
++        if ident in done:
++            return done[ident]
++        row = by_old[ident]
++        for field in SINGLE[row['kind']]:
++            row[field] = replace(row[field])
++        for field in LISTS.get(row['kind'], []):
++            row[field] = sorted(replace(i) for i in row[field])
++        if row['kind'] == 'starting':
++            for cross in row['crosswalk']:
++                cross['certificate'] = replace(cross['certificate'])
++        if row['kind'] == 'boundary':
++            for binding in row['bindings']:
++                binding['knowledge'] = replace(binding['knowledge']); binding['verdict'] = replace(binding['verdict'])
++        row['id'] = literal_identity(row)
++        done[ident] = row['id']
++        return row['id']
++
++    for ident in list(by_old):
++        replace(ident)
++    for field in ('origin', 'required_profile', 'target_boundary'):
++        audit[field] = replace(audit[field])
++    audit['tables'] = {kind: ({r['id']: r for r in sorted(rows, key=lambda r: r['id'])} if audit['form'] == 'compact'
++                              else sorted(rows, key=lambda r: r['id'])) for kind, rows in expanded.items()}
++    audit['id'] = literal_identity(audit)
++    return audit
++
++
++def mutated(audit, change):
++    clone = copy.deepcopy(audit)
++    change(tables_of(clone))
++    return reseal(clone)
++
++
++def source_row(rows, source_type, owner, seq=None):
++    return next(s for s in rows['source'] if s['source_type'] == source_type and s['owner'] == owner
++                and (seq is None or s['delivery_seq'] == seq))
++
++
++def make_registry(w, omit_initialization=(), omit_requests=(), cursor_shift=None, ledger='full', origin='witness', replay=None):
++    builder = SourceRegistryBuilder()
++    if origin == 'witness':
++        builder.set_origin(w['origin'])
++    elif origin is not None:
++        builder.set_origin(origin)
++    records = w['ledger'] if ledger == 'full' else ledger
++    for owner in OWNERS:
++        if owner not in omit_initialization:
++            builder.add_initialization_witness(owner, w['team_sets'][owner])
++        for r in w['requests'][owner]:
++            if f"{owner}:{r['sequence']}" in omit_requests or (records is not None and r['cursor'] > len(records)):
++                continue
++            builder.add_request_delivery(owner, r['sequence'], r['cursor'] + (cursor_shift or {}).get(f"{owner}:{r['sequence']}", 0), r['json'])
++    if records is not None:
++        builder.set_public_ledger(records)
++    if replay is not None:
++        builder.set_replay_source(replay)
++    return builder.freeze()
++
++
++def make_legacy(w, nonactor=(), extra=()):
++    builder = LegacyContextBuilder(extra)
++    for owner in OWNERS:
++        if owner in nonactor:
++            b = w['bundles'][owner]
++            builder.add_nonactor_evidence(owner, (b['input_observation'], b['input_belief']), (b['successor_observation'], b['successor_belief']))
++        else:
++            builder.add_envelope(w['bundles'][owner])
++    return builder.freeze()
++
++
++class SourceTestBase(unittest.TestCase):
++    def code(self, run):
++        with self.assertRaises(KnowledgeSourceError) as caught:
++            run()
++        self.assertEqual(str(caught.exception), caught.exception.code)
++        return caught.exception.code
++
++    @property
++    def versions(self):
++        return list(_WITNESSES)
++
++
++class SourceBindingTests(SourceTestBase):
++    def test_witness_corroboration_and_cross_runtime_ids(self):
++        for w in _WITNESSES.values():
++            self.assertEqual(len(w['cursors']), 2)
++            for owner in OWNERS:
++                bundle = w['bundles'][owner]
++                self.assertEqual(bundle['input_observation']['event_cursor'], w['requests'][owner][0]['cursor'])
++                self.assertEqual(bundle['successor_observation']['protocol_prefix'], w['ledger'][:w['requests'][owner][1]['cursor']])
++                self.assertEqual(json.loads(w['requests'][owner][1]['json'])['side']['id'], owner)
++            # The TypeScript adapter and the native Python validator derive the same DATA IDs.
++            self.assertEqual(w['ts_adapter_record_ids'], w['python_record_ids'])
++
++    def test_actual_positives_all_versions_owners_and_forms(self):
++        for w in _WITNESSES.values():
++            registry, legacy = make_registry(w), make_legacy(w)
++            self.assertEqual(registry.availability, {'origin': True, 'initialization_witness_owners': ['p1', 'p2'], 'original_provider': 'not_adopted',
++                                                     'request_deliveries': 4, 'public_ledger': True, 'replay_source': False})
++            self.assertEqual(legacy.availability, {'pairs': 2, 'nonactor_pairs': 0, 'envelope_kinds': ['pipeline-linked-record/v1']})
++            for form in FORMS:
++                audit = w['audits'][form]
++                before = literal_canonical(audit)
++                result = check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])
++                self.assertEqual(literal_canonical(audit), before)
++                self.assertEqual(result, {
++                    'structure_valid': True,
++                    'source_verification': {'scope': 'declared_source_rows_exact_match', 'verified': True, 'sources': 8, 'prefixes': 2,
++                                            'request_deliveries': 4, 'original_delivery': 'test_only_unverified', 'replay_source': False},
++                    'legacy_verification': {'scope': 'declared_external_positions', 'verified': True, 'boundaries': 2, 'bindings': 2,
++                                            'envelope_kinds': ['pipeline-linked-record/v1']},
++                    'fact_semantics': 'unverified', 'original_attribution': 'unverified',
++                    'obligation_completeness': 'not_established', 'completeness': 'not_established',
++                    'missing_capabilities': ['original_provider'],
++                    'unsupported_capabilities': ['original_provider', 'fact_semantics', 'original_attribution', 'family_obligations'],
++                    'published': False,
++                })
++                self.assertEqual(check_knowledge_structure(audit), {'structure_valid': True, 'source_semantics_verified': False,
++                                                                    'completeness': 'not_established', 'legacy_envelope_verified': False})
++
++    def test_nonactor_evidence_and_fabricated_data(self):
++        for w in _WITNESSES.values():
++            registry = make_registry(w); mixed = make_legacy(w, nonactor=('p2',))
++            self.assertEqual(mixed.availability, {'pairs': 2, 'nonactor_pairs': 1, 'envelope_kinds': ['nonactor-observation-belief', 'pipeline-linked-record/v1']})
++            ok = check_knowledge_source_binding(w['nonactor_audit'], registry, mixed, w['nonactor_audit']['required_profile'])
++            self.assertTrue(ok['legacy_verification']['verified']); self.assertEqual(ok['completeness'], 'not_established')
++            for form in FORMS:
++                audit = w['audits'][form]
++                self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, mixed, audit['required_profile'])), 'legacy/transition')
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(w['nonactor_audit'], registry, make_legacy(w), w['nonactor_audit']['required_profile'])),
++                             'legacy/transition')
++
++    def test_sourceless_canary_and_optional_legacy(self):
++        for w in _WITNESSES.values():
++            audit = w['sourceless_audit']
++            for registry in (make_registry(w), make_registry(w, omit_initialization=OWNERS)):
++                result = check_knowledge_source_binding(audit, registry, make_legacy(w), audit['required_profile'])
++                self.assertEqual(result['source_verification']['original_delivery'], 'absent')
++                self.assertEqual(result['missing_capabilities'], ['original_delivery_authority', 'original_provider'])
++                self.assertEqual(result['completeness'], 'not_established')
++            partial = check_knowledge_source_binding(w['audits']['full'], make_registry(w), None, w['audits']['full']['required_profile'])
++            self.assertEqual(partial['legacy_verification'], {'scope': 'not_checked', 'verified': False, 'boundaries': 0, 'bindings': 0, 'envelope_kinds': []})
++            self.assertEqual(partial['missing_capabilities'], ['legacy_context', 'original_provider'])
++
++    def test_false_fact_values_stay_unverified(self):
++        w = _WITNESSES[self.versions[0]]; registry, legacy = make_registry(w), make_legacy(w)
++        for form in FORMS:
++            def lie(rows):
++                next(f for f in rows['fact'] if f['property'] == 'roster_species' and f['owner'] == 'p1')['value']['data'] = 'Missingno'
++            audit = mutated(w['audits'][form], lie)
++            result = check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])
++            self.assertEqual(result['fact_semantics'], 'unverified'); self.assertEqual(result['completeness'], 'not_established')
++            self.assertTrue(result['source_verification']['verified'])
++
++    def test_resealed_source_negatives(self):
++        def pretty(rows):
++            s = source_row(rows, 'owner_request', 'p1', 1); s['raw_request']['json'] = json.dumps(json.loads(s['raw_request']['json']), indent=1)
++
++        def reordered(rows):
++            s = source_row(rows, 'owner_request', 'p2', 1); parsed = json.loads(s['raw_request']['json'])
++            s['raw_request']['json'] = json.dumps(dict(reversed(list(parsed.items()))), separators=(',', ':'))
++
++        def trailing(rows):
++            source_row(rows, 'owner_request', 'p1', 0)['raw_request']['json'] += ' '
++
++        def foreign_text(rows):
++            a, b = source_row(rows, 'owner_request', 'p1', 0), source_row(rows, 'owner_request', 'p2', 0)
++            a['raw_request']['json'], b['raw_request']['json'] = b['raw_request']['json'], a['raw_request']['json']
++
++        def new_sequence(rows):
++            s = source_row(rows, 'owner_request', 'p1', 1); s['delivery_seq'] = 7
++            next(r for r in rows['request'] if r['source'] == s['id'])['sequence'] = 7
++
++        def altered_team(rows):
++            source_row(rows, 'owner_initialization', 'p1')['team'][0]['species'] = 'Forged'
++
++        def foreign_team(rows):
++            a, b = source_row(rows, 'owner_initialization', 'p1'), source_row(rows, 'owner_initialization', 'p2')
++            a['team'], b['team'] = b['team'], a['team']
++
++        def wrong_public(rows):
++            longest = max(rows['prefix'], key=lambda p: len(p['records']))
++            src = next(s for s in rows['source'] if s['source_type'] == 'public_prefix' and len(s['records']) == len(longest['records']))
++            longest['records'][-1] = '|forged'; src['records'][-1] = '|forged'
++
++        cases = [
++            ('source/request-text', pretty), ('source/request-text', reordered), ('source/request-text', trailing),
++            ('source/request-text', foreign_text), ('source/missing-request-delivery', new_sequence),
++            ('source/original-team', altered_team), ('source/original-team', foreign_team), ('source/public-prefix', wrong_public),
++        ]
++        for w in _WITNESSES.values():
++            registry, legacy = make_registry(w), make_legacy(w)
++            for form in FORMS:
++                for expected, change in cases:
++                    audit = mutated(w['audits'][form], change)
++                    self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])), expected, (form, change.__name__))
++
++    def test_origin_authority_cursor_and_prefix_failures(self):
++        for w in _WITNESSES.values():
++            audit = w['audits']['ordinary']; legacy = make_legacy(w)
++            foreign = mutated(audit, lambda rows: rows['origin'][0].__setitem__('battle_key', 'someone-else'))
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(foreign, make_registry(w), legacy, foreign['required_profile'])), 'source/foreign-origin')
++            expectations = [
++                ('source/missing-origin', dict(origin=None)),
++                ('source/missing-original-authority', dict(omit_initialization=('p2',))),
++                ('source/missing-request-delivery', dict(omit_requests=('p1:1',))),
++                ('source/missing-public-ledger', dict(ledger=None)),
++                ('source/request-cursor', dict(cursor_shift={'p2:1': -1})),
++                ('source/request-cursor', dict(cursor_shift={'p2:0': 1})),
++                ('source/foreign-origin', dict(origin=dict(w['origin'], battle_key='someone-else'))),
++            ]
++            for expected, options in expectations:
++                self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, make_registry(w, **options), legacy, audit['required_profile'])), expected, list(options))
++            early = make_registry(w, ledger=w['ledger'][:w['cursors'][0]])
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, early, legacy, audit['required_profile'])), 'source/missing-request-delivery')
++            wrong = list(w['ledger']); wrong[3] = '|forged'
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, make_registry(w, ledger=wrong), legacy, audit['required_profile'])), 'source/public-prefix')
++
++    def test_resealed_wrong_legacy_joins(self):
++        def fake(prefix, digit):
++            return prefix + digit * 64
++
++        for w in _WITNESSES.values():
++            registry, legacy = make_registry(w), make_legacy(w)
++            for owner in OWNERS:
++                other = 'p2' if owner == 'p1' else 'p1'
++
++                def replace_obs(rows, value):
++                    binding = next(b for b in rows['binding'] if b['owner'] == owner); old = binding['input_observation']; binding['input_observation'] = value
++                    for boundary in rows['boundary']:
++                        for row in boundary['bindings']:
++                            if row['observation_id'] == old:
++                                row['observation_id'] = value
++
++                def replace_belief(rows):
++                    binding = next(b for b in rows['binding'] if b['owner'] == owner); old = binding['successor_belief']; binding['successor_belief'] = fake('belief-', 'c')
++                    for boundary in rows['boundary']:
++                        for row in boundary['bindings']:
++                            if row['belief_id'] == old:
++                                row['belief_id'] = binding['successor_belief']
++
++                def wrong_actor(rows):
++                    binding = next(b for b in rows['binding'] if b['owner'] == owner); binding['actor_record'] = w['python_record_ids'][other]
++                    for boundary in rows['boundary']:
++                        for row in boundary['bindings']:
++                            if row['owner'] == owner and row['actor_record_id'] is not None:
++                                row['actor_record_id'] = binding['actor_record']
++
++                def initial_actor(rows):
++                    first = next(b for b in rows['boundary'] if b['index'] == 0)
++                    next(r for r in first['bindings'] if r['owner'] == owner)['actor_record_id'] = w['python_record_ids'][owner]
++
++                cases = [
++                    ('legacy/observation', lambda rows: replace_obs(rows, fake('obs-', 'b'))),
++                    ('legacy/observation', lambda rows: replace_obs(rows, fake('sha256:', 'd'))),
++                    ('legacy/belief', replace_belief),
++                    ('legacy/transition', lambda rows: next(b for b in rows['binding'] if b['owner'] == owner).__setitem__('transition', fake('transition-', 'a'))),
++                    ('legacy/actor-record', wrong_actor),
++                    ('legacy/initial-actor', initial_actor),
++                ]
++                for form in FORMS:
++                    for expected, change in cases:
++                        audit = mutated(w['audits'][form], change)
++                        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])), expected, (owner, form, expected))
++            names = self.versions
++            foreign = _WITNESSES[names[1] if w is _WITNESSES[names[0]] else names[0]]
++            audit = w['audits']['ordinary']
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, make_legacy(foreign), audit['required_profile'])), 'legacy/observation')
++
++    def test_adapter_seam_history_and_forged_evidence(self):
++        w = _WITNESSES[self.versions[0]]; registry = make_registry(w); audit = w['audits']['ordinary']
++
++        class Tampered(LegacyEnvelopeAdapter):
++            schema_version = 'test-tampered-history/v1'
++
++            def verify(self, envelope):
++                b = envelope['bundle']; LegacyContextBuilder().add_envelope(b)  # actual validator first
++                start = list(b['input_observation']['protocol_prefix'])
++                return dict(owner=b['perspective'], battle_id=b['battle_id'], input_observation=b['input_observation']['observation_id'],
++                            successor_observation=b['successor_observation']['observation_id'], input_belief=b['input_belief']['belief_id'],
++                            successor_belief=b['successor_belief']['belief_id'], transition=b['transition']['transition_id'],
++                            actor_record=w['python_record_ids'][b['perspective']], input_prefix=start[:-1] + ['|forged'],
++                            successor_prefix=start[:-1] + ['|forged'] + list(b['successor_observation']['protocol_prefix'][len(start):]))
++
++        class Wrapper(Tampered):
++            schema_version = 'test-wrapper/v1'
++
++            def verify(self, envelope):
++                b = envelope['bundle']; result = super().verify(envelope)
++                result['input_prefix'] = list(b['input_observation']['protocol_prefix']); result['successor_prefix'] = list(b['successor_observation']['protocol_prefix'])
++                return result
++
++        class Forged(LegacyEnvelopeAdapter):
++            schema_version = 'test-forged/v1'
++
++            def verify(self, envelope):
++                return dict(owner='p1', battle_id=w['battle_id'], input_observation='sha256:' + '1' * 64, successor_observation='sha256:' + '2' * 64,
++                            input_belief='sha256:' + '3' * 64, successor_belief='sha256:' + '4' * 64, transition=None, actor_record=None,
++                            input_prefix=[], successor_prefix=[])
++
++        builder = LegacyContextBuilder([Tampered()])
++        for owner in OWNERS:
++            builder.add_envelope({'schema_version': 'test-tampered-history/v1', 'bundle': w['bundles'][owner]})
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, builder.freeze(), audit['required_profile'])), 'legacy/prefix')
++        wrapped = LegacyContextBuilder([Wrapper()])
++        for owner in OWNERS:
++            wrapped.add_envelope({'schema_version': 'test-wrapper/v1', 'bundle': w['bundles'][owner]})
++        self.assertTrue(check_knowledge_source_binding(audit, registry, wrapped.freeze(), audit['required_profile'])['legacy_verification']['verified'])
++        self.assertEqual(self.code(lambda: LegacyContextBuilder([Forged()]).add_envelope({'schema_version': 'test-forged/v1'})), 'legacy/adapter-result')
++        self.assertEqual(self.code(lambda: LegacyContextBuilder().add_envelope({'schema_version': 'pipeline-linked-record/v1', 'verified': True})), 'legacy/validator-rejected')
++        self.assertEqual(self.code(lambda: LegacyContextBuilder().add_envelope(True)), 'legacy/unsupported-envelope-kind')
++
++        class Duplicate(LegacyEnvelopeAdapter):
++            schema_version = 'pipeline-linked-record/v1'
++        self.assertEqual(self.code(lambda: LegacyContextBuilder([Duplicate()])), 'legacy/adapter')
++
++    def test_unsupported_kinds_and_tampered_bundles(self):
++        w = _WITNESSES[self.versions[1]]
++        for kind in ('pipeline-forced-switch-record/v1', 'pipeline-revival-record/v1', 'pipeline-episode-evidence/v2', 'pipeline-episode-evidence/v1',
++                     'pipeline-episode-publication-sweep/v1', 'unknown/v9'):
++            envelope = dict(copy.deepcopy(w['bundles']['p1']), schema_version=kind)
++            self.assertEqual(self.code(lambda: LegacyContextBuilder().add_envelope(envelope)), 'legacy/unsupported-envelope-kind', kind)
++
++        def tamper(change):
++            b = copy.deepcopy(w['bundles']['p1']); change(b); return b
++
++        for bad in (
++            tamper(lambda b: b.__setitem__('battle_id', 'other')),
++            tamper(lambda b: b['transition'].__setitem__('transition_id', 'transition-' + 'e' * 64)),
++            tamper(lambda b: b['successor_belief'].__setitem__('parent_belief_id', 'belief-' + 'f' * 64)),
++            tamper(lambda b: b['input_observation']['protocol_prefix'].append('|forged')),
++            tamper(lambda b: b['action'].__setitem__('action_id', 'act-' + '0' * 64)),
++        ):
++            self.assertEqual(self.code(lambda: LegacyContextBuilder().add_envelope(bad)), 'legacy/validator-rejected')
++        b = w['bundles']['p2']
++        pair = lambda side: (b[side + '_observation'], b[side + '_belief'])  # noqa: E731
++        self.assertEqual(self.code(lambda: LegacyContextBuilder().add_nonactor_evidence('p1', pair('input'), pair('successor'))), 'legacy/validator-rejected')
++        forged = copy.deepcopy(pair('successor')); forged[1]['belief_id'] = 'belief-' + '9' * 64
++        self.assertEqual(self.code(lambda: LegacyContextBuilder().add_nonactor_evidence('p2', pair('input'), forged)), 'legacy/validator-rejected')
++        self.assertEqual(self.code(lambda: LegacyContextBuilder().add_nonactor_evidence('p2', pair('successor'), pair('input'))), 'legacy/validator-rejected')
++
++
++class CapabilityTests(SourceTestBase):
++    def test_forged_copied_serialized_capabilities_rejected(self):
++        w = _WITNESSES[self.versions[0]]; audit = w['audits']['full']; registry, legacy = make_registry(w), make_legacy(w)
++        profile = audit['required_profile']
++
++        class Subclass(SourceRegistry):
++            pass
++
++        for fake in ({}, dict(registry.availability), registry.availability, None, 'registry', SourceRegistryBuilder(),
++                     {'origin': w['origin'], 'initialization': w['team_sets'], 'requests': w['requests'], 'ledger': w['ledger']}):
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, fake, legacy, profile)), 'capability/registry')
++        for fake in ({}, legacy.availability, LegacyContextBuilder(), True, 0):
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, fake, profile)), 'capability/legacy')
++        for operation in (lambda: copy.copy(registry), lambda: copy.deepcopy(registry), lambda: pickle.dumps(registry),
++                          lambda: copy.copy(legacy), lambda: pickle.dumps(legacy), lambda: setattr(registry, 'availability', {}),
++                          lambda: setattr(registry, 'extra', 1)):
++            with self.assertRaises((TypeError, AttributeError)):
++                operation()
++        self.assertEqual(self.code(lambda: SourceRegistry(object(), {})), 'capability/registry')
++        self.assertEqual(self.code(lambda: LegacyContext(object(), {})), 'capability/legacy')
++        self.assertEqual(self.code(lambda: Subclass(object(), {'origin': None, 'initialization': {}, 'requests': {}, 'ledger': None, 'replay': None})), 'capability/registry')
++        # Audit-supplied registry/provider fields are closed-schema extra keys.
++        for form in FORMS:
++            extra = copy.deepcopy(w['audits'][form]); extra['registry'] = {'origin': w['origin']}; extra['id'] = knowledge_identity(extra)
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(extra, registry, legacy, profile)), 'structure')
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding({'kind': 'audit'}, {}, {}, 'x')), 'structure')
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, legacy, 'sha256:' + '0' * 64)), 'structure')
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, legacy, 7)), 'profile')
++
++    def test_builders_are_one_shot_and_inputs_are_copied(self):
++        w = copy.deepcopy(_WITNESSES[self.versions[0]]); audit = json.loads(json.dumps(w['audits']['ordinary']))
++        rb = SourceRegistryBuilder(); rb.set_origin(w['origin'])
++        for owner in OWNERS:
++            rb.add_initialization_witness(owner, w['team_sets'][owner])
++            for r in w['requests'][owner]:
++                rb.add_request_delivery(owner, r['sequence'], r['cursor'], r['json'])
++        rb.set_public_ledger(w['ledger'])
++        self.assertEqual(self.code(lambda: rb.set_public_ledger(w['ledger'])), 'registry/duplicate')
++        self.assertEqual(self.code(lambda: rb.add_initialization_witness('p1', w['team_sets']['p1'])), 'registry/initialization')
++        self.assertEqual(self.code(lambda: rb.add_request_delivery('p1', 0, 1, '{}')), 'registry/request')
++        self.assertEqual(self.code(lambda: rb.add_request_delivery('p3', 9, 1, '{}')), 'registry/request')
++        self.assertEqual(self.code(lambda: rb.add_request_delivery('p1', 9, 1, '{"a":1,"a":2}')), 'registry/request')
++        registry = rb.freeze()
++        self.assertEqual(self.code(lambda: rb.set_replay_source([])), 'registry/frozen')
++        self.assertEqual(self.code(lambda: rb.freeze()), 'registry/frozen')
++        lb = LegacyContextBuilder()
++        for owner in OWNERS:
++            lb.add_envelope(w['bundles'][owner])
++        self.assertEqual(self.code(lambda: lb.add_envelope(w['bundles']['p1'])), 'legacy/duplicate')
++        legacy = lb.freeze()
++        self.assertEqual(self.code(lambda: lb.add_envelope(w['bundles']['p2'])), 'legacy/frozen')
++        w['team_sets']['p1'][0]['species'] = 'Mutated'; w['ledger'][0] = '|mutated'; w['ledger'].append('|extra'); w['origin']['battle_key'] = 'mutated'
++        w['bundles']['p1']['transition']['transition_id'] = 'transition-' + '0' * 64; w['bundles']['p2']['input_observation']['protocol_prefix'].append('|x')
++        self.assertTrue(check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])['source_verification']['verified'])
++        crafted = mutated(audit, lambda rows: source_row(rows, 'owner_initialization', 'p1')['team'][0].__setitem__('species', 'Mutated'))
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(crafted, registry, legacy, crafted['required_profile'])), 'source/original-team')
++
++    def test_no_privileged_exposure_or_publication_surface(self):
++        w = _WITNESSES[self.versions[0]]; registry, legacy, audit = make_registry(w), make_legacy(w), w['audits']['ordinary']
++        secrets = [w['team_sets']['p1'][0]['species'], w['requests']['p1'][1]['json'][:24], w['bundles']['p1']['input_observation']['observation_id'], w['battle_id'], w['ledger'][3]]
++        for capability in (registry, legacy):
++            self.assertEqual(sorted(a for a in dir(capability) if not a.startswith('_')), ['availability'])
++            self.assertFalse(hasattr(capability, '__dict__'))
++            text = json.dumps(capability.availability)
++            for secret in secrets:
++                self.assertNotIn(secret, text)
++                self.assertNotIn(secret, repr(capability))
++        bad = mutated(audit, lambda rows: source_row(rows, 'owner_request', 'p1', 1)['raw_request'].__setitem__('json', source_row(rows, 'owner_request', 'p1', 1)['raw_request']['json'] + ' '))
++        runs = [lambda: check_knowledge_source_binding(bad, registry, legacy, bad['required_profile']),
++                lambda: check_knowledge_source_binding(audit, {}, legacy, audit['required_profile']),
++                lambda: LegacyContextBuilder().add_envelope({'schema_version': 'pipeline-linked-record/v1', 'battle_id': w['battle_id']})]
++        for run in runs:
++            with self.assertRaises(KnowledgeSourceError) as caught:
++                run()
++            error = caught.exception
++            self.assertRegex(error.code, r'^[a-z-]+/[a-z-]+$|^structure$|^profile$')
++            self.assertEqual(str(error), error.code); self.assertIsNone(error.__cause__); self.assertIsNone(error.__context__)
++            for secret in secrets:
++                self.assertNotIn(secret, repr(error))
++        public = sorted(name for name in dir(source_module) if not name.startswith('_') and getattr(getattr(source_module, name), '__module__', None) == source_module.__name__)
++        self.assertEqual(public, ['KnowledgeSourceError', 'LegacyContext', 'LegacyContextBuilder', 'LegacyEnvelopeAdapter', 'SourceRegistry', 'SourceRegistryBuilder',
++                                  'check_knowledge_source_binding'])
++        self.assertFalse(hasattr(source_module, 'main'))
++        result = check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])
++        self.assertIs(result['published'], False)
++        for key in ('projection', 'registry', 'assurance'):
++            self.assertNotIn(key, result)
++
++
++
++class LabelAndCompletenessTests(SourceTestBase):
++    def test_forged_labels_normalized_text_and_complete_claims(self):
++        for w in _WITNESSES.values():
++            registry, legacy, audit = make_registry(w), make_legacy(w), w['audits']['ordinary']
++            delivered = w['requests']['p1'][0]['json']
++            normalized = json.dumps(w['bundles']['p1']['input_observation']['request'], separators=(',', ':'))
++            self.assertNotEqual(normalized, delivered)
++            swapped = mutated(audit, lambda rows: source_row(rows, 'owner_request', 'p1', 0)['raw_request'].__setitem__('json', normalized))
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(swapped, registry, legacy, swapped['required_profile'])), 'source/request-text')
++            labels = [
++                lambda rows: source_row(rows, 'owner_initialization', 'p1').__setitem__('phase', 'chronological'),
++                lambda rows: source_row(rows, 'owner_initialization', 'p1').__setitem__('provider', 'addressed-request/v1'),
++                lambda rows: source_row(rows, 'owner_request', 'p2', 1).__setitem__('owner', 'p1'),
++                lambda rows: source_row(rows, 'owner_request', 'p1', 1).__setitem__('delivery_cursor', 3),
++                lambda rows: source_row(rows, 'owner_initialization', 'p2')['team'][0].__setitem__('extra', 'x'),
++            ]
++            for change in labels:
++                forged = mutated(audit, change)
++                failure = self.code(lambda: check_knowledge_source_binding(forged, registry, legacy, forged['required_profile']))
++                self.assertEqual(failure, 'structure')  # closed schema/addressing rules reject every forged label first
++
++            def claim_all(rows):
++                for verdict in rows['verdict']:
++                    verdict['result'] = 'strong_complete'
++            claim = mutated(audit, claim_all)
++            self.assertEqual(check_knowledge_source_binding(claim, registry, legacy, claim['required_profile'])['completeness'], 'not_established')
++            self.assertTrue(check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])['source_verification']['verified'])
++            self.assertEqual(registry.availability['initialization_witness_owners'], ['p1', 'p2'])
++
++
++class BoundaryRowTests(SourceTestBase):
++    def test_boundary_row_only_mutations_rejected_by_structure(self):
++        for w in _WITNESSES.values():
++            registry, legacy = make_registry(w), make_legacy(w)
++
++            def second(rows, owner):
++                boundary = next(b for b in rows['boundary'] if b['index'] == 1)
++                return next(r for r in boundary['bindings'] if r['owner'] == owner)
++
++            def swap_owner(rows):
++                b = next(x for x in rows['boundary'] if x['index'] == 1)
++                b['bindings'][0]['owner'], b['bindings'][1]['owner'] = b['bindings'][1]['owner'], b['bindings'][0]['owner']
++
++            changes = [lambda rows: second(rows, 'p1').__setitem__('actor_record_id', w['python_record_ids']['p2']),
++                       lambda rows: second(rows, 'p1').__setitem__('observation_id', 'obs-' + 'b' * 64), swap_owner]
++            for form in FORMS:
++                for change in changes:
++                    audit = mutated(w['audits'][form], change)
++                    self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry, legacy, audit['required_profile'])), 'structure')
++
++
++class ReplayAndIdentityTests(SourceTestBase):
++    def test_replay_distinct_regime_with_hand_audited_oracle(self):
++        # Hand-audited oracle metadata for the checked-in replay fixtures (literal U+00C9 and U+1F600).
++        origin = {'battle_key': 'fixture-Éclair-\U0001F600', 'format': 'gen9randombattle', 'engine': 'pokemon-showdown@0.11.10', 'rule_version': 'pk-rules/v1'}
++        replay = ['|start', '|switch|p1a: Éclair|Pikachu, L80|100/100', '|switch|p2a: Beta|Gengar, L80|100/100', '|-enditem|p1a: Éclair|Oran Berry|[eat]',
++                  '|move|p2a: Beta|Tackle|p1a: Éclair', '|replace|p2a: Beta|Zoroark, L80|100/100', '|win|Éclair']
++        suffix = replay[:6] + ['|win|Beta']
++
++        def registry_for(records, held_origin=origin):
++            builder = SourceRegistryBuilder()
++            if held_origin:
++                builder.set_origin(held_origin)
++            if records is not None:
++                builder.set_replay_source(records)
++            return builder.freeze()
++
++        for name, records in (('replay-full.json', replay), ('replay-ordinary.json', replay), ('replay-compact.json', replay),
++                              ('replay-suffix-full.json', suffix), ('replay-suffix-compact.json', suffix)):
++            audit = load(name); profile = audit['required_profile']
++            other = suffix if records is replay else replay
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry_for(other), None, profile)), 'source/replay-source', name)
++            result = check_knowledge_source_binding(audit, registry_for(records), None, profile)
++            self.assertTrue(result['source_verification']['replay_source'], name)
++            self.assertEqual(result['source_verification']['original_delivery'], 'absent')
++            self.assertEqual(result['original_attribution'], 'unverified'); self.assertEqual(result['completeness'], 'not_established')
++            self.assertEqual(result['missing_capabilities'], ['legacy_context', 'original_delivery_authority', 'original_provider'])
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry_for(None), None, profile)), 'source/missing-replay-source')
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry_for(records[:5]), None, profile)), 'source/replay-source')
++            self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry_for(records, dict(origin, battle_key='foreign')), None, profile)), 'source/foreign-origin')
++        audit = load('replay-full.json')
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, registry_for(replay), LegacyContextBuilder().freeze(), audit['required_profile'])), 'legacy/observation')
++
++    def test_hand_authored_structure_canaries_are_not_source_positives(self):
++        audit = load('sim-ordinary.json')
++        self.assertTrue(check_knowledge_structure(audit)['structure_valid'])
++        self.assertEqual(self.code(lambda: check_knowledge_source_binding(audit, SourceRegistryBuilder().freeze(), None, audit['required_profile'])), 'source/missing-origin')
++
++    def test_data_identity_oracle_vectors(self):
++        # Digests identical to the TypeScript adapter test; produced by dataset_lineage.expected_record_id.
++        vectors = [
++            ('ascii', ['|start', '|switch|p1a: Alpha|Pikachu, L80|100/100'], 'datarec-7e1d02d5c7e300eaa7bc8c50a729e8e068122603341ae9b523e9f94299e9da6b'),
++            ('control', ['|ctl\x01\x1f|tab\t|nl\n|cr\r|del\x7f|bs\b|ff\f|q"|bs\\|sl/'], 'datarec-1e9742c83a45eb2a90f0ac44afa2eb837a93582a11b7d122765432a4614a1dc0'),
++            ('bmp', ['|bmp Ééあ €|�￿'], 'datarec-9bca5bf6f8789057cae374f712b27047b14b9c397cf545b0eb174746a99a5420'),
++            ('astral', ['|astral \U0001F600 \U0001D11E|end'], 'datarec-78d4b16002a4794496e5b4d65f2bf70dc41a6907cf54d763283db90faa2556e3'),
++            ('empty', [], 'datarec-62c8c45e54ac375c8ebb40f844d478f47f81c4d4351baa0d43308d74b04ea083'),
++        ]
++        for name, prefix, expected in vectors:
++            record = {'schema_version': DATASET_RECORD_SCHEMA, 'battle_id': 'vec-' + name, 'replay_id': 'sim:vec-' + name, 'source_kind': 'sim_core', 'perspective': 'p1',
++                      'observation_cursor': len(prefix), 'observation_prefix_hash': prefix_hash(prefix), 'observation_id': 'obs-' + '1' * 64,
++                      'action_id': 'act-' + '2' * 64, 'belief_id': 'belief-' + '3' * 64, 'transition_id': 'transition-' + '4' * 64}
++            self.assertEqual(expected_record_id(record), expected, name)
++
++    def test_old_identities_and_check_structure_cli_unchanged(self):
++        for vector in load('identity-vectors.json'):
++            self.assertEqual(knowledge_identity(vector['object']), vector['id'])
++        w = _WITNESSES[self.versions[0]]
++        env = {k: v for k, v in os.environ.items() if k.upper() not in ('PYTHONUTF8', 'PYTHONIOENCODING')}
++        env['PYTHONPATH'] = str(ROOT / 'trainer/src')
++        run = subprocess.run([sys.executable, '-m', 'neural.perspective_knowledge', '--check-structure'], cwd=str(ROOT), env=env,
++                             input=json.dumps(w['audits']['ordinary']).encode('utf-8'), capture_output=True, timeout=120)
++        self.assertEqual(run.returncode, 0, run.stderr)
++        self.assertEqual(run.stdout, b'{"structure_valid":true,"source_semantics_verified":false,"completeness":"not_established","legacy_envelope_verified":false}\n')
++        probe = subprocess.run([sys.executable, '-m', 'neural.perspective_knowledge_source', '--check-structure'], cwd=str(ROOT), env=env,
++                               capture_output=True, timeout=120)
++        self.assertEqual(probe.stdout, b'', 'the source module has no CLI or output path')
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- /dev/null
++++ candidate-after/docs/planning/perspective-fidelity-prompt12-witness.cjs
+@@ -0,0 +1,264 @@
++'use strict';
++/**
++ * Prompt 12 test-owned witness. Nothing here is production capture.
++ *
++ * - Legacy side: a real pinned local PipelineIntegrationSession (one joint step
++ *   per observation schema) yields actual bundles/observations/beliefs.
++ * - Source side: an independent BattleStream harness replays the same start
++ *   payload and the same choices, capturing the generated team arrays, the exact
++ *   addressed `|request|` text per owner (before any normalization) and the
++ *   spectator ledger. The session is only used to corroborate that ledger.
++ * - Audit builder: derives a structurally valid knowledge audit from the capture.
++ *   Registry expectations are NOT read from audits; tests feed the capture directly.
++ * - Expected DATA record IDs come from the Python validator (independent oracle).
++ * Nothing is persisted; the CLI prints one JSON document for the Python tests.
++ */
++const path = require('node:path');
++const fs = require('node:fs');
++const { spawnSync } = require('node:child_process');
++
++const root = path.resolve(__dirname, '../..');
++const sim = (name) => require(path.join(root, 'sim-core/dist/src', name));
++const ps = () => require(path.join(root, 'sim-core/node_modules/pokemon-showdown'));
++const psBattle = () => require(path.join(root, 'sim-core/node_modules/pokemon-showdown/dist/sim/battle'));
++const fixtureDir = path.join(root, 'docs/contracts/fixtures/perspective-knowledge-v1');
++
++const SEED = [101, 202, 303, 404];
++const FORMAT = 'gen9randombattle';
++const VERSIONS = ['observable-battle-state/v1', 'observable-battle-state/v2'];
++
++function offsetSeed(seed, delta) {
++  return [(seed[0] + delta) & 0xffff, (seed[1] + delta * 2) & 0xffff, (seed[2] + delta * 3) & 0xffff, (seed[3] + delta * 4) & 0xffff];
++}
++
++/** Hand-written (not audit-derived) conversion of a generated PokemonSet array to the wire `set` shape. */
++function toWireSets(team) {
++  const six = (table) => (table ? { type: 'six_stats', data: { hp: table.hp, atk: table.atk, def: table.def, spa: table.spa, spd: table.spd, spe: table.spe } } : null);
++  return team.map((set, index) => ({
++    slot: index + 1,
++    name: set.name ?? '',
++    species: set.species ?? '',
++    moves: [...set.moves],
++    item: set.item ?? '',
++    ability: set.ability ?? '',
++    tera_type: set.teraType ?? null,
++    level: set.level ?? null,
++    gender: set.gender ? set.gender : null,
++    shiny: set.shiny ?? null,
++    ball: set.ball ?? null,
++    nature: set.nature ? set.nature : null,
++    evs: six(set.evs),
++    ivs: six(set.ivs),
++    happiness: set.happiness ?? null,
++  }));
++}
++
++/** Independent pinned BattleStream harness: exact addressed bytes before any normalization. */
++async function runHarness(choiceRounds) {
++  const { BattleStream, Teams } = ps();
++  const { extractChannelMessages } = psBattle();
++  const { projectPipelineProtocolPrefix } = sim('pipeline_integration.js');
++  const events = [];
++  const stream = new (class extends BattleStream {
++    pushMessage(type, data) { events.push([type, data]); super.pushMessage(type, data); }
++  })({ keepAlive: true });
++  const teams = { p1: Teams.generate(FORMAT, { seed: offsetSeed(SEED, 11) }), p2: Teams.generate(FORMAT, { seed: offsetSeed(SEED, 29) }) };
++  const rawLedger = [];
++  const requests = { p1: [], p2: [] };
++  let consumed = 0;
++  const flush = () => {
++    const pending = [];
++    for (; consumed < events.length; consumed++) {
++      const [type, data] = events[consumed];
++      if (type === 'update') rawLedger.push(...extractChannelMessages(data, [0])[0]);
++      else if (type === 'sideupdate') {
++        const at = data.indexOf('\n');
++        const owner = data.slice(0, at); const line = data.slice(at + 1);
++        if (line.startsWith('|request|')) pending.push([owner, line.slice('|request|'.length)]);
++      }
++    }
++    const cursor = projectPipelineProtocolPrefix(rawLedger).length;
++    for (const [owner, json] of pending) requests[owner].push({ sequence: requests[owner].length, cursor, json });
++  };
++  try {
++    const payload = [
++      `>start ${JSON.stringify({ formatid: FORMAT, seed: SEED })}`,
++      `>player p1 ${JSON.stringify({ name: 'Agent-1', team: Teams.pack(teams.p1) })}`,
++      `>player p2 ${JSON.stringify({ name: 'Agent-2', team: Teams.pack(teams.p2) })}`,
++    ].join('\n');
++    await stream.write(payload); flush();
++    for (const round of choiceRounds) {
++      await stream.write(`>p1 ${round.p1}\n>p2 ${round.p2}`); flush();
++    }
++  } finally { stream.destroy(); }
++  return { teams, rawLedger, ledger: projectPipelineProtocolPrefix(rawLedger), requests };
++}
++
++function pythonValidate(bundle) {
++  const code = ['import sys,json', 'from neural.pipeline_json_wire import load_json', 'from neural.pipeline_record import validate_pipeline_bundle',
++    'b=load_json(sys.stdin)', 'r=validate_pipeline_bundle(b)', 'print(json.dumps({"record_id":r["record_id"]}))'].join('\n');
++  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
++  env.PYTHONPATH = path.join(root, 'trainer/src');
++  const py = spawnSync(process.env.PYTHON || 'D:/Anaconda/envs/neuralgpu/python.exe', ['-c', code], { cwd: root, env, input: JSON.stringify(bundle), encoding: 'utf8', timeout: 60000, maxBuffer: 16 * 1024 * 1024 });
++  if (py.error || py.status !== 0) throw new Error('Python legacy validation failed');
++  return JSON.parse(py.stdout).record_id;
++}
++
++async function capture(version) {
++  const { createPipelineIntegrationSession, validatePipelineLinkedRecordBundle } = sim('pipeline_integration.js');
++  const { canonicalActionFromLegalAction } = sim('canonical_action.js');
++  const battleId = 'prompt12-source-witness-' + version.slice(-2);
++  const session = await createPipelineIntegrationSession({ battle_id: battleId, format: FORMAT, seed: SEED, observation_schema_version: version });
++  let boundaries, bundles, choices;
++  try {
++    const first = session.boundary; const actions = {}; choices = { p1: '', p2: '' };
++    for (const owner of ['p1', 'p2']) {
++      const request = first.perspectives[owner].observation.request;
++      const index = request.legal_actions.available_indices[0];
++      actions[owner] = canonicalActionFromLegalAction(request, index);
++      choices[owner] = request.legal_actions.actions[index].choice;
++    }
++    const result = await session.step(actions);
++    boundaries = [first, result.boundary]; bundles = result.record_bundles;
++    const copy = JSON.parse(JSON.stringify(bundles));
++    for (const owner of ['p1', 'p2']) validatePipelineLinkedRecordBundle(copy[owner]);
++  } finally { await session.close(); }
++  const harness = await runHarness([choices]);
++  // Corroboration only: harness ledger/cursors must equal the legacy observation prefixes.
++  const cursors = [];
++  boundaries.forEach((boundary, b) => {
++    for (const owner of ['p1', 'p2']) {
++      const observation = boundary.perspectives[owner].observation;
++      const delivery = harness.requests[owner][b];
++      if (!delivery || delivery.cursor !== observation.event_cursor
++        || JSON.stringify(harness.ledger.slice(0, delivery.cursor)) !== JSON.stringify(observation.protocol_prefix)) throw new Error('harness/session ledger mismatch');
++    }
++    cursors.push(harness.requests.p1[b].cursor);
++  });
++  const recordIds = { p1: pythonValidate(bundles.p1), p2: pythonValidate(bundles.p2) };
++  return {
++    version, battle_id: battleId, seed: SEED, cursors,
++    origin: { battle_key: battleId, format: FORMAT, engine: 'pokemon-showdown@0.11.10', rule_version: 'pk-rules/v1' },
++    team_sets: { p1: toWireSets(harness.teams.p1), p2: toWireSets(harness.teams.p2) },
++    ledger: harness.ledger, requests: harness.requests,
++    bundles, python_record_ids: recordIds,
++    // TypeScript adapter output, recorded so the Python tests can assert cross-runtime parity.
++    ts_adapter_record_ids: Object.fromEntries(['p1', 'p2'].map((owner) => {
++      const b = bundles[owner];
++      return [owner, sim('perspective_knowledge_source.js').legacyDataRecordId({ battle_id: b.battle_id, perspective: owner, protocol_prefix: b.input_observation.protocol_prefix,
++        observation_id: b.input_observation.observation_id, action_id: b.action.action_id, belief_id: b.input_belief.belief_id, transition_id: b.transition.transition_id })];
++    })),
++  };
++}
++
++/** Structurally valid audit derived from the capture (never from a registry). */
++function buildAudit(w, form, options = {}) {
++  const { knowledgeIdentity } = sim('perspective_knowledge.js');
++  const nonactor = options.nonactor ?? [];
++  const profiles = JSON.parse(fs.readFileSync(path.join(fixtureDir, 'profiles.json'), 'utf8'));
++  const profile = profiles.find((p) => p.name === 'owner-loadout-complete/v1');
++  const rows = {};
++  const kinds = ['origin', 'source', 'prefix', 'evidence', 'certificate', 'fact', 'starting', 'current', 'request', 'knowledge', 'profile', 'verdict', 'boundary', 'binding'];
++  for (const kind of kinds) rows[kind] = new Map();
++  const seal = (row) => {
++    const sealed = { ...row, id: knowledgeIdentity(row) };
++    rows[row.kind].set(sealed.id, sealed);
++    return sealed.id;
++  };
++  const origin = seal({ kind: 'origin', ...(options.origin ?? w.origin) });
++  rows.profile.set(profile.id, profile);
++  const owners = ['p1', 'p2'];
++  const boundaryCount = w.cursors.length;
++  const prefixes = new Map();
++  const publicFor = (cursor) => {
++    if (!prefixes.has(cursor)) {
++      const records = w.ledger.slice(0, cursor);
++      const source = seal({ kind: 'source', origin, source_type: 'public_prefix', owner: null, provider: 'indexed-public/v1', delivery_seq: null, delivery_cursor: null, phase: 'chronological', team: [], records, raw_request: null });
++      const prefix = seal({ kind: 'prefix', origin, parser: 'indexed-public/v1', records });
++      const evidence = seal({ kind: 'evidence', origin, owner: null, scope: 'public', source, prefix, record_indices: [], team_slot: null, writer: 'boundary/v1' });
++      prefixes.set(cursor, { source, prefix, evidence });
++    }
++    return prefixes.get(cursor);
++  };
++  const starting = {};
++  for (const owner of owners) {
++    if (options.sourceless) { // source-less incomplete canary: no original authority is asserted
++      starting[owner] = seal({ kind: 'starting', origin, owner, policy: 'simulator-causal/v1', source: null, revision: 0, parent: null, facts: [], crosswalk: [] });
++      continue;
++    }
++    const set = w.team_sets[owner];
++    const source = seal({ kind: 'source', origin, source_type: 'owner_initialization', owner, provider: 'addressed-team-provider/v1', delivery_seq: 0, delivery_cursor: 0, phase: 'before_effects', team: set, records: [], raw_request: null });
++    const evidence = seal({ kind: 'evidence', origin, owner, scope: 'original', source, prefix: null, record_indices: [], team_slot: 1, writer: 'submitted-set/v1' });
++    const fact = seal({ kind: 'fact', owner, subject: `${owner}:roster:1`, family: 'K01', property: 'roster_species', state: 'known', value: { type: 'text', data: set[0].species }, reason: 'none', freshness: 'immutable', precision: 'exact', observed_at: 0, evidence: [evidence], certificate: null, effect_key: null });
++    starting[owner] = seal({ kind: 'starting', origin, owner, policy: 'simulator-causal/v1', source, revision: 0, parent: null, facts: [fact], crosswalk: [] });
++  }
++  const families = Array.from({ length: 20 }, (_, i) => ({ family: 'K' + String(i + 1).padStart(2, '0'), result: 'unsupported', reason: 'unimplemented_family' }));
++  const previousCurrent = { p1: null, p2: null };
++  const boundaries = [];
++  const knowledgeByBoundary = [];
++  for (let b = 0; b < boundaryCount; b++) {
++    const cursor = w.cursors[b];
++    const pub = publicFor(cursor);
++    const type = b === 0 ? 'initial' : 'mid';
++    const perOwner = {};
++    for (const owner of owners) {
++      const delivery = w.requests[owner][b];
++      const raw = JSON.parse(delivery.json);
++      const requestSource = seal({ kind: 'source', origin, source_type: 'owner_request', owner, provider: 'addressed-request/v1', delivery_seq: delivery.sequence, delivery_cursor: delivery.cursor, phase: 'chronological', team: [], records: [], raw_request: { json: delivery.json } });
++      const request = seal({ kind: 'request', origin, owner, source: requestSource, prefix: pub.prefix, sequence: delivery.sequence, cursor: delivery.cursor, actionable: raw.wait !== true, facts: [] });
++      const fact = seal({ kind: 'fact', owner, subject: `${owner}:side`, family: 'K20', property: 'boundary_kind', state: 'known', value: { type: 'text', data: type }, reason: 'none', freshness: 'current', precision: 'exact', observed_at: cursor, evidence: [pub.evidence], certificate: null, effect_key: null });
++      const current = seal({ kind: 'current', origin, owner, prefix: pub.prefix, cursor, parent: previousCurrent[owner], facts: [fact] });
++      previousCurrent[owner] = current;
++      const knowledge = seal({ kind: 'knowledge', origin, owner, policy: 'simulator-causal/v1', starting: starting[owner], current, request, boundary: b });
++      const verdict = seal({ kind: 'verdict', knowledge, profile: profile.id, families, result: 'incomplete' });
++      perOwner[owner] = { knowledge, verdict };
++    }
++    knowledgeByBoundary.push(perOwner);
++  }
++  const legacyFor = (owner, b) => {
++    const perspective = w.bundles[owner];
++    return b === 0
++      ? { observation: perspective.input_observation.observation_id, belief: perspective.input_belief.belief_id }
++      : { observation: perspective.successor_observation.observation_id, belief: perspective.successor_belief.belief_id };
++  };
++  let parent = null;
++  for (let b = 0; b < boundaryCount; b++) {
++    const bindings = owners.map((owner) => {
++      const legacy = legacyFor(owner, b);
++      const actor = b > 0 && !nonactor.includes(owner) ? w.python_record_ids[owner] : null;
++      return { owner, knowledge: knowledgeByBoundary[b][owner].knowledge, verdict: knowledgeByBoundary[b][owner].verdict, observation_id: legacy.observation, belief_id: legacy.belief, actor_record_id: actor };
++    });
++    parent = seal({ kind: 'boundary', origin, index: b, cursor: w.cursors[b], boundary_type: b === 0 ? 'initial' : 'mid', parent, restored_from: null, bindings });
++    boundaries.push(parent);
++  }
++  for (let b = 1; b < boundaryCount; b++) {
++    for (const owner of owners) {
++      const before = legacyFor(owner, b - 1), after = legacyFor(owner, b);
++      const actor = !nonactor.includes(owner);
++      seal({ kind: 'binding', origin, owner, input_index: b - 1, successor_index: b, input_knowledge: knowledgeByBoundary[b - 1][owner].knowledge, successor_knowledge: knowledgeByBoundary[b][owner].knowledge, input_observation: before.observation, successor_observation: after.observation, input_belief: before.belief, successor_belief: after.belief, transition: actor ? w.bundles[owner].transition.transition_id : null, actor_record: actor ? w.python_record_ids[owner] : null });
++    }
++  }
++  const tables = {};
++  for (const kind of kinds) {
++    const sorted = [...rows[kind].values()].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
++    tables[kind] = form === 'compact' ? Object.fromEntries(sorted.map((row) => [row.id, row])) : sorted;
++  }
++  const audit = { kind: 'audit', schema: 'perspective-knowledge/v1', form, origin, required_profile: profile.id, target_boundary: boundaries.at(-1), tables };
++  audit.id = knowledgeIdentity(audit);
++  return audit;
++}
++
++async function main() {
++  const output = {};
++  for (const version of VERSIONS) {
++    const w = await capture(version);
++    w.audits = { ordinary: buildAudit(w, 'ordinary'), full: buildAudit(w, 'full'), compact: buildAudit(w, 'compact') };
++    w.nonactor_audit = buildAudit(w, 'ordinary', { nonactor: ['p2'] });
++    w.sourceless_audit = buildAudit(w, 'ordinary', { sourceless: true });
++    output[version] = w;
++  }
++  process.stdout.write(JSON.stringify(output));
++}
++
++module.exports = { SEED, FORMAT, VERSIONS, capture, buildAudit, runHarness, toWireSets };
++if (require.main === module) main().catch((error) => { console.error(error.message); process.exitCode = 1; });

@@ -1,0 +1,2087 @@
+{
+  "scope": "Independent source/rule structural subsets only; no runtime writer support",
+  "positive": [
+    {
+      "case": "spikes-layer-one",
+      "context": "current",
+      "fact": "sha256:1f13e674ad3ce499724f4c147bd207f3ed135582ad092c95ada4c8746eabd5e5",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b",
+          "prefix": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1",
+          "record_indices": [
+            0
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 1
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 1,
+          "evidence": [
+            "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+          ],
+          "certificate": null,
+          "id": "sha256:1f13e674ad3ce499724f4c147bd207f3ed135582ad092c95ada4c8746eabd5e5"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "spikes-layer-two",
+      "context": "current",
+      "fact": "sha256:6974d084e812efcb3b20f334a3effaf9e11f27dc9e39ef496a6413ca4fc6d873",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115",
+          "prefix": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 2
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+          ],
+          "certificate": null,
+          "id": "sha256:6974d084e812efcb3b20f334a3effaf9e11f27dc9e39ef496a6413ca4fc6d873"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "toxic-spikes-two",
+      "context": "current",
+      "fact": "sha256:bf756389fbe0fa97f65672374442c0455ce75ae587da084cbc0cb872314ff410",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|move: Toxic Spikes",
+            "|-sidestart|p1: Éclair|move: Toxic Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:bddfcecd4944df8c9cbd3fc81bfa99292e7b7d79dec146869bef47c2ffce04c7"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|move: Toxic Spikes",
+            "|-sidestart|p1: Éclair|move: Toxic Spikes"
+          ],
+          "id": "sha256:1b0b818249c85ef3509699655b99d50626bf37eaf358700d9a9335c7342c21dd"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:bddfcecd4944df8c9cbd3fc81bfa99292e7b7d79dec146869bef47c2ffce04c7",
+          "prefix": "sha256:1b0b818249c85ef3509699655b99d50626bf37eaf358700d9a9335c7342c21dd",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:5a0f64b7bef7a727f19c9439ad9ca78c13ad5eb8a4dafbb67b55c64bb700927d"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "ToxicSpikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 2
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:5a0f64b7bef7a727f19c9439ad9ca78c13ad5eb8a4dafbb67b55c64bb700927d"
+          ],
+          "certificate": null,
+          "id": "sha256:bf756389fbe0fa97f65672374442c0455ce75ae587da084cbc0cb872314ff410"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "layers-absent",
+      "context": "current",
+      "fact": "sha256:83f09522c508c975231a24e60a98b9a2da4b62ea914642a3d6541fabdf3df9bb",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sideend|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:9cd3a99842a7e13f5f732e8cce375ff29fb7de5a12c881143a3f3c2b164a11ed"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sideend|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:162e4212bfc1a0a780e785b1e51b71b60c1382a716e8b3dc406718c8d6e9e8c3"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:9cd3a99842a7e13f5f732e8cce375ff29fb7de5a12c881143a3f3c2b164a11ed",
+          "prefix": "sha256:162e4212bfc1a0a780e785b1e51b71b60c1382a716e8b3dc406718c8d6e9e8c3",
+          "record_indices": [
+            0
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:a555a9769a2a06146eb4716679ac0d27fb78b90975c226f4cf929d1ef8946842"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known_absent",
+          "value": null,
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 1,
+          "evidence": [
+            "sha256:a555a9769a2a06146eb4716679ac0d27fb78b90975c226f4cf929d1ef8946842"
+          ],
+          "certificate": null,
+          "id": "sha256:83f09522c508c975231a24e60a98b9a2da4b62ea914642a3d6541fabdf3df9bb"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "layers-unsupported",
+      "context": "current",
+      "fact": "sha256:593ec8ca2d9454159579e2f107660623edb24cc2f6fda0aa82b5602551c08bdd",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [],
+          "raw_request": null,
+          "id": "sha256:2a3bde289612288dcaab6dc1964325b2c09375c3ec659816e62cb95e4916e7c3"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [],
+          "id": "sha256:1b5e56665d217045a5e850e63956a08abbcf261e0ed827603803fe0748278626"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2a3bde289612288dcaab6dc1964325b2c09375c3ec659816e62cb95e4916e7c3",
+          "prefix": "sha256:1b5e56665d217045a5e850e63956a08abbcf261e0ed827603803fe0748278626",
+          "record_indices": [],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:4b62dd62ac08ce2a725eaa49eaf845d572753e83adfa36144ecf2ff32d908900"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "unknown",
+          "value": null,
+          "reason": "unimplemented_family",
+          "freshness": "current",
+          "precision": "not_applicable",
+          "observed_at": null,
+          "evidence": [],
+          "certificate": null,
+          "id": "sha256:593ec8ca2d9454159579e2f107660623edb24cc2f6fda0aa82b5602551c08bdd"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "reflect-nonlayered",
+      "context": "current",
+      "fact": "sha256:57df27be26dcc0fcfad0f71bbb8c9e9b91d7b7cd7b37a4f85b13926774aa9125",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Reflect"
+          ],
+          "raw_request": null,
+          "id": "sha256:e9d0e2fd0149b265ffde78ee5e93d7c0b01a4a6f4bd623493223d494dbfc8091"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Reflect"
+          ],
+          "id": "sha256:db4f78993bb9fad06f3bf5cc0107044bd285576de7a922e0c988cc9abf06c5ce"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:e9d0e2fd0149b265ffde78ee5e93d7c0b01a4a6f4bd623493223d494dbfc8091",
+          "prefix": "sha256:db4f78993bb9fad06f3bf5cc0107044bd285576de7a922e0c988cc9abf06c5ce",
+          "record_indices": [
+            0
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:1d9b78ff164aef4c68ea07891e636b09ca13a242ba8c8749ee122d597fcc983b"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Reflect",
+          "state": "inapplicable",
+          "value": null,
+          "reason": "proved_rule_inapplicable",
+          "freshness": "current",
+          "precision": "not_applicable",
+          "observed_at": 1,
+          "evidence": [
+            "sha256:1d9b78ff164aef4c68ea07891e636b09ca13a242ba8c8749ee122d597fcc983b"
+          ],
+          "certificate": null,
+          "id": "sha256:57df27be26dcc0fcfad0f71bbb8c9e9b91d7b7cd7b37a4f85b13926774aa9125"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "future-sight-base-power",
+      "context": "current",
+      "fact": "sha256:cef59798737b15c9d4d957a6af38989879e0dc95e2ded38726fd8931199d067d",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "known",
+          "value": {
+            "type": "power",
+            "data": {
+              "basis": "base_move",
+              "amount": 120
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:cef59798737b15c9d4d957a6af38989879e0dc95e2ded38726fd8931199d067d"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "future-sight-effective-power-unknown",
+      "context": "current",
+      "fact": "sha256:1257ada10bd8013062645a01ea5904d8f3b3b425fa02ef5e3d02d8b2e6b9ec55",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [],
+          "raw_request": null,
+          "id": "sha256:2a3bde289612288dcaab6dc1964325b2c09375c3ec659816e62cb95e4916e7c3"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [],
+          "id": "sha256:1b5e56665d217045a5e850e63956a08abbcf261e0ed827603803fe0748278626"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2a3bde289612288dcaab6dc1964325b2c09375c3ec659816e62cb95e4916e7c3",
+          "prefix": "sha256:1b5e56665d217045a5e850e63956a08abbcf261e0ed827603803fe0748278626",
+          "record_indices": [],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:5d5227b41fcc91e1e721da71e4a7eb58637d7093cb6e66c2fcff7d4b96e09362"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "unknown",
+          "value": null,
+          "reason": "unimplemented_family",
+          "freshness": "current",
+          "precision": "not_applicable",
+          "observed_at": null,
+          "evidence": [],
+          "certificate": null,
+          "id": "sha256:1257ada10bd8013062645a01ea5904d8f3b3b425fa02ef5e3d02d8b2e6b9ec55"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "weather-range",
+      "context": "current",
+      "fact": "sha256:044484a984b4304798f43624dfd1bdef73889987c6a4bb6542740be52faa74c2",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "weather:RainDance",
+          "state": "known",
+          "value": {
+            "type": "field_timer",
+            "data": {
+              "target_kind": "weather",
+              "name": "RainDance",
+              "remaining": {
+                "min": 4,
+                "max": 7
+              }
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "interval",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:044484a984b4304798f43624dfd1bdef73889987c6a4bb6542740be52faa74c2"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "terrain-range",
+      "context": "current",
+      "fact": "sha256:4815f6f1be30ff1259614d917602db34c4dea318f5078aa88ab4f6adff64432c",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "terrain:ElectricTerrain",
+          "state": "known",
+          "value": {
+            "type": "field_timer",
+            "data": {
+              "target_kind": "terrain",
+              "name": "ElectricTerrain",
+              "remaining": {
+                "min": 5,
+                "max": 8
+              }
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "interval",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:4815f6f1be30ff1259614d917602db34c4dea318f5078aa88ab4f6adff64432c"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "weather-exact-hidden",
+      "context": "current",
+      "fact": "sha256:974e8992abcd9b9247ebe1257fe24210c3cd878fe08f3c7e15ce11b7855d413f",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "weather:RainDance",
+          "state": "unknown",
+          "value": null,
+          "reason": "hidden_timer",
+          "freshness": "current",
+          "precision": "not_applicable",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:974e8992abcd9b9247ebe1257fe24210c3cd878fe08f3c7e15ce11b7855d413f"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "terrain-exact-hidden",
+      "context": "current",
+      "fact": "sha256:8c0c561507b87b00d9ca2a6d738cfa73672e861d279a779e53d2f20cddec9388",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "terrain:ElectricTerrain",
+          "state": "unknown",
+          "value": null,
+          "reason": "hidden_timer",
+          "freshness": "current",
+          "precision": "not_applicable",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:8c0c561507b87b00d9ca2a6d738cfa73672e861d279a779e53d2f20cddec9388"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "accept"
+    },
+    {
+      "case": "simultaneous-timers",
+      "aggregate": "incomplete",
+      "expected": "accept",
+      "pair": [
+        "weather-range",
+        "terrain-range"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "case": "wrong-layer-value",
+      "context": "current",
+      "fact": "sha256:5bdc5794d0909f1e83c8a73c37d76a2b4dd2a2a18e3a565dad2d52c036fd0e33",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115",
+          "prefix": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 1
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+          ],
+          "certificate": null,
+          "id": "sha256:5bdc5794d0909f1e83c8a73c37d76a2b4dd2a2a18e3a565dad2d52c036fd0e33"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "layer ledger value"
+    },
+    {
+      "case": "wrong-layer-type",
+      "context": "current",
+      "fact": "sha256:2b62cb84763b9b1717c6f2c4a9dded06a7797c5e7651145ee517c23f4fdaa55f",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b",
+          "prefix": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1",
+          "record_indices": [
+            0
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "text",
+            "data": "1"
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 1,
+          "evidence": [
+            "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+          ],
+          "certificate": null,
+          "id": "sha256:2b62cb84763b9b1717c6f2c4a9dded06a7797c5e7651145ee517c23f4fdaa55f"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "property value tag"
+    },
+    {
+      "case": "wrong-layer-identity",
+      "context": "current",
+      "fact": "sha256:8a08bd2cfd154bf62041fbf2fcf1ba5c87b0e908f448165d482f932b9beac4f0",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115",
+          "prefix": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "ToxicSpikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 2
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+          ],
+          "certificate": null,
+          "id": "sha256:8a08bd2cfd154bf62041fbf2fcf1ba5c87b0e908f448165d482f932b9beac4f0"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "layer ledger identity"
+    },
+    {
+      "case": "wrong-layer-side",
+      "context": "current",
+      "fact": "sha256:d2125430a2cf0eedd30ec0592c31f3701fdb48f14cb51188d6fdc3b9787ad796",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes",
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:2878af284e663bdbb3336698db2d271f94a2e863b307123e65042d02391b9115",
+          "prefix": "sha256:0d34512dd026dfe324a4d1fc37e6b1ce692b2aee400e64dee6eddc2069e669c3",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 2
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:2008d13064eb92cbb1760bf17c69ef9e45424508c45a8f186b2f987bac5ecf5e"
+          ],
+          "certificate": null,
+          "id": "sha256:d2125430a2cf0eedd30ec0592c31f3701fdb48f14cb51188d6fdc3b9787ad796"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "layer affected side"
+    },
+    {
+      "case": "layer-overflow",
+      "context": "current",
+      "fact": "sha256:785f9c42b327973fe9446366e525d6d3234f49a2135fc5165dadbec79856f050",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "raw_request": null,
+          "id": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-sidestart|p1: Éclair|Spikes"
+          ],
+          "id": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:41d7bb5aba9c268535c449ebe9f687da6164cf79a6f3671310864732eb038c7b",
+          "prefix": "sha256:19939954e3007da593a664e1f33944f83328ea82f3c5c6922916cfb4b58151c1",
+          "record_indices": [
+            0
+          ],
+          "team_slot": null,
+          "writer": "layer-count/v1",
+          "id": "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K13",
+          "property": "side_condition_layers",
+          "effect_key": "Spikes",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 4
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 1,
+          "evidence": [
+            "sha256:03eae6a25e00e73c7fee369238960e9e107c056010211e0ffd009a9664b6bc6f"
+          ],
+          "certificate": null,
+          "id": "sha256:785f9c42b327973fe9446366e525d6d3234f49a2135fc5165dadbec79856f050"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "layer bounds"
+    },
+    {
+      "case": "wrong-pending-power",
+      "context": "current",
+      "fact": "sha256:fbffdc6a4273e02d43a8ea220c480773548cdb6497a77760e71b2413f3f52fbb",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "known",
+          "value": {
+            "type": "power",
+            "data": {
+              "basis": "base_move",
+              "amount": 80
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:fbffdc6a4273e02d43a8ea220c480773548cdb6497a77760e71b2413f3f52fbb"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "pending power oracle"
+    },
+    {
+      "case": "wrong-power-type",
+      "context": "current",
+      "fact": "sha256:339eed3a4afda69de8c7ef093de77891d1d1a4fc337cf6bfc647ba943533e307",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "known",
+          "value": {
+            "type": "integer",
+            "data": 120
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:339eed3a4afda69de8c7ef093de77891d1d1a4fc337cf6bfc647ba943533e307"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "property value tag"
+    },
+    {
+      "case": "wrong-power-identity",
+      "context": "current",
+      "fact": "sha256:9c3d1eeb24aab4176fb5606541127c0bf7bc97afb3f1cedfa17e557e15af6293",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "Wish",
+          "state": "known",
+          "value": {
+            "type": "power",
+            "data": {
+              "basis": "base_move",
+              "amount": 120
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:9c3d1eeb24aab4176fb5606541127c0bf7bc97afb3f1cedfa17e557e15af6293"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "pending power oracle"
+    },
+    {
+      "case": "wrong-power-recipient",
+      "context": "current",
+      "fact": "sha256:6b380e56d3972134b26e1b17ba70a80d686bea8d35368042bc366fbd5e647e39",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "known",
+          "value": {
+            "type": "power",
+            "data": {
+              "basis": "base_move",
+              "amount": 120
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:6b380e56d3972134b26e1b17ba70a80d686bea8d35368042bc366fbd5e647e39"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "pending recipient"
+    },
+    {
+      "case": "unsupported-effective-power",
+      "context": "current",
+      "fact": "sha256:ec024dd4567bbd7602aee78672b417cc597381b5ba2837c27ce8786b952c955f",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "raw_request": null,
+          "id": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|move|p1a: Éclair|Future Sight|p2a: Beta",
+            "|-start|p1a: Éclair|move: Future Sight"
+          ],
+          "id": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:72173ded3aab31e4689d65b95a597db3901e269c2b561b1add6d37672dea90d8",
+          "prefix": "sha256:99f80707a835dd323d2af0fe3b3361d8c3a9b803b52517949b9d440f86a074fa",
+          "record_indices": [
+            0,
+            1
+          ],
+          "team_slot": null,
+          "writer": "pending-base-power/v1",
+          "id": "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p2:side",
+          "family": "K15",
+          "property": "pending_power",
+          "effect_key": "FutureSight",
+          "state": "known",
+          "value": {
+            "type": "power",
+            "data": {
+              "basis": "effective_move",
+              "amount": 120
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "exact",
+          "observed_at": 2,
+          "evidence": [
+            "sha256:26fc33fa1b4eca94ab129c5330a46e9119371012afff6f3422145b31e3738726"
+          ],
+          "certificate": null,
+          "id": "sha256:ec024dd4567bbd7602aee78672b417cc597381b5ba2837c27ce8786b952c955f"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "pending power oracle"
+    },
+    {
+      "case": "timer-cross-binding",
+      "context": "current",
+      "fact": "sha256:5110799333cea0c1cdc525c464fb3d3ba40bf8e8a468181d8741f0c2a2bc1f63",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "terrain:ElectricTerrain",
+          "state": "known",
+          "value": {
+            "type": "field_timer",
+            "data": {
+              "target_kind": "weather",
+              "name": "RainDance",
+              "remaining": {
+                "min": 4,
+                "max": 7
+              }
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "interval",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:5110799333cea0c1cdc525c464fb3d3ba40bf8e8a468181d8741f0c2a2bc1f63"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "timer target"
+    },
+    {
+      "case": "timer-wrong-range",
+      "context": "current",
+      "fact": "sha256:327dfd148a02e2ce840837280025a0e49df14d942bf52af16c93f1ed260cfa1c",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": "weather:RainDance",
+          "state": "known",
+          "value": {
+            "type": "field_timer",
+            "data": {
+              "target_kind": "weather",
+              "name": "RainDance",
+              "remaining": {
+                "min": 5,
+                "max": 8
+              }
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "interval",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:327dfd148a02e2ce840837280025a0e49df14d942bf52af16c93f1ed260cfa1c"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "timer ledger range"
+    },
+    {
+      "case": "timer-null-key",
+      "context": "current",
+      "fact": "sha256:aa6241af889ef06a72cf55a54a9ea284e953396dc7bc85b9a3f1f832b8586990",
+      "objects": [
+        {
+          "kind": "origin",
+          "battle_key": "PK-01R-ledger",
+          "format": "gen9randombattle",
+          "engine": "pokemon-showdown@0.11.10",
+          "rule_version": "pk-rules/v1",
+          "id": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6"
+        },
+        {
+          "kind": "source",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "source_type": "public_prefix",
+          "owner": null,
+          "provider": "indexed-public/v1",
+          "delivery_seq": null,
+          "delivery_cursor": null,
+          "phase": "chronological",
+          "team": [],
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "raw_request": null,
+          "id": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e"
+        },
+        {
+          "kind": "prefix",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "parser": "indexed-public/v1",
+          "records": [
+            "|-weather|RainDance",
+            "|-weather|RainDance|[upkeep]",
+            "|-fieldstart|move: Electric Terrain"
+          ],
+          "id": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d"
+        },
+        {
+          "kind": "evidence",
+          "origin": "sha256:ae48ce24a0b906bd2ed95973ed978d7ff32ea0e68e1d854c9d6101039d301cc6",
+          "owner": null,
+          "scope": "public",
+          "source": "sha256:1bac31104fd4d0597056fb01dc359efae94bcb5eacd80435931c106db964333e",
+          "prefix": "sha256:1bd1b42b97ef18c0eadf0e1d27d7e67319e3663dcc5d19aa02eb63999a04a77d",
+          "record_indices": [
+            0,
+            1,
+            2
+          ],
+          "team_slot": null,
+          "writer": "field-timer-range/v1",
+          "id": "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+        },
+        {
+          "kind": "fact",
+          "owner": "p1",
+          "subject": "p1:side",
+          "family": "K14",
+          "property": "field_remaining",
+          "effect_key": null,
+          "state": "known",
+          "value": {
+            "type": "field_timer",
+            "data": {
+              "target_kind": "weather",
+              "name": "RainDance",
+              "remaining": {
+                "min": 4,
+                "max": 7
+              }
+            }
+          },
+          "reason": "none",
+          "freshness": "current",
+          "precision": "interval",
+          "observed_at": 3,
+          "evidence": [
+            "sha256:79b7f842f4a10a12a87ed200ed0aa5e551007e9e50655908668c04408ba84fae"
+          ],
+          "certificate": null,
+          "id": "sha256:aa6241af889ef06a72cf55a54a9ea284e953396dc7bc85b9a3f1f832b8586990"
+        }
+      ],
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "rejection_code": "timer target"
+    },
+    {
+      "case": "timer-conflict",
+      "aggregate": "incomplete",
+      "expected": "reject",
+      "pair": [
+        "weather-range",
+        "weather-range"
+      ],
+      "rejection_code": "logical fact conflict"
+    }
+  ],
+  "source_rules": {
+    "Spikes": "moves.ts:18180-18190, maximum3",
+    "ToxicSpikes": "moves.ts:20526-20535, maximum2",
+    "FutureSight": "moves.ts:6615-6648, BASE power120 only",
+    "RainDance": "conditions.ts:472-482, duration5/8; one observed upkeep yields conservative4..7",
+    "ElectricTerrain": "moves.ts:4672-4680, duration5/8; no elapsed upkeep yields5..8"
+  }
+}

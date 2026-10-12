@@ -1,0 +1,26 @@
+✔ barrier waits for both addressed requests and every public consumer, not an intermediate requestless update (1.4032ms)
+✔ terminal settling requires the end signal and all terminal deliveries; terminal EOF is normal (0.2673ms)
+✔ controlled timeout releases barrier wait and timer (1.1022ms)
+✔ controlled message-limit releases barrier wait and timer (0.2023ms)
+✔ controlled simulator-error releases barrier wait and timer (0.1673ms)
+✔ controlled stream-closed releases barrier wait and timer (0.1559ms)
+✔ controlled cancelled releases barrier wait and timer (0.1387ms)
+✔ deadline also bounds continuously arriving microtask output without waiting for a timer turn (0.2272ms)
+✔ real simulator decision is not published until delayed spectator delivery completes (345.8257ms)
+✔ real simulator forcewin p1 terminal output settles and restores exactly (25.7677ms)
+✔ real simulator forcetie terminal output settles and restores exactly (27.1709ms)
+✔ pipeline timeout discards a progressed candidate, releases resources and preserves lineage (153.6932ms)
+✔ pipeline message-limit discards a progressed candidate, releases resources and preserves lineage (126.2734ms)
+✔ pipeline simulator-error discards a progressed candidate, releases resources and preserves lineage (114.0799ms)
+✔ pipeline stream-closed discards a progressed candidate, releases resources and preserves lineage (114.9102ms)
+✔ pipeline cancelled discards a progressed candidate, releases resources and preserves lineage (107.9281ms)
+✔ consumer closure with undelivered terminal output fails rather than waiting for a deadline (0.2284ms)
+✔ settling options reject unbounded or unsupported limits (0.324ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1278.5118

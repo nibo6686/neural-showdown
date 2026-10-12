@@ -1,0 +1,53 @@
+{
+  "scope": "Current bytes reviewed in Codex handoff reconciliation; focused checks only, no attestation or complete-knowledge claim",
+  "date": "2026-10-10",
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "current_files": {
+    "sim-core/src/env_manager.ts": "d7f0c5477334392f051d80404777b79e9a11b272d1ad630deda294a463e71ee6",
+    "sim-core/tests/active_request_restore.test.ts": "d1c99bd08dbb501a3a5565688bdc77d95ffba33d16a8633406dc502814766bc7",
+    "sim-core/src/perspective_knowledge_source.ts": "65e9031a9a4e39380601ae1046d8ba8d3ae7dd54b3053420ca5a0041f9764bca",
+    "trainer/src/neural/perspective_knowledge_source.py": "fa081c09ca89e285a556dc12b82499bd4d40b371ce1f119fa94e5fbd62878596",
+    "sim-core/src/request_knowledge.ts": "3cc94815bcb4a54f6af46694c9db7ca7e32ef1206b855e65222e89180ba7a54e",
+    "trainer/src/neural/request_knowledge.py": "b251c59dcfac38395a8df3e8461bcd2f49f227f3eeb331c500e3c5e54a7cbeff",
+    "docs/contracts/PERSPECTIVE_KNOWLEDGE.md": "54aa14e6dae0e864f5b008f44137fcceac951de75ef8f65137e3c53297a7307c",
+    "docs/contracts/REQUEST_KNOWLEDGE.md": "4a94d7d76647ad37bc42e8532f1cc23c729ea834ee182c48922606554f729bf9",
+    "sim-core/src/perspective_knowledge.ts": "6293777fc4676eaca104050048adb90b0369d2d007a1a4a984354de17f53616e",
+    "trainer/src/neural/perspective_knowledge.py": "2f621fe210d00cf9837980445ad31c1b2c67fea0750e90754a6d69f65e877335"
+  },
+  "restoration_old_packet_mismatch": {
+    "sim-core/src/env_manager.ts": {
+      "old": "122b23c333991c8e0c58443d44666aa5e1df12f1f3fbffb7d31535906bcef66f",
+      "current": "d7f0c5477334392f051d80404777b79e9a11b272d1ad630deda294a463e71ee6"
+    },
+    "sim-core/tests/active_request_restore.test.ts": {
+      "old": "5d9146b059ef55389235dfccffdb327bee5bb35a09f164410f092239abdc722e",
+      "current": "d1c99bd08dbb501a3a5565688bdc77d95ffba33d16a8633406dc502814766bc7"
+    }
+  },
+  "fresh_checks": {
+    "build": "direct tsc passed",
+    "ts_per_file": {
+      "active_request_restore": 15,
+      "perspective_knowledge_source": 21,
+      "request_knowledge": 12
+    },
+    "python_source_and_request": 38,
+    "python_seconds": 34.534,
+    "strict_records_rejected": [
+      "|rated|",
+      "|j|x",
+      "|join|x"
+    ],
+    "production_html_loader": "Both supplied fixtures parsed; no checkpoint/dataset/scoring invoked"
+  },
+  "fixtures": {
+    "C:\\Users\\cloud\\Downloads\\Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html": {
+      "sha256": "dcdb4065f50d6e0763f077e194564d138458959682d0deea25e03fb1e83e7b42",
+      "bytes": 38133
+    },
+    "C:\\Users\\cloud\\Downloads\\Gen9OU-2026-10-10-hasklne-loob.html": {
+      "sha256": "c44a0b666b492ebcca9bd200f00b1628daf3f9472c236fb3a36f5947ba94d18f",
+      "bytes": 31999
+    }
+  }
+}

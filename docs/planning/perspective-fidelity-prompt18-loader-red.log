@@ -1,0 +1,228 @@
+test_encoded_record_start_cannot_be_promoted_to_command (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_record_start_cannot_be_promoted_to_command) ... FAIL
+test_encoded_script_markup_is_inert_inside_one_record (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_script_markup_is_inert_inside_one_record) ... ok
+test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) ...
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#10;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#13;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#11;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#12;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#0;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x85;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x2028;') ... FAIL
+  test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x2029;') ... FAIL
+test_literal_transport_controls_and_outside_lookalikes (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_literal_transport_controls_and_outside_lookalikes) ... FAIL
+test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) ...
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='|win|outside') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='&lt;script type="text/plain" class="battle-log-data"&gt;\n|win|outside\n&lt;/script&gt;') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data">\n|win|real\n</script><script type="text/plain" class="battle-log-data">\n|win|real\n</script>') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data">\n|win|real\n') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data"></script>') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/javascript" class="battle-log-data">\n|win|real\n</script>') ... FAIL
+  test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data" class="other">\n|win|real\n</script>') ... FAIL
+test_non_html_routes_and_generic_parser_do_not_decode_transport (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_non_html_routes_and_generic_parser_do_not_decode_transport) ... ok
+test_supplied_fixtures_literal_hp_and_index_mapping (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping) ...
+  test_supplied_fixtures_literal_hp_and_index_mapping (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping) (fixture='Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html') ... FAIL
+  test_supplied_fixtures_literal_hp_and_index_mapping (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping) (fixture='Gen9OU-2026-10-10-hasklne-loob.html') ... FAIL
+
+======================================================================
+FAIL: test_encoded_record_start_cannot_be_promoted_to_command (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_encoded_record_start_cannot_be_promoted_to_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 141, in test_encoded_record_start_cannot_be_promoted_to_command
+    self.assertEqual(self.load(self.local_html(text))["protocol_log"], ['|win|real'])
+AssertionError: Lists differ: ['|win|injected', '|win|real'] != ['|win|real']
+
+First differing element 0:
+'|win|injected'
+'|win|real'
+
+First list contains 1 additional elements.
+First extra element 1:
+'|win|real'
+
+- ['|win|injected', '|win|real']
++ ['|win|real']
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#10;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#13;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#11;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#12;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#0;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x85;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x2028;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_entity_record_controls_cannot_inject_commands (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_entity_record_controls_cannot_inject_commands) (entity='&#x2029;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 136, in test_entity_record_controls_cannot_inject_commands
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_literal_transport_controls_and_outside_lookalikes (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_literal_transport_controls_and_outside_lookalikes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 112, in test_literal_transport_controls_and_outside_lookalikes
+    self.assertEqual(trajectory["protocol_log"], expected)
+AssertionError: Lists differ: ['|win|outside-before', '|win|encoded-outsid[352 chars]ter'] != ['|j|\u2606Pokémon', '|rated|', '|switch|p1a: Pok[277 chars]mon']
+
+First differing element 0:
+'|win|outside-before'
+'|j|\u2606Pokémon'
+
+First list contains 3 additional elements.
+First extra element 12:
+'|raw|duplicate'
+
+Diff is 760 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='|win|outside')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='&lt;script type="text/plain" class="battle-log-data"&gt;\n|win|outside\n&lt;/script&gt;')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data">\n|win|real\n</script><script type="text/plain" class="battle-log-data">\n|win|real\n</script>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data">\n|win|real\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data"></script>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 130, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    self.load(self.local_html(text))
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 52, in load
+    return loader._load_replay(str(path), replay_dir=path.parent, trajectories_path=path.parent / "unused", format_name=fmt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\cloud\Downloads\neural\final\trainer\src\neural\compare_action_rankers.py", line 50, in _load_replay
+    return load_replay_trajectory(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Anaconda\envs\neuralgpu\Lib\unittest\mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Anaconda\envs\neuralgpu\Lib\unittest\mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Anaconda\envs\neuralgpu\Lib\unittest\mock.py", line 1183, in _execute_mock_call
+    raise effect
+AssertionError: forbidden local-import side effect: load_replay_trajectory
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/javascript" class="battle-log-data">\n|win|real\n</script>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_ambiguous_empty_and_malformed_blocks_fail_locally (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_missing_ambiguous_empty_and_malformed_blocks_fail_locally) (text='<script type="text/plain" class="battle-log-data" class="other">\n|win|real\n</script>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 129, in test_missing_ambiguous_empty_and_malformed_blocks_fail_locally
+    with self.assertRaisesRegex(ValueError, 'saved HTML replay'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_supplied_fixtures_literal_hp_and_index_mapping (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping) (fixture='Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 72, in test_supplied_fixtures_literal_hp_and_index_mapping
+    self.assertEqual(trajectory["protocol_log"], expected)
+AssertionError: Lists differ: ['|j|[525 chars]M|310\\/310', '|switch|p2a: Dondozo|Dondozo, L[9637 chars]ng)"] != ['|j|[525 chars]M|310/310', '|switch|p2a: Dondozo|Dondozo, L78[9489 chars]ng)"]
+
+First differing element 18:
+'|switch|p1a: Skuntank|Skuntank, L84, M|310\\/310'
+'|switch|p1a: Skuntank|Skuntank, L84, M|310/310'
+
+Diff is 17792 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_supplied_fixtures_literal_hp_and_index_mapping (trainer.tests.test_local_replay_html_transport.LocalReplayHTMLTransportTest.test_supplied_fixtures_literal_hp_and_index_mapping) (fixture='Gen9OU-2026-10-10-hasklne-loob.html')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_local_replay_html_transport.py", line 72, in test_supplied_fixtures_literal_hp_and_index_mapping
+    self.assertEqual(trajectory["protocol_log"], expected)
+AssertionError: Lists differ: ['|j|[1224 chars]m|100\\/100', '|switch|p2a: Ting-Lu|Ting-Lu|10[7858 chars]p2|'] != ['|j|[1224 chars]m|100/100', '|switch|p2a: Ting-Lu|Ting-Lu|100/[7762 chars]p2|']
+
+First differing element 38:
+'|switch|p1a: Kyurem|Kyurem|100\\/100'
+'|switch|p1a: Kyurem|Kyurem|100/100'
+
+Diff is 14671 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.276s
+
+FAILED (failures=19)

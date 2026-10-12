@@ -1,0 +1,40 @@
+✔ literal presence, equal packing, zeros, metadata and recursive detached freezing (3.2981ms)
+✔ reference authority rejects copied, transported, owner, occurrence, packed swaps and duplicate issuance (0.7257ms)
+✔ missing either owner and foreign enrollment cannot activate partial authority (0.5756ms)
+✖ literal presence and duplicate roster/move order survive the actual creation route (266.3897ms)
+✔ actual native session captures both six-member teams before payload; packing input is detached (83.3159ms)
+✔ synthetic initial effects retain pre-effect originals through actual session provider for p1 (44.1149ms)
+✔ synthetic initial effects retain pre-effect originals through actual session provider for p2 (32.6539ms)
+✔ session isolation, successful replacement, rejection, bare restore, synchronous close revocation (111.1558ms)
+✔ actual creation generation failure leaves no usable issuance (5.0099ms)
+✔ actual creation packing failure leaves no usable issuance (5.5601ms)
+✔ actual creation missing-p1 failure leaves no usable issuance (2.7322ms)
+✔ actual creation missing-p2 failure leaves no usable issuance (3.7934ms)
+✔ actual creation submission failure leaves no usable issuance (4.7806ms)
+✔ actual creation settling failure leaves no usable issuance (6.1853ms)
+✔ actual creation boundary failure leaves no usable issuance (11.3066ms)
+✔ actual creation cleanup failure leaves no usable issuance (12.1263ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 15
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 835.2469
+
+✖ failing tests:
+
+test at sim-core\dist\tests\original_owner_provider.test.js:104:25
+✖ literal presence and duplicate roster/move order survive the actual creation route (266.3897ms)
+  Error: pipeline/v1/observable-projection-failed: Public health evidence mismatch: p1: Same requires exactly one self_team row
+      at projectPipelineStepResult (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:183:15)
+      at PipelineIntegrationSession.projectObservations (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:553:16)
+      at PipelineIntegrationSession.buildInitialBoundary (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:531:35)
+      at PipelineIntegrationSession.create (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:280:52)
+      at async TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\original_owner_provider.test.js:117:13)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    code: 'pipeline/v1/observable-projection-failed',
+    diagnostic: { schema_version: 'pipeline-diagnostic/v1', code: 'pipeline/v1/observable-projection-failed', detail: 'Public health evidence mismatch: p1: Same requires exactly one self_team row' }
+  }

@@ -1,0 +1,24 @@
+# Prompt 10 PK-01R candidate for lead review
+
+Six bounded contract/checker findings are corrected locally. No runtime adoption or later task was executed. Main HEAD remains `accab655c26ada18124e790b16d5770c8bd17894`; prior dirty work and Prompt9 historical evidence were preserved. Parent wrote all shared files; three read-only Sol6.1 reviewers returned clean scoped dispositions after their concrete findings were integrated.
+
+Decisions and shapes:
+
+1. Exact string wire escapes are quote/backslash plus b/f/n/r/t short escapes; other controls use lower-case four-digit hex, slash literal, no normalization. An independently reviewed literal covers all32 controls, Unicode and punctuation, complete domain preimage and digest. Identity algorithms are unchanged.
+2. Discovery parents require the identical source. Proved facts/crosswalks are immutable; unknown refinements retain reachable parents. Changed complete replay sources start independent revision0 roots and re-prove originals. Mandatory proved-original replay certificates bind to starting source and exact fact evidence; crosswalk certificates bind to that source. Cross-source parents, source carryover, stripped certificates and false reproof reject.
+3. `side_condition_layers` is integer with named condition key and Spikes1..3/ToxicSpikes1..2 bounds. `pending_power` is `{basis:base_move|effective_move,amount:integer}` with named effect key. Public successful Future Sight setup plus pinned move definition proves base120; effective power remains unsupported. Source-backed Reflect layers are inapplicable. Shared bounded ledger rules bind affected side/recipient.
+4. `field_remaining` is `field_timer` with `{target_kind,name,remaining:{min,max}}`; key is `kind:name`. Rain after one upkeep is conservative4..7; fresh Electric Terrain5..8. Hidden exact timers remain unknown. Simultaneous timers, cross-binding/conflict and false-range controls are explicit.
+5. Declared kind/path/target reference edges govern traversal, compact expansion and resealing. Closed structural schemas exclude privileged capability fields. Inert text equal to real/missing/self IDs or containing capability names remains data. Real source/owner/proof violations and unreachable dictionaries still reject.
+6. Every profile embeds property context/scope/selector/all-relevant rules. Independently retained universes cover two roster members, two moves per roster, both sides' conditions and separate weather/pending categories. Category selectors prevent unrelated obligations. Nonknown collection sentinels are representable but cannot replace required named members. No aggregate eligibility is promoted.
+
+Candidate-relative changes:55 existing owned files and33 new core files (contract plus fixture/checker modules/manifests/canaries). Full before/after hashes and local diff accompany this report. Two prior fixture artifacts remain byte-identical. Profile IDs change with application obligations; affected facts/starting roots, knowledge/verdicts, boundaries/bindings/audits/projections and vector references are resealed. Chronological causal bytes remain unchanged under replay suffix changes in full/ordinary/compact forms. Four related cross-reference docs were untouched by Prompt10.
+
+Validation used `D:/Anaconda/envs/neuralgpu/python.exe` with `PYTHONUTF8` and `PYTHONIOENCODING` unset. Exact argv, outputs and exits are in `perspective-fidelity-prompt10-validation.json`:
+
+- `perspective-fidelity-prompt10-reproduce.py`: exit1 intentional red, all six original mismatches reproduced from immutable baseline.
+- `author_fixtures.py`: exit0; documentation wire fixtures only.
+- `check_contract.py`: exit0;26 positive/43 negative audit/projection fixtures,16 identity vectors,1 retained effect subset,13 positive/14 negative representation subsets,2 positive/6 negative coverage subsets; literal, same-source refinement, changed-source fork, all-form parity and suffix invariance pass.
+- `git diff --check`: exit0; line-ending advisories only. All88 candidate core files also pass direct trailing-whitespace/final-newline checks, including untracked files Git omits.
+- `perspective-fidelity-prompt10-check-candidate.py`: exit0;927 protected files,57 baseline snapshots and prior source dependencies unchanged; HEAD unchanged.
+
+No remaining bounded fixture/review failures. These checks establish the documentation candidate, not runtime source-authority or complete-profile acceptance. Selected rules depend on unchanged pinned Showdown moves/conditions/battle sources, hashed in the dependency packet. Existing137-input provenance comparison remains `8424f64d539a6528a18531f91ee5606200b69c0f98193d4c3e6fd86de2e0c7fc`, with the two previously changed cross-reference inputs; new knowledge artifacts remain unregistered. Reviewed metadata/attestations were not updated. Return to lead for PK-01R review; PK-02 remains unauthorized.

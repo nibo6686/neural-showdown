@@ -171,6 +171,29 @@ def _bundle(unicode_prefix=False, perspective="p1", version="v1"):
     })
 
 
+def _owned_ability_control_bundle(perspective, version, record):
+    bundle = _bundle(perspective=perspective, version=version)
+    parts = record.split("|")
+    if parts[1] not in ("-ability", "ability", "-transform") or parts[2][:2] != perspective:
+        return bundle
+    ident = perspective + ": " + parts[2].split(": ", 1)[1]
+    ability = None if parts[1] == "-transform" else "".join(char.lower() for char in parts[3] if char.isalnum())
+    base_ability = "trace" if "[from] ability: Trace" in parts[4:] else ability
+    for which in ("input", "successor"):
+        observation = bundle[which + "_observation"]
+        observation["request"]["side"] = [{
+            "slot": 1, "ident": ident, "active": True, "condition": "100/100",
+            "ability": ability, "base_ability": base_ability,
+        }]
+        observation["view"]["self_team"] = [{
+            "ident": ident, "active": True, "item": None,
+            "hp_text": "100/100", "hp_ratio": 1, "fainted": False, "status": None,
+            "ability": ability, "base_ability": base_ability,
+            "ability_state": "known" if ability else "unknown", "ability_suppressed": False,
+        }]
+    return _seal_bundle(bundle)
+
+
 def _rehashed_protocol_candidate(bundle, where, record):
     candidate = copy.deepcopy(bundle)
     input_prefix = candidate["input_observation"]["protocol_prefix"]
@@ -304,7 +327,88 @@ def _revival_bundle():
     return _seal_bundle(bundle)
 
 
+
+def _field_protocol_candidate(bundle, where, record, *, preceding=(), weather=None,
+                              terrain=None, pseudo_weather=(), sides=None):
+    """Explicit source-backed truth for the five field publication fixtures only."""
+    candidate = bundle
+    for prior in (*preceding, record):
+        candidate = _rehashed_protocol_candidate(candidate, where, prior)
+    for which in ("input", "successor"):
+        active = where == "input" or which == "successor"
+        perspective = candidate[which + "_observation"]["perspective"]
+        other = "p2" if perspective == "p1" else "p1"
+        expected_sides = sides if active and sides else {"p1": {}, "p2": {}}
+        candidate[which + "_observation"]["view"]["field"] = {
+            "weather": weather if active else None,
+            "terrain": terrain if active else None,
+            "pseudo_weather": list(pseudo_weather) if active else [],
+            "side_conditions": {
+                "self": dict(expected_sides[perspective]),
+                "opponent": dict(expected_sides[other]),
+            },
+        }
+    return _seal_bundle(candidate)
+
+
+def _side_field_candidate(bundle, where, record):
+    # Pinned start/end spellings in Showdown conditions/moves; counters are layers.
+    effects = {"Spikes": "spikes", "move: Toxic Spikes": "toxicspikes",
+               "move: Stealth Rock": "stealthrock", "move: Sticky Web": "stickyweb",
+               "Reflect": "reflect", "move: Light Screen": "lightscreen",
+               "move: Aurora Veil": "auroraveil"}
+    parts = record.split("|")
+    sides = {"p1": {}, "p2": {}}
+    if parts[1] == "-sidestart":
+        sides[parts[2][:2]][effects[parts[3]]] = 1
+    return _field_protocol_candidate(bundle, where, record, sides=sides)
+
 class PipelineRecordTest(unittest.TestCase):
+    def test_ce04_field_fixture_semantics_reject_resealed_false_or_unstarted_state(self):
+        terrain_start = "|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin"
+        starts = (
+            ("|-weather|RainDance", {"weather": "raindance"}, "weather", "sunnyday"),
+            (terrain_start, {"terrain": "electricterrain", "pseudo_weather": ("electricterrain",)}, "terrain", "grassyterrain"),
+            ("|-fieldstart|move: Trick Room|[of] p1a: Room", {"pseudo_weather": ("trickroom",)}, "pseudo_weather", []),
+        )
+        unstarted = (
+            ("|-weather|SunnyDay|[upkeep]", {"weather": "sunnyday"}),
+            ("|-weather|none", {"weather": "none"}),
+            ("|-fieldend|move: Electric Terrain", {}),
+            ("|-fieldend|move: Trick Room", {}),
+        )
+        for version in ("v1", "v2"):
+            for perspective in ("p1", "p2"):
+                for where in ("input", "successor"):
+                    cases = []
+                    for record, truth, key, false_value in starts:
+                        control = _field_protocol_candidate(_bundle(perspective=perspective, version=version), where, record, **truth)
+                        validate_pipeline_bundle(control)
+                        for mode in ("wrong", "missing"):
+                            candidate = copy.deepcopy(control)
+                            view = candidate[where + "_observation"]["view"]
+                            if mode == "wrong":
+                                view["field"][key] = false_value
+                            else:
+                                del view["field"]
+                            cases.append((mode, record, _seal_bundle(candidate)))
+                    for record, truth in unstarted:
+                        cases.append(("unstarted", record, _field_protocol_candidate(
+                            _bundle(perspective=perspective, version=version), where, record, **truth)))
+                    for mode, record, candidate in cases:
+                        with self.subTest(version=version, perspective=perspective, where=where, mode=mode, record=record):
+                            validate_protocol_record(record)
+                            verify_bundle_identities(candidate)
+                            before = copy.deepcopy(candidate)
+                            with self.assertRaisesRegex(PipelineRecordError, "Public field evidence mismatch"):
+                                validate_pipeline_bundle(candidate)
+                            stdout, stderr = io.StringIO(), io.StringIO()
+                            with patch("sys.stdin", io.StringIO(json.dumps(candidate))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                self.assertEqual(main(), 2, stderr.getvalue())
+                            self.assertEqual(stdout.getvalue(), "")
+                            self.assertIn("Public field evidence mismatch", stderr.getvalue())
+                            self.assertEqual(candidate, before)
+
     def test_ce04_slots_wish_public_heal_evidence_accepts_exact_source_form_and_rejects_rehashes(self):
         source_forms = (
             ("Moves.wish.onEnd", "|-heal|p1a: Recipient|100/100|[from] move: Wish|[wisher] Wisher"),
@@ -374,7 +478,7 @@ class PipelineRecordTest(unittest.TestCase):
             for perspective in ("p1", "p2"):
                 for where in ("input", "successor"):
                     for record in valid:
-                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        candidate = _side_field_candidate(_bundle(perspective=perspective, version=version), where, record)
                         before = copy.deepcopy(candidate)
                         validate_protocol_record(record)
                         self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
@@ -416,7 +520,7 @@ class PipelineRecordTest(unittest.TestCase):
             for perspective in ("p1", "p2"):
                 for where in ("input", "successor"):
                     for record in valid:
-                        candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                        candidate = _side_field_candidate(_bundle(perspective=perspective, version=version), where, record)
                         before = copy.deepcopy(candidate)
                         validate_protocol_record(record)
                         self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
@@ -482,6 +586,15 @@ class PipelineRecordTest(unittest.TestCase):
             "|-weather|SunnyDay|[from] ability: Orichalcum Pulse|[of] p1a: Setter",
             "|-weather|none",
         )
+        # Independent expectations from pinned weather onStart/onResidual/onEnd.
+        truth = {
+            valid[0]: {"weather": "raindance"},
+            valid[1]: {"preceding": ("|-weather|SunnyDay",), "weather": "sunnyday"},
+            valid[2]: {"weather": "sandstorm"},
+            valid[3]: {"weather": "snowscape"},
+            valid[4]: {"weather": "sunnyday"},
+            valid[5]: {"preceding": ("|-weather|RainDance",), "weather": "none"},
+        }
         rejected = (
             "|-weather|Hail", "|-weather|Sandstorm", "|-weather|raindance",
             "|-weather|PrimordialSea",
@@ -510,7 +623,7 @@ class PipelineRecordTest(unittest.TestCase):
                 for where in ("input", "successor"):
                     for record in valid:
                         with self.subTest(version=version, perspective=perspective, where=where, record=record):
-                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            candidate = _field_protocol_candidate(_bundle(perspective=perspective, version=version), where, record, **truth[record])
                             before = copy.deepcopy(candidate)
                             validate_protocol_record(record)
                             self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
@@ -544,6 +657,17 @@ class PipelineRecordTest(unittest.TestCase):
             "|-fieldend|move: Grassy Terrain",
             "|-fieldend|move: Psychic Terrain",
         )
+        # The existing wire list includes terrain IDs as pseudo-weather.
+        truth = {
+            valid[0]: {"terrain": "electricterrain", "pseudo_weather": ("electricterrain",)},
+            valid[1]: {"terrain": "electricterrain", "pseudo_weather": ("electricterrain",)},
+            valid[2]: {"terrain": "grassyterrain", "pseudo_weather": ("grassyterrain",)},
+            valid[3]: {"terrain": "grassyterrain", "pseudo_weather": ("grassyterrain",)},
+            valid[4]: {"terrain": "psychicterrain", "pseudo_weather": ("psychicterrain",)},
+            valid[5]: {"preceding": (valid[0],)},
+            valid[6]: {"preceding": (valid[2],)},
+            valid[7]: {"preceding": (valid[4],)},
+        }
         rejected = (
             "|-fieldstart|move: Electric Terrain",
             "|fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pincurchin",
@@ -575,7 +699,7 @@ class PipelineRecordTest(unittest.TestCase):
                 for where in ("input", "successor"):
                     for record in valid:
                         with self.subTest(version=version, perspective=perspective, where=where, record=record):
-                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            candidate = _field_protocol_candidate(_bundle(perspective=perspective, version=version), where, record, **truth[record])
                             before = copy.deepcopy(candidate)
                             validate_protocol_record(record)
                             self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
@@ -603,6 +727,10 @@ class PipelineRecordTest(unittest.TestCase):
             "|-fieldstart|move: Trick Room|[of] p1a: Room",
             "|-fieldend|move: Trick Room",
         )
+        truth = {
+            valid[0]: {"pseudo_weather": ("trickroom",)},
+            valid[1]: {"preceding": (valid[0],)},
+        }
         rejected = (
             "|-fieldstart|move: Trick Room",
             "|fieldstart|move: Trick Room|[of] p1a: Room",
@@ -623,7 +751,7 @@ class PipelineRecordTest(unittest.TestCase):
                 for where in ("input", "successor"):
                     for record in valid:
                         with self.subTest(version=version, perspective=perspective, where=where, record=record):
-                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            candidate = _field_protocol_candidate(_bundle(perspective=perspective, version=version), where, record, **truth[record])
                             before = copy.deepcopy(candidate)
                             validate_protocol_record(record)
                             self.assertEqual(validate_pipeline_bundle(candidate)["perspective"], perspective)
@@ -928,7 +1056,8 @@ class PipelineRecordTest(unittest.TestCase):
                 for where in ("input", "successor"):
                     for record in valid:
                         with self.subTest(version=version, perspective=perspective, where=where, record=record):
-                            candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
+                            original = _owned_ability_control_bundle(perspective, version, record)
+                            candidate = _rehashed_protocol_candidate(original, where, record)
                             before = copy.deepcopy(candidate)
                             validate_protocol_record(record)
                             published = validate_pipeline_bundle(candidate)
@@ -938,6 +1067,30 @@ class PipelineRecordTest(unittest.TestCase):
                                 self.assertEqual(main(), 0, stderr.getvalue())
                             self.assertTrue(stdout.getvalue())
                             self.assertEqual(candidate, before)
+                            if record.split("|")[2][:2] == perspective:
+                                for mutation in ("missing-recipient", "wrong-owner", "contradictory-reveal"):
+                                    with self.subTest(mutation=mutation):
+                                        invalid = copy.deepcopy(candidate)
+                                        observation = invalid[where + "_observation"]
+                                        if mutation == "missing-recipient":
+                                            observation["view"]["self_team"] = []
+                                            observation["request"]["side"] = []
+                                        elif mutation == "wrong-owner":
+                                            other = "p2" if perspective == "p1" else "p1"
+                                            observation["view"]["self_team"][0]["ident"] = other + observation["view"]["self_team"][0]["ident"][2:]
+                                            observation["request"]["side"] = []
+                                        else:
+                                            observation["request"]["side"][0]["ability"] = "pressure"
+                                        _seal_bundle(invalid)
+                                        before_invalid = copy.deepcopy(invalid)
+                                        verify_bundle_identities(invalid)
+                                        with self.assertRaisesRegex(PipelineRecordError, "Public ability evidence mismatch"):
+                                            validate_pipeline_bundle(invalid)
+                                        stdout, stderr = io.StringIO(), io.StringIO()
+                                        with patch("sys.stdin", io.StringIO(json.dumps(invalid))), patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                                            self.assertEqual(main(), 2, stderr.getvalue())
+                                        self.assertEqual(stdout.getvalue(), "")
+                                        self.assertEqual(invalid, before_invalid)
                     for record in rejected:
                         with self.subTest(version=version, perspective=perspective, where=where, record=record):
                             candidate = _rehashed_protocol_candidate(_bundle(perspective=perspective, version=version), where, record)
@@ -1350,10 +1503,10 @@ class PipelineRecordTest(unittest.TestCase):
         ]
         for version in ("v1", "v2"):
             for perspective in ("p1", "p2"):
-                original = _bundle(perspective=perspective, version=version)
                 for where in ("input", "successor"):
                     for control in (*controls, *player_ident_controls):
-                        candidate = _rehashed_protocol_candidate(original, where, control["record"])
+                        owned = _owned_ability_control_bundle(perspective, version, control["record"])
+                        candidate = _rehashed_protocol_candidate(owned, where, control["record"])
                         verify_bundle_identities(candidate)
                         validate_pipeline_bundle(candidate)
                         stdout = io.StringIO()

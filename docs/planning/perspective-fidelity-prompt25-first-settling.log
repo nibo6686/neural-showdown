@@ -1,0 +1,63 @@
+✔ barrier waits for both addressed requests and every public consumer, not an intermediate requestless update (1.3541ms)
+✔ terminal settling requires the end signal and all terminal deliveries; terminal EOF is normal (0.2769ms)
+✔ controlled timeout releases barrier wait and timer (1.1289ms)
+✔ controlled message-limit releases barrier wait and timer (0.1952ms)
+✔ controlled simulator-error releases barrier wait and timer (0.1727ms)
+✔ controlled stream-closed releases barrier wait and timer (0.1493ms)
+✔ controlled cancelled releases barrier wait and timer (0.1448ms)
+✔ deadline also bounds continuously arriving microtask output without waiting for a timer turn (0.2306ms)
+✖ real simulator decision is not published until delayed spectator delivery completes (312.9845ms)
+✔ real simulator forcewin p1 terminal output settles and restores exactly (27.7151ms)
+✔ real simulator forcetie terminal output settles and restores exactly (22.3161ms)
+✔ pipeline timeout discards a progressed candidate, releases resources and preserves lineage (153.0318ms)
+✔ pipeline message-limit discards a progressed candidate, releases resources and preserves lineage (116.2161ms)
+✔ pipeline simulator-error discards a progressed candidate, releases resources and preserves lineage (110.572ms)
+✔ pipeline stream-closed discards a progressed candidate, releases resources and preserves lineage (106.0376ms)
+✔ pipeline cancelled discards a progressed candidate, releases resources and preserves lineage (101.7213ms)
+✔ consumer closure with undelivered terminal output fails rather than waiting for a deadline (0.2452ms)
+✔ settling options reject unbounded or unsupported limits (0.3374ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1206.5873
+
+✖ failing tests:
+
+test at sim-core\dist\tests\settling.test.js:124:25
+✖ real simulator decision is not published until delayed spectator delivery completes (312.9845ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+  +   '|t:|1791822088',
+  -   '|t:|1791822087',
+      '|gametype|singles',
+      '|player|p1|Agent-1||',
+      '|player|p2|Agent-2||',
+      '|teamsize|p1|6',
+      '|teamsize|p2|6',
+  ...
+      '|',
+  +   '|t:|1791822088',
+  -   '|t:|1791822087',
+      '|start',
+      '|switch|p1a: Solgaleo|Solgaleo, L74|100/100',
+      '|switch|p2a: Carbink|Carbink, L90, shiny|100/100',
+      '|turn|1'
+    ]
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\settling.test.js:149:26)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '|t:|1791822088', '|gametype|singles', '|player|p1|Agent-1||', '|player|p2|Agent-2||', '|teamsize|p1|6', '|teamsize|p2|6', '|gen|9', '|tier|[Gen 9] Random Battle', '|rule|Species Clause: Limit one of each Pokémon', '|rule|HP Percentage Mod: HP is shown in percentages', '|rule|Sleep Clause Mod: Limit one foe put to sleep', "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level", '|', '|t:|1791822088', '|start', '|switch|p1a: Solgaleo|Solgaleo, L74|100/100', '|switch|p2a: Carbink|Carbink, L90, shiny|100/100', '|turn|1' ],
+    expected: [ '|t:|1791822087', '|gametype|singles', '|player|p1|Agent-1||', '|player|p2|Agent-2||', '|teamsize|p1|6', '|teamsize|p2|6', '|gen|9', '|tier|[Gen 9] Random Battle', '|rule|Species Clause: Limit one of each Pokémon', '|rule|HP Percentage Mod: HP is shown in percentages', '|rule|Sleep Clause Mod: Limit one foe put to sleep', "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level", '|', '|t:|1791822087', '|start', '|switch|p1a: Solgaleo|Solgaleo, L74|100/100', '|switch|p2a: Carbink|Carbink, L90, shiny|100/100', '|turn|1' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

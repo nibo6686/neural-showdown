@@ -396,3 +396,8 @@ Pinned waiting requests include `side.getRequestData()` (Battle.makeRequest and 
 C22 broader callback composition and C23 sufficiency stay OPEN until separate
 acceptance; CE-08A, CE-08B, PIPELINE-002 and `faithful_complete_episode:false`
 remain unchanged. No dataset, training, or live gate is advanced.
+
+
+## Perspective knowledge opt-in candidate (PK-01)
+
+The separately reviewed candidate [PERSPECTIVE_KNOWLEDGE.md](PERSPECTIVE_KNOWLEDGE.md) freezes an external identity-bound audit/context and trusted single-perspective output. It does not adopt a runtime route or alter existing schema keys, canonical bytes, identity/history meanings, publication eligibility or accepted fidelity flags. Existing consumers remain unchanged; opt-in requires later authorized implementation and source/semantic review. The caller must validate legacy observation/belief/record/history joins independently before accepting a knowledge binding. A matching context hash, source label or imported projection is insufficient. Legacy replay builders remain outside the new contract; no silent fallback.

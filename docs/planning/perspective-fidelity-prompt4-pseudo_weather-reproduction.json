@@ -1,0 +1,811 @@
+{
+  "schema_version": "pipeline-linked-record/v1",
+  "battle_id": "field-proof-pseudo_weather-lifecycle",
+  "source_ref": "sim-core://field-proof-pseudo_weather-lifecycle",
+  "ruleset": "gen9randombattle",
+  "perspective": "p1",
+  "input_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-pseudo_weather-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 16,
+    "protocol_prefix_hash": "b0784c4f80feed7827939c2cde58a38f26b0340ca57d64aecdb45f630fcd4911",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Trick Room",
+            "id": "trickroom",
+            "pp": 8,
+            "maxpp": 8,
+            "target": "all",
+            "disabled": false,
+            "type": "Psychic",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          },
+          {
+            "slot": 2,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Poison",
+        "trapped": false,
+        "can_switch": false
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Room",
+          "details": "Slowbro-Galar, M",
+          "condition": "331/331",
+          "active": true,
+          "moves": [
+            "trickroom",
+            "splash"
+          ],
+          "stats": {
+            "atk": 236,
+            "def": 226,
+            "spa": 236,
+            "spd": 176,
+            "spe": 96
+          },
+          "base_ability": "regenerator",
+          "ability": "regenerator",
+          "item": null,
+          "tera_type": "Poison",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Trick Room",
+            "move": "Trick Room",
+            "slot": 1
+          },
+          {
+            "index": 1,
+            "kind": "move",
+            "choice": "move 2",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Trick Room",
+            "move": "Trick Room",
+            "slot": 1
+          },
+          {
+            "index": 5,
+            "kind": "move_tera",
+            "choice": "move 2 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          1,
+          4,
+          5
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        1,
+        4,
+        5
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 1,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 1,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": null,
+        "terrain": null,
+        "pseudo_weather": [
+          "trickroom"
+        ],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Room",
+          "name": "Room",
+          "species": "Slowbro-Galar",
+          "base_species": "Slowbro-Galar",
+          "current_species": "Slowbro-Galar",
+          "displayed_species": "Slowbro-Galar",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Slowbro-Galar, M",
+          "active": true,
+          "fainted": false,
+          "hp_text": "331/331",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Poison",
+            "Psychic"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "regenerator",
+          "base_ability": "regenerator",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "trickroom",
+            "splash"
+          ],
+          "revealed_moves": [
+            "trickroom",
+            "splash"
+          ],
+          "tera_type": "Poison",
+          "stats": {
+            "atk": 236,
+            "def": 226,
+            "spa": 236,
+            "spd": 176,
+            "spe": 96
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Foe",
+          "name": "Foe",
+          "species": "Eevee",
+          "base_species": "Eevee",
+          "current_species": "Eevee",
+          "displayed_species": "Eevee",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Eevee, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Normal"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Room|Slowbro-Galar, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|turn|1"
+    ]
+  },
+  "input_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-pseudo_weather-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+      "source_kind": "sim_core",
+      "event_cursor": 16,
+      "protocol_prefix_hash": "b0784c4f80feed7827939c2cde58a38f26b0340ca57d64aecdb45f630fcd4911",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+        "source_kind": "sim_core",
+        "event_cursor": 16,
+        "protocol_prefix_hash": "b0784c4f80feed7827939c2cde58a38f26b0340ca57d64aecdb45f630fcd4911",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Room|Slowbro-Galar, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|turn|1"
+    ],
+    "parent_belief_id": null,
+    "simulator_snapshot": {
+      "branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+      "transition_id": null,
+      "state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+      "parent_branch_id": null
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+        "transition_id": null,
+        "state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+        "parent_branch_id": null
+      }
+    ],
+    "transition_lineage": null,
+    "transition_history": [],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-7154baf8b8e6e435096391fd898b4cc96c7b5cc3d4aa3dc24ed45acdd83f29e1"
+  },
+  "action": {
+    "schema_version": "canonical-action/v1",
+    "source": "request_legal_action",
+    "player": "p1",
+    "rqid": null,
+    "kind": "move",
+    "index": 0,
+    "move_slot": 1,
+    "switch_slot": null,
+    "target": null,
+    "choice": "move 1",
+    "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+  },
+  "transition": {
+    "schema_version": "pipeline-transition-reference/v1",
+    "transition_id": "transition-546e51f2ead3ced545918de291eb1c4dbde8962b87e3ce8537d70cf45daa38f2",
+    "parent_branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+    "branch_id": "branch-0633ff97b54ab57e1908a2708674e54b0d9fbe17a02214867765d089162fed2b",
+    "input_state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+    "output_state_fingerprint": "a602dc89bbe46de603b7ea4396670cdef142ac4c3bb4cef3d2c2f3f2c4521c0f",
+    "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+    "step_index": 0,
+    "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+  },
+  "successor_observation": {
+    "schema_version": "observable-battle-state/v2",
+    "source_kind": "sim_core",
+    "battle_id": "field-proof-pseudo_weather-lifecycle",
+    "perspective": "p1",
+    "event_cursor": 23,
+    "protocol_prefix_hash": "1b042b71efc8ad6ae014629fdc64e1204e8897fab629827ce817c7f8a847faa2",
+    "snapshot_phase": "pre_decision",
+    "other_phase": null,
+    "request": {
+      "player": "p1",
+      "wait": false,
+      "team_preview": false,
+      "force_switch": false,
+      "trapped": false,
+      "rqid": null,
+      "active": {
+        "moves": [
+          {
+            "slot": 1,
+            "move": "Trick Room",
+            "id": "trickroom",
+            "pp": 7,
+            "maxpp": 8,
+            "target": "all",
+            "disabled": false,
+            "type": "Psychic",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          },
+          {
+            "slot": 2,
+            "move": "Splash",
+            "id": "splash",
+            "pp": 64,
+            "maxpp": 64,
+            "target": "self",
+            "disabled": false,
+            "type": "Normal",
+            "category": "Status",
+            "base_power": 0,
+            "accuracy": null
+          }
+        ],
+        "can_terastallize": true,
+        "tera_type": "Poison",
+        "trapped": false,
+        "can_switch": false
+      },
+      "side": [
+        {
+          "slot": 1,
+          "ident": "p1: Room",
+          "details": "Slowbro-Galar, M",
+          "condition": "331/331",
+          "active": true,
+          "moves": [
+            "trickroom",
+            "splash"
+          ],
+          "stats": {
+            "atk": 236,
+            "def": 226,
+            "spa": 236,
+            "spd": 176,
+            "spe": 96
+          },
+          "base_ability": "regenerator",
+          "ability": "regenerator",
+          "item": null,
+          "tera_type": "Poison",
+          "terastallized": false
+        }
+      ],
+      "legal_actions": {
+        "mask": [
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "actions": [
+          {
+            "index": 0,
+            "kind": "move",
+            "choice": "move 1",
+            "label": "move:Trick Room",
+            "move": "Trick Room",
+            "slot": 1
+          },
+          {
+            "index": 1,
+            "kind": "move",
+            "choice": "move 2",
+            "label": "move:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          {
+            "index": 4,
+            "kind": "move_tera",
+            "choice": "move 1 terastallize",
+            "label": "move_tera:Trick Room",
+            "move": "Trick Room",
+            "slot": 1
+          },
+          {
+            "index": 5,
+            "kind": "move_tera",
+            "choice": "move 2 terastallize",
+            "label": "move_tera:Splash",
+            "move": "Splash",
+            "slot": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "available_indices": [
+          0,
+          1,
+          4,
+          5
+        ]
+      }
+    },
+    "decision_availability": {
+      "available": true,
+      "reason": "request",
+      "legal_action_indices": [
+        0,
+        1,
+        4,
+        5
+      ]
+    },
+    "view": {
+      "format": "gen9randombattle",
+      "gen": 9,
+      "turn": 2,
+      "player": "p1",
+      "opponent": "p2",
+      "terminated": false,
+      "winner": null,
+      "names": {
+        "p1": "One",
+        "p2": "Two"
+      },
+      "team_size": {
+        "p1": 1,
+        "p2": 1
+      },
+      "active": {
+        "self": 0,
+        "opponent": 0
+      },
+      "field": {
+        "weather": null,
+        "terrain": null,
+        "pseudo_weather": [
+          "trickroom"
+        ],
+        "side_conditions": {
+          "self": {},
+          "opponent": {}
+        }
+      },
+      "self_team": [
+        {
+          "slot": 1,
+          "ident": "p1: Room",
+          "name": "Room",
+          "species": "Slowbro-Galar",
+          "base_species": "Slowbro-Galar",
+          "current_species": "Slowbro-Galar",
+          "displayed_species": "Slowbro-Galar",
+          "species_source": "request",
+          "transformed": false,
+          "displayed_species_uncertain": false,
+          "illusion_revealed": false,
+          "details": "Slowbro-Galar, M",
+          "active": true,
+          "fainted": false,
+          "hp_text": "331/331",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "request",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "M",
+          "level": null,
+          "types": [
+            "Poison",
+            "Psychic"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "item": null,
+          "last_item": null,
+          "item_state": "unknown",
+          "item_suppressed": false,
+          "ability": "regenerator",
+          "base_ability": "regenerator",
+          "ability_state": "known",
+          "ability_suppressed": false,
+          "moves": [
+            "trickroom",
+            "splash"
+          ],
+          "revealed_moves": [
+            "trickroom",
+            "splash"
+          ],
+          "tera_type": "Poison",
+          "stats": {
+            "atk": 236,
+            "def": 226,
+            "spa": 236,
+            "spd": 176,
+            "spe": 96
+          },
+          "boosts": {}
+        }
+      ],
+      "opponent_team": [
+        {
+          "slot": 1,
+          "ident": "p2a: Foe",
+          "name": "Foe",
+          "species": "Eevee",
+          "base_species": "Eevee",
+          "current_species": "Eevee",
+          "displayed_species": "Eevee",
+          "species_source": "protocol",
+          "transformed": false,
+          "displayed_species_uncertain": true,
+          "illusion_revealed": false,
+          "details": "Eevee, F",
+          "active": true,
+          "fainted": false,
+          "hp_text": "100/100",
+          "hp_ratio": 1,
+          "status": null,
+          "status_source": "protocol",
+          "status_started_turn": null,
+          "status_turns_public": null,
+          "gender": "F",
+          "level": null,
+          "types": [
+            "Normal"
+          ],
+          "terastallized": false,
+          "volatiles": [],
+          "public_boosts": {
+            "atk": 0,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 0,
+            "accuracy": 0,
+            "evasion": 0
+          }
+        }
+      ]
+    },
+    "observation_id": "obs-4a963892c58526ad6fa2c782465043e7d9cb947a2539895107cc7b0b5a486f98",
+    "protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Room|Slowbro-Galar, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|turn|1",
+      "|t:|0",
+      "|move|p2a: Foe|Splash|p2a: Foe",
+      "|-nothing",
+      "|move|p1a: Room|Trick Room|p1a: Room",
+      "|-fieldstart|move: Trick Room|[of] p1a: Room",
+      "|upkeep",
+      "|turn|2"
+    ]
+  },
+  "successor_belief": {
+    "schema_version": "belief-state/v1",
+    "information_regime": "player",
+    "battle_id": "field-proof-pseudo_weather-lifecycle",
+    "perspective": "p1",
+    "observation": {
+      "schema_version": "observable-battle-state/v2",
+      "observation_id": "obs-4a963892c58526ad6fa2c782465043e7d9cb947a2539895107cc7b0b5a486f98",
+      "source_kind": "sim_core",
+      "event_cursor": 23,
+      "protocol_prefix_hash": "1b042b71efc8ad6ae014629fdc64e1204e8897fab629827ce817c7f8a847faa2",
+      "snapshot_phase": "pre_decision"
+    },
+    "observation_history": [
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+        "source_kind": "sim_core",
+        "event_cursor": 16,
+        "protocol_prefix_hash": "b0784c4f80feed7827939c2cde58a38f26b0340ca57d64aecdb45f630fcd4911",
+        "snapshot_phase": "pre_decision"
+      },
+      {
+        "schema_version": "observable-battle-state/v2",
+        "observation_id": "obs-4a963892c58526ad6fa2c782465043e7d9cb947a2539895107cc7b0b5a486f98",
+        "source_kind": "sim_core",
+        "event_cursor": 23,
+        "protocol_prefix_hash": "1b042b71efc8ad6ae014629fdc64e1204e8897fab629827ce817c7f8a847faa2",
+        "snapshot_phase": "pre_decision"
+      }
+    ],
+    "source_protocol_prefix": [
+      "|t:|0",
+      "|gametype|singles",
+      "|player|p1|One||",
+      "|player|p2|Two||",
+      "|teamsize|p1|1",
+      "|teamsize|p2|1",
+      "|gen|9",
+      "|rule|Species Clause: Limit one of each Pokémon",
+      "|rule|HP Percentage Mod: HP is shown in percentages",
+      "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+      "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+      "|t:|0",
+      "|start",
+      "|switch|p1a: Room|Slowbro-Galar, M|100/100",
+      "|switch|p2a: Foe|Eevee, F|100/100",
+      "|turn|1",
+      "|t:|0",
+      "|move|p2a: Foe|Splash|p2a: Foe",
+      "|-nothing",
+      "|move|p1a: Room|Trick Room|p1a: Room",
+      "|-fieldstart|move: Trick Room|[of] p1a: Room",
+      "|upkeep",
+      "|turn|2"
+    ],
+    "parent_belief_id": "belief-7154baf8b8e6e435096391fd898b4cc96c7b5cc3d4aa3dc24ed45acdd83f29e1",
+    "simulator_snapshot": {
+      "branch_id": "branch-0633ff97b54ab57e1908a2708674e54b0d9fbe17a02214867765d089162fed2b",
+      "transition_id": "transition-546e51f2ead3ced545918de291eb1c4dbde8962b87e3ce8537d70cf45daa38f2",
+      "state_fingerprint": "a602dc89bbe46de603b7ea4396670cdef142ac4c3bb4cef3d2c2f3f2c4521c0f",
+      "parent_branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93"
+    },
+    "simulator_snapshot_history": [
+      {
+        "branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+        "transition_id": null,
+        "state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+        "parent_branch_id": null
+      },
+      {
+        "branch_id": "branch-0633ff97b54ab57e1908a2708674e54b0d9fbe17a02214867765d089162fed2b",
+        "transition_id": "transition-546e51f2ead3ced545918de291eb1c4dbde8962b87e3ce8537d70cf45daa38f2",
+        "state_fingerprint": "a602dc89bbe46de603b7ea4396670cdef142ac4c3bb4cef3d2c2f3f2c4521c0f",
+        "parent_branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93"
+      }
+    ],
+    "transition_lineage": {
+      "transition_id": "transition-546e51f2ead3ced545918de291eb1c4dbde8962b87e3ce8537d70cf45daa38f2",
+      "parent_branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+      "branch_id": "branch-0633ff97b54ab57e1908a2708674e54b0d9fbe17a02214867765d089162fed2b",
+      "input_state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+      "output_state_fingerprint": "a602dc89bbe46de603b7ea4396670cdef142ac4c3bb4cef3d2c2f3f2c4521c0f",
+      "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+      "step_index": 0,
+      "input_observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+      "output_observation_id": "obs-4a963892c58526ad6fa2c782465043e7d9cb947a2539895107cc7b0b5a486f98"
+    },
+    "transition_history": [
+      {
+        "transition_id": "transition-546e51f2ead3ced545918de291eb1c4dbde8962b87e3ce8537d70cf45daa38f2",
+        "parent_branch_id": "branch-41a6b456f0393cd611cd6a892f4ffdad0f2a7ed7be700b77355576251b896a93",
+        "branch_id": "branch-0633ff97b54ab57e1908a2708674e54b0d9fbe17a02214867765d089162fed2b",
+        "input_state_fingerprint": "c2f63598e9adc7df851f67c1dad8dea90a5a294b2e52794a7cd2370eeab91cd0",
+        "output_state_fingerprint": "a602dc89bbe46de603b7ea4396670cdef142ac4c3bb4cef3d2c2f3f2c4521c0f",
+        "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+        "step_index": 0,
+        "input_observation_id": "obs-1919687180698cad8dcc71f230ea6af91343cee55453f27e53416b86f46710f8",
+        "output_observation_id": "obs-4a963892c58526ad6fa2c782465043e7d9cb947a2539895107cc7b0b5a486f98"
+      }
+    ],
+    "candidates": [],
+    "evidence": [],
+    "unresolved": [],
+    "contradictions": [],
+    "belief_id": "belief-ccacbcf739613c38d0b621a233bbf17b2d532344e7fe889c808ce2fe5e8544a8"
+  }
+}

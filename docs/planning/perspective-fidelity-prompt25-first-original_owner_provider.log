@@ -1,0 +1,39 @@
+✔ literal presence, equal packing, zeros, metadata and recursive detached freezing (3.6146ms)
+✔ reference authority rejects copied, transported, owner, occurrence, packed swaps and duplicate issuance (0.7299ms)
+✔ missing either owner and foreign enrollment cannot activate partial authority (0.6215ms)
+✔ restore abandonment requires the exact unstarted enrollment; staged state cannot be bypassed (0.4689ms)
+✖ legacy unstarted serialized restore preserves old session behavior without either original authority (344.8987ms)
+✔ literal presence and roster/move order survive the actual creation route (12.5127ms)
+✔ duplicate nicknames stage intact but existing boundary rejection cannot activate originals (7.6236ms)
+✔ actual native session captures both six-member teams before payload; packing input is detached (24.7151ms)
+✔ synthetic initial effects retain pre-effect originals through actual session provider for p1 (37.8875ms)
+✔ synthetic initial effects retain pre-effect originals through actual session provider for p2 (34.2363ms)
+✔ session isolation, successful replacement, rejection, bare restore, synchronous close revocation (110.2406ms)
+✔ actual creation generation failure leaves no usable issuance (4.5091ms)
+✔ actual creation packing failure leaves no usable issuance (5.6648ms)
+✔ actual creation missing-p1 failure leaves no usable issuance (2.4809ms)
+✔ actual creation missing-p2 failure leaves no usable issuance (3.6653ms)
+✔ actual creation submission failure leaves no usable issuance (5.3809ms)
+✔ actual creation settling failure leaves no usable issuance (6.5927ms)
+✔ actual creation boundary failure leaves no usable issuance (10.9866ms)
+✔ actual creation cleanup failure leaves no usable issuance (11.7693ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 18
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 881.8791
+
+✖ failing tests:
+
+test at sim-core\dist\tests\original_owner_provider.test.js:122:25
+✖ legacy unstarted serialized restore preserves old session behavior without either original authority (344.8987ms)
+  Error: request-delivery/v1/missing-parent-delivery
+      at fail (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\request_delivery_ledger.js:7:31)
+      at RequestDeliveryLedger.prepare (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\request_delivery_ledger.js:95:21)
+      at PipelineIntegrationSession.create (C:\Users\cloud\Downloads\neural\final\sim-core\dist\src\pipeline_integration.js:283:54)
+      at async TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\original_owner_provider.test.js:130:19)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)

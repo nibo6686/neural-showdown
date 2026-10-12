@@ -1,0 +1,219 @@
+[
+  {
+    "file": "negative-missing-key.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "union mismatch"
+  },
+  {
+    "file": "negative-extra-key.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "union mismatch"
+  },
+  {
+    "file": "negative-wrong-type.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "union mismatch"
+  },
+  {
+    "file": "negative-wrong-discriminant.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "union mismatch"
+  },
+  {
+    "file": "negative-duplicate.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "table duplicate/order"
+  },
+  {
+    "file": "negative-dangling-reference.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "dangling/wrong reference"
+  },
+  {
+    "file": "negative-wrong-owner.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "request proof"
+  },
+  {
+    "file": "negative-wrong-policy.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "knowledge join"
+  },
+  {
+    "file": "negative-wrong-source.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "public future traversal"
+  },
+  {
+    "file": "negative-broken-origin.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "knowledge join"
+  },
+  {
+    "file": "negative-broken-parent.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "current parent/cursor"
+  },
+  {
+    "file": "negative-broken-request.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "request delivery join"
+  },
+  {
+    "file": "negative-broken-history.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "history/legacy binding join"
+  },
+  {
+    "file": "negative-authority-label-forgery.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "source-label authority forgery"
+  },
+  {
+    "file": "negative-weaker-profile.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "weaker profile"
+  },
+  {
+    "file": "negative-dishonest-unknown.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "dishonest unknown"
+  },
+  {
+    "file": "negative-dishonest-inapplicable.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "dishonest inapplicable"
+  },
+  {
+    "file": "negative-false-item.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "false consumed item"
+  },
+  {
+    "file": "negative-compact-private-traversal.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "current fact/certificate"
+  },
+  {
+    "file": "negative-compact-future-traversal.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "record range"
+  },
+  {
+    "file": "negative-unsupported-complete.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "unsupported completeness promotion"
+  },
+  {
+    "file": "negative-crosswalk-chronological-relabel.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "causal appearance oracle"
+  },
+  {
+    "file": "negative-crosswalk-foreign-owner.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "crosswalk owner"
+  },
+  {
+    "file": "negative-starting-revision-fork.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "revision join"
+  },
+  {
+    "file": "negative-false-original-value.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "original value oracle"
+  },
+  {
+    "file": "negative-certificate-property.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "certificate property/subject"
+  },
+  {
+    "file": "negative-foreign-original-source.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "original source owner"
+  },
+  {
+    "file": "negative-wrong-value-tag.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "property value tag"
+  },
+  {
+    "file": "negative-wrong-effect-identity.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "effect identity"
+  },
+  {
+    "file": "negative-in-range-future-source.json",
+    "required_profile": "sha256:5d56cc744dc8edf632cb29e65f830ef709ea2997b2c45f86b4891c0fa0d328e5",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "public future traversal"
+  },
+  {
+    "file": "negative-unreachable-entry.json",
+    "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+    "expected": "contract_reject",
+    "fully_resealed": true,
+    "rejection_code": "unreachable entry"
+  }
+]

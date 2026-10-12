@@ -1,0 +1,753 @@
+diff --git a/sim-core/src/env_manager.ts b/sim-core/src/env_manager.ts
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
+ import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { isDeepStrictEqual } from 'node:util';
+ import { Battle, BattleStream, Dex, Teams, getPlayerStreams } from 'pokemon-showdown';
+@@ -469,6 +470,7 @@
+ }
+ 
+ interface ManagedPlayerDeps {
++  receiveRequestRecord: (record: string) => void;
+   env: LocalBattleEnv;
+   player: PlayerID;
+   stream: PlayerStream;
+@@ -483,6 +485,7 @@
+   readonly player: PlayerID;
+   readonly tracker: PlayerStateExtractor;
+ 
++  private readonly receiveRequestRecord: (record: string) => void;
+   private readonly env: LocalBattleEnv;
+   private readonly stream: PlayerStream;
+   private readonly controller: ControllerType;
+@@ -497,6 +500,7 @@
+   private invalidChoices: Set<string>;
+ 
+   constructor(deps: ManagedPlayerDeps) {
++    this.receiveRequestRecord = deps.receiveRequestRecord;
+     this.env = deps.env;
+     this.player = deps.player;
+     this.stream = deps.stream;
+@@ -514,6 +518,9 @@
+   async start(): Promise<void> {
+     for await (const chunk of this.stream) {
+       if (this.settling.stopped) return;
++      for (const record of chunk.split('\n')) {
++        if (record.trimStart().startsWith('|request|')) this.receiveRequestRecord(record);
++      }
+       this.tracker.consumeChunk(chunk);
+       for (const rawLine of chunk.split('\n')) {
+         const line = rawLine.trim();
+@@ -734,6 +741,7 @@
+   readonly seed: [number, number, number, number];
+   readonly controllers: Record<PlayerID, ControllerSpec>;
+ 
++  #requestTrace: RequestEmissionTrace | null = null;
+   readonly #originalCreation: OriginalOwnerCreation | undefined;
+   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
+   private readonly heuristicAgent: HeuristicBaselineAgent;
+@@ -819,6 +827,8 @@
+       return result;
+     } catch (error) {
+       this.#originalCreation?.abortStaging();
++      this.#requestTrace?.invalidate();
++      this.#requestTrace = null;
+       throw error;
+     }
+   }
+@@ -850,50 +860,56 @@
+         }
+       } finally { regenerated.destroy(); }
+     }
+-    await this.destroyBattle();
+-    this.logLines = [];
+-    this.logCursor = 0;
+-    this.lastError = null;
+-    this.initialized = true;
+-    this.initializeStreams();
+-    if (!this.battleStream) throw new Error('Battle stream failed to initialize.');
+-    const stream = this.battleStream as unknown as {
+-      battle: Battle | null;
+-      pushMessage: (type: string, data: string | string[]) => void;
+-    };
+-    // Battle.fromJSON may retain nested references from the supplied object;
+-    // clone the simulator-only snapshot so exact branches cannot share mutable
+-    // state with their source or siblings.
+-    const battle = Battle.fromJSON(snapshot);
+-    battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
+-    stream.battle = battle;
+-    battle.sentLogPos = 0;
+-    battle.sentEnd = false;
+-    battle.sendUpdates();
+-    for (const side of battle.sides) {
+-      const override = requestOverrides?.[side.id as PlayerID];
+-      if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
+-      if (side?.activeRequest) {
+-        if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
+-          this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
++    try {
++      await this.destroyBattle();
++      this.logLines = [];
++      this.logCursor = 0;
++      this.lastError = null;
++      this.initialized = true;
++      this.initializeStreams();
++      if (!this.battleStream) throw new Error('Battle stream failed to initialize.');
++      const stream = this.battleStream as unknown as {
++        battle: Battle | null;
++        pushMessage: (type: string, data: string | string[]) => void;
++      };
++      // Battle.fromJSON may retain nested references from the supplied object;
++      // clone the simulator-only snapshot so exact branches cannot share mutable
++      // state with their source or siblings.
++      const battle = Battle.fromJSON(snapshot);
++      battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
++      stream.battle = battle;
++      battle.sentLogPos = 0;
++      battle.sentEnd = false;
++      battle.sendUpdates();
++      for (const side of battle.sides) {
++        const override = requestOverrides?.[side.id as PlayerID];
++        if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
++        if (side?.activeRequest) {
++          if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
++            this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
++          }
++          this.#requestTrace!.atProducer('restore_reemit', () => side.emitRequest(side.activeRequest!));
+         }
+-        side.emitRequest(side.activeRequest);
+-      }
+-    }
+-    // Terminal battles emit no new private requests. Restore only the
+-    // addressed request history that originally populated each owner's view;
+-    // it is deliberately not a live request and never enters the log prefix.
+-    if (battle.ended && terminalHistory) {
+-      for (const player of PLAYERS) {
+-        const rawRequest = terminalHistory.requests[player];
+-        if (rawRequest) this.players?.[player].restoreTerminalRequestData(rawRequest);
+-        const submitted = terminalHistory.submitted_switches?.[player];
+-        if (submitted) this.players?.[player].tracker.restoreSubmittedSwitch(submitted);
+-      }
+-    }
+-    const result = await this.drainUntilExternalDecision(options);
+-    this.logCursor = this.logLines.length;
+-    return result;
++      }
++      // Terminal battles emit no new private requests. Restore only the
++      // addressed request history that originally populated each owner's view;
++      // it is deliberately not a live request and never enters the log prefix.
++      if (battle.ended && terminalHistory) {
++        for (const player of PLAYERS) {
++          const rawRequest = terminalHistory.requests[player];
++          if (rawRequest) this.players?.[player].restoreTerminalRequestData(rawRequest);
++          const submitted = terminalHistory.submitted_switches?.[player];
++          if (submitted) this.players?.[player].tracker.restoreSubmittedSwitch(submitted);
++        }
++      }
++      const result = await this.drainUntilExternalDecision(options);
++      this.logCursor = this.logLines.length;
++      return result;
++    } catch (error) {
++      this.#requestTrace?.invalidate();
++      this.#requestTrace = null;
++      throw error;
++    }
+   }
+ 
+   serializeBattle(): Record<string, unknown> {
+@@ -956,11 +972,16 @@
+   }
+ 
+   private initializeStreams(): void {
++    const trace = this.#requestTrace = new RequestEmissionTrace();
+     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
+     // _write synchronously emits requests then sendUpdates. Count at the source,
+     // before getPlayerStreams asynchronously fans out each message.
+     this.battleStream = new class extends BattleStream {
++      override _write(chunk: string): void {
++        trace.atProducer('native_emission', () => super._write(chunk));
++      }
+       override pushMessage(type: string, data: string): void {
++        trace.emitted(type, data);
+         settling.emitted(type, data);
+         super.pushMessage(type, data);
+       }
+@@ -974,11 +995,15 @@
+       }
+     }({ keepAlive: true });
+     this.streams = getPlayerStreams(this.battleStream);
++    trace.bind('p1', this.streams.p1);
++    trace.bind('p2', this.streams.p2);
++    const ownerStreams = this.streams;
+     this.players = {
+       p1: new ManagedPlayer({
+         env: this,
+         player: 'p1',
+         stream: this.streams.p1 as unknown as PlayerStream,
++        receiveRequestRecord: (record) => trace.received('p1', ownerStreams.p1, record),
+         controller: this.controllers.p1.controller,
+         tracker: new PlayerStateExtractor(this.id, this.format, 'p1'),
+         randomAgent: this.randomAgents.p1,
+@@ -989,6 +1014,7 @@
+         env: this,
+         player: 'p2',
+         stream: this.streams.p2 as unknown as PlayerStream,
++        receiveRequestRecord: (record) => trace.received('p2', ownerStreams.p2, record),
+         controller: this.controllers.p2.controller,
+         tracker: new PlayerStateExtractor(this.id, this.format, 'p2'),
+         randomAgent: this.randomAgents.p2,
+@@ -1132,6 +1158,17 @@
+       throw new Error(`Unsupported agent ${agent}.`);
+     }
+     return this.players?.[player].suggest(agent) as BaselineDecision;
++  }
++
++  /** Privileged owner-only diagnostics; no current request or publication authority. */
++  getRequestEmissionTraceHandle(owner: PlayerID): RequestTraceHandle {
++    if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
++    return this.#requestTrace.handle(owner);
++  }
++
++  inspectRequestEmissionTrace(handle: RequestTraceHandle, owner: PlayerID): readonly RequestEmissionReceipt[] {
++    if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
++    return this.#requestTrace.inspect(handle, owner);
+   }
+ 
+   diagnostics(): Record<string, unknown> {
+@@ -1234,6 +1271,8 @@
+   }
+ 
+   private async destroyCurrentBattle(): Promise<void> {
++    this.#requestTrace?.invalidate();
++    this.#requestTrace = null;
+     this.settling.fail('cancelled');
+     const stream = this.battleStream;
+     if (stream) {
+diff --git a/sim-core/src/request_emission_trace.ts b/sim-core/src/request_emission_trace.ts
+new file mode 100644
+--- /dev/null
++++ b/sim-core/src/request_emission_trace.ts
+@@ -0,0 +1,95 @@
++import type { PlayerID } from './types';
++
++export type RequestEmissionOrigin = 'native_emission' | 'restore_reemit';
++export type RequestTraceHandle = Readonly<object>;
++export interface RequestEmissionReceipt {
++  readonly owner: PlayerID;
++  readonly producer_occurrence: Readonly<object>;
++  readonly emission_index: number;
++  readonly owner_emission_index: number;
++  readonly origin: RequestEmissionOrigin;
++  readonly request_record: string;
++  readonly request_json: string;
++  readonly receipt: Readonly<{ owner_receipt_index: number; record: string; json: string }>;
++}
++type Emission = Omit<RequestEmissionReceipt, 'receipt'>;
++const token = (): Readonly<object> => Object.freeze(Object.create(null));
++
++/** Private producer/owner-stream FIFO evidence, not freshness or action authority. */
++export class RequestEmissionTrace {
++  #valid = true;
++  #origin: RequestEmissionOrigin | null = null;
++  #nextEmission = 0;
++  readonly #occurrence = token();
++  #streams: Partial<Record<PlayerID, object>> = {};
++  #handles: Partial<Record<PlayerID, RequestTraceHandle>> = {};
++  #pending: Record<PlayerID, Emission[]> = { p1: [], p2: [] };
++  #rows: Record<PlayerID, RequestEmissionReceipt[]> = { p1: [], p2: [] };
++  #counts: Record<PlayerID, number> = { p1: 0, p2: 0 };
++
++  #requireValid(): void { if (!this.#valid) throw new Error('request-trace/v1/invalidated'); }
++  #owner(owner: PlayerID): void {
++    if (owner !== 'p1' && owner !== 'p2') throw new Error('request-trace/v1/invalid-owner');
++  }
++  #reject(reason: string): never {
++    this.invalidate();
++    throw new Error(`request-trace/v1/${reason}`);
++  }
++  bind(owner: PlayerID, stream: object): void {
++    this.#requireValid(); this.#owner(owner);
++    if (this.#streams[owner] || !stream || typeof stream !== 'object'
++      || Object.values(this.#streams).includes(stream)) this.#reject('invalid-stream-enrollment');
++    this.#streams[owner] = stream;
++    this.#handles[owner] = token();
++  }
++  atProducer(origin: RequestEmissionOrigin, emit: () => void): void {
++    this.#requireValid();
++    if (origin !== 'native_emission' && origin !== 'restore_reemit') this.#reject('unsupported-origin');
++    const previous = this.#origin;
++    this.#origin = origin;
++    try {
++      if (emit() !== undefined) this.#reject('non-synchronous-producer');
++    } finally { this.#origin = previous; }
++  }
++  emitted(type: string, data: string): void {
++    this.#requireValid();
++    if (type !== 'sideupdate') return;
++    const split = data.indexOf('\n'), record = data.slice(split + 1);
++    if (!record.trimStart().startsWith('|request|')) return;
++    const owner = data.slice(0, split) as PlayerID;
++    if (split < 0 || (owner !== 'p1' && owner !== 'p2')) this.#reject('unsupported-owner');
++    if (!this.#origin || !this.#streams[owner]) this.#reject('unsupported-producer');
++    if (record.includes('\n')) this.#reject('multi-record-request');
++    this.#pending[owner].push(Object.freeze({ owner, producer_occurrence: this.#occurrence,
++      emission_index: ++this.#nextEmission, owner_emission_index: ++this.#counts[owner], origin: this.#origin,
++      request_record: record, request_json: record.slice(record.indexOf('|request|') + '|request|'.length) }));
++  }
++  received(owner: PlayerID, stream: object, record: string): void {
++    this.#requireValid(); this.#owner(owner);
++    if (this.#streams[owner] !== stream) this.#reject('foreign-receipt-stream');
++    const next = this.#pending[owner][0];
++    if (!next) this.#reject('missing-or-duplicate-emission');
++    if (next.request_record !== record) this.#reject('receipt-order-or-text-mismatch');
++    this.#pending[owner].shift();
++    this.#rows[owner].push(Object.freeze({ ...next, receipt: Object.freeze({
++      owner_receipt_index: this.#rows[owner].length + 1, record,
++      json: record.slice(record.indexOf('|request|') + '|request|'.length),
++    }) }));
++  }
++  handle(owner: PlayerID): RequestTraceHandle {
++    this.#requireValid(); this.#owner(owner);
++    const handle = this.#handles[owner];
++    if (!handle) throw new Error('request-trace/v1/unbound-owner');
++    return handle;
++  }
++  inspect(handle: RequestTraceHandle, owner: PlayerID): readonly RequestEmissionReceipt[] {
++    this.#requireValid(); this.#owner(owner);
++    if (!this.#handles[owner] || handle !== this.#handles[owner]) throw new Error('request-trace/v1/foreign-or-forged-handle');
++    if (this.#pending.p1.length || this.#pending.p2.length) throw new Error('request-trace/v1/unreceived-emission');
++    return Object.freeze([...this.#rows[owner]]);
++  }
++  invalidate(): void {
++    this.#valid = false; this.#origin = null; this.#streams = {}; this.#handles = {};
++    this.#pending = { p1: [], p2: [] }; this.#rows = { p1: [], p2: [] };
++  }
++}
+diff --git a/sim-core/tests/request_emission_trace.test.ts b/sim-core/tests/request_emission_trace.test.ts
+new file mode 100644
+--- /dev/null
++++ b/sim-core/tests/request_emission_trace.test.ts
+@@ -0,0 +1,245 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { BattleStream, Teams } from 'pokemon-showdown';
++import { RequestEmissionTrace } from '../src/request_emission_trace';
++import { LocalBattleEnv } from '../src/env_manager';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { PlayerStateExtractor } from '../src/state_extractor';
++import type { PlayerID } from '../src/types';
++
++const FORMAT='gen9randombattle', SEED=[1,2,3,4];
++const OPTIONS={include_wait_requests:true,include_possible_roles:false};
++const UNICODE='\u00e9-\u03a9\u{1f600}';
++const rows=(env:LocalBattleEnv,owner:PlayerID)=>env.inspectRequestEmissionTrace(env.getRequestEmissionTraceHandle(owner),owner);
++const other=(owner:PlayerID):PlayerID=>owner==='p1'?'p2':'p1';
++const record=`|request| { "z":"${UNICODE}", "wait":true, "side":{"id":"p1","pokemon":[]} }\t `;
++function controller() {
++  const trace=new RequestEmissionTrace(), p1={},p2={};trace.bind('p1',p1);trace.bind('p2',p2);return {trace,p1,p2};
++}
++function emission(trace:RequestEmissionTrace,owner:PlayerID,text=record) {
++  trace.atProducer('native_emission',()=>{trace.emitted('sideupdate',`${owner}\n${text}`);});
++}
++
++test('literal exact text, owner FIFO, repeated equal bytes and distinct process occurrences',()=>{
++  const {trace,p1,p2}=controller();emission(trace,'p1');emission(trace,'p2');emission(trace,'p1');
++  assert.throws(()=>trace.inspect(trace.handle('p1'),'p1'),/unreceived-emission/);
++  trace.received('p1',p1,record);trace.received('p1',p1,record);trace.received('p2',p2,record);
++  const a=trace.inspect(trace.handle('p1'),'p1'),b=trace.inspect(trace.handle('p2'),'p2');
++  assert.deepEqual(a.map(r=>r.emission_index),[1,3]);assert.deepEqual(a.map(r=>r.owner_emission_index),[1,2]);
++  assert.deepEqual(a.map(r=>r.receipt.owner_receipt_index),[1,2]);assert.equal(b[0].emission_index,2);
++  assert.equal(a[0].request_record,record);assert.equal(a[0].request_json,` { "z":"${UNICODE}", "wait":true, "side":{"id":"p1","pokemon":[]} }\t `);
++  assert.equal(a[0].receipt.record,record);assert.equal(a[0].receipt.json,a[0].request_json);
++  assert.equal(a[0].producer_occurrence,b[0].producer_occurrence);assert.ok(Object.isFrozen(a) && Object.isFrozen(a[0]) && Object.isFrozen(a[0].receipt));
++  assert.throws(()=>trace.inspect(a[0].producer_occurrence,'p1'),/foreign-or-forged/);
++  const second=controller();emission(second.trace,'p1');second.trace.received('p1',second.p1,record);
++  const foreign=second.trace.inspect(second.trace.handle('p1'),'p1')[0];
++  assert.equal(foreign.emission_index,1);assert.notEqual(foreign.producer_occurrence,a[0].producer_occurrence);
++  assert.throws(()=>trace.inspect(second.trace.handle('p1'),'p1'),/foreign-or-forged/);
++  // Same-byte substitution inside a monkeypatched held stream is undetectable.
++});
++
++test('forged handles, owner swaps and diagnostic/transport copies do not grant trace access',()=>{
++  const {trace}=controller(),handle=trace.handle('p1');
++  for(const fake of [{},{...handle},JSON.parse(JSON.stringify(handle)),structuredClone(handle),{owner:'p1',emission_index:1}]) {
++    assert.throws(()=>trace.inspect(fake,'p1'),/foreign-or-forged/);
++  }
++  assert.throws(()=>trace.inspect(handle,'p2'),/foreign-or-forged/);
++  assert.throws(()=>trace.handle('p3' as PlayerID),/invalid-owner/);
++});
++
++for(const violation of ['foreign','cross-owner','missing','duplicate','order','text','origin','unscoped'] as const) {
++  test(`unsupported ${violation} join invalidates the entire trace atomically`,()=>{
++    const {trace,p1}=controller();const handle=trace.handle('p1');
++    if(violation!=='missing'&&violation!=='origin'&&violation!=='unscoped') emission(trace,'p1');
++    assert.throws(()=>{
++      if(violation==='foreign') trace.received('p1',controller().p1,record);
++      if(violation==='cross-owner') trace.received('p2',p1,record);
++      if(violation==='missing') trace.received('p1',p1,record);
++      if(violation==='duplicate') {trace.received('p1',p1,record);trace.received('p1',p1,record);}
++      if(violation==='order') {emission(trace,'p1','|request|{"wait":false}');trace.received('p1',p1,'|request|{"wait":false}');}
++      if(violation==='text') trace.received('p1',p1,record.trimEnd());
++      if(violation==='origin') trace.atProducer('imported' as any,()=>{});
++      if(violation==='unscoped') trace.emitted('sideupdate',`p1\n${record}`);
++    },/request-trace\/v1\//);
++    assert.throws(()=>trace.inspect(handle,'p1'),/invalidated/);assert.throws(()=>trace.handle('p2'),/invalidated/);
++  });
++}
++
++test('producer scope is synchronous, restore classification is explicit and does not leak',()=>{
++  const {trace,p1}=controller();
++  trace.atProducer('restore_reemit',()=>{trace.emitted('sideupdate',`p1\n${record}`);});
++  emission(trace,'p1');trace.received('p1',p1,record);trace.received('p1',p1,record);
++  assert.deepEqual(trace.inspect(trace.handle('p1'),'p1').map(r=>r.origin),['restore_reemit','native_emission']);
++  assert.throws(()=>trace.atProducer('native_emission',()=>Promise.resolve()),/non-synchronous-producer/);
++  assert.throws(()=>trace.handle('p1'),/invalidated/);
++});
++
++test('actual session native producer and routed ManagedPlayer receipt retain both owner literals before parsing',async()=>{
++  const send=BattleStream.prototype.pushMessage,consume=PlayerStateExtractor.prototype.consumeChunk;
++  const produced:Record<PlayerID,string[]>={p1:[],p2:[]},received:Record<PlayerID,string[]>={p1:[],p2:[]};
++  BattleStream.prototype.pushMessage=function(type,data) {
++    if(type==='sideupdate') {const [owner,...text]=data.split('\n');if(text[0]?.startsWith('|request|')) produced[owner as PlayerID].push(text.join('\n'));}
++    return send.call(this,type,data);
++  };
++  PlayerStateExtractor.prototype.consumeChunk=function(chunk) {
++    const owner=this.player;
++    for(const text of chunk.split('\n')) if(text.startsWith('|request|')) received[owner].push(text);
++    return consume.call(this,chunk);
++  };
++  let session:PipelineIntegrationSession|undefined;
++  try {
++    session=await PipelineIntegrationSession.create({battle_id:'prompt24-actual',format:FORMAT,seed:SEED});
++    const env=(session as any).environment as LocalBattleEnv;
++    for(const owner of ['p1','p2'] as const) {
++      const trace=rows(env,owner);assert.equal(trace.length,1);assert.equal(trace[0].origin,'native_emission');
++      assert.deepEqual(trace.map(r=>r.request_record),produced[owner]);assert.deepEqual(trace.map(r=>r.receipt.record),received[owner]);
++      assert.ok(trace[0].request_json.startsWith('{"active":'));assert.ok(trace[0].request_json.includes(`"id":"${owner}"`));
++    }
++    const old=env.getRequestEmissionTraceHandle('p1');await session.step();
++    assert.throws(()=>env.inspectRequestEmissionTrace(old,'p1'),/unavailable/);
++    const candidate=(session as any).environment as LocalBattleEnv;
++    for(const owner of ['p1','p2'] as const) assert.deepEqual(rows(candidate,owner).map(r=>r.origin),['restore_reemit','native_emission']);
++    const wire=JSON.stringify({boundary:session.boundary,snapshot:candidate.serializeBattle(),diagnostics:candidate.diagnostics()});
++    assert.ok(!wire.includes('producer_occurrence') && !wire.includes('owner_emission_index') && !wire.includes('request_record'));
++  } finally {BattleStream.prototype.pushMessage=send;PlayerStateExtractor.prototype.consumeChunk=consume;await session?.close();}
++});
++
++async function state(own:string,foe:string,owner:PlayerID,rounds:string[]=[]):Promise<Record<string,any>> {
++  const stream=new BattleStream({keepAlive:true});const teams={[owner]:own,[other(owner)]:foe};
++  try {
++    await stream.write([`>start ${JSON.stringify({formatid:FORMAT,seed:SEED})}`,
++      ...(['p1','p2'] as const).map(p=>`>player ${p} ${JSON.stringify({name:p,team:Teams.pack(Teams.import(teams[p]))})}`)].join('\n'));
++    for(const round of rounds) {const [a,b]=round.split('/');await stream.write([a&&`>${owner} ${a}`,b&&`>${other(owner)} ${b}`].filter(Boolean).join('\n'));}
++    return structuredClone((stream as any).battle.toJSON());
++  } finally {stream.destroy();}
++}
++
++test('actual Unicode and formatted literal producer records, repeated equal emissions preserve receipt FIFO',async()=>{
++  const generate=Teams.generate;let i=0;
++  Teams.generate=function(){return Teams.import(`${UNICODE}${i++===0?'':'-foe'} (Snorlax)\nAbility: Immunity\n- Splash`)!;};
++  const env=new LocalBattleEnv('literal',FORMAT,SEED);
++  try {
++    await env.resetWithOptions(OPTIONS);
++    for(const owner of ['p1','p2'] as const) assert.ok(rows(env,owner)[0].request_json.includes(UNICODE));
++    await (env as any).battleStream.write('>eval p1.emitRequest(p1.activeRequest); p1.emitRequest(p1.activeRequest); p2.emitRequest(p2.activeRequest);');
++    await env.stepWithOptions({},OPTIONS);
++    assert.equal(rows(env,'p1').length,3);assert.equal(rows(env,'p2').length,2);
++    assert.equal(rows(env,'p1')[0].request_record,rows(env,'p1')[2].request_record);
++    assert.deepEqual(rows(env,'p1').map(r=>r.owner_emission_index),[1,2,3]);
++    for(const owner of ['p1','p2'] as const) {
++      const literal=`|request| { "wait":true, "side":{"id":"${owner}","pokemon":[]}, "literal":"${UNICODE}" }\t `;
++      await (env as any).battleStream.write(`>eval battle.send("sideupdate",${JSON.stringify(owner+'\n'+literal)});`);
++      await env.stepWithOptions({},OPTIONS);
++      assert.equal(rows(env,owner).at(-1)!.request_record,literal);assert.equal(rows(env,owner).at(-1)!.receipt.record,literal);
++      assert.equal(rows(env,owner).at(-1)!.request_json,literal.slice(9));
++      await (env as any).battleStream.write(`>eval ${owner}.emitRequest(${owner}.activeRequest);`);
++      await env.stepWithOptions({},OPTIONS);
++    }
++  } finally {Teams.generate=generate;await env.close();}
++});
++
++test('actual restore receipt delayed beyond later native emission keeps producer classifications',async()=>{
++  const donor=new LocalBattleEnv('delay-donor',FORMAT,SEED),env=new LocalBattleEnv('delayed',FORMAT,SEED);
++  const bind=RequestEmissionTrace.prototype.bind,atProducer=RequestEmissionTrace.prototype.atProducer;
++  let release!:()=>void,ready!:()=>void,restoreCalls=0;
++  const gate=new Promise<void>(r=>{release=r;}),produced=new Promise<void>(r=>{ready=r;});
++  let restoring:Promise<unknown>|undefined;
++  try {
++    await donor.reset();const snapshot=donor.serializeBattle();
++    RequestEmissionTrace.prototype.bind=function(owner,stream) {
++      const held=stream as any,iterate=held[Symbol.asyncIterator];
++      held[Symbol.asyncIterator]=function() {
++        const iterator=iterate.call(this);
++        return {next:async()=>{await gate;return iterator.next();},[Symbol.asyncIterator](){return this;}};
++      };
++      return bind.call(this,owner,stream);
++    };
++    RequestEmissionTrace.prototype.atProducer=function(origin,emit) {
++      atProducer.call(this,origin,emit);
++      if(origin==='restore_reemit' && ++restoreCalls===2) ready();
++    };
++    restoring=env.resetFromSerialized(snapshot,OPTIONS);await produced;
++    assert.throws(()=>rows(env,'p1'),/unreceived-emission/);
++    await (env as any).battleStream.write('>eval p1.emitRequest(p1.activeRequest); p2.emitRequest(p2.activeRequest);');
++    assert.throws(()=>rows(env,'p2'),/unreceived-emission/);
++    release();await restoring;
++    for(const owner of ['p1','p2'] as const) {
++      const trace=rows(env,owner);assert.deepEqual(trace.map(r=>r.origin),['restore_reemit','native_emission']);
++      assert.equal(trace[0].request_record,trace[1].request_record);
++      assert.deepEqual(trace.map(r=>r.receipt.owner_receipt_index),[1,2]);
++    }
++  } finally {
++    release();await restoring?.catch(()=>{});
++    RequestEmissionTrace.prototype.bind=bind;RequestEmissionTrace.prototype.atProducer=atProducer;
++    await donor.close();await env.close();
++  }
++});
++
++for(const owner of ['p1','p2'] as const) {
++  test(`restore receipts remain restore-labelled; later native trap resend/force/wait/revival for ${owner}`,async()=>{
++    const cases=[
++      {label:'trap',own:'Snorlax\nAbility: Immunity\n- Tackle\n- Splash\n\nBlissey\n- Splash',foe:'Wobbuffet\nAbility: Shadow Tag\n- Splash\n\nSnorlax\n- Splash',rounds:[],choice:'switch 2'},
++      {label:'force',own:'Mewtwo\nAbility: Pressure\n- Psystrike\n- Splash\n\nBlissey\n- Splash',foe:'Magikarp\n- Splash\n\nSnorlax\n- Splash',rounds:['move 1/move 1'],choice:''},
++      {label:'revival',own:'Lead (Snorlax)\nAbility: Immunity\n- Memento\n\nPawmot\n- Revival Blessing\n- Splash',foe:'Terminus (Snorlax)\nAbility: Immunity\n- Splash\n- Memento\n\nReserve (Blissey)\n- Splash',rounds:['move 1/move 1','switch 2/','move 1/move 2'],choice:''},
++    ];
++    for(const c of cases) {
++      const snapshot=await state(c.own,c.foe,owner,c.rounds),env=new LocalBattleEnv(c.label,FORMAT,SEED);
++      try {
++        const result=await env.resetFromSerialized(snapshot,OPTIONS);
++        for(const p of ['p1','p2'] as const) assert.ok(rows(env,p).every(r=>r.origin==='restore_reemit'));
++        if(c.label==='trap') {
++          await env.stepWithOptions({[owner]:c.choice},OPTIONS);
++          const traced=rows(env,owner);assert.equal(traced.length,2);assert.equal(traced[1].origin,'native_emission');
++          assert.equal(JSON.parse(traced[1].request_json).active[0].trapped,true);
++          await env.stepWithOptions({[owner]:'move 2',[other(owner)]:'move 1'},OPTIONS);
++          assert.equal(rows(env,owner).at(-1)!.origin,'native_emission');
++        } else {
++          const waiting=c.label==='force'?owner:other(owner),selector=other(waiting);
++          assert.ok(result.requests[waiting]!.wait);assert.ok(result.requests[selector]!.force_switch);
++          assert.equal(JSON.parse(rows(env,waiting)[0].request_json).wait,true);
++          if(c.label==='revival') assert.ok(JSON.parse(rows(env,selector)[0].request_json).side.pokemon.some((p:any)=>p.reviving));
++          await (env as any).battleStream.write(`>eval ${owner}.emitRequest(${owner}.activeRequest); ${other(owner)}.emitRequest(${other(owner)}.activeRequest);`);
++          await env.stepWithOptions({},OPTIONS);
++          for(const p of ['p1','p2'] as const) assert.equal(rows(env,p).at(-1)!.origin,'native_emission');
++          const counts={p1:rows(env,'p1').length,p2:rows(env,'p2').length};
++          const select=result.requests[selector]!.legal_actions.actions.find(a=>a?.kind===(c.label==='revival'?'revive':'switch'))!;
++          assert.ok(select);await env.stepWithOptions({[selector]:select.choice},OPTIONS);
++          for(const p of ['p1','p2'] as const) {
++            const continued=rows(env,p).slice(counts[p]);assert.ok(continued.length>0);
++            assert.ok(continued.every(r=>r.origin==='native_emission'));
++          }
++        }
++      } finally {await env.close();}
++    }
++  });
++}
++
++test('no-emission and terminal/history restoration do not invent requests; reset and close revoke old access',async()=>{
++  const env=new LocalBattleEnv('lifetime',FORMAT,SEED),restored=new LocalBattleEnv('terminal',FORMAT,SEED);
++  try {
++    await env.resetWithOptions(OPTIONS);const old=env.getRequestEmissionTraceHandle('p1'),before=rows(env,'p1');
++    await env.stepWithOptions({},OPTIONS);assert.deepEqual(rows(env,'p1'),before);
++    await env.resetWithOptions(OPTIONS);assert.throws(()=>env.inspectRequestEmissionTrace(old,'p1'),/foreign-or-forged/);
++    assert.notEqual(rows(env,'p1')[0].producer_occurrence,before[0].producer_occurrence);
++    assert.equal(rows(env,'p1')[0].emission_index,before[0].emission_index);
++    await (env as any).battleStream.write('>forcewin p1');const terminal=await env.stepWithOptions({},OPTIONS);
++    assert.equal(terminal.requests.p1,null);assert.equal(rows(env,'p1').length,1);
++    await restored.resetFromSerialized(env.serializeBattle(),OPTIONS);
++    assert.deepEqual(rows(restored,'p1'),[]);assert.deepEqual(rows(restored,'p2'),[]);
++    const handle=env.getRequestEmissionTraceHandle('p1'),stream=(env as any).battleStream;
++    const end=stream.writeEnd;stream.writeEnd=async function(){assert.throws(()=>env.inspectRequestEmissionTrace(handle,'p1'),/unavailable/);throw new Error('synthetic cleanup failure');};
++    await assert.rejects(env.close(),/cleanup failure/);assert.throws(()=>env.getRequestEmissionTraceHandle('p1'),/unavailable/);
++    stream.writeEnd=end;
++  } finally {await env.close();await restored.close();}
++});
++
++test('failed initialization and unknown direct producer cannot leave usable partial trace',async()=>{
++  const generate=Teams.generate,env=new LocalBattleEnv('failure',FORMAT,SEED);let calls=0;
++  Teams.generate=function(...args){if(++calls===2)throw new Error('synthetic generation failure');return generate.apply(this,args);};
++  try {await assert.rejects(env.reset(),/generation failure/);assert.throws(()=>env.getRequestEmissionTraceHandle('p1'),/unavailable/);}
++  finally {Teams.generate=generate;await env.close();}
++  const live=new LocalBattleEnv('unknown',FORMAT,SEED);
++  try {await live.reset();assert.throws(()=>(live as any).battleStream.pushMessage('sideupdate',`p1\n${record}`),/unsupported-producer/);
++    assert.throws(()=>live.getRequestEmissionTraceHandle('p1'),/invalidated/);}
++  finally {await live.close();}
++});
+diff --git a/docs/planning/perspective-fidelity-prompt24-api.md b/docs/planning/perspective-fidelity-prompt24-api.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-api.md
+@@ -0,0 +1,15 @@
++# Prompt24 private request trace API
++
++`LocalBattleEnv.getRequestEmissionTraceHandle(owner)` returns a held, opaque owner token. `inspectRequestEmissionTrace(handle, owner)` returns a frozen array of frozen `RequestEmissionReceipt` rows; receipt objects are frozen too. Neither serialized copies nor the diagnostic `producer_occurrence` token grant inspection authority.
++
++Each row contains `owner`, process-local `producer_occurrence`, global environment-local 1-based `emission_index`, owner-local 1-based `owner_emission_index`, `origin` (`native_emission` or `restore_reemit`), literal `request_record`, literal `request_json`, and `receipt: {owner_receipt_index, record, json}`. Exact text means the strings carried by the pinned native transport, without trimming, parsing or reserialization. Equal text produces separate rows.
++
++The per-instance BattleStream `_write` scopes synchronous native emissions; explicit restoration `side.emitRequest` calls scope only their synchronous producer invocation as reemission. `pushMessage` observes before fanout. ManagedPlayer joins each request before tracker consumption, trimming and JSON parsing, using its captured owner-stream reference and producer FIFO. Native side requests can precede public updates: these indices are not public cursors.
++
++Receipt/provenance failures invalidate the entire trace, clear queued/joined data and revoke handles. Pending receipts block inspection of either owner with `request-trace/v1/unreceived-emission`; they do not expose a partial supported trace. Forged/foreign handles fail without revoking legitimate handles. Errors are ordinary Error values with `request-trace/v1/` prefixes. Reasons include invalidated, invalid-owner, invalid-stream-enrollment, unsupported-origin, non-synchronous-producer, unsupported-owner, unsupported-producer, multi-record-request, foreign-receipt-stream, missing-or-duplicate-emission, receipt-order-or-text-mismatch, unbound-owner, foreign-or-forged-handle and unreceived-emission. Environment access without a live trace rejects as unavailable.
++
++Destroy/reset invalidates before awaiting disposal. Failed initialization/restoration clears access. A new stream occurrence gets new tokens even if local counters and text repeat. Already returned frozen diagnostic rows remain data, not live authority. Terminal/requestless boundaries add no invented emissions; restoring terminal request history cannot mint freshness. Restored wait/force/revival requests are reemissions; later actual native actions get independent native rows.
++
++The trusted pinned native FIFO and held owner streams are assumptions. Identical bytes alone cannot detect arbitrary same-byte injection, substitution or reordering inside a monkeypatched stream. This is not an arbitrary in-process security boundary. The internal producer controller is trusted wiring, not a certificate accepted from callers.
++
++Existing results, views, snapshots, diagnostics, boundaries and bundles carry no trace fields. No session committed sequence, causal prefix/observation join, current request authority, identity crosswalk, source registry, Python authority bridge or knowledge fact is adopted. S01c-2b must independently select/join/commit evidence before environment retirement; environment-local counters are insufficient across candidates.
+diff --git a/docs/planning/perspective-fidelity-prompt24-matrix.md b/docs/planning/perspective-fidelity-prompt24-matrix.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-matrix.md
+@@ -0,0 +1,19 @@
++# Prompt24 validation matrix
++
++| Boundary | Independent control / production proof | Result |
++|---|---|---|
++| Missing implementation | Real session-created environment lacked trace accessor before edits | Red, exit 1 preserved |
++| Native producer to receipt | Independent literal pushMessage and extractor-input taps; actual session-created environment | Green, both owners |
++| Literal wire text | Unicode scalar text, whitespace, key order; exact JSON suffix and UTF-8 hex | Green; literal-witnesses.json |
++| Repeated equal text | Repeated native producer calls, independent owner counters and global order | Separate FIFO occurrences |
++| Owner/occurrence isolation | Other controller stream, wrong owner, copied/JSON handles, diagnostic token, local-counter collision | Rejected |
++| Atomic supported inspection | Missing/duplicate/mismatched/distinct-text out-of-order receipts; pending owner queues | No usable partial trace |
++| Restoration versus native | Delayed real owner-stream receipt gate; later native emissions before release | Producer origin retained |
++| Force/wait/revival | Mirrored owner scenarios, actual legal switch/revival continuations | Green |
++| Rejected choice | Trapped rejected switch native resend, then real moves | Green |
++| Lifetime | Reset, terminal, terminal-history restore, failed initialization, disposal failure before await | Green |
++| Existing wire | Fixed clock, v1/v2 initial result, boundary, snapshot, real step and bundles | Exact byte comparison green |
++| Prompt23 preservation | Original-provider, source, session, restore, cleanup and settling tests | Green |
++| Broader requirements | Separate original TS/Python requirement modes | Existing 1 TS + 2 Python failures remain |
++
++The test-only taps and controlled teams are independent diagnostic oracles, not certificates, datasets or source-authority adoption. Same-byte arbitrary injected swaps are explicitly outside the detectable guarantee.
+diff --git a/docs/planning/perspective-fidelity-prompt24-review.md b/docs/planning/perspective-fidelity-prompt24-review.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-review.md
+@@ -0,0 +1,8 @@
++# Prompt24 independent review disposition
++
++Read-only Sol 6.1 reviewers, using the project lowercase Pokémon naming convention; parent owned every write.
++
++- **swablu — source/oracle:** inspected pinned native Side.emitRequest, BattleStream send/sideupdate route, owner fanout/FIFO, parsing and restoration. No engine-hook blocker. Native request text originates at Side.emitRequest (`sim/side.ts`), routes through BattleStream's send callback and getPlayerStreams without JSON reconstruction. Receipt must precede tracker consumption.
++- **wooper — candidate and test-plan review:** no scoped blocker after integration. Initial coverage findings required delayed actual receipts across restore/native producer calls and legal force-switch/revival continuation for both owners. Both were added and pass. Reviewed per-instance producer scope, captured owner streams, atomic invalidation, pre-await cleanup and unchanged wire surfaces. Reviewer did not run the final batch; parent owns commands/hashes/results.
++
++No Astra reviewer was used. Final parent checks passed 162 focused tests, exact wire comparison and preservation checks. Lead acceptance remains pending; no following boundary authorized.
+diff --git a/docs/planning/perspective-fidelity-prompt24-report.md b/docs/planning/perspective-fidelity-prompt24-report.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-report.md
+@@ -0,0 +1,41 @@
++# Prompt24 candidate validation report
++
++Implemented only the private environment emission/receipt boundary. New `request_emission_trace.ts`, new tests, and narrow `env_manager.ts` wiring retain literal owner request strings before parsing. Producer occurrence and ordered FIFO receipt joins distinguish native emissions from synchronous restoration reemissions. Equal-text emissions remain distinct. Trace errors invalidate all retained support; cleanup revokes access before disposal awaits. Session commitments, causal joins and current request authority remain unimplemented.
++
++Pre-edit actual session red: missing environment trace accessor, exit1 (`red.log`, exact command in `red-command.json`). Green:18 new tests, actual producer/fanout/receipt integration and independent literal taps for both owners. Delayed real receipts retain producer classification; force/wait/revival, rejected-choice resend, terminal history and failed cleanup controls pass. `literal-witnesses.json` contains exact native Unicode records, JSON suffixes, receipts and UTF-8 hex. Test-generated teams/taps are diagnostics, not authority.
++
++Fresh validation used D:/Anaconda/envs/neuralgpu/python.exe and absolute trainer/src PYTHONPATH; PYTHONUTF8/PYTHONIOENCODING and historical report variables were unset in children. Each Node file ran separately. Exact argv, cwd, counts, exits and expected exits are in `commands.json`; the reproducible driver is `validate.py`. All162 focused tests pass. Build, literal witnesses, fixed-clock v1/v2 wire comparison and diff check pass. No full Node suite or long-turn witness ran.
++
++| Check | Counts/result | Exit |
++|---|---|---|
++| build | completed | 0 |
++| request_emission_trace | tests 18, pass 18, fail 0, skipped 0 | 0 |
++| original_owner_provider | tests 19, pass 19, fail 0, skipped 0 | 0 |
++| env_manager | tests 17, pass 17, fail 0, skipped 0 | 0 |
++| pipeline_integration | tests 10, pass 10, fail 0, skipped 0 | 0 |
++| settling | tests 18, pass 18, fail 0, skipped 0 | 0 |
++| pipeline_episode_stop_repair | tests 3, pass 3, fail 0, skipped 0 | 0 |
++| perspective_knowledge_source | tests 21, pass 21, fail 0, skipped 0 | 0 |
++| active_request_restore | tests 15, pass 15, fail 0, skipped 0 | 0 |
++| public_move_history | tests 6, pass 6, fail 0, skipped 0 | 0 |
++| replay_import | tests 8, pass 8, fail 0, skipped 0 | 0 |
++| original_owner_provider_characterization | tests 10, pass 10, fail 0, skipped 0 | 0 |
++| perspective_replay_characterization | tests 3, pass 3, fail 0, skipped 0 | 0 |
++| episode-cleanup | tests 4, pass 4, fail 0, skipped 0 | 0 |
++| loader | Ran 8 tests | 0 |
++| python-characterization | Ran 2 tests | 0 |
++| ts-requirements | tests 3, pass 2, fail 1, skipped 0 | 1 |
++| python-requirements | Ran 2 tests | 1 |
++| literal-witnesses | completed | 0 |
++| wire | completed | 0 |
++| diff-check | completed | 0 |
++
++Three broader requirement failures remain visible in fresh separate logs: the TS supplied-replay requirement assertion and both Python reconstruction/starting-attribution requirements. They are expected red, not evidence of fidelity. No historical reports were regenerated.
++
++Fixed-clock comparison against the pre-edit Prompt24 capture of accepted Prompt23 behavior confirms identical v1/v2 StepResult, boundary, snapshot, transition and bundle bytes/IDs. All1554 protected pre-existing files and21 pinned dependencies retain hashes. Project configuration is unchanged. Compiler inventory:103→105 files, only changed env_manager.js plus new trace/test JS;102 prior outputs unchanged. HEAD remains accab655c26ada18124e790b16d5770c8bd17894 on main. Hash details and candidate-only write inventory are separate JSON artifacts.
++
++Independent read-only Sol6.1 source/oracle review (swablu) and candidate/test-plan review (wooper) found no scoped blocker. Delayed receipt and legal force/revival continuation coverage findings were addressed. Parent performed the final checks.
++
++Trusted native FIFO is an explicit assumption: identical bytes cannot detect arbitrary same-byte injection/substitution/reordering inside monkeypatched streams. Local indices are not public cursors or cross-candidate commitments; native origin is not freshness or action eligibility. API and lifetime details are in `api.md`; coverage controls in `matrix.md`; reviewer disposition in `review.md`.
++
++Candidate returned for lead review. No staging, commits, publication, attestation changes, datasets, training or following boundary.
+diff --git a/docs/planning/perspective-fidelity-prompt24-progress.md b/docs/planning/perspective-fidelity-prompt24-progress.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-progress.md
+@@ -0,0 +1,3 @@
++# Prompt24 progress
++
++Bounded implementation and independent source/test-plan/candidate reviews completed. Sole writer changed only the new trace module/test and narrow environment wiring. Fresh validation:162/162 focused passes (18 new), build/wire/literal witnesses/diff checks exit0; broader requirement mode retains 1 TS and 2 Python failures. No historical report regenerated. Windows default-encoding truncation of the new test file was caught and restored from the recorded patch; one-test intermediate run was not accepted. Final restored file has 18 tests. Final preservation inventory and candidate-relative diff delivered for lead review. Stop before S01c-2b.
+diff --git a/docs/planning/perspective-fidelity-prompt24-validate.py b/docs/planning/perspective-fidelity-prompt24-validate.py
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-validate.py
+@@ -0,0 +1,20 @@
++import os,sys,pathlib,subprocess,json,re
++root=pathlib.Path(__file__).resolve().parents[2]; out=root/'docs/planning'; stem='perspective-fidelity-prompt24-'; env=dict(os.environ)
++for k in list(env):
++ if k in ('PYTHONUTF8','PYTHONIOENCODING','PERSPECTIVE_REPLAY_REQUIREMENTS') or 'REPORT' in k or k.startswith('PROMPT'):env.pop(k,None)
++env['PYTHON']=r'D:\Anaconda\envs\neuralgpu\python.exe';env['PYTHONPATH']=str(root/'trainer/src')
++rows=[]
++def run(name,args,cwd=root,expected=0,changes=None):
++ e=dict(env);e.update(changes or {});p=subprocess.run(args,cwd=cwd,env=e,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); data=p.stdout.decode('utf-8',errors='replace'); (out/(stem+name+'.log')).write_text(data,encoding='utf-8'); row={'name':name,'cwd':str(cwd),'command':args,'exit':p.returncode,'expected_exit':expected,'counts':re.findall(r'(?:tests|pass|fail|skipped) \d+|Ran \d+ tests?',data)}; rows.append(row); print(json.dumps(row),flush=True);(out/(stem+'commands.json')).write_text(json.dumps({'environment':{'PYTHON':env['PYTHON'],'PYTHONPATH':env['PYTHONPATH'],'unset':['PYTHONUTF8','PYTHONIOENCODING','historical REPORT/PROMPT variables']},'commands':rows},indent=2)+'\n',encoding='utf-8');return p.returncode
++if run('build',['node','node_modules/typescript/bin/tsc','-p','tsconfig.json'],root/'sim-core')!=0:sys.exit(1)
++for name in ['request_emission_trace','original_owner_provider','env_manager','pipeline_integration','settling','pipeline_episode_stop_repair','perspective_knowledge_source','active_request_restore','public_move_history','replay_import','original_owner_provider_characterization','perspective_replay_characterization']:
++ run(name,['node','--test',f'sim-core/dist/tests/{name}.test.js'])
++run('episode-cleanup',['node','--test','--test-name-pattern=initialization failure|invalid budgets/policy|invalid continuation|cleanup preserves','sim-core/dist/tests/pipeline_episode.test.js'])
++run('loader',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_local_replay_html_transport.py','-v'])
++run('python-characterization',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'])
++run('ts-requirements',['node','--test','sim-core/dist/tests/perspective_replay_characterization.test.js'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('python-requirements',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('literal-witnesses',['node','docs/planning/perspective-fidelity-prompt24-witnesses.cjs'])
++run('wire',['node','docs/planning/perspective-fidelity-prompt24-wire.cjs','check'])
++run('diff-check',['git','diff','--check'])
++sys.exit(any(r['exit']!=r['expected_exit'] for r in rows))
+diff --git a/docs/planning/perspective-fidelity-prompt24-wire.cjs b/docs/planning/perspective-fidelity-prompt24-wire.cjs
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-wire.cjs
+@@ -0,0 +1,3 @@
++const fs=require('node:fs'); const {PipelineIntegrationSession:S}=require('../../sim-core/dist/src/pipeline_integration'); const {LocalBattleEnv:E}=require('../../sim-core/dist/src/env_manager'); Date.now=()=>1700000000000;
++(async()=>{let rows=[];for(const schema of ['observable-battle-state/v1','observable-battle-state/v2']) {const results=[];const reset=E.prototype.resetWithOptions;E.prototype.resetWithOptions=async function(...args){const r=await reset.apply(this,args);results.push(r);return r;};let s;try{s=await S.create({battle_id:'prompt24-preservation',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:schema});const initial=s.boundary;const snapshot=s.environment.captureSeededSnapshot(null);const next=await s.step();rows.push({schema,results,initial,snapshot,next});}finally{E.prototype.resetWithOptions=reset;if(s)await s.close();}} const bytes=JSON.stringify(rows);if(process.argv[2]==='check'){require('node:assert/strict').equal(bytes,fs.readFileSync(__dirname+'/perspective-fidelity-prompt24-wire-before.json','utf8'));console.log('v1/v2 StepResult, boundary, snapshot, transition, bundles bytes identical');}else fs.writeFileSync(__dirname+'/perspective-fidelity-prompt24-wire-before.json',bytes);})().catch(e=>{console.error(e);process.exitCode=1});
++
+diff --git a/docs/planning/perspective-fidelity-prompt24-witnesses.cjs b/docs/planning/perspective-fidelity-prompt24-witnesses.cjs
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt24-witnesses.cjs
+@@ -0,0 +1,27 @@
++const fs=require('node:fs');
++const assert=require('node:assert/strict');
++const {BattleStream,Teams}=require('../../sim-core/node_modules/pokemon-showdown');
++const {LocalBattleEnv}=require('../../sim-core/dist/src/env_manager');
++const {PlayerStateExtractor}=require('../../sim-core/dist/src/state_extractor');
++const options={include_wait_requests:true,include_possible_roles:false};
++const produced={p1:[],p2:[]},received={p1:[],p2:[]};
++const send=BattleStream.prototype.pushMessage,consume=PlayerStateExtractor.prototype.consumeChunk,generate=Teams.generate;
++const unicode='\u00e9-\u03a9\u{1f600}';let generated=0;
++Teams.generate=()=>Teams.import(`${unicode}${generated++===0?'':'-foe'} (Snorlax)\nAbility: Immunity\n- Splash`);
++BattleStream.prototype.pushMessage=function(type,data){if(type==='sideupdate'){const i=data.indexOf('\n'),p=data.slice(0,i),r=data.slice(i+1);if(r.startsWith('|request|'))produced[p].push(r);}return send.call(this,type,data);};
++PlayerStateExtractor.prototype.consumeChunk=function(chunk){for(const r of chunk.split('\n'))if(r.startsWith('|request|'))received[this.player].push(r);return consume.call(this,chunk);};
++const env=new LocalBattleEnv('prompt24-witness', 'gen9randombattle',[1,2,3,4]);
++const inspect=p=>env.inspectRequestEmissionTrace(env.getRequestEmissionTraceHandle(p),p);
++(async()=>{try{
++  await env.resetWithOptions(options);
++  await env.battleStream.write('>eval p1.emitRequest(p1.activeRequest); p2.emitRequest(p2.activeRequest);');
++  await env.stepWithOptions({},options);
++  const output={scope:'diagnostic literals; synthetic Unicode inputs through actual native producer/routed receipt, no transported authority',owners:{}};
++  for(const p of ['p1','p2']){
++    const trace=inspect(p);assert.deepEqual(trace.map(r=>r.request_record),produced[p]);assert.deepEqual(trace.map(r=>r.receipt.record),received[p]);
++    assert.equal(trace[0].request_record,trace[1].request_record);assert.ok(trace[0].request_json.includes(unicode));
++    output.owners[p]={rows:trace.map(r=>({...r,producer_occurrence:'diagnostic-marker-only',record_utf8_hex:Buffer.from(r.request_record,'utf8').toString('hex')})),independent_producer_records:produced[p],independent_receipt_records:received[p]};
++  }
++  fs.writeFileSync(__dirname+'/perspective-fidelity-prompt24-literal-witnesses.json',JSON.stringify(output,null,2)+'\n','utf8');
++  console.log('both owners: exact native producer/routed receipts, Unicode bytes, two equal-text distinct occurrences');
++}finally{Teams.generate=generate;BattleStream.prototype.pushMessage=send;PlayerStateExtractor.prototype.consumeChunk=consume;await env.close();}})().catch(e=>{console.error(e);process.exitCode=1});

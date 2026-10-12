@@ -1,0 +1,74 @@
+✖ V01 RED WITNESS: weather contradiction must reject before publication (170.0509ms)
+✖ V01 RED WITNESS: terrain contradiction must reject before publication (162.4273ms)
+✖ V01 RED WITNESS: pseudo_weather contradiction must reject before publication (159.6736ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 655.6943
+
+✖ failing tests:
+
+test at dist\tests\perspective_field_semantics.test.js:375:29
+✖ V01 RED WITNESS: weather contradiction must reject before publication (170.0509ms)
+  AssertionError [ERR_ASSERTION]: CONFIRMED RED: unchanged public prefix false weather was admitted; stdout=1327 bytes, stderr=
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\perspective_field_semantics.test.js:380:26)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\perspective_field_semantics.test.js:375:29
+✖ V01 RED WITNESS: terrain contradiction must reject before publication (162.4273ms)
+  AssertionError [ERR_ASSERTION]: CONFIRMED RED: unchanged public prefix false terrain was admitted; stdout=1326 bytes, stderr=
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\perspective_field_semantics.test.js:380:26)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\perspective_field_semantics.test.js:375:29
+✖ V01 RED WITNESS: pseudo_weather contradiction must reject before publication (159.6736ms)
+  AssertionError [ERR_ASSERTION]: CONFIRMED RED: unchanged public prefix false pseudo_weather was admitted; stdout=1355 bytes, stderr=
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\perspective_field_semantics.test.js:380:26)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

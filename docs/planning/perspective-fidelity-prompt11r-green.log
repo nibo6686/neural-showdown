@@ -1,0 +1,42 @@
+[
+  {
+    "case": "opponent-roster",
+    "python": {
+      "accepted": false,
+      "guard": "crosswalk owner"
+    },
+    "ts_exit": 2,
+    "ts_stdout": "",
+    "ts_stderr": "crosswalk owner\n"
+  },
+  {
+    "case": "initialization-cursor",
+    "python": {
+      "accepted": false,
+      "guard": "initialization observation cursor"
+    },
+    "ts_exit": 2,
+    "ts_stdout": "",
+    "ts_stderr": "initialization observation cursor\n"
+  },
+  {
+    "case": "raw-request-depth",
+    "python": {
+      "accepted": false,
+      "guard": "depth"
+    },
+    "ts_exit": 2,
+    "ts_stdout": "",
+    "ts_stderr": "depth\n"
+  },
+  {
+    "case": "33-arrays-empty",
+    "python_accepted": false,
+    "ts_exit": 2
+  },
+  {
+    "case": "33-arrays-scalar",
+    "python_accepted": false,
+    "ts_exit": 2
+  }
+]

@@ -1,0 +1,2452 @@
+{
+  "schema_version": "pipeline-episode-publication-sweep/v1",
+  "result": {
+    "schema_version": "pipeline-episode/v1",
+    "run_id": "episode-6571cce0c192c1a11d0cbc2af2316f5c80a2118bd47c564bba2c77e1b1c86d32",
+    "battle_id": "field-proof-pseudo_weather-terminal",
+    "ruleset": "gen9randombattle",
+    "policy_id": "field-proof/v1",
+    "limits": {
+      "max_transitions": 2,
+      "max_attempts": 512,
+      "max_rejections_per_boundary": 3
+    },
+    "status": "completed",
+    "stop": {
+      "code": "episode/v1/terminal",
+      "reason": "The committed simulator boundary is a win or tie."
+    },
+    "counts": {
+      "attempts": 2,
+      "committed_transitions": 2,
+      "rejected_candidates": 0,
+      "rejections_at_final_boundary": 0
+    },
+    "initial_boundary": {
+      "step_index": 0,
+      "kind": "joint_actionable",
+      "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+      "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+      "perspectives": {
+        "p1": {
+          "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+          "belief_id": "belief-003b0ce4049f9f886e43e380d8f53e6b4c926a0dbb150d4326d6ddf2f6e8e1d2",
+          "event_cursor": 16,
+          "request_state": "actionable",
+          "winner": null
+        },
+        "p2": {
+          "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+          "belief_id": "belief-0683a7c2924c92e7280471302ad2fb58d99bda125396f53abd0fe9027fd705e1",
+          "event_cursor": 16,
+          "request_state": "actionable",
+          "winner": null
+        }
+      }
+    },
+    "final_boundary": {
+      "step_index": 2,
+      "kind": "terminal",
+      "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+      "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+      "perspectives": {
+        "p1": {
+          "observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1",
+          "belief_id": "belief-02155a5764e95d6fd3b68cc304baf1def376d36c1272aa7dac0898b929efbf9a",
+          "event_cursor": 31,
+          "request_state": "terminal",
+          "winner": "p1"
+        },
+        "p2": {
+          "observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb",
+          "belief_id": "belief-7c10b406b7003174d8d4f26234e704d0b0e0b43a5412297d1ad017a70003fb48",
+          "event_cursor": 31,
+          "request_state": "terminal",
+          "winner": "p1"
+        }
+      }
+    },
+    "transition_ids": [
+      "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+      "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51"
+    ],
+    "faithful_complete_episode": true
+  },
+  "evidence_envelope": {
+    "schema_version": "pipeline-episode-evidence/v2",
+    "run_id": "episode-6571cce0c192c1a11d0cbc2af2316f5c80a2118bd47c564bba2c77e1b1c86d32",
+    "battle_id": "field-proof-pseudo_weather-terminal",
+    "ruleset": "gen9randombattle",
+    "source_ref": "sim-core://field-proof-pseudo_weather-terminal",
+    "origin": {
+      "schema_version": "pipeline-episode-origin/v1",
+      "origin_id": "episode-origin-107817d0ccaa1dc7afbfd97e9cba778e2a4a23ad653f9e22845c149e15d5b722",
+      "kind": "fresh_episode",
+      "boundary": {
+        "step_index": 0,
+        "kind": "joint_actionable",
+        "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+        "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+        "perspectives": {
+          "p1": {
+            "schema_version": "observable-battle-state/v2",
+            "source_kind": "sim_core",
+            "battle_id": "field-proof-pseudo_weather-terminal",
+            "perspective": "p1",
+            "event_cursor": 16,
+            "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+            "snapshot_phase": "pre_decision",
+            "other_phase": null,
+            "request": {
+              "player": "p1",
+              "wait": false,
+              "team_preview": false,
+              "force_switch": false,
+              "trapped": false,
+              "rqid": null,
+              "active": {
+                "moves": [
+                  {
+                    "slot": 1,
+                    "move": "Trick Room",
+                    "id": "trickroom",
+                    "pp": 8,
+                    "maxpp": 8,
+                    "target": "all",
+                    "disabled": false,
+                    "type": "Psychic",
+                    "category": "Status",
+                    "base_power": 0,
+                    "accuracy": null
+                  },
+                  {
+                    "slot": 2,
+                    "move": "Splash",
+                    "id": "splash",
+                    "pp": 64,
+                    "maxpp": 64,
+                    "target": "self",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Status",
+                    "base_power": 0,
+                    "accuracy": null
+                  }
+                ],
+                "can_terastallize": true,
+                "tera_type": "Poison",
+                "trapped": false,
+                "can_switch": false
+              },
+              "side": [
+                {
+                  "slot": 1,
+                  "ident": "p1: Room",
+                  "details": "Slowbro-Galar, L1, M",
+                  "condition": "13/13",
+                  "active": true,
+                  "moves": [
+                    "trickroom",
+                    "splash"
+                  ],
+                  "stats": {
+                    "atk": 7,
+                    "def": 7,
+                    "spa": 7,
+                    "spd": 6,
+                    "spe": 5
+                  },
+                  "base_ability": "regenerator",
+                  "ability": "regenerator",
+                  "item": null,
+                  "tera_type": "Poison",
+                  "terastallized": false
+                }
+              ],
+              "legal_actions": {
+                "mask": [
+                  true,
+                  true,
+                  false,
+                  false,
+                  true,
+                  true,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "actions": [
+                  {
+                    "index": 0,
+                    "kind": "move",
+                    "choice": "move 1",
+                    "label": "move:Trick Room",
+                    "move": "Trick Room",
+                    "slot": 1
+                  },
+                  {
+                    "index": 1,
+                    "kind": "move",
+                    "choice": "move 2",
+                    "label": "move:Splash",
+                    "move": "Splash",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  {
+                    "index": 4,
+                    "kind": "move_tera",
+                    "choice": "move 1 terastallize",
+                    "label": "move_tera:Trick Room",
+                    "move": "Trick Room",
+                    "slot": 1
+                  },
+                  {
+                    "index": 5,
+                    "kind": "move_tera",
+                    "choice": "move 2 terastallize",
+                    "label": "move_tera:Splash",
+                    "move": "Splash",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+                ],
+                "available_indices": [
+                  0,
+                  1,
+                  4,
+                  5
+                ]
+              }
+            },
+            "decision_availability": {
+              "available": true,
+              "reason": "request",
+              "legal_action_indices": [
+                0,
+                1,
+                4,
+                5
+              ]
+            },
+            "view": {
+              "format": "gen9randombattle",
+              "gen": 9,
+              "turn": 1,
+              "player": "p1",
+              "opponent": "p2",
+              "terminated": false,
+              "winner": null,
+              "names": {
+                "p1": "One",
+                "p2": "Two"
+              },
+              "team_size": {
+                "p1": 1,
+                "p2": 1
+              },
+              "active": {
+                "self": 0,
+                "opponent": 0
+              },
+              "field": {
+                "weather": null,
+                "terrain": null,
+                "pseudo_weather": [],
+                "side_conditions": {
+                  "self": {},
+                  "opponent": {}
+                }
+              },
+              "self_team": [
+                {
+                  "slot": 1,
+                  "ident": "p1: Room",
+                  "name": "Room",
+                  "species": "Slowbro-Galar",
+                  "base_species": "Slowbro-Galar",
+                  "current_species": "Slowbro-Galar",
+                  "displayed_species": "Slowbro-Galar",
+                  "species_source": "request",
+                  "transformed": false,
+                  "displayed_species_uncertain": false,
+                  "illusion_revealed": false,
+                  "details": "Slowbro-Galar, L1, M",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "13/13",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "request",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "M",
+                  "level": 1,
+                  "types": [
+                    "Poison",
+                    "Psychic"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "item": null,
+                  "last_item": null,
+                  "item_state": "unknown",
+                  "item_suppressed": false,
+                  "ability": "regenerator",
+                  "base_ability": "regenerator",
+                  "ability_state": "known",
+                  "ability_suppressed": false,
+                  "moves": [
+                    "trickroom",
+                    "splash"
+                  ],
+                  "revealed_moves": [
+                    "trickroom",
+                    "splash"
+                  ],
+                  "tera_type": "Poison",
+                  "stats": {
+                    "atk": 7,
+                    "def": 7,
+                    "spa": 7,
+                    "spd": 6,
+                    "spe": 5
+                  },
+                  "boosts": {}
+                }
+              ],
+              "opponent_team": [
+                {
+                  "slot": 1,
+                  "ident": "p2a: Bomb",
+                  "name": "Bomb",
+                  "species": "Snorlax",
+                  "base_species": "Snorlax",
+                  "current_species": "Snorlax",
+                  "displayed_species": "Snorlax",
+                  "species_source": "protocol",
+                  "transformed": false,
+                  "displayed_species_uncertain": true,
+                  "illusion_revealed": false,
+                  "details": "Snorlax, F",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "100/100",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "protocol",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "F",
+                  "level": null,
+                  "types": [
+                    "Normal"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "public_boosts": {
+                    "atk": 0,
+                    "def": 0,
+                    "spa": 0,
+                    "spd": 0,
+                    "spe": 0,
+                    "accuracy": 0,
+                    "evasion": 0
+                  }
+                }
+              ]
+            },
+            "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+            "protocol_prefix": [
+              "|t:|0",
+              "|gametype|singles",
+              "|player|p1|One||",
+              "|player|p2|Two||",
+              "|teamsize|p1|1",
+              "|teamsize|p2|1",
+              "|gen|9",
+              "|rule|Species Clause: Limit one of each Pokémon",
+              "|rule|HP Percentage Mod: HP is shown in percentages",
+              "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+              "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+              "|t:|0",
+              "|start",
+              "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+              "|switch|p2a: Bomb|Snorlax, F|100/100",
+              "|turn|1"
+            ]
+          },
+          "p2": {
+            "schema_version": "observable-battle-state/v2",
+            "source_kind": "sim_core",
+            "battle_id": "field-proof-pseudo_weather-terminal",
+            "perspective": "p2",
+            "event_cursor": 16,
+            "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+            "snapshot_phase": "pre_decision",
+            "other_phase": null,
+            "request": {
+              "player": "p2",
+              "wait": false,
+              "team_preview": false,
+              "force_switch": false,
+              "trapped": false,
+              "rqid": null,
+              "active": {
+                "moves": [
+                  {
+                    "slot": 1,
+                    "move": "Splash",
+                    "id": "splash",
+                    "pp": 64,
+                    "maxpp": 64,
+                    "target": "self",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Status",
+                    "base_power": 0,
+                    "accuracy": null
+                  },
+                  {
+                    "slot": 2,
+                    "move": "Explosion",
+                    "id": "explosion",
+                    "pp": 8,
+                    "maxpp": 8,
+                    "target": "allAdjacent",
+                    "disabled": false,
+                    "type": "Normal",
+                    "category": "Physical",
+                    "base_power": 250,
+                    "accuracy": 100
+                  }
+                ],
+                "can_terastallize": true,
+                "tera_type": "Normal",
+                "trapped": false,
+                "can_switch": false
+              },
+              "side": [
+                {
+                  "slot": 1,
+                  "ident": "p2: Bomb",
+                  "details": "Snorlax, F",
+                  "condition": "461/461",
+                  "active": true,
+                  "moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "stats": {
+                    "atk": 256,
+                    "def": 166,
+                    "spa": 166,
+                    "spd": 256,
+                    "spe": 96
+                  },
+                  "base_ability": "thickfat",
+                  "ability": "thickfat",
+                  "item": null,
+                  "tera_type": "Normal",
+                  "terastallized": false
+                }
+              ],
+              "legal_actions": {
+                "mask": [
+                  true,
+                  true,
+                  false,
+                  false,
+                  true,
+                  true,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "actions": [
+                  {
+                    "index": 0,
+                    "kind": "move",
+                    "choice": "move 1",
+                    "label": "move:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  {
+                    "index": 1,
+                    "kind": "move",
+                    "choice": "move 2",
+                    "label": "move:Explosion",
+                    "move": "Explosion",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  {
+                    "index": 4,
+                    "kind": "move_tera",
+                    "choice": "move 1 terastallize",
+                    "label": "move_tera:Splash",
+                    "move": "Splash",
+                    "slot": 1
+                  },
+                  {
+                    "index": 5,
+                    "kind": "move_tera",
+                    "choice": "move 2 terastallize",
+                    "label": "move_tera:Explosion",
+                    "move": "Explosion",
+                    "slot": 2
+                  },
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+                ],
+                "available_indices": [
+                  0,
+                  1,
+                  4,
+                  5
+                ]
+              }
+            },
+            "decision_availability": {
+              "available": true,
+              "reason": "request",
+              "legal_action_indices": [
+                0,
+                1,
+                4,
+                5
+              ]
+            },
+            "view": {
+              "format": "gen9randombattle",
+              "gen": 9,
+              "turn": 1,
+              "player": "p2",
+              "opponent": "p1",
+              "terminated": false,
+              "winner": null,
+              "names": {
+                "p1": "One",
+                "p2": "Two"
+              },
+              "team_size": {
+                "p1": 1,
+                "p2": 1
+              },
+              "active": {
+                "self": 0,
+                "opponent": 0
+              },
+              "field": {
+                "weather": null,
+                "terrain": null,
+                "pseudo_weather": [],
+                "side_conditions": {
+                  "self": {},
+                  "opponent": {}
+                }
+              },
+              "self_team": [
+                {
+                  "slot": 1,
+                  "ident": "p2: Bomb",
+                  "name": "Bomb",
+                  "species": "Snorlax",
+                  "base_species": "Snorlax",
+                  "current_species": "Snorlax",
+                  "displayed_species": "Snorlax",
+                  "species_source": "request",
+                  "transformed": false,
+                  "displayed_species_uncertain": false,
+                  "illusion_revealed": false,
+                  "details": "Snorlax, F",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "461/461",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "request",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "F",
+                  "level": null,
+                  "types": [
+                    "Normal"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "item": null,
+                  "last_item": null,
+                  "item_state": "unknown",
+                  "item_suppressed": false,
+                  "ability": "thickfat",
+                  "base_ability": "thickfat",
+                  "ability_state": "known",
+                  "ability_suppressed": false,
+                  "moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "revealed_moves": [
+                    "splash",
+                    "explosion"
+                  ],
+                  "tera_type": "Normal",
+                  "stats": {
+                    "atk": 256,
+                    "def": 166,
+                    "spa": 166,
+                    "spd": 256,
+                    "spe": 96
+                  },
+                  "boosts": {}
+                }
+              ],
+              "opponent_team": [
+                {
+                  "slot": 1,
+                  "ident": "p1a: Room",
+                  "name": "Room",
+                  "species": "Slowbro-Galar",
+                  "base_species": "Slowbro-Galar",
+                  "current_species": "Slowbro-Galar",
+                  "displayed_species": "Slowbro-Galar",
+                  "species_source": "protocol",
+                  "transformed": false,
+                  "displayed_species_uncertain": true,
+                  "illusion_revealed": false,
+                  "details": "Slowbro-Galar, L1, M",
+                  "active": true,
+                  "fainted": false,
+                  "hp_text": "100/100",
+                  "hp_ratio": 1,
+                  "status": null,
+                  "status_source": "protocol",
+                  "status_started_turn": null,
+                  "status_turns_public": null,
+                  "gender": "M",
+                  "level": 1,
+                  "types": [
+                    "Poison",
+                    "Psychic"
+                  ],
+                  "terastallized": false,
+                  "volatiles": [],
+                  "public_boosts": {
+                    "atk": 0,
+                    "def": 0,
+                    "spa": 0,
+                    "spd": 0,
+                    "spe": 0,
+                    "accuracy": 0,
+                    "evasion": 0
+                  }
+                }
+              ]
+            },
+            "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+            "protocol_prefix": [
+              "|t:|0",
+              "|gametype|singles",
+              "|player|p1|One||",
+              "|player|p2|Two||",
+              "|teamsize|p1|1",
+              "|teamsize|p2|1",
+              "|gen|9",
+              "|rule|Species Clause: Limit one of each Pokémon",
+              "|rule|HP Percentage Mod: HP is shown in percentages",
+              "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+              "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+              "|t:|0",
+              "|start",
+              "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+              "|switch|p2a: Bomb|Snorlax, F|100/100",
+              "|turn|1"
+            ]
+          }
+        }
+      }
+    },
+    "commits": [
+      {
+        "origin_id": "episode-origin-107817d0ccaa1dc7afbfd97e9cba778e2a4a23ad653f9e22845c149e15d5b722",
+        "transition": {
+          "schema_version": "pipeline-transition-reference/v1",
+          "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+          "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+          "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0
+        },
+        "actors": [
+          "p1",
+          "p2"
+        ],
+        "boundary": {
+          "step_index": 1,
+          "kind": "joint_actionable",
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "perspectives": {
+            "p1": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-pseudo_weather-terminal",
+              "perspective": "p1",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision",
+              "other_phase": null,
+              "request": {
+                "player": "p1",
+                "wait": false,
+                "team_preview": false,
+                "force_switch": false,
+                "trapped": false,
+                "rqid": null,
+                "active": {
+                  "moves": [
+                    {
+                      "slot": 1,
+                      "move": "Trick Room",
+                      "id": "trickroom",
+                      "pp": 7,
+                      "maxpp": 8,
+                      "target": "all",
+                      "disabled": false,
+                      "type": "Psychic",
+                      "category": "Status",
+                      "base_power": 0,
+                      "accuracy": null
+                    },
+                    {
+                      "slot": 2,
+                      "move": "Splash",
+                      "id": "splash",
+                      "pp": 64,
+                      "maxpp": 64,
+                      "target": "self",
+                      "disabled": false,
+                      "type": "Normal",
+                      "category": "Status",
+                      "base_power": 0,
+                      "accuracy": null
+                    }
+                  ],
+                  "can_terastallize": true,
+                  "tera_type": "Poison",
+                  "trapped": false,
+                  "can_switch": false
+                },
+                "side": [
+                  {
+                    "slot": 1,
+                    "ident": "p1: Room",
+                    "details": "Slowbro-Galar, L1, M",
+                    "condition": "13/13",
+                    "active": true,
+                    "moves": [
+                      "trickroom",
+                      "splash"
+                    ],
+                    "stats": {
+                      "atk": 7,
+                      "def": 7,
+                      "spa": 7,
+                      "spd": 6,
+                      "spe": 5
+                    },
+                    "base_ability": "regenerator",
+                    "ability": "regenerator",
+                    "item": null,
+                    "tera_type": "Poison",
+                    "terastallized": false
+                  }
+                ],
+                "legal_actions": {
+                  "mask": [
+                    true,
+                    true,
+                    false,
+                    false,
+                    true,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                  ],
+                  "actions": [
+                    {
+                      "index": 0,
+                      "kind": "move",
+                      "choice": "move 1",
+                      "label": "move:Trick Room",
+                      "move": "Trick Room",
+                      "slot": 1
+                    },
+                    {
+                      "index": 1,
+                      "kind": "move",
+                      "choice": "move 2",
+                      "label": "move:Splash",
+                      "move": "Splash",
+                      "slot": 2
+                    },
+                    null,
+                    null,
+                    {
+                      "index": 4,
+                      "kind": "move_tera",
+                      "choice": "move 1 terastallize",
+                      "label": "move_tera:Trick Room",
+                      "move": "Trick Room",
+                      "slot": 1
+                    },
+                    {
+                      "index": 5,
+                      "kind": "move_tera",
+                      "choice": "move 2 terastallize",
+                      "label": "move_tera:Splash",
+                      "move": "Splash",
+                      "slot": 2
+                    },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                  ],
+                  "available_indices": [
+                    0,
+                    1,
+                    4,
+                    5
+                  ]
+                }
+              },
+              "decision_availability": {
+                "available": true,
+                "reason": "request",
+                "legal_action_indices": [
+                  0,
+                  1,
+                  4,
+                  5
+                ]
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 2,
+                "player": "p1",
+                "opponent": "p2",
+                "terminated": false,
+                "winner": null,
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": 0,
+                  "opponent": 0
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": null,
+                  "pseudo_weather": [
+                    "trickroom"
+                  ],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1: Room",
+                    "name": "Room",
+                    "species": "Slowbro-Galar",
+                    "base_species": "Slowbro-Galar",
+                    "current_species": "Slowbro-Galar",
+                    "displayed_species": "Slowbro-Galar",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Slowbro-Galar, L1, M",
+                    "active": true,
+                    "fainted": false,
+                    "hp_text": "13/13",
+                    "hp_ratio": 1,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Poison",
+                      "Psychic"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "regenerator",
+                    "base_ability": "regenerator",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "trickroom",
+                      "splash"
+                    ],
+                    "revealed_moves": [
+                      "trickroom",
+                      "splash"
+                    ],
+                    "tera_type": "Poison",
+                    "stats": {
+                      "atk": 7,
+                      "def": 7,
+                      "spa": 7,
+                      "spd": 6,
+                      "spe": 5
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2a: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": true,
+                    "fainted": false,
+                    "hp_text": "100/100",
+                    "hp_ratio": 1,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Splash|p2a: Bomb",
+                "|-nothing",
+                "|move|p1a: Room|Trick Room|p1a: Room",
+                "|-fieldstart|move: Trick Room|[of] p1a: Room",
+                "|upkeep",
+                "|turn|2"
+              ]
+            },
+            "p2": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-pseudo_weather-terminal",
+              "perspective": "p2",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision",
+              "other_phase": null,
+              "request": {
+                "player": "p2",
+                "wait": false,
+                "team_preview": false,
+                "force_switch": false,
+                "trapped": false,
+                "rqid": null,
+                "active": {
+                  "moves": [
+                    {
+                      "slot": 1,
+                      "move": "Splash",
+                      "id": "splash",
+                      "pp": 63,
+                      "maxpp": 64,
+                      "target": "self",
+                      "disabled": false,
+                      "type": "Normal",
+                      "category": "Status",
+                      "base_power": 0,
+                      "accuracy": null
+                    },
+                    {
+                      "slot": 2,
+                      "move": "Explosion",
+                      "id": "explosion",
+                      "pp": 8,
+                      "maxpp": 8,
+                      "target": "allAdjacent",
+                      "disabled": false,
+                      "type": "Normal",
+                      "category": "Physical",
+                      "base_power": 250,
+                      "accuracy": 100
+                    }
+                  ],
+                  "can_terastallize": true,
+                  "tera_type": "Normal",
+                  "trapped": false,
+                  "can_switch": false
+                },
+                "side": [
+                  {
+                    "slot": 1,
+                    "ident": "p2: Bomb",
+                    "details": "Snorlax, F",
+                    "condition": "461/461",
+                    "active": true,
+                    "moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "stats": {
+                      "atk": 256,
+                      "def": 166,
+                      "spa": 166,
+                      "spd": 256,
+                      "spe": 96
+                    },
+                    "base_ability": "thickfat",
+                    "ability": "thickfat",
+                    "item": null,
+                    "tera_type": "Normal",
+                    "terastallized": false
+                  }
+                ],
+                "legal_actions": {
+                  "mask": [
+                    true,
+                    true,
+                    false,
+                    false,
+                    true,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                  ],
+                  "actions": [
+                    {
+                      "index": 0,
+                      "kind": "move",
+                      "choice": "move 1",
+                      "label": "move:Splash",
+                      "move": "Splash",
+                      "slot": 1
+                    },
+                    {
+                      "index": 1,
+                      "kind": "move",
+                      "choice": "move 2",
+                      "label": "move:Explosion",
+                      "move": "Explosion",
+                      "slot": 2
+                    },
+                    null,
+                    null,
+                    {
+                      "index": 4,
+                      "kind": "move_tera",
+                      "choice": "move 1 terastallize",
+                      "label": "move_tera:Splash",
+                      "move": "Splash",
+                      "slot": 1
+                    },
+                    {
+                      "index": 5,
+                      "kind": "move_tera",
+                      "choice": "move 2 terastallize",
+                      "label": "move_tera:Explosion",
+                      "move": "Explosion",
+                      "slot": 2
+                    },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                  ],
+                  "available_indices": [
+                    0,
+                    1,
+                    4,
+                    5
+                  ]
+                }
+              },
+              "decision_availability": {
+                "available": true,
+                "reason": "request",
+                "legal_action_indices": [
+                  0,
+                  1,
+                  4,
+                  5
+                ]
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 2,
+                "player": "p2",
+                "opponent": "p1",
+                "terminated": false,
+                "winner": null,
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": 0,
+                  "opponent": 0
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": null,
+                  "pseudo_weather": [
+                    "trickroom"
+                  ],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": true,
+                    "fainted": false,
+                    "hp_text": "461/461",
+                    "hp_ratio": 1,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "thickfat",
+                    "base_ability": "thickfat",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "revealed_moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "tera_type": "Normal",
+                    "stats": {
+                      "atk": 256,
+                      "def": 166,
+                      "spa": 166,
+                      "spd": 256,
+                      "spe": 96
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1a: Room",
+                    "name": "Room",
+                    "species": "Slowbro-Galar",
+                    "base_species": "Slowbro-Galar",
+                    "current_species": "Slowbro-Galar",
+                    "displayed_species": "Slowbro-Galar",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Slowbro-Galar, L1, M",
+                    "active": true,
+                    "fainted": false,
+                    "hp_text": "100/100",
+                    "hp_ratio": 1,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Poison",
+                      "Psychic"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Splash|p2a: Bomb",
+                "|-nothing",
+                "|move|p1a: Room|Trick Room|p1a: Room",
+                "|-fieldstart|move: Trick Room|[of] p1a: Room",
+                "|upkeep",
+                "|turn|2"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "origin_id": "episode-origin-107817d0ccaa1dc7afbfd97e9cba778e2a4a23ad653f9e22845c149e15d5b722",
+        "transition": {
+          "schema_version": "pipeline-transition-reference/v1",
+          "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+          "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "input_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "output_state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 1
+        },
+        "actors": [
+          "p1",
+          "p2"
+        ],
+        "boundary": {
+          "step_index": 2,
+          "kind": "terminal",
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "perspectives": {
+            "p1": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-pseudo_weather-terminal",
+              "perspective": "p1",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+              "snapshot_phase": "terminal",
+              "other_phase": null,
+              "request": null,
+              "decision_availability": {
+                "available": false,
+                "reason": "terminal",
+                "legal_action_indices": null
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 2,
+                "player": "p1",
+                "opponent": "p2",
+                "terminated": true,
+                "winner": "p1",
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": null,
+                  "opponent": null
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": null,
+                  "pseudo_weather": [],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1: Room",
+                    "name": "Room",
+                    "species": "Slowbro-Galar",
+                    "base_species": "Slowbro-Galar",
+                    "current_species": "Slowbro-Galar",
+                    "displayed_species": "Slowbro-Galar",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Slowbro-Galar, L1, M",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Poison",
+                      "Psychic"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "regenerator",
+                    "base_ability": "regenerator",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "trickroom",
+                      "splash"
+                    ],
+                    "revealed_moves": [
+                      "trickroom",
+                      "splash"
+                    ],
+                    "tera_type": "Poison",
+                    "stats": {
+                      "atk": 7,
+                      "def": 7,
+                      "spa": 7,
+                      "spd": 6,
+                      "spe": 5
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2a: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Splash|p2a: Bomb",
+                "|-nothing",
+                "|move|p1a: Room|Trick Room|p1a: Room",
+                "|-fieldstart|move: Trick Room|[of] p1a: Room",
+                "|upkeep",
+                "|turn|2",
+                "|t:|0",
+                "|move|p1a: Room|Splash|p1a: Room",
+                "|-nothing",
+                "|move|p2a: Bomb|Explosion|p1a: Room",
+                "|-damage|p1a: Room|0 fnt",
+                "|faint|p2a: Bomb",
+                "|faint|p1a: Room",
+                "|win|One"
+              ]
+            },
+            "p2": {
+              "schema_version": "observable-battle-state/v2",
+              "source_kind": "sim_core",
+              "battle_id": "field-proof-pseudo_weather-terminal",
+              "perspective": "p2",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+              "snapshot_phase": "terminal",
+              "other_phase": null,
+              "request": null,
+              "decision_availability": {
+                "available": false,
+                "reason": "terminal",
+                "legal_action_indices": null
+              },
+              "view": {
+                "format": "gen9randombattle",
+                "gen": 9,
+                "turn": 2,
+                "player": "p2",
+                "opponent": "p1",
+                "terminated": true,
+                "winner": "p1",
+                "names": {
+                  "p1": "One",
+                  "p2": "Two"
+                },
+                "team_size": {
+                  "p1": 1,
+                  "p2": 1
+                },
+                "active": {
+                  "self": null,
+                  "opponent": null
+                },
+                "field": {
+                  "weather": null,
+                  "terrain": null,
+                  "pseudo_weather": [
+                    "trickroom"
+                  ],
+                  "side_conditions": {
+                    "self": {},
+                    "opponent": {}
+                  }
+                },
+                "self_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p2: Bomb",
+                    "name": "Bomb",
+                    "species": "Snorlax",
+                    "base_species": "Snorlax",
+                    "current_species": "Snorlax",
+                    "displayed_species": "Snorlax",
+                    "species_source": "request",
+                    "transformed": false,
+                    "displayed_species_uncertain": false,
+                    "illusion_revealed": false,
+                    "details": "Snorlax, F",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "request",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "F",
+                    "level": null,
+                    "types": [
+                      "Normal"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "item": null,
+                    "last_item": null,
+                    "item_state": "unknown",
+                    "item_suppressed": false,
+                    "ability": "thickfat",
+                    "base_ability": "thickfat",
+                    "ability_state": "known",
+                    "ability_suppressed": false,
+                    "moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "revealed_moves": [
+                      "splash",
+                      "explosion"
+                    ],
+                    "tera_type": "Normal",
+                    "stats": {
+                      "atk": 256,
+                      "def": 166,
+                      "spa": 166,
+                      "spd": 256,
+                      "spe": 96
+                    },
+                    "boosts": {}
+                  }
+                ],
+                "opponent_team": [
+                  {
+                    "slot": 1,
+                    "ident": "p1a: Room",
+                    "name": "Room",
+                    "species": "Slowbro-Galar",
+                    "base_species": "Slowbro-Galar",
+                    "current_species": "Slowbro-Galar",
+                    "displayed_species": "Slowbro-Galar",
+                    "species_source": "protocol",
+                    "transformed": false,
+                    "displayed_species_uncertain": true,
+                    "illusion_revealed": false,
+                    "details": "Slowbro-Galar, L1, M",
+                    "active": false,
+                    "fainted": true,
+                    "hp_text": "0",
+                    "hp_ratio": 0,
+                    "status": null,
+                    "status_source": "protocol",
+                    "status_started_turn": null,
+                    "status_turns_public": null,
+                    "gender": "M",
+                    "level": 1,
+                    "types": [
+                      "Poison",
+                      "Psychic"
+                    ],
+                    "terastallized": false,
+                    "volatiles": [],
+                    "public_boosts": {
+                      "atk": 0,
+                      "def": 0,
+                      "spa": 0,
+                      "spd": 0,
+                      "spe": 0,
+                      "accuracy": 0,
+                      "evasion": 0
+                    }
+                  }
+                ]
+              },
+              "observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb",
+              "protocol_prefix": [
+                "|t:|0",
+                "|gametype|singles",
+                "|player|p1|One||",
+                "|player|p2|Two||",
+                "|teamsize|p1|1",
+                "|teamsize|p2|1",
+                "|gen|9",
+                "|rule|Species Clause: Limit one of each Pokémon",
+                "|rule|HP Percentage Mod: HP is shown in percentages",
+                "|rule|Sleep Clause Mod: Limit one foe put to sleep",
+                "|rule|Illusion Level Mod: Illusion disguises the Pokémon's true level",
+                "|t:|0",
+                "|start",
+                "|switch|p1a: Room|Slowbro-Galar, L1, M|100/100",
+                "|switch|p2a: Bomb|Snorlax, F|100/100",
+                "|turn|1",
+                "|t:|0",
+                "|move|p2a: Bomb|Splash|p2a: Bomb",
+                "|-nothing",
+                "|move|p1a: Room|Trick Room|p1a: Room",
+                "|-fieldstart|move: Trick Room|[of] p1a: Room",
+                "|upkeep",
+                "|turn|2",
+                "|t:|0",
+                "|move|p1a: Room|Splash|p1a: Room",
+                "|-nothing",
+                "|move|p2a: Bomb|Explosion|p1a: Room",
+                "|-damage|p1a: Room|0 fnt",
+                "|faint|p2a: Bomb",
+                "|faint|p1a: Room",
+                "|win|One"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "closure": {
+      "schema_version": "pipeline-episode-closure/v1",
+      "origin_coverage": "original_initial_requests",
+      "predecessor": null,
+      "terminal": {
+        "schema_version": "pipeline-terminal-evidence/v1",
+        "outcome": "win",
+        "winner": "p1",
+        "final_boundary": {
+          "step_index": 2,
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "perspectives": {
+            "p1": {
+              "observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f"
+            },
+            "p2": {
+              "observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f"
+            }
+          }
+        }
+      },
+      "complete_capture": true
+    },
+    "evidence_id": "episode-evidence-e48b6bc120f98cade2d3b9baff01886042b909464a34040921126550b3579e74"
+  },
+  "records": {
+    "p1": [
+      {
+        "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p1",
+          "rqid": null,
+          "kind": "move",
+          "index": 0,
+          "move_slot": 1,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 1",
+          "action_id": "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a"
+        },
+        "input_belief_id": "belief-003b0ce4049f9f886e43e380d8f53e6b4c926a0dbb150d4326d6ddf2f6e8e1d2",
+        "successor_belief_id": "belief-44b8b75c6c9924ac6322a58360faca51c1a413d9a4ac12079d73a1728a27fc83"
+      },
+      {
+        "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p1",
+          "rqid": null,
+          "kind": "move",
+          "index": 1,
+          "move_slot": 2,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 2",
+          "action_id": "act-587caa16f4819c61fa8dc1942fda0148e7622df440708edb90f50c51d3273f40"
+        },
+        "input_belief_id": "belief-44b8b75c6c9924ac6322a58360faca51c1a413d9a4ac12079d73a1728a27fc83",
+        "successor_belief_id": "belief-02155a5764e95d6fd3b68cc304baf1def376d36c1272aa7dac0898b929efbf9a"
+      }
+    ],
+    "p2": [
+      {
+        "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p2",
+          "rqid": null,
+          "kind": "move",
+          "index": 0,
+          "move_slot": 1,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 1",
+          "action_id": "act-26c2d988a76a0030ce9a6ea6e33bb44ab669a13eac46439c193f7b47db4c2855"
+        },
+        "input_belief_id": "belief-0683a7c2924c92e7280471302ad2fb58d99bda125396f53abd0fe9027fd705e1",
+        "successor_belief_id": "belief-8a1a14814ded05d420b744832901eaf9d26761bc8e764025a0c2f7b584ed39b0"
+      },
+      {
+        "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+        "action": {
+          "schema_version": "canonical-action/v1",
+          "source": "request_legal_action",
+          "player": "p2",
+          "rqid": null,
+          "kind": "move",
+          "index": 1,
+          "move_slot": 2,
+          "switch_slot": null,
+          "target": null,
+          "choice": "move 2",
+          "action_id": "act-7085da4b924dc3166eeb292fa3d5eef99c730c5dcf36638981a099a1b66d8689"
+        },
+        "input_belief_id": "belief-8a1a14814ded05d420b744832901eaf9d26761bc8e764025a0c2f7b584ed39b0",
+        "successor_belief_id": "belief-7c10b406b7003174d8d4f26234e704d0b0e0b43a5412297d1ad017a70003fb48"
+      }
+    ]
+  },
+  "beliefs": [
+    {
+      "belief_id": "belief-003b0ce4049f9f886e43e380d8f53e6b4c926a0dbb150d4326d6ddf2f6e8e1d2",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p1",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+          "source_kind": "sim_core",
+          "event_cursor": 16,
+          "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": null,
+        "simulator_snapshot": {
+          "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+          "transition_id": null,
+          "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+          "parent_branch_id": null
+        },
+        "transition_lineage": null
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": []
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-44b8b75c6c9924ac6322a58360faca51c1a413d9a4ac12079d73a1728a27fc83",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p1",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+          "source_kind": "sim_core",
+          "event_cursor": 23,
+          "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": "belief-003b0ce4049f9f886e43e380d8f53e6b4c926a0dbb150d4326d6ddf2f6e8e1d2",
+        "simulator_snapshot": {
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+          "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+          "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+          "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0,
+          "input_observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+          "output_observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+              "output_observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-02155a5764e95d6fd3b68cc304baf1def376d36c1272aa7dac0898b929efbf9a",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p1",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1",
+          "source_kind": "sim_core",
+          "event_cursor": 31,
+          "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+          "snapshot_phase": "terminal"
+        },
+        "parent_belief_id": "belief-44b8b75c6c9924ac6322a58360faca51c1a413d9a4ac12079d73a1728a27fc83",
+        "simulator_snapshot": {
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+          "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+          "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "input_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "output_state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 1,
+          "input_observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+          "output_observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1",
+              "source_kind": "sim_core",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+              "snapshot_phase": "terminal"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+            },
+            {
+              "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+              "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+              "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+              "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-233e96aefd31ed092f84f65e14ae7128c77ffb2eddb5fce04504774bd08ff04f",
+              "output_observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006"
+            },
+            {
+              "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+              "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+              "input_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "output_state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 1,
+              "input_observation_id": "obs-c8a64f9d36b71e371d3adaf14345999b573acd204217f7dfeb983ea86fed9006",
+              "output_observation_id": "obs-39fbe90c846499c477c3226cc87ab9bdca7a39b75da482f264158d08823de0e1"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-0683a7c2924c92e7280471302ad2fb58d99bda125396f53abd0fe9027fd705e1",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p2",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+          "source_kind": "sim_core",
+          "event_cursor": 16,
+          "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": null,
+        "simulator_snapshot": {
+          "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+          "transition_id": null,
+          "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+          "parent_branch_id": null
+        },
+        "transition_lineage": null
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": []
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-8a1a14814ded05d420b744832901eaf9d26761bc8e764025a0c2f7b584ed39b0",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p2",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+          "source_kind": "sim_core",
+          "event_cursor": 23,
+          "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+          "snapshot_phase": "pre_decision"
+        },
+        "parent_belief_id": "belief-0683a7c2924c92e7280471302ad2fb58d99bda125396f53abd0fe9027fd705e1",
+        "simulator_snapshot": {
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+          "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+          "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+          "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+          "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 0,
+          "input_observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+          "output_observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+              "output_observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    },
+    {
+      "belief_id": "belief-7c10b406b7003174d8d4f26234e704d0b0e0b43a5412297d1ad017a70003fb48",
+      "base_belief_id": null,
+      "fields": {
+        "schema_version": "belief-state/v1",
+        "information_regime": "player",
+        "battle_id": "field-proof-pseudo_weather-terminal",
+        "perspective": "p2",
+        "observation": {
+          "schema_version": "observable-battle-state/v2",
+          "observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb",
+          "source_kind": "sim_core",
+          "event_cursor": 31,
+          "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+          "snapshot_phase": "terminal"
+        },
+        "parent_belief_id": "belief-8a1a14814ded05d420b744832901eaf9d26761bc8e764025a0c2f7b584ed39b0",
+        "simulator_snapshot": {
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+          "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94"
+        },
+        "transition_lineage": {
+          "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+          "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+          "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+          "input_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+          "output_state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+          "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+          "step_index": 1,
+          "input_observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+          "output_observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb"
+        }
+      },
+      "arrays": {
+        "observation_history": {
+          "mode": "full",
+          "items": [
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+              "source_kind": "sim_core",
+              "event_cursor": 16,
+              "protocol_prefix_hash": "19f030f70b36a2f215e89933346bd25ef5cd0fa505515491e239936668f71786",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+              "source_kind": "sim_core",
+              "event_cursor": 23,
+              "protocol_prefix_hash": "b5424cf2e74ada93717e8ac9639ae955787c7c9ae78d52401a372a577db8fac8",
+              "snapshot_phase": "pre_decision"
+            },
+            {
+              "schema_version": "observable-battle-state/v2",
+              "observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb",
+              "source_kind": "sim_core",
+              "event_cursor": 31,
+              "protocol_prefix_hash": "247283211619ac78e1205f36b217754415e10872554d0d58681ae79a2ed8d42f",
+              "snapshot_phase": "terminal"
+            }
+          ]
+        },
+        "simulator_snapshot_history": {
+          "mode": "full",
+          "items": [
+            {
+              "branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "transition_id": null,
+              "state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "parent_branch_id": null
+            },
+            {
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7"
+            },
+            {
+              "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+              "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+              "state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+              "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94"
+            }
+          ]
+        },
+        "transition_history": {
+          "mode": "full",
+          "items": [
+            {
+              "transition_id": "transition-c95bce24757dfedbfbf6e8340e5ef7c9e2bbb76da92af555d7e6b3df993fdc8b",
+              "parent_branch_id": "branch-e516b4fa0f222d51b5f743957357291eaaae67db7b46c52ef55ce20ed1caf4a7",
+              "branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "input_state_fingerprint": "cf7ab8e7db0a090fd6dd67fdb3af54ddd62ffcb059913af82948e81ccd56182c",
+              "output_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 0,
+              "input_observation_id": "obs-e81fe3cba4e5f12f0abc7812faa50a1891bf8bf161182349576a10486f8fd891",
+              "output_observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c"
+            },
+            {
+              "transition_id": "transition-a0d27b6f5b1b12d1b9f957bb22e531978dc535ddba22b4cc13c836afe51d6f51",
+              "parent_branch_id": "branch-24e0dd055db49b2488b6d150177978e4c951b5c3e18779c629a546c6ea804d94",
+              "branch_id": "branch-508b9f9ba37b4285005573ef623302c696da781317502ffef79066886274f44a",
+              "input_state_fingerprint": "ac0ab01aa6a85c0c1d3619ded3f593ae4bb6638dd509eb54e4deda8956fffe6d",
+              "output_state_fingerprint": "fd00abb6a7553908930f56f662d36972e8eafb5ef6ee9f0911c1609846565169",
+              "simulator_revision": "sim-core@0.1.0+pokemon-showdown@0.11.10",
+              "step_index": 1,
+              "input_observation_id": "obs-36fdd25d08b519a8258f561a023b13dd0022bca49fd71bdf01b794a91fb59a5c",
+              "output_observation_id": "obs-9d4831fa2e43c5f703ae0730d854ca01c65446c410bc47ee7b6298a9877fbbfb"
+            }
+          ]
+        },
+        "candidates": {
+          "mode": "full",
+          "items": []
+        },
+        "evidence": {
+          "mode": "full",
+          "items": []
+        },
+        "unresolved": {
+          "mode": "full",
+          "items": []
+        },
+        "contradictions": {
+          "mode": "full",
+          "items": []
+        }
+      }
+    }
+  ]
+}

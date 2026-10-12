@@ -1,0 +1,90 @@
+{
+  "internal": {
+    "origin": {},
+    "source": {
+      "origin": "origin"
+    },
+    "prefix": {
+      "origin": "origin"
+    },
+    "evidence": {
+      "origin": "origin",
+      "source": "source",
+      "prefix": "prefix"
+    },
+    "certificate": {
+      "source": "source",
+      "witnesses.*": "evidence"
+    },
+    "fact": {
+      "evidence.*": "evidence",
+      "certificate": "certificate"
+    },
+    "starting": {
+      "origin": "origin",
+      "source": "source",
+      "parent": "starting",
+      "facts.*": "fact",
+      "crosswalk.*.certificate": "certificate"
+    },
+    "current": {
+      "origin": "origin",
+      "prefix": "prefix",
+      "parent": "current",
+      "facts.*": "fact"
+    },
+    "request": {
+      "origin": "origin",
+      "source": "source",
+      "prefix": "prefix",
+      "facts.*": "fact"
+    },
+    "knowledge": {
+      "origin": "origin",
+      "starting": "starting",
+      "current": "current",
+      "request": "request"
+    },
+    "profile": {},
+    "verdict": {
+      "knowledge": "knowledge",
+      "profile": "profile"
+    },
+    "boundary": {
+      "origin": "origin",
+      "parent": "boundary",
+      "restored_from": "boundary",
+      "bindings.*.knowledge": "knowledge",
+      "bindings.*.verdict": "verdict"
+    },
+    "binding": {
+      "origin": "origin",
+      "input_knowledge": "knowledge",
+      "successor_knowledge": "knowledge"
+    },
+    "audit": {
+      "origin": "origin",
+      "required_profile": "profile",
+      "target_boundary": "boundary"
+    },
+    "projection": {}
+  },
+  "external": {
+    "boundary": [
+      "bindings.*.observation_id",
+      "bindings.*.belief_id",
+      "bindings.*.actor_record_id"
+    ],
+    "binding": [
+      "input_observation",
+      "successor_observation",
+      "input_belief",
+      "successor_belief",
+      "transition",
+      "actor_record"
+    ],
+    "projection": [
+      "required_profile"
+    ]
+  }
+}

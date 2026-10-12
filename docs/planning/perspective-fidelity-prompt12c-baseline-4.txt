@@ -1,0 +1,539 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import {
+  canonicalKnowledgeJson, checkKnowledgeStructure, knowledgeIdentity,
+  parseKnowledgeJson, serializeKnowledgeWire,
+} from '../src/perspective_knowledge';
+
+type Row = Record<string, any>;
+const root = path.resolve(__dirname, '../../..');
+const fixtures = path.join(root, 'docs/contracts/fixtures/perspective-knowledge-v1');
+const load = (name: string): any => JSON.parse(readFileSync(path.join(fixtures, name), 'utf8'));
+const diagnostic = {
+  structure_valid: true, source_semantics_verified: false,
+  completeness: 'not_established', legacy_envelope_verified: false,
+};
+const missing = 'sha256:' + '0'.repeat(64);
+
+// This oracle only accepts the already hand-audited scalar/integer fixtures.
+// It deliberately does not use the implementation's canonicalizer or edge walk.
+function literalCanonical(value: any): string {
+  if (Array.isArray(value)) return '[' + value.map(literalCanonical).join(',') + ']';
+  if (value !== null && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + literalCanonical(value[k])).join(',') + '}';
+  }
+  return JSON.stringify(value);
+}
+function literalIdentity(row: Row): string {
+  const payload = Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id'));
+  return 'sha256:' + createHash('sha256').update('pk/v1/' + row.kind + '\n' + literalCanonical(payload), 'utf8').digest('hex');
+}
+function tables(audit: Row): Record<string, Row[]> {
+  return Object.fromEntries(Object.entries(audit.tables).map(([kind, rows]) => [kind,
+    (Array.isArray(rows) ? rows : Object.values(rows as Row)).slice().sort((a: Row, b: Row) => a.id.localeCompare(b.id)),
+  ]));
+}
+
+// Explicit positions independently inspected against the normative join prose.
+// Legacy IDs and arbitrary text never enter this list or get rewritten.
+const singleEdges: Record<string, string[]> = {
+  origin: [], source: ['origin'], prefix: ['origin'], evidence: ['origin', 'source', 'prefix'],
+  certificate: ['source'], fact: ['certificate'], starting: ['origin', 'source', 'parent'],
+  current: ['origin', 'prefix', 'parent'], request: ['origin', 'source', 'prefix'],
+  knowledge: ['origin', 'starting', 'current', 'request'], profile: [],
+  verdict: ['knowledge', 'profile'], boundary: ['origin', 'parent', 'restored_from'],
+  binding: ['origin', 'input_knowledge', 'successor_knowledge'],
+};
+const listEdges: Record<string, string[]> = {
+  certificate: ['witnesses'], fact: ['evidence'], starting: ['facts'], current: ['facts'], request: ['facts'],
+};
+function reseal(audit: Row): Row {
+  const expanded = tables(audit);
+  const byOldId = new Map<string, Row>();
+  for (const rows of Object.values(expanded)) for (const row of rows) byOldId.set(row.id, row);
+  const completed = new Map<string, string>();
+  const active = new Set<string>();
+  function replace(id: string | null): string | null {
+    if (id === null || !byOldId.has(id)) return id;
+    if (completed.has(id)) return completed.get(id)!;
+    assert.ok(!active.has(id), 'test mutation introduced a cycle');
+    active.add(id);
+    const row = byOldId.get(id)!;
+    for (const field of singleEdges[row.kind]) row[field] = replace(row[field]);
+    for (const field of listEdges[row.kind] ?? []) row[field] = row[field].map(replace).sort();
+    if (row.kind === 'starting') for (const crosswalk of row.crosswalk) crosswalk.certificate = replace(crosswalk.certificate);
+    if (row.kind === 'boundary') for (const binding of row.bindings) {
+      binding.knowledge = replace(binding.knowledge); binding.verdict = replace(binding.verdict);
+    }
+    row.id = literalIdentity(row);
+    active.delete(id); completed.set(id, row.id);
+    return row.id;
+  }
+  for (const id of byOldId.keys()) replace(id);
+  for (const field of ['origin', 'required_profile', 'target_boundary']) audit[field] = replace(audit[field]);
+  audit.tables = Object.fromEntries(Object.entries(expanded).map(([kind, rows]) => [kind,
+    audit.form === 'compact'
+      ? Object.fromEntries(rows.sort((a, b) => a.id.localeCompare(b.id)).map(row => [row.id, row]))
+      : rows.sort((a, b) => a.id.localeCompare(b.id)),
+  ]));
+  audit.id = literalIdentity(audit);
+  return audit;
+}
+function assertSealed(audit: Row): void {
+  assert.equal(audit.id, literalIdentity(audit));
+  for (const rows of Object.values(tables(audit))) for (const row of rows) assert.equal(row.id, literalIdentity(row));
+}
+function rejected(value: any): void {
+  const before = literalCanonical(value);
+  assert.throws(() => checkKnowledgeStructure(value), Error);
+  assert.equal(literalCanonical(value), before, 'failed validation mutated input');
+  assert.throws(() => serializeKnowledgeWire(value), Error);
+  assert.equal(literalCanonical(value), before, 'failed serialization mutated input');
+}
+
+test('16 independent literal preimages cover every identity domain and Unicode', () => {
+  const vectors = load('identity-vectors.json');
+  assert.equal(vectors.length, 16);
+  assert.equal(new Set(vectors.map((v: Row) => v.kind)).size, 16);
+  for (const vector of vectors) {
+    const preimage = Buffer.from(vector.preimage_utf8_hex, 'hex');
+    assert.equal('sha256:' + createHash('sha256').update(preimage).digest('hex'), vector.id);
+    const payload = Object.fromEntries(Object.entries(vector.object).filter(([key]) => key !== 'id'));
+    assert.deepEqual(Buffer.concat([Buffer.from('pk/v1/' + vector.kind + '\n'), canonicalKnowledgeJson(payload)]), preimage);
+    assert.equal(knowledgeIdentity(vector.object), vector.id);
+    assert.equal(knowledgeIdentity({ ...vector.object, id: missing }), vector.id, 'only top-level id is excluded');
+  }
+});
+
+test('literal controls, lexical ASCII ordering, scalar UTF8, and no normalization', () => {
+  const value = { s: Array.from({ length: 32 }, (_, n) => String.fromCharCode(n)).join('') + '"\\/É😀' };
+  const literal = '{"s":"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f\\"\\\\/É😀"}';
+  assert.equal(canonicalKnowledgeJson(value).toString('utf8'), literal);
+  const controls = load('canonical-controls-vector.json');
+  assert.equal(literal, controls.canonical_json_literal);
+  assert.equal(knowledgeIdentity(controls.object), 'sha256:cedca312d204a332171f3cba967f2fe256851f474afd69c5cae083b692159f9a');
+  assert.equal(canonicalKnowledgeJson({ z: 0, '2': 2, '10': 10, A: true, a: null }).toString(), '{"10":10,"2":2,"A":true,"a":null,"z":0}');
+  assert.notDeepEqual(canonicalKnowledgeJson({ s: 'é' }), canonicalKnowledgeJson({ s: 'e\u0301' }));
+  assert.deepEqual(parseKnowledgeJson(Buffer.from(literal)), value);
+  assert.deepEqual(parseKnowledgeJson('{"s":"\\ud83d\\ude00"}'), { s: '😀' });
+});
+
+test('raw ingress rejects lexical ambiguity before JSON.parse can erase it', () => {
+  const invalid = [
+    '{"a":1,"a":2}', '{"a":1,"\\u0061":2}', '{"nest":{"a":1,"a":1}}',
+    '-0', '1.0', '1e0', '1E+0', '[0,-0]', '{"a":1.25}', 'NaN', 'Infinity',
+    '{"s":"\\ud800"}', '{"s":"\\udfff"}', '{"\\ud800":0}', '"\ud800"',
+    '\ufeff{}', '{}{}', '/*comment*/{}', '{"a":1,}', 'true false',
+  ];
+  for (const text of invalid) assert.throws(() => parseKnowledgeJson(text), Error, text);
+  for (const bytes of [Buffer.from([0xff]), Buffer.from([0xc0, 0xaf]), Buffer.from([0xed, 0xa0, 0x80]), Buffer.from([0xf0, 0x9f]), Buffer.from([0xef, 0xbb, 0xbf, 0x7b, 0x7d])]) {
+    assert.throws(() => parseKnowledgeJson(bytes), Error, bytes.toString('hex'));
+  }
+  assert.deepEqual(parseKnowledgeJson(' {"zero":0,"integer":2147483647,"flag":true} \r\n'), { zero: 0, integer: 2147483647, flag: true });
+  assert.equal(parseKnowledgeJson('1'), 1, 'object integer 1 cannot preserve whether callers once wrote 1.0');
+  assert.throws(() => parseKnowledgeJson('['.repeat(33) + '0' + ']'.repeat(33)), Error);
+  assert.throws(() => parseKnowledgeJson(' '.repeat(16 * 1024 * 1024) + '{}'), Error);
+});
+
+test('object APIs reject unsupported values and cycles without changing them', () => {
+  const sparse: any[] = new Array(1); (sparse as any).extra = 1;
+  assert.throws(() => canonicalKnowledgeJson(sparse));
+  const hidden = [0]; Object.defineProperty(hidden,'extra',{value:1});
+  assert.throws(() => canonicalKnowledgeJson(hidden));
+  const callable: any[] = new Array(1); let invoked = false;
+  Object.defineProperty(callable,'forEach',{value:() => { invoked = true; },enumerable:true});
+  assert.throws(() => canonicalKnowledgeJson(callable)); assert.equal(invoked,false);
+  for (const value of [-0, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1, undefined, 1n, '\ud800', { value: undefined }, { value: () => 1 }]) {
+    assert.throws(() => canonicalKnowledgeJson(value), Error);
+  }
+  const cycle: Row = { kind: 'origin' }; cycle.self = cycle;
+  assert.throws(() => canonicalKnowledgeJson(cycle), Error);
+  assert.throws(() => checkKnowledgeStructure(cycle), Error);
+  assert.equal(cycle.self, cycle);
+  let deep: any = 0; for (let i = 0; i < 33; i++) deep = [deep];
+  assert.throws(() => canonicalKnowledgeJson(deep), Error);
+});
+
+for (const source of ['sim', 'replay', 'replay-suffix']) for (const form of ['full', 'ordinary', 'compact']) {
+  test(`${source} ${form} has both owners, exact limited diagnostic, and immutable serialization`, () => {
+    const value = load(source + '-' + form + '.json'); const before = literalCanonical(value);
+    assert.deepEqual(checkKnowledgeStructure(value, value.required_profile), diagnostic);
+    const wire = serializeKnowledgeWire(value);
+    assert.ok(Buffer.isBuffer(wire));
+    assert.deepEqual(parseKnowledgeJson(wire), value);
+    assert.equal(literalCanonical(value), before);
+    const expanded = tables(value);
+    assert.deepEqual([...new Set(expanded.knowledge.map(row => row.owner))].sort(), ['p1', 'p2']);
+    assert.deepEqual(expanded, tables(load(source + '-full.json')), 'form changes cannot change closure');
+  });
+}
+
+test('both-owner projections and inert hash/capability text have only structural acceptance', () => {
+  for (const name of [
+    'sim-p1-consumer.json', 'sim-p2-consumer.json', 'replay-p1-consumer.json', 'replay-p2-consumer.json',
+    'sim-p1-actionable-consumer.json', 'sim-p1-wait-consumer.json', 'missing-original-full.json',
+    'sim-concurrent-effects-full.json', 'inert-hash-full.json', 'inert-hash-ordinary.json', 'inert-hash-compact.json',
+    'inert-self-hash-full.json', 'inert-self-hash-ordinary.json', 'inert-self-hash-compact.json',
+    'inert-capability-words-consumer.json', 'inert-missing-hash-consumer.json', 'inert-array-consumer.json',
+  ]) assert.deepEqual(checkKnowledgeStructure(load(name)), diagnostic, name);
+});
+
+test('same-source refinement retains proved facts/crosswalk, changed-source roots reprove, suffix is causal', () => {
+  const old = tables(load('replay-full.json')); const suffix = tables(load('replay-suffix-full.json'));
+  const child = old.starting.find(row => row.parent !== null)!;
+  const parent = old.starting.find(row => row.id === child.parent)!;
+  assert.equal(child.revision, parent.revision + 1); assert.equal(child.source, parent.source);
+  const facts = new Map(old.fact.map(row => [row.id, row]));
+  const proved = parent.facts.filter((id: string) => facts.get(id)!.state !== 'unknown');
+  assert.ok(proved.length > 0); assert.ok(proved.every((id: string) => child.facts.includes(id)));
+  assert.ok(parent.facts.some((id: string) => facts.get(id)!.state === 'unknown'));
+  assert.ok(child.facts.every((id: string) => facts.get(id)!.state === 'known'));
+  assert.ok(parent.crosswalk.every((row: Row) => child.crosswalk.some((candidate: Row) => literalCanonical(row) === literalCanonical(candidate))));
+  assert.ok(suffix.starting.every(row => row.revision === 0 && row.parent === null));
+  assert.ok(suffix.starting.every(row => !old.starting.some(prior => prior.source === row.source)));
+  function chronological(t: Record<string, Row[]>): Row {
+    const current = t.current.filter(row => row.cursor <= 5);
+    const factIds = new Set(current.flatMap(row => row.facts));
+    const fact = t.fact.filter(row => factIds.has(row.id));
+    const evidenceIds = new Set(fact.flatMap(row => row.evidence));
+    return { current, fact, evidence: t.evidence.filter(row => evidenceIds.has(row.id)), prefix: t.prefix.filter(row => row.records.length <= 5) };
+  }
+  for (const form of ['full', 'ordinary', 'compact']) assert.deepEqual(chronological(tables(load('replay-' + form + '.json'))), chronological(tables(load('replay-suffix-' + form + '.json'))));
+});
+
+const structuralNegatives = [
+  'negative-missing-key.json', 'negative-extra-key.json', 'negative-wrong-type.json', 'negative-wrong-discriminant.json',
+  'negative-duplicate.json', 'negative-dangling-reference.json', 'negative-wrong-owner.json', 'negative-wrong-policy.json',
+  'negative-wrong-source.json', 'negative-broken-origin.json', 'negative-broken-parent.json', 'negative-broken-request.json',
+  'negative-broken-history.json', 'negative-compact-private-traversal.json', 'negative-compact-future-traversal.json',
+  'negative-crosswalk-foreign-owner.json', 'negative-starting-revision-fork.json', 'negative-certificate-property.json',
+  'negative-foreign-original-source.json', 'negative-wrong-value-tag.json', 'negative-wrong-effect-identity.json',
+  'negative-in-range-future-source.json', 'negative-unreachable-entry.json', 'negative-cross-source-parent.json',
+  'negative-old-source-carryover.json', 'negative-same-source-proved-change.json', 'negative-old-source-fact-certificate.json',
+  'negative-old-source-crosswalk-certificate.json', 'negative-consumer-privileged-field.json',
+  'negative-consumer-nested-capability.json', 'negative-consumer-foreign-starting.json',
+];
+for (const name of structuralNegatives) test('independently resealed structural control: ' + name, () => {
+  const value = load(name);
+  if (value.kind === 'audit') assertSealed(value); else assert.equal(value.id, literalIdentity(value));
+  rejected(value);
+});
+
+test('resealed wrong-kind edges, dictionary orphans/order, profile substitution, and retention reject', () => {
+  const cases: [string, (audit: Row) => void][] = [
+    ['wrong-kind current fact', a => { a.tables.current[0].facts[0] = a.tables.prefix[0].id; }],
+    ['wrong-kind original source', a => { a.tables.starting[0].source = a.tables.prefix[0].id; }],
+    ['orphan referenced only by inert text', a => {
+      const orphan = structuredClone(a.tables.prefix[0]); orphan.records = ['|unreferenced|']; orphan.id = literalIdentity(orphan);
+      a.tables.prefix.push(orphan); a.tables.origin[0].battle_key = orphan.id;
+    }],
+    ['request sequence', a => { a.tables.request[0].sequence += 1; }],
+    ['request private owner', a => { a.tables.request[0].owner = a.tables.request[0].owner === 'p1' ? 'p2' : 'p1'; }],
+    ['binding legacy commitment', a => { a.tables.binding[0].successor_observation = missing; }],
+    ['boundary owner order', a => { a.tables.boundary[0].bindings.reverse(); }],
+    ['boolean cursor', a => { a.tables.current[0].cursor = true; }],
+    ['text scalar bound', a => { a.tables.origin[0].battle_key = '😀'.repeat(257); }],
+    ['table bound', a => { a.tables.prefix = Array.from({ length: 4097 }, () => structuredClone(a.tables.prefix[0])); }],
+  ];
+  for (const [name, mutate] of cases) {
+    const value = load('sim-full.json'); mutate(value); reseal(value); assertSealed(value);
+    assert.throws(() => checkKnowledgeStructure(value), Error, name);
+  }
+  const order = load('sim-full.json'); order.tables.source.reverse(); order.id = literalIdentity(order); rejected(order);
+  const compact = load('sim-compact.json');
+  const first = Object.keys(compact.tables.fact)[0]; compact.tables.fact[missing] = compact.tables.fact[first]; delete compact.tables.fact[first];
+  compact.id = literalIdentity(compact); rejected(compact);
+  assert.throws(() => checkKnowledgeStructure(load('sim-full.json'), load('profiles.json')[1].id), Error);
+  const revision = load('replay-full.json');
+  const child = revision.tables.starting.find((row: Row) => row.parent !== null);
+  assert.ok(child.crosswalk.length > 0); child.crosswalk = []; reseal(revision); assertSealed(revision); rejected(revision);
+});
+
+test('raw_request has its own 65536 scalar allowance and strict nested JSON rules', () => {
+  assert.throws(() => parseKnowledgeJson('{"raw_request.json":' + JSON.stringify('{"s":"' + 'a'.repeat(300) + '"}') + '}'));
+  const value = load('sim-full.json'); const source = value.tables.source.find((row: Row) => row.source_type === 'owner_request');
+  source.raw_request.json = '{"private":"' + '😀'.repeat(300) + '"}'; reseal(value);
+  assert.deepEqual(checkKnowledgeStructure(value), diagnostic, 'raw request is not a 256-scalar ordinary string');
+  for (const raw of ['{"x":0,"x":1}', '{"x":-0}', '{"x":1.0}', '{"x":1e0}', '{"s":"\\ud800"}', '['.repeat(33) + '0' + ']'.repeat(33), '{"s":"' + 'a'.repeat(65536) + '"}']) {
+    const invalid = load('sim-full.json'); invalid.tables.source.find((row: Row) => row.source_type === 'owner_request').raw_request.json = raw;
+    reseal(invalid); assertSealed(invalid); rejected(invalid);
+  }
+});
+
+test('named layer/power/timer structural claims have independent key and bound controls', () => {
+  for (const owner of ['p1','p2']) {
+    const audit = load('sim-full.json');
+    const current = audit.tables.current.find((r: Row) => r.owner === owner && r.cursor === 3);
+    const proof = audit.tables.evidence.find((r: Row) => r.scope === 'public' && r.record_indices.length && Math.max(...r.record_indices) < 3);
+    const claims: [string,string,string,Row][] = [
+      ['K13','side_condition_layers','Spikes',{type:'integer',data:2}],
+      ['K15','pending_power','FutureSight',{type:'power',data:{basis:'base_move',amount:120}}],
+      ['K14','field_remaining','weather:RainDance',{type:'field_timer',data:{target_kind:'weather',name:'RainDance',remaining:{min:4,max:7}}}],
+      ['K14','field_remaining','terrain:ElectricTerrain',{type:'field_timer',data:{target_kind:'terrain',name:'ElectricTerrain',remaining:{min:5,max:8}}}],
+    ];
+    for (const [family,property,effect_key,value] of claims) {
+      const fact: Row = {kind:'fact',owner,subject:owner+':side',family,property,effect_key,state:'known',value,reason:'none',freshness:'current',
+        precision:property === 'field_remaining' ? 'interval' : 'exact',observed_at:Math.max(...proof.record_indices)+1,evidence:[proof.id],certificate:null};
+      fact.id = literalIdentity(fact); audit.tables.fact.push(fact); current.facts.push(fact.id);
+    }
+    reseal(audit); assertSealed(audit); assert.deepEqual(checkKnowledgeStructure(audit),diagnostic,'structural claims do not prove ledgers');
+    const changes: [string,(f: Row) => void][] = [
+      ['side_condition_layers',f => { f.value.data = 0; }], ['side_condition_layers',f => { f.value.data = 4; }],
+      ['side_condition_layers',f => { f.value = {type:'text',data:'2'}; }],
+      ['pending_power',f => { f.value.data.amount = 65536; }],
+      ['field_remaining',f => { f.effect_key = null; }], ['field_remaining',f => { f.effect_key = 'terrain:Wrong'; }],
+      ['field_remaining',f => { f.value.data.remaining = {min:8,max:4}; }],
+    ];
+    for (const [property,change] of changes) {
+      const altered = structuredClone(audit); change(altered.tables.fact.find((f: Row) => f.property === property));
+      reseal(altered); assertSealed(altered); rejected(altered);
+    }
+  }
+});
+
+test('safe projection finite fact consistency and request delivery time cannot bypass core', () => {
+  for (const change of [(f: Row) => { f.family = 'K01'; },(f: Row) => { f.value = {type:'text',data:'bad'}; },(f: Row) => { f.state = 'unknown'; f.value = {type:'integer',data:1}; }]) {
+    const projection = load('sim-p1-actionable-consumer.json'); change(projection.request.facts.find((f: Row) => f.property === 'pp'));
+    projection.id = literalIdentity(projection); rejected(projection);
+  }
+  const requestOnly = load('sim-full.json'); requestOnly.tables.fact.find((f: Row) => f.property === 'maybe_trapped' && f.state === 'known').observed_at = 99;
+  reseal(requestOnly); assertSealed(requestOnly); assert.throws(() => checkKnowledgeStructure(requestOnly), /request observation cursor/);
+});
+
+test('restoration, complete bindings and declared certificate qualification have resealed controls', () => {
+  const changes: [(a: Row) => void,string][] = [
+    [a => { a.tables.boundary.find((b: Row) => b.boundary_type === 'restored').restored_from = null; },'restore pointer'],
+    [a => { a.tables.binding.pop(); },'missing binding'],
+    [a => { a.tables.binding.push(structuredClone(a.tables.binding[0])); },'duplicate binding'],
+    [a => { a.tables.binding[0].successor_index = 0; },'nonconsecutive binding'],
+    [a => { a.tables.binding[0].successor_belief = missing; },'belief join'],
+    [a => { a.tables.binding.find((b: Row) => b.actor_record === null).transition = missing; },'nonactor transition'],
+  ];
+  for (const [change,label] of changes) { const value = load('sim-full.json'); change(value); reseal(value); assertSealed(value); assert.throws(() => checkKnowledgeStructure(value), Error,label); }
+  for (const change of [(c: Row) => { c.continuity = 'ambiguous'; },(c: Row) => { c.exclusions.pop(); }]) {
+    const value = load('replay-full.json'); change(value.tables.certificate[0]); reseal(value); assertSealed(value); rejected(value);
+  }
+  for (const file of ['observable_state.ts','belief_state.ts','pipeline_episode.ts','pipeline_integration.ts','env_manager.ts']) {
+    assert.ok(!readFileSync(path.join(root,'sim-core/src',file),'utf8').includes('perspective_knowledge'),'production entrypoints remain opt-in');
+  }
+});
+
+test('restored fact retention and evidence-free request lifecycle reject at precise joins', () => {
+  const audit = load('sim-full.json');
+  const restored = audit.tables.boundary.find((b: Row) => b.boundary_type === 'restored');
+  const knowledge = audit.tables.knowledge.find((k: Row) => k.id === restored.bindings[0].knowledge);
+  const current = audit.tables.current.find((c: Row) => c.id === knowledge.current);
+  const fact = audit.tables.fact.find((f: Row) => current.facts.includes(f.id) && f.family !== 'K20');
+  current.facts = current.facts.filter((id: string) => id !== fact.id); reseal(audit); assertSealed(audit);
+  assert.throws(() => checkKnowledgeStructure(audit),/restored fact retention/);
+  const future = load('sim-full.json'); const request = future.tables.request.find((r: Row) => r.owner === 'p1' && r.cursor === 0);
+  const unknown = structuredClone(future.tables.fact.find((f: Row) => f.property === 'pp' && f.state === 'unknown' && f.owner === 'p1'));
+  Object.assign(unknown,{subject:'p1:roster:6:move:4:incarnation:99',observed_at:99,evidence:[]}); unknown.id = literalIdentity(unknown);
+  future.tables.fact.push(unknown); request.facts.push(unknown.id); reseal(future); assertSealed(future);
+  assert.throws(() => checkKnowledgeStructure(future),/request observation cursor/);
+  const terminal = load('sim-full.json'); const restore = terminal.tables.boundary.find((b: Row) => b.boundary_type === 'restored');
+  const context = terminal.tables.knowledge.find((k: Row) => k.id === restore.bindings[0].knowledge);
+  const now = terminal.tables.current.find((c: Row) => c.id === context.current);
+  const source = structuredClone(terminal.tables.source.find((s: Row) => s.source_type === 'owner_request' && s.owner === 'p1'));
+  Object.assign(source,{delivery_seq:3,delivery_cursor:now.cursor}); source.id = literalIdentity(source);
+  const fresh = structuredClone(terminal.tables.request.find((r: Row) => r.owner === 'p1'));
+  Object.assign(fresh,{source:source.id,sequence:3,cursor:now.cursor,prefix:now.prefix,facts:[]}); fresh.id = literalIdentity(fresh);
+  terminal.tables.source.push(source); terminal.tables.request.push(fresh); context.request = fresh.id; reseal(terminal); assertSealed(terminal);
+  assert.throws(() => checkKnowledgeStructure(terminal),/restored terminal request/);
+  context.request = null;
+  const nextBoundary = structuredClone(restore); Object.assign(nextBoundary,{index:restore.index+1,parent:restore.id,restored_from:restore.id});
+  for (const row of nextBoundary.bindings) {
+    const old = restore.bindings.find((r: Row) => r.owner === row.owner);
+    const oldKnowledge = terminal.tables.knowledge.find((k: Row) => k.id === old.knowledge);
+    const oldCurrent = terminal.tables.current.find((c: Row) => c.id === oldKnowledge.current);
+    const newCurrent = structuredClone(oldCurrent); newCurrent.parent = oldCurrent.id; newCurrent.id = literalIdentity(newCurrent);
+    const newKnowledge = structuredClone(oldKnowledge); Object.assign(newKnowledge,{current:newCurrent.id,boundary:nextBoundary.index,request:row.owner === 'p1' ? fresh.id : null}); newKnowledge.id = literalIdentity(newKnowledge);
+    const verdict = structuredClone(terminal.tables.verdict.find((v: Row) => v.id === old.verdict)); verdict.knowledge = newKnowledge.id; verdict.id = literalIdentity(verdict);
+    Object.assign(row,{knowledge:newKnowledge.id,verdict:verdict.id});
+    terminal.tables.current.push(newCurrent); terminal.tables.knowledge.push(newKnowledge); terminal.tables.verdict.push(verdict);
+    const binding: Row = {kind:'binding',origin:terminal.origin,owner:row.owner,input_index:restore.index,successor_index:nextBoundary.index,
+      input_knowledge:old.knowledge,successor_knowledge:row.knowledge,input_observation:old.observation_id,successor_observation:row.observation_id,
+      input_belief:old.belief_id,successor_belief:row.belief_id,transition:null,actor_record:null};
+    binding.id = literalIdentity(binding); terminal.tables.binding.push(binding);
+  }
+  nextBoundary.id = literalIdentity(nextBoundary); terminal.tables.boundary.push(nextBoundary); terminal.target_boundary = nextBoundary.id; reseal(terminal); assertSealed(terminal);
+  assert.throws(() => checkKnowledgeStructure(terminal),/restored terminal request/);
+});
+
+test('a source-semantic false value can still pass structure; no assurance is minted', () => {
+  const value = load('negative-false-item.json'); assertSealed(value);
+  assert.deepEqual(checkKnowledgeStructure(value), diagnostic);
+  assert.deepEqual(checkKnowledgeStructure(parseKnowledgeJson(serializeKnowledgeWire(value))), diagnostic);
+});
+
+function pythonEnvironment(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) if (['PYTHONUTF8', 'PYTHONIOENCODING', 'PYTHONPATH'].includes(key.toUpperCase())) delete env[key];
+  env.PYTHONPATH = path.join(root, 'trainer/src');
+  return env;
+}
+function pythonExecutable(): string {
+  if (process.env.PYTHON) return process.env.PYTHON;
+  const conda = 'D:\\Anaconda\\envs\\neuralgpu\\python.exe';
+  return existsSync(conda) ? conda : process.platform === 'win32' ? 'python' : 'python3';
+}
+test('compiled TS bytes reach explicit Python CLI with cwd independence, clean errors and no source mutation', () => {
+  const cwd = mkdtempSync(path.join(tmpdir(), 'pk11-ts-cli-'));
+  const env = pythonEnvironment();
+  assert.ok(Object.keys(env).every(key => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
+  const invoke = (wire: Buffer) => spawnSync(pythonExecutable(), ['-m', 'neural.perspective_knowledge', '--check-structure'], {
+    input: wire, cwd, env, encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 30000,
+  });
+  try {
+    for (const form of ['full', 'ordinary', 'compact']) {
+      const value = load('sim-' + form + '.json'); const before = literalCanonical(value);
+      const good = invoke(serializeKnowledgeWire(value)); assert.ifError(good.error);
+      assert.equal(good.status, 0, good.stderr); assert.equal(good.stderr, '');
+      assert.deepEqual(JSON.parse(good.stdout), diagnostic); assert.ok(good.stdout.length < 256);
+      assert.equal(literalCanonical(value), before);
+    }
+    const stderr = new Set<string>();
+    for (const wire of [Buffer.from('{"private_secret":"do-not-print", "x":-0}'), Buffer.from([0xff]), Buffer.from(literalCanonical(load('negative-broken-request.json')))]) {
+      const failed = invoke(wire); assert.ifError(failed.error);
+      assert.equal(failed.status, 2); assert.equal(failed.stdout, ''); assert.ok(failed.stderr.length > 0 && failed.stderr.length < 256);
+      assert.ok(!failed.stderr.includes('do-not-print')); stderr.add(failed.stderr);
+    }
+    assert.equal(stderr.size, 1, 'CLI exposes one constant error across parser/shape/join failures');
+    const recovery = invoke(serializeKnowledgeWire(load('replay-compact.json')));
+    assert.equal(recovery.status, 0, recovery.stderr); assert.deepEqual(JSON.parse(recovery.stdout), diagnostic);
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+  assert.equal(existsSync(cwd), false, 'temporary subprocess cwd is removed after errors');
+});
+
+function revisionCrosswalk(owner: string, form: string): Row {
+  const audit = load('replay-full.json');
+  if (owner === 'p1') {
+    const start = audit.tables.starting.find((s: Row) => s.owner === owner);
+    const cert = structuredClone(audit.tables.certificate.find((c: Row) => c.owner === owner));
+    cert.property = 'identity_reveal'; cert.id = literalIdentity(cert);
+    audit.tables.certificate.push(cert);
+    start.crosswalk = [{appearance:'p1:appearance:1', roster:'p1:roster:1', certificate:cert.id}];
+  }
+  audit.form = form; return reseal(audit);
+}
+function revisionNested(count: number, style: string, leaf: any): any {
+  let value: any = style === 'object' ? {} : [];
+  if (leaf !== 'empty') value = style === 'object' ? {x:leaf} : [leaf];
+  for (let index = 1; index < count; index++) value = style === 'object' || style === 'mixed' && index % 2 ? {x:value} : [value];
+  return value;
+}
+function revisionCheck(audit: Row, guard?: RegExp): void {
+  assertSealed(audit); const before = literalCanonical(audit);
+  if (guard) {
+    assert.throws(() => checkKnowledgeStructure(audit), guard);
+    assert.throws(() => serializeKnowledgeWire(audit), guard);
+  } else {
+    assert.deepEqual(checkKnowledgeStructure(audit), diagnostic);
+    assert.deepEqual(checkKnowledgeStructure(parseKnowledgeJson(serializeKnowledgeWire(audit))), diagnostic);
+  }
+  assert.equal(literalCanonical(audit), before);
+}
+
+test('revision: mirrored owner crosswalks preserve exact certificate joins in all forms', () => {
+  for (const owner of ['p1','p2']) {
+    for (const form of ['full','ordinary','compact']) {
+      revisionCheck(revisionCrosswalk(owner,form));
+      const audit = revisionCrosswalk(owner,form), expanded = tables(audit);
+      const start = expanded.starting.find(s => s.owner === owner && s.crosswalk.length)!;
+      const cross = start.crosswalk[0], cert = expanded.certificate.find(c => c.id === cross.certificate)!;
+      cross.roster = cert.subject = (owner === 'p1' ? 'p2' : 'p1') + ':roster:1';
+      revisionCheck(reseal(audit), /crosswalk owner/);
+    }
+    for (const field of ['appearance','subject','owner','source']) {
+      const audit = revisionCrosswalk(owner,'full');
+      const start = audit.tables.starting.find((s: Row) => s.owner === owner && s.crosswalk.length);
+      const cross = start.crosswalk[0], cert = audit.tables.certificate.find((c: Row) => c.id === cross.certificate);
+      if (field === 'appearance') cross.appearance = (owner === 'p1' ? 'p2' : 'p1') + ':appearance:1';
+      else if (field === 'subject') cert.subject = owner + ':roster:2';
+      else if (field === 'owner') cert.owner = owner === 'p1' ? 'p2' : 'p1';
+      else {
+        const source = structuredClone(audit.tables.source[0]); source.records[0] = '|turn|1'; source.id = literalIdentity(source);
+        audit.tables.source.push(source); cert.source = source.id;
+        cert.witnesses = cert.witnesses.map((id: string) => {
+          const witness = structuredClone(audit.tables.evidence.find((e: Row) => e.id === id));
+          witness.source = source.id; witness.id = literalIdentity(witness); audit.tables.evidence.push(witness); return witness.id;
+        });
+      }
+      revisionCheck(reseal(audit), /crosswalk owner|certificate witness|crosswalk certificate source/);
+    }
+  }
+});
+
+test('revision: known, absent and explicit unknown initialization facts join delivery for both owners', () => {
+  for (const owner of ['p1','p2']) for (const state of ['known','known_absent','unknown']) for (const cursor of [0,null,99]) {
+    const audit = load('sim-full.json');
+    const fact = audit.tables.fact.find((f: Row) => f.owner === owner && f.freshness === 'immutable');
+    Object.assign(fact, {state,observed_at:cursor});
+    if (state !== 'known') Object.assign(fact, {value:null,precision:'not_applicable',reason:state === 'known_absent' ? 'none' : 'missing_original_authority'});
+    revisionCheck(reseal(audit), cursor === 0 || state === 'unknown' && cursor === null ? undefined : /initialization observation cursor/);
+  }
+});
+
+test('revision: retained public index and request delivery guards remain exact for both owners', () => {
+  for (const [owner, property, cursor] of [['p1','item',4],['p2','roster_species',6]]) {
+    const replay = load('replay-full.json');
+    const fact = replay.tables.fact.find((f: Row) => f.owner === owner && f.property === property && f.freshness === 'immutable');
+    assert.equal(fact.observed_at,cursor); revisionCheck(replay);
+    fact.observed_at = 99; revisionCheck(reseal(replay),/observation cursor/);
+    const sim = load('sim-full.json');
+    const requestFact = sim.tables.fact.find((f: Row) => f.owner === owner && f.property === 'maybe_trapped' && f.state === 'known');
+    assert.equal(requestFact.observed_at,3); revisionCheck(sim);
+    requestFact.observed_at = 99; revisionCheck(reseal(sim),/request observation cursor/);
+  }
+});
+
+test('revision: 31/32/33 containers are leaf-independent in parser, canonicalizer and raw requests', () => {
+  for (const count of [31,32,33]) for (const style of ['array','object','mixed']) for (const leaf of ['empty',0,false,null,'scalar']) {
+    const value = revisionNested(count,style,leaf), wire = literalCanonical(value), before = literalCanonical(value);
+    if (count <= 32) {
+      assert.deepEqual(parseKnowledgeJson(Buffer.from(wire)), value); assert.equal(canonicalKnowledgeJson(value).toString(),wire);
+    } else {
+      assert.throws(() => parseKnowledgeJson(wire), /depth/); assert.throws(() => canonicalKnowledgeJson(value), /depth/);
+    }
+    assert.equal(literalCanonical(value),before);
+    const audit = load('sim-full.json');
+    audit.tables.source.find((s: Row) => s.raw_request !== null).raw_request.json = wire;
+    revisionCheck(reseal(audit), count <= 32 ? undefined : /depth/);
+  }
+});
+
+test('revision: compiled TS bytes and resealed attacks reach clean Python CLI without encoding overrides', () => {
+  const invoke = (wire: Buffer) => spawnSync(pythonExecutable(), ['-m','neural.perspective_knowledge','--check-structure'], {
+    input:wire, env:pythonEnvironment(), encoding:'utf8', maxBuffer:1024*1024, timeout:30000,
+  });
+  const failures = new Set<string>();
+  for (const owner of ['p1','p2']) for (const form of ['full','ordinary','compact']) {
+    const good = revisionCrosswalk(owner,form), before = literalCanonical(good);
+    const result = invoke(serializeKnowledgeWire(good)); assert.ifError(result.error);
+    assert.equal(result.status,0,result.stderr); assert.deepEqual(JSON.parse(result.stdout),diagnostic); assert.equal(result.stderr,'');
+    assert.equal(literalCanonical(good),before);
+    const expanded = tables(good), start = expanded.starting.find(s => s.owner === owner && s.crosswalk.length)!;
+    const cross = start.crosswalk[0], cert = expanded.certificate.find(c => c.id === cross.certificate)!;
+    cross.roster = cert.subject = (owner === 'p1' ? 'p2' : 'p1') + ':roster:1'; reseal(good); assertSealed(good);
+    const failed = invoke(Buffer.from(literalCanonical(good))); assert.equal(failed.status,2); assert.equal(failed.stdout,''); failures.add(failed.stderr);
+  }
+  for (const owner of ['p1','p2']) {
+    const audit = load('sim-full.json'); audit.tables.fact.find((f: Row) => f.owner === owner && f.freshness === 'immutable').observed_at = 99;
+    reseal(audit); assertSealed(audit); const failed = invoke(Buffer.from(literalCanonical(audit)));
+    assert.equal(failed.status,2); assert.equal(failed.stdout,''); failures.add(failed.stderr);
+  }
+  for (const count of [32,33]) {
+    const audit = load('sim-full.json'); audit.tables.source.find((s: Row) => s.raw_request !== null).raw_request.json = '['.repeat(count)+']'.repeat(count);
+    reseal(audit); assertSealed(audit);
+    const result = invoke(count === 32 ? serializeKnowledgeWire(audit) : Buffer.from(literalCanonical(audit)));
+    assert.equal(result.status,count === 32 ? 0 : 2);
+    if (count === 32) assert.deepEqual(JSON.parse(result.stdout),diagnostic);
+    else {assert.equal(result.stdout,''); failures.add(result.stderr);}
+  }
+  assert.deepEqual([...failures], ['knowledge structure check failed' + (process.platform === 'win32' ? '\r\n' : '\n')]);
+});

@@ -1,0 +1,26 @@
+✔ literal exact text, owner FIFO, repeated equal bytes and distinct process occurrences (2.1844ms)
+✔ forged handles, owner swaps and diagnostic/transport copies do not grant trace access (0.3017ms)
+✔ unsupported foreign join invalidates the entire trace atomically (0.3025ms)
+✔ unsupported cross-owner join invalidates the entire trace atomically (0.1304ms)
+✔ unsupported missing join invalidates the entire trace atomically (0.1373ms)
+✔ unsupported duplicate join invalidates the entire trace atomically (0.1281ms)
+✔ unsupported order join invalidates the entire trace atomically (0.1517ms)
+✔ unsupported text join invalidates the entire trace atomically (0.1458ms)
+✔ unsupported origin join invalidates the entire trace atomically (0.1386ms)
+✔ unsupported unscoped join invalidates the entire trace atomically (0.1732ms)
+✔ producer scope is synchronous, restore classification is explicit and does not leak (0.2731ms)
+✔ actual session native producer and routed ManagedPlayer receipt retain both owner literals before parsing (381.531ms)
+✔ actual Unicode and formatted literal producer records, repeated equal emissions preserve receipt FIFO (9.264ms)
+✔ actual restore receipt delayed beyond later native emission keeps producer classifications (17.2319ms)
+✔ restore receipts remain restore-labelled; later native trap resend/force/wait/revival for p1 (32.6092ms)
+✔ restore receipts remain restore-labelled; later native trap resend/force/wait/revival for p2 (28.6992ms)
+✔ no-emission and terminal/history restoration do not invent requests; reset and close revoke old access (21.1369ms)
+✔ failed initialization and unknown direct producer cannot leave usable partial trace (10.8169ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 730.0715

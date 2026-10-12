@@ -1,0 +1,18 @@
+........................................................................................................................E
+======================================================================
+ERROR: test_perspective_field_semantics (unittest.loader._FailedTest.test_perspective_field_semantics)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_perspective_field_semantics
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\neuralgpu\Lib\unittest\loader.py", line 162, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\cloud\Downloads\neural\final\trainer\tests\test_perspective_field_semantics.py", line 17, in <module>
+    from test_pipeline_record import _bundle, _seal_bundle
+ModuleNotFoundError: No module named 'test_pipeline_record'
+
+
+----------------------------------------------------------------------
+Ran 121 tests in 198.359s
+
+FAILED (errors=1)

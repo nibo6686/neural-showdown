@@ -1,0 +1,87 @@
+{
+  "kind": "projection",
+  "schema": "perspective-knowledge-consumer/v1",
+  "owner": "p1",
+  "policy": "public-replay-owner-starting/v1",
+  "boundary": 5,
+  "required_profile": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+  "result": "incomplete",
+  "starting": [
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1",
+      "family": "K18",
+      "property": "item",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "Oran Berry"
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 4,
+      "effect_key": null
+    }
+  ],
+  "starting_crosswalk": [],
+  "current": [
+    {
+      "owner": "p1",
+      "subject": "p1:appearance:1",
+      "family": "K18",
+      "property": "item",
+      "state": "known_absent",
+      "value": null,
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 4,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1:move:1:incarnation:0",
+      "family": "K07",
+      "property": "pp",
+      "state": "unknown",
+      "value": null,
+      "reason": "private_request_unavailable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": null,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K20",
+      "property": "boundary_kind",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "restored"
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 7,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K20",
+      "property": "request_presence",
+      "state": "inapplicable",
+      "value": null,
+      "reason": "proved_rule_inapplicable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": 7,
+      "effect_key": null
+    }
+  ],
+  "request": null,
+  "id": "sha256:11148beb3bc20a0a0a121c49a5e0cf0139cad4db40a72e1d18883625f95c75ee"
+}

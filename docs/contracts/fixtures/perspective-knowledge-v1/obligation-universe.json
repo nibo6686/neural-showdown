@@ -1,0 +1,123 @@
+{
+  "status": "Independent fixture-only retained source inventory, not producer authority",
+  "owners": {
+    "p1": {
+      "original": {
+        "roster": [
+          "p1:roster:1",
+          "p1:roster:2"
+        ]
+      },
+      "current": {
+        "roster": [
+          "p1:roster:1",
+          "p1:roster:2"
+        ],
+        "move": [
+          "p1:roster:1:move:1:incarnation:0",
+          "p1:roster:1:move:2:incarnation:0",
+          "p1:roster:2:move:1:incarnation:0",
+          "p1:roster:2:move:2:incarnation:0"
+        ],
+        "condition_effect": [
+          {
+            "subject": "p1:side",
+            "effect_key": "Spikes"
+          },
+          {
+            "subject": "p1:side",
+            "effect_key": "ToxicSpikes"
+          },
+          {
+            "subject": "p2:side",
+            "effect_key": "Spikes"
+          },
+          {
+            "subject": "p2:side",
+            "effect_key": "ToxicSpikes"
+          }
+        ],
+        "weather_effect": [
+          {
+            "subject": "p1:side",
+            "effect_key": "RainDance"
+          }
+        ],
+        "pending_effect_member": [
+          {
+            "subject": "p2:side",
+            "effect_key": "FutureSight"
+          }
+        ]
+      },
+      "request": {
+        "roster": [
+          "p1:roster:1"
+        ],
+        "move": [
+          "p1:roster:1:move:1:incarnation:0",
+          "p1:roster:1:move:2:incarnation:0"
+        ]
+      }
+    },
+    "p2": {
+      "original": {
+        "roster": [
+          "p2:roster:1",
+          "p2:roster:2"
+        ]
+      },
+      "current": {
+        "roster": [
+          "p2:roster:1",
+          "p2:roster:2"
+        ],
+        "move": [
+          "p2:roster:1:move:1:incarnation:0",
+          "p2:roster:1:move:2:incarnation:0",
+          "p2:roster:2:move:1:incarnation:0",
+          "p2:roster:2:move:2:incarnation:0"
+        ],
+        "condition_effect": [
+          {
+            "subject": "p2:side",
+            "effect_key": "Spikes"
+          },
+          {
+            "subject": "p2:side",
+            "effect_key": "ToxicSpikes"
+          },
+          {
+            "subject": "p1:side",
+            "effect_key": "Spikes"
+          },
+          {
+            "subject": "p1:side",
+            "effect_key": "ToxicSpikes"
+          }
+        ],
+        "weather_effect": [
+          {
+            "subject": "p2:side",
+            "effect_key": "RainDance"
+          }
+        ],
+        "pending_effect_member": [
+          {
+            "subject": "p1:side",
+            "effect_key": "FutureSight"
+          }
+        ]
+      },
+      "request": {
+        "roster": [
+          "p2:roster:1"
+        ],
+        "move": [
+          "p2:roster:1:move:1:incarnation:0",
+          "p2:roster:1:move:2:incarnation:0"
+        ]
+      }
+    }
+  }
+}

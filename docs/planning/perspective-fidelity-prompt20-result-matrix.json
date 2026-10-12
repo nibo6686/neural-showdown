@@ -1,0 +1,850 @@
+{
+  "scope": "design model and current behavior only; no runtime semantics adoption",
+  "evidence": [
+    {
+      "layer": "current-behavior",
+      "fixture": "random",
+      "owner": "p1",
+      "execution_index": 53,
+      "execution_cursors": [
+        53,
+        54
+      ],
+      "reentry_index": 106,
+      "reentry_cursors": [
+        106,
+        107
+      ],
+      "literal_execution": "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+      "literal_reentry": "|switch|p1a: Perrserker|Perrserker, L89, F|269/269",
+      "before_revealed": [
+        "uturn"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "current-behavior",
+      "fixture": "random",
+      "owner": "p2",
+      "execution_index": 53,
+      "execution_cursors": [
+        53,
+        54
+      ],
+      "reentry_index": 106,
+      "reentry_cursors": [
+        106,
+        107
+      ],
+      "literal_execution": "|move|p1a: Perrserker|U-turn|p2a: Dondozo",
+      "literal_reentry": "|switch|p1a: Perrserker|Perrserker, L89, F|269/269",
+      "before_revealed": [
+        "U-turn"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "current-behavior",
+      "fixture": "random",
+      "owner": "p1",
+      "execution_index": 128,
+      "execution_cursors": [
+        128,
+        129
+      ],
+      "reentry_index": 243,
+      "reentry_cursors": [
+        243,
+        244
+      ],
+      "literal_execution": "|move|p1a: Perrserker|U-turn|p2a: Cinccino",
+      "literal_reentry": "|switch|p1a: Perrserker|Perrserker, L89, F|225/269",
+      "before_revealed": [
+        "uturn"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "current-behavior",
+      "fixture": "random",
+      "owner": "p2",
+      "execution_index": 128,
+      "execution_cursors": [
+        128,
+        129
+      ],
+      "reentry_index": 243,
+      "reentry_cursors": [
+        243,
+        244
+      ],
+      "literal_execution": "|move|p1a: Perrserker|U-turn|p2a: Cinccino",
+      "literal_reentry": "|switch|p1a: Perrserker|Perrserker, L89, F|225/269",
+      "before_revealed": [
+        "U-turn"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "current-behavior",
+      "fixture": "ou",
+      "owner": "p1",
+      "execution_index": 45,
+      "execution_cursors": [
+        45,
+        46
+      ],
+      "reentry_index": 119,
+      "reentry_cursors": [
+        119,
+        120
+      ],
+      "literal_execution": "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+      "literal_reentry": "|switch|p1a: Kyurem|Kyurem|100/100",
+      "before_revealed": [
+        "icebeam"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "current-behavior",
+      "fixture": "ou",
+      "owner": "p2",
+      "execution_index": 45,
+      "execution_cursors": [
+        45,
+        46
+      ],
+      "reentry_index": 119,
+      "reentry_cursors": [
+        119,
+        120
+      ],
+      "literal_execution": "|move|p1a: Kyurem|Ice Beam|p2a: Ting-Lu",
+      "literal_reentry": "|switch|p1a: Kyurem|Kyurem|100/100",
+      "before_revealed": [
+        "Ice Beam"
+      ],
+      "after_revealed": [],
+      "raw_history_retained": true,
+      "chronological_carrier_relation": "unproved",
+      "requirement": "retain appearance-qualified historical execution; do not blindly merge into current appearance"
+    },
+    {
+      "layer": "model-requirements",
+      "case": "duplicates/unknown-carrier",
+      "events": [
+        {
+          "index": 0,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Twin|Pikachu, L80|100/100"
+        },
+        {
+          "index": 1,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Twin|Thunderbolt|p2a: Target",
+          "move": "Thunderbolt"
+        },
+        {
+          "index": 2,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Other|Eevee, L80|100/100"
+        },
+        {
+          "index": 3,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Twin|Pikachu, L80|100/100"
+        },
+        {
+          "index": 4,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Twin|Thunderbolt|p2a: Target",
+          "move": "Thunderbolt"
+        }
+      ],
+      "result": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:2",
+            "side": "p1",
+            "index": 2,
+            "display": "|switch|p1a: Other|Eevee, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:3",
+            "side": "p1",
+            "index": 3,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:3"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "authority": "none"
+    },
+    {
+      "layer": "model-requirements",
+      "case": "illusion/replace/restoration",
+      "events": [
+        {
+          "index": 0,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Mask|Pikachu, L80|100/100"
+        },
+        {
+          "index": 1,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Mask|Thunderbolt|p2a: Target",
+          "move": "Thunderbolt"
+        },
+        {
+          "index": 2,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Other|Eevee, L80|100/100"
+        },
+        {
+          "index": 3,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Mask|Pikachu, L80|100/100"
+        },
+        {
+          "index": 4,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Mask|Night Daze|p2a: Target",
+          "move": "Night Daze"
+        },
+        {
+          "index": 5,
+          "side": "p1",
+          "kind": "replace",
+          "text": "|replace|p1a: Fox|Zoroark, L80|100/100"
+        },
+        {
+          "index": 6,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Mask|Pikachu, L80|100/100"
+        }
+      ],
+      "result": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Mask|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:2",
+            "side": "p1",
+            "index": 2,
+            "display": "|switch|p1a: Other|Eevee, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:3",
+            "side": "p1",
+            "index": 3,
+            "display": "|replace|p1a: Fox|Zoroark, L80|100/100",
+            "replaced": true,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:4",
+            "side": "p1",
+            "index": 6,
+            "display": "|switch|p1a: Mask|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:4"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": null
+          },
+          {
+            "index": 4,
+            "appearance": "p1:appearance:3",
+            "move": "Night Daze",
+            "context": "direct",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "authority": "replace discloses this stint, not a roster crosswalk"
+    },
+    {
+      "layer": "current-behavior",
+      "case": "illusion/duplicate/restoration",
+      "owner": "p1",
+      "events": [
+        "|switch|p1a: Mask|Pikachu, L80|100/100",
+        "|move|p1a: Mask|Thunderbolt|p2a: Target",
+        "|switch|p1a: Other|Eevee, L80|100/100",
+        "|switch|p1a: Mask|Pikachu, L80|100/100",
+        "|move|p1a: Mask|Night Daze|p2a: Target",
+        "|replace|p1a: Fox|Zoroark, L80|100/100",
+        "|switch|p1a: Mask|Pikachu, L80|100/100"
+      ],
+      "requirement": "Display arrays are not immutable carrier proof; history remains separate."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "illusion/duplicate/restoration",
+      "owner": "p2",
+      "events": [
+        "|switch|p1a: Mask|Pikachu, L80|100/100",
+        "|move|p1a: Mask|Thunderbolt|p2a: Target",
+        "|switch|p1a: Other|Eevee, L80|100/100",
+        "|switch|p1a: Mask|Pikachu, L80|100/100",
+        "|move|p1a: Mask|Night Daze|p2a: Target",
+        "|replace|p1a: Fox|Zoroark, L80|100/100",
+        "|switch|p1a: Mask|Pikachu, L80|100/100"
+      ],
+      "requirement": "Display arrays are not immutable carrier proof; history remains separate."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "unchanged/transform/called",
+      "owner": "p1",
+      "events": [
+        "|switch|p1a: Ditto|Ditto, L80|100/100",
+        "|switch|p2a: Garchomp|Garchomp, L80|100/100",
+        "|move|p1a: Ditto|Transform|p2a: Garchomp",
+        "|-transform|p1a: Ditto|p2a: Garchomp",
+        "|move|p1a: Ditto|Earthquake|p2a: Garchomp",
+        "|turn|1",
+        "|switch|p1a: Bench|Pikachu, L80|100/100",
+        "|switch|p1a: Ditto|Ditto, L80|100/100",
+        "|move|p1a: Ditto|Thunderbolt|p2a: Garchomp|[from] move: Sleep Talk"
+      ],
+      "called_moves": [
+        "thunderbolt"
+      ],
+      "called_revealed": [
+        "thunderbolt"
+      ],
+      "requirement": "Execution is not selectability or original membership; unchanged-stint retention alone is source-proved."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "unchanged/transform/called",
+      "owner": "p2",
+      "events": [
+        "|switch|p1a: Ditto|Ditto, L80|100/100",
+        "|switch|p2a: Garchomp|Garchomp, L80|100/100",
+        "|move|p1a: Ditto|Transform|p2a: Garchomp",
+        "|-transform|p1a: Ditto|p2a: Garchomp",
+        "|move|p1a: Ditto|Earthquake|p2a: Garchomp",
+        "|turn|1",
+        "|switch|p1a: Bench|Pikachu, L80|100/100",
+        "|switch|p1a: Ditto|Ditto, L80|100/100",
+        "|move|p1a: Ditto|Thunderbolt|p2a: Garchomp|[from] move: Sleep Talk"
+      ],
+      "called_moves": [],
+      "called_revealed": [
+        "Thunderbolt"
+      ],
+      "requirement": "Execution is not selectability or original membership; unchanged-stint retention alone is source-proved."
+    },
+    {
+      "layer": "model-requirements",
+      "case": "transform/called/acquired",
+      "events": [
+        {
+          "index": 0,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Ditto|Ditto, L80|100/100"
+        },
+        {
+          "index": 1,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Ditto|Transform|p2a: Target",
+          "move": "Transform"
+        },
+        {
+          "index": 2,
+          "side": "p1",
+          "kind": "transform",
+          "text": "|-transform|p1a: Ditto|p2a: Target"
+        },
+        {
+          "index": 3,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Ditto|Earthquake|p2a: Target",
+          "move": "Earthquake"
+        },
+        {
+          "index": 4,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Bench|Pikachu, L80|100/100"
+        },
+        {
+          "index": 5,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Ditto|Ditto, L80|100/100"
+        },
+        {
+          "index": 6,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Ditto|Thunderbolt|p2a: Target|[from] move: Sleep Talk",
+          "move": "Thunderbolt",
+          "mode": "called"
+        },
+        {
+          "index": 7,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Ditto|Ice Beam|p2a: Target",
+          "move": "Ice Beam",
+          "mode": "acquired"
+        }
+      ],
+      "result": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Ditto|Ditto, L80|100/100",
+            "replaced": false,
+            "transformed": true
+          },
+          {
+            "subject": "p1:appearance:2",
+            "side": "p1",
+            "index": 4,
+            "display": "|switch|p1a: Bench|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:3",
+            "side": "p1",
+            "index": 5,
+            "display": "|switch|p1a: Ditto|Ditto, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:3"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Transform",
+            "context": "direct",
+            "carrier": null
+          },
+          {
+            "index": 3,
+            "appearance": "p1:appearance:1",
+            "move": "Earthquake",
+            "context": "transformed",
+            "carrier": null
+          },
+          {
+            "index": 6,
+            "appearance": "p1:appearance:3",
+            "move": "Thunderbolt",
+            "context": "called",
+            "carrier": null
+          },
+          {
+            "index": 7,
+            "appearance": "p1:appearance:3",
+            "move": "Ice Beam",
+            "context": "acquired",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "note": "Acquired mode is independently stipulated; a bare move line alone cannot reveal acquisition. Current selectability/originals stay unknown."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "mimic/sketch",
+      "owner": "p1",
+      "source_backing": "pinned moves.ts Mimic12280-12293 temporary moveSlots; Sketch17198-17202 current/base slots",
+      "admitted_sketch_record": "|-activate|p1a: Artist|move: Sketch|Thunderbolt",
+      "mimic_rejection_index": 4,
+      "acquired_revealed": [
+        "sketch",
+        "thunderbolt"
+      ],
+      "requirement": "Acquisition history persists without becoming starting-original membership; unsupported Mimic writer stays blocked."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "mimic/sketch",
+      "owner": "p2",
+      "source_backing": "pinned moves.ts Mimic12280-12293 temporary moveSlots; Sketch17198-17202 current/base slots",
+      "admitted_sketch_record": "|-activate|p1a: Artist|move: Sketch|Thunderbolt",
+      "mimic_rejection_index": 4,
+      "acquired_revealed": [
+        "Sketch",
+        "Thunderbolt"
+      ],
+      "requirement": "Acquisition history persists without becoming starting-original membership; unsupported Mimic writer stays blocked."
+    },
+    {
+      "layer": "model-requirements",
+      "case": "held-owner-crosswalk",
+      "events": [
+        {
+          "index": 0,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Twin|Pikachu, L80|100/100"
+        },
+        {
+          "index": 1,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Twin|Thunderbolt|p2a: Target",
+          "move": "Thunderbolt"
+        },
+        {
+          "index": 2,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Other|Eevee, L80|100/100"
+        },
+        {
+          "index": 3,
+          "side": "p1",
+          "kind": "switch",
+          "text": "|switch|p1a: Twin|Pikachu, L80|100/100"
+        },
+        {
+          "index": 4,
+          "side": "p1",
+          "kind": "move",
+          "text": "|move|p1a: Twin|Thunderbolt|p2a: Target",
+          "move": "Thunderbolt"
+        }
+      ],
+      "held_fixture_bindings": [
+        {
+          "origin": "prompt20-model",
+          "owner": "p1",
+          "cursor": 1,
+          "appearance": "p1:appearance:1",
+          "roster": "p1:roster:1",
+          "basis": "addressed-request",
+          "prefix": [
+            "|switch|p1a: Twin|Pikachu, L80|100/100"
+          ],
+          "moves": [
+            "Thunderbolt"
+          ]
+        },
+        {
+          "origin": "prompt20-model",
+          "owner": "p1",
+          "cursor": 4,
+          "appearance": "p1:appearance:3",
+          "roster": "p1:roster:1",
+          "basis": "addressed-request",
+          "prefix": [
+            "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "|move|p1a: Twin|Thunderbolt|p2a: Target",
+            "|switch|p1a: Other|Eevee, L80|100/100",
+            "|switch|p1a: Twin|Pikachu, L80|100/100"
+          ],
+          "moves": [
+            "Thunderbolt"
+          ]
+        }
+      ],
+      "owner": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:2",
+            "side": "p1",
+            "index": 2,
+            "display": "|switch|p1a: Other|Eevee, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:3",
+            "side": "p1",
+            "index": 3,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:3"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": "p1:roster:1"
+          }
+        ],
+        "roster_knowledge": [
+          {
+            "appearance": "p1:appearance:1",
+            "roster": "p1:roster:1"
+          },
+          {
+            "appearance": "p1:appearance:3",
+            "roster": "p1:roster:1"
+          }
+        ],
+        "current_move_inventory": {
+          "owner": "p1",
+          "moves": [
+            "Thunderbolt"
+          ],
+          "freshness": "fresh-addressed-fixture"
+        },
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "opponent": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:2",
+            "side": "p1",
+            "index": 2,
+            "display": "|switch|p1a: Other|Eevee, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          },
+          {
+            "subject": "p1:appearance:3",
+            "side": "p1",
+            "index": 3,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:3"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "note": "Held registry is a stipulated independent model input, not an implemented source provider, trusted request or original-possession certificate."
+    },
+    {
+      "layer": "current-behavior",
+      "case": "legacy-extractor-adversarial-request-misdelivery",
+      "delivered_side": "p1",
+      "extractor_owner": "p2",
+      "accepted_foreign_ident": "p1: Twin",
+      "requirement": "Trusted addressed-delivery binder must reject foreign owner before use; replay adapter already rejects all requests."
+    },
+    {
+      "layer": "independent-example",
+      "case": "starting/current-separation",
+      "viewer": "p1",
+      "current": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:1"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "starting": {
+        "owner": "p1",
+        "policy": "public-replay-owner-starting/v1",
+        "subject": "p1:roster:1",
+        "starting_moves": [
+          "Thunderbolt"
+        ],
+        "observed_at": 10,
+        "held_certificate": "fixture-only-complete-source-scan",
+        "starting_crosswalk": [
+          {
+            "appearance": "p1:appearance:1",
+            "roster": "p1:roster:1"
+          }
+        ]
+      },
+      "note": "A stipulated privileged proof demonstrates layer separation only; no certificate verifier or source authority is implemented."
+    },
+    {
+      "layer": "independent-example",
+      "case": "starting/current-separation",
+      "viewer": "p2",
+      "current": {
+        "appearances": [
+          {
+            "subject": "p1:appearance:1",
+            "side": "p1",
+            "index": 0,
+            "display": "|switch|p1a: Twin|Pikachu, L80|100/100",
+            "replaced": false,
+            "transformed": false
+          }
+        ],
+        "active": {
+          "p1": "p1:appearance:1"
+        },
+        "executions": [
+          {
+            "index": 1,
+            "appearance": "p1:appearance:1",
+            "move": "Thunderbolt",
+            "context": "direct",
+            "carrier": null
+          }
+        ],
+        "roster_knowledge": [],
+        "current_move_inventory": null,
+        "executable": null,
+        "starting_originals": null,
+        "PP": null,
+        "legal_actions": null
+      },
+      "starting": null,
+      "note": "A stipulated privileged proof demonstrates layer separation only; no certificate verifier or source authority is implemented."
+    }
+  ]
+}

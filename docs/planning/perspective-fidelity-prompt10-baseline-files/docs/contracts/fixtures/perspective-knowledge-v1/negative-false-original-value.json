@@ -1,0 +1,3643 @@
+{
+  "kind": "audit",
+  "schema": "perspective-knowledge/v1",
+  "form": "full",
+  "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+  "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+  "target_boundary": "sha256:c32ee6618521262694c7b7ec1249cf5d4e9d91d0e44bd115bf3cd80a97a5c421",
+  "tables": {
+    "origin": [
+      {
+        "kind": "origin",
+        "battle_key": "fixture-Éclair-😀",
+        "format": "gen9randombattle",
+        "engine": "pokemon-showdown@0.11.10",
+        "rule_version": "pk-rules/v1",
+        "id": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f"
+      }
+    ],
+    "source": [
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p1",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 2,
+        "delivery_cursor": 4,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p1\",\"pokemon\":[]},\"wait\":true}"
+        },
+        "id": "sha256:0f46408a3eba15b652f47669222d315aa56e673885526e455d958a5cc5ba8603"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p2",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 1,
+        "delivery_cursor": 3,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p2\",\"pokemon\":[]},\"active\":[{\"moves\":[{\"id\":\"tackle\",\"move\":\"Tackle\",\"target\":\"normal\",\"disabled\":false,\"pp\":0,\"maxpp\":56}],\"maybeTrapped\":true}]}"
+        },
+        "id": "sha256:26ff0c3cd6fbbf155575194c869af49a38e1725f5f74b57a57644c465e42b4bc"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p2",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 2,
+        "delivery_cursor": 4,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p2\",\"pokemon\":[]},\"wait\":true}"
+        },
+        "id": "sha256:32f0883b8e879bb52a333bae058beee5361b51182b78cf95f640871b8ed2defa"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p1",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 0,
+        "delivery_cursor": 0,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p1\",\"pokemon\":[]},\"active\":[{\"moves\":[{\"id\":\"tackle\",\"move\":\"Tackle\",\"target\":\"normal\",\"disabled\":false}]}]}"
+        },
+        "id": "sha256:74189075c82e56c5a939fb7d9a66806f8af24cb32c61b104574299459018869d"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_initialization",
+        "owner": "p1",
+        "provider": "addressed-team-provider/v1",
+        "delivery_seq": 0,
+        "delivery_cursor": 0,
+        "phase": "before_effects",
+        "team": [
+          {
+            "slot": 1,
+            "name": "Éclair 😀",
+            "species": "Pikachu",
+            "moves": [
+              "Tackle"
+            ],
+            "item": "Oran Berry",
+            "ability": "Static",
+            "tera_type": "Electric",
+            "level": 80,
+            "gender": null,
+            "shiny": false,
+            "ball": null,
+            "nature": null,
+            "evs": {
+              "type": "six_stats",
+              "data": {
+                "hp": 0,
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0
+              }
+            },
+            "ivs": {
+              "type": "six_stats",
+              "data": {
+                "hp": 31,
+                "atk": 31,
+                "def": 31,
+                "spa": 31,
+                "spd": 31,
+                "spe": 31
+              }
+            },
+            "happiness": null
+          }
+        ],
+        "records": [],
+        "raw_request": null,
+        "id": "sha256:7af0ed9f22940786363a131e15f810e75205873cb6109e4a6f424dd239a830c9"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "public_prefix",
+        "owner": null,
+        "provider": "indexed-public/v1",
+        "delivery_seq": null,
+        "delivery_cursor": null,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": null,
+        "id": "sha256:8f31164f622573e1a0c09fc2dad4b02059bec56b7d90b9448f9eb8250e7baf10"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p1",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 1,
+        "delivery_cursor": 3,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p1\",\"pokemon\":[]},\"active\":[{\"moves\":[{\"id\":\"tackle\",\"move\":\"Tackle\",\"target\":\"normal\",\"disabled\":false,\"pp\":0,\"maxpp\":56}],\"maybeTrapped\":true}]}"
+        },
+        "id": "sha256:a96e7525d62c324300ca54dca12d0307ed108a16c270655e53b6b383d86b5115"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_request",
+        "owner": "p2",
+        "provider": "addressed-request/v1",
+        "delivery_seq": 0,
+        "delivery_cursor": 0,
+        "phase": "chronological",
+        "team": [],
+        "records": [],
+        "raw_request": {
+          "json": "{\"side\":{\"id\":\"p2\",\"pokemon\":[]},\"active\":[{\"moves\":[{\"id\":\"tackle\",\"move\":\"Tackle\",\"target\":\"normal\",\"disabled\":false}]}]}"
+        },
+        "id": "sha256:cd8fe85f08584daed970cc02c7631fd07561fa6bcd03e707e437874fb2b3827b"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "public_prefix",
+        "owner": null,
+        "provider": "indexed-public/v1",
+        "delivery_seq": null,
+        "delivery_cursor": null,
+        "phase": "chronological",
+        "team": [],
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]"
+        ],
+        "raw_request": null,
+        "id": "sha256:d0d27b233ee8f52f76b1902a39d4d012de499329fd3e0bb36a6938f25789955b"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "public_prefix",
+        "owner": null,
+        "provider": "indexed-public/v1",
+        "delivery_seq": null,
+        "delivery_cursor": null,
+        "phase": "chronological",
+        "team": [],
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100"
+        ],
+        "raw_request": null,
+        "id": "sha256:d1573c5c726a2aaf3e92bac7cf86f41691aded363688c0959578e485ce86b208"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "public_prefix",
+        "owner": null,
+        "provider": "indexed-public/v1",
+        "delivery_seq": null,
+        "delivery_cursor": null,
+        "phase": "chronological",
+        "team": [],
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]",
+          "|move|p2a: Beta|Tackle|p1a: Éclair",
+          "|replace|p2a: Beta|Zoroark, L80|100/100",
+          "|win|Éclair"
+        ],
+        "raw_request": null,
+        "id": "sha256:eab8f4256fcf4e46c6a65492b380a27efb9104eb6fa32e5025f77474c29b61a6"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "owner_initialization",
+        "owner": "p2",
+        "provider": "addressed-team-provider/v1",
+        "delivery_seq": 0,
+        "delivery_cursor": 0,
+        "phase": "before_effects",
+        "team": [
+          {
+            "slot": 1,
+            "name": "Beta",
+            "species": "Zoroark",
+            "moves": [
+              "Tackle"
+            ],
+            "item": "Leftovers",
+            "ability": "Illusion",
+            "tera_type": "Dark",
+            "level": 80,
+            "gender": null,
+            "shiny": false,
+            "ball": null,
+            "nature": null,
+            "evs": {
+              "type": "six_stats",
+              "data": {
+                "hp": 0,
+                "atk": 0,
+                "def": 0,
+                "spa": 0,
+                "spd": 0,
+                "spe": 0
+              }
+            },
+            "ivs": {
+              "type": "six_stats",
+              "data": {
+                "hp": 31,
+                "atk": 31,
+                "def": 31,
+                "spa": 31,
+                "spd": 31,
+                "spe": 31
+              }
+            },
+            "happiness": null
+          }
+        ],
+        "records": [],
+        "raw_request": null,
+        "id": "sha256:f66fd3f4bb73be06aeed599db544d9ebbf2d0eed84895226386ec996f9a434d7"
+      },
+      {
+        "kind": "source",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "source_type": "public_prefix",
+        "owner": null,
+        "provider": "indexed-public/v1",
+        "delivery_seq": null,
+        "delivery_cursor": null,
+        "phase": "chronological",
+        "team": [],
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]",
+          "|move|p2a: Beta|Tackle|p1a: Éclair"
+        ],
+        "raw_request": null,
+        "id": "sha256:faf74bdf3a67a094197ab0a7c40cff89fc9531a685c37c1028bfa24fb2712ab2"
+      }
+    ],
+    "prefix": [
+      {
+        "kind": "prefix",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "parser": "indexed-public/v1",
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]"
+        ],
+        "id": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6"
+      },
+      {
+        "kind": "prefix",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "parser": "indexed-public/v1",
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100"
+        ],
+        "id": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd"
+      },
+      {
+        "kind": "prefix",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "parser": "indexed-public/v1",
+        "records": [],
+        "id": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb"
+      },
+      {
+        "kind": "prefix",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "parser": "indexed-public/v1",
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]",
+          "|move|p2a: Beta|Tackle|p1a: Éclair"
+        ],
+        "id": "sha256:c6dd91bdd883ed6632f34439624a8cd8f8c4eed8abdc15fb9aabda60e18ba2bf"
+      },
+      {
+        "kind": "prefix",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "parser": "indexed-public/v1",
+        "records": [
+          "|start",
+          "|switch|p1a: Éclair|Pikachu, L80|100/100",
+          "|switch|p2a: Beta|Gengar, L80|100/100",
+          "|-enditem|p1a: Éclair|Oran Berry|[eat]",
+          "|move|p2a: Beta|Tackle|p1a: Éclair",
+          "|replace|p2a: Beta|Zoroark, L80|100/100",
+          "|win|Éclair"
+        ],
+        "id": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152"
+      }
+    ],
+    "evidence": [
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:d1573c5c726a2aaf3e92bac7cf86f41691aded363688c0959578e485ce86b208",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "record_indices": [
+          2
+        ],
+        "team_slot": null,
+        "writer": "boundary/v1",
+        "id": "sha256:0ebe1d2b28571a774e88b885969739c7dd9af594d9fda551529de2d81ce26713"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:eab8f4256fcf4e46c6a65492b380a27efb9104eb6fa32e5025f77474c29b61a6",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "record_indices": [
+          6
+        ],
+        "team_slot": null,
+        "writer": "terminal-requestless/v1",
+        "id": "sha256:0fd18129d6f98bb76af404b8cf4f5b05741afeabe12616d4b052ed1f59ec00a5"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:8f31164f622573e1a0c09fc2dad4b02059bec56b7d90b9448f9eb8250e7baf10",
+        "prefix": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb",
+        "record_indices": [],
+        "team_slot": null,
+        "writer": "boundary/v1",
+        "id": "sha256:1da743a9bc0811b7c3514ff3d5a89bb2d8e11038272b5ff0189c98a0a313088d"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:d0d27b233ee8f52f76b1902a39d4d012de499329fd3e0bb36a6938f25789955b",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "record_indices": [
+          3
+        ],
+        "team_slot": null,
+        "writer": "consumption/v1",
+        "id": "sha256:2e436b5042abd7d550d11fd691e75205f9558b2c0c3efdc016f6490ae44e8cf0"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "scope": "original",
+        "source": "sha256:7af0ed9f22940786363a131e15f810e75205873cb6109e4a6f424dd239a830c9",
+        "prefix": null,
+        "record_indices": [],
+        "team_slot": 1,
+        "writer": "submitted-set/v1",
+        "id": "sha256:35a36005232dc2aa1b733715fdec6158b18417dd62c7af264061f65ef76cb124"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:eab8f4256fcf4e46c6a65492b380a27efb9104eb6fa32e5025f77474c29b61a6",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "record_indices": [
+          6
+        ],
+        "team_slot": null,
+        "writer": "boundary/v1",
+        "id": "sha256:542663a81895b4abea915f1accf0a76d6b2908711b33e3d3405ca09395727688"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "scope": "request",
+        "source": "sha256:26ff0c3cd6fbbf155575194c869af49a38e1725f5f74b57a57644c465e42b4bc",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "record_indices": [],
+        "team_slot": 1,
+        "writer": "raw-request/v1",
+        "id": "sha256:5c77df2fb3c74f6626544fc5c29f144ca0d852554285afdc2ed4584cd52d2849"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:eab8f4256fcf4e46c6a65492b380a27efb9104eb6fa32e5025f77474c29b61a6",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "record_indices": [
+          3
+        ],
+        "team_slot": null,
+        "writer": "consumption/v1",
+        "id": "sha256:8aab649b1cbd65cc843516fb1739907949df95d920d43356021db3d2f0198936"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "scope": "original",
+        "source": "sha256:f66fd3f4bb73be06aeed599db544d9ebbf2d0eed84895226386ec996f9a434d7",
+        "prefix": null,
+        "record_indices": [],
+        "team_slot": 1,
+        "writer": "submitted-set/v1",
+        "id": "sha256:a449992d0b688c01ef5ac303860988325131ae1d97fc01a5229892cf38835b7b"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:faf74bdf3a67a094197ab0a7c40cff89fc9531a685c37c1028bfa24fb2712ab2",
+        "prefix": "sha256:c6dd91bdd883ed6632f34439624a8cd8f8c4eed8abdc15fb9aabda60e18ba2bf",
+        "record_indices": [
+          4
+        ],
+        "team_slot": null,
+        "writer": "boundary/v1",
+        "id": "sha256:b45f13adf9309fa4de206c19c58b9b0fae2c78bde03df8302d9e8de53df95fb3"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:d0d27b233ee8f52f76b1902a39d4d012de499329fd3e0bb36a6938f25789955b",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "record_indices": [
+          3
+        ],
+        "team_slot": null,
+        "writer": "boundary/v1",
+        "id": "sha256:e85aeb5b60ffc61e9de31980e1c4a3bb300fb98d4aeda01b8003bfbb5588e2c4"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "scope": "request",
+        "source": "sha256:a96e7525d62c324300ca54dca12d0307ed108a16c270655e53b6b383d86b5115",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "record_indices": [],
+        "team_slot": 1,
+        "writer": "raw-request/v1",
+        "id": "sha256:ebc51aab5c9cfd130a51357e71ca6d71d2d1ee05c24d14a0f91bf31b48e797de"
+      },
+      {
+        "kind": "evidence",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": null,
+        "scope": "public",
+        "source": "sha256:faf74bdf3a67a094197ab0a7c40cff89fc9531a685c37c1028bfa24fb2712ab2",
+        "prefix": "sha256:c6dd91bdd883ed6632f34439624a8cd8f8c4eed8abdc15fb9aabda60e18ba2bf",
+        "record_indices": [
+          3
+        ],
+        "team_slot": null,
+        "writer": "consumption/v1",
+        "id": "sha256:f9fe25390e111b9d251f6e6b8b4b1b64c810163d8d36b657c745be54204bee3d"
+      }
+    ],
+    "certificate": [],
+    "fact": [
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "max_pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 56
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:5c77df2fb3c74f6626544fc5c29f144ca0d852554285afdc2ed4584cd52d2849"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:07a6abddce223bc917ceeacaed445c7de04c879faba07192c4d684f0526175c1"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "mid"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:0ebe1d2b28571a774e88b885969739c7dd9af594d9fda551529de2d81ce26713"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:19150bc97ffa78cf18b2f0cbe11e26fa7fee9d9d06d0137ccf3294caf5417a42"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "terminal"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:542663a81895b4abea915f1accf0a76d6b2908711b33e3d3405ca09395727688"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:2b0582b343e99cab398563097c486f3f0d9bc0552f33c975a54279ea670faa53"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "wait"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 4,
+        "evidence": [
+          "sha256:e85aeb5b60ffc61e9de31980e1c4a3bb300fb98d4aeda01b8003bfbb5588e2c4"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:2b9e06b7c6e4baa46e1273b6c9f531607621fc0e2c5f18e579ba7255da2ea96a"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "requestless"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 5,
+        "evidence": [
+          "sha256:b45f13adf9309fa4de206c19c58b9b0fae2c78bde03df8302d9e8de53df95fb3"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:2e1b75cb95bb1ea87482ba2090b19dd05f240e45042d53626980173779c7c13c"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:appearance:1",
+        "family": "K18",
+        "property": "item",
+        "state": "known_absent",
+        "value": null,
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 4,
+        "evidence": [
+          "sha256:f9fe25390e111b9d251f6e6b8b4b1b64c810163d8d36b657c745be54204bee3d"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:3d7d8d74e691db2d84b83b4d082a2e511dc7aa7c3fbc6873f21ac1b85d0b4624"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1",
+        "family": "K18",
+        "property": "item",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "Leftovers"
+        },
+        "reason": "none",
+        "freshness": "immutable",
+        "precision": "exact",
+        "observed_at": 0,
+        "evidence": [
+          "sha256:35a36005232dc2aa1b733715fdec6158b18417dd62c7af264061f65ef76cb124"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:426cb27d646a6e10b1495bcfd2f4031ae7418dad3d531a1c587cd5148ffde2f1"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "mid"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:0ebe1d2b28571a774e88b885969739c7dd9af594d9fda551529de2d81ce26713"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:4cbbc67b6e903d438156d9322c05a917b1f7da3cabeb5f0b6eac6e2f7c29a85e"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "requestless"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 5,
+        "evidence": [
+          "sha256:b45f13adf9309fa4de206c19c58b9b0fae2c78bde03df8302d9e8de53df95fb3"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:4e36701be17099110344409c010b728ddcff11cf1fdff33a98d295735ca86430"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "max_pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 56
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:ebc51aab5c9cfd130a51357e71ca6d71d2d1ee05c24d14a0f91bf31b48e797de"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:50ab351d397cde5c6ccfd6d8a36a0debb277eb861ad4a02989cf76c2d351aa9f"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "restored"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:542663a81895b4abea915f1accf0a76d6b2908711b33e3d3405ca09395727688"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:52c82a5f362707d7755540f03416bc99ecbc39184ac58edbc7f681b4575b93b6"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:appearance:1",
+        "family": "K18",
+        "property": "item",
+        "state": "known_absent",
+        "value": null,
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 4,
+        "evidence": [
+          "sha256:8aab649b1cbd65cc843516fb1739907949df95d920d43356021db3d2f0198936"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:57f8c4c13e0364d18725927817fafb546a75d796818910c1ae3935d48ce28832"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "initial"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 0,
+        "evidence": [
+          "sha256:1da743a9bc0811b7c3514ff3d5a89bb2d8e11038272b5ff0189c98a0a313088d"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:584e1b9f4d70ee810fd1b8596705ecad69d6b071fdd32c38eae22f5708247f66"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "initial"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 0,
+        "evidence": [
+          "sha256:1da743a9bc0811b7c3514ff3d5a89bb2d8e11038272b5ff0189c98a0a313088d"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:6ada2db9631706bc15e4f8bf6197f6a5ea4b286bdfc83192205d52454a4cfd7d"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "request_presence",
+        "state": "inapplicable",
+        "value": null,
+        "reason": "proved_rule_inapplicable",
+        "freshness": "current",
+        "precision": "not_applicable",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:0fd18129d6f98bb76af404b8cf4f5b05741afeabe12616d4b052ed1f59ec00a5"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:6fe24b7002f19dcca1266a49879bf5396b967e3683b8835f24f89ad562cca34c"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:appearance:1",
+        "family": "K18",
+        "property": "item",
+        "state": "known_absent",
+        "value": null,
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 4,
+        "evidence": [
+          "sha256:2e436b5042abd7d550d11fd691e75205f9558b2c0c3efdc016f6490ae44e8cf0"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:73ae3c59b23420a0f7b2ad46cb614d9b317981e65c6a5d5fd76969d8848ef3fa"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1:move:1:incarnation:0",
+        "family": "K08",
+        "property": "maybe_trapped",
+        "state": "known",
+        "value": {
+          "type": "boolean",
+          "data": true
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:5c77df2fb3c74f6626544fc5c29f144ca0d852554285afdc2ed4584cd52d2849"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:798543b05d17b77bdf06b6a0a0c45f3be16f6d8885fd757e018fc54343ceeea4"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 0
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:5c77df2fb3c74f6626544fc5c29f144ca0d852554285afdc2ed4584cd52d2849"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:7fee03f0259c30dba82b2b74218f35a3d247dff2127281d8409f43e46759c67f"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "terminal"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:542663a81895b4abea915f1accf0a76d6b2908711b33e3d3405ca09395727688"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:8cb3f869610b8ba83257f22ebfd3ebb3cfc241696d24525056d9223be76b01ad"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "max_pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 56
+        },
+        "reason": "none",
+        "freshness": "last_known",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:5c77df2fb3c74f6626544fc5c29f144ca0d852554285afdc2ed4584cd52d2849"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:904aba43ab0137319b2d73ea3f1d0810c4f4c13040958abdb426c5c50fac22fa"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "max_pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 56
+        },
+        "reason": "none",
+        "freshness": "last_known",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:ebc51aab5c9cfd130a51357e71ca6d71d2d1ee05c24d14a0f91bf31b48e797de"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:9368b41644b0057460357edd08acd1b25b27d22a325655f0cebd8af4fadc196c"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 0
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:ebc51aab5c9cfd130a51357e71ca6d71d2d1ee05c24d14a0f91bf31b48e797de"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:9d8341c5a5df3dad74fc8bb80888e96ff86f7ca98885e117d661cd1a0c8ab519"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "restored"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:542663a81895b4abea915f1accf0a76d6b2908711b33e3d3405ca09395727688"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:cc2f7dfafd38977788a3acd5ed955f3dc00cde77a6a5182d78a99e684e45d071"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:side",
+        "family": "K20",
+        "property": "boundary_kind",
+        "state": "known",
+        "value": {
+          "type": "text",
+          "data": "wait"
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 4,
+        "evidence": [
+          "sha256:e85aeb5b60ffc61e9de31980e1c4a3bb300fb98d4aeda01b8003bfbb5588e2c4"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:cff7d760410e6ace6398f8fe7f2c381c39ba5c7ded6018dafba0178f8f72d936"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1",
+        "family": "K07",
+        "property": "pp",
+        "state": "unknown",
+        "value": null,
+        "reason": "not_emitted",
+        "freshness": "current",
+        "precision": "not_applicable",
+        "observed_at": null,
+        "evidence": [],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:side",
+        "family": "K20",
+        "property": "request_presence",
+        "state": "inapplicable",
+        "value": null,
+        "reason": "proved_rule_inapplicable",
+        "freshness": "current",
+        "precision": "not_applicable",
+        "observed_at": 7,
+        "evidence": [
+          "sha256:0fd18129d6f98bb76af404b8cf4f5b05741afeabe12616d4b052ed1f59ec00a5"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:e82827bd5f9401a709525e019ddb2c79d5f29006258a82d2a620b2be48c0e83c"
+      },
+      {
+        "kind": "fact",
+        "owner": "p2",
+        "subject": "p2:roster:1",
+        "family": "K02",
+        "property": "starting_moves",
+        "state": "known",
+        "value": {
+          "type": "texts",
+          "data": [
+            "Tackle"
+          ]
+        },
+        "reason": "none",
+        "freshness": "immutable",
+        "precision": "exact",
+        "observed_at": 0,
+        "evidence": [
+          "sha256:a449992d0b688c01ef5ac303860988325131ae1d97fc01a5229892cf38835b7b"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:f5c82d7c97e6c94f582cfc80308e94e6a595c5dfd88e154ed31c8347c3610056"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1",
+        "family": "K07",
+        "property": "pp",
+        "state": "unknown",
+        "value": null,
+        "reason": "not_emitted",
+        "freshness": "current",
+        "precision": "not_applicable",
+        "observed_at": null,
+        "evidence": [],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+      },
+      {
+        "kind": "fact",
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K08",
+        "property": "maybe_trapped",
+        "state": "known",
+        "value": {
+          "type": "boolean",
+          "data": true
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "evidence": [
+          "sha256:ebc51aab5c9cfd130a51357e71ca6d71d2d1ee05c24d14a0f91bf31b48e797de"
+        ],
+        "certificate": null,
+        "effect_key": null,
+        "id": "sha256:fd96063fe3af1a446e158dd01f5bf438b2820b8ec9d2f98947c0ea8dc62eea9d"
+      }
+    ],
+    "starting": [
+      {
+        "kind": "starting",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "source": "sha256:7af0ed9f22940786363a131e15f810e75205873cb6109e4a6f424dd239a830c9",
+        "revision": 0,
+        "parent": null,
+        "facts": [
+          "sha256:426cb27d646a6e10b1495bcfd2f4031ae7418dad3d531a1c587cd5148ffde2f1"
+        ],
+        "crosswalk": [],
+        "id": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743"
+      },
+      {
+        "kind": "starting",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "source": "sha256:f66fd3f4bb73be06aeed599db544d9ebbf2d0eed84895226386ec996f9a434d7",
+        "revision": 0,
+        "parent": null,
+        "facts": [
+          "sha256:f5c82d7c97e6c94f582cfc80308e94e6a595c5dfd88e154ed31c8347c3610056"
+        ],
+        "crosswalk": [],
+        "id": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808"
+      }
+    ],
+    "current": [
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "cursor": 7,
+        "parent": "sha256:64de138936b590175e934b35dcd58a5a53fb92eb85954e5ea857ff341a33eb4c",
+        "facts": [
+          "sha256:2b0582b343e99cab398563097c486f3f0d9bc0552f33c975a54279ea670faa53",
+          "sha256:6fe24b7002f19dcca1266a49879bf5396b967e3683b8835f24f89ad562cca34c",
+          "sha256:904aba43ab0137319b2d73ea3f1d0810c4f4c13040958abdb426c5c50fac22fa",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:139c6c1992c2fedd409047df7ff16b643ea1862a44aee41f7b404c5246ea30c6"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:c6dd91bdd883ed6632f34439624a8cd8f8c4eed8abdc15fb9aabda60e18ba2bf",
+        "cursor": 5,
+        "parent": "sha256:b8cd490e02a27374c3543d50ec02361f236504570b29e4d0b3ea004f4b376cd5",
+        "facts": [
+          "sha256:3d7d8d74e691db2d84b83b4d082a2e511dc7aa7c3fbc6873f21ac1b85d0b4624",
+          "sha256:4e36701be17099110344409c010b728ddcff11cf1fdff33a98d295735ca86430",
+          "sha256:9368b41644b0057460357edd08acd1b25b27d22a325655f0cebd8af4fadc196c",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:21abdcd7d92c4e1021191469781b60a07ba626f92c42586ba496eb54b9adae52"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "cursor": 7,
+        "parent": "sha256:b8d32bb0b4f0bcda871bbb3a1384c1764d295fa3bbdbf910de547abbe1874856",
+        "facts": [
+          "sha256:57f8c4c13e0364d18725927817fafb546a75d796818910c1ae3935d48ce28832",
+          "sha256:9368b41644b0057460357edd08acd1b25b27d22a325655f0cebd8af4fadc196c",
+          "sha256:cc2f7dfafd38977788a3acd5ed955f3dc00cde77a6a5182d78a99e684e45d071",
+          "sha256:e82827bd5f9401a709525e019ddb2c79d5f29006258a82d2a620b2be48c0e83c",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:503a44e856b3f8be84b3bd04035003ec7b7f9e5e2fa222cd1f6706dbcfb3f23f"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb",
+        "cursor": 0,
+        "parent": null,
+        "facts": [
+          "sha256:584e1b9f4d70ee810fd1b8596705ecad69d6b071fdd32c38eae22f5708247f66",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:5e9bad862315077dbea161d31ff4cb15a68779aa377a82fcc215d9de57a8b436"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "cursor": 7,
+        "parent": "sha256:139c6c1992c2fedd409047df7ff16b643ea1862a44aee41f7b404c5246ea30c6",
+        "facts": [
+          "sha256:52c82a5f362707d7755540f03416bc99ecbc39184ac58edbc7f681b4575b93b6",
+          "sha256:6fe24b7002f19dcca1266a49879bf5396b967e3683b8835f24f89ad562cca34c",
+          "sha256:904aba43ab0137319b2d73ea3f1d0810c4f4c13040958abdb426c5c50fac22fa",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:5eeac76a4b88715a5efed9f3fb98675ad826b97a1b96129829c93466104368ee"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:c6dd91bdd883ed6632f34439624a8cd8f8c4eed8abdc15fb9aabda60e18ba2bf",
+        "cursor": 5,
+        "parent": "sha256:b03a313bce41890dbfb2aa8f9ba22c1e654ba4d804a9a8b13fa5c82055b02c21",
+        "facts": [
+          "sha256:2e1b75cb95bb1ea87482ba2090b19dd05f240e45042d53626980173779c7c13c",
+          "sha256:904aba43ab0137319b2d73ea3f1d0810c4f4c13040958abdb426c5c50fac22fa",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:64de138936b590175e934b35dcd58a5a53fb92eb85954e5ea857ff341a33eb4c"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "cursor": 3,
+        "parent": "sha256:5e9bad862315077dbea161d31ff4cb15a68779aa377a82fcc215d9de57a8b436",
+        "facts": [
+          "sha256:19150bc97ffa78cf18b2f0cbe11e26fa7fee9d9d06d0137ccf3294caf5417a42",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:7a1351df5490d343f2e5350e6e7a3873f974c3259f8d5a2aaa1289b6499a1147"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb",
+        "cursor": 0,
+        "parent": null,
+        "facts": [
+          "sha256:6ada2db9631706bc15e4f8bf6197f6a5ea4b286bdfc83192205d52454a4cfd7d",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:7d8f28ca3e2b2d6e7a4ba62ae9e78c21cb91c23c64c042fa66574f77e6633669"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "cursor": 3,
+        "parent": "sha256:7d8f28ca3e2b2d6e7a4ba62ae9e78c21cb91c23c64c042fa66574f77e6633669",
+        "facts": [
+          "sha256:4cbbc67b6e903d438156d9322c05a917b1f7da3cabeb5f0b6eac6e2f7c29a85e",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:9e22f1bc4cd9c7d129b3b9c0e8b218fb21e2fbbe543f669efc1ff4cd5be13a76"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "cursor": 4,
+        "parent": "sha256:9e22f1bc4cd9c7d129b3b9c0e8b218fb21e2fbbe543f669efc1ff4cd5be13a76",
+        "facts": [
+          "sha256:904aba43ab0137319b2d73ea3f1d0810c4f4c13040958abdb426c5c50fac22fa",
+          "sha256:cff7d760410e6ace6398f8fe7f2c381c39ba5c7ded6018dafba0178f8f72d936",
+          "sha256:de30c48373e1e33c9c6b8edea71a9530c7ad73de019c50f09b629333e0fa10f4"
+        ],
+        "id": "sha256:b03a313bce41890dbfb2aa8f9ba22c1e654ba4d804a9a8b13fa5c82055b02c21"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "cursor": 4,
+        "parent": "sha256:7a1351df5490d343f2e5350e6e7a3873f974c3259f8d5a2aaa1289b6499a1147",
+        "facts": [
+          "sha256:2b9e06b7c6e4baa46e1273b6c9f531607621fc0e2c5f18e579ba7255da2ea96a",
+          "sha256:73ae3c59b23420a0f7b2ad46cb614d9b317981e65c6a5d5fd76969d8848ef3fa",
+          "sha256:9368b41644b0057460357edd08acd1b25b27d22a325655f0cebd8af4fadc196c",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:b8cd490e02a27374c3543d50ec02361f236504570b29e4d0b3ea004f4b376cd5"
+      },
+      {
+        "kind": "current",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "prefix": "sha256:fc7d151af73418fdadc25fb0cec8a732c13710a998538795ab8a963c21529152",
+        "cursor": 7,
+        "parent": "sha256:21abdcd7d92c4e1021191469781b60a07ba626f92c42586ba496eb54b9adae52",
+        "facts": [
+          "sha256:57f8c4c13e0364d18725927817fafb546a75d796818910c1ae3935d48ce28832",
+          "sha256:8cb3f869610b8ba83257f22ebfd3ebb3cfc241696d24525056d9223be76b01ad",
+          "sha256:9368b41644b0057460357edd08acd1b25b27d22a325655f0cebd8af4fadc196c",
+          "sha256:e82827bd5f9401a709525e019ddb2c79d5f29006258a82d2a620b2be48c0e83c",
+          "sha256:fa35131b11f48a21543922a6ee7dee4db1d06e1006c88abe8868f61e83fca094"
+        ],
+        "id": "sha256:b8d32bb0b4f0bcda871bbb3a1384c1764d295fa3bbdbf910de547abbe1874856"
+      }
+    ],
+    "request": [
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "source": "sha256:32f0883b8e879bb52a333bae058beee5361b51182b78cf95f640871b8ed2defa",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "sequence": 2,
+        "cursor": 4,
+        "actionable": false,
+        "facts": [],
+        "id": "sha256:01c1381e75fe532fd4fc5722e47767a062a379374df90e1870189be99497bdc6"
+      },
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "source": "sha256:74189075c82e56c5a939fb7d9a66806f8af24cb32c61b104574299459018869d",
+        "prefix": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb",
+        "sequence": 0,
+        "cursor": 0,
+        "actionable": true,
+        "facts": [],
+        "id": "sha256:5482587f9eb9eed3bdd1da83ab97447aa4cbf58d47e3e5e5f2bb25497bf28300"
+      },
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "source": "sha256:a96e7525d62c324300ca54dca12d0307ed108a16c270655e53b6b383d86b5115",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "sequence": 1,
+        "cursor": 3,
+        "actionable": true,
+        "facts": [
+          "sha256:50ab351d397cde5c6ccfd6d8a36a0debb277eb861ad4a02989cf76c2d351aa9f",
+          "sha256:9d8341c5a5df3dad74fc8bb80888e96ff86f7ca98885e117d661cd1a0c8ab519",
+          "sha256:fd96063fe3af1a446e158dd01f5bf438b2820b8ec9d2f98947c0ea8dc62eea9d"
+        ],
+        "id": "sha256:555783009a91326cbdc2287076fc33fa18a9785899100aec5d69f34f8f50de41"
+      },
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "source": "sha256:26ff0c3cd6fbbf155575194c869af49a38e1725f5f74b57a57644c465e42b4bc",
+        "prefix": "sha256:0c0b141f9c4f53ca0f2d3b09dc864cb79cd43b983b9963bb0c03cb6653e8e2cd",
+        "sequence": 1,
+        "cursor": 3,
+        "actionable": true,
+        "facts": [
+          "sha256:07a6abddce223bc917ceeacaed445c7de04c879faba07192c4d684f0526175c1",
+          "sha256:798543b05d17b77bdf06b6a0a0c45f3be16f6d8885fd757e018fc54343ceeea4",
+          "sha256:7fee03f0259c30dba82b2b74218f35a3d247dff2127281d8409f43e46759c67f"
+        ],
+        "id": "sha256:ac5d5271573caf3db4d66265a83109f2c1dfb89c16cd83c15b7bdcef597b3bd0"
+      },
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "source": "sha256:cd8fe85f08584daed970cc02c7631fd07561fa6bcd03e707e437874fb2b3827b",
+        "prefix": "sha256:600be01a388520a21f78643e9c5e6ce6cecec8b9d9dca8e79ec5415a761e17cb",
+        "sequence": 0,
+        "cursor": 0,
+        "actionable": true,
+        "facts": [],
+        "id": "sha256:d506118db714afaec40824c67ef53972f753fbe503d2ae2b749b6216953ef9b7"
+      },
+      {
+        "kind": "request",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "source": "sha256:0f46408a3eba15b652f47669222d315aa56e673885526e455d958a5cc5ba8603",
+        "prefix": "sha256:0b33ad53b4445e515ebac463cadbea9483feab88604ae24a18dcaf92603e88a6",
+        "sequence": 2,
+        "cursor": 4,
+        "actionable": false,
+        "facts": [],
+        "id": "sha256:fbce21ffbe2bdd1792bdab70240ae3be3e69ebcfa163721a6376a582d395d0e0"
+      }
+    ],
+    "knowledge": [
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:503a44e856b3f8be84b3bd04035003ec7b7f9e5e2fa222cd1f6706dbcfb3f23f",
+        "request": null,
+        "boundary": 5,
+        "id": "sha256:0b77c3f5052fcd28bc57a6e304750a1561b943e385fce8da184a490e4b88eced"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:9e22f1bc4cd9c7d129b3b9c0e8b218fb21e2fbbe543f669efc1ff4cd5be13a76",
+        "request": "sha256:ac5d5271573caf3db4d66265a83109f2c1dfb89c16cd83c15b7bdcef597b3bd0",
+        "boundary": 1,
+        "id": "sha256:142d175f1d181a2c6bad66d02831c63ce0c1f7bf8f83869386c39059e9c21fe8"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:139c6c1992c2fedd409047df7ff16b643ea1862a44aee41f7b404c5246ea30c6",
+        "request": null,
+        "boundary": 4,
+        "id": "sha256:2100cd726219283180c35ca9d00db3d80aa819d51dd52fc2422eb6414e805c06"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:5eeac76a4b88715a5efed9f3fb98675ad826b97a1b96129829c93466104368ee",
+        "request": null,
+        "boundary": 5,
+        "id": "sha256:2b9579d64684c5b3124765b3a5abf5e099822964ad361be2064352dddffd9c4f"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:21abdcd7d92c4e1021191469781b60a07ba626f92c42586ba496eb54b9adae52",
+        "request": null,
+        "boundary": 3,
+        "id": "sha256:2ec75908896b0855f86eda67f484e3b3a486ff00ef9aa7ff5081b29571bf524e"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:5e9bad862315077dbea161d31ff4cb15a68779aa377a82fcc215d9de57a8b436",
+        "request": "sha256:5482587f9eb9eed3bdd1da83ab97447aa4cbf58d47e3e5e5f2bb25497bf28300",
+        "boundary": 0,
+        "id": "sha256:3a82f7bda0789d867acca74f84485a18898d202d15bb8472e5f5af4fbfa62373"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:b8cd490e02a27374c3543d50ec02361f236504570b29e4d0b3ea004f4b376cd5",
+        "request": "sha256:fbce21ffbe2bdd1792bdab70240ae3be3e69ebcfa163721a6376a582d395d0e0",
+        "boundary": 2,
+        "id": "sha256:479961cd3e82cd36cc386812d096647fd2bb8d99dd7522b39b107b053f165c46"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:b03a313bce41890dbfb2aa8f9ba22c1e654ba4d804a9a8b13fa5c82055b02c21",
+        "request": "sha256:01c1381e75fe532fd4fc5722e47767a062a379374df90e1870189be99497bdc6",
+        "boundary": 2,
+        "id": "sha256:8449498a3f411fe7a1315a47c223a863016758fe8db8c04758754e1b4dbdf2f1"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:7d8f28ca3e2b2d6e7a4ba62ae9e78c21cb91c23c64c042fa66574f77e6633669",
+        "request": "sha256:d506118db714afaec40824c67ef53972f753fbe503d2ae2b749b6216953ef9b7",
+        "boundary": 0,
+        "id": "sha256:b288fb4f57bc6f0f0d0569429b8b10ca93b7ca6adb68eba653fe8be152583f0d"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:c3ebdac2b599dbfc552c4954d2ffa441a1ed4a60da6f42bcf4269403d38b1808",
+        "current": "sha256:64de138936b590175e934b35dcd58a5a53fb92eb85954e5ea857ff341a33eb4c",
+        "request": null,
+        "boundary": 3,
+        "id": "sha256:b477eebe72b1b6e1d007e7e0c7837119fd3dd35fa44cb8aa3073922ee74365b5"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:7a1351df5490d343f2e5350e6e7a3873f974c3259f8d5a2aaa1289b6499a1147",
+        "request": "sha256:555783009a91326cbdc2287076fc33fa18a9785899100aec5d69f34f8f50de41",
+        "boundary": 1,
+        "id": "sha256:bd8e8db9a097a1daefda63e586e6eedd8180a3feceec3cb41147fdde0c55bfe1"
+      },
+      {
+        "kind": "knowledge",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "policy": "simulator-causal/v1",
+        "starting": "sha256:7a476bffe006af8ca66ad933219d2601b98008fd8778be60e7d702035f17f743",
+        "current": "sha256:b8d32bb0b4f0bcda871bbb3a1384c1764d295fa3bbdbf910de547abbe1874856",
+        "request": null,
+        "boundary": 4,
+        "id": "sha256:e439d5a2d38f1ea414e05f8d745ccb1a64a6d731ec4856188ae0c76c3a396348"
+      }
+    ],
+    "profile": [
+      {
+        "kind": "profile",
+        "name": "owner-loadout-complete/v1",
+        "policy": "simulator-causal/v1",
+        "engine": "pokemon-showdown@0.11.10",
+        "source_version": "addressed-team-provider/v1",
+        "rule_version": "pk-rules/v1",
+        "writer_version": "pk-writers/v1",
+        "obligations": [
+          {
+            "family": "K01",
+            "properties": [
+              "roster_species",
+              "roster_order",
+              "party_position",
+              "active_slot",
+              "roster_size"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K02",
+            "properties": [
+              "starting_moves",
+              "current_moves",
+              "move_execution",
+              "move_incarnation"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K03",
+            "properties": [
+              "submitted_nature",
+              "submitted_evs",
+              "submitted_ivs",
+              "submitted_happiness",
+              "calculated_stats",
+              "hp_max"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K04",
+            "properties": [
+              "level",
+              "gender",
+              "shiny",
+              "ball",
+              "details",
+              "starting_tera"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K05",
+            "properties": [
+              "hp",
+              "fainted",
+              "status"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K06",
+            "properties": [
+              "status_observed_since",
+              "status_elapsed",
+              "status_remaining"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K07",
+            "properties": [
+              "pp",
+              "max_pp"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K08",
+            "properties": [
+              "disabled",
+              "maybe_disabled",
+              "trapped",
+              "maybe_trapped",
+              "lock"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K09",
+            "properties": [
+              "boosts"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K10",
+            "properties": [
+              "persistent_effect"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K11",
+            "properties": [
+              "single_turn_effect"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K12",
+            "properties": [
+              "single_move_effect"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K13",
+            "properties": [
+              "side_condition"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K14",
+            "properties": [
+              "weather",
+              "weather_effective",
+              "terrain",
+              "pseudo_weather",
+              "field_remaining"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K15",
+            "properties": [
+              "pending_intent",
+              "pending_effect"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K16",
+            "properties": [
+              "form",
+              "types",
+              "tera",
+              "transformed"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K17",
+            "properties": [
+              "appearance",
+              "identity_reveal"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          },
+          {
+            "family": "K18",
+            "properties": [
+              "item",
+              "item_held",
+              "item_effective"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K19",
+            "properties": [
+              "ability",
+              "ability_effective"
+            ],
+            "unknown": [],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": true
+          },
+          {
+            "family": "K20",
+            "properties": [
+              "boundary_kind",
+              "request_presence"
+            ],
+            "unknown": [
+              "hidden_opponent",
+              "hidden_timer",
+              "not_emitted"
+            ],
+            "opponent_unknown": [
+              "hidden_opponent",
+              "hidden_timer"
+            ],
+            "inapplicable": [
+              "proved_rule_inapplicable"
+            ],
+            "original_required": false
+          }
+        ],
+        "id": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537"
+      }
+    ],
+    "verdict": [
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:2ec75908896b0855f86eda67f484e3b3a486ff00ef9aa7ff5081b29571bf524e",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:0129fb4d653e9213bf6df13bfec0e66d8fd39e07ab0f928dfbc6677d774932a4"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:b477eebe72b1b6e1d007e7e0c7837119fd3dd35fa44cb8aa3073922ee74365b5",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:0dd07a2b1dbb104395aa8a35dcb7725c92e57429b887c4aac697b1ec853fc50e"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:2100cd726219283180c35ca9d00db3d80aa819d51dd52fc2422eb6414e805c06",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:225f1807a629c702a04a3cd14f64913121345e8a0b9dd8594da2727d5e1d6ff2"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:e439d5a2d38f1ea414e05f8d745ccb1a64a6d731ec4856188ae0c76c3a396348",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:281de1b23bf204bcd350be00af5beeaa998834cd66c982c9bf9bf14ecc159715"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:479961cd3e82cd36cc386812d096647fd2bb8d99dd7522b39b107b053f165c46",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:3b9d4a5331911cd45e40ba2752ebfe851a0421ff3f5f94792a3bffff35507023"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:bd8e8db9a097a1daefda63e586e6eedd8180a3feceec3cb41147fdde0c55bfe1",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:51d5aca7aea86cd896009b553535df2e2535c889869a9e13e7712ac0a1a98639"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:3a82f7bda0789d867acca74f84485a18898d202d15bb8472e5f5af4fbfa62373",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:5c305f9d254a9fa0dacee068dfe6dc23f75b074dcc33141ba2e4cb85028365ab"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:b288fb4f57bc6f0f0d0569429b8b10ca93b7ca6adb68eba653fe8be152583f0d",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:69155191433048c75c22883753a7eeacfc92653fe6da6edb93b49a2cac305902"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:8449498a3f411fe7a1315a47c223a863016758fe8db8c04758754e1b4dbdf2f1",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:72ff64648f5eda6f74bd72c56f57bfcd697fbce7fdef1c34a0d54352b93e35f6"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:0b77c3f5052fcd28bc57a6e304750a1561b943e385fce8da184a490e4b88eced",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:7f1f23a7506b330d7e34203c9eb0c7301f8cc496deae70adc81685ad08180463"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:142d175f1d181a2c6bad66d02831c63ce0c1f7bf8f83869386c39059e9c21fe8",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:aa7054d46d878092c6f78708a6e0913d1ae47b67c7a244477392be510f8ac734"
+      },
+      {
+        "kind": "verdict",
+        "knowledge": "sha256:2b9579d64684c5b3124765b3a5abf5e099822964ad361be2064352dddffd9c4f",
+        "profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+        "families": [
+          {
+            "family": "K01",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K02",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K03",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K04",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K05",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K06",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K07",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K08",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K09",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K10",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K11",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K12",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K13",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K14",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K15",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K16",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K17",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K18",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K19",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          },
+          {
+            "family": "K20",
+            "result": "unsupported",
+            "reason": "unimplemented_family"
+          }
+        ],
+        "result": "incomplete",
+        "id": "sha256:e2eed86ecb7bd59b3472d72e32aa15aba385172547038536168840fcf15fdc00"
+      }
+    ],
+    "boundary": [
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 0,
+        "cursor": 0,
+        "boundary_type": "initial",
+        "parent": null,
+        "restored_from": null,
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:3a82f7bda0789d867acca74f84485a18898d202d15bb8472e5f5af4fbfa62373",
+            "verdict": "sha256:5c305f9d254a9fa0dacee068dfe6dc23f75b074dcc33141ba2e4cb85028365ab",
+            "observation_id": "sha256:9f4d92e918b1973b844e13a885c1cb5e0aa3e32539aebedbaed0818d9ed67350",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:b288fb4f57bc6f0f0d0569429b8b10ca93b7ca6adb68eba653fe8be152583f0d",
+            "verdict": "sha256:69155191433048c75c22883753a7eeacfc92653fe6da6edb93b49a2cac305902",
+            "observation_id": "sha256:82dc356db002cc850b6ceafc40be7debab9503b522b1dc34e65c74120edce516",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:605c3c235b30f9d99fdf2ddd24bdd9e94c3894383838b97d860c61dda082c74f"
+      },
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 3,
+        "cursor": 5,
+        "boundary_type": "requestless",
+        "parent": "sha256:b766c844e46d32a3c561b16b54c9753fe153bd81260b81003f80f65d2c9ccc8b",
+        "restored_from": null,
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:2ec75908896b0855f86eda67f484e3b3a486ff00ef9aa7ff5081b29571bf524e",
+            "verdict": "sha256:0129fb4d653e9213bf6df13bfec0e66d8fd39e07ab0f928dfbc6677d774932a4",
+            "observation_id": "sha256:bbf9eba944d30bf665c105a2b69327aaaa24a48297ca96121496824e87c958ba",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:b477eebe72b1b6e1d007e7e0c7837119fd3dd35fa44cb8aa3073922ee74365b5",
+            "verdict": "sha256:0dd07a2b1dbb104395aa8a35dcb7725c92e57429b887c4aac697b1ec853fc50e",
+            "observation_id": "sha256:b76136e700c8d9a47cbbe6617cff9199c8ca62795d0b03328efbfa3b85ef7828",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:86c32237268cd17ebc53e430e95f33d688999a965767bcfd265cab234a3e0e7d"
+      },
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 4,
+        "cursor": 7,
+        "boundary_type": "terminal",
+        "parent": "sha256:86c32237268cd17ebc53e430e95f33d688999a965767bcfd265cab234a3e0e7d",
+        "restored_from": null,
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:e439d5a2d38f1ea414e05f8d745ccb1a64a6d731ec4856188ae0c76c3a396348",
+            "verdict": "sha256:281de1b23bf204bcd350be00af5beeaa998834cd66c982c9bf9bf14ecc159715",
+            "observation_id": "sha256:c1618c556f16a16dcd203b63fbe57b18a9de5de4d83e9547a806bb1c2decc5a1",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:2100cd726219283180c35ca9d00db3d80aa819d51dd52fc2422eb6414e805c06",
+            "verdict": "sha256:225f1807a629c702a04a3cd14f64913121345e8a0b9dd8594da2727d5e1d6ff2",
+            "observation_id": "sha256:88510e36b3b68583a5012681f7931efeb3adb2dc74ab2dc7abdb50814458488f",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:9fd617c04fd922fddd26d6976fec060d6e21530eb9ce66957f23b4ba0f821e4c"
+      },
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 1,
+        "cursor": 3,
+        "boundary_type": "mid",
+        "parent": "sha256:605c3c235b30f9d99fdf2ddd24bdd9e94c3894383838b97d860c61dda082c74f",
+        "restored_from": null,
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:bd8e8db9a097a1daefda63e586e6eedd8180a3feceec3cb41147fdde0c55bfe1",
+            "verdict": "sha256:51d5aca7aea86cd896009b553535df2e2535c889869a9e13e7712ac0a1a98639",
+            "observation_id": "sha256:6c638f98ec39ad2ebb5eb1b86382e869db6011549b3beed5bc0bed6f05bbbe55",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:142d175f1d181a2c6bad66d02831c63ce0c1f7bf8f83869386c39059e9c21fe8",
+            "verdict": "sha256:aa7054d46d878092c6f78708a6e0913d1ae47b67c7a244477392be510f8ac734",
+            "observation_id": "sha256:c219a194c3a9d13956c5623f5a49abd377d0fc1d527bf152c01dbe44dbe80a5c",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:ab626bdc13256312c16684d7e716d3e02ea4f50abd56cd160ef98f1167340290"
+      },
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 2,
+        "cursor": 4,
+        "boundary_type": "wait",
+        "parent": "sha256:ab626bdc13256312c16684d7e716d3e02ea4f50abd56cd160ef98f1167340290",
+        "restored_from": null,
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:479961cd3e82cd36cc386812d096647fd2bb8d99dd7522b39b107b053f165c46",
+            "verdict": "sha256:3b9d4a5331911cd45e40ba2752ebfe851a0421ff3f5f94792a3bffff35507023",
+            "observation_id": "sha256:97e197ccd3486ed664ea164e33d0bdda34083ed16baa3833e9aca9ff6620aff7",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:8449498a3f411fe7a1315a47c223a863016758fe8db8c04758754e1b4dbdf2f1",
+            "verdict": "sha256:72ff64648f5eda6f74bd72c56f57bfcd697fbce7fdef1c34a0d54352b93e35f6",
+            "observation_id": "sha256:97c5ae61a643ccee66da321962f4ca63c297ea3333ad1194a42ea90f649729b4",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:b766c844e46d32a3c561b16b54c9753fe153bd81260b81003f80f65d2c9ccc8b"
+      },
+      {
+        "kind": "boundary",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "index": 5,
+        "cursor": 7,
+        "boundary_type": "restored",
+        "parent": "sha256:9fd617c04fd922fddd26d6976fec060d6e21530eb9ce66957f23b4ba0f821e4c",
+        "restored_from": "sha256:9fd617c04fd922fddd26d6976fec060d6e21530eb9ce66957f23b4ba0f821e4c",
+        "bindings": [
+          {
+            "owner": "p1",
+            "knowledge": "sha256:0b77c3f5052fcd28bc57a6e304750a1561b943e385fce8da184a490e4b88eced",
+            "verdict": "sha256:7f1f23a7506b330d7e34203c9eb0c7301f8cc496deae70adc81685ad08180463",
+            "observation_id": "sha256:897e1b7b2dac410f4e784c3e962b45ba7dbea0b143c660f409c3e6fccc5ed199",
+            "belief_id": null,
+            "actor_record_id": null
+          },
+          {
+            "owner": "p2",
+            "knowledge": "sha256:2b9579d64684c5b3124765b3a5abf5e099822964ad361be2064352dddffd9c4f",
+            "verdict": "sha256:e2eed86ecb7bd59b3472d72e32aa15aba385172547038536168840fcf15fdc00",
+            "observation_id": "sha256:81fa3eea8e32c2c3006739aeb73ff453f64604d7905defa51b64fcea728fcfbf",
+            "belief_id": null,
+            "actor_record_id": null
+          }
+        ],
+        "id": "sha256:c32ee6618521262694c7b7ec1249cf5d4e9d91d0e44bd115bf3cd80a97a5c421"
+      }
+    ],
+    "binding": [
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "input_index": 4,
+        "successor_index": 5,
+        "input_knowledge": "sha256:2100cd726219283180c35ca9d00db3d80aa819d51dd52fc2422eb6414e805c06",
+        "successor_knowledge": "sha256:2b9579d64684c5b3124765b3a5abf5e099822964ad361be2064352dddffd9c4f",
+        "input_observation": "sha256:88510e36b3b68583a5012681f7931efeb3adb2dc74ab2dc7abdb50814458488f",
+        "successor_observation": "sha256:81fa3eea8e32c2c3006739aeb73ff453f64604d7905defa51b64fcea728fcfbf",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:09afbaf22fe38dd93079a9acd7c23539685cae25144d97948e7349dcd9aa3069"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "input_index": 3,
+        "successor_index": 4,
+        "input_knowledge": "sha256:2ec75908896b0855f86eda67f484e3b3a486ff00ef9aa7ff5081b29571bf524e",
+        "successor_knowledge": "sha256:e439d5a2d38f1ea414e05f8d745ccb1a64a6d731ec4856188ae0c76c3a396348",
+        "input_observation": "sha256:bbf9eba944d30bf665c105a2b69327aaaa24a48297ca96121496824e87c958ba",
+        "successor_observation": "sha256:c1618c556f16a16dcd203b63fbe57b18a9de5de4d83e9547a806bb1c2decc5a1",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:1865fadc4f141e8680fc6969224a21ecd66fe2ee977bd9e0c7dc40c21e9a2851"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "input_index": 0,
+        "successor_index": 1,
+        "input_knowledge": "sha256:3a82f7bda0789d867acca74f84485a18898d202d15bb8472e5f5af4fbfa62373",
+        "successor_knowledge": "sha256:bd8e8db9a097a1daefda63e586e6eedd8180a3feceec3cb41147fdde0c55bfe1",
+        "input_observation": "sha256:9f4d92e918b1973b844e13a885c1cb5e0aa3e32539aebedbaed0818d9ed67350",
+        "successor_observation": "sha256:6c638f98ec39ad2ebb5eb1b86382e869db6011549b3beed5bc0bed6f05bbbe55",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:2c589a9e7f031683b64e9e90534553d6a88ed7ac5fdab026af32ea26acfda1d3"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "input_index": 2,
+        "successor_index": 3,
+        "input_knowledge": "sha256:479961cd3e82cd36cc386812d096647fd2bb8d99dd7522b39b107b053f165c46",
+        "successor_knowledge": "sha256:2ec75908896b0855f86eda67f484e3b3a486ff00ef9aa7ff5081b29571bf524e",
+        "input_observation": "sha256:97e197ccd3486ed664ea164e33d0bdda34083ed16baa3833e9aca9ff6620aff7",
+        "successor_observation": "sha256:bbf9eba944d30bf665c105a2b69327aaaa24a48297ca96121496824e87c958ba",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:55866b187f017d744e969e25fa1ad214554d1c6730ad82baa43edd827d1cd1be"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "input_index": 1,
+        "successor_index": 2,
+        "input_knowledge": "sha256:142d175f1d181a2c6bad66d02831c63ce0c1f7bf8f83869386c39059e9c21fe8",
+        "successor_knowledge": "sha256:8449498a3f411fe7a1315a47c223a863016758fe8db8c04758754e1b4dbdf2f1",
+        "input_observation": "sha256:c219a194c3a9d13956c5623f5a49abd377d0fc1d527bf152c01dbe44dbe80a5c",
+        "successor_observation": "sha256:97c5ae61a643ccee66da321962f4ca63c297ea3333ad1194a42ea90f649729b4",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:57e9c5f41c56118cf4bcd9e4794670acba8ab459fa474790b6a23539994e1fef"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "input_index": 1,
+        "successor_index": 2,
+        "input_knowledge": "sha256:bd8e8db9a097a1daefda63e586e6eedd8180a3feceec3cb41147fdde0c55bfe1",
+        "successor_knowledge": "sha256:479961cd3e82cd36cc386812d096647fd2bb8d99dd7522b39b107b053f165c46",
+        "input_observation": "sha256:6c638f98ec39ad2ebb5eb1b86382e869db6011549b3beed5bc0bed6f05bbbe55",
+        "successor_observation": "sha256:97e197ccd3486ed664ea164e33d0bdda34083ed16baa3833e9aca9ff6620aff7",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:664b4cacfa698d163e7f5c263fb15ef8413e2ee047d709a0d2c975c2ad7add80"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "input_index": 3,
+        "successor_index": 4,
+        "input_knowledge": "sha256:b477eebe72b1b6e1d007e7e0c7837119fd3dd35fa44cb8aa3073922ee74365b5",
+        "successor_knowledge": "sha256:2100cd726219283180c35ca9d00db3d80aa819d51dd52fc2422eb6414e805c06",
+        "input_observation": "sha256:b76136e700c8d9a47cbbe6617cff9199c8ca62795d0b03328efbfa3b85ef7828",
+        "successor_observation": "sha256:88510e36b3b68583a5012681f7931efeb3adb2dc74ab2dc7abdb50814458488f",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:8a886cfb1e46c1c9bdd04ff7fc8d09908f93ce139e89b27a67b0ca3afe0011bf"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "input_index": 0,
+        "successor_index": 1,
+        "input_knowledge": "sha256:b288fb4f57bc6f0f0d0569429b8b10ca93b7ca6adb68eba653fe8be152583f0d",
+        "successor_knowledge": "sha256:142d175f1d181a2c6bad66d02831c63ce0c1f7bf8f83869386c39059e9c21fe8",
+        "input_observation": "sha256:82dc356db002cc850b6ceafc40be7debab9503b522b1dc34e65c74120edce516",
+        "successor_observation": "sha256:c219a194c3a9d13956c5623f5a49abd377d0fc1d527bf152c01dbe44dbe80a5c",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:b1089b62e6a3f151beeb92187287d09a88992d2682a0d947d41b33e879a87b99"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p1",
+        "input_index": 4,
+        "successor_index": 5,
+        "input_knowledge": "sha256:e439d5a2d38f1ea414e05f8d745ccb1a64a6d731ec4856188ae0c76c3a396348",
+        "successor_knowledge": "sha256:0b77c3f5052fcd28bc57a6e304750a1561b943e385fce8da184a490e4b88eced",
+        "input_observation": "sha256:c1618c556f16a16dcd203b63fbe57b18a9de5de4d83e9547a806bb1c2decc5a1",
+        "successor_observation": "sha256:897e1b7b2dac410f4e784c3e962b45ba7dbea0b143c660f409c3e6fccc5ed199",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:b1106a40a90338dda9dd904ca6a27dad7f6982f0d0be6552347925c1d79928dd"
+      },
+      {
+        "kind": "binding",
+        "origin": "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f",
+        "owner": "p2",
+        "input_index": 2,
+        "successor_index": 3,
+        "input_knowledge": "sha256:8449498a3f411fe7a1315a47c223a863016758fe8db8c04758754e1b4dbdf2f1",
+        "successor_knowledge": "sha256:b477eebe72b1b6e1d007e7e0c7837119fd3dd35fa44cb8aa3073922ee74365b5",
+        "input_observation": "sha256:97c5ae61a643ccee66da321962f4ca63c297ea3333ad1194a42ea90f649729b4",
+        "successor_observation": "sha256:b76136e700c8d9a47cbbe6617cff9199c8ca62795d0b03328efbfa3b85ef7828",
+        "input_belief": null,
+        "successor_belief": null,
+        "transition": null,
+        "actor_record": null,
+        "id": "sha256:ba928e4fa770fbe93949f351548efd9d5a92c45db8816147be67cce7443c787a"
+      }
+    ]
+  },
+  "id": "sha256:d2031fb5f67bc528f243755961df7eb8a5348d16f837ccc705add90f140b694a"
+}

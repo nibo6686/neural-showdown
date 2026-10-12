@@ -1,0 +1,115 @@
+{
+  "kind": "projection",
+  "schema": "perspective-knowledge-consumer/v1",
+  "owner": "p1",
+  "policy": "simulator-causal/v1",
+  "boundary": 1,
+  "required_profile": "sha256:f2d0357d107777e4732a340b0c1e87d2115d99d82e0494eb8f6717a10bbd6537",
+  "result": "incomplete",
+  "starting": [
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1",
+      "family": "K18",
+      "property": "item",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "Oran Berry"
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 0,
+      "effect_key": null
+    }
+  ],
+  "starting_crosswalk": [],
+  "current": [
+    {
+      "owner": "p1",
+      "subject": "p1:side",
+      "family": "K20",
+      "property": "boundary_kind",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "mid"
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 3,
+      "effect_key": null
+    },
+    {
+      "owner": "p1",
+      "subject": "p1:roster:1",
+      "family": "K07",
+      "property": "pp",
+      "state": "unknown",
+      "value": null,
+      "reason": "not_emitted",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": null,
+      "effect_key": null
+    }
+  ],
+  "request": {
+    "sequence": 1,
+    "cursor": 3,
+    "actionable": true,
+    "facts": [
+      {
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "max_pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 56
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "effect_key": null
+      },
+      {
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K07",
+        "property": "pp",
+        "state": "known",
+        "value": {
+          "type": "integer",
+          "data": 0
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "effect_key": null
+      },
+      {
+        "owner": "p1",
+        "subject": "p1:roster:1:move:1:incarnation:0",
+        "family": "K08",
+        "property": "maybe_trapped",
+        "state": "known",
+        "value": {
+          "type": "boolean",
+          "data": true
+        },
+        "reason": "none",
+        "freshness": "current",
+        "precision": "exact",
+        "observed_at": 3,
+        "effect_key": null
+      }
+    ]
+  },
+  "id": "sha256:a459871a6485156492154b1f8684ed5f9ab89635f8b16ece831be0ab3612d756"
+}

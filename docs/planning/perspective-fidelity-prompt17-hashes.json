@@ -1,0 +1,487 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "branch": "main",
+  "pre_existing_nonignored_files": 1373,
+  "all_pre_existing_preserved": true,
+  "production_baseline_hashes": {
+    "sim-core/src/perspective_knowledge.ts": "6293777fc4676eaca104050048adb90b0369d2d007a1a4a984354de17f53616e",
+    "sim-core/src/perspective_knowledge_source.ts": "65e9031a9a4e39380601ae1046d8ba8d3ae7dd54b3053420ca5a0041f9764bca",
+    "sim-core/src/public_field.ts": "172afe2da0e543a80e3434804743270ca507a1dd672853992e43c792cc79bdf3",
+    "sim-core/src/request_knowledge.ts": "3cc94815bcb4a54f6af46694c9db7ca7e32ef1206b855e65222e89180ba7a54e",
+    "trainer/src/neural/perspective_knowledge.py": "2f621fe210d00cf9837980445ad31c1b2c67fea0750e90754a6d69f65e877335",
+    "trainer/src/neural/perspective_knowledge_source.py": "fa081c09ca89e285a556dc12b82499bd4d40b371ce1f119fa94e5fbd62878596",
+    "trainer/src/neural/pipeline_json_wire.py": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+    "trainer/src/neural/public_field.py": "d775a467165e0d46c6a0cec0870e71997b6677dc4e168b045ec7e4c0a5f4b326",
+    "trainer/src/neural/request_knowledge.py": "b251c59dcfac38395a8df3e8461bcd2f49f227f3eeb331c500e3c5e54a7cbeff",
+    "sim-core/src/action_codec.ts": "ff695d57ad5cd6e3c66cdb6f7bfa96c8c40e3a88fc6279ef441328da75cc5ce7",
+    "sim-core/src/baselines/heuristic.ts": "8bbf19bb29010cf663f4aedea8c5e058b8290d9cbc28ad9e55319195364a80c0",
+    "sim-core/src/baselines/random.ts": "5a0e0c2cd4b23af453e3692d0fdedf5068488f569898e08b81b148969811e2b2",
+    "sim-core/src/battle_helpers.ts": "c4326af214945ebc68a098c761a501bb4f7468521bd955b8cec6b39d0dfbf2e9",
+    "sim-core/src/belief_fork.ts": "07511814454509f8e912de269546bd9cea5d1984ec28c7bf086e630d4bb09c51",
+    "sim-core/src/belief_state.ts": "c0f07120b67a4383e349d10079eb989038b00dded6f1bdb0681b9f8ff4abcdec",
+    "sim-core/src/canonical_action.ts": "971178947f9c8850b8cab8f84683aed6bc91cde67b49a62639c6328d3e82ab70",
+    "sim-core/src/damage_calc.ts": "e31c37cfe6e412d19ffe800197dc984dd1acfb9f4091ed0b55c677d03e00d72d",
+    "sim-core/src/effect_inventory.ts": "a9da580d8d8b16c4a0cb6db9b2f525124c5dec46de9cacb0d729180df2ab058c",
+    "sim-core/src/env_manager.ts": "d7f0c5477334392f051d80404777b79e9a11b272d1ad630deda294a463e71ee6",
+    "sim-core/src/observable_state.ts": "8276e732dbf2462966abe08186f4ba5595e002daff00b91d3b62e2f15fcdf3f4",
+    "sim-core/src/pipeline_episode.ts": "1ffe6eac146ba42ad56ada146190f7d988167bb8ce3ba4c1cf1dc36f02918368",
+    "sim-core/src/pipeline_episode_evidence.ts": "322de6f3755bc91b03784ec5e970bfc72e1aa4a31bd905c2d0105fb1835beddf",
+    "sim-core/src/pipeline_integration.ts": "8d153ec950002742483d13e695b2459a18bdce07b46abea7f8f7ba5edcb631fb",
+    "sim-core/src/protocol_contract.ts": "c069d33e8a142f1babf5ba91c12a05063b988126f2c53cfb7889ec87c9e95b04",
+    "sim-core/src/public_ability.ts": "a3a02d4583a89baf1cb156819fc0ab99155f7758c1ab82043febd5ae6ce3f2da",
+    "sim-core/src/public_boosts.ts": "0ccc007e707226e889ac413568b368b381813822369c29bf49c2a8dbd16d1910",
+    "sim-core/src/public_health.ts": "4a642a28c299a17b809981d9806af407425193c87499fba8b5158e4aa39cb79e",
+    "sim-core/src/public_item.ts": "dddd259c12e5bd7cf5d227cbd630047591f81ac68906fadeaad6268010e44535",
+    "sim-core/src/rollout_parity_oracle.ts": "5d648753427955ad7aa9dfa7ff9340de2b3556f844334d64db7fb61e009b0939",
+    "sim-core/src/server.ts": "70435cbd5e3412185f7a48634ab33c1cea73e8e69788555847ff13c8ea2ec862",
+    "sim-core/src/settling.ts": "4d279f9048f5ea010940d32b03d970e75820e761349808fd1cf8bc08f34dece8",
+    "sim-core/src/state_extractor.ts": "672c2ccf70ceebff9e9504174925c606d063cdd12a7c2a729f2f837536010563",
+    "sim-core/src/transition.ts": "870b896120be49e64cb96eeb863537794308ae24bc2885ddd47556898eeb5d0d",
+    "sim-core/src/typed_state_lifecycle.ts": "b6f7aee19e45597d3c8f8eee2c4ba631764768efc29574d3861f1310f57b36ea",
+    "sim-core/src/types.ts": "c71176cac65d136335678d3c79303840ba97c63d2ae979ee9d2d5666c3cff978",
+    "trainer/src/neural/__init__.py": "ac1b5976f78cebb6ae3c473715b27ac52efd6aa488e1361b3ed0b82a99efc77c",
+    "trainer/src/neural/action_features.py": "2f6226f35dbf5780094beabbe5a5c2fb35fc40bd83d9ecad213125126e313351",
+    "trainer/src/neural/action_mapper.py": "afbaec7230282583d47bd690451cd1507ad758e57e6ba2ead1f3f1d378cf9259",
+    "trainer/src/neural/action_recommender_diagnostic.py": "942e2841e7f68b89c630af708092a26265b464c59130c64636aa9c1878429de0",
+    "trainer/src/neural/action_side_effects.py": "173fe5698ae38b5cff270eef95e11945a03109bb6e6255384c7a30faa33571f6",
+    "trainer/src/neural/action_trace.py": "75c5dde4dbfe312aa4d42fb6b3563724d7821a0b86ca078bb00039896668be08",
+    "trainer/src/neural/action_value_search.py": "e79f814df154489ffb687a66a65da184eeafb50797fea742a3136456208d4331",
+    "trainer/src/neural/agent_audit.py": "31e5dfadeebc718151588326c1b20c94199740f8659729c0d3b95f5b4c00c439",
+    "trainer/src/neural/analyze_action_bias.py": "c0ee73d9a218652b0737c6140915180ca1dc223a4a4da4c7cd1fd75b61465533",
+    "trainer/src/neural/analyze_decisions.py": "4cab24beb812c25cfbb7f111b0ebd634fce7c646b53175807edfa0961defad85",
+    "trainer/src/neural/analyze_rollout_actions.py": "3533a57f1d02925bbd81a48e624ca19a7b67d5404335b222dd0847d9154729ce",
+    "trainer/src/neural/analyze_state.py": "3c71f51a48a48d2a381fe08c996f4b23823ed03df1fadec6120e7268df18b029",
+    "trainer/src/neural/analyze_tactical_failures.py": "8ef26fff83008414aa9382e2948aeac62f9fee224315873581911e9e5a6ee06e",
+    "trainer/src/neural/approx_battle_state.py": "dc9617e7175e0ecc5c607e3b626febee329f105626934fbd103d1570822c3409",
+    "trainer/src/neural/audit_vnext_live_inference_readiness.py": "bd5294821bbbcab9f566dbcbd184f2e42a1cd59da2f6550a1ec78cb88648f6a6",
+    "trainer/src/neural/benchmark_vnext_featuregen.py": "ffb2b11801e65c1168410626d90d469788a48a83ee12af8c85bcbf1534e4e0bb",
+    "trainer/src/neural/build_action_rank_dataset.py": "472df712b9b47380839de0d2ad891ca448ec4b3d058a03fe6754c68a1623a205",
+    "trainer/src/neural/build_action_value_dataset.py": "d7ce6085e5061e907cfb8dd61329554edb963b90295b3ed824b7a02967db14b0",
+    "trainer/src/neural/build_agent_audit_reports.py": "96ba47a71d2aff4f9509676966048495ca0fd9d3f96ec86b126a397eb649d55d",
+    "trainer/src/neural/build_dataset.py": "2dd81995cc76d7a4b5ff723eb44228edf7b016d48fa826f9c304eaa34ee68de7",
+    "trainer/src/neural/build_live_private_value_dataset.py": "a2a0b74d24d3e8e42faa347c9331a7cd07aab76f001fb51dad7896e5afcd5c49",
+    "trainer/src/neural/build_live_sim_value_dataset.py": "be19301f11ddb8137fc39843169cd13cf062fca76f41044f90fecd6d656aff46",
+    "trainer/src/neural/build_replay_policy_dataset.py": "739603ae660ea05ec82f16a61b65d0f484541200b9592c1e9cf25a5623c3d77d",
+    "trainer/src/neural/build_replay_value_dataset.py": "fb1c3d720c217712a157b24db4b2911592449ce250ec4b6783b92302685ada3b",
+    "trainer/src/neural/build_value_dataset.py": "15972b27665797dde339605d502da2a8d3f73a338c2474c4f97b5b17c17935f7",
+    "trainer/src/neural/canonical_action.py": "abe254756cf2dd6b96f5f3c162efd1912f9f652709ab5a6dd04d08ac95814dc5",
+    "trainer/src/neural/checkpoints.py": "25f7448ef5bac1ad0cfa84b01b18ba29695779559a33d87cfb24099cd34dc85f",
+    "trainer/src/neural/collect_selfplay.py": "a48377ad370f0e37bb94939d18077dcd0e7a5d5c9c56fc352cf09ccbdb03c91b",
+    "trainer/src/neural/compare_action_rankers.py": "a7fa69c4ce5bf0cdf700a9804fc2961d0aa3509896b33421226b013ed7fdb1b5",
+    "trainer/src/neural/compare_checkpoints.py": "32882a2bcc5e6776e4f5bd7f2652a5bf1d7d9de017beadb973e2a00bc398ddd2",
+    "trainer/src/neural/compare_replay_evals.py": "81d81ed0cf639b181b51265e88392f90130343d78ed24ea8fa5d042d1bdc349a",
+    "trainer/src/neural/compare_value_models.py": "686d0042d83962680c2de28770771a66028eb365a80676155055c7e4e375c5ba",
+    "trainer/src/neural/config.py": "b0e11d90ad95664fd3bf6271b6bf49208addfac9a5b854cd44e3835ae731ef91",
+    "trainer/src/neural/damage_engine.py": "b705abc28f285f543c10949925312327f7cc9fd48b4cb4b04969bf5715507d4b",
+    "trainer/src/neural/dataset_lineage.py": "ec4b7ad5bc248ad848faaa169ea5c71d1c3216b709a374049ff733af9364dd75",
+    "trainer/src/neural/delayed_damage.py": "8d53246c0c2032d386038b9c61cc1a584d81b0bb2ce9995c5b2338698de6fb12",
+    "trainer/src/neural/diagnose_vnext_value_head.py": "8a4ed9e87b7fc1f6c2c16cc995bc6acd1c270a8cf161449f3a279369078f0c86",
+    "trainer/src/neural/dynamic_move_mechanics_audit.py": "0ec140922088e928dce8bc1e66c6ef475c81b713514386010e2872687ddcce2f",
+    "trainer/src/neural/end_of_turn.py": "d179ffe0793aed44eff300431669c1f1871c06d1286942e7d7802acb6590212c",
+    "trainer/src/neural/entry_hazards.py": "76ab830d99890207df6bab65ba8bdda0075d60be08b2107e6556f27a4a064941",
+    "trainer/src/neural/env_client.py": "1756c7fcb6df3ae75a797e2ec4b368cde9ef1d4321118213cc5c13550b083358",
+    "trainer/src/neural/eval.py": "8590e7a24b43c1969fca8ae6c55eb8cfcb5d88c2b014690dbcb5a0b6548a12c1",
+    "trainer/src/neural/evaluate_vnext_action_rank.py": "10c55dfde8e602c5f43019d18a9287c943a9c32fc5837211551da027f2107327",
+    "trainer/src/neural/featurize.py": "0bc5ca36bf799f44ee029b578cb851b86d935fea19dc10d8c358de818dd21af5",
+    "trainer/src/neural/gen9randbats_mechanics_completeness_audit.py": "6c73d757079d773e0d0c42d39320fb15e633b4988ba9593c21b64bce8f8ece0c",
+    "trainer/src/neural/import_showdown_logs.py": "d1a7fb0562fe09dba48e0cd5985b87c5a82d78d4ca2032ad6d3505701d5a96ec",
+    "trainer/src/neural/improve_loop.py": "e05a13c0c0168ccf6c6b6fe55247d08dfce51379c2b7a741dc2d2701fb3378da",
+    "trainer/src/neural/item_ability_counterfactual_diagnostic.py": "3afc80f400b665834a48c5a53b783135eb24ba84baeeb7e37c2affa92702639d",
+    "trainer/src/neural/latency.py": "f630ba5e5e42d9da45688a551d048adbc23b8ff845438e1101d51d8f44b36cf8",
+    "trainer/src/neural/live_action_recommender.py": "87cb29ffdf5fada396edc69dd1e57486c3d01d3cb81e5ae989d745c8986dd1fc",
+    "trainer/src/neural/live_eval_calibration.py": "de3fc66a7b918acd506edf14328e74a3af93ea27abb0565ce9c3c0e280e29113",
+    "trainer/src/neural/live_eval_healthcheck.py": "eaf820c7aeddc7d8a75a2b2b3492150d5604495bab1cc07c7a4a02d6d55fb63c",
+    "trainer/src/neural/live_eval_server.py": "40f3fe2a5652f7722e0d4f883cbbe5b20b46e69058385d27a6f5a58efe14cd94",
+    "trainer/src/neural/live_opponent_beliefs.py": "c03140b2571039a3f4f022eaa696ca103e50b6d82c2e3d634551267105732b45",
+    "trainer/src/neural/live_private_features.py": "d96e0aae3009552a9286062e5fd6835485631427ac8dc059a3a249d12bb8b8a4",
+    "trainer/src/neural/live_private_state.py": "39e6ef3b6c6c9568325046ec367c820ea3ab1ae5a50e48b18492837a48be3b17",
+    "trainer/src/neural/logging_helper.py": "962f2b1b6348d942b2daec2cf4a36994b181480840cd545f4f8fa9e0c3f3771e",
+    "trainer/src/neural/loop_detector.py": "5952d131d8e06b98b0dc2a06a4b8aac0db052bd917151352d51fb8cd3f281c87",
+    "trainer/src/neural/mechanics_audit.py": "e179597677101c6d560ff513cfd6a94215fef1c2687054c2fb64556286819aab",
+    "trainer/src/neural/meta_prior.py": "21723d7ef3cd5d74fa71228836bf866352aef0e6fc9c005d7959eaeef81f1365",
+    "trainer/src/neural/metadata_helper.py": "10adafa11541345a19acbe9314251829539e2d181b11ef0e1ec411c3204c4468",
+    "trainer/src/neural/models/__init__.py": "019e23bce3b2b2ce42204b83c4187d904f0139d33a51dfad82b4bd05ab82cb6e",
+    "trainer/src/neural/models/action_ranker.py": "b52e3554c582a0951c1b92be4a5bf4bfac0ddde1af9fc2d5756b9a4cc1bbcbbe",
+    "trainer/src/neural/models/policy_value_mlp.py": "81523a914878ea70945a70658da08066ae5601c7f84ebefa5499b50cfa5e4f20",
+    "trainer/src/neural/models/value_mlp.py": "daba171de22f67bb415f732a43e2e0588383e9608c9592301770a59286ba43e3",
+    "trainer/src/neural/models/vnext_diagnostic.py": "48f11806f8cc3915a5bd37c08dc9b25a21b98d3992b63f5844ba44f76ea28ed1",
+    "trainer/src/neural/moves_actions_counterfactual_diagnostic.py": "fbfbb00893b9d2168666548b9c0fb2e7dbc775b46a5b082858fae5f86ddeb4d1",
+    "trainer/src/neural/multihit_trace.py": "3d168a2363bca4608b2ec4fa51d2f59c2f3381acac7661cc06574b889e946e0e",
+    "trainer/src/neural/one_turn_branch.py": "301172d7832f3acbfb1d8169333850eca9f126861a23e60ed3c08caae976689d",
+    "trainer/src/neural/opponent_pool.py": "be3fb3fa0112e38dfa320388d894686f50d252ecd6a77bc6c73d42a03bcfff54",
+    "trainer/src/neural/opponent_set_belief.py": "81f9b69a742d630f7d285a5ed7870072ab6fe6be78ac224fafd90d8eae8df2b0",
+    "trainer/src/neural/opponent_set_belief_replay_adapter.py": "c6192d87ce4ec77893fa2e34da515353852c375ac216041634ae8860761e7189",
+    "trainer/src/neural/parse_replay_logs.py": "7f02c81aaba5e29fae0c5f080822a4e9637e225adabb8698e33ad1cc814cd40d",
+    "trainer/src/neural/pipeline_record.py": "2fdfdd95e589f7b1aa4402017337abfdbe1ffa2860823b962124a7c49fcd229c",
+    "trainer/src/neural/prevention.py": "ed66a598deba6b4dea150628135cebfe24edc6c93725852131971fbfa8e21d17",
+    "trainer/src/neural/protocol_contract.json": "3a3e722253d8920e36ba7417b59dce5419f0855f90e8be1a0241f2d2aa6a2502",
+    "trainer/src/neural/protocol_contract.py": "3223c91bf49862064d847f13308bae209ea9ca9c60149ac8ec9861301d975683",
+    "trainer/src/neural/provenance_contracts.py": "239b51e064420fd9cff1bf5d2d93ec5041478e385812b5262686f68e73c92b01",
+    "trainer/src/neural/public_ability.py": "5b2f5464ed32105a1b4af759e7c045c748e121645b5da85558e71ed5d86eb485",
+    "trainer/src/neural/public_boosts.py": "144e19ed5e74e352e909f48fc817197a5681d3ffa86245df99b7e90cac989ff0",
+    "trainer/src/neural/public_health.py": "f052f9c35aab351fe09e845f13f2188d18fe8a3c0950b37eb7990d4077ea1249",
+    "trainer/src/neural/public_item.py": "69ae044685799ac3277c3841e2701bf7a01a4be7e52c4052dbff6ff1d44f28b9",
+    "trainer/src/neural/randbats_meta_prior_audit.py": "ccfdcb24f203fc344f57c0224e4a09ddaae44ebbdde08dd8385820cc348bef49",
+    "trainer/src/neural/randbats_meta_prior_source.py": "e7b3e368d159fe815ae0acf2bfbe234e6cdf7120bbec7ed2738c9b56bc6649e6",
+    "trainer/src/neural/replay_fetch.py": "3ff2ff47f870f0a6ae6cbd8d8d939dd4799b4d40bf8bfd9c9ec754808191f221",
+    "trainer/src/neural/replay_pool_profiler.py": "faeff836d96f10770ce485d75aa3aa9b87d741888e8031280bbd2b53cd0cd4d3",
+    "trainer/src/neural/replay_sample_manifest.py": "59505e8efbbf9d8a968996d6ec205fd1948b589c07a0d13a0177625adb5a0586",
+    "trainer/src/neural/resolved_action_impact.py": "b206bd6fbea12e45b3672e00a6583bae29c686144466be0627d61dfdc8ed7d48",
+    "trainer/src/neural/resolved_action_impact_diagnostic.py": "866432fb3c4aa8b7001e63d631cd296d22f5aa4e8a76ec8b94b8e655f84500b0",
+    "trainer/src/neural/rollout_parity.py": "3962591cb342b3b7b1ddd4a924c8ed6f78af3c4aba318201bfe3705b4f6e7117",
+    "trainer/src/neural/run_agent_tournament.py": "dd235c58b06f96d2eddebb33c65447bc2520c44839bd024cb0a0f9d5e4e75c49",
+    "trainer/src/neural/runner.py": "85b3cb3e379e8747e443e3984edfe1c146074878209975e5b390a3afc7b99d57",
+    "trainer/src/neural/runtime.py": "61d9b7e60372bfc5b8d041619952f8de138ff7a0f4dc30b0f458e7c565c9fa00",
+    "trainer/src/neural/schema.py": "c947f0a99d7480a47967707f9546f7f6e1bbfe3c97b9d37cd8f439fc3f359d58",
+    "trainer/src/neural/sim_branch_evaluator.py": "487b8e5c05bedb21a666e9973a7e61f96f825d057f227e103f04089a7e266f48",
+    "trainer/src/neural/species_status_counterfactual_diagnostic.py": "a2bc8168fe480b6617f4be346d833abdf2864ef8ac7f6d98a7c99de067e381bc",
+    "trainer/src/neural/state_counterfactual_diagnostic.py": "1dcdc2082a67a9438c17bf1a1ce08878e9a0af45a254f0b36186e1e52537528c",
+    "trainer/src/neural/summary_writer.py": "9b61c30386904fe3e32b15fac3082d33c544f14a51ff1fb0e1b57bf35ca01786",
+    "trainer/src/neural/tactical_state.py": "71257e4e3555f1ce8e90e420a251a0762a44ae12df6c26006a351b988d2a77be",
+    "trainer/src/neural/tera_field_counterfactual_diagnostic.py": "6144416abb9cca5ccc83812c13ceb3e07b752e315397710bca9bb95bf50a51eb",
+    "trainer/src/neural/test_live_eval_payload.py": "a026e27d651c8e74c1b37394ad240936188a1b9460b12374a68d42e24ddc9572",
+    "trainer/src/neural/test_sim_rollout.py": "4e97c73d9bc62e03f9865992e229abc7fb62d26eb039f09e6831c9f062574c47",
+    "trainer/src/neural/trace.py": "fa270beba93a7bb94fa051209f32b76072c4d73116655fa2ddd5de4aab71cb44",
+    "trainer/src/neural/train_action_ranker.py": "98039d0646ddf25cde01884f3a171c5bbf377bd6cc7e5c516bd3467c4d22cf93",
+    "trainer/src/neural/train_action_value_ranker.py": "2d4f4b5f2d8d5c89cb9e9566475e52bfccb359fc573d99fc84c48c81a191d0a6",
+    "trainer/src/neural/train_bc.py": "1488822b92e1153d71e41a0caba8ace1066edf13671a6e4b050b1ae213567b81",
+    "trainer/src/neural/train_live_private_value.py": "bfe3fa58b191fdcdc6f18a5ccce0eb26987a90ffb310270be2c7d544e655ada4",
+    "trainer/src/neural/train_live_sim_value.py": "b399abe32f4659925080a94f982fe6a04afd09c31c4c0d2364ff489013cfe079",
+    "trainer/src/neural/train_ppo.py": "6cea8d6511778ecd82a2b075e8e84e4f659f8ca292637781a885ad9dd8a7e5a2",
+    "trainer/src/neural/train_replay_value.py": "c718f1efe7c56bdb41ef68cfb9bd678edfab9a334e3fba10e26ba78ab6824abe",
+    "trainer/src/neural/train_value.py": "5df1ff8f522227540f371b761c526f54eca8287aa6ef171a9911a6e4d3d89dba",
+    "trainer/src/neural/train_vnext_diagnostic.py": "bfdc2df1683b05963d6ac90aa8330949b638e251be83dc53d238561f4f8206eb",
+    "trainer/src/neural/ts_identity.py": "ea7518f20aa15c0f4d7b6b5766bd49d5f8fbe58b4ed388fd8e8eb7ce36cf3095",
+    "trainer/src/neural/two_ply_branch.py": "59736c6c69b2f0b909501afcaefed17205225c2d9100c77b818767b22c1b948b",
+    "trainer/src/neural/typed_state.py": "68c60a8fc197031f44205264f7a64495592780ba81796c40f67a5b1f9ceecacd",
+    "trainer/src/neural/v8_belief_features.py": "0b35c12a908f68b0ab833a007dcf203be749a31287adad887975b04eb4959998",
+    "trainer/src/neural/validate_sim_core.py": "e09b9bf1c9c97fa1bf545eebedd6cfe7b01cb14b941a7afab34ab5defe1eb32d",
+    "trainer/src/neural/validate_vnext_live_captures.py": "222ef9b6b11736fbf207a0f9d6f24dbe849829f4198da969e6245a4f2bcf5848",
+    "trainer/src/neural/value_features.py": "9f60a7269023b5bbeab01e58ecd8ef0e72866593ca2234c5d8ef0d27b0ab6229",
+    "trainer/src/neural/vnext_inference.py": "d5025789028c289dbcd619aedb53a8a59ac00ea7ff29c91b99e4896b6efbb316",
+    "trainer/src/neural/vnext_labels.py": "33b0ae1fb15c595adbb21d3d2abf861fb9eee3c479492ca1c8c936177301122b",
+    "trainer/src/neural/vnext_live_shadow.py": "bb6741a55797866e356d3f3fe0c43c3de2427b0af2056681de133bc779fab60b",
+    "trainer/src/neural_trainer.egg-info/PKG-INFO": "4c64f604857da123ae5a4046a4e537bf2856a8786ee541d62a037864db455527",
+    "trainer/src/neural_trainer.egg-info/SOURCES.txt": "731efb08a5d1e1f2f7d6c103274481e845f22aa8d3ffa0ac2b405104f4d3e942",
+    "trainer/src/neural_trainer.egg-info/dependency_links.txt": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "trainer/src/neural_trainer.egg-info/top_level.txt": "32734235532ef3d7278ec7bc0f6137a9cbfa196f0ac670c75bdf4f8c40eda295"
+  },
+  "inputs_and_copies": [
+    {
+      "original": "C:\\Users\\cloud\\Downloads\\Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "copy": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\tests\\fixtures\\perspective-replay\\Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "bytes": 38133,
+      "sha256": "dcdb4065f50d6e0763f077e194564d138458959682d0deea25e03fb1e83e7b42"
+    },
+    {
+      "original": "C:\\Users\\cloud\\Downloads\\Gen9OU-2026-10-10-hasklne-loob.html",
+      "copy": "C:\\Users\\cloud\\Downloads\\neural\\final\\trainer\\tests\\fixtures\\perspective-replay\\Gen9OU-2026-10-10-hasklne-loob.html",
+      "bytes": 31999,
+      "sha256": "c44a0b666b492ebcca9bd200f00b1628daf3f9472c236fb3a36f5947ba94d18f"
+    }
+  ],
+  "candidate_files": [
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-baseline.json",
+      "bytes": 185002,
+      "sha256": "d4ab0d630aaa7265722be9ef6a8b80067100ea5cf89995fa514bdf9135d3c938"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-build.log",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-diff-check.log",
+      "bytes": 745,
+      "sha256": "16fbafc09dda6a15ff01bc2ffa36bd9581e7a38c5a868a740f1fc3ea43e7647e"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-extractor.log",
+      "bytes": 1887,
+      "sha256": "abb10082ad1b496f0e76ebdd7db525787bce9c59ce33f581dca3189e85da0899"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-parser.log",
+      "bytes": 616,
+      "sha256": "03fd6cd646837bf64afdd41776319133b72feb0e941af4cff7adfe4749af4f7c"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-reconstruction.log",
+      "bytes": 1312,
+      "sha256": "d51b17062a9bc87b9793d400d08b242f1f8402193e5e98f69f1b6406e4ccc5ae"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-progress.md",
+      "bytes": 2675,
+      "sha256": "a53aef1d6fe8569dffa881d5b8d91c5c688cab6fd7a8e3937f5503ffda23fe10"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-protected-files-check.json",
+      "bytes": 155,
+      "sha256": "639d7088bec00b20fa58bab2cc288ddebaf63d152cf74fae0df837e9c21086bc"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-characterization.json",
+      "bytes": 33523,
+      "sha256": "a58dd6dbbba92fd9ee10b4a5cda30dc1537b1f936c1556737be9dd6ceb4a3578"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-characterization.log",
+      "bytes": 498,
+      "sha256": "39b87b93e033d7b67732d17704118f935c5535c5bd57cfc65dd7b02a76db2048"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirement-reds.json",
+      "bytes": 33228,
+      "sha256": "46a45708d0bd4cabeea21703e07a59505f5c606ffab165233e3a83707c84d3c1"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirements-final.json",
+      "bytes": 33528,
+      "sha256": "5cd50a69f7d3be449092170fdcc6b1da636f9ada04bf0e7c5178e2406a73c519"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirements-final.log",
+      "bytes": 3368,
+      "sha256": "013599dbd6ecee9361b18a5f4e5441e5cd6838ce4bd9d8156ae4141c5c391f3d"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-report.md",
+      "bytes": 5970,
+      "sha256": "3535259cf06d7c04c0a0b1e577faacc80306e8cce986637e0494f31c71d39b94"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-review.md",
+      "bytes": 1848,
+      "sha256": "5cd13f2094e162d65bf0d30cb9b48568720d949345f23d1800adcd9c5b9ba62e"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-smallest-reproductions.json",
+      "bytes": 43107,
+      "sha256": "d36a4b619a4b09a430d02c9f5459177ab79727ce94654ec106379c77cd8d880d"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-characterization.json",
+      "bytes": 530562,
+      "sha256": "e634a306c079a27a47de90d9fa917b18a1d56f0d511c7454312499c67eb91d34"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-characterization.log",
+      "bytes": 408,
+      "sha256": "80ff282679b8f53b8f1ae0fce1b960cda36526518f9d818d8d367a0efc29f8d9"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirement-reds.json",
+      "bytes": 197730,
+      "sha256": "08897c40fca6fd35d4b8af44c1a9018a7e79468c0c691479d2d2f2f1a301a1b3"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirements-final.json",
+      "bytes": 530567,
+      "sha256": "fdd3a26d6c98ab70e8ededa6c3cdfefdd7d189abe7a7b11b6e435cc042686e3b"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirements-final.log",
+      "bytes": 25037,
+      "sha256": "1c231fb0a0c1cff54a645ffac8be859392ad68b4ca46bb18058700510f5c75e2"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-validate.py",
+      "bytes": 3587,
+      "sha256": "be741c872c0c0a52d442e9f779dbd96daf0e76d7400670c27fcc15319f407c6f"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-validation.json",
+      "bytes": 7269,
+      "sha256": "303b9c113bc1de0ecaa93fd99f0ae9a6d811bfe001449d68dc3c348f1cc2f0a6"
+    },
+    {
+      "path": "sim-core/tests/perspective_replay_characterization.test.ts",
+      "bytes": 17396,
+      "sha256": "2952521c010c3865a08f1a64b94687db799c6d69cd839ab722b0a949315e3518"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/Gen9OU-2026-10-10-hasklne-loob.html",
+      "bytes": 31999,
+      "sha256": "c44a0b666b492ebcca9bd200f00b1628daf3f9472c236fb3a36f5947ba94d18f"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "bytes": 38133,
+      "sha256": "dcdb4065f50d6e0763f077e194564d138458959682d0deea25e03fb1e83e7b42"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/expected-ledger.json",
+      "bytes": 132004,
+      "sha256": "e401243743cdfc96823706bd9f8d8eac00ba9d4d48403e6b0f04b726f2720d6f"
+    },
+    {
+      "path": "trainer/tests/test_perspective_replay_characterization.py",
+      "bytes": 10023,
+      "sha256": "e819dbdce1e3777b21d8f461ada1be68efc487ec335ea00cdc077c794b908e30"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-candidate.diff",
+      "bytes": 1933308,
+      "sha256": "2f4304112890181e84c8bec8e5f0d6bfc81f4dbc1d428729e3c38aa57ff9ba11"
+    }
+  ],
+  "new_file_diff_check_argv": [
+    "git",
+    "-c",
+    "core.autocrlf=false",
+    "-c",
+    "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "diff",
+    "--no-index",
+    "--check",
+    "--",
+    "/dev/null",
+    "<file>"
+  ],
+  "new_file_diff_checks": [
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-baseline.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-build.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-diff-check.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-extractor.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-parser.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-existing-reconstruction.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-progress.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-protected-files-check.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-characterization.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-characterization.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirement-reds.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirements-final.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-python-requirements-final.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-report.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-review.md",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-smallest-reproductions.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-characterization.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-characterization.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirement-reds.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirements-final.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-ts-requirements-final.log",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-validate.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "docs/planning/perspective-fidelity-prompt17-validation.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "sim-core/tests/perspective_replay_characterization.test.ts",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/Gen9OU-2026-10-10-hasklne-loob.html",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "trainer/tests/fixtures/perspective-replay/expected-ledger.json",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    },
+    {
+      "path": "trainer/tests/test_perspective_replay_characterization.py",
+      "exit_code": 1,
+      "diagnostics": "none; no-index exit1 means new addition differs from empty"
+    }
+  ],
+  "inventory_self_hash": "excluded to avoid recursion",
+  "candidate_diff": "all additions except patch and final inventory"
+}

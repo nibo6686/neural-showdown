@@ -1,5 +1,16 @@
 # Project Status
 
+## Perspective knowledge initiative — 2026-10-12
+
+Prompt25 private session delivery commitment is locally accepted: fresh179 focused
+checks, build and deterministic wire parity pass; the two Python/one TypeScript
+broader requirement failures remain red. Prompt26 scopes executed native identity
+source proof before crosswalk coding. Causal identities, source/Python authority
+adoption and strong perspective completeness remain open. Existing conditional
+capture-flag meaning is unchanged; training eligibility is not established.
+See [current plan](planning/perspective-fidelity-implementation-plan.md) and
+[Prompt25 lead decision](planning/perspective-fidelity-prompt25-lead-review.md).
+
 ## Current reconciliation — 2026-10-09
 
 C22 and C23 are accepted and registered only within their independently reviewed finite public-consequence scopes. FCE-01 has zero unresolved reachable P0 source/evidence inventory rows after reconciling C01–C30 against their source proofs and verdicts. Unsupported expansions and unknown forms remain fail-closed. This supersedes historical open-registration summaries below, without changing their original decisions.

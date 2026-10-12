@@ -1,5 +1,6 @@
 import { assertPublicItemsMatchEvidence, projectPublicItems } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
+import { assertPublicFieldMatchesEvidence } from './public_field';
 import { assertPublicHealthMatchesEvidence, copyTerminalOwner, boundOwnedTarget } from './public_health';
 import { opponentPublicBoosts, type PublicBoosts } from './public_boosts';
 import { createHash } from 'node:crypto';
@@ -1635,6 +1636,7 @@ export function projectObservableBattleState(input: ObservableStateInput): Obser
   const rawProtocolPrefix = normalizeProtocolPrefix(input.protocol_prefix);
   validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective);
   const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix);
+  assertPublicFieldMatchesEvidence(protocolPrefix, input.view.field);
   const view = cloneView(input.view);
   const publicItems = projectPublicItems(protocolPrefix);
   for (const pokemon of view.opponent_team) {

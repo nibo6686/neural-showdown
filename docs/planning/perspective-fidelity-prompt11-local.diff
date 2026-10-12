@@ -1,0 +1,1961 @@
+--- /dev/null
++++ candidate-after/sim-core/src/perspective_knowledge.ts
+@@ -0,0 +1,505 @@
++/** Opt-in knowledge wire structure checks; no source truth or publication. */
++import { createHash } from 'node:crypto';
++import { readFileSync } from 'node:fs';
++import path from 'node:path';
++import { TextDecoder } from 'node:util';
++
++type Row = Record<string, any>;
++const MAX_BYTES = 16 * 1024 * 1024;
++const MAX_DEPTH = 32;
++const MAX_INTEGER = 2147483647;
++const CONTRACT_HASHES: Record<string, string> = {
++  'schema.json': '23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918',
++  'profiles.json': '4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2',
++  'property-types.json': '85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537',
++  'property-contexts.json': '3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe',
++  'typed-references.json': 'eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da',
++};
++const KINDS = ['origin','source','prefix','evidence','certificate','fact','starting','current',
++  'request','knowledge','profile','verdict','boundary','binding','audit','projection'];
++
++export class KnowledgeStructureError extends Error {}
++function requireStructure(condition: unknown, code: string): asserts condition {
++  if (!condition) throw new KnowledgeStructureError(code);
++}
++function scalar(value: string): boolean {
++  for (const char of value) {
++    const n = char.codePointAt(0)!;
++    if (n >= 0xd800 && n <= 0xdfff) return false;
++  }
++  return true;
++}
++
++function parse(data: Uint8Array | string, raw = false): unknown {
++  requireStructure(typeof data === 'string' || data instanceof Uint8Array, 'json input type');
++  let text: string;
++  try { text = typeof data === 'string' ? data : new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(data); }
++  catch { throw new KnowledgeStructureError('invalid JSON/UTF-8'); }
++  requireStructure(Buffer.byteLength(text, 'utf8') <= MAX_BYTES, 'wire size');
++  requireStructure(text[0] !== '\ufeff', 'json BOM');
++  let at = 0;
++  const space = () => { while (at < text.length && /[ \t\r\n]/.test(text[at])) at++; };
++  function string(): string {
++    const start = at++;
++    let escaped = false;
++    while (at < text.length) {
++      const char = text[at++];
++      if (escaped) escaped = false;
++      else if (char === '\\') escaped = true;
++      else if (char === '"') {
++        try { return JSON.parse(text.slice(start, at)) as string; }
++        catch { throw new KnowledgeStructureError('invalid JSON/UTF-8'); }
++      }
++    }
++    throw new KnowledgeStructureError('invalid JSON/UTF-8');
++  }
++  function item(depth: number): unknown {
++    requireStructure(depth <= MAX_DEPTH, 'depth'); space();
++    const char = text[at];
++    if (char === '"') return string();
++    if (char === '[' || char === '{') {
++      at++; space();
++      const close = char === '[' ? ']' : '}';
++      const array: unknown[] = []; const object: Row = {};
++      const keys = new Set<string>();
++      if (text[at] === close) { at++; return char === '[' ? array : object; }
++      for (;;) {
++        if (char === '[') array.push(item(depth + 1));
++        else {
++          requireStructure(text[at] === '"', 'invalid JSON/UTF-8');
++          const key = string(); requireStructure(!keys.has(key), 'duplicate JSON key'); keys.add(key);
++          space(); requireStructure(text[at++] === ':', 'invalid JSON/UTF-8');
++          Object.defineProperty(object, key, { value: item(depth + 1), enumerable: true, configurable: true, writable: true });
++        }
++        requireStructure(char === '[' ? array.length <= 4096 : keys.size <= 4096, 'container bound');
++        space();
++        if (text[at] === close) { at++; return char === '[' ? array : object; }
++        requireStructure(text[at++] === ',', 'invalid JSON/UTF-8'); space();
++      }
++    }
++    for (const [lexeme, value] of [['true',true],['false',false],['null',null]] as const) {
++      if (text.startsWith(lexeme,at)) { at += lexeme.length; return value; }
++    }
++    const match = /^-?(?:0|[1-9][0-9]*)/.exec(text.slice(at));
++    requireStructure(match, 'invalid JSON/UTF-8');
++    const lexeme = match[0]; at += lexeme.length;
++    requireStructure(lexeme !== '-0' && !/[.eE]/.test(text[at] ?? ''), 'numeric lexeme');
++    const value = Number(lexeme);
++    requireStructure(Number.isInteger(value) && value >= -6 && value <= MAX_INTEGER, 'integer range');
++    return value;
++  }
++  const value = item(0); space(); requireStructure(at === text.length, 'invalid JSON/UTF-8');
++  canonical(value,raw); return value;
++}
++
++export function parseKnowledgeJson(data: Uint8Array | string): unknown { return parse(data); }
++
++function canonical(value: unknown, raw = false): Buffer {
++  const chunks: Buffer[] = []; let size = 0; const active = new Set<object>();
++  function emit(text: string) {
++    const block = Buffer.from(text,'utf8'); size += block.length;
++    requireStructure(size <= MAX_BYTES,'wire size'); chunks.push(block);
++  }
++  function visit(item: unknown, depth: number, parts: string[]) {
++    requireStructure(depth <= MAX_DEPTH,'depth');
++    if (item === null) emit('null');
++    else if (typeof item === 'boolean') emit(item ? 'true' : 'false');
++    else if (typeof item === 'number') {
++      requireStructure(Number.isInteger(item) && !Object.is(item,-0) && item >= -6 && item <= MAX_INTEGER,'integer range');
++      emit(String(item));
++    } else if (typeof item === 'string') {
++      const special = !raw && parts.length >= 2 && parts.at(-2) === 'raw_request' && parts.at(-1) === 'json';
++      requireStructure([...item].length <= (raw || special ? 65536 : 256),'string length');
++      requireStructure(scalar(item),'surrogate');
++      if (special) parse(item,true);
++      emit(JSON.stringify(item));
++    } else {
++      requireStructure(typeof item === 'object' && item !== null,'JSON object type');
++      requireStructure(!active.has(item),'object cycle');
++      const proto = Object.getPrototypeOf(item);
++      requireStructure(Array.isArray(item) ? proto === Array.prototype : proto === Object.prototype || proto === null,'JSON object type');
++      requireStructure(Object.getOwnPropertySymbols(item).length === 0,'object keys');
++      const descriptors = Object.getOwnPropertyDescriptors(item);
++      requireStructure(Object.values(descriptors).every(d => 'value' in d),'JSON object type');
++      active.add(item);
++      if (Array.isArray(item)) {
++        requireStructure(item.length <= 4096 && Object.getOwnPropertyNames(item).length === item.length + 1,'container bound');
++        emit('[');
++        for (let index = 0; index < item.length; index++) {
++          const descriptor = descriptors[String(index)];
++          requireStructure(descriptor && descriptor.enumerable && 'value' in descriptor,'JSON array type');
++          if (index) emit(','); visit(descriptor.value,depth+1,[...parts,'*']);
++        }
++        emit(']');
++      } else {
++        const keys = Object.keys(item).sort();
++        requireStructure(keys.length <= 4096 && Object.getOwnPropertyNames(item).length === keys.length,'container bound');
++        emit('{');
++        keys.forEach((key,index) => {
++          requireStructure([...key].length <= 256 && scalar(key) && (raw || /^[\x00-\x7f]*$/.test(key)),'object keys');
++          if (index) emit(','); emit(JSON.stringify(key)); emit(':'); visit((item as Row)[key],depth+1,[...parts,key]);
++        }); emit('}');
++      }
++      active.delete(item);
++    }
++  }
++  visit(value,0,[]); return Buffer.concat(chunks);
++}
++export function canonicalKnowledgeJson(value: unknown): Buffer { return canonical(value); }
++export function knowledgeIdentity(value: Row): string {
++  canonicalKnowledgeJson(value);
++  requireStructure(value && KINDS.includes(value.kind),'identity kind');
++  const payload = Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'id'));
++  return 'sha256:' + createHash('sha256').update('pk/v1/' + value.kind + '\n','ascii').update(canonicalKnowledgeJson(payload)).digest('hex');
++}
++
++let frozenContract: Row | undefined;
++function contract(): Row {
++  if (frozenContract) return frozenContract;
++  // Source and compiled module locations are explicit; never search cwd.
++  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist','src')) ? '../../..' : '../..', 'docs/contracts/fixtures/perspective-knowledge-v1');
++  const data: Row = {};
++  for (const [name,expected] of Object.entries(CONTRACT_HASHES)) {
++    let bytes: Buffer;
++    try { bytes = readFileSync(path.join(folder,name)); } catch { throw new KnowledgeStructureError('contract unavailable'); }
++    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected,'contract content');
++    data[name] = JSON.parse(bytes.toString('utf8'));
++  }
++  frozenContract = data; return data;
++}
++
++function equal(a: unknown,b: unknown): boolean { return canonicalKnowledgeJson(a).equals(canonicalKnowledgeJson(b)); }
++function shape(value: any,schema: Row,defs: Row): void {
++  if (schema.$ref) return shape(value,defs[schema.$ref.split('/').at(-1)],defs);
++  if (schema.anyOf) {
++    for (const choice of schema.anyOf) { try { shape(value,choice,defs); return; } catch (error) { if (!(error instanceof KnowledgeStructureError)) throw error; } }
++    throw new KnowledgeStructureError('schema union');
++  }
++  if ('const' in schema) requireStructure(value === schema.const,'schema const');
++  if (schema.enum) requireStructure(schema.enum.includes(value),'schema enum');
++  switch (schema.type) {
++    case 'null': requireStructure(value === null,'schema null'); break;
++    case 'boolean': requireStructure(typeof value === 'boolean','schema boolean'); break;
++    case 'integer': requireStructure(typeof value === 'number' && Number.isInteger(value) && value >= (schema.minimum ?? 0) && value <= (schema.maximum ?? MAX_INTEGER),'schema integer'); break;
++    case 'string':
++      requireStructure(typeof value === 'string' && [...value].length <= (schema.maxLength ?? 256),'schema string');
++      if (schema.pattern) { const match = new RegExp(schema.pattern).exec(value); requireStructure(match && match[0] === value,'schema pattern'); } break;
++    case 'array':
++      requireStructure(Array.isArray(value) && value.length <= schema.maxItems,'schema array');
++      for (const entry of value) shape(entry,schema.items,defs); break;
++    case 'object':
++      requireStructure(typeof value === 'object' && value !== null && !Array.isArray(value),'schema object');
++      if (schema.additionalProperties === false) {
++        requireStructure(Object.keys(value).length === schema.required.length && schema.required.every((k: string) => Object.hasOwn(value,k)),'schema keys');
++        for (const [key,entry] of Object.entries(value)) shape(entry,schema.properties[key],defs);
++      } else {
++        requireStructure(Object.keys(value).length <= schema.maxProperties,'schema dictionary');
++        for (const [key,entry] of Object.entries(value)) { shape(key,schema.propertyNames,defs); shape(entry,schema.additionalProperties,defs); }
++      } break;
++  }
++}
++
++function edges(row: Row,refs: Row): [string,string][] {
++  const result: [string,string][] = [];
++  function descend(value: any,parts: string[],kind: string) {
++    if (!parts.length) { if (value !== null) result.push([value,kind]); }
++    else if (parts[0] === '*') for (const item of value) descend(item,parts.slice(1),kind);
++    else descend(value[parts[0]],parts.slice(1),kind);
++  }
++  for (const [field,kind] of Object.entries(refs[row.kind])) descend(row,field.split('.'),kind as string);
++  return result;
++}
++function ordered(values: (string | number)[],code: string) {
++  const sorted = [...new Set(values)].sort((a,b) => typeof a === 'number' && typeof b === 'number' ? a-b : a < b ? -1 : a > b ? 1 : 0);
++  requireStructure(equal(values,sorted),code);
++}
++function applies(fact: Row,context: string,rules: Row): boolean {
++  const own = fact.subject.startsWith(fact.owner + ':'); const tail = fact.subject.slice(3);
++  for (const rule of rules[fact.property]) {
++    if (rule.context !== context || rule.scope !== 'both' && (rule.scope === 'owner') !== own) continue;
++    const selector = rule.subject; const key = fact.effect_key;
++    const roster = (tail.startsWith('roster:') || tail.startsWith('appearance:')) && !tail.includes(':move:');
++    if (selector === 'side' && tail === 'side' && key === null) return true;
++    if (selector === 'roster' && tail.startsWith('roster:') && !tail.includes(':move:') && key === null) return true;
++    if (selector === 'roster_or_appearance' && roster && key === null) return true;
++    if (selector === 'move' && tail.includes(':move:') && key === null) return true;
++    if (['side','roster','roster_or_appearance','move'].includes(selector)) continue;
++    if (key === null && (selector === 'field_effect' || fact.state === 'known')) continue;
++    if (['persistent_effect_member','single_turn_effect_member','single_move_effect_member'].includes(selector)) { if (roster) return true; }
++    else if (tail === 'side') return true;
++  }
++  return false;
++}
++function factShape(fact: Row,c: Row,properties: Row,proofs = true) {
++  requireStructure(properties[fact.family].includes(fact.property),'family property');
++  if (fact.state === 'known') {
++    requireStructure(fact.value !== null && c['property-types.json'][fact.property].includes(fact.value.type),'property value tag');
++    requireStructure(fact.reason === 'none' && (!proofs || fact.evidence.length) && fact.precision !== 'not_applicable','known fact shape');
++  } else {
++    requireStructure(fact.value === null,'nonknown value');
++    if (fact.state === 'unknown') {
++      requireStructure(fact.reason !== 'none' && fact.precision === 'not_applicable','unknown shape');
++      requireStructure(fact.reason !== 'hidden_opponent' || !fact.subject.startsWith(fact.owner + ':'),'unknown owner scope');
++    }
++    else requireStructure((!proofs || fact.evidence.length) && fact.reason === (fact.state === 'known_absent' ? 'none' : 'proved_rule_inapplicable'),'nonknown proof shape');
++  }
++  if (proofs) ordered(fact.evidence,'fact proof order');
++  const value = fact.value, key = fact.effect_key, prop = fact.property;
++  const effect = c['property-types.json'][prop].includes('effect');
++  const named = ['side_condition_layers','pending_power','field_remaining','weather','weather_effective','terrain'].includes(prop);
++  requireStructure(effect || named || key === null,'effect key scope');
++  if (value !== null) {
++    const tag = value.type, data = value.data;
++    if (tag === 'interval') requireStructure(data.min <= data.max,'interval order');
++    if (tag === 'effect') {
++      requireStructure(key === data.name,'effect identity');
++      if (data.remaining !== null) requireStructure(data.remaining.data.min <= data.remaining.data.max,'interval order');
++    }
++    if (prop === 'side_condition_layers') requireStructure(['Spikes','ToxicSpikes'].includes(key) && data >= 1 && data <= (key === 'Spikes' ? 3 : 2),'layer bounds');
++    if (effect || named) requireStructure(key !== null,'named effect');
++  }
++  if (prop === 'field_remaining') {
++    requireStructure(key !== null,'timer target');
++    if (value !== null) {
++      const data = value.data; requireStructure(key === data.target_kind + ':' + data.name,'timer target');
++      requireStructure(data.remaining.min <= data.remaining.max,'interval order');
++    }
++  }
++}
++function diagnostic() {
++  return { structure_valid: true, source_semantics_verified: false, completeness: 'not_established', legacy_envelope_verified: false } as const;
++}
++function logicalFacts(facts: Row[]) {
++  const keys = facts.map(f => JSON.stringify([f.owner,f.subject,f.family,f.property,f.effect_key]));
++  requireStructure(new Set(keys).size === keys.length,'logical fact conflict');
++  for (const f of facts) if (f.effect_key === null && f.state === 'known_absent') requireStructure(!facts.some(g => g.subject === f.subject && g.property === f.property && g.effect_key !== null && g.state === 'known'),'collection absence conflict');
++}
++function originalCertificate(cert: Row) {
++  requireStructure(cert.continuity === 'original_unmodified' && equal(cert.exclusions,['acquisition','called','copy','identity_ambiguity','transfer','transform']),'original certificate qualification');
++}
++
++/** Frozen structure/identity/joins only, never a trusted receipt or source registry. */
++export function checkKnowledgeStructure(input: unknown,requiredProfile?: string): ReturnType<typeof diagnostic> {
++  canonicalKnowledgeJson(input);
++  const c = contract(), schema = c['schema.json']; shape(input,schema,schema.$defs);
++  const value = input as Row;
++  requireStructure(value.id === knowledgeIdentity(value),'root identity');
++  const profile = c['profiles.json'].find((p: Row) => p.id === value.required_profile);
++  requireStructure(profile,'profile manifest');
++  if (requiredProfile !== undefined) requireStructure(value.required_profile === requiredProfile,'required profile');
++  const properties = Object.fromEntries(profile.obligations.map((r: Row) => [r.family,r.properties]));
++  const rules = c['property-contexts.json'];
++  if (value.kind === 'projection') {
++    requireStructure(value.policy === profile.policy,'projection policy');
++    for (const context of ['starting','current']) {
++      logicalFacts(value[context]);
++      for (const fact of value[context]) {
++        factShape(fact,c,properties,false);
++        requireStructure(fact.owner === value.owner,'projection owner');
++        requireStructure(applies(fact,context === 'starting' ? 'original' : 'current',rules),'property context');
++        requireStructure((fact.freshness === 'immutable') === (context === 'starting'),'projection freshness');
++      }
++    }
++    ordered(value.starting_crosswalk.map((r: Row) => r.appearance),'crosswalk order');
++    for (const row of value.starting_crosswalk) requireStructure(row.appearance.startsWith(value.owner + ':') && row.roster.startsWith(value.owner + ':'),'crosswalk owner');
++    if (value.policy === 'public-replay-owner-starting/v1') requireStructure(value.request === null,'replay request');
++    if (value.request !== null) {
++      logicalFacts(value.request.facts);
++      for (const fact of value.request.facts) {
++        factShape(fact,c,properties,false);
++        requireStructure(fact.owner === value.owner && applies(fact,'request',rules),'request owner/context');
++        requireStructure(fact.freshness === 'current' && (fact.observed_at === value.request.cursor || fact.state === 'unknown' && fact.observed_at === null),'projection request time/freshness');
++      }
++    }
++    return diagnostic();
++  }
++  const tables: Record<string,Row[]> = {};
++  for (const [kind,entry] of Object.entries(value.tables)) {
++    const rows = entry as any;
++    if (value.form === 'compact') {
++      requireStructure(!Array.isArray(rows) && Object.entries(rows).every(([key,row]) => key === (row as Row).id),'compact dictionary key');
++      tables[kind] = (Object.values(rows) as Row[]).sort((a,b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
++    } else { requireStructure(Array.isArray(rows),'array encoding'); tables[kind] = rows; }
++  }
++  const lookup = new Map<string,Row>();
++  for (const [kind,rows] of Object.entries(tables)) {
++    ordered(rows.map(r => r.id),'table duplicate/order');
++    for (const row of rows) {
++      requireStructure(row.kind === kind && row.id === knowledgeIdentity(row),'object identity');
++      requireStructure(!lookup.has(row.id),'duplicate global ID'); lookup.set(row.id,row);
++    }
++  }
++  const get = (ident: string,kind: string): Row => { const row = lookup.get(ident); requireStructure(row && row.kind === kind,'dangling/wrong reference'); return row; };
++  const adjacency = new Map<string,string[]>();
++  for (const row of lookup.values()) {
++    const children: string[] = [];
++    for (const [ident,kind] of edges(row,c['typed-references.json'].internal)) { get(ident,kind); children.push(ident); }
++    adjacency.set(row.id,children);
++  }
++  const colors = new Map<string,number>();
++  for (const ident of lookup.keys()) {
++    const stack: [string,boolean][] = [[ident,false]];
++    while (stack.length) {
++      const [current,done] = stack.pop()!;
++      if (done) { colors.set(current,2); continue; }
++      requireStructure(colors.get(current) !== 1,'reference cycle');
++      if (colors.get(current) === 2) continue;
++      colors.set(current,1); stack.push([current,true]);
++      for (const child of [...adjacency.get(current)!].reverse()) stack.push([child,false]);
++    }
++  }
++  const origin = get(value.origin,'origin'); requireStructure(equal(get(value.required_profile,'profile'),profile),'profile manifest');
++  for (const source of tables.source) {
++    requireStructure(source.origin === origin.id,'source origin'); const st = source.source_type;
++    if (['owner_initialization','owner_request'].includes(st)) {
++      requireStructure(['p1','p2'].includes(source.owner) && source.provider === (st === 'owner_initialization' ? 'addressed-team-provider/v1' : 'addressed-request/v1'),'source addressing');
++      requireStructure(source.delivery_seq !== null && source.delivery_cursor !== null,'source delivery');
++      if (st === 'owner_initialization') requireStructure(source.phase === 'before_effects' && source.delivery_seq === 0 && source.delivery_cursor === 0 && source.team.length && source.raw_request === null,'original delivery');
++      else requireStructure(source.phase === 'chronological' && source.raw_request !== null && !source.team.length,'request source shape');
++    } else requireStructure(source.owner === null && source.provider === 'indexed-public/v1' && !source.team.length && source.raw_request === null && source.phase === 'chronological' && source.delivery_seq === null && source.delivery_cursor === null,'public source shape');
++    requireStructure(source.team.every((s: Row,i: number) => s.slot === i+1),'team slot order');
++  }
++  for (const prefix of tables.prefix) requireStructure(prefix.origin === origin.id,'prefix origin');
++  for (const proof of tables.evidence) {
++    const source = get(proof.source,'source'); requireStructure(proof.origin === origin.id,'evidence origin');
++    ordered(proof.record_indices,'record order'); requireStructure(proof.record_indices.every((i: number) => i < source.records.length),'record range');
++    if (proof.scope === 'original') requireStructure(['owner_initialization','public_replay'].includes(source.source_type) && ['p1','p2'].includes(proof.owner) && proof.prefix === null && [null,proof.owner].includes(source.owner),'original source owner');
++    else if (proof.scope === 'public') requireStructure(source.source_type === 'public_prefix' && proof.owner === null && equal(source.records,get(proof.prefix,'prefix').records),'public future traversal');
++    else requireStructure(source.source_type === 'owner_request' && source.owner === proof.owner && get(proof.prefix,'prefix').records.length === source.delivery_cursor,'request proof');
++    if (proof.team_slot !== null) requireStructure(proof.team_slot >= 1 && proof.team_slot <= (source.source_type === 'owner_initialization' ? source.team.length : 6),'evidence team slot');
++  }
++  for (const cert of tables.certificate) {
++    const source = get(cert.source,'source'); requireStructure(source.source_type === 'public_replay' && cert.scan_start === 0 && cert.scan_end === source.records.length,'certificate scan/source');
++    for (const field of ['witnesses','writers','exclusions']) ordered(cert[field],'certificate list order');
++    for (const ident of cert.witnesses) {
++      const proof = get(ident,'evidence'); requireStructure(proof.source === source.id && proof.owner === cert.owner && proof.scope === 'original' && cert.writers.includes(proof.writer),'certificate witness');
++    }
++  }
++  for (const fact of tables.fact) {
++    factShape(fact,c,properties);
++    if (fact.freshness !== 'immutable') requireStructure(fact.certificate === null,'current fact/certificate');
++    for (const ident of fact.evidence) {
++      const proof = get(ident,'evidence'); requireStructure([null,fact.owner].includes(proof.owner),'foreign private proof');
++      if (proof.scope === 'request') requireStructure(fact.observed_at === get(proof.source,'source').delivery_cursor || fact.state === 'unknown' && fact.observed_at === null,'request observation cursor');
++      else if (proof.record_indices.length && !['boundary_kind','request_presence'].includes(fact.property)) requireStructure(fact.observed_at === Math.max(...proof.record_indices)+1,'observation cursor');
++    }
++    if (fact.certificate !== null) {
++      const cert = get(fact.certificate,'certificate'); requireStructure(cert.owner === fact.owner && cert.subject === fact.subject && cert.property === fact.property,'certificate property/subject');
++    }
++  }
++  function contextFacts(row: Row): Row[] {
++    ordered(row.facts,'context fact order'); const facts = row.facts.map((ident: string) => get(ident,'fact'));
++    logicalFacts(facts);
++    return facts;
++  }
++  for (const start of tables.starting) {
++    requireStructure(start.origin === origin.id && start.policy === profile.policy,'starting origin/policy');
++    if (start.source !== null) {
++      const source = get(start.source,'source'); requireStructure([null,start.owner].includes(source.owner),'starting owner');
++      requireStructure(source.source_type === (start.policy === 'simulator-causal/v1' ? 'owner_initialization' : 'public_replay'),'starting source policy');
++    }
++    if (start.parent === null) requireStructure(start.revision === 0,'revision origin');
++    else {
++      const parent = get(start.parent,'starting'); requireStructure(parent.origin === start.origin && parent.owner === start.owner && parent.policy === start.policy && start.revision === parent.revision+1,'revision join');
++      requireStructure(parent.source === start.source,'revision source');
++      const key = (f: Row) => JSON.stringify([f.subject,f.property,f.effect_key]);
++      const old = new Map(contextFacts(parent).map(f => [key(f),f])); const fresh = new Map(contextFacts(start).map(f => [key(f),f]));
++      requireStructure([...old.keys()].every(k => fresh.has(k)),'immutable retention');
++      requireStructure([...old].every(([k,f]) => equal(f,fresh.get(k)) || f.state === 'unknown' && ['known','known_absent'].includes(fresh.get(k)!.state)),'immutable refinement');
++      requireStructure(parent.crosswalk.every((cross: Row) => start.crosswalk.some((other: Row) => equal(cross,other))),'crosswalk retention');
++    }
++    for (const fact of contextFacts(start)) {
++      requireStructure(fact.owner === start.owner && fact.subject.startsWith(start.owner + ':') && fact.freshness === 'immutable','starting fact');
++      requireStructure(applies(fact,'original',rules),'property context');
++      for (const ident of fact.evidence) { const proof = get(ident,'evidence'); requireStructure(proof.scope === 'original' && proof.source === start.source,'starting evidence'); }
++      if (start.source !== null && get(start.source,'source').source_type === 'public_replay' && ['known','known_absent'].includes(fact.state)) requireStructure(fact.certificate !== null,'replay original certificate');
++      if (fact.certificate !== null) {
++        const cert = get(fact.certificate,'certificate'); requireStructure(cert.source === start.source && equal(cert.witnesses,fact.evidence),'starting certificate source/witnesses');
++        if (['known','known_absent'].includes(fact.state)) originalCertificate(cert);
++      }
++    }
++    ordered(start.crosswalk.map((r: Row) => r.appearance),'crosswalk order');
++    for (const cross of start.crosswalk) {
++      const cert = get(cross.certificate,'certificate'); requireStructure(cert.owner === start.owner && cross.appearance.startsWith(start.owner + ':') && cross.roster === cert.subject,'crosswalk owner');
++      requireStructure(cert.source === start.source,'crosswalk certificate source');
++      originalCertificate(cert);
++    }
++  }
++  for (const current of tables.current) {
++    const prefix = get(current.prefix,'prefix'); requireStructure(current.origin === origin.id && current.cursor === prefix.records.length,'current prefix/cursor');
++    for (const fact of contextFacts(current)) {
++      requireStructure(fact.owner === current.owner && fact.freshness !== 'immutable' && fact.certificate === null,'current fact/certificate');
++      requireStructure(applies(fact,'current',rules),'property context'); requireStructure(fact.observed_at === null || fact.observed_at <= current.cursor,'future fact');
++      for (const ident of fact.evidence) {
++        const proof = get(ident,'evidence'); requireStructure(['public','request'].includes(proof.scope),'current future proof');
++        const ancestor = get(proof.prefix,'prefix').records; requireStructure(equal(prefix.records.slice(0,ancestor.length),ancestor),'proof prefix ancestry');
++      }
++    }
++  }
++  for (const request of tables.request) {
++    const source = get(request.source,'source'); requireStructure(request.origin === origin.id && source.owner === request.owner && source.source_type === 'owner_request' && source.delivery_seq === request.sequence && source.delivery_cursor === request.cursor,'request delivery join');
++    requireStructure(get(request.prefix,'prefix').records.length === request.cursor,'request prefix');
++    for (const fact of contextFacts(request)) {
++      requireStructure(fact.owner === request.owner && applies(fact,'request',rules),'request owner/context');
++      requireStructure(fact.certificate === null && fact.freshness === 'current','request fact freshness');
++      requireStructure(fact.observed_at === request.cursor || fact.state === 'unknown' && fact.observed_at === null,'request observation cursor');
++      for (const ident of fact.evidence) { const proof = get(ident,'evidence'); requireStructure(proof.scope === 'request' && proof.source === source.id && proof.prefix === request.prefix,'request fact proof'); }
++    }
++  }
++  const boundaries = [...tables.boundary].sort((a,b) => a.index-b.index);
++  requireStructure(boundaries.length && boundaries.every((b,i) => b.index === i),'history continuity');
++  requireStructure(boundaries.at(-1)!.id === value.target_boundary,'target boundary'); const previous = new Map<string,string>(), latestRequest = new Map<string,number>();
++  let terminalSeen = false;
++  for (const [index,boundary] of boundaries.entries()) {
++    requireStructure(!terminalSeen || boundary.boundary_type === 'restored','terminal history lifecycle');
++    terminalSeen = terminalSeen || boundary.boundary_type === 'terminal';
++    requireStructure(boundary.origin === origin.id && boundary.parent === (index === 0 ? null : boundaries[index-1].id),'boundary parent/origin');
++    requireStructure(index === 0 && boundary.boundary_type === 'initial' || index > 0 && boundary.boundary_type !== 'initial' && boundary.cursor >= boundaries[index-1].cursor,'boundary chronology');
++    requireStructure(boundary.restored_from === (boundary.boundary_type === 'restored' ? boundary.parent : null),'restore binding');
++    requireStructure(equal(boundary.bindings.map((r: Row) => r.owner),['p1','p2']),'both perspectives'); const prefixes: string[] = [];
++    for (const row of boundary.bindings) {
++      const knowledge = get(row.knowledge,'knowledge'), current = get(knowledge.current,'current'), start = get(knowledge.starting,'starting'), verdict = get(row.verdict,'verdict');
++      requireStructure(knowledge.origin === origin.id && knowledge.owner === row.owner && row.owner === current.owner && row.owner === start.owner && knowledge.boundary === index && knowledge.policy === start.policy && start.policy === profile.policy,'knowledge join');
++      requireStructure(current.cursor === boundary.cursor && current.parent === (previous.get(row.owner) ?? null),'current parent/cursor');
++      if (previous.has(row.owner)) {
++        const old = get(previous.get(row.owner)!,'current'), records = get(old.prefix,'prefix').records;
++        requireStructure(equal(get(current.prefix,'prefix').records.slice(0,records.length),records),'history prefix ancestry');
++        if (boundary.boundary_type === 'restored') {
++          const prev = boundaries[index-1].bindings.find((r: Row) => r.owner === row.owner);
++          requireStructure(get(prev.knowledge,'knowledge').starting === knowledge.starting && old.prefix === current.prefix,'restored context retention');
++          if (knowledge.request === null) {
++            const retained = (context: Row) => context.facts.filter((ident: string) => get(ident,'fact').family !== 'K20');
++            requireStructure(equal(retained(old),retained(current)),'restored fact retention');
++          }
++        }
++      }
++      previous.set(row.owner,current.id); prefixes.push(current.prefix);
++      if (knowledge.request !== null) {
++        const request = get(knowledge.request,'request'); requireStructure(request.owner === row.owner && request.prefix === current.prefix && request.cursor === current.cursor,'knowledge request');
++        requireStructure(knowledge.policy === 'simulator-causal/v1' && ['initial','mid','wait','restored'].includes(boundary.boundary_type),'request lifecycle');
++        requireStructure(!terminalSeen,'restored terminal request');
++        if (boundary.boundary_type === 'wait') requireStructure(!request.actionable,'wait actionable');
++        if (boundary.boundary_type === 'restored') requireStructure(request.sequence > (latestRequest.get(row.owner) ?? -1),'restored fresh request');
++        latestRequest.set(row.owner,request.sequence);
++      }
++      requireStructure(verdict.knowledge === knowledge.id && verdict.profile === profile.id,'verdict join');
++      requireStructure(equal(verdict.families.map((f: Row) => f.family),Array.from({length:20},(_,i) => 'K' + String(i+1).padStart(2,'0'))),'family order');
++    }
++    requireStructure(prefixes[0] === prefixes[1],'boundary public prefix');
++  }
++  requireStructure(tables.binding.length === 2*(boundaries.length-1),'binding closure'); const seen = new Set<string>();
++  for (const binding of tables.binding) {
++    const key = binding.owner + ':' + binding.successor_index; requireStructure(!seen.has(key),'binding duplicate'); seen.add(key);
++    requireStructure(binding.origin === origin.id && binding.input_index+1 === binding.successor_index && binding.successor_index < boundaries.length,'binding indices');
++    const old = boundaries[binding.input_index].bindings.find((r: Row) => r.owner === binding.owner), fresh = boundaries[binding.successor_index].bindings.find((r: Row) => r.owner === binding.owner);
++    for (const [field,legacy] of [['knowledge','knowledge'],['observation','observation_id'],['belief','belief_id']]) requireStructure(binding['input_'+field] === old[legacy] && binding['successor_'+field] === fresh[legacy],'history/legacy binding join');
++    requireStructure(binding.actor_record === fresh.actor_record_id && (binding.actor_record === null) === (binding.transition === null),'actor/transition join');
++  }
++  const visited = new Set<string>(), pending = [value.origin,value.required_profile,value.target_boundary,...tables.binding.map(r => r.id)];
++  while (pending.length) { const ident = pending.pop()!; if (!visited.has(ident)) { visited.add(ident); pending.push(...adjacency.get(ident)!); } }
++  requireStructure(visited.size === lookup.size,'unreachable entry'); return diagnostic();
++}
++
++export function serializeKnowledgeWire(value: unknown): Buffer {
++  checkKnowledgeStructure(value); return canonicalKnowledgeJson(value);
++}
+--- /dev/null
++++ candidate-after/trainer/src/neural/perspective_knowledge.py
+@@ -0,0 +1,510 @@
++"""Opt-in knowledge wire structure checks. Never verifies source truth or publishes."""
++import hashlib
++import json
++import re
++import sys
++from functools import lru_cache
++from pathlib import Path
++
++MAX_BYTES = 16 * 1024 * 1024
++MAX_DEPTH = 32
++MAX_INTEGER = 2147483647
++CONTRACT_HASHES = {
++    'schema.json': '23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918',
++    'profiles.json': '4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2',
++    'property-types.json': '85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537',
++    'property-contexts.json': '3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe',
++    'typed-references.json': 'eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da',
++}
++
++
++class KnowledgeStructureError(ValueError):
++    """Payload-independent diagnostic code, safe for the local inspection CLI."""
++
++
++def require(condition, code):
++    if not condition:
++        raise KnowledgeStructureError(code)
++
++
++def _parse(data, raw=False):
++    require(type(data) in (bytes, str), 'json input type')
++    try:
++        text = data.decode('utf-8', errors='strict') if type(data) is bytes else data
++        require(len(text.encode('utf-8')) <= MAX_BYTES, 'wire size')
++        require(not text.startswith('\ufeff'), 'json BOM')
++        # Reject excess actual JSON nesting before the platform parser recurses.
++        nesting = 0
++        quoted = escaped = False
++        for char in text:
++            if quoted:
++                if escaped: escaped = False
++                elif char == '\\': escaped = True
++                elif char == '"': quoted = False
++            elif char == '"': quoted = True
++            elif char in '[{':
++                nesting += 1
++                require(nesting <= MAX_DEPTH + 1, 'depth')
++            elif char in ']}': nesting -= 1
++        def pairs(entries):
++            result = {}
++            for key, value in entries:
++                require(key not in result, 'duplicate JSON key')
++                result[key] = value
++            return result
++        def integer(lexeme):
++            require(lexeme != '-0', 'numeric lexeme')
++            require(len(lexeme) <= 11, 'integer range')
++            value = int(lexeme)
++            require(-6 <= value <= MAX_INTEGER, 'integer range')
++            return value
++        def invalid(_): raise KnowledgeStructureError('numeric lexeme')
++        value = json.loads(text, object_pairs_hook=pairs, parse_int=integer,
++                           parse_float=invalid, parse_constant=invalid)
++        _canonical(value, raw=raw)
++        return value
++    except (UnicodeError, json.JSONDecodeError, RecursionError) as error:
++        raise KnowledgeStructureError('invalid JSON/UTF-8') from error
++
++
++def parse_knowledge_json(data):
++    """Strict lexical ingress, separate from schema/structural validation."""
++    return _parse(data)
++
++
++def _canonical(value, raw=False):
++    chunks = []
++    size = 0
++    active = set()
++    def emit(text):
++        nonlocal size
++        block = text.encode('utf-8')
++        size += len(block)
++        require(size <= MAX_BYTES, 'wire size')
++        chunks.append(block)
++    def visit(item, depth, path):
++        require(depth <= MAX_DEPTH, 'depth')
++        typ = type(item)
++        if item is None: emit('null')
++        elif typ is bool: emit('true' if item else 'false')
++        elif typ is int:
++            require(-6 <= item <= MAX_INTEGER, 'integer range')
++            emit(str(item))
++        elif typ is str:
++            special = len(path) >= 2 and path[-2:] == ('raw_request', 'json') and not raw
++            require(len(item) <= (65536 if raw or special else 256), 'string length')
++            require(not any(0xD800 <= ord(char) <= 0xDFFF for char in item), 'surrogate')
++            if special: _parse(item, raw=True)
++            emit(json.dumps(item, ensure_ascii=False, separators=(',', ':')))
++        elif typ in (dict, list):
++            require(id(item) not in active, 'object cycle')
++            require(len(item) <= 4096, 'container bound')
++            active.add(id(item))
++            if typ is list:
++                emit('[')
++                for index, entry in enumerate(item):
++                    if index: emit(',')
++                    visit(entry, depth + 1, path + ('*',))
++                emit(']')
++            else:
++                require(all(type(key) is str and len(key) <= 256 and (raw or key.isascii()) for key in item), 'object keys')
++                emit('{')
++                for index, key in enumerate(sorted(item)):
++                    if index: emit(',')
++                    # Keys have the same scalar restrictions even in captured raw JSON.
++                    require(not any(0xD800 <= ord(c) <= 0xDFFF for c in key), 'surrogate')
++                    emit(json.dumps(key, ensure_ascii=False)); emit(':')
++                    visit(item[key], depth + 1, path + (key,))
++                emit('}')
++            active.remove(id(item))
++        else: raise KnowledgeStructureError('JSON object type')
++    visit(value, 0, ())
++    return b''.join(chunks)
++
++
++def canonical_knowledge_json(value):
++    """Exact bounded pk/v1 canonical bytes; object APIs cannot recover JSON lexemes."""
++    return _canonical(value)
++
++
++def knowledge_identity(value):
++    require(type(value) is dict and value.get('kind') in CONTRACT_HASHES_KINDS, 'identity kind')
++    payload = {key: item for key, item in value.items() if key != 'id'}
++    preimage = ('pk/v1/' + value['kind'] + '\n').encode('ascii') + canonical_knowledge_json(payload)
++    return 'sha256:' + hashlib.sha256(preimage).hexdigest()
++
++
++CONTRACT_HASHES_KINDS = ('origin','source','prefix','evidence','certificate','fact','starting',
++                        'current','request','knowledge','profile','verdict','boundary','binding','audit','projection')
++
++
++@lru_cache(maxsize=1)
++def _contract():
++    folder = Path(__file__).resolve().parents[3] / 'docs/contracts/fixtures/perspective-knowledge-v1'
++    data = {}
++    for name, expected in CONTRACT_HASHES.items():
++        try: wire = (folder / name).read_bytes()
++        except OSError as error: raise KnowledgeStructureError('contract unavailable') from error
++        require(hashlib.sha256(wire).hexdigest() == expected, 'contract content')
++        data[name] = json.loads(wire.decode('utf-8'))
++    return data
++
++
++def _shape(value, schema, definitions):
++    if '$ref' in schema: return _shape(value, definitions[schema['$ref'].split('/')[-1]], definitions)
++    if 'anyOf' in schema:
++        for choice in schema['anyOf']:
++            try: _shape(value, choice, definitions); return
++            except KnowledgeStructureError: pass
++        raise KnowledgeStructureError('schema union')
++    if 'const' in schema: require(type(value) is type(schema['const']) and value == schema['const'], 'schema const')
++    if 'enum' in schema: require(any(type(value) is type(v) and value == v for v in schema['enum']), 'schema enum')
++    typ = schema.get('type')
++    if typ == 'null': require(value is None, 'schema null')
++    elif typ == 'boolean': require(type(value) is bool, 'schema boolean')
++    elif typ == 'integer': require(type(value) is int and schema.get('minimum',0) <= value <= schema.get('maximum',MAX_INTEGER), 'schema integer')
++    elif typ == 'string':
++        require(type(value) is str and len(value) <= schema.get('maxLength',256), 'schema string')
++        if 'pattern' in schema: require(re.fullmatch(schema['pattern'],value) is not None, 'schema pattern')
++    elif typ == 'array':
++        require(type(value) is list and len(value) <= schema['maxItems'], 'schema array')
++        for item in value: _shape(item, schema['items'], definitions)
++    elif typ == 'object':
++        require(type(value) is dict, 'schema object')
++        if schema.get('additionalProperties') is False:
++            require(set(value) == set(schema['required']), 'schema keys')
++            for key, item in value.items(): _shape(item, schema['properties'][key], definitions)
++        else:
++            require(len(value) <= schema['maxProperties'], 'schema dictionary')
++            for key, item in value.items():
++                _shape(key, schema['propertyNames'], definitions)
++                _shape(item, schema['additionalProperties'], definitions)
++
++
++def _edges(row, reference_map):
++    def descend(value, parts):
++        if not parts:
++            if value is not None: yield value
++        elif parts[0] == '*':
++            for item in value: yield from descend(item, parts[1:])
++        else: yield from descend(value[parts[0]], parts[1:])
++    for path, kind in reference_map[row['kind']].items():
++        for ident in descend(row, path.split('.')): yield ident, kind
++
++
++def _ordered(values, code): require(values == sorted(set(values)), code)
++
++
++def _applies(fact, context, rules):
++    own = fact['subject'].startswith(fact['owner'] + ':')
++    tail = fact['subject'].split(':',1)[1]
++    for rule in rules[fact['property']]:
++        if rule['context'] != context or rule['scope'] != 'both' and (rule['scope'] == 'owner') != own: continue
++        selector = rule['subject']; key = fact['effect_key']
++        roster = tail.startswith(('roster:', 'appearance:')) and ':move:' not in tail
++        if selector == 'side' and tail == 'side' and key is None: return True
++        if selector == 'roster' and tail.startswith('roster:') and ':move:' not in tail and key is None: return True
++        if selector == 'roster_or_appearance' and roster and key is None: return True
++        if selector == 'move' and ':move:' in tail and key is None: return True
++        if selector in ('side','roster','roster_or_appearance','move'): continue
++        if key is None and (selector == 'field_effect' or fact['state'] == 'known'): continue
++        if selector in ('persistent_effect_member','single_turn_effect_member','single_move_effect_member'):
++            if roster: return True
++        elif tail == 'side': return True
++    return False
++
++
++def _fact_shape(fact, contract, properties, proofs=True):
++    require(fact['property'] in properties[fact['family']], 'family property')
++    if fact['state'] == 'known':
++        require(fact['value'] is not None and fact['value']['type'] in contract['property-types.json'][fact['property']], 'property value tag')
++        require(fact['reason'] == 'none' and (not proofs or fact['evidence']) and fact['precision'] != 'not_applicable', 'known fact shape')
++    else:
++        require(fact['value'] is None, 'nonknown value')
++        if fact['state'] == 'unknown':
++            require(fact['reason'] != 'none' and fact['precision'] == 'not_applicable', 'unknown shape')
++            require(fact['reason'] != 'hidden_opponent' or not fact['subject'].startswith(fact['owner'] + ':'), 'unknown owner scope')
++        else: require((not proofs or fact['evidence']) and fact['reason'] == ('none' if fact['state'] == 'known_absent' else 'proved_rule_inapplicable'), 'nonknown proof shape')
++    if proofs: _ordered(fact['evidence'], 'fact proof order')
++    value = fact['value']; key = fact['effect_key']; prop = fact['property']
++    effect = 'effect' in contract['property-types.json'][prop]
++    named = prop in ('side_condition_layers','pending_power','field_remaining','weather','weather_effective','terrain')
++    require(effect or named or key is None, 'effect key scope')
++    if value:
++        tag = value['type']; data = value['data']
++        if tag == 'interval': require(data['min'] <= data['max'], 'interval order')
++        if tag == 'effect':
++            require(key == data['name'], 'effect identity')
++            if data['remaining']: require(data['remaining']['data']['min'] <= data['remaining']['data']['max'], 'interval order')
++        if prop == 'side_condition_layers': require(key in ('Spikes','ToxicSpikes') and 1 <= data <= (3 if key == 'Spikes' else 2), 'layer bounds')
++        if effect or named: require(key is not None, 'named effect')
++    if prop == 'field_remaining':
++        require(key is not None, 'timer target')
++        if value:
++            data = value['data']
++            require(key == data['target_kind'] + ':' + data['name'], 'timer target')
++            require(data['remaining']['min'] <= data['remaining']['max'], 'interval order')
++
++
++def check_knowledge_structure(value, required_profile=None):
++    """Check frozen structure/identity/joins; no source authority or fact truth claim."""
++    canonical_knowledge_json(value)  # Bound/cycle/Unicode check before traversal.
++    contract = _contract(); schema = contract['schema.json']; definitions = schema['$defs']
++    _shape(value, schema, definitions)
++    require(value['id'] == knowledge_identity(value), 'root identity')
++    approved = {p['id']:p for p in contract['profiles.json']}
++    require(value['required_profile'] in approved, 'profile manifest')
++    if required_profile is not None: require(value['required_profile'] == required_profile, 'required profile')
++    profile = approved[value['required_profile']]
++    properties = {r['family']:r['properties'] for r in profile['obligations']}
++    rules = contract['property-contexts.json']
++    if value['kind'] == 'projection':
++        require(value['policy'] == profile['policy'], 'projection policy')
++        for context in ('starting','current'):
++            _logical_facts(value[context])
++            for fact in value[context]:
++                _fact_shape(fact,contract,properties,proofs=False)
++                require(fact['owner'] == value['owner'], 'projection owner')
++                require(_applies(fact, 'original' if context == 'starting' else 'current', rules), 'property context')
++                require((fact['freshness'] == 'immutable') == (context == 'starting'), 'projection freshness')
++        _ordered([r['appearance'] for r in value['starting_crosswalk']], 'crosswalk order')
++        for row in value['starting_crosswalk']:
++            require(row['appearance'].startswith(value['owner'] + ':') and row['roster'].startswith(value['owner'] + ':'), 'crosswalk owner')
++        if value['policy'] == 'public-replay-owner-starting/v1': require(value['request'] is None, 'replay request')
++        if value['request'] is not None:
++            _logical_facts(value['request']['facts'])
++            for fact in value['request']['facts']:
++                _fact_shape(fact,contract,properties,proofs=False)
++                require(fact['owner'] == value['owner'] and _applies(fact,'request',rules), 'request owner/context')
++                require(fact['freshness'] == 'current' and (fact['observed_at'] == value['request']['cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None), 'projection request time/freshness')
++        return _diagnostic()
++    tables = {}
++    for kind, rows in value['tables'].items():
++        if value['form'] == 'compact':
++            require(type(rows) is dict and all(key == row['id'] for key,row in rows.items()), 'compact dictionary key')
++            tables[kind] = sorted(rows.values(), key=lambda row:row['id'])
++        else:
++            require(type(rows) is list, 'array encoding'); tables[kind] = rows
++    lookup = {}
++    for kind, rows in tables.items():
++        _ordered([r['id'] for r in rows], 'table duplicate/order')
++        for row in rows:
++            require(row['kind'] == kind and row['id'] == knowledge_identity(row), 'object identity')
++            require(row['id'] not in lookup, 'duplicate global ID'); lookup[row['id']] = row
++    def get(ident, kind):
++        require(ident in lookup and lookup[ident]['kind'] == kind, 'dangling/wrong reference')
++        return lookup[ident]
++    refs = contract['typed-references.json']['internal']
++    adjacency = {}
++    for row in lookup.values():
++        adjacency[row['id']] = []
++        for ident, kind in _edges(row,refs): get(ident,kind); adjacency[row['id']].append(ident)
++    # Iterative graph traversal bounds history depth by entry count, not call stack.
++    colors = {}
++    for ident in lookup:
++        stack = [(ident,False)]
++        while stack:
++            ident, done = stack.pop()
++            if done: colors[ident] = 2; continue
++            require(colors.get(ident) != 1, 'reference cycle')
++            if colors.get(ident) == 2: continue
++            colors[ident] = 1; stack.append((ident,True))
++            stack.extend((child,False) for child in reversed(adjacency[ident]))
++    origin = get(value['origin'],'origin')
++    require(get(value['required_profile'],'profile') == profile, 'profile manifest')
++    for source in tables['source']:
++        require(source['origin'] == origin['id'], 'source origin')
++        st = source['source_type']
++        if st in ('owner_initialization','owner_request'):
++            require(source['owner'] in ('p1','p2') and source['provider'] == ('addressed-team-provider/v1' if st == 'owner_initialization' else 'addressed-request/v1'), 'source addressing')
++            require(source['delivery_seq'] is not None and source['delivery_cursor'] is not None, 'source delivery')
++            if st == 'owner_initialization':
++                require(source['phase'] == 'before_effects' and source['delivery_seq'] == source['delivery_cursor'] == 0 and source['team'] and source['raw_request'] is None, 'original delivery')
++            else: require(source['phase'] == 'chronological' and source['raw_request'] is not None and not source['team'], 'request source shape')
++        else: require(source['owner'] is None and source['provider'] == 'indexed-public/v1' and not source['team'] and source['raw_request'] is None and source['phase'] == 'chronological' and source['delivery_seq'] is None and source['delivery_cursor'] is None, 'public source shape')
++        require([s['slot'] for s in source['team']] == list(range(1,len(source['team'])+1)), 'team slot order')
++    for prefix in tables['prefix']: require(prefix['origin'] == origin['id'], 'prefix origin')
++    for evidence in tables['evidence']:
++        source = get(evidence['source'],'source')
++        require(evidence['origin'] == origin['id'], 'evidence origin')
++        _ordered(evidence['record_indices'], 'record order')
++        require(all(i < len(source['records']) for i in evidence['record_indices']), 'record range')
++        if evidence['scope'] == 'original':
++            require(source['source_type'] in ('owner_initialization','public_replay') and evidence['owner'] in ('p1','p2') and evidence['prefix'] is None and source['owner'] in (None,evidence['owner']), 'original source owner')
++        elif evidence['scope'] == 'public':
++            require(source['source_type'] == 'public_prefix' and evidence['owner'] is None and source['records'] == get(evidence['prefix'],'prefix')['records'], 'public future traversal')
++        else: require(source['source_type'] == 'owner_request' and source['owner'] == evidence['owner'] and len(get(evidence['prefix'],'prefix')['records']) == source['delivery_cursor'], 'request proof')
++        if evidence['team_slot'] is not None:
++            require(1 <= evidence['team_slot'] <= (len(source['team']) if source['source_type'] == 'owner_initialization' else 6), 'evidence team slot')
++    for cert in tables['certificate']:
++        source = get(cert['source'],'source')
++        require(source['source_type'] == 'public_replay' and cert['scan_start'] == 0 and cert['scan_end'] == len(source['records']), 'certificate scan/source')
++        for name in ('witnesses','writers','exclusions'): _ordered(cert[name], 'certificate list order')
++        for ident in cert['witnesses']:
++            witness = get(ident,'evidence')
++            require(witness['source'] == source['id'] and witness['owner'] == cert['owner'] and witness['scope'] == 'original' and witness['writer'] in cert['writers'], 'certificate witness')
++    for fact in tables['fact']:
++        _fact_shape(fact,contract,properties)
++        if fact['freshness'] != 'immutable': require(fact['certificate'] is None, 'current fact/certificate')
++        for ident in fact['evidence']:
++            evidence = get(ident,'evidence')
++            require(evidence['owner'] in (None,fact['owner']), 'foreign private proof')
++            if evidence['scope'] == 'request':
++                require(fact['observed_at'] == get(evidence['source'],'source')['delivery_cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'request observation cursor')
++            elif evidence['record_indices'] and fact['property'] not in ('boundary_kind','request_presence'):
++                require(fact['observed_at'] == max(evidence['record_indices']) + 1, 'observation cursor')
++        if fact['certificate'] is not None:
++            cert = get(fact['certificate'],'certificate')
++            require(cert['owner'] == fact['owner'] and cert['subject'] == fact['subject'] and cert['property'] == fact['property'], 'certificate property/subject')
++    def context_facts(row):
++        _ordered(row['facts'],'context fact order')
++        facts = [get(ident,'fact') for ident in row['facts']]
++        _logical_facts(facts)
++        return facts
++    for start in tables['starting']:
++        require(start['origin'] == origin['id'] and start['policy'] == profile['policy'], 'starting origin/policy')
++        if start['source'] is not None:
++            source=get(start['source'],'source')
++            require(source['owner'] in (None,start['owner']), 'starting owner')
++            require(source['source_type'] == ('owner_initialization' if start['policy'] == 'simulator-causal/v1' else 'public_replay'), 'starting source policy')
++        if start['parent'] is None: require(start['revision'] == 0, 'revision origin')
++        else:
++            parent = get(start['parent'],'starting')
++            require(parent['origin'] == start['origin'] and parent['owner'] == start['owner'] and parent['policy'] == start['policy'] and start['revision'] == parent['revision'] + 1, 'revision join')
++            require(parent['source'] == start['source'], 'revision source')
++            old = {(f['subject'],f['property'],f['effect_key']):f for f in context_facts(parent)}
++            new = {(f['subject'],f['property'],f['effect_key']):f for f in context_facts(start)}
++            require(old.keys() <= new.keys(), 'immutable retention')
++            require(all(f == new[k] or f['state'] == 'unknown' and new[k]['state'] in ('known','known_absent') for k,f in old.items()), 'immutable refinement')
++            require(all(c in start['crosswalk'] for c in parent['crosswalk']), 'crosswalk retention')
++        for fact in context_facts(start):
++            require(fact['owner'] == start['owner'] and fact['subject'].startswith(start['owner'] + ':') and fact['freshness'] == 'immutable', 'starting fact')
++            require(_applies(fact,'original',rules), 'property context')
++            for ident in fact['evidence']:
++                proof = get(ident,'evidence'); require(proof['scope'] == 'original' and proof['source'] == start['source'], 'starting evidence')
++            if start['source'] is not None and get(start['source'],'source')['source_type'] == 'public_replay' and fact['state'] in ('known','known_absent'):
++                require(fact['certificate'] is not None, 'replay original certificate')
++            if fact['certificate'] is not None:
++                cert = get(fact['certificate'],'certificate')
++                require(cert['source'] == start['source'] and cert['witnesses'] == fact['evidence'], 'starting certificate source/witnesses')
++                if fact['state'] in ('known','known_absent'): _original_certificate(cert)
++        _ordered([c['appearance'] for c in start['crosswalk']], 'crosswalk order')
++        for cross in start['crosswalk']:
++            cert = get(cross['certificate'],'certificate')
++            require(cert['owner'] == start['owner'] and cross['appearance'].startswith(start['owner'] + ':') and cross['roster'] == cert['subject'], 'crosswalk owner')
++            require(cert['source'] == start['source'], 'crosswalk certificate source')
++            _original_certificate(cert)
++    for current in tables['current']:
++        prefix = get(current['prefix'],'prefix')
++        require(current['origin'] == origin['id'] and current['cursor'] == len(prefix['records']), 'current prefix/cursor')
++        for fact in context_facts(current):
++            require(fact['owner'] == current['owner'] and fact['freshness'] != 'immutable' and fact['certificate'] is None, 'current fact/certificate')
++            require(_applies(fact,'current',rules), 'property context')
++            require(fact['observed_at'] is None or fact['observed_at'] <= current['cursor'], 'future fact')
++            for ident in fact['evidence']:
++                proof = get(ident,'evidence'); require(proof['scope'] in ('public','request'), 'current future proof')
++                ancestor = get(proof['prefix'],'prefix')['records']
++                require(prefix['records'][:len(ancestor)] == ancestor, 'proof prefix ancestry')
++    for request in tables['request']:
++        source = get(request['source'],'source')
++        require(request['origin'] == origin['id'] and source['owner'] == request['owner'] and source['source_type'] == 'owner_request' and source['delivery_seq'] == request['sequence'] and source['delivery_cursor'] == request['cursor'], 'request delivery join')
++        require(len(get(request['prefix'],'prefix')['records']) == request['cursor'], 'request prefix')
++        for fact in context_facts(request):
++            require(fact['owner'] == request['owner'] and _applies(fact,'request',rules), 'request owner/context')
++            require(fact['certificate'] is None and fact['freshness'] == 'current', 'request fact freshness')
++            require(fact['observed_at'] == request['cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'request observation cursor')
++            for ident in fact['evidence']:
++                proof = get(ident,'evidence'); require(proof['scope'] == 'request' and proof['source'] == source['id'] and proof['prefix'] == request['prefix'], 'request fact proof')
++    boundaries = sorted(tables['boundary'], key=lambda row:row['index'])
++    require(boundaries and [b['index'] for b in boundaries] == list(range(len(boundaries))), 'history continuity')
++    require(boundaries[-1]['id'] == value['target_boundary'], 'target boundary')
++    previous = {}; latest_request = {}; terminal_seen = False
++    for index, boundary in enumerate(boundaries):
++        require(not terminal_seen or boundary['boundary_type'] == 'restored', 'terminal history lifecycle')
++        terminal_seen = terminal_seen or boundary['boundary_type'] == 'terminal'
++        require(boundary['origin'] == origin['id'] and boundary['parent'] == (None if index == 0 else boundaries[index-1]['id']), 'boundary parent/origin')
++        require(index == 0 and boundary['boundary_type'] == 'initial' or index > 0 and boundary['boundary_type'] != 'initial' and boundary['cursor'] >= boundaries[index-1]['cursor'], 'boundary chronology')
++        require(boundary['restored_from'] == (boundary['parent'] if boundary['boundary_type'] == 'restored' else None), 'restore binding')
++        require([r['owner'] for r in boundary['bindings']] == ['p1','p2'], 'both perspectives')
++        prefixes = []
++        for row in boundary['bindings']:
++            knowledge = get(row['knowledge'],'knowledge'); current = get(knowledge['current'],'current'); start = get(knowledge['starting'],'starting'); verdict = get(row['verdict'],'verdict')
++            require(knowledge['origin'] == origin['id'] and knowledge['owner'] == row['owner'] == current['owner'] == start['owner'] and knowledge['boundary'] == index and knowledge['policy'] == start['policy'] == profile['policy'], 'knowledge join')
++            require(current['cursor'] == boundary['cursor'] and current['parent'] == previous.get(row['owner']), 'current parent/cursor')
++            if row['owner'] in previous:
++                old = get(previous[row['owner']],'current')
++                records = get(old['prefix'],'prefix')['records']
++                require(get(current['prefix'],'prefix')['records'][:len(records)] == records, 'history prefix ancestry')
++                if boundary['boundary_type'] == 'restored':
++                    prevrow = next(r for r in boundaries[index-1]['bindings'] if r['owner'] == row['owner'])
++                    require(get(prevrow['knowledge'],'knowledge')['starting'] == knowledge['starting'] and old['prefix'] == current['prefix'], 'restored context retention')
++                    if knowledge['request'] is None:
++                        retained=lambda row:[ident for ident in row['facts'] if get(ident,'fact')['family'] != 'K20']
++                        require(retained(old) == retained(current), 'restored fact retention')
++            previous[row['owner']] = current['id']; prefixes.append(current['prefix'])
++            if knowledge['request'] is not None:
++                request = get(knowledge['request'],'request')
++                require(request['owner'] == row['owner'] and request['prefix'] == current['prefix'] and request['cursor'] == current['cursor'], 'knowledge request')
++                require(knowledge['policy'] == 'simulator-causal/v1' and boundary['boundary_type'] in ('initial','mid','wait','restored'), 'request lifecycle')
++                require(not terminal_seen, 'restored terminal request')
++                if boundary['boundary_type'] == 'wait': require(not request['actionable'], 'wait actionable')
++                if boundary['boundary_type'] == 'restored': require(request['sequence'] > latest_request.get(row['owner'],-1), 'restored fresh request')
++                latest_request[row['owner']] = request['sequence']
++            require(verdict['knowledge'] == knowledge['id'] and verdict['profile'] == profile['id'], 'verdict join')
++            require([f['family'] for f in verdict['families']] == ['K%02d'%n for n in range(1,21)], 'family order')
++        require(prefixes[0] == prefixes[1], 'boundary public prefix')
++    require(len(tables['binding']) == 2 * (len(boundaries)-1), 'binding closure')
++    seen = set()
++    for binding in tables['binding']:
++        key = binding['owner'], binding['successor_index']
++        require(key not in seen, 'binding duplicate'); seen.add(key)
++        require(binding['origin'] == origin['id'] and binding['input_index'] + 1 == binding['successor_index'] < len(boundaries), 'binding indices')
++        old = next(r for r in boundaries[binding['input_index']]['bindings'] if r['owner'] == binding['owner'])
++        new = next(r for r in boundaries[binding['successor_index']]['bindings'] if r['owner'] == binding['owner'])
++        for field, legacy in (('knowledge','knowledge'),('observation','observation_id'),('belief','belief_id')):
++            require(binding['input_'+field] == old[legacy] and binding['successor_'+field] == new[legacy], 'history/legacy binding join')
++        require(binding['actor_record'] == new['actor_record_id'] and (binding['actor_record'] is None) == (binding['transition'] is None), 'actor/transition join')
++    visited = set(); pending = [value['origin'],value['required_profile'],value['target_boundary']] + [r['id'] for r in tables['binding']]
++    while pending:
++        ident = pending.pop()
++        if ident not in visited: visited.add(ident); pending.extend(adjacency[ident])
++    require(visited == lookup.keys(), 'unreachable entry')
++    return _diagnostic()
++
++
++def _diagnostic():
++    return {'structure_valid':True,'source_semantics_verified':False,
++            'completeness':'not_established','legacy_envelope_verified':False}
++
++
++def _logical_facts(facts):
++    keys=[(f['owner'],f['subject'],f['family'],f['property'],f['effect_key']) for f in facts]
++    require(len(set(keys)) == len(keys), 'logical fact conflict')
++    for fact in facts:
++        if fact['effect_key'] is None and fact['state'] == 'known_absent':
++            require(not any(f['subject'] == fact['subject'] and f['property'] == fact['property'] and f['effect_key'] is not None and f['state'] == 'known' for f in facts), 'collection absence conflict')
++
++
++def _original_certificate(cert):
++    require(cert['continuity'] == 'original_unmodified' and set(cert['exclusions']) == {'acquisition','copy','called','identity_ambiguity','transfer','transform'}, 'original certificate qualification')
++
++
++def serialize_knowledge_wire(value):
++    check_knowledge_structure(value)
++    return canonical_knowledge_json(value)
++
++
++def main():
++    if sys.argv[1:] != ['--check-structure']:
++        sys.stderr.write('expected --check-structure\n'); return 2
++    try:
++        wire = sys.stdin.buffer.read(MAX_BYTES + 1)
++        result = check_knowledge_structure(parse_knowledge_json(wire))
++    except (KnowledgeStructureError, OSError):
++        sys.stderr.write('knowledge structure check failed\n'); return 2
++    sys.stdout.buffer.write(json.dumps(result,separators=(',',':')).encode('ascii') + b'\n')
++    return 0
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ candidate-after/sim-core/tests/perspective_knowledge.test.ts
+@@ -0,0 +1,411 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { createHash } from 'node:crypto';
++import { spawnSync } from 'node:child_process';
++import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import path from 'node:path';
++import {
++  canonicalKnowledgeJson, checkKnowledgeStructure, knowledgeIdentity,
++  parseKnowledgeJson, serializeKnowledgeWire,
++} from '../src/perspective_knowledge';
++
++type Row = Record<string, any>;
++const root = path.resolve(__dirname, '../../..');
++const fixtures = path.join(root, 'docs/contracts/fixtures/perspective-knowledge-v1');
++const load = (name: string): any => JSON.parse(readFileSync(path.join(fixtures, name), 'utf8'));
++const diagnostic = {
++  structure_valid: true, source_semantics_verified: false,
++  completeness: 'not_established', legacy_envelope_verified: false,
++};
++const missing = 'sha256:' + '0'.repeat(64);
++
++// This oracle only accepts the already hand-audited scalar/integer fixtures.
++// It deliberately does not use the implementation's canonicalizer or edge walk.
++function literalCanonical(value: any): string {
++  if (Array.isArray(value)) return '[' + value.map(literalCanonical).join(',') + ']';
++  if (value !== null && typeof value === 'object') {
++    return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + literalCanonical(value[k])).join(',') + '}';
++  }
++  return JSON.stringify(value);
++}
++function literalIdentity(row: Row): string {
++  const payload = Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id'));
++  return 'sha256:' + createHash('sha256').update('pk/v1/' + row.kind + '\n' + literalCanonical(payload), 'utf8').digest('hex');
++}
++function tables(audit: Row): Record<string, Row[]> {
++  return Object.fromEntries(Object.entries(audit.tables).map(([kind, rows]) => [kind,
++    (Array.isArray(rows) ? rows : Object.values(rows as Row)).slice().sort((a: Row, b: Row) => a.id.localeCompare(b.id)),
++  ]));
++}
++
++// Explicit positions independently inspected against the normative join prose.
++// Legacy IDs and arbitrary text never enter this list or get rewritten.
++const singleEdges: Record<string, string[]> = {
++  origin: [], source: ['origin'], prefix: ['origin'], evidence: ['origin', 'source', 'prefix'],
++  certificate: ['source'], fact: ['certificate'], starting: ['origin', 'source', 'parent'],
++  current: ['origin', 'prefix', 'parent'], request: ['origin', 'source', 'prefix'],
++  knowledge: ['origin', 'starting', 'current', 'request'], profile: [],
++  verdict: ['knowledge', 'profile'], boundary: ['origin', 'parent', 'restored_from'],
++  binding: ['origin', 'input_knowledge', 'successor_knowledge'],
++};
++const listEdges: Record<string, string[]> = {
++  certificate: ['witnesses'], fact: ['evidence'], starting: ['facts'], current: ['facts'], request: ['facts'],
++};
++function reseal(audit: Row): Row {
++  const expanded = tables(audit);
++  const byOldId = new Map<string, Row>();
++  for (const rows of Object.values(expanded)) for (const row of rows) byOldId.set(row.id, row);
++  const completed = new Map<string, string>();
++  const active = new Set<string>();
++  function replace(id: string | null): string | null {
++    if (id === null || !byOldId.has(id)) return id;
++    if (completed.has(id)) return completed.get(id)!;
++    assert.ok(!active.has(id), 'test mutation introduced a cycle');
++    active.add(id);
++    const row = byOldId.get(id)!;
++    for (const field of singleEdges[row.kind]) row[field] = replace(row[field]);
++    for (const field of listEdges[row.kind] ?? []) row[field] = row[field].map(replace).sort();
++    if (row.kind === 'starting') for (const crosswalk of row.crosswalk) crosswalk.certificate = replace(crosswalk.certificate);
++    if (row.kind === 'boundary') for (const binding of row.bindings) {
++      binding.knowledge = replace(binding.knowledge); binding.verdict = replace(binding.verdict);
++    }
++    row.id = literalIdentity(row);
++    active.delete(id); completed.set(id, row.id);
++    return row.id;
++  }
++  for (const id of byOldId.keys()) replace(id);
++  for (const field of ['origin', 'required_profile', 'target_boundary']) audit[field] = replace(audit[field]);
++  audit.tables = Object.fromEntries(Object.entries(expanded).map(([kind, rows]) => [kind,
++    audit.form === 'compact'
++      ? Object.fromEntries(rows.sort((a, b) => a.id.localeCompare(b.id)).map(row => [row.id, row]))
++      : rows.sort((a, b) => a.id.localeCompare(b.id)),
++  ]));
++  audit.id = literalIdentity(audit);
++  return audit;
++}
++function assertSealed(audit: Row): void {
++  assert.equal(audit.id, literalIdentity(audit));
++  for (const rows of Object.values(tables(audit))) for (const row of rows) assert.equal(row.id, literalIdentity(row));
++}
++function rejected(value: any): void {
++  const before = literalCanonical(value);
++  assert.throws(() => checkKnowledgeStructure(value), Error);
++  assert.equal(literalCanonical(value), before, 'failed validation mutated input');
++  assert.throws(() => serializeKnowledgeWire(value), Error);
++  assert.equal(literalCanonical(value), before, 'failed serialization mutated input');
++}
++
++test('16 independent literal preimages cover every identity domain and Unicode', () => {
++  const vectors = load('identity-vectors.json');
++  assert.equal(vectors.length, 16);
++  assert.equal(new Set(vectors.map((v: Row) => v.kind)).size, 16);
++  for (const vector of vectors) {
++    const preimage = Buffer.from(vector.preimage_utf8_hex, 'hex');
++    assert.equal('sha256:' + createHash('sha256').update(preimage).digest('hex'), vector.id);
++    const payload = Object.fromEntries(Object.entries(vector.object).filter(([key]) => key !== 'id'));
++    assert.deepEqual(Buffer.concat([Buffer.from('pk/v1/' + vector.kind + '\n'), canonicalKnowledgeJson(payload)]), preimage);
++    assert.equal(knowledgeIdentity(vector.object), vector.id);
++    assert.equal(knowledgeIdentity({ ...vector.object, id: missing }), vector.id, 'only top-level id is excluded');
++  }
++});
++
++test('literal controls, lexical ASCII ordering, scalar UTF8, and no normalization', () => {
++  const value = { s: Array.from({ length: 32 }, (_, n) => String.fromCharCode(n)).join('') + '"\\/É😀' };
++  const literal = '{"s":"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f\\"\\\\/É😀"}';
++  assert.equal(canonicalKnowledgeJson(value).toString('utf8'), literal);
++  const controls = load('canonical-controls-vector.json');
++  assert.equal(literal, controls.canonical_json_literal);
++  assert.equal(knowledgeIdentity(controls.object), 'sha256:cedca312d204a332171f3cba967f2fe256851f474afd69c5cae083b692159f9a');
++  assert.equal(canonicalKnowledgeJson({ z: 0, '2': 2, '10': 10, A: true, a: null }).toString(), '{"10":10,"2":2,"A":true,"a":null,"z":0}');
++  assert.notDeepEqual(canonicalKnowledgeJson({ s: 'é' }), canonicalKnowledgeJson({ s: 'e\u0301' }));
++  assert.deepEqual(parseKnowledgeJson(Buffer.from(literal)), value);
++  assert.deepEqual(parseKnowledgeJson('{"s":"\\ud83d\\ude00"}'), { s: '😀' });
++});
++
++test('raw ingress rejects lexical ambiguity before JSON.parse can erase it', () => {
++  const invalid = [
++    '{"a":1,"a":2}', '{"a":1,"\\u0061":2}', '{"nest":{"a":1,"a":1}}',
++    '-0', '1.0', '1e0', '1E+0', '[0,-0]', '{"a":1.25}', 'NaN', 'Infinity',
++    '{"s":"\\ud800"}', '{"s":"\\udfff"}', '{"\\ud800":0}', '"\ud800"',
++    '\ufeff{}', '{}{}', '/*comment*/{}', '{"a":1,}', 'true false',
++  ];
++  for (const text of invalid) assert.throws(() => parseKnowledgeJson(text), Error, text);
++  for (const bytes of [Buffer.from([0xff]), Buffer.from([0xc0, 0xaf]), Buffer.from([0xed, 0xa0, 0x80]), Buffer.from([0xf0, 0x9f]), Buffer.from([0xef, 0xbb, 0xbf, 0x7b, 0x7d])]) {
++    assert.throws(() => parseKnowledgeJson(bytes), Error, bytes.toString('hex'));
++  }
++  assert.deepEqual(parseKnowledgeJson(' {"zero":0,"integer":2147483647,"flag":true} \r\n'), { zero: 0, integer: 2147483647, flag: true });
++  assert.equal(parseKnowledgeJson('1'), 1, 'object integer 1 cannot preserve whether callers once wrote 1.0');
++  assert.throws(() => parseKnowledgeJson('['.repeat(33) + '0' + ']'.repeat(33)), Error);
++  assert.throws(() => parseKnowledgeJson(' '.repeat(16 * 1024 * 1024) + '{}'), Error);
++});
++
++test('object APIs reject unsupported values and cycles without changing them', () => {
++  const sparse: any[] = new Array(1); (sparse as any).extra = 1;
++  assert.throws(() => canonicalKnowledgeJson(sparse));
++  const hidden = [0]; Object.defineProperty(hidden,'extra',{value:1});
++  assert.throws(() => canonicalKnowledgeJson(hidden));
++  const callable: any[] = new Array(1); let invoked = false;
++  Object.defineProperty(callable,'forEach',{value:() => { invoked = true; },enumerable:true});
++  assert.throws(() => canonicalKnowledgeJson(callable)); assert.equal(invoked,false);
++  for (const value of [-0, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1, undefined, 1n, '\ud800', { value: undefined }, { value: () => 1 }]) {
++    assert.throws(() => canonicalKnowledgeJson(value), Error);
++  }
++  const cycle: Row = { kind: 'origin' }; cycle.self = cycle;
++  assert.throws(() => canonicalKnowledgeJson(cycle), Error);
++  assert.throws(() => checkKnowledgeStructure(cycle), Error);
++  assert.equal(cycle.self, cycle);
++  let deep: any = 0; for (let i = 0; i < 33; i++) deep = [deep];
++  assert.throws(() => canonicalKnowledgeJson(deep), Error);
++});
++
++for (const source of ['sim', 'replay', 'replay-suffix']) for (const form of ['full', 'ordinary', 'compact']) {
++  test(`${source} ${form} has both owners, exact limited diagnostic, and immutable serialization`, () => {
++    const value = load(source + '-' + form + '.json'); const before = literalCanonical(value);
++    assert.deepEqual(checkKnowledgeStructure(value, value.required_profile), diagnostic);
++    const wire = serializeKnowledgeWire(value);
++    assert.ok(Buffer.isBuffer(wire));
++    assert.deepEqual(parseKnowledgeJson(wire), value);
++    assert.equal(literalCanonical(value), before);
++    const expanded = tables(value);
++    assert.deepEqual([...new Set(expanded.knowledge.map(row => row.owner))].sort(), ['p1', 'p2']);
++    assert.deepEqual(expanded, tables(load(source + '-full.json')), 'form changes cannot change closure');
++  });
++}
++
++test('both-owner projections and inert hash/capability text have only structural acceptance', () => {
++  for (const name of [
++    'sim-p1-consumer.json', 'sim-p2-consumer.json', 'replay-p1-consumer.json', 'replay-p2-consumer.json',
++    'sim-p1-actionable-consumer.json', 'sim-p1-wait-consumer.json', 'missing-original-full.json',
++    'sim-concurrent-effects-full.json', 'inert-hash-full.json', 'inert-hash-ordinary.json', 'inert-hash-compact.json',
++    'inert-self-hash-full.json', 'inert-self-hash-ordinary.json', 'inert-self-hash-compact.json',
++    'inert-capability-words-consumer.json', 'inert-missing-hash-consumer.json', 'inert-array-consumer.json',
++  ]) assert.deepEqual(checkKnowledgeStructure(load(name)), diagnostic, name);
++});
++
++test('same-source refinement retains proved facts/crosswalk, changed-source roots reprove, suffix is causal', () => {
++  const old = tables(load('replay-full.json')); const suffix = tables(load('replay-suffix-full.json'));
++  const child = old.starting.find(row => row.parent !== null)!;
++  const parent = old.starting.find(row => row.id === child.parent)!;
++  assert.equal(child.revision, parent.revision + 1); assert.equal(child.source, parent.source);
++  const facts = new Map(old.fact.map(row => [row.id, row]));
++  const proved = parent.facts.filter((id: string) => facts.get(id)!.state !== 'unknown');
++  assert.ok(proved.length > 0); assert.ok(proved.every((id: string) => child.facts.includes(id)));
++  assert.ok(parent.facts.some((id: string) => facts.get(id)!.state === 'unknown'));
++  assert.ok(child.facts.every((id: string) => facts.get(id)!.state === 'known'));
++  assert.ok(parent.crosswalk.every((row: Row) => child.crosswalk.some((candidate: Row) => literalCanonical(row) === literalCanonical(candidate))));
++  assert.ok(suffix.starting.every(row => row.revision === 0 && row.parent === null));
++  assert.ok(suffix.starting.every(row => !old.starting.some(prior => prior.source === row.source)));
++  function chronological(t: Record<string, Row[]>): Row {
++    const current = t.current.filter(row => row.cursor <= 5);
++    const factIds = new Set(current.flatMap(row => row.facts));
++    const fact = t.fact.filter(row => factIds.has(row.id));
++    const evidenceIds = new Set(fact.flatMap(row => row.evidence));
++    return { current, fact, evidence: t.evidence.filter(row => evidenceIds.has(row.id)), prefix: t.prefix.filter(row => row.records.length <= 5) };
++  }
++  for (const form of ['full', 'ordinary', 'compact']) assert.deepEqual(chronological(tables(load('replay-' + form + '.json'))), chronological(tables(load('replay-suffix-' + form + '.json'))));
++});
++
++const structuralNegatives = [
++  'negative-missing-key.json', 'negative-extra-key.json', 'negative-wrong-type.json', 'negative-wrong-discriminant.json',
++  'negative-duplicate.json', 'negative-dangling-reference.json', 'negative-wrong-owner.json', 'negative-wrong-policy.json',
++  'negative-wrong-source.json', 'negative-broken-origin.json', 'negative-broken-parent.json', 'negative-broken-request.json',
++  'negative-broken-history.json', 'negative-compact-private-traversal.json', 'negative-compact-future-traversal.json',
++  'negative-crosswalk-foreign-owner.json', 'negative-starting-revision-fork.json', 'negative-certificate-property.json',
++  'negative-foreign-original-source.json', 'negative-wrong-value-tag.json', 'negative-wrong-effect-identity.json',
++  'negative-in-range-future-source.json', 'negative-unreachable-entry.json', 'negative-cross-source-parent.json',
++  'negative-old-source-carryover.json', 'negative-same-source-proved-change.json', 'negative-old-source-fact-certificate.json',
++  'negative-old-source-crosswalk-certificate.json', 'negative-consumer-privileged-field.json',
++  'negative-consumer-nested-capability.json', 'negative-consumer-foreign-starting.json',
++];
++for (const name of structuralNegatives) test('independently resealed structural control: ' + name, () => {
++  const value = load(name);
++  if (value.kind === 'audit') assertSealed(value); else assert.equal(value.id, literalIdentity(value));
++  rejected(value);
++});
++
++test('resealed wrong-kind edges, dictionary orphans/order, profile substitution, and retention reject', () => {
++  const cases: [string, (audit: Row) => void][] = [
++    ['wrong-kind current fact', a => { a.tables.current[0].facts[0] = a.tables.prefix[0].id; }],
++    ['wrong-kind original source', a => { a.tables.starting[0].source = a.tables.prefix[0].id; }],
++    ['orphan referenced only by inert text', a => {
++      const orphan = structuredClone(a.tables.prefix[0]); orphan.records = ['|unreferenced|']; orphan.id = literalIdentity(orphan);
++      a.tables.prefix.push(orphan); a.tables.origin[0].battle_key = orphan.id;
++    }],
++    ['request sequence', a => { a.tables.request[0].sequence += 1; }],
++    ['request private owner', a => { a.tables.request[0].owner = a.tables.request[0].owner === 'p1' ? 'p2' : 'p1'; }],
++    ['binding legacy commitment', a => { a.tables.binding[0].successor_observation = missing; }],
++    ['boundary owner order', a => { a.tables.boundary[0].bindings.reverse(); }],
++    ['boolean cursor', a => { a.tables.current[0].cursor = true; }],
++    ['text scalar bound', a => { a.tables.origin[0].battle_key = '😀'.repeat(257); }],
++    ['table bound', a => { a.tables.prefix = Array.from({ length: 4097 }, () => structuredClone(a.tables.prefix[0])); }],
++  ];
++  for (const [name, mutate] of cases) {
++    const value = load('sim-full.json'); mutate(value); reseal(value); assertSealed(value);
++    assert.throws(() => checkKnowledgeStructure(value), Error, name);
++  }
++  const order = load('sim-full.json'); order.tables.source.reverse(); order.id = literalIdentity(order); rejected(order);
++  const compact = load('sim-compact.json');
++  const first = Object.keys(compact.tables.fact)[0]; compact.tables.fact[missing] = compact.tables.fact[first]; delete compact.tables.fact[first];
++  compact.id = literalIdentity(compact); rejected(compact);
++  assert.throws(() => checkKnowledgeStructure(load('sim-full.json'), load('profiles.json')[1].id), Error);
++  const revision = load('replay-full.json');
++  const child = revision.tables.starting.find((row: Row) => row.parent !== null);
++  assert.ok(child.crosswalk.length > 0); child.crosswalk = []; reseal(revision); assertSealed(revision); rejected(revision);
++});
++
++test('raw_request has its own 65536 scalar allowance and strict nested JSON rules', () => {
++  assert.throws(() => parseKnowledgeJson('{"raw_request.json":' + JSON.stringify('{"s":"' + 'a'.repeat(300) + '"}') + '}'));
++  const value = load('sim-full.json'); const source = value.tables.source.find((row: Row) => row.source_type === 'owner_request');
++  source.raw_request.json = '{"private":"' + '😀'.repeat(300) + '"}'; reseal(value);
++  assert.deepEqual(checkKnowledgeStructure(value), diagnostic, 'raw request is not a 256-scalar ordinary string');
++  for (const raw of ['{"x":0,"x":1}', '{"x":-0}', '{"x":1.0}', '{"x":1e0}', '{"s":"\\ud800"}', '['.repeat(33) + '0' + ']'.repeat(33), '{"s":"' + 'a'.repeat(65536) + '"}']) {
++    const invalid = load('sim-full.json'); invalid.tables.source.find((row: Row) => row.source_type === 'owner_request').raw_request.json = raw;
++    reseal(invalid); assertSealed(invalid); rejected(invalid);
++  }
++});
++
++test('named layer/power/timer structural claims have independent key and bound controls', () => {
++  for (const owner of ['p1','p2']) {
++    const audit = load('sim-full.json');
++    const current = audit.tables.current.find((r: Row) => r.owner === owner && r.cursor === 3);
++    const proof = audit.tables.evidence.find((r: Row) => r.scope === 'public' && r.record_indices.length && Math.max(...r.record_indices) < 3);
++    const claims: [string,string,string,Row][] = [
++      ['K13','side_condition_layers','Spikes',{type:'integer',data:2}],
++      ['K15','pending_power','FutureSight',{type:'power',data:{basis:'base_move',amount:120}}],
++      ['K14','field_remaining','weather:RainDance',{type:'field_timer',data:{target_kind:'weather',name:'RainDance',remaining:{min:4,max:7}}}],
++      ['K14','field_remaining','terrain:ElectricTerrain',{type:'field_timer',data:{target_kind:'terrain',name:'ElectricTerrain',remaining:{min:5,max:8}}}],
++    ];
++    for (const [family,property,effect_key,value] of claims) {
++      const fact: Row = {kind:'fact',owner,subject:owner+':side',family,property,effect_key,state:'known',value,reason:'none',freshness:'current',
++        precision:property === 'field_remaining' ? 'interval' : 'exact',observed_at:Math.max(...proof.record_indices)+1,evidence:[proof.id],certificate:null};
++      fact.id = literalIdentity(fact); audit.tables.fact.push(fact); current.facts.push(fact.id);
++    }
++    reseal(audit); assertSealed(audit); assert.deepEqual(checkKnowledgeStructure(audit),diagnostic,'structural claims do not prove ledgers');
++    const changes: [string,(f: Row) => void][] = [
++      ['side_condition_layers',f => { f.value.data = 0; }], ['side_condition_layers',f => { f.value.data = 4; }],
++      ['side_condition_layers',f => { f.value = {type:'text',data:'2'}; }],
++      ['pending_power',f => { f.value.data.amount = 65536; }],
++      ['field_remaining',f => { f.effect_key = null; }], ['field_remaining',f => { f.effect_key = 'terrain:Wrong'; }],
++      ['field_remaining',f => { f.value.data.remaining = {min:8,max:4}; }],
++    ];
++    for (const [property,change] of changes) {
++      const altered = structuredClone(audit); change(altered.tables.fact.find((f: Row) => f.property === property));
++      reseal(altered); assertSealed(altered); rejected(altered);
++    }
++  }
++});
++
++test('safe projection finite fact consistency and request delivery time cannot bypass core', () => {
++  for (const change of [(f: Row) => { f.family = 'K01'; },(f: Row) => { f.value = {type:'text',data:'bad'}; },(f: Row) => { f.state = 'unknown'; f.value = {type:'integer',data:1}; }]) {
++    const projection = load('sim-p1-actionable-consumer.json'); change(projection.request.facts.find((f: Row) => f.property === 'pp'));
++    projection.id = literalIdentity(projection); rejected(projection);
++  }
++  const requestOnly = load('sim-full.json'); requestOnly.tables.fact.find((f: Row) => f.property === 'maybe_trapped' && f.state === 'known').observed_at = 99;
++  reseal(requestOnly); assertSealed(requestOnly); assert.throws(() => checkKnowledgeStructure(requestOnly), /request observation cursor/);
++});
++
++test('restoration, complete bindings and declared certificate qualification have resealed controls', () => {
++  const changes: [(a: Row) => void,string][] = [
++    [a => { a.tables.boundary.find((b: Row) => b.boundary_type === 'restored').restored_from = null; },'restore pointer'],
++    [a => { a.tables.binding.pop(); },'missing binding'],
++    [a => { a.tables.binding.push(structuredClone(a.tables.binding[0])); },'duplicate binding'],
++    [a => { a.tables.binding[0].successor_index = 0; },'nonconsecutive binding'],
++    [a => { a.tables.binding[0].successor_belief = missing; },'belief join'],
++    [a => { a.tables.binding.find((b: Row) => b.actor_record === null).transition = missing; },'nonactor transition'],
++  ];
++  for (const [change,label] of changes) { const value = load('sim-full.json'); change(value); reseal(value); assertSealed(value); assert.throws(() => checkKnowledgeStructure(value), Error,label); }
++  for (const change of [(c: Row) => { c.continuity = 'ambiguous'; },(c: Row) => { c.exclusions.pop(); }]) {
++    const value = load('replay-full.json'); change(value.tables.certificate[0]); reseal(value); assertSealed(value); rejected(value);
++  }
++  for (const file of ['observable_state.ts','belief_state.ts','pipeline_episode.ts','pipeline_integration.ts','env_manager.ts']) {
++    assert.ok(!readFileSync(path.join(root,'sim-core/src',file),'utf8').includes('perspective_knowledge'),'production entrypoints remain opt-in');
++  }
++});
++
++test('restored fact retention and evidence-free request lifecycle reject at precise joins', () => {
++  const audit = load('sim-full.json');
++  const restored = audit.tables.boundary.find((b: Row) => b.boundary_type === 'restored');
++  const knowledge = audit.tables.knowledge.find((k: Row) => k.id === restored.bindings[0].knowledge);
++  const current = audit.tables.current.find((c: Row) => c.id === knowledge.current);
++  const fact = audit.tables.fact.find((f: Row) => current.facts.includes(f.id) && f.family !== 'K20');
++  current.facts = current.facts.filter((id: string) => id !== fact.id); reseal(audit); assertSealed(audit);
++  assert.throws(() => checkKnowledgeStructure(audit),/restored fact retention/);
++  const future = load('sim-full.json'); const request = future.tables.request.find((r: Row) => r.owner === 'p1' && r.cursor === 0);
++  const unknown = structuredClone(future.tables.fact.find((f: Row) => f.property === 'pp' && f.state === 'unknown' && f.owner === 'p1'));
++  Object.assign(unknown,{subject:'p1:roster:6:move:4:incarnation:99',observed_at:99,evidence:[]}); unknown.id = literalIdentity(unknown);
++  future.tables.fact.push(unknown); request.facts.push(unknown.id); reseal(future); assertSealed(future);
++  assert.throws(() => checkKnowledgeStructure(future),/request observation cursor/);
++  const terminal = load('sim-full.json'); const restore = terminal.tables.boundary.find((b: Row) => b.boundary_type === 'restored');
++  const context = terminal.tables.knowledge.find((k: Row) => k.id === restore.bindings[0].knowledge);
++  const now = terminal.tables.current.find((c: Row) => c.id === context.current);
++  const source = structuredClone(terminal.tables.source.find((s: Row) => s.source_type === 'owner_request' && s.owner === 'p1'));
++  Object.assign(source,{delivery_seq:3,delivery_cursor:now.cursor}); source.id = literalIdentity(source);
++  const fresh = structuredClone(terminal.tables.request.find((r: Row) => r.owner === 'p1'));
++  Object.assign(fresh,{source:source.id,sequence:3,cursor:now.cursor,prefix:now.prefix,facts:[]}); fresh.id = literalIdentity(fresh);
++  terminal.tables.source.push(source); terminal.tables.request.push(fresh); context.request = fresh.id; reseal(terminal); assertSealed(terminal);
++  assert.throws(() => checkKnowledgeStructure(terminal),/restored terminal request/);
++  context.request = null;
++  const nextBoundary = structuredClone(restore); Object.assign(nextBoundary,{index:restore.index+1,parent:restore.id,restored_from:restore.id});
++  for (const row of nextBoundary.bindings) {
++    const old = restore.bindings.find((r: Row) => r.owner === row.owner);
++    const oldKnowledge = terminal.tables.knowledge.find((k: Row) => k.id === old.knowledge);
++    const oldCurrent = terminal.tables.current.find((c: Row) => c.id === oldKnowledge.current);
++    const newCurrent = structuredClone(oldCurrent); newCurrent.parent = oldCurrent.id; newCurrent.id = literalIdentity(newCurrent);
++    const newKnowledge = structuredClone(oldKnowledge); Object.assign(newKnowledge,{current:newCurrent.id,boundary:nextBoundary.index,request:row.owner === 'p1' ? fresh.id : null}); newKnowledge.id = literalIdentity(newKnowledge);
++    const verdict = structuredClone(terminal.tables.verdict.find((v: Row) => v.id === old.verdict)); verdict.knowledge = newKnowledge.id; verdict.id = literalIdentity(verdict);
++    Object.assign(row,{knowledge:newKnowledge.id,verdict:verdict.id});
++    terminal.tables.current.push(newCurrent); terminal.tables.knowledge.push(newKnowledge); terminal.tables.verdict.push(verdict);
++    const binding: Row = {kind:'binding',origin:terminal.origin,owner:row.owner,input_index:restore.index,successor_index:nextBoundary.index,
++      input_knowledge:old.knowledge,successor_knowledge:row.knowledge,input_observation:old.observation_id,successor_observation:row.observation_id,
++      input_belief:old.belief_id,successor_belief:row.belief_id,transition:null,actor_record:null};
++    binding.id = literalIdentity(binding); terminal.tables.binding.push(binding);
++  }
++  nextBoundary.id = literalIdentity(nextBoundary); terminal.tables.boundary.push(nextBoundary); terminal.target_boundary = nextBoundary.id; reseal(terminal); assertSealed(terminal);
++  assert.throws(() => checkKnowledgeStructure(terminal),/restored terminal request/);
++});
++
++test('a source-semantic false value can still pass structure; no assurance is minted', () => {
++  const value = load('negative-false-item.json'); assertSealed(value);
++  assert.deepEqual(checkKnowledgeStructure(value), diagnostic);
++  assert.deepEqual(checkKnowledgeStructure(parseKnowledgeJson(serializeKnowledgeWire(value))), diagnostic);
++});
++
++function pythonEnvironment(): NodeJS.ProcessEnv {
++  const env = { ...process.env };
++  for (const key of Object.keys(env)) if (['PYTHONUTF8', 'PYTHONIOENCODING', 'PYTHONPATH'].includes(key.toUpperCase())) delete env[key];
++  env.PYTHONPATH = path.join(root, 'trainer/src');
++  return env;
++}
++function pythonExecutable(): string {
++  if (process.env.PYTHON) return process.env.PYTHON;
++  const conda = 'D:\\Anaconda\\envs\\neuralgpu\\python.exe';
++  return existsSync(conda) ? conda : process.platform === 'win32' ? 'python' : 'python3';
++}
++test('compiled TS bytes reach explicit Python CLI with cwd independence, clean errors and no source mutation', () => {
++  const cwd = mkdtempSync(path.join(tmpdir(), 'pk11-ts-cli-'));
++  const env = pythonEnvironment();
++  assert.ok(Object.keys(env).every(key => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
++  const invoke = (wire: Buffer) => spawnSync(pythonExecutable(), ['-m', 'neural.perspective_knowledge', '--check-structure'], {
++    input: wire, cwd, env, encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 30000,
++  });
++  try {
++    for (const form of ['full', 'ordinary', 'compact']) {
++      const value = load('sim-' + form + '.json'); const before = literalCanonical(value);
++      const good = invoke(serializeKnowledgeWire(value)); assert.ifError(good.error);
++      assert.equal(good.status, 0, good.stderr); assert.equal(good.stderr, '');
++      assert.deepEqual(JSON.parse(good.stdout), diagnostic); assert.ok(good.stdout.length < 256);
++      assert.equal(literalCanonical(value), before);
++    }
++    const stderr = new Set<string>();
++    for (const wire of [Buffer.from('{"private_secret":"do-not-print", "x":-0}'), Buffer.from([0xff]), Buffer.from(literalCanonical(load('negative-broken-request.json')))]) {
++      const failed = invoke(wire); assert.ifError(failed.error);
++      assert.equal(failed.status, 2); assert.equal(failed.stdout, ''); assert.ok(failed.stderr.length > 0 && failed.stderr.length < 256);
++      assert.ok(!failed.stderr.includes('do-not-print')); stderr.add(failed.stderr);
++    }
++    assert.equal(stderr.size, 1, 'CLI exposes one constant error across parser/shape/join failures');
++    const recovery = invoke(serializeKnowledgeWire(load('replay-compact.json')));
++    assert.equal(recovery.status, 0, recovery.stderr); assert.deepEqual(JSON.parse(recovery.stdout), diagnostic);
++  } finally { rmSync(cwd, { recursive: true, force: true }); }
++  assert.equal(existsSync(cwd), false, 'temporary subprocess cwd is removed after errors');
++});
+--- /dev/null
++++ candidate-after/trainer/tests/test_perspective_knowledge.py
+@@ -0,0 +1,523 @@
++"""Independent PK-02A structure tests; fixture truth is not runtime authority."""
++
++import copy
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import shutil
++import unittest
++
++from neural.perspective_knowledge import (
++    canonical_knowledge_json, check_knowledge_structure, knowledge_identity,
++    parse_knowledge_json, serialize_knowledge_wire,
++)
++
++
++ROOT = Path(__file__).resolve().parents[2]
++FIXTURES = ROOT / "docs/contracts/fixtures/perspective-knowledge-v1"
++DIAGNOSTIC = {
++    "structure_valid": True,
++    "source_semantics_verified": False,
++    "completeness": "not_established",
++    "legacy_envelope_verified": False,
++}
++SIM_PROFILE = "sha256:b3cbd12ebcd584263135a5803ca07fe62321bda5a8f9c30e0ee2eaa4cf09bb38"
++REPLAY_PROFILE = "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5"
++
++
++def fixture(name):
++    # Read frozen data only. Never execute/import author_fixtures or check_contract.
++    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
++
++
++def independent_canonical(value):
++    return json.dumps(value, ensure_ascii=False, sort_keys=True,
++                      separators=(",", ":"), allow_nan=False).encode("utf-8")
++
++
++def independent_id(row):
++    payload = {key: value for key, value in row.items() if key != "id"}
++    preimage = ("pk/v1/" + row["kind"] + "\n").encode("ascii") + independent_canonical(payload)
++    return "sha256:" + hashlib.sha256(preimage).hexdigest()
++
++
++# Audited reference positions, stated here independently of runtime/schema helpers.
++# External legacy digests and all ordinary string values intentionally stay inert.
++REFERENCE_PATHS = {
++    "origin": (), "profile": (),
++    "source": ("origin",), "prefix": ("origin",),
++    "evidence": ("origin", "source", "prefix"),
++    "certificate": ("source", "witnesses.*"),
++    "fact": ("evidence.*", "certificate"),
++    "starting": ("origin", "source", "parent", "facts.*", "crosswalk.*.certificate"),
++    "current": ("origin", "prefix", "parent", "facts.*"),
++    "request": ("origin", "source", "prefix", "facts.*"),
++    "knowledge": ("origin", "starting", "current", "request"),
++    "verdict": ("knowledge", "profile"),
++    "boundary": ("origin", "parent", "restored_from", "bindings.*.knowledge", "bindings.*.verdict"),
++    "binding": ("origin", "input_knowledge", "successor_knowledge"),
++    "audit": ("origin", "required_profile", "target_boundary"),
++}
++
++
++def replace_path(value, parts, replacements):
++    key, *rest = parts
++    if key == "*":
++        for index in range(len(value)):
++            if rest:
++                replace_path(value[index], rest, replacements)
++            elif value[index] in replacements:
++                value[index] = replacements[value[index]]
++    elif rest:
++        replace_path(value[key], rest, replacements)
++    elif value[key] in replacements:
++        value[key] = replacements[value[key]]
++
++
++def reseal(audit):
++    """Propagate changed IDs only through declared edges, never arbitrary text."""
++    rows = [row for table in audit["tables"].values() for row in table]
++    pending = {}
++    for _ in range(64):
++        for row in rows + [audit]:
++            for path in REFERENCE_PATHS[row["kind"]]:
++                replace_path(row, path.split("."), pending)
++            for field in ("facts", "evidence", "witnesses"):
++                if field in row:
++                    row[field].sort()
++        changed = {}
++        for row in rows:
++            new_id = independent_id(row)
++            if new_id != row["id"]:
++                changed[row["id"]] = new_id
++                row["id"] = new_id
++        if not changed:
++            for table in audit["tables"].values():
++                table.sort(key=lambda row: row["id"])
++            audit["id"] = independent_id(audit)
++            return audit
++        pending = changed
++    raise AssertionError("test resealer did not converge")
++
++
++def cli(payload, cwd=ROOT, explicit=True):
++    env = {key: value for key, value in os.environ.items()
++           if key.upper() not in {"PYTHONUTF8", "PYTHONIOENCODING"}}
++    env["PYTHONPATH"] = str(ROOT / "trainer/src")
++    argv = [sys.executable, "-m", "neural.perspective_knowledge"]
++    if explicit:
++        argv.append("--check-structure")
++    return subprocess.run(argv, input=payload, capture_output=True,
++                          cwd=cwd, env=env, timeout=30)
++
++
++class KnowledgeIdentityTests(unittest.TestCase):
++    def test_literal_unicode_origin_and_domain_preimage(self):
++        origin = {
++            "kind": "origin", "battle_key": "fixture-Éclair-😀",
++            "format": "gen9randombattle", "engine": "pokemon-showdown@0.11.10",
++            "rule_version": "pk-rules/v1",
++        }
++        literal = ('{"battle_key":"fixture-Éclair-😀","engine":"pokemon-showdown@0.11.10",'
++                   '"format":"gen9randombattle","kind":"origin","rule_version":"pk-rules/v1"}').encode("utf-8")
++        expected = "sha256:49f5047da5468699433a7ce46a10816402a235501e3b0276a722dcc4d2bcc58f"
++        self.assertEqual(canonical_knowledge_json(origin), literal)
++        self.assertEqual("sha256:" + hashlib.sha256(b"pk/v1/origin\n" + literal).hexdigest(), expected)
++        self.assertEqual(knowledge_identity(origin), expected)
++        origin["id"] = "sha256:" + "0" * 64
++        self.assertEqual(knowledge_identity(origin), expected)
++
++    def test_all_sixteen_frozen_preimages_and_identity_domains(self):
++        vectors = fixture("identity-vectors.json")
++        self.assertEqual(len(vectors), 16)
++        self.assertEqual({vector["kind"] for vector in vectors},
++                         set(REFERENCE_PATHS) | {"projection"})
++        for vector in vectors:
++            with self.subTest(kind=vector["kind"]):
++                obj = vector["object"]
++                before = copy.deepcopy(obj)
++                literal_preimage = bytes.fromhex(vector["preimage_utf8_hex"])
++                domain = ("pk/v1/" + vector["kind"] + "\n").encode("ascii")
++                self.assertTrue(literal_preimage.startswith(domain))
++                expected = "sha256:" + hashlib.sha256(literal_preimage).hexdigest()
++                self.assertEqual(expected, vector["id"])
++                self.assertEqual(canonical_knowledge_json({k: v for k, v in obj.items() if k != "id"}),
++                                 literal_preimage[len(domain):])
++                self.assertEqual(knowledge_identity(obj), expected)
++                self.assertEqual(obj, before)
++
++    def test_handwritten_all_control_escapes_and_no_normalization(self):
++        value = "".join(chr(i) for i in range(32)) + '"\\/É😀'
++        escaped = (r'\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r'
++                   r'\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017'
++                   r'\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f\"\\/É😀')
++        literal = ('{"s":"' + escaped + '"}').encode("utf-8")
++        self.assertEqual(canonical_knowledge_json({"s": value}), literal)
++        self.assertEqual(parse_knowledge_json(literal), {"s": value})
++        self.assertEqual(fixture("canonical-controls-vector.json")["canonical_json_literal"].encode("utf-8"), literal)
++        self.assertNotEqual(canonical_knowledge_json({"s": "É"}), canonical_knowledge_json({"s": "E\u0301"}))
++
++    def test_ordering_nested_id_and_scalar_roundtrip(self):
++        value = {"z": [2, 1], "a": {"id": "inert", "b": True, "a": None}}
++        self.assertEqual(canonical_knowledge_json(value), b'{"a":{"a":null,"b":true,"id":"inert"},"z":[2,1]}')
++        self.assertEqual(parse_knowledge_json(canonical_knowledge_json(value)), value)
++        self.assertEqual(parse_knowledge_json(r'{"s":"\ud83d\ude00"}'), {"s": "😀"})
++
++
++class KnowledgeStrictIngressTests(unittest.TestCase):
++    def test_raw_duplicate_numeric_and_unicode_rejections(self):
++        cases = [
++            b'{"a":1,"a":2}', b'{"a":1,"\\u0061":2}',
++            b'{"x":{"a":1,"a":1}}', b'{"x":-0}', b'{"x":1.0}',
++            b'{"x":1e0}', b'{"x":1E+0}', b'{"x":NaN}', b'{"x":Infinity}',
++            b'\xef\xbb\xbf{}', b'{"x":"\xff"}', b'{"x":"\xc0\xaf"}',
++            b'{"x":"\xed\xa0\x80"}', b'{"x":"\\ud800"}', b'{"x":"\\udfff"}',
++            b'{"x":"\\ud800a"}', b'{} {}', b'{"x":01}', b'{"x":+1}',
++        ]
++        for raw in cases:
++            with self.subTest(raw=repr(raw)):
++                with self.assertRaises(ValueError):
++                    parse_knowledge_json(raw)
++        for raw in ('\ufeff{}', '{"x":"\ud800"}'):
++            with self.assertRaises(ValueError):
++                parse_knowledge_json(raw)
++
++    def test_object_api_rejects_non_json_types_scalars_cycles_and_expansion(self):
++        cycle = []
++        cycle.append(cycle)
++        deep = 0
++        for _ in range(34):
++            deep = [deep]
++        cases = [1.0, -0.0, math.inf, math.nan, {"x": "\ud800"},
++                 {1: "key"}, {"é": "key"}, {"x": (1, 2)}, {"x": b"private"},
++                 {"x": "a" * 257}, {"x": "😀" * 257}, deep, cycle]
++        for value in cases:
++            with self.subTest(type=type(value).__name__):
++                with self.assertRaises(ValueError):
++                    canonical_knowledge_json(value)
++        with self.assertRaises(ValueError):
++            parse_knowledge_json(b" " * (16 * 1024 * 1024) + b"{}")
++        with self.assertRaises(ValueError):
++            parse_knowledge_json("[" * 34 + "0" + "]" * 34)
++        self.assertEqual(parse_knowledge_json(b'{"n":2147483647,"b":true}'), {"n": 2147483647, "b": True})
++        self.assertEqual(len(canonical_knowledge_json({"s": "😀" * 256})), 1032)
++
++    def test_nested_raw_request_strict_rules_and_separate_string_bound(self):
++        invalid = [r'{"x":1,"x":2}', r'{"x":-0}', r'{"x":1.0}', r'{"x":1e0}',
++                   r'{"x":"\ud800"}', '{"x":' + "[" * 34 + "0" + "]" * 34 + "}",
++                   '{"x":"' + "a" * 65537 + '"}']
++        for raw in invalid:
++            audit = fixture("sim-full.json")
++            source = next(row for row in audit["tables"]["source"] if row["raw_request"] is not None)
++            source["raw_request"]["json"] = raw
++            reseal(audit)
++            before = copy.deepcopy(audit)
++            with self.subTest(raw=raw[:40]):
++                with self.assertRaises(ValueError):
++                    check_knowledge_structure(audit)
++                with self.assertRaises(ValueError):
++                    serialize_knowledge_wire(audit)
++                self.assertEqual(audit, before)
++        audit = fixture("sim-full.json")
++        source = next(row for row in audit["tables"]["source"] if row["raw_request"] is not None)
++        # Whitespace is part of delivered text. The exception applies only to this field.
++        source["raw_request"]["json"] += " " * 300
++        reseal(audit)
++        self.assertEqual(check_knowledge_structure(audit), DIAGNOSTIC)
++        self.assertEqual(parse_knowledge_json(serialize_knowledge_wire(audit)), audit)
++
++
++class KnowledgeStructureTests(unittest.TestCase):
++    def assert_resealed_rejects(self, audit):
++        reseal(audit)
++        self.assertEqual(audit["id"], independent_id(audit))
++        for table in audit["tables"].values():
++            for row in table:
++                self.assertEqual(row["id"], independent_id(row))
++        before = copy.deepcopy(audit)
++        with self.assertRaises(ValueError):
++            check_knowledge_structure(audit)
++        self.assertEqual(audit, before)
++
++    def test_all_forms_both_owners_and_inert_text_have_only_limited_diagnostics(self):
++        names = [
++            "sim-full.json", "sim-ordinary.json", "sim-compact.json",
++            "replay-full.json", "replay-ordinary.json", "replay-compact.json",
++            "replay-suffix-full.json", "replay-suffix-ordinary.json", "replay-suffix-compact.json",
++            "sim-p1-consumer.json", "sim-p2-consumer.json", "replay-p1-consumer.json", "replay-p2-consumer.json",
++            "sim-p1-actionable-consumer.json", "sim-p1-wait-consumer.json",
++            "missing-original-full.json", "sim-concurrent-effects-full.json",
++            "inert-hash-full.json", "inert-self-hash-full.json", "inert-hash-ordinary.json",
++            "inert-self-hash-ordinary.json", "inert-hash-compact.json", "inert-self-hash-compact.json",
++            "inert-capability-words-consumer.json", "inert-missing-hash-consumer.json", "inert-array-consumer.json",
++        ]
++        for name in names:
++            with self.subTest(name=name):
++                value = fixture(name)
++                before = copy.deepcopy(value)
++                self.assertEqual(check_knowledge_structure(value, value["required_profile"]), DIAGNOSTIC)
++                serialized = serialize_knowledge_wire(value)
++                self.assertIsInstance(serialized, bytes)
++                self.assertEqual(parse_knowledge_json(serialized), value)
++                self.assertEqual(value, before)
++
++    def test_compact_expands_to_same_content_and_suffix_keeps_causal_domains(self):
++        for source in ("sim", "replay", "replay-suffix"):
++            full = fixture(source + "-full.json")
++            ordinary = fixture(source + "-ordinary.json")
++            compact = fixture(source + "-compact.json")
++            self.assertEqual(full["tables"], ordinary["tables"])
++            expanded = {kind: sorted(table.values(), key=lambda row: row["id"])
++                        for kind, table in compact["tables"].items()}
++            self.assertEqual(expanded, full["tables"])
++        for form in ("full", "ordinary", "compact"):
++            base, suffix = fixture("replay-" + form + ".json"), fixture("replay-suffix-" + form + ".json")
++            for kind in ("prefix", "current"):
++                def causal(audit):
++                    rows = audit['tables'][kind]
++                    rows = list(rows.values()) if isinstance(rows, dict) else rows
++                    return sorted([row for row in rows if (len(row['records']) if kind == 'prefix' else row['cursor']) <= 5], key=lambda row:row['id'])
++                self.assertEqual(causal(base), causal(suffix))
++            self.assertNotEqual(base["target_boundary"], suffix["target_boundary"])
++
++    def test_frozen_structural_rejections_have_independently_verified_ids(self):
++        names = [
++            "missing-key", "extra-key", "wrong-type", "wrong-discriminant", "duplicate",
++            "dangling-reference", "wrong-owner", "wrong-policy", "wrong-source", "broken-origin",
++            "broken-parent", "broken-request", "broken-history", "weaker-profile",
++            "compact-private-traversal", "compact-future-traversal", "crosswalk-foreign-owner",
++            "starting-revision-fork", "certificate-property", "foreign-original-source",
++            "wrong-value-tag", "wrong-effect-identity", "in-range-future-source", "unreachable-entry",
++            "cross-source-parent", "old-source-carryover", "same-source-proved-change",
++            "old-source-fact-certificate", "old-source-crosswalk-certificate", "stripped-replay-certificate",
++            "inert-orphan-full", "inert-orphan-compact", "consumer-privileged-field",
++            "consumer-nested-capability", "consumer-foreign-starting",
++        ]
++        for name in names:
++            with self.subTest(name=name):
++                value = fixture("negative-" + name + ".json")
++                before = copy.deepcopy(value)
++                self.assertEqual(value["id"], independent_id(value))
++                if "tables" in value:
++                    for table in value["tables"].values():
++                        for row in (table.values() if isinstance(table, dict) else table):
++                            self.assertEqual(row["id"], independent_id(row))
++                with self.assertRaises(ValueError):
++                    check_knowledge_structure(value, SIM_PROFILE if name == 'weaker-profile' else None)
++                self.assertEqual(value, before)
++
++    def test_resealed_wrong_kind_order_duplicates_binding_and_retention(self):
++        for mutation in ("wrong_kind", "order", "duplicate", "binding", "retention", "bool_integer"):
++            audit = fixture("replay-full.json")
++            with self.subTest(mutation=mutation):
++                if mutation == "wrong_kind":
++                    audit["tables"]["current"][0]["facts"][0] = audit["tables"]["prefix"][0]["id"]
++                elif mutation == "order":
++                    audit["tables"]["fact"].reverse()
++                    audit["id"] = independent_id(audit)
++                    with self.assertRaises(ValueError):
++                        check_knowledge_structure(audit)
++                    continue
++                elif mutation == "duplicate":
++                    audit["tables"]["fact"].append(copy.deepcopy(audit["tables"]["fact"][0]))
++                elif mutation == "binding":
++                    row = audit["tables"]["binding"][0]
++                    row["input_observation"] = "sha256:" + "0" * 64
++                elif mutation == "retention":
++                    child = next(row for row in audit["tables"]["starting"] if row["parent"])
++                    parent = next(row for row in audit["tables"]["starting"] if row["id"] == child["parent"])
++                    retained = set(parent["facts"]) & set(child["facts"])
++                    self.assertTrue(retained)
++                    child["facts"].remove(next(iter(retained)))
++                else:
++                    audit["tables"]["boundary"][0]["index"] = True
++                self.assert_resealed_rejects(audit)
++
++    def test_compact_map_key_profile_substitution_and_extra_schema_reject(self):
++        audit = fixture("sim-compact.json")
++        table = audit["tables"]["fact"]
++        table["sha256:" + "0" * 64] = table.pop(next(iter(table)))
++        audit["id"] = independent_id(audit)
++        with self.assertRaises(ValueError):
++            check_knowledge_structure(audit)
++        for value in (fixture("sim-full.json"), fixture("sim-p1-consumer.json")):
++            with self.assertRaises(ValueError):
++                check_knowledge_structure(value, REPLAY_PROFILE)
++        audit = fixture("sim-full.json")
++        audit["schema_override"] = fixture("schema.json")
++        with self.assertRaises(ValueError):
++            check_knowledge_structure(audit)
++
++    def test_source_truth_canaries_are_explicitly_unverified(self):
++        # These have valid structure but false source-derived truth/authority in
++        # the document checker. Accepting structure must not authenticate them.
++        for name in ("authority-label-forgery", "false-item", "false-original-value", "false-replay-reproof"):
++            with self.subTest(name=name):
++                value = fixture("negative-" + name + ".json")
++                self.assertEqual(check_knowledge_structure(value), DIAGNOSTIC)
++
++    def test_named_representation_keys_bounds_and_projection_consistency(self):
++        # Hand-authored structural claims only; these proofs do not establish truth.
++        for owner in ('p1','p2'):
++            audit=fixture('sim-full.json')
++            current=next(r for r in audit['tables']['current'] if r['owner']==owner and r['cursor']==3)
++            proof=next(r for r in audit['tables']['evidence'] if r['scope']=='public' and r['record_indices'] and max(r['record_indices'])<3)
++            claims=[('K13','side_condition_layers','Spikes',{'type':'integer','data':2}),
++                    ('K15','pending_power','FutureSight',{'type':'power','data':{'basis':'base_move','amount':120}}),
++                    ('K14','field_remaining','weather:RainDance',{'type':'field_timer','data':{'target_kind':'weather','name':'RainDance','remaining':{'min':4,'max':7}}}),
++                    ('K14','field_remaining','terrain:ElectricTerrain',{'type':'field_timer','data':{'target_kind':'terrain','name':'ElectricTerrain','remaining':{'min':5,'max':8}}})]
++            for family,prop,key,value in claims:
++                fact={'kind':'fact','owner':owner,'subject':owner+':side','family':family,'property':prop,'effect_key':key,'state':'known','value':value,
++                      'reason':'none','freshness':'current','precision':'interval' if prop=='field_remaining' else 'exact','observed_at':max(proof['record_indices'])+1,'evidence':[proof['id']],'certificate':None}
++                fact['id']=independent_id(fact); audit['tables']['fact'].append(fact); current['facts'].append(fact['id'])
++            reseal(audit); self.assertEqual(check_knowledge_structure(audit),DIAGNOSTIC)
++            controls=[('side_condition_layers',lambda f:f['value'].update(data=0)),
++                      ('side_condition_layers',lambda f:f['value'].update(data=4)),
++                      ('side_condition_layers',lambda f:f.update(value={'type':'text','data':'2'})),
++                      ('pending_power',lambda f:f['value']['data'].update(amount=65536)),
++                      ('field_remaining',lambda f:f.update(effect_key=None)),
++                      ('field_remaining',lambda f:f.update(effect_key='terrain:Wrong')),
++                      ('field_remaining',lambda f:f['value']['data']['remaining'].update(min=8,max=4))]
++            for prop,mutate in controls:
++                changed=copy.deepcopy(audit); mutate(next(f for f in changed['tables']['fact'] if f['property']==prop)); self.assert_resealed_rejects(changed)
++        for mutate in (lambda f:f.update(family='K01'),lambda f:f.update(value={'type':'text','data':'bad'}),lambda f:f.update(state='unknown',value={'type':'integer','data':1})):
++            projection=fixture('sim-p1-actionable-consumer.json')
++            f=next(f for f in projection['request']['facts'] if f['property']=='pp')
++            mutate(f); projection['id']=independent_id(projection)
++            with self.assertRaises(ValueError): check_knowledge_structure(projection)
++
++    def test_restoration_binding_certificate_and_delivery_controls(self):
++        mutations=[
++          ('restored pointer',lambda a:next(b for b in a['tables']['boundary'] if b['boundary_type']=='restored').update(restored_from=None)),
++          ('missing binding',lambda a:a['tables']['binding'].pop()),
++          ('duplicate binding',lambda a:a['tables']['binding'].append(copy.deepcopy(a['tables']['binding'][0]))),
++          ('binding sequence',lambda a:a['tables']['binding'][0].update(successor_index=0)),
++          ('belief join',lambda a:a['tables']['binding'][0].update(successor_belief='sha256:'+'0'*64)),
++          ('nonactor transition',lambda a:next(b for b in a['tables']['binding'] if b['actor_record'] is None).update(transition='sha256:'+'0'*64)),
++          ('request-only future',lambda a:next(f for f in a['tables']['fact'] if f['property']=='maybe_trapped' and f['state']=='known').update(observed_at=99))]
++        for name,mutate in mutations:
++            with self.subTest(name=name):
++                audit=fixture('sim-full.json'); mutate(audit); self.assert_resealed_rejects(audit)
++        for mutate in (lambda c:c.update(continuity='ambiguous'),lambda c:c['exclusions'].pop()):
++            audit=fixture('replay-full.json'); mutate(audit['tables']['certificate'][0]); self.assert_resealed_rejects(audit)
++        ordinary='{"raw_request.json":'+json.dumps('{"s":"'+'a'*300+'"}')+'}'
++        with self.assertRaises(ValueError): parse_knowledge_json(ordinary)
++
++    def test_restored_retention_and_evidence_free_request_lifecycle(self):
++        audit=fixture('sim-full.json')
++        restored=next(b for b in audit['tables']['boundary'] if b['boundary_type']=='restored')
++        knowledge=next(k for k in audit['tables']['knowledge'] if k['id']==restored['bindings'][0]['knowledge'])
++        current=next(c for c in audit['tables']['current'] if c['id']==knowledge['current'])
++        fact=next(f for f in audit['tables']['fact'] if f['id'] in current['facts'] and f['family']!='K20')
++        current['facts'].remove(fact['id']); reseal(audit)
++        with self.assertRaisesRegex(ValueError,'restored fact retention'): check_knowledge_structure(audit)
++        audit=fixture('sim-full.json'); request=next(r for r in audit['tables']['request'] if r['owner']=='p1' and r['cursor']==0)
++        fact=copy.deepcopy(next(f for f in audit['tables']['fact'] if f['property']=='pp' and f['state']=='unknown' and f['owner']=='p1'))
++        fact.update(subject='p1:roster:6:move:4:incarnation:99',observed_at=99,evidence=[]); fact['id']=independent_id(fact)
++        audit['tables']['fact'].append(fact); request['facts'].append(fact['id']); reseal(audit)
++        with self.assertRaisesRegex(ValueError,'request observation cursor'): check_knowledge_structure(audit)
++        audit=fixture('sim-full.json'); restored=next(b for b in audit['tables']['boundary'] if b['boundary_type']=='restored')
++        knowledge=next(k for k in audit['tables']['knowledge'] if k['id']==restored['bindings'][0]['knowledge'])
++        current=next(c for c in audit['tables']['current'] if c['id']==knowledge['current'])
++        source=copy.deepcopy(next(s for s in audit['tables']['source'] if s['source_type']=='owner_request' and s['owner']=='p1'))
++        source.update(delivery_seq=3,delivery_cursor=current['cursor']); source['id']=independent_id(source)
++        request=copy.deepcopy(next(r for r in audit['tables']['request'] if r['owner']=='p1'))
++        request.update(source=source['id'],sequence=3,cursor=current['cursor'],prefix=current['prefix'],facts=[]); request['id']=independent_id(request)
++        audit['tables']['source'].append(source); audit['tables']['request'].append(request); knowledge['request']=request['id']; reseal(audit)
++        with self.assertRaisesRegex(ValueError,'restored terminal request'): check_knowledge_structure(audit)
++        # Terminal requestlessness survives more than one restoration.
++        knowledge['request']=None
++        next_boundary=copy.deepcopy(restored); next_boundary.update(index=restored['index']+1,parent=restored['id'],restored_from=restored['id'])
++        for row in next_boundary['bindings']:
++            oldrow=next(r for r in restored['bindings'] if r['owner']==row['owner'])
++            oldknowledge=next(k for k in audit['tables']['knowledge'] if k['id']==oldrow['knowledge'])
++            oldcurrent=next(c for c in audit['tables']['current'] if c['id']==oldknowledge['current'])
++            newcurrent=copy.deepcopy(oldcurrent); newcurrent['parent']=oldcurrent['id']; newcurrent['id']=independent_id(newcurrent)
++            newknowledge=copy.deepcopy(oldknowledge); newknowledge.update(current=newcurrent['id'],boundary=next_boundary['index'],request=request['id'] if row['owner']=='p1' else None); newknowledge['id']=independent_id(newknowledge)
++            verdict=copy.deepcopy(next(v for v in audit['tables']['verdict'] if v['id']==oldrow['verdict'])); verdict['knowledge']=newknowledge['id']; verdict['id']=independent_id(verdict)
++            row.update(knowledge=newknowledge['id'],verdict=verdict['id'])
++            audit['tables']['current'].append(newcurrent); audit['tables']['knowledge'].append(newknowledge); audit['tables']['verdict'].append(verdict)
++            binding={'kind':'binding','origin':audit['origin'],'owner':row['owner'],'input_index':restored['index'],'successor_index':next_boundary['index'],
++                     'input_knowledge':oldrow['knowledge'],'successor_knowledge':row['knowledge'],'input_observation':oldrow['observation_id'],'successor_observation':row['observation_id'],
++                     'input_belief':oldrow['belief_id'],'successor_belief':row['belief_id'],'transition':None,'actor_record':None}
++            binding['id']=independent_id(binding); audit['tables']['binding'].append(binding)
++        next_boundary['id']=independent_id(next_boundary); audit['tables']['boundary'].append(next_boundary); audit['target_boundary']=next_boundary['id']; reseal(audit)
++        with self.assertRaisesRegex(ValueError,'restored terminal request'): check_knowledge_structure(audit)
++
++    def test_legacy_v1_v2_bytes_identities_and_entrypoints_remain_opt_in(self):
++        from trainer.tests.test_pipeline_record import _bundle
++        from neural.pipeline_record import validate_pipeline_bundle
++        from neural.ts_identity import verify_bundle_identities
++        for version in ('v1','v2'):
++            for owner in ('p1','p2'):
++                bundle=_bundle(unicode_prefix=True,perspective=owner,version=version)
++                frozen=independent_canonical(bundle); before=independent_canonical(validate_pipeline_bundle(bundle))
++                verify_bundle_identities(bundle)
++                check_knowledge_structure(fixture('sim-full.json'))
++                self.assertEqual(independent_canonical(validate_pipeline_bundle(bundle)),before)
++                self.assertEqual(independent_canonical(bundle),frozen)
++                verify_bundle_identities(bundle)
++        for name in ('trainer/src/neural/pipeline_record.py','trainer/src/neural/typed_state.py',
++                     'sim-core/src/observable_state.ts','sim-core/src/belief_state.ts','sim-core/src/pipeline_episode.ts'):
++            self.assertNotIn('perspective_knowledge',(ROOT/name).read_text(encoding='utf-8'))
++
++
++class KnowledgeCliTests(unittest.TestCase):
++    def test_cold_missing_tampered_contract_fails_and_restored_copy_recovers(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            sandbox=Path(temporary); package=sandbox/'trainer/src/neural'; package.mkdir(parents=True)
++            shutil.copyfile(ROOT/'trainer/src/neural/perspective_knowledge.py',package/'perspective_knowledge.py')
++            (package/'__init__.py').write_text('',encoding='utf-8')
++            folder=sandbox/'docs/contracts/fixtures/perspective-knowledge-v1'; folder.mkdir(parents=True)
++            names=('schema.json','profiles.json','property-types.json','property-contexts.json','typed-references.json')
++            for name in names: shutil.copyfile(FIXTURES/name,folder/name)
++            env={k:v for k,v in os.environ.items() if k.upper() not in ('PYTHONUTF8','PYTHONIOENCODING','PYTHONPATH')}; env['PYTHONPATH']=str(package.parent)
++            def run(): return subprocess.run([sys.executable,'-m','neural.perspective_knowledge','--check-structure'],input=independent_canonical(fixture('sim-full.json')),capture_output=True,cwd=sandbox,env=env,timeout=30)
++            self.assertEqual(run().returncode,0)
++            original=(folder/'schema.json').read_bytes(); (folder/'schema.json').unlink()
++            absent=run(); self.assertEqual(absent.returncode,2); self.assertEqual(absent.stdout,b'')
++            (folder/'schema.json').write_bytes(original+b' ')
++            changed=run(); self.assertEqual(changed.returncode,2); self.assertEqual(changed.stdout,b''); self.assertEqual(changed.stderr,absent.stderr)
++            (folder/'schema.json').write_bytes(original); self.assertEqual(run().returncode,0)
++    def test_valid_diagnostic_is_small_and_cwd_independent(self):
++        value = fixture("sim-full.json")
++        before = copy.deepcopy(value)
++        raw = serialize_knowledge_wire(value)
++        with tempfile.TemporaryDirectory() as elsewhere:
++            result = cli(raw, cwd=elsewhere)
++        self.assertEqual(result.returncode, 0, result.stderr)
++        self.assertEqual(json.loads(result.stdout), DIAGNOSTIC)
++        self.assertLess(len(result.stdout), 256)
++        self.assertEqual(result.stderr, b"")
++        self.assertEqual(value, before)
++        self.assertNotIn(b"fixture", result.stdout)
++        self.assertNotIn(b"sha256:", result.stdout)
++
++    def test_invalid_atomic_constant_diagnostic_and_failure_cleanup(self):
++        private = b'{"SECRET_PRIVATE_SOURCE":1,"SECRET_PRIVATE_SOURCE":2}'
++        invalid_join = fixture("negative-broken-request.json")
++        diagnostics = []
++        for raw in (private, b'\xff', b'{"n":-0}', independent_canonical(invalid_join)):
++            result = cli(raw)
++            self.assertEqual(result.returncode, 2)
++            self.assertEqual(result.stdout, b"")
++            self.assertNotIn(b"SECRET_PRIVATE_SOURCE", result.stderr)
++            self.assertNotIn(b"sha256:", result.stderr)
++            diagnostics.append(result.stderr)
++        self.assertTrue(diagnostics[0])
++        self.assertEqual(len(set(diagnostics)), 1)
++        self.assertEqual(cli(serialize_knowledge_wire(fixture("sim-full.json"))).returncode, 0)
++
++    def test_cli_requires_explicit_opt_in_mode(self):
++        result = cli(serialize_knowledge_wire(fixture("sim-full.json")), explicit=False)
++        self.assertEqual(result.returncode, 2)
++        self.assertEqual(result.stdout, b"")
++
++
++if __name__ == "__main__":
++    unittest.main()

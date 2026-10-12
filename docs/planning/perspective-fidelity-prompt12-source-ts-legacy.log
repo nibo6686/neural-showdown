@@ -1,0 +1,23 @@
+✔ PIPELINE-001 links two real transitions for both perspectives and validates records in fresh Python processes (3294.2886ms)
+✔ stale and simulator-rejected candidates leave the committed boundary unchanged (65.0864ms)
+✔ v2 joint transitions restore deterministic candidates and retain committed lineage after rejection (2262.3881ms)
+✔ v2 voluntary switch-plus-switch remains a joint request pair with deterministic publication (364.0189ms)
+✔ a naturally hidden Arena Trap rejection preserves the committed pipeline lineage (152.3423ms)
+✔ unresolved protocol aliases stop pipeline projection while known raw-only records remain distinct (17.2803ms)
+✔ rejected protocol candidates preserve committed state, lineage and the next transition (2082.1282ms)
+✔ per-player request states distinguish waiting from absence and retain explicit execution guards (24.7732ms)
+✔ a real forced-switch boundary is checkpoint-free and requires an explicit future protocol (369.9317ms)
+✔ a seeded random-controller terminal trace is repeatable and projects both perspectives (396.5824ms)
+✔ observable-battle-state/v1 Python verifies current, successor and nested identities before publication (6269.952ms)
+✔ observable-battle-state/v2 Python verifies current, successor and nested identities before publication (5848.9462ms)
+✔ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (78.8481ms)
+✔ observable-battle-state/v1 two-transition historical reference fields reject malformed values at every position (19371.8538ms)
+✔ observable-battle-state/v2 two-transition historical reference fields reject malformed values at every position (19528.4714ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 60320.84

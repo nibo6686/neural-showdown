@@ -1,0 +1,97 @@
+{
+  "kind": "projection",
+  "schema": "perspective-knowledge-consumer/v1",
+  "owner": "p2",
+  "policy": "public-replay-owner-starting/v1",
+  "boundary": 5,
+  "required_profile": "sha256:40a8a9da38f3e5a7f7b378c3422c13575543947983a983bfa30a183d9f7743c5",
+  "result": "incomplete",
+  "starting": [
+    {
+      "owner": "p2",
+      "subject": "p2:roster:1",
+      "family": "K02",
+      "property": "starting_moves",
+      "state": "known",
+      "value": {
+        "type": "texts",
+        "data": [
+          "Tackle"
+        ]
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 5,
+      "effect_key": null
+    },
+    {
+      "owner": "p2",
+      "subject": "p2:roster:1",
+      "family": "K01",
+      "property": "roster_species",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "Zoroark"
+      },
+      "reason": "none",
+      "freshness": "immutable",
+      "precision": "exact",
+      "observed_at": 6,
+      "effect_key": null
+    }
+  ],
+  "starting_crosswalk": [
+    {
+      "appearance": "p2:appearance:1",
+      "roster": "p2:roster:1"
+    }
+  ],
+  "current": [
+    {
+      "owner": "p2",
+      "subject": "p2:side",
+      "family": "K20",
+      "property": "boundary_kind",
+      "state": "known",
+      "value": {
+        "type": "text",
+        "data": "restored"
+      },
+      "reason": "none",
+      "freshness": "current",
+      "precision": "exact",
+      "observed_at": 7,
+      "effect_key": null
+    },
+    {
+      "owner": "p2",
+      "subject": "p2:roster:1:move:1:incarnation:0",
+      "family": "K07",
+      "property": "pp",
+      "state": "unknown",
+      "value": null,
+      "reason": "private_request_unavailable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": null,
+      "effect_key": null
+    },
+    {
+      "owner": "p2",
+      "subject": "p2:side",
+      "family": "K20",
+      "property": "request_presence",
+      "state": "inapplicable",
+      "value": null,
+      "reason": "proved_rule_inapplicable",
+      "freshness": "current",
+      "precision": "not_applicable",
+      "observed_at": 7,
+      "effect_key": null
+    }
+  ],
+  "request": null,
+  "id": "sha256:5efd58636001d108b6eafb4a4ff787036e448941f2dce11ff6a7784953c831de"
+}

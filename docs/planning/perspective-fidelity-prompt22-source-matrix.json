@@ -1,0 +1,389 @@
+{
+  "scope": "source characterization only; no provider, causal crosswalk or delivery ledger implemented",
+  "evidence": [
+    {
+      "case": "native-generation",
+      "events": [
+        "generate",
+        "pack",
+        "generate",
+        "pack"
+      ],
+      "owners": [
+        "p1",
+        "p2"
+      ],
+      "sizes": [
+        6,
+        6
+      ],
+      "original_provider": "not_adopted",
+      "raw_keys": [
+        "name",
+        "species",
+        "gender",
+        "shiny",
+        "level",
+        "moves",
+        "ability",
+        "evs",
+        "ivs",
+        "item",
+        "teraType",
+        "role"
+      ],
+      "observation_only": "test-owned tap; no provider or authority adopted"
+    },
+    {
+      "case": "packing-loss",
+      "same_packed_bytes": true,
+      "original": {
+        "name": "Same",
+        "species": "Snorlax",
+        "ability": "Immunity",
+        "item": "",
+        "moves": [
+          "Splash"
+        ],
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "role": "control"
+      },
+      "unpacked": {
+        "name": "Same",
+        "species": "Snorlax",
+        "item": "",
+        "ability": "Immunity",
+        "moves": [
+          "Splash"
+        ],
+        "nature": ""
+      },
+      "implication": "raw pre-pack array required; packed/request/snapshot is not original authority"
+    },
+    {
+      "case": "initial-Trace",
+      "owner": "p1",
+      "original": {
+        "name": "",
+        "species": "Alakazam",
+        "item": "",
+        "ability": "Trace",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Splash"
+        ]
+      },
+      "current_species": "Alakazam",
+      "current_ability": "naturalcure",
+      "request_move": "splash",
+      "witness": "|-ability|p1a: Alakazam|Natural Cure|[from] ability: Trace|[of] p2a: Blissey"
+    },
+    {
+      "case": "initial-Imposter",
+      "owner": "p1",
+      "original": {
+        "name": "",
+        "species": "Ditto",
+        "item": "",
+        "ability": "Imposter",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Transform"
+        ]
+      },
+      "current_species": "Blissey",
+      "current_ability": "naturalcure",
+      "request_move": "softboiled",
+      "witness": "|-transform|p1a: Ditto|p2a: Blissey|[from] ability: Imposter"
+    },
+    {
+      "case": "initial-Schooling",
+      "owner": "p1",
+      "original": {
+        "name": "",
+        "species": "Wishiwashi",
+        "item": "",
+        "ability": "Schooling",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Splash"
+        ]
+      },
+      "current_species": "Wishiwashi-School",
+      "current_ability": "schooling",
+      "request_move": "splash",
+      "witness": "|-formechange|p1a: Wishiwashi|Wishiwashi-School||[from] ability: Schooling"
+    },
+    {
+      "case": "initial-crowned-start",
+      "owner": "p1",
+      "original_species": "Zacian",
+      "original_moves": [
+        "Iron Head"
+      ],
+      "current_base_species": "Zacian-Crowned",
+      "current_base_moves": [
+        "behemothblade"
+      ],
+      "implication": "runtime base fields also cannot substitute for pre-effect submission"
+    },
+    {
+      "case": "duplicate-switch-restore",
+      "owner": "p1",
+      "duplicate_idents": [
+        "p1: Same",
+        "p1: Same"
+      ],
+      "current_to_original": [
+        2,
+        1
+      ],
+      "serialized_order": "21",
+      "authority": "privileged object/order probe only; snapshot cannot supply originals"
+    },
+    {
+      "case": "illusion",
+      "owner": "p1",
+      "original_species": "Zoroark",
+      "public_display": "Mask/Pikachu",
+      "replacement": "|replace|p1a: Fox|Zoroark, M",
+      "same_object": true,
+      "claim": "display is not an immutable roster certificate"
+    },
+    {
+      "case": "wait-restore-terminal",
+      "owner": "p1",
+      "wait": true,
+      "other_forced": true,
+      "terminal_requests": [
+        null,
+        null
+      ],
+      "fresh_delivery_authority": "absent; reconstructed delivery is a reemit, not a new original"
+    },
+    {
+      "case": "initial-Trace",
+      "owner": "p2",
+      "original": {
+        "name": "",
+        "species": "Alakazam",
+        "item": "",
+        "ability": "Trace",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Splash"
+        ]
+      },
+      "current_species": "Alakazam",
+      "current_ability": "naturalcure",
+      "request_move": "splash",
+      "witness": "|-ability|p2a: Alakazam|Natural Cure|[from] ability: Trace|[of] p1a: Blissey"
+    },
+    {
+      "case": "initial-Imposter",
+      "owner": "p2",
+      "original": {
+        "name": "",
+        "species": "Ditto",
+        "item": "",
+        "ability": "Imposter",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Transform"
+        ]
+      },
+      "current_species": "Blissey",
+      "current_ability": "naturalcure",
+      "request_move": "softboiled",
+      "witness": "|-transform|p2a: Ditto|p1a: Blissey|[from] ability: Imposter"
+    },
+    {
+      "case": "initial-Schooling",
+      "owner": "p2",
+      "original": {
+        "name": "",
+        "species": "Wishiwashi",
+        "item": "",
+        "ability": "Schooling",
+        "gender": "",
+        "nature": "",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "hp": 31,
+          "atk": 31,
+          "def": 31,
+          "spa": 31,
+          "spd": 31,
+          "spe": 31
+        },
+        "level": 100,
+        "moves": [
+          "Splash"
+        ]
+      },
+      "current_species": "Wishiwashi-School",
+      "current_ability": "schooling",
+      "request_move": "splash",
+      "witness": "|-formechange|p2a: Wishiwashi|Wishiwashi-School||[from] ability: Schooling"
+    },
+    {
+      "case": "initial-crowned-start",
+      "owner": "p2",
+      "original_species": "Zacian",
+      "original_moves": [
+        "Iron Head"
+      ],
+      "current_base_species": "Zacian-Crowned",
+      "current_base_moves": [
+        "behemothblade"
+      ],
+      "implication": "runtime base fields also cannot substitute for pre-effect submission"
+    },
+    {
+      "case": "duplicate-switch-restore",
+      "owner": "p2",
+      "duplicate_idents": [
+        "p2: Same",
+        "p2: Same"
+      ],
+      "current_to_original": [
+        2,
+        1
+      ],
+      "serialized_order": "21",
+      "authority": "privileged object/order probe only; snapshot cannot supply originals"
+    },
+    {
+      "case": "illusion",
+      "owner": "p2",
+      "original_species": "Zoroark",
+      "public_display": "Mask/Pikachu",
+      "replacement": "|replace|p2a: Fox|Zoroark, F",
+      "same_object": true,
+      "claim": "display is not an immutable roster certificate"
+    },
+    {
+      "case": "wait-restore-terminal",
+      "owner": "p2",
+      "wait": true,
+      "other_forced": true,
+      "terminal_requests": [
+        null,
+        null
+      ],
+      "fresh_delivery_authority": "absent; reconstructed delivery is a reemit, not a new original"
+    }
+  ]
+}

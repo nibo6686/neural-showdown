@@ -78,6 +78,7 @@ Reserve (Blissey)
 - Splash
 `)!;
   const p2 = Teams.import(`Pawmot
+Ability: Iron Fist
 - Revival Blessing
 - Splash
 

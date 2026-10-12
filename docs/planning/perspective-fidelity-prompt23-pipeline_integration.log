@@ -1,0 +1,18 @@
+✔ PIPELINE-001 links two real transitions for both perspectives and validates records in fresh Python processes (5666.4766ms)
+✔ stale and simulator-rejected candidates leave the committed boundary unchanged (76.3282ms)
+✔ v2 joint transitions restore deterministic candidates and retain committed lineage after rejection (2232.1421ms)
+✔ v2 voluntary switch-plus-switch remains a joint request pair with deterministic publication (365.1489ms)
+✔ a naturally hidden Arena Trap rejection preserves the committed pipeline lineage (169.0293ms)
+✔ unresolved protocol aliases stop pipeline projection while known raw-only records remain distinct (19.3906ms)
+✔ rejected protocol candidates preserve committed state, lineage and the next transition (2368.8023ms)
+✔ per-player request states distinguish waiting from absence and retain explicit execution guards (26.6102ms)
+✔ a real forced-switch boundary is checkpoint-free and requires an explicit future protocol (375.1512ms)
+✔ a seeded random-controller terminal trace is repeatable and projects both perspectives (381.326ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11963.3272

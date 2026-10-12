@@ -1,0 +1,19 @@
+# Prompt19 lead review — accepted bounded replay import seam
+
+2026-10-10. HEAD `accab655c26ada18124e790b16d5770c8bd17894`. Accept the local candidate: new replay adapter and test only, plus bounded evidence. No remaining bounded blocker found by lead inspection or fresh independent read-only review.
+
+The adapter retains decoded source records and positional inverse maps, separates original source cursor from routed-prefix length, and classifies only the approved metadata. All selected records admit before a fresh extractor is constructed. Private transport and unknown/malformed/unsupported records reject. Per-routed-boundary validation reports the original source index of the first extraction/prefix contradiction; errors contain no usable partial result. Valid framing/tier removal and the existing public Healing Wish seam preserve extracted public state. Returned traces/views are frozen; unselected suffix values do not influence the selected result.
+
+Actual Python HTML-loader output crosses UTF-8 byte JSON into the production adapter. Both owners, literal maps, metadata-only identity equality, duplicate positions, same-turn HP, suffix independence, native rated behavior and unchanged direct strict rejection are exercised. Twenty-four viable projections traverse the unchanged TS projector and Python identity/prefix/typed-state checks. These are bounded structural checks, not proof of complete knowledge or application caller adoption.
+
+Fresh lead execution: direct TypeScript build passes; adapter6/6, loader8/8, Python characterization2/2, TS characterization3/3 and parser3/3 pass. Encoding overrides/report variables unset; old reports not regenerated. Requirement mode reproduces the retained two Python failures and one TS failure, exit1 each. Random winner cursor368 succeeds through projection/Python checks, while the full raw-rating suffix rejects at index368. OU full admission rejects at173; its later grammar and terminal owned-item-history blockers remain outside acceptance.
+
+Fresh hash checks: all1,438 protected baseline files, all11 candidate inventory files and all97 compiled inventory files match. The initial lead inventory iteration misread the candidate array as a hash map; corrected schema-aware comparison confirms zero actual mismatches. Whitespace checking passes with existing line-ending notices. The separately late-pinned lead plan-review document is disclosed by the worker and is not represented as a preimplementation pin. No original evidence was rewritten.
+
+Independent fresh-context reviewer inspected the implementation, tests, unchanged seams and inventory, independently repeated adapter6/6 and verified protected/candidate hashes. Requested model/effort was gpt-6.1-sol/high; effective settings were not exposed. No review or validation above changes capture-flag meaning, trusted source authority, attestation, fidelity, completeness or training eligibility.
+
+## Next decision
+
+Header transport/admission now exposes semantic defects through a real callable seam. Next scope identity-aware public move retention across reentry: Random U-turn at106/243 and OU Ice Beam at119 are source-backed missing facts. The fresh reviewer independently reproduced Random U-turn present at cursors106/243 and lost immediately after reentry at107/244 for both owners, despite admission/projection success. Establish the exact carrier/appearance relation and duplicate/Illusion/Transform guards before authorizing persistence code. Do not solve retention by species/nickname aggregation or full-source current overlays. Passive item/ability revelations and structured effects remain separate bounded repairs. Existing application caller migration and knowledge/publication integration remain open.
+
+No later repair, commit, external publication, dataset or training was performed by this review.

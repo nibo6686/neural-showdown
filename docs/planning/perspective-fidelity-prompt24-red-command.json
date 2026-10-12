@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "-e",
+    "const assert=require('node:assert/strict'); const {PipelineIntegrationSession:S}=require('./sim-core/dist/src/pipeline_integration'); (async()=>{const s=await S.create({battle_id:'prompt24-red',format:'gen9randombattle',seed:[1,2,3,4]});try{assert.equal(typeof s.environment.getRequestEmissionTraceHandle,'function','actual session env lacks native emission/receipt retention');}finally{await s.close();}})().catch(e=>{console.error(e);process.exitCode=1});"
+  ],
+  "exit": 1,
+  "cwd": "C:\\Users\\cloud\\Downloads\\neural\\final",
+  "executed": "pre-edit"
+}

@@ -10,6 +10,7 @@ from .protocol_contract import _is_player_ident
 from .public_item import validate_public_items
 from .public_health import validate_public_health, bound_owned_target
 from .public_ability import validate_public_ability
+from .public_field import validate_public_field
 
 
 _ROOT = Path(__file__).resolve().parents[3]
@@ -173,6 +174,8 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
             raise ValueError("request is not owned by its perspective")
         _assert_no_private_slot_state(observation, label)
         prefix = observation["protocol_prefix"]
+        if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
+            validate_public_field(observation, label)
         view = observation.get("view", {})
         perspective = observation.get("perspective")
         def validate_consequences():

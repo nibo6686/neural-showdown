@@ -1,0 +1,829 @@
+diff --git a/sim-core/src/pipeline_integration.ts b/sim-core/src/pipeline_integration.ts
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
+ import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { carryTerminalOwner, withTerminalOwner } from './public_health';
+ import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
+@@ -359,6 +360,8 @@
+   readonly battle_id: string;
+   readonly format: string;
+   readonly #originalCreation: OriginalOwnerCreation;
++  readonly #deliveryLedger = new RequestDeliveryLedger();
++  #deliveryEnabled = false;
+   private readonly seed: number[];
+   private environment: LocalBattleEnv;
+   private snapshot: SeededBattleSnapshot | null;
+@@ -397,9 +400,17 @@
+       session.rawPrefix = [...initial.log_delta];
+       session.snapshot = session.environment.captureSeededSnapshot(null);
+       session.currentBoundaryValue = session.buildInitialBoundary(initial, session.snapshot);
+-      session.#originalCreation.activate();
++      if (session.#originalCreation.activate()) {
++        const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
++        session.#deliveryLedger.commit(delivery);
++        session.#deliveryEnabled = true;
++      } else {
++        // The accepted unstarted-restore compatibility path has no birth authority.
++        session.#deliveryLedger.revoke();
++      }
+       return session;
+     } catch (error) {
++      session.#deliveryLedger.revoke();
+       session.#originalCreation.revoke();
+       await session.environment.close();
+       throw error;
+@@ -409,6 +420,16 @@
+   /** Privileged process-local owner access, outside observation and wire APIs. */
+   getOriginalOwnerHolding(owner: PlayerID): OriginalOwnerHandle {
+     return this.#originalCreation.holding(owner);
++  }
++
++  getRequestDeliveryHandle(owner: PlayerID): RequestDeliveryHandle {
++    this.ensureOpen();
++    return this.#deliveryLedger.handle(owner);
++  }
++
++  readRequestDeliveryHistory(handle: RequestDeliveryHandle, owner: PlayerID, expected?: RequestDeliveryBoundary): RequestDeliveryHistory {
++    this.ensureOpen();
++    return this.#deliveryLedger.read(handle, owner, expected);
+   }
+ 
+   readOriginalOwnerHolding(handle: OriginalOwnerHandle, owner: PlayerID, packed?: string): OriginalOwnerEvidence {
+@@ -507,7 +528,8 @@
+ 
+     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
+     try {
+-      await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS);
++      const restored = await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS);
++      const restoration = this.#deliveryEnabled ? this.#deliveryLedger.restored(candidate, restored, inputBoundary) : undefined;
+       const candidateSnapshot = candidate.captureSeededSnapshot(null);
+       if (candidateSnapshot.state_fingerprint !== inputSnapshot.state_fingerprint
+         || candidateSnapshot.format !== inputSnapshot.format
+@@ -618,9 +640,13 @@
+           successor_observation: nextObservations[player],
+           successor_belief: nextBeliefs[player],
+         } as PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle);
+-      }
+-
++        validatePipelineEpisodeRecordBundle(bundles[player]!);
++      }
++
++      const delivery = this.#deliveryEnabled
++        ? this.#deliveryLedger.prepare(candidate, transitionResult.step_result, nextBoundary, inputBoundary, restoration) : undefined;
+       const previousEnvironment = this.environment;
++      if (delivery) this.#deliveryLedger.commit(delivery);
+       this.environment = candidate;
+       this.rawPrefix = nextRawPrefix;
+       this.snapshot = transitionResult.output_snapshot;
+@@ -644,6 +670,7 @@
+   async close(): Promise<void> {
+     if (this.closed) return;
+     this.closed = true;
++    this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
+     await this.environment.close();
+     for (const retired of this.retiredEnvironments) {
+diff --git a/sim-core/src/request_delivery_ledger.ts b/sim-core/src/request_delivery_ledger.ts
+new file mode 100644
+--- /dev/null
++++ b/sim-core/src/request_delivery_ledger.ts
+@@ -0,0 +1,140 @@
++import { isDeepStrictEqual } from 'node:util';
++import type { LocalBattleEnv } from './env_manager';
++import type { PipelineBoundary } from './pipeline_integration';
++import type { RequestEmissionReceipt } from './request_emission_trace';
++import { PLAYERS, type PlayerID, type StepResult } from './types';
++
++export type RequestDeliveryHandle = Readonly<object>;
++export interface CommittedRequestDelivery {
++  readonly owner: PlayerID;
++  readonly session_occurrence: Readonly<object>;
++  readonly sequence: number;
++  readonly delivery_reference: Readonly<object>;
++  readonly source: RequestEmissionReceipt;
++}
++export interface RequestDeliveryBoundary {
++  readonly owner: PlayerID;
++  readonly session_occurrence: Readonly<object>;
++  readonly observation_id: string;
++  readonly branch_id: string;
++  readonly step_index: number;
++  readonly prefix: readonly string[];
++  readonly boundary_cursor: number;
++  readonly parent: Readonly<{ observation_id: string; branch_id: string; step_index: number }> | null;
++  readonly trace: readonly RequestEmissionReceipt[];
++  readonly selected: RequestEmissionReceipt | null;
++  readonly current: CommittedRequestDelivery | null;
++}
++export interface RequestDeliveryHistory {
++  readonly boundaries: readonly RequestDeliveryBoundary[];
++  readonly deliveries: readonly CommittedRequestDelivery[];
++}
++const token = (): Readonly<object> => Object.freeze(Object.create(null));
++function fail(reason: string): never { throw new Error(`request-delivery/v1/${reason}`); }
++const raw = (result: StepResult, owner: PlayerID): unknown => result.requests[owner]?.raw ?? null;
++
++/** Trusted session controller; no transported trace or certificate admission API. */
++export class RequestDeliveryLedger {
++  readonly #occurrence = token();
++  #valid = true;
++  #parent: PipelineBoundary | null = null;
++  #histories: Record<PlayerID, RequestDeliveryHistory> = {
++    p1: Object.freeze({ boundaries: Object.freeze([]), deliveries: Object.freeze([]) }),
++    p2: Object.freeze({ boundaries: Object.freeze([]), deliveries: Object.freeze([]) }),
++  };
++  #handles: Record<PlayerID, RequestDeliveryHandle> = { p1: token(), p2: token() };
++  #raw: Record<PlayerID, unknown> = { p1: null, p2: null };
++  #restores = new WeakMap<object, { environment: LocalBattleEnv; parent: PipelineBoundary; traces: Record<PlayerID, readonly RequestEmissionReceipt[]> }>();
++  #prepared = new WeakMap<object, { parent: PipelineBoundary | null; boundary: PipelineBoundary; histories: Record<PlayerID, RequestDeliveryHistory>; raws: Record<PlayerID, unknown> }>();
++
++  #open(): void { if (!this.#valid) fail('revoked'); }
++  #owner(owner: PlayerID): void { if (!PLAYERS.includes(owner)) fail('invalid-owner'); }
++  #traces(environment: LocalBattleEnv): Record<PlayerID, readonly RequestEmissionReceipt[]> {
++    return { p1: environment.inspectRequestEmissionTrace(environment.getRequestEmissionTraceHandle('p1'), 'p1'),
++      p2: environment.inspectRequestEmissionTrace(environment.getRequestEmissionTraceHandle('p2'), 'p2') };
++  }
++  #select(trace: readonly RequestEmissionReceipt[], result: StepResult, owner: PlayerID): RequestEmissionReceipt | null {
++    if (!result.requests[owner] || result.views[owner]?.terminated) return null;
++    // The pinned single-record owner FIFO feeds the external handler in order.
++    // Only its last receipt can populate a settled reported request.
++    const selected = trace.at(-1);
++    if (!selected || selected.owner !== owner || !isDeepStrictEqual(JSON.parse(selected.request_json), raw(result, owner))) fail('settled-request-mismatch');
++    if (result.requests[owner]!.team_preview) fail('suppressed-request');
++    return selected;
++  }
++
++  /** Capture restoration before actions, while the held parent is still live. */
++  restored(environment: LocalBattleEnv, result: StepResult, parent: PipelineBoundary): object {
++    this.#open();
++    if (parent !== this.#parent) fail('foreign-parent');
++    const traces = this.#traces(environment);
++    for (const owner of PLAYERS) {
++      if (traces[owner].some(row => row.origin !== 'restore_reemit')) fail('unexpected-native-restore');
++      const selected = this.#select(traces[owner], result, owner);
++      if (selected && (!this.#histories[owner].boundaries.at(-1)?.current || !isDeepStrictEqual(raw(result, owner), this.#raw[owner]))) fail('missing-parent-delivery');
++    }
++    const proof = token(); this.#restores.set(proof, { environment, parent, traces }); return proof;
++  }
++
++  /** Both-owner preparation is detached; only this ledger can commit its token. */
++  prepare(environment: LocalBattleEnv, result: StepResult, boundary: PipelineBoundary, parent: PipelineBoundary | null, restoration?: object): object {
++    this.#open();
++    if (parent !== this.#parent || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0)) fail('foreign-parent');
++    const restore = restoration && this.#restores.get(restoration);
++    if (parent && (!restore || restore.environment !== environment || restore.parent !== parent)) fail('missing-restore-continuity');
++    const traces = this.#traces(environment);
++    const histories = {} as Record<PlayerID, RequestDeliveryHistory>;
++    const raws = {} as Record<PlayerID, unknown>;
++    for (const owner of PLAYERS) {
++      const observation = boundary.perspectives[owner].observation;
++      if (observation.perspective !== owner || observation.battle_id !== boundary.battle_id || observation.event_cursor !== observation.protocol_prefix.length) fail('observation-join');
++      const prior = this.#histories[owner];
++      const priorBoundary = prior.boundaries.at(-1);
++      if (parent && (!priorBoundary || priorBoundary.observation_id !== parent.perspectives[owner].observation.observation_id
++        || priorBoundary.branch_id !== parent.branch_id || priorBoundary.step_index !== parent.step_index
++        || priorBoundary.prefix.some((line, index) => observation.protocol_prefix[index] !== line))) fail('prefix-parent-join');
++      if (restore && (restore.traces[owner].length > traces[owner].length || restore.traces[owner].some((row, index) => row !== traces[owner][index]))) fail('foreign-trace-occurrence');
++      const selected = this.#select(traces[owner], result, owner);
++      let current: CommittedRequestDelivery | null = null;
++      let deliveries = prior.deliveries;
++      if (selected?.origin === 'native_emission') {
++        if (prior.boundaries.some(row => row.trace.some(receipt => receipt.producer_occurrence === selected.producer_occurrence))) fail('reused-occurrence');
++        current = Object.freeze({ owner, session_occurrence: this.#occurrence, sequence: deliveries.length,
++          delivery_reference: token(), source: selected });
++        deliveries = Object.freeze([...deliveries, current]);
++      } else if (selected) {
++        if (!restore || !restore.traces[owner].includes(selected) || !priorBoundary?.current
++          || !isDeepStrictEqual(raw(result, owner), this.#raw[owner])) fail('missing-parent-delivery');
++        current = priorBoundary.current;
++      }
++      const row: RequestDeliveryBoundary = Object.freeze({ owner, session_occurrence: this.#occurrence,
++        observation_id: observation.observation_id, branch_id: boundary.branch_id, step_index: boundary.step_index,
++        prefix: Object.freeze([...observation.protocol_prefix]), boundary_cursor: observation.protocol_prefix.length,
++        parent: parent ? Object.freeze({ observation_id: parent.perspectives[owner].observation.observation_id, branch_id: parent.branch_id, step_index: parent.step_index }) : null,
++        trace: traces[owner], selected, current });
++      histories[owner] = Object.freeze({ boundaries: Object.freeze([...prior.boundaries, row]), deliveries });
++      raws[owner] = structuredClone(raw(result, owner));
++    }
++    const prepared = token(); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
++  }
++  commit(prepared: object): void {
++    this.#open();
++    const state = this.#prepared.get(prepared);
++    if (!state || state.parent !== this.#parent) fail('foreign-or-stale-preparation');
++    this.#prepared.delete(prepared);
++    this.#parent = state.boundary; this.#histories = state.histories; this.#raw = state.raws;
++  }
++  handle(owner: PlayerID): RequestDeliveryHandle { this.#open(); this.#owner(owner); return this.#handles[owner]; }
++  read(handle: RequestDeliveryHandle, owner: PlayerID, expected?: RequestDeliveryBoundary): RequestDeliveryHistory {
++    this.#open(); this.#owner(owner);
++    if (handle !== this.#handles[owner]) fail('foreign-or-forged-handle');
++    const history = this.#histories[owner];
++    if (expected && !history.boundaries.includes(expected)) fail('foreign-boundary-binding');
++    return history;
++  }
++  revoke(): void {
++    this.#valid = false; this.#handles = { p1: token(), p2: token() };
++    this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
++    this.#histories = { p1: { boundaries: [], deliveries: [] }, p2: { boundaries: [], deliveries: [] } };
++  }
++}
+diff --git a/sim-core/tests/request_delivery_ledger.test.ts b/sim-core/tests/request_delivery_ledger.test.ts
+new file mode 100644
+--- /dev/null
++++ b/sim-core/tests/request_delivery_ledger.test.ts
+@@ -0,0 +1,361 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { BattleStream, Teams } from 'pokemon-showdown';
++import { LocalBattleEnv } from '../src/env_manager';
++import { PipelineIntegrationSession, projectPipelineStepResult, type PipelineBoundary } from '../src/pipeline_integration';
++import { RequestDeliveryLedger } from '../src/request_delivery_ledger';
++import { PlayerStateExtractor } from '../src/state_extractor';
++import type { PlayerID, StepResult } from '../src/types';
++import type { ObservableBattleState } from '../src/observable_state';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++
++const options = { battle_id: 'prompt25', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
++const owners = ['p1', 'p2'] as const;
++const history = (s: PipelineIntegrationSession, owner: PlayerID) => s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(owner), owner);
++const environment = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
++const trace = (e: LocalBattleEnv, owner: PlayerID) => e.inspectRequestEmissionTrace(e.getRequestEmissionTraceHandle(owner), owner);
++
++async function initial() {
++  const reset = LocalBattleEnv.prototype.resetWithOptions;
++  let result!: StepResult;
++  LocalBattleEnv.prototype.resetWithOptions = async function(...args) { result = await reset.apply(this, args); return result; };
++  try { const s = await PipelineIntegrationSession.create(options); return { s, result }; }
++  finally { LocalBattleEnv.prototype.resetWithOptions = reset; }
++}
++async function controlled(p1: string, p2: string) {
++  const generate = Teams.generate; let count = 0;
++  Teams.generate = function() { return Teams.import(count++ % 2 === 0 ? p1 : p2)!; };
++  try { return await initial(); } finally { Teams.generate = generate; }
++}
++const splash = 'Snorlax\nAbility: Immunity\n- Splash\n\nBlissey\n- Splash';
++
++test('genuine native Random Battle: both-owner literal oracles, initial and two consecutive committed transitions', async () => {
++  const push = BattleStream.prototype.pushMessage, consume = PlayerStateExtractor.prototype.consumeChunk;
++  const producers: Record<PlayerID, string[]> = { p1: [], p2: [] }, receipts: Record<PlayerID, string[]> = { p1: [], p2: [] };
++  BattleStream.prototype.pushMessage = function(type, data) {
++    if (type === 'sideupdate' && typeof data === 'string') {
++      const i = data.indexOf('\n'), owner = data.slice(0, i) as PlayerID, line = data.slice(i + 1);
++      if (owners.includes(owner) && line.startsWith('|request|')) producers[owner].push(line);
++    }
++    return push.call(this, type, data);
++  };
++  PlayerStateExtractor.prototype.consumeChunk = function(chunk) {
++    const owner = (this as any).player as PlayerID;
++    for (const line of chunk.split('\n')) if (line.startsWith('|request|')) receipts[owner].push(line);
++    return consume.call(this, chunk);
++  };
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    s = (await initial()).s;
++    const occurrence = history(s, 'p1').boundaries[0].session_occurrence;
++    for (let step = 0; step <= 2; step++) {
++      for (const owner of owners) {
++        const h = history(s, owner), row = h.boundaries.at(-1)!;
++        const observation: ObservableBattleState = s.boundary.perspectives[owner].observation;
++        assert.equal(h.boundaries.length, step + 1); assert.equal(h.deliveries.length, step + 1);
++        assert.equal(row.current!.sequence, step); assert.equal(row.session_occurrence, occurrence);
++        assert.equal(row.observation_id, observation.observation_id); assert.deepEqual(row.prefix, observation.protocol_prefix);
++        assert.equal(row.boundary_cursor, observation.event_cursor); assert.equal(row.branch_id, s.boundary.branch_id);
++        assert.equal(row.selected, row.trace.at(-1)); assert.equal(row.selected!.request_record, producers[owner].at(-1));
++        assert.equal(row.selected!.receipt.record, receipts[owner].at(-1));
++        assert.equal(row.selected!.owner_emission_index, step ? 2 : 1);
++        assert.deepEqual(row.trace.map(r => r.origin), step ? ['restore_reemit', 'native_emission'] : ['native_emission']);
++        if (step) {
++          assert.equal(row.parent!.observation_id, h.boundaries[step - 1].observation_id);
++          assert.notEqual(row.selected!.producer_occurrence, h.boundaries[step - 1].selected!.producer_occurrence);
++          assert.deepEqual(row.prefix.slice(0, h.boundaries[step - 1].prefix.length), h.boundaries[step - 1].prefix);
++        }
++        assert.ok(Object.isFrozen(h) && Object.isFrozen(h.deliveries) && Object.isFrozen(row.prefix));
++        assert.ok(!JSON.stringify(s.boundary).includes('delivery_reference'));
++      }
++      if (step < 2) await s.step();
++    }
++  } finally { BattleStream.prototype.pushMessage = push; PlayerStateExtractor.prototype.consumeChunk = consume; await s?.close(); }
++});
++
++test('equal-label foreign sessions, other owner and transported diagnostic/capability controls reject', async () => {
++  const a = await initial(), b = await initial();
++  try {
++    const handle = a.s.getRequestDeliveryHandle('p1'), row = history(a.s, 'p1').boundaries[0];
++    assert.equal(a.s.boundary.perspectives.p1.observation.observation_id, b.s.boundary.perspectives.p1.observation.observation_id);
++    assert.throws(() => b.s.readRequestDeliveryHistory(handle, 'p1'), /foreign-or-forged/);
++    assert.throws(() => a.s.readRequestDeliveryHistory(handle, 'p2'), /foreign-or-forged/);
++    for (const copied of [{}, structuredClone(handle), JSON.parse(JSON.stringify(handle)), row.session_occurrence, row.current!.delivery_reference]) {
++      assert.throws(() => a.s.readRequestDeliveryHistory(copied, 'p1'), /foreign-or-forged/);
++    }
++    for (const changes of [{ owner: 'p2' }, { observation_id: 'foreign' }, { branch_id: 'foreign' }, { parent: { observation_id: row.observation_id, branch_id: row.branch_id, step_index: 0 } }, { prefix: row.prefix.map((r, i) => i ? r : '|turn|999') }, {}]) {
++      const coherentForeign = { ...row, ...changes } as any;
++      assert.equal(coherentForeign.step_index, row.step_index);
++      assert.throws(() => a.s.readRequestDeliveryHistory(handle, 'p1', coherentForeign), /foreign-boundary-binding/);
++    }
++    assert.throws(() => a.s.readRequestDeliveryHistory(handle, 'p1', history(b.s, 'p1').boundaries[0]), /foreign-boundary/);
++    assert.equal(a.s.readRequestDeliveryHistory(handle, 'p1', row).boundaries[0], row);
++  } finally { await a.s.close(); await b.s.close(); }
++});
++
++test('last FIFO selection: superseded requests and equal-text repetitions never backward-match', async () => {
++  const { s, result } = await controlled(splash, splash), ledger = new RequestDeliveryLedger();
++  try {
++    const env = environment(s), first = trace(env, 'p1')[0];
++    await (env as any).battleStream.write('>eval p1.emitRequest(p1.activeRequest); p1.emitRequest(p1.activeRequest);');
++    const equal = await env.stepWithOptions({}, { include_wait_requests: true });
++    ledger.commit(ledger.prepare(env, equal, s.boundary, null));
++    const row = ledger.read(ledger.handle('p1'), 'p1').boundaries[0];
++    assert.equal(row.trace.length, 3); assert.equal(row.selected!.owner_emission_index, 3);
++    assert.equal(row.selected!.request_record, first.request_record); assert.equal(row.current!.sequence, 0);
++    await (env as any).battleStream.write('>eval p1.emitRequest({...p1.activeRequest, wait:true});');
++    await env.stepWithOptions({}, { include_wait_requests: true });
++    const second = new RequestDeliveryLedger();
++    assert.throws(() => second.prepare(env, result, s.boundary, null), /settled-request-mismatch/);
++    assert.deepEqual(second.read(second.handle('p1'), 'p1').boundaries, []);
++  } finally { ledger.revoke(); await s.close(); }
++});
++
++test('held restore continuity retains parent reference without advancing sequence; copied/missing parent cannot', async () => {
++  const { s, result } = await controlled(splash, splash), ledger = new RequestDeliveryLedger();
++  const restored = new LocalBattleEnv('restore-ledger', options.format, options.seed);
++  try {
++    ledger.commit(ledger.prepare(environment(s), result, s.boundary, null));
++    const parent = s.boundary, historyBefore = ledger.read(ledger.handle('p1'), 'p1');
++    const resumed = await restored.resetFromSerialized(environment(s).serializeBattle(), { include_wait_requests: true });
++    const proof = ledger.restored(restored, resumed, parent);
++    // Synthetic boundary model only: actual native restore and held history are the source evidence.
++    const next = { ...parent, step_index: 1, branch_id: 'synthetic-restore-continuity' } as PipelineBoundary;
++    assert.throws(() => ledger.prepare(restored, resumed, next, parent, structuredClone(proof)), /missing-restore/);
++    assert.throws(() => ledger.restored(restored, resumed, structuredClone(parent)), /foreign-parent/);
++    ledger.commit(ledger.prepare(restored, resumed, next, parent, proof));
++    for (const owner of owners) {
++      const h = ledger.read(ledger.handle(owner), owner);
++      assert.equal(h.deliveries.length, 1); assert.equal(h.boundaries[1].current, h.boundaries[0].current);
++      assert.equal(h.boundaries[1].selected!.origin, 'restore_reemit');
++    }
++    assert.equal(historyBefore.boundaries.length, 1);
++    const missing = new RequestDeliveryLedger();
++    assert.throws(() => missing.prepare(restored, resumed, parent, null), /missing-parent-delivery/);
++    assert.throws(() => missing.commit({}), /foreign-or-stale/);
++  } finally { ledger.revoke(); await restored.close(); await s.close(); }
++});
++
++test('accepted equal-text native deliveries still get new sequences, not restore references', async () => {
++  const { s, result } = await controlled(splash, splash), ledger = new RequestDeliveryLedger();
++  const envs: LocalBattleEnv[] = [];
++  try {
++    ledger.commit(ledger.prepare(environment(s), result, s.boundary, null));
++    let parent = s.boundary, previous = environment(s);
++    for (let i = 1; i <= 2; i++) {
++      const env = new LocalBattleEnv('equal-native', options.format, options.seed); envs.push(env);
++      const resumed = await env.resetFromSerialized(previous.serializeBattle(), { include_wait_requests: true });
++      const proof = ledger.restored(env, resumed, parent);
++      await (env as any).battleStream.write('>eval p1.emitRequest(p1.activeRequest); p2.emitRequest(p2.activeRequest);');
++      const fresh = await env.stepWithOptions({}, { include_wait_requests: true });
++      // Test-only settled-boundary model, with real unchanged native requests.
++      const next = { ...parent, step_index: i, branch_id: `equal-native-${i}` };
++      ledger.commit(ledger.prepare(env, fresh, next, parent, proof)); parent = next; previous = env;
++    }
++    for (const owner of owners) {
++      const h = ledger.read(ledger.handle(owner), owner); assert.deepEqual(h.deliveries.map(d => d.sequence), [0, 1, 2]);
++      assert.equal(h.deliveries[0].source.request_record, h.deliveries[1].source.request_record);
++      assert.notEqual(h.deliveries[0].delivery_reference, h.deliveries[1].delivery_reference);
++    }
++  } finally { ledger.revoke(); for (const env of envs) await env.close(); await s.close(); }
++});
++
++for (const failure of ['rejection', 'second-owner', 'bundle'] as const) test(`real rejected candidate (${failure}) is atomic; valid continuation preserves parent history`, async () => {
++  const { s } = await initial(), before = { p1: history(s, 'p1'), p2: history(s, 'p2') }, boundary = s.boundary;
++  const diagnostics = LocalBattleEnv.prototype.diagnostics, inspect = LocalBattleEnv.prototype.inspectRequestEmissionTrace;
++  const freeze = Object.freeze;
++  try {
++    if (failure === 'rejection') LocalBattleEnv.prototype.diagnostics = function() {
++      const d = diagnostics.call(this) as any; return this.id.includes('step-') ? { ...d, last_error: 'synthetic rejection' } : d;
++    };
++    if (failure === 'second-owner') LocalBattleEnv.prototype.inspectRequestEmissionTrace = function(handle, owner) {
++      const rows = inspect.call(this, handle, owner);
++      if (this.id.includes('step-') && owner === 'p2' && rows.at(-1)?.origin === 'native_emission') throw new Error('synthetic second-owner failure');
++      return rows;
++    };
++    if (failure === 'bundle') Object.freeze = function<T>(value: T): Readonly<T> {
++      // Test-only fault at bundle construction, after ordinary observation/belief validation.
++      if ((value as any)?.schema_version === 'pipeline-linked-record/v1' && (value as any).perspective === 'p2') (value as any).source_ref = 'foreign-source';
++      return freeze(value);
++    };
++    await assert.rejects(s.step(), (error: Error) => {
++      assert.match(error.message, /rejected-action|second-owner|invalid|mismatch/);
++      if (failure === 'bundle') assert.match(error.stack!, /validatePipelineEpisodeRecordBundle/);
++      return true;
++    });
++    assert.equal(s.boundary, boundary);
++    for (const owner of owners) assert.equal(history(s, owner), before[owner]);
++    LocalBattleEnv.prototype.diagnostics = diagnostics; LocalBattleEnv.prototype.inspectRequestEmissionTrace = inspect; Object.freeze = freeze;
++    await s.step();
++    for (const owner of owners) { assert.equal(history(s, owner).deliveries.length, 2); assert.equal(history(s, owner).deliveries[1].sequence, 1); }
++  } finally { LocalBattleEnv.prototype.diagnostics = diagnostics; LocalBattleEnv.prototype.inspectRequestEmissionTrace = inspect; Object.freeze = freeze; await s.close(); }
++});
++
++test('post-commit retirement error keeps ledger; close revokes synchronously even when cleanup fails', async () => {
++  const { s } = await initial(), old = environment(s), close = old.close;
++  const handle = s.getRequestDeliveryHandle('p1');
++  old.close = async function() { throw new Error('synthetic retirement'); };
++  try {
++    await s.step(); assert.equal(history(s, 'p1').deliveries.length, 2);
++    old.close = close;
++    const current = environment(s), end = current.close;
++    current.close = async function() { assert.throws(() => s.readRequestDeliveryHistory(handle, 'p1'), /closed/); throw new Error('synthetic close'); };
++    await assert.rejects(s.close(), /synthetic close/);
++    assert.throws(() => s.getRequestDeliveryHandle('p1'), /closed/);
++    current.close = end; await current.close(); await old.close();
++  } finally { old.close = close; await s.close(); await old.close(); }
++});
++
++test('terminal/requestless observations retain history without current authority or invented sequences', async () => {
++  const { s, result } = await controlled(splash, splash), ledger = new RequestDeliveryLedger(), env = environment(s);
++  try {
++    ledger.commit(ledger.prepare(env, result, s.boundary, null));
++    const parent = s.boundary, restored = new LocalBattleEnv('terminal-ledger', options.format, options.seed);
++    try {
++      const resumed = await restored.resetFromSerialized(env.serializeBattle(), { include_wait_requests: true });
++      const proof = ledger.restored(restored, resumed, parent);
++      await (restored as any).battleStream.write('>forcewin p1');
++      const ended = await restored.stepWithOptions({}, { include_wait_requests: true });
++      const next = { ...parent, step_index: 1 };
++      ledger.commit(ledger.prepare(restored, ended, next, parent, proof));
++      for (const owner of owners) {
++        const h = ledger.read(ledger.handle(owner), owner); assert.equal(h.deliveries.length, 1);
++        assert.equal(h.boundaries[1].current, null); assert.equal(h.boundaries[1].selected, null);
++        assert.ok(h.boundaries[1].trace.length);
++      }
++    } finally { await restored.close(); }
++  } finally { ledger.revoke(); await s.close(); }
++});
++
++for (const owner of owners) test(`actual session force/wait/revival commitments include nonactor ${owner}`, async () => {
++  const other: PlayerID = owner === 'p1' ? 'p2' : 'p1';
++  const cases = [
++    { label: 'force', own: 'Mewtwo\nAbility: Pressure\n- Psystrike\n- Splash\n\nBlissey\n- Splash', foe: 'Magikarp\n- Splash\n\nSnorlax\n- Splash' },
++    { label: 'revival', own: 'Lead (Snorlax)\nAbility: Immunity\n- Memento\n\nPawmot\n- Revival Blessing\n- Splash', foe: 'Terminus (Snorlax)\nAbility: Immunity\n- Splash\n- Memento\n\nReserve (Blissey)\n- Splash' },
++  ];
++  for (const c of cases) {
++    const { s } = await controlled(owner === 'p1' ? c.own : c.foe, owner === 'p1' ? c.foe : c.own);
++    const action = (p: PlayerID, choice: string) => {
++      const r = s.boundary.perspectives[p].observation.request!;
++      const a = r.legal_actions.actions.find(a => a?.choice === choice)!;
++      assert.ok(a); return canonicalActionFromLegalAction(r, a.index, p);
++    };
++    try {
++      await s.step({ [owner]: action(owner, 'move 1'), [other]: action(other, 'move 1') } as any);
++      if (c.label === 'revival') {
++        await s.stepForcedSwitch(action(owner, 'switch 2'));
++        await s.step({ [owner]: action(owner, 'move 1'), [other]: action(other, 'move 2') } as any);
++      }
++      const selector = c.label === 'force' ? other : owner;
++      const waiting = selector === owner ? other : owner;
++      const h = history(s, waiting), row = h.boundaries.at(-1)!;
++      assert.ok(JSON.parse(row.selected!.request_json).wait);
++      assert.equal(row.current!.source.origin, 'native_emission');
++      assert.equal(history(s, selector).boundaries.at(-1)!.current!.source.origin, 'native_emission');
++      const r = s.boundary.perspectives[selector].observation.request!;
++      const legal = r.legal_actions.actions.find(a => a?.kind === (c.label === 'force' ? 'switch' : 'revive'))!;
++      const selected = canonicalActionFromLegalAction(r, legal.index, selector);
++      const before = history(s, waiting).deliveries.length;
++      if (c.label === 'force') await s.stepForcedSwitch(selected); else await s.stepRevival(selected);
++      assert.equal(history(s, waiting).deliveries.length, before + 1);
++      assert.equal(history(s, waiting).boundaries.at(-1)!.parent!.observation_id, row.observation_id);
++    } finally { await s.close(); }
++  }
++});
++
++test('one-owner tentative preparation failure, stale commit and exact foreign parent-prefix controls', async () => {
++  const { s, result } = await initial(), ledger = new RequestDeliveryLedger();
++  const restored = new LocalBattleEnv('adversarial-join', options.format, options.seed);
++  try {
++    const prepared = ledger.prepare(environment(s), result, s.boundary, null);
++    ledger.commit(prepared);
++    assert.throws(() => ledger.commit(prepared), /foreign-or-stale/);
++    const parent = s.boundary, resumed = await restored.resetFromSerialized(environment(s).serializeBattle(), { include_wait_requests: true });
++    const proof = ledger.restored(restored, resumed, parent);
++    const next = { ...parent, step_index: 1 };
++    const before = ledger.read(ledger.handle('p1'), 'p1');
++    const forged = structuredClone(next);
++    forged.perspectives.p2.observation.protocol_prefix[0] = '|turn|999';
++    assert.equal(forged.perspectives.p2.observation.protocol_prefix.length, parent.perspectives.p2.observation.protocol_prefix.length);
++    assert.throws(() => ledger.prepare(restored, resumed, forged, parent, proof), /prefix-parent/);
++    assert.equal(ledger.read(ledger.handle('p1'), 'p1'), before);
++    const invalidRaw = { ...resumed, requests: { ...resumed.requests, p2: { ...resumed.requests.p2!, raw: { ...resumed.requests.p2!.raw as any, wrong: true } } } };
++    assert.throws(() => ledger.prepare(restored, invalidRaw, next, parent, proof), /settled-request-mismatch/);
++    assert.equal(ledger.read(ledger.handle('p1'), 'p1'), before);
++    for (const changes of [{ perspective: 'p1' }, { event_cursor: parent.perspectives.p2.observation.event_cursor + 1 }]) {
++      const wrong = structuredClone(next); Object.assign(wrong.perspectives.p2.observation, changes);
++      assert.throws(() => ledger.prepare(restored, resumed, wrong, parent, proof), /observation-join/);
++    }
++    assert.throws(() => ledger.prepare(restored, resumed, next, structuredClone(parent), proof), /foreign-parent/);
++    const twin = new RequestDeliveryLedger();
++    twin.commit(twin.prepare(environment(s), result, parent, null));
++    assert.throws(() => twin.prepare(restored, resumed, next, parent, proof), /missing-restore/);
++    const p = ledger.prepare(restored, resumed, next, parent, proof);
++    ledger.commit(p); assert.throws(() => ledger.commit(p), /foreign-or-stale/);
++  } finally { ledger.revoke(); await restored.close(); await s.close(); }
++});
++
++test('failed initialization cannot escape a ledger; bare restore cannot invent original delivery', async () => {
++  const generate = Teams.generate; let calls = 0;
++  Teams.generate = function(...args) { if (++calls === 2) throw new Error('synthetic generation failure'); return generate.apply(this, args); };
++  try { await assert.rejects(PipelineIntegrationSession.create(options), /generation failure/); }
++  finally { Teams.generate = generate; }
++  const { s } = await initial(), restored = new LocalBattleEnv('bare', options.format, options.seed), ledger = new RequestDeliveryLedger();
++  try {
++    const result = await restored.resetFromSerialized(environment(s).serializeBattle(), { include_wait_requests: true });
++    assert.throws(() => ledger.prepare(restored, result, s.boundary, null), /missing-parent-delivery/);
++    assert.deepEqual(ledger.read(ledger.handle('p1'), 'p1').deliveries, []);
++    ledger.revoke(); assert.throws(() => ledger.handle('p1'), /revoked/);
++  } finally { await restored.close(); await s.close(); }
++});
++
++test('actual team-preview auto-default remains an unselected intermediate emission', async () => {
++  const generate = Teams.generate; Teams.generate = function() { return Teams.import(splash)!; };
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create({ ...options, format: 'gen9ou' });
++    for (const owner of owners) {
++      const h = history(s, owner), row = h.boundaries[0];
++      assert.ok(row.trace.some(r => JSON.parse(r.request_json).teamPreview));
++      assert.ok(!JSON.parse(row.selected!.request_json).teamPreview);
++      assert.equal(row.selected, row.trace.at(-1)); assert.equal(h.deliveries.length, 1);
++    }
++  } finally { Teams.generate = generate; await s?.close(); }
++});
++
++test('actual consumed-restored request is suppressed; retain receipt without selected binding', async () => {
++  const { s, result } = await controlled(splash, splash), ledger = new RequestDeliveryLedger(), env = environment(s);
++  const restored = new LocalBattleEnv('consumed', options.format, options.seed);
++  try {
++    ledger.commit(ledger.prepare(env, result, s.boundary, null));
++    const parent = s.boundary;
++    await env.stepWithOptions({ p1: 'move 1' }, { include_wait_requests: true });
++    const resumed = await restored.resetFromSerialized(env.serializeBattle(), { include_wait_requests: true });
++    assert.equal(resumed.requests.p1, null); assert.ok(resumed.requests.p2);
++    const proof = ledger.restored(restored, resumed, parent);
++    const observations = projectPipelineStepResult(resumed, s.battle_id, [...parent.perspectives.p1.observation.protocol_prefix]);
++    const next = { ...parent, step_index: 1, perspectives: {
++      p1: { ...parent.perspectives.p1, observation: observations.p1 },
++      p2: { ...parent.perspectives.p2, observation: observations.p2 },
++    } };
++    ledger.commit(ledger.prepare(restored, resumed, next, parent, proof));
++    const h = ledger.read(ledger.handle('p1'), 'p1');
++    assert.equal(h.boundaries[1].trace.length, 1); assert.equal(h.boundaries[1].trace[0].origin, 'restore_reemit');
++    assert.equal(h.boundaries[1].selected, null); assert.equal(h.boundaries[1].current, null); assert.equal(h.deliveries.length, 1);
++    assert.equal(ledger.read(ledger.handle('p2'), 'p2').boundaries[1].current!.sequence, 0);
++  } finally { ledger.revoke(); await restored.close(); await s.close(); }
++});
++
++test('accepted legacy unstarted restore stays usable without any delivery ledger authority', async () => {
++  const donor = new LocalBattleEnv('legacy-donor', options.format, options.seed), reset = LocalBattleEnv.prototype.resetWithOptions;
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    await donor.reset(); const snapshot = donor.serializeBattle();
++    LocalBattleEnv.prototype.resetWithOptions = function(opts) { return this.resetFromSerialized(structuredClone(snapshot), opts); };
++    s = await PipelineIntegrationSession.create(options);
++    assert.throws(() => s!.getRequestDeliveryHandle('p1'), /revoked/);
++    assert.throws(() => s!.getOriginalOwnerHolding('p1'), /inactive/);
++    await s.step();
++    for (const owner of owners) assert.throws(() => s!.getRequestDeliveryHandle(owner), /revoked/);
++  } finally { LocalBattleEnv.prototype.resetWithOptions = reset; await s?.close(); await donor.close(); }
++});
+diff --git a/docs/planning/perspective-fidelity-prompt25-api.md b/docs/planning/perspective-fidelity-prompt25-api.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-api.md
+@@ -0,0 +1,32 @@
++# Prompt25 private committed session delivery API
++
++`PipelineIntegrationSession.getRequestDeliveryHandle(owner)` returns an opaque process-local owner handle. `readRequestDeliveryHistory(handle, owner, expected?)` returns immutable addressed history; optional `expected` must be the exact held boundary row, not a copied binding. Neither history JSON, tokens in diagnostics, a matching public label nor another owner's handle grants access. Creation occurrence remains distinct with identical public labels and seeds. Existing wire APIs gain no ledger fields.
++
++History shape:
++
++```
++{ boundaries: readonly RequestDeliveryBoundary[],
++  deliveries: readonly CommittedRequestDelivery[] }
++```
++
++Each boundary row has `owner`, `session_occurrence`, `observation_id`, `branch_id`, `step_index`, immutable exact `prefix`, `boundary_cursor` (prefix length), `parent: {observation_id, branch_id, step_index} | null`, full accepted-candidate `trace`, `selected: RequestEmissionReceipt | null`, and `current: CommittedRequestDelivery | null`. A delivery has `owner`, `session_occurrence`, contiguous per-owner `sequence` starting0, opaque `delivery_reference` and literal original `source` receipt. Each newly selected native emission at an accepted boundary adds one delivery; equal text still means separate occurrences/references. A selected supported reemission retains the held parent delivery object and sequence. Its boundary `selected` remains the literal reemission, while `current.source` stays the original native evidence.
++
++## Selection and provenance
++
++The pinned native producer sends one owner request per sideupdate chunk; owner streams append/consume FIFO. For external session owners, the real handler replaces current request on every ordinary request, clears the waiting slot first, keeps freshly received wait requests, auto-submits default for team preview and suppresses the first already-consumed restored request. Terminal reporting returns null. Choice-error legal filtering does not rewrite request.raw. The last positional owner receipt is the sole eligible settled source when a reported request exists. Its parsed literal JSON must deeply equal actual settled StepResult.requests[owner].raw. No backward search, rqid match, projected-observation raw inference or reconstructed exact-byte oracle is used. Team-preview reported requests are unsupported rather than certified.
++
++Initial/candidate traces are obtained only through direct privileged reads of the actual held environments; the controller has no trace/certificate input. `RequestDeliveryLedger` is internal trusted session machinery, not a public certification factory. Its prepare methods accept trusted controller boundaries/results, not independently authenticated arbitrary caller objects. Full accepted trace rows remain private history. Unselected/intermediate rows have no causal prefix/observation binding and remain unsupported for completeness. A boundary cursor is settled-prefix length, not a producer emission-time cursor. Trusted native FIFO remains necessary: identical bytes cannot detect arbitrary same-byte injection/substitution/reordering within a monkeypatched held stream.
++
++## Restore, commit and lifetime
++
++Capture actual resetFromSerialized result and receipt references before actions. Opaque restoration proof is tied to this held session parent and candidate environment, with a preserved trace prefix. Every reported restoration request must agree with held parent raw and have a parent delivery. No snapshot, JSON or labels recreate missing references. Snapshot fingerprint/root-seed/request checks retain their existing placement and reject before commitment.
++
++The existing appropriate episode bundle validator runs on each actor bundle before ledger preparation. Preparation constructs both owner histories and raw comparisons without mutation. An opaque token can commit only to its originating ledger and unchanged held parent. Commit and ordinary session state assignment execute synchronously at the existing successful swap before retiring the old environment. Any earlier failure discards candidate evidence; parent histories/sequences remain unchanged. Post-commit retirement failures retain the committed ledger and the existing retired-environment close retry mechanism.
++
++The accepted legacy unstarted-restore exception is explicitly signaled by existing OriginalOwnerCreation.activate returning false. That path retains old behavior, revokes the ledger, and supplies no delivery handle even after later transitions. A genuine native creation cannot bypass a required ledger check. Bare restore without held original delivery continuity is rejected for ledger adoption.
++
++Requestless/terminal outcomes have selected/current null and do not advance sequences; earlier deliveries and trace rows remain history. Wait delivery grants no action authority. Close revokes ledger access before awaiting cleanup; returned frozen diagnostics remain data. Initial/binding failures revoke all access before returning an error. Existing session close behavior is preserved, including its closed-state behavior after cleanup errors.
++
++Session APIs use existing pipeline/v1/closed errors on closed access. Internal ledger errors use request-delivery/v1/ with revoked, invalid-owner, settled-request-mismatch, suppressed-request, foreign-parent, unexpected-native-restore, missing-parent-delivery, missing-restore-continuity, observation-join, prefix-parent-join, foreign-trace-occurrence, reused-occurrence, foreign-or-stale-preparation, foreign-or-forged-handle and foreign-boundary-binding reasons. Preparation failure does not revoke committed parent history.
++
++No registry, current request/action authority, roster crosswalk, Python authority, knowledge facts, publication, profile or capture-flag changes are adopted. Original creation sequence0, trace-local counters and committed delivery sequence0 are separate namespaces. No fork/import capability or retroactive causal labeling is added.
+diff --git a/docs/planning/perspective-fidelity-prompt25-matrix.md b/docs/planning/perspective-fidelity-prompt25-matrix.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-matrix.md
+@@ -0,0 +1,21 @@
++# Prompt25 proof matrix
++
++| Gate | Evidence/control | Disposition |
++|---|---|---|
++| Absent actual session ledger | Pre-task real session accessor assertion | Red exit1 preserved |
++| Native creation plus2 consecutive transitions | Genuine seeded Random; independent pushMessage/consumeChunk strings; actual settled raw and prefixes | Both owners, sequences0/1/2, local counters restart |
++| Owner/session isolation | Identical labels, seed and observation IDs; foreign owner/session handles and copied JSON/reference tokens | Reject without changing real history |
++| Exact joins | Equal-length foreign prefix, wrong perspective/cursor, foreign held parent and restore proof | Prepare rejects; owner1 tentative state never commits |
++| Positional selection | Equal literal repetitions, then different trailing request with earlier matching raw | Select latest equal occurrence; trailing mismatch rejects |
++| Restore | Actual reset result captured before actions; same held parent; literal receipt prefix | Existing reference retained; no fresh sequence |
++| Wait/force/revival | Mirrored actual production sessions and legal selection continuations | Nonactor and actor deliveries committed |
++| Suppression | Actual OU team preview auto-default; actual partial-choice consumed restore; terminal | Intermediates unbound; null current never resurrects |
++| Rollback | Real candidate diagnostic rejection, owner2 trace failure, owner2 raw join failure after owner1 tentative, invalid owner2 bundle fault | Both committed histories unchanged; next valid transition works |
++| Bundle prerequisite | Test-only construction fault, stack includes unchanged validatePipelineEpisodeRecordBundle | Rejected before ledger commit |
++| Lifecycle | Failed generation, stale preparation/handles, post-commit retirement failure, synchronous close revoke | No escaped new authority |
++| Legacy compatibility | Accepted original seam false activation / unstarted restore | Ordinary session works, no ledger authority |
++| Wire | Fixed-clock pre-task v1/v2 initial result/boundary/snapshot/transition/bundles | Compare exact bytes and IDs |
++| Prior behavior | Trace/provider/env/session/settling/source/restore/cleanup/HTML/characterization batch | Fresh commands/logs |
++| Broader requirements | Separate original TS and Python requirement modes | Preserve1 TS +2 Python failures |
++
++Equal-native continuation, unchanged-restore reference retention and terminal/consumed continuation helper tests use explicitly labeled test-only boundary models with actual native environments and held traces. They are not adopted validators or claimed new session transition APIs. Genuine Random and mirrored force/revival cases use actual session transitions. Test taps are independent diagnostic oracles, never certificates. No arbitrary same-byte injected-stream detector is claimed.
+diff --git a/docs/planning/perspective-fidelity-prompt25-review.md b/docs/planning/perspective-fidelity-prompt25-review.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-review.md
+@@ -0,0 +1,9 @@
++# Prompt25 independent review
++
++Read-only project Pokémon reviewers on inherited Sol; one parent writer.
++
++**pichu source/oracle and review-plan-tests:** confirmed pinned one-request-per-owner sideupdate, native stream FIFO, last-receipt external-handler selection, terminal/consumed/preview exclusions and raw preservation through normalization/error filtering. Supported authorized session seams and explicit bundle-validator prerequisite; no external source changes required. Ran no tests/builds and wrote no files.
++
++**turtwig candidate and coverage review:** no scoped production blocker. Initial coverage recommendations strengthened real p2 tentative join failures, same-length foreign prefix/wrong-owner/cursor preparation, team-preview/consumed-restoration exclusions and bundle validation before commitment. Parent added these controls. Final legacy compatibility delta uses only the existing accepted creation activation result; native sessions cannot silently omit a ledger. Reviewer disposition is recorded by parent from returned review, not a claim that reviewer ran final tests.
++
++Parent owns fresh commands, literal oracles and preservation hashes. Lead acceptance remains pending. No next boundary authorized.
+diff --git a/docs/planning/perspective-fidelity-prompt25-report.md b/docs/planning/perspective-fidelity-prompt25-report.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-report.md
+@@ -0,0 +1,44 @@
++# Prompt25 local candidate report
++
++Implemented only S01c-2b: new private request_delivery_ledger module/test and narrow pipeline_integration wiring. Session reads actual initial/candidate trace capabilities before retirement. Selection uses final positional FIFO receipt, compares parsed literal text against settled StepResult request.raw, and preserves exact records. Complete accepted traces remain private; unselected intermediate emissions have no invented causal cursor. Both owners bind to exact immutable prefixes, observation/branch/step and held parent. Native selected deliveries get contiguous per-owner session sequences0..N; supported restore reemissions retain existing references.
++
++Every constructed actor bundle now passes the existing episode bundle validator before tentative preparation. Both-owner histories commit synchronously with the ordinary successful session state swap. Rejected candidates preserve parent histories/sequences; post-commit retirement errors preserve accepted lineage. Close revokes access before cleanup awaits. The accepted legacy unstarted-restore activation exception preserves old sessions without supplying any ledger authority. Native sessions cannot skip required ledger commitment.
++
++Pre-task real-session missing-accessor assertion is preserved red, exit1, with exact command. Final17 new tests pass: genuine Random creation/two transitions, literal independent producer/receipt/raw/prefix checks, equal-text/superseded selection, supported restore references, both-owner force/wait/revival/nonactor paths, consumed/preview/terminal exclusions, provenance controls, atomic rollback and lifecycle. Boundary-model controls are labeled; they are not new runtime transition APIs or adopted validators.
++
++Fresh validation uses D:/Anaconda/envs/neuralgpu/python.exe, absolute trainer/src PYTHONPATH and separate Node files, with PYTHONUTF8/PYTHONIOENCODING and historical report variables unset. Exact argv/cwd/counts/exits are in commands.json; validate.py reproduces the batch. Final179 focused tests pass. Build, literal witnesses, fixed-clock wire comparison and whitespace checks exit0. No full Node suite or long witness ran.
++
++| Check | Result/count | Exit |
++|---|---|---|
++| build | completed | 0 |
++| request_delivery_ledger | tests 17, pass 17, fail 0, skipped 0 | 0 |
++| request_emission_trace | tests 18, pass 18, fail 0, skipped 0 | 0 |
++| original_owner_provider | tests 19, pass 19, fail 0, skipped 0 | 0 |
++| env_manager | tests 17, pass 17, fail 0, skipped 0 | 0 |
++| pipeline_integration | tests 10, pass 10, fail 0, skipped 0 | 0 |
++| settling | tests 18, pass 18, fail 0, skipped 0 | 0 |
++| pipeline_episode_stop_repair | tests 3, pass 3, fail 0, skipped 0 | 0 |
++| perspective_knowledge_source | tests 21, pass 21, fail 0, skipped 0 | 0 |
++| active_request_restore | tests 15, pass 15, fail 0, skipped 0 | 0 |
++| public_move_history | tests 6, pass 6, fail 0, skipped 0 | 0 |
++| replay_import | tests 8, pass 8, fail 0, skipped 0 | 0 |
++| original_owner_provider_characterization | tests 10, pass 10, fail 0, skipped 0 | 0 |
++| perspective_replay_characterization | tests 3, pass 3, fail 0, skipped 0 | 0 |
++| episode-cleanup | tests 4, pass 4, fail 0, skipped 0 | 0 |
++| loader | Ran 8 tests | 0 |
++| python-characterization | Ran 2 tests | 0 |
++| ts-requirements | tests 3, pass 2, fail 1, skipped 0 | 1 |
++| python-requirements | Ran 2 tests | 1 |
++| literal-witnesses | completed | 0 |
++| wire | completed | 0 |
++| diff-check | completed | 0 |
++
++First-run logs/commands are retained under first-*. Three old tests exposed the legacy-restore authority omission; the bounded compatibility fix resolved them. An unchanged settling assertion also differed only by native wall-clock timestamps across a second boundary; fresh final rerun passed18/18. No old tests/assertions were edited. Final separate requirement mode retains one TS and two Python failures; broader fidelity remains unverified.
++
++literal-witnesses.json retains genuine native Random evidence for both owners at initial and two consecutive committed boundaries, including request record/JSON, routed receipt, settled raw, full prefix and diagnostic reference labels. Its labels/JSON are not capabilities. Pre-task v1/v2 StepResult, boundary, snapshot, transition and bundle bytes/IDs compare exactly.
++
++All1598 protected files and21 pinned dependencies match. Prompt24's separate API clarification stays22a16a9340b03e7cc6484b1556105b45125b8956a14b8bb83d9f24cc72740ad9. Configuration unchanged; compiler105→107, only existing pipeline integration JS changes and new ledger/test JS;104 prior outputs unchanged. HEAD/main unchanged. preservation.json and candidate-hashes.json inventory exact hashes separately.
++
++Read-only pichu source/oracle review and turtwig candidate/coverage review found no remaining scoped blocker. Parent addressed tentative-owner, bundle-validator and real handler-suppression coverage recommendations. API.md documents trusted controller/FIFO limits, binding and lifetime; matrix.md maps proof controls. Identical bytes cannot detect arbitrary same-byte injected stream substitutions. This ledger grants no current request/action authority, registry adoption, roster crosswalk, Python authority or knowledge facts. No capture-flag/contract/attestation changes.
++
++Return for lead review only. No staging, commits, publication, datasets, training or following boundary.
+diff --git a/docs/planning/perspective-fidelity-prompt25-progress.md b/docs/planning/perspective-fidelity-prompt25-progress.md
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-progress.md
+@@ -0,0 +1,3 @@
++# Prompt25 completed local progress
++
++Private session delivery ledger and narrow session wiring complete. Final179/179 focused passes,17 new; build, literal producer/receipt/raw/prefix witnesses and exact pre-task v1/v2 wire checks exit0. Three broader expected requirement failures remain red. First-run failures preserved separately: accepted legacy unstarted-restore exception corrected within session scope; timestamp-only unchanged settling mismatch passed fresh rerun. Independent read-only pichu and turtwig reviews find no scoped blocker; real handler-suppression, owner2 tentative and bundle-validator controls added.1598 protected files, configuration, Prompt24 lead API clarification and21 pinned dependencies unchanged; compiler consequences separately inventoried. Candidate-relative diff/report/API/hashes returned; stop for lead review. No later task authorized.
+diff --git a/docs/planning/perspective-fidelity-prompt25-validate.py b/docs/planning/perspective-fidelity-prompt25-validate.py
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-validate.py
+@@ -0,0 +1,20 @@
++import os,sys,pathlib,subprocess,json,re
++root=pathlib.Path(__file__).resolve().parents[2]; out=root/'docs/planning'; stem='perspective-fidelity-prompt25-'; env=dict(os.environ)
++for k in list(env):
++ if k in ('PYTHONUTF8','PYTHONIOENCODING','PERSPECTIVE_REPLAY_REQUIREMENTS') or 'REPORT' in k or k.startswith('PROMPT'):env.pop(k,None)
++env['PYTHON']=r'D:\Anaconda\envs\neuralgpu\python.exe';env['PYTHONPATH']=str(root/'trainer/src')
++rows=[]
++def run(name,args,cwd=root,expected=0,changes=None):
++ e=dict(env);e.update(changes or {});p=subprocess.run(args,cwd=cwd,env=e,stdout=subprocess.PIPE,stderr=subprocess.STDOUT); data=p.stdout.decode('utf-8',errors='replace'); (out/(stem+name+'.log')).write_text(data,encoding='utf-8'); row={'name':name,'cwd':str(cwd),'command':args,'exit':p.returncode,'expected_exit':expected,'counts':re.findall(r'(?:tests|pass|fail|skipped) \d+|Ran \d+ tests?',data)}; rows.append(row); print(json.dumps(row),flush=True);(out/(stem+'commands.json')).write_text(json.dumps({'environment':{'PYTHON':env['PYTHON'],'PYTHONPATH':env['PYTHONPATH'],'unset':['PYTHONUTF8','PYTHONIOENCODING','historical REPORT/PROMPT variables']},'commands':rows},indent=2)+'\n',encoding='utf-8');return p.returncode
++if run('build',['node','node_modules/typescript/bin/tsc','-p','tsconfig.json'],root/'sim-core')!=0:sys.exit(1)
++for name in ['request_delivery_ledger','request_emission_trace','original_owner_provider','env_manager','pipeline_integration','settling','pipeline_episode_stop_repair','perspective_knowledge_source','active_request_restore','public_move_history','replay_import','original_owner_provider_characterization','perspective_replay_characterization']:
++ run(name,['node','--test',f'sim-core/dist/tests/{name}.test.js'])
++run('episode-cleanup',['node','--test','--test-name-pattern=initialization failure|invalid budgets/policy|invalid continuation|cleanup preserves','sim-core/dist/tests/pipeline_episode.test.js'])
++run('loader',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_local_replay_html_transport.py','-v'])
++run('python-characterization',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'])
++run('ts-requirements',['node','--test','sim-core/dist/tests/perspective_replay_characterization.test.js'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('python-requirements',['D:/Anaconda/envs/neuralgpu/python.exe','-m','unittest','discover','-s','trainer/tests','-p','test_perspective_replay_characterization.py','-v'],expected=1,changes={'PERSPECTIVE_REPLAY_REQUIREMENTS':'1'})
++run('literal-witnesses',['node','docs/planning/perspective-fidelity-prompt25-witnesses.cjs'])
++run('wire',['node','docs/planning/perspective-fidelity-prompt25-wire.cjs','check'])
++run('diff-check',['git','diff','--check'])
++sys.exit(any(r['exit']!=r['expected_exit'] for r in rows))
+diff --git a/docs/planning/perspective-fidelity-prompt25-wire.cjs b/docs/planning/perspective-fidelity-prompt25-wire.cjs
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-wire.cjs
+@@ -0,0 +1,3 @@
++const fs=require('node:fs'); const {PipelineIntegrationSession:S}=require('../../sim-core/dist/src/pipeline_integration'); const {LocalBattleEnv:E}=require('../../sim-core/dist/src/env_manager'); Date.now=()=>1700000000000;
++(async()=>{let rows=[];for(const schema of ['observable-battle-state/v1','observable-battle-state/v2']) {const results=[];const reset=E.prototype.resetWithOptions;E.prototype.resetWithOptions=async function(...args){const r=await reset.apply(this,args);results.push(r);return r;};let s;try{s=await S.create({battle_id:'prompt25-preservation',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:schema});const initial=s.boundary;const snapshot=s.environment.captureSeededSnapshot(null);const next=await s.step();rows.push({schema,results,initial,snapshot,next});}finally{E.prototype.resetWithOptions=reset;if(s)await s.close();}} const bytes=JSON.stringify(rows);if(process.argv[2]==='check'){require('node:assert/strict').equal(bytes,fs.readFileSync(__dirname+'/perspective-fidelity-prompt25-wire-before.json','utf8'));console.log('v1/v2 StepResult, boundary, snapshot, transition, bundles bytes identical');}else fs.writeFileSync(__dirname+'/perspective-fidelity-prompt25-wire-before.json',bytes);})().catch(e=>{console.error(e);process.exitCode=1});
++
+diff --git a/docs/planning/perspective-fidelity-prompt25-witnesses.cjs b/docs/planning/perspective-fidelity-prompt25-witnesses.cjs
+new file mode 100644
+--- /dev/null
++++ b/docs/planning/perspective-fidelity-prompt25-witnesses.cjs
+@@ -0,0 +1,59 @@
++const fs = require('node:fs');
++const assert = require('node:assert/strict');
++const { BattleStream } = require('../../sim-core/node_modules/pokemon-showdown');
++const { PipelineIntegrationSession: Session } = require('../../sim-core/dist/src/pipeline_integration');
++const { LocalBattleEnv: Env } = require('../../sim-core/dist/src/env_manager');
++const { PlayerStateExtractor: Extractor } = require('../../sim-core/dist/src/state_extractor');
++const owners = ['p1', 'p2'], producers = { p1: [], p2: [] }, receipts = { p1: [], p2: [] };
++const push = BattleStream.prototype.pushMessage, consume = Extractor.prototype.consumeChunk;
++const reset = Env.prototype.resetWithOptions, step = Env.prototype.stepSeededTransition;
++let settled, session;
++const tokens = new Map();
++function diagnosticToken(value) {
++  if (!tokens.has(value)) tokens.set(value, `diagnostic-token-${tokens.size + 1}`);
++  return tokens.get(value);
++}
++function literal(row) {
++  return { ...row, producer_occurrence: diagnosticToken(row.producer_occurrence), request_utf8_hex: Buffer.from(row.request_record, 'utf8').toString('hex') };
++}
++BattleStream.prototype.pushMessage = function(type, data) {
++  if (type === 'sideupdate' && typeof data === 'string') {
++    const i = data.indexOf('\n'), owner = data.slice(0, i), record = data.slice(i + 1);
++    if (owners.includes(owner) && record.startsWith('|request|')) producers[owner].push(record);
++  }
++  return push.call(this, type, data);
++};
++Extractor.prototype.consumeChunk = function(chunk) {
++  for (const record of chunk.split('\n')) if (record.startsWith('|request|')) receipts[this.player].push(record);
++  return consume.call(this, chunk);
++};
++Env.prototype.resetWithOptions = async function(...args) { settled = await reset.apply(this, args); return settled; };
++Env.prototype.stepSeededTransition = async function(...args) { const result = await step.apply(this, args); settled = result.step_result; return result; };
++(async () => {
++  session = await Session.create({ battle_id: 'prompt25-native-witness', format: 'gen9randombattle', seed: [1, 2, 3, 4] });
++  const boundaries = [];
++  for (let index = 0; index <= 2; index++) {
++    const row = {};
++    for (const owner of owners) {
++      const history = session.readRequestDeliveryHistory(session.getRequestDeliveryHandle(owner), owner), binding = history.boundaries.at(-1);
++      assert.equal(binding.selected.request_record, producers[owner].at(-1));
++      assert.equal(binding.selected.receipt.record, receipts[owner].at(-1));
++      assert.deepEqual(JSON.parse(binding.selected.request_json), settled.requests[owner].raw);
++      assert.deepEqual(binding.prefix, session.boundary.perspectives[owner].observation.protocol_prefix);
++      row[owner] = { ...binding, session_occurrence: diagnosticToken(binding.session_occurrence), trace: binding.trace.map(literal),
++        selected: literal(binding.selected), current: { ...binding.current, session_occurrence: diagnosticToken(binding.current.session_occurrence),
++          delivery_reference: diagnosticToken(binding.current.delivery_reference), source: literal(binding.current.source) },
++        actual_settled_raw: settled.requests[owner].raw, independent_producer_record: producers[owner].at(-1), independent_receipt_record: receipts[owner].at(-1) };
++    }
++    boundaries.push(row);
++    if (index < 2) await session.step();
++  }
++  fs.writeFileSync(__dirname + '/perspective-fidelity-prompt25-literal-witnesses.json', JSON.stringify({
++    scope: 'Genuine native Random Battle, initial and two accepted transitions; independent test taps. Diagnostic token labels are not transported authority or knowledge facts.', boundaries,
++  }, null, 2) + '\n', 'utf8');
++  console.log('both-owner literal producer/receipt/raw/prefix comparisons passed for three real boundaries');
++})().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
++  BattleStream.prototype.pushMessage = push; Extractor.prototype.consumeChunk = consume;
++  Env.prototype.resetWithOptions = reset; Env.prototype.stepSeededTransition = step;
++  await session?.close();
++});

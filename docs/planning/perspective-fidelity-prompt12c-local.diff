@@ -1,0 +1,1892 @@
+--- candidate-before/docs/contracts/PERSPECTIVE_KNOWLEDGE.md
++++ candidate-after/docs/contracts/PERSPECTIVE_KNOWLEDGE.md
+@@ -56,7 +56,7 @@
+ 
+ Origin contains public battle key, exact rules and format, never engine env_id or seed. Prefix ID binds origin, parser and eligible records only; never full replay source ID. Evidence original may bind full replay source; evidence public binds only matching public_prefix source and prefix ID; evidence request binds owner request and causal delivery prefix. All evidence shares origin. Every fact reference resolves, its owner matches context, its source is legitimate and scope matches use. Request evidence may survive as stale current owner fact but never expose opposite source. Public evidence.source records must equal evidence.prefix records. Every index is within source records. Certificate witnesses resolve and match owner/subject/property/scan/writer policy; source and origin closure are required. No source reference cycles.
+ 
+-Current IDs bind origin, owner, prefix, cursor, previous current and facts. Starting IDs bind origin, owner, policy, original source/revision parent/facts/crosswalk. Request IDs bind origin/owner/delivery/source/prefix/actionability/facts. Knowledge ID binds all three contexts and boundary index/policy/owner. No circular boundary ID reference inside knowledge. Verdict ID binds knowledge and exact required profile/families/result. Boundary ID binds origin/index/cursor/type/parent/restored_from and both owner joins to knowledge/verdict and old observation/belief/actor record IDs. Actor record ID is null for nonactor; require actual legacy validation if present. Stand-in fixture legacy IDs are only isolated join vectors, not executable DATA rows.
++Current IDs bind origin, owner, prefix, cursor, previous current and facts. Starting IDs bind origin, owner, policy, original source/revision parent/facts/crosswalk. Request IDs bind origin/owner/delivery/source/prefix/actionability/facts. Knowledge ID binds all three contexts and boundary index/policy/owner. No circular boundary ID reference inside knowledge. Verdict ID binds knowledge and exact required profile/families/result. Boundary ID binds origin/index/cursor/type/parent/restored_from and both owner joins to knowledge/verdict and old observation/belief/actor record IDs. Actor record ID is null for nonactor; require actual legacy validation if present. Stand-in fixture legacy IDs are only isolated join vectors, not executable DATA rows. Native external legacy identities retain their exact old spellings: observation `obs-`, belief `belief-`, transition `transition-`, actor DATA record `datarec-`, each followed by exactly 64 lowercase hexadecimal digits. These field-specific domains apply only to `owner_binding.observation_id`, `.belief_id`, `.actor_record_id` and `binding.input_observation`, `.successor_observation`, `.input_belief`, `.successor_belief`, `.transition`, `.actor_record`; their existing requiredness/nullability is unchanged. At those nine positions only, historical `sha256:` plus 64 lowercase hexadecimal digits remains accepted as an untrusted external structural placeholder. It is never a remapping of a native ID and cannot satisfy real source/legacy verification unless an actual supported legacy object has that exact identity; current legacy validators produce no such objects. Internal knowledge IDs/edges and profile commitments remain exclusively `sha256:`. Structural acceptance checks spelling and declared joins only; neither a prefix nor a matching digest grants authority. This finite pre-adoption compatibility correction changes no schema version or profile identity.
+ 
+ `binding` is the exact publication/history join row: origin/owner, consecutive input_index/successor_index, input/successor knowledge IDs, input/successor old observation IDs, nullable input/successor belief IDs, nullable transition and actor_record IDs. Exactly one per owner per consecutive boundary pair, even for nonactors. IDs must equal their boundary owner rows. If actor_record is nonnull, transition is nonnull and the independently legacy-validated record supplies these exact observation/belief/transition IDs, owner and corresponding state-history prefixes; actor_record equals successor boundary actor_record_id. If nonactor, both actor_record/transition null; no invented DATA row. Belief IDs require actual legacy belief/history validation, not lookup by digest alone. Audit closure carries these rows plus immutable old objects in the caller's separately validated legacy envelope; old wire objects are not embedded or redefined here. This explicit trusted caller argument is required before publication, and fixture stand-ins exercise joins only. Ordinary input/successor proofs use the full closure too.
+ 
+--- candidate-before/docs/contracts/fixtures/perspective-knowledge-v1/schema.json
++++ candidate-after/docs/contracts/fixtures/perspective-knowledge-v1/schema.json
+@@ -2119,13 +2119,13 @@
+         },
+         "observation_id": {
+           "type": "string",
+-          "pattern": "^sha256:[0-9a-f]{64}$"
++          "pattern": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+         },
+         "belief_id": {
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+@@ -2136,7 +2136,7 @@
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|datarec-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+@@ -2271,17 +2271,17 @@
+         },
+         "input_observation": {
+           "type": "string",
+-          "pattern": "^sha256:[0-9a-f]{64}$"
++          "pattern": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+         },
+         "successor_observation": {
+           "type": "string",
+-          "pattern": "^sha256:[0-9a-f]{64}$"
++          "pattern": "^(?:sha256:|obs-)[0-9a-f]{64}$"
+         },
+         "input_belief": {
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+@@ -2292,7 +2292,7 @@
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|belief-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+@@ -2303,7 +2303,7 @@
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|transition-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+@@ -2314,7 +2314,7 @@
+           "anyOf": [
+             {
+               "type": "string",
+-              "pattern": "^sha256:[0-9a-f]{64}$"
++              "pattern": "^(?:sha256:|datarec-)[0-9a-f]{64}$"
+             },
+             {
+               "type": "null"
+--- candidate-before/sim-core/src/perspective_knowledge.ts
++++ candidate-after/sim-core/src/perspective_knowledge.ts
+@@ -9,7 +9,7 @@
+ const MAX_DEPTH = 32;
+ const MAX_INTEGER = 2147483647;
+ const CONTRACT_HASHES: Record<string, string> = {
+-  'schema.json': '23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918',
++  'schema.json': '5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce',
+   'profiles.json': '4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2',
+   'property-types.json': '85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537',
+   'property-contexts.json': '3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe',
+--- candidate-before/trainer/src/neural/perspective_knowledge.py
++++ candidate-after/trainer/src/neural/perspective_knowledge.py
+@@ -10,7 +10,7 @@
+ MAX_DEPTH = 32
+ MAX_INTEGER = 2147483647
+ CONTRACT_HASHES = {
+-    'schema.json': '23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918',
++    'schema.json': '5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce',
+     'profiles.json': '4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2',
+     'property-types.json': '85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537',
+     'property-contexts.json': '3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe',
+--- candidate-before/sim-core/tests/perspective_knowledge.test.ts
++++ candidate-after/sim-core/tests/perspective_knowledge.test.ts
+@@ -537,3 +537,79 @@
+   }
+   assert.deepEqual([...failures], ['knowledge structure check failed' + (process.platform === 'win32' ? '\r\n' : '\n')]);
+ });
++
++const nativeLegacyPositions: Record<string, [string,string][]> = {
++  observation:[['boundary','observation_id'],['binding','input_observation'],['binding','successor_observation']],
++  belief:[['boundary','belief_id'],['binding','input_belief'],['binding','successor_belief']],
++  actor:[['boundary','actor_record_id'],['binding','actor_record']], transition:[['binding','transition']],
++};
++function nativeLegacyControl(version: string, form = 'full'): Row {
++  // Actual separately validated IDs; the surrounding canary is synthetic and
++  // has only structural joins, never genuine source/history authenticity.
++  const audit = load('sim-full.json');
++  const witnesses: Record<string,Row> = Object.fromEntries(load('legacy-id-regressions.json').witnesses.filter((r: Row) => r.version === version).map((r: Row) => [r.owner,r]));
++  const boundaries = new Map<number,Row>(audit.tables.boundary.map((b: Row) => [b.index,b]));
++  for (const boundary of boundaries.values()) for (const row of boundary.bindings) {
++    const witness = witnesses[row.owner], which = boundary.index === 0 ? 'input' : 'successor';
++    row.observation_id = witness[which+'_observation']; row.belief_id = witness[which+'_belief'];
++    if (boundary.index === 1 || row.actor_record_id !== null) row.actor_record_id = witness.record_id;
++  }
++  for (const row of audit.tables.binding) {
++    const old = boundaries.get(row.input_index)!.bindings.find((r: Row) => r.owner === row.owner);
++    const fresh = boundaries.get(row.successor_index)!.bindings.find((r: Row) => r.owner === row.owner);
++    Object.assign(row,{input_observation:old.observation_id,successor_observation:fresh.observation_id,
++      input_belief:old.belief_id,successor_belief:fresh.belief_id,actor_record:fresh.actor_record_id});
++    row.transition = row.actor_record === null ? null : witnesses[row.owner].transition;
++  }
++  audit.form = form; return reseal(audit);
++}
++function coordinatedLegacyScalar(audit: Row, field: string, value: any): Row {
++  const [kind,name] = field.split('.');
++  const target = kind === 'owner_binding'
++    ? audit.tables.boundary.flatMap((b: Row) => b.bindings).find((r: Row) => r.owner === 'p1' && (name !== 'actor_record_id' || r[name] !== null))
++    : audit.tables.binding.find((r: Row) => r.owner === 'p1' && (!['actor_record','transition'].includes(name) || r[name] !== null));
++  const category = name.includes('actor') ? 'actor' : name === 'transition' ? 'transition' : name.includes('belief') ? 'belief' : 'observation';
++  const old = target[name];
++  for (const [table,key] of nativeLegacyPositions[category]) {
++    const rows = table === 'boundary' ? audit.tables.boundary.flatMap((b: Row) => b.bindings) : audit.tables.binding;
++    for (const row of rows) if (row[key] === old) row[key] = value;
++  }
++  if (value === null && ['actor','transition'].includes(category)) {
++    for (const boundary of audit.tables.boundary) for (const row of boundary.bindings) row.actor_record_id = null;
++    for (const row of audit.tables.binding) Object.assign(row,{actor_record:null,transition:null});
++  }
++  return reseal(audit);
++}
++
++test('native legacy IDs: both owners and versions in all forms keep limited immutable diagnostics and Python transport', () => {
++  for (const version of ['observable-battle-state/v1','observable-battle-state/v2']) for (const form of ['full','ordinary','compact']) {
++    const audit = nativeLegacyControl(version,form), before = literalCanonical(audit);
++    revisionCheck(audit);
++    const result = spawnSync(pythonExecutable(), ['-m','neural.perspective_knowledge','--check-structure'], {
++      input:serializeKnowledgeWire(audit),env:pythonEnvironment(),encoding:'utf8',timeout:30000,maxBuffer:1024*1024,
++    });
++    assert.ifError(result.error); assert.equal(result.status,0,result.stderr); assert.equal(result.stderr,'');
++    assert.deepEqual(JSON.parse(result.stdout),diagnostic); assert.equal(literalCanonical(audit),before);
++  }
++});
++
++test('native legacy IDs: independent field scalar packet rejects wrong kinds, malformed values and internal contamination', () => {
++  const packet = load('legacy-id-regressions.json');
++  for (const vector of packet.vectors) {
++    const audit = coordinatedLegacyScalar(nativeLegacyControl('observable-battle-state/v1'),vector.field,vector.value);
++    revisionCheck(audit,vector.accepted ? undefined : /schema union/);
++  }
++  for (const prefix of ['obs-','belief-','transition-','datarec-','action-']) for (const field of ['origin','required_profile']) {
++    const audit = nativeLegacyControl('observable-battle-state/v1'); audit[field] = prefix+'0'.repeat(64); audit.id = literalIdentity(audit);
++    revisionCheck(audit,/schema union/);
++  }
++});
++
++test('native legacy IDs: spelling acceptance leaves inconsistent boundary and binding joins rejected', () => {
++  const kinds: Row = {input_observation:'obs-',successor_observation:'obs-',input_belief:'belief-',successor_belief:'belief-',actor_record:'datarec-'};
++  for (const field of Object.keys(kinds)) {
++    const audit = nativeLegacyControl('observable-battle-state/v1');
++    audit.tables.binding.find((r: Row) => r.actor_record !== null)[field] = kinds[field]+'0'.repeat(64);
++    revisionCheck(reseal(audit),/history\/legacy binding join|actor\/transition join/);
++  }
++});
+--- candidate-before/trainer/tests/test_perspective_knowledge.py
++++ candidate-after/trainer/tests/test_perspective_knowledge.py
+@@ -645,5 +645,95 @@
+ 
+ 
+ 
++
++
++LEGACY_POSITIONS = {
++    'observation': (('boundary', 'observation_id'), ('binding', 'input_observation'), ('binding', 'successor_observation')),
++    'belief': (('boundary', 'belief_id'), ('binding', 'input_belief'), ('binding', 'successor_belief')),
++    'actor': (('boundary', 'actor_record_id'), ('binding', 'actor_record')),
++    'transition': (('binding', 'transition'),),
++}
++
++
++def native_legacy_control(version, form='full'):
++    # IDs originate in four independently legacy-validated witnesses. The source
++    # canary's chronology is synthetic; these are structure-only join controls.
++    audit = fixture('sim-full.json')
++    witnesses = {r['owner']: r for r in fixture('legacy-id-regressions.json')['witnesses'] if r['version'] == version}
++    boundaries = {b['index']: b for b in audit['tables']['boundary']}
++    for boundary in boundaries.values():
++        for row in boundary['bindings']:
++            witness = witnesses[row['owner']]
++            which = 'input' if boundary['index'] == 0 else 'successor'
++            row['observation_id'] = witness[which + '_observation']
++            row['belief_id'] = witness[which + '_belief']
++            if boundary['index'] == 1 or row['actor_record_id'] is not None: row['actor_record_id'] = witness['record_id']
++    for row in audit['tables']['binding']:
++        owner = row['owner']
++        old = next(b for b in boundaries[row['input_index']]['bindings'] if b['owner'] == owner)
++        new = next(b for b in boundaries[row['successor_index']]['bindings'] if b['owner'] == owner)
++        row.update(input_observation=old['observation_id'],successor_observation=new['observation_id'],
++                   input_belief=old['belief_id'],successor_belief=new['belief_id'],actor_record=new['actor_record_id'])
++        row['transition'] = None if row['actor_record'] is None else witnesses[owner]['transition']
++    return revision_form(audit, form)
++
++
++def coordinated_legacy_scalar(audit, field, value):
++    kind, name = field.split('.')
++    if kind == 'owner_binding':
++        target = next(row for boundary in audit['tables']['boundary'] for row in boundary['bindings']
++                      if row['owner'] == 'p1' and (name != 'actor_record_id' or row[name] is not None))
++    else:
++        target = next(row for row in audit['tables']['binding'] if row['owner'] == 'p1'
++                      and (name not in ('actor_record', 'transition') or row[name] is not None))
++    category = 'actor' if 'actor' in name else 'transition' if name == 'transition' else 'belief' if 'belief' in name else 'observation'
++    old = target[name]
++    for table, key in LEGACY_POSITIONS[category]:
++        rows = audit['tables'][table]
++        if table == 'boundary': rows = [r for b in rows for r in b['bindings']]
++        for row in rows:
++            if row[key] == old: row[key] = value
++    if value is None and category in ('actor','transition'):
++        for boundary in audit['tables']['boundary']:
++            for row in boundary['bindings']: row['actor_record_id'] = None
++        for row in audit['tables']['binding']: row.update(actor_record=None,transition=None)
++    return reseal(audit)
++
++
++class NativeLegacyContractTests(unittest.TestCase):
++    assert_sealed_immutable = KnowledgeRevisionTests.assert_sealed_immutable
++    # Reuse sealed/immutable assertions without inheriting the revision cases.
++    def test_native_correctly_joined_controls_both_owners_versions_forms(self):
++        for version in ('observable-battle-state/v1', 'observable-battle-state/v2'):
++            for form in ('full', 'ordinary', 'compact'):
++                with self.subTest(version=version, form=form):
++                    audit = native_legacy_control(version, form)
++                    self.assert_sealed_immutable(audit)
++                    result = cli(serialize_knowledge_wire(audit))
++                    self.assertEqual(result.returncode, 0, result.stderr)
++                    self.assertEqual(json.loads(result.stdout), DIAGNOSTIC)
++
++    def test_field_specific_scalar_packet_and_internal_domain(self):
++        for vector in fixture('legacy-id-regressions.json')['vectors']:
++            with self.subTest(field=vector['field'], case=vector['case']):
++                audit = native_legacy_control('observable-battle-state/v1')
++                coordinated_legacy_scalar(audit, vector['field'], vector['value'])
++                self.assert_sealed_immutable(audit, None if vector['accepted'] else 'schema union')
++        for prefix in ('obs-', 'belief-', 'transition-', 'datarec-', 'action-'):
++            for field in ('origin', 'required_profile'):
++                audit = native_legacy_control('observable-battle-state/v1')
++                audit[field] = prefix + '0' * 64; audit['id'] = independent_id(audit)
++                self.assert_sealed_immutable(audit, 'schema union')
++
++    def test_native_spelling_does_not_relax_inconsistent_legacy_joins(self):
++        for field in ('input_observation','successor_observation','input_belief','successor_belief','actor_record'):
++            audit = native_legacy_control('observable-battle-state/v1')
++            row = next(r for r in audit['tables']['binding'] if r['actor_record'] is not None)
++            row[field] = {'input_observation':'obs-','successor_observation':'obs-',
++                          'input_belief':'belief-','successor_belief':'belief-','actor_record':'datarec-'}[field] + '0' * 64
++            reseal(audit)
++            self.assert_sealed_immutable(audit, 'history/legacy binding join|actor/transition join')
++
++
+ if __name__ == "__main__":
+     unittest.main()
+--- candidate-before/docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py
++++ candidate-after/docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py
+@@ -284,6 +284,36 @@
+     assert visited==set(lookup),'unreachable entry'
+ 
+ 
++
++def check_legacy_id_regressions():
++    packet=load(ROOT/'legacy-id-regressions.json')
++    definitions=load(ROOT/'schema.json')['$defs']
++    expected={
++        'owner_binding.observation_id':'obs-', 'owner_binding.belief_id':'belief-',
++        'owner_binding.actor_record_id':'datarec-', 'binding.input_observation':'obs-',
++        'binding.successor_observation':'obs-', 'binding.input_belief':'belief-',
++        'binding.successor_belief':'belief-', 'binding.transition':'transition-',
++        'binding.actor_record':'datarec-',
++    }
++    assert packet['domains']==expected, 'legacy field domains'
++    assert list(EXTERNAL['boundary'])==['bindings.*.observation_id','bindings.*.belief_id','bindings.*.actor_record_id'], 'boundary external positions'
++    assert set(EXTERNAL['binding'])=={field.split('.')[1] for field in expected if field.startswith('binding.')}, 'binding external positions'
++    counts={'positive':0,'negative':0}
++    for vector in packet['vectors']:
++        kind,field=vector['field'].split('.')
++        node=definitions[kind]['properties'][field]
++        try: shape(vector['value'],node,definitions); accepted=True
++        except AssertionError: accepted=False
++        assert accepted==vector['accepted'], 'legacy scalar '+vector['field']+'/'+vector['case']
++        counts['positive' if accepted else 'negative']+=1
++    # Native legacy prefixes cannot enter the internal identity domain.
++    for prefix in ('obs-','belief-','transition-','datarec-','action-'):
++        try: shape(prefix+'0'*64,definitions['origin']['properties']['id'],definitions)
++        except AssertionError: pass
++        else: raise AssertionError('internal native contamination')
++    return counts
++
++
+ def main():
+     manifest=load(ROOT/'case-manifest.json'); counts={'positive':0,'negative':0,'vectors':0}
+     for name in manifest['positive']: check(load(ROOT/name)); counts['positive']+=1
+@@ -325,7 +355,8 @@
+     import types
+     from revision_checks import run
+     revision=run(types.SimpleNamespace(load=load,ROOT=ROOT,canonical=canonical,expected_id=expected_id,shape=shape,expanded=expanded))
+-    print(json.dumps({'scope':'contract fixtures only; no production semantic acceptance','counts':counts,'effect_subset_canaries':1,'compact_parity':True,'causal_suffix_invariance':True,'revision_checks':revision}))
++    legacy_ids=check_legacy_id_regressions()
++    print(json.dumps({'scope':'contract fixtures only; no production semantic acceptance','counts':counts,'effect_subset_canaries':1,'compact_parity':True,'causal_suffix_invariance':True,'revision_checks':revision,'legacy_id_regressions':legacy_ids}))
+ 
+ 
+ if __name__=='__main__': main()
+--- /dev/null
++++ candidate-after/docs/contracts/fixtures/perspective-knowledge-v1/legacy-id-regressions.json
+@@ -0,0 +1,1552 @@
++{
++  "scope": "Independent spelling/nullability scalar oracle only; no source/legacy authenticity",
++  "domains": {
++    "owner_binding.observation_id": "obs-",
++    "owner_binding.belief_id": "belief-",
++    "owner_binding.actor_record_id": "datarec-",
++    "binding.input_observation": "obs-",
++    "binding.successor_observation": "obs-",
++    "binding.input_belief": "belief-",
++    "binding.successor_belief": "belief-",
++    "binding.transition": "transition-",
++    "binding.actor_record": "datarec-"
++  },
++  "nullable": [
++    "owner_binding.belief_id",
++    "owner_binding.actor_record_id",
++    "binding.input_belief",
++    "binding.successor_belief",
++    "binding.transition",
++    "binding.actor_record"
++  ],
++  "witnesses": [
++    {
++      "owner": "p1",
++      "version": "observable-battle-state/v1",
++      "battle_id": "prompt12-legacy-id-witness-v1",
++      "typescript_validator": "validatePipelineLinkedRecordBundle",
++      "typescript_valid": true,
++      "python_validator": "validate_pipeline_bundle",
++      "python_exit": 0,
++      "validated": true,
++      "record_id": "datarec-4cdc2ed5f460400d702a6597ef7aaa05cf234d624d643aaec8821c60702f8adb",
++      "input_observation": "obs-96559300e5e34ca142510cd3abdcdc53a265fa0dcb669988487616c43f1cb18b",
++      "successor_observation": "obs-794347f68c3d099ff67fafe6c3640aa8cbe322555aa7249b1428875db8647416",
++      "input_belief": "belief-c3bfff29ebce33dffddd094d33d8ffee948de92974ff3f186dd54661de0bcd5d",
++      "successor_belief": "belief-37928317d352497aa9253993280b4eb223fd8a22ab80e39b96bee9b32751ae75",
++      "transition": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "immutable": true
++    },
++    {
++      "owner": "p2",
++      "version": "observable-battle-state/v1",
++      "battle_id": "prompt12-legacy-id-witness-v1",
++      "typescript_validator": "validatePipelineLinkedRecordBundle",
++      "typescript_valid": true,
++      "python_validator": "validate_pipeline_bundle",
++      "python_exit": 0,
++      "validated": true,
++      "record_id": "datarec-2ab9fd58fda5a88552d2d646e9da3ad620cf7946b3360234745b18cb19d3ac89",
++      "input_observation": "obs-82502e108439b94a0e37a4318597f787ab2d1b65f8d4898d92b0ef3afd1a8a2a",
++      "successor_observation": "obs-5575fa8a35172589f55e492743f36f87d0b0181ab73d52cc6d175465486fe074",
++      "input_belief": "belief-436a465c38d1546dbd5ba72a38e5f0557819ec668a2f5ae90cc2c4b1c4c52f9d",
++      "successor_belief": "belief-1e276c0a02313e62341cf546f2c08720b24ea4997bcf143b2dfa56cab048c74e",
++      "transition": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "immutable": true
++    },
++    {
++      "owner": "p1",
++      "version": "observable-battle-state/v2",
++      "battle_id": "prompt12-legacy-id-witness-v2",
++      "typescript_validator": "validatePipelineLinkedRecordBundle",
++      "typescript_valid": true,
++      "python_validator": "validate_pipeline_bundle",
++      "python_exit": 0,
++      "validated": true,
++      "record_id": "datarec-04da4f354e51977692e42dd068530391f8f5a0d2aa914073a97fef5cf994d4dd",
++      "input_observation": "obs-e13864b9abb26ccc323d8e104e0f681d89785234e550e92ca264a71c4cd103d0",
++      "successor_observation": "obs-091395a8049de811711630cb1c1729170b73d40bd2de2e127dfd24e727c4ccae",
++      "input_belief": "belief-9bfc034d8391d01d13d88a64122ecbcb10992e43a51ed592370ae84a72fc435e",
++      "successor_belief": "belief-12ec69dfc0127b39a200bcb89c2f4e16fcf3d4cc46f78c4fa8b28dbec9397b5f",
++      "transition": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "immutable": true
++    },
++    {
++      "owner": "p2",
++      "version": "observable-battle-state/v2",
++      "battle_id": "prompt12-legacy-id-witness-v2",
++      "typescript_validator": "validatePipelineLinkedRecordBundle",
++      "typescript_valid": true,
++      "python_validator": "validate_pipeline_bundle",
++      "python_exit": 0,
++      "validated": true,
++      "record_id": "datarec-e7235ca5006cf80f5ca26b84fdd853d6e9a7245c448b4ae4b7fcd0a329f4ad29",
++      "input_observation": "obs-19553a462653f23bf8b8f75107bb71c21adf0b9737e91c3063c8e3b239c2383e",
++      "successor_observation": "obs-30177ea6ffa567424ae4c5ed49de26a4b813f1133484f1ed47a4884a1a57eb2c",
++      "input_belief": "belief-f825b983019989a83b8d7d83b6dcb8ea07bc9127da9b4af39ffe45e07747349f",
++      "successor_belief": "belief-6cc15b4fdc3dc5bebaee0053e6b0a8a15e721809e64d8882369a3d312c365c44",
++      "transition": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "immutable": true
++    }
++  ],
++  "vectors": [
++    {
++      "field": "owner_binding.observation_id",
++      "case": "p1/observable-battle-state/v1",
++      "value": "obs-96559300e5e34ca142510cd3abdcdc53a265fa0dcb669988487616c43f1cb18b",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "p2/observable-battle-state/v1",
++      "value": "obs-82502e108439b94a0e37a4318597f787ab2d1b65f8d4898d92b0ef3afd1a8a2a",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "p1/observable-battle-state/v2",
++      "value": "obs-e13864b9abb26ccc323d8e104e0f681d89785234e550e92ca264a71c4cd103d0",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "p2/observable-battle-state/v2",
++      "value": "obs-19553a462653f23bf8b8f75107bb71c21adf0b9737e91c3063c8e3b239c2383e",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "null",
++      "value": null,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "extra-prefix",
++      "value": "obs-obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "wrong-colon",
++      "value": "obs:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "upper-prefix",
++      "value": "OBS-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "upper-hex",
++      "value": "obs-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "nonhex",
++      "value": "obs-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "short",
++      "value": "obs-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "long",
++      "value": "obs-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "space-before",
++      "value": " obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "space-after",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "newline",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.observation_id",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "p1/observable-battle-state/v1",
++      "value": "belief-c3bfff29ebce33dffddd094d33d8ffee948de92974ff3f186dd54661de0bcd5d",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "p2/observable-battle-state/v1",
++      "value": "belief-436a465c38d1546dbd5ba72a38e5f0557819ec668a2f5ae90cc2c4b1c4c52f9d",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "p1/observable-battle-state/v2",
++      "value": "belief-9bfc034d8391d01d13d88a64122ecbcb10992e43a51ed592370ae84a72fc435e",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "p2/observable-battle-state/v2",
++      "value": "belief-f825b983019989a83b8d7d83b6dcb8ea07bc9127da9b4af39ffe45e07747349f",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "extra-prefix",
++      "value": "belief-belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "wrong-colon",
++      "value": "belief:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "upper-prefix",
++      "value": "BELIEF-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "upper-hex",
++      "value": "belief-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "nonhex",
++      "value": "belief-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "short",
++      "value": "belief-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "long",
++      "value": "belief-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "space-before",
++      "value": " belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "space-after",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "newline",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.belief_id",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "p1/observable-battle-state/v1",
++      "value": "datarec-4cdc2ed5f460400d702a6597ef7aaa05cf234d624d643aaec8821c60702f8adb",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "p2/observable-battle-state/v1",
++      "value": "datarec-2ab9fd58fda5a88552d2d646e9da3ad620cf7946b3360234745b18cb19d3ac89",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "p1/observable-battle-state/v2",
++      "value": "datarec-04da4f354e51977692e42dd068530391f8f5a0d2aa914073a97fef5cf994d4dd",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "p2/observable-battle-state/v2",
++      "value": "datarec-e7235ca5006cf80f5ca26b84fdd853d6e9a7245c448b4ae4b7fcd0a329f4ad29",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "extra-prefix",
++      "value": "datarec-datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "wrong-colon",
++      "value": "datarec:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "upper-prefix",
++      "value": "DATAREC-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "upper-hex",
++      "value": "datarec-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "nonhex",
++      "value": "datarec-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "short",
++      "value": "datarec-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "long",
++      "value": "datarec-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "space-before",
++      "value": " datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "space-after",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "newline",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "owner_binding.actor_record_id",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "p1/observable-battle-state/v1",
++      "value": "obs-96559300e5e34ca142510cd3abdcdc53a265fa0dcb669988487616c43f1cb18b",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "p2/observable-battle-state/v1",
++      "value": "obs-82502e108439b94a0e37a4318597f787ab2d1b65f8d4898d92b0ef3afd1a8a2a",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "p1/observable-battle-state/v2",
++      "value": "obs-e13864b9abb26ccc323d8e104e0f681d89785234e550e92ca264a71c4cd103d0",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "p2/observable-battle-state/v2",
++      "value": "obs-19553a462653f23bf8b8f75107bb71c21adf0b9737e91c3063c8e3b239c2383e",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "null",
++      "value": null,
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "extra-prefix",
++      "value": "obs-obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "wrong-colon",
++      "value": "obs:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "upper-prefix",
++      "value": "OBS-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "upper-hex",
++      "value": "obs-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "nonhex",
++      "value": "obs-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "short",
++      "value": "obs-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "long",
++      "value": "obs-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "space-before",
++      "value": " obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "space-after",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "newline",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.input_observation",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "p1/observable-battle-state/v1",
++      "value": "obs-794347f68c3d099ff67fafe6c3640aa8cbe322555aa7249b1428875db8647416",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "p2/observable-battle-state/v1",
++      "value": "obs-5575fa8a35172589f55e492743f36f87d0b0181ab73d52cc6d175465486fe074",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "p1/observable-battle-state/v2",
++      "value": "obs-091395a8049de811711630cb1c1729170b73d40bd2de2e127dfd24e727c4ccae",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "p2/observable-battle-state/v2",
++      "value": "obs-30177ea6ffa567424ae4c5ed49de26a4b813f1133484f1ed47a4884a1a57eb2c",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "null",
++      "value": null,
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "extra-prefix",
++      "value": "obs-obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "wrong-colon",
++      "value": "obs:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "upper-prefix",
++      "value": "OBS-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "upper-hex",
++      "value": "obs-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "nonhex",
++      "value": "obs-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "short",
++      "value": "obs-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "long",
++      "value": "obs-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "space-before",
++      "value": " obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "space-after",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "newline",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_observation",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "p1/observable-battle-state/v1",
++      "value": "belief-c3bfff29ebce33dffddd094d33d8ffee948de92974ff3f186dd54661de0bcd5d",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "p2/observable-battle-state/v1",
++      "value": "belief-436a465c38d1546dbd5ba72a38e5f0557819ec668a2f5ae90cc2c4b1c4c52f9d",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "p1/observable-battle-state/v2",
++      "value": "belief-9bfc034d8391d01d13d88a64122ecbcb10992e43a51ed592370ae84a72fc435e",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "p2/observable-battle-state/v2",
++      "value": "belief-f825b983019989a83b8d7d83b6dcb8ea07bc9127da9b4af39ffe45e07747349f",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "extra-prefix",
++      "value": "belief-belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "wrong-colon",
++      "value": "belief:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "upper-prefix",
++      "value": "BELIEF-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "upper-hex",
++      "value": "belief-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "nonhex",
++      "value": "belief-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "short",
++      "value": "belief-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "long",
++      "value": "belief-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "space-before",
++      "value": " belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "space-after",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "newline",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.input_belief",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "p1/observable-battle-state/v1",
++      "value": "belief-37928317d352497aa9253993280b4eb223fd8a22ab80e39b96bee9b32751ae75",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "p2/observable-battle-state/v1",
++      "value": "belief-1e276c0a02313e62341cf546f2c08720b24ea4997bcf143b2dfa56cab048c74e",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "p1/observable-battle-state/v2",
++      "value": "belief-12ec69dfc0127b39a200bcb89c2f4e16fcf3d4cc46f78c4fa8b28dbec9397b5f",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "p2/observable-battle-state/v2",
++      "value": "belief-6cc15b4fdc3dc5bebaee0053e6b0a8a15e721809e64d8882369a3d312c365c44",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "extra-prefix",
++      "value": "belief-belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "wrong-colon",
++      "value": "belief:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "upper-prefix",
++      "value": "BELIEF-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "upper-hex",
++      "value": "belief-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "nonhex",
++      "value": "belief-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "short",
++      "value": "belief-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "long",
++      "value": "belief-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "space-before",
++      "value": " belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "space-after",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "newline",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.successor_belief",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "p1/observable-battle-state/v1",
++      "value": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "p2/observable-battle-state/v1",
++      "value": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "p1/observable-battle-state/v2",
++      "value": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "p2/observable-battle-state/v2",
++      "value": "transition-7720e6ff11763331d87bd38f869ba092f0c3003cc88fe0480d9ca85ccd47b5f5",
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "binding.transition",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "wrong-kind-datarec-",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "extra-prefix",
++      "value": "transition-transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "wrong-colon",
++      "value": "transition:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "upper-prefix",
++      "value": "TRANSITION-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "upper-hex",
++      "value": "transition-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "nonhex",
++      "value": "transition-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "short",
++      "value": "transition-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "long",
++      "value": "transition-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "space-before",
++      "value": " transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "space-after",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "newline",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.transition",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "p1/observable-battle-state/v1",
++      "value": "datarec-4cdc2ed5f460400d702a6597ef7aaa05cf234d624d643aaec8821c60702f8adb",
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "p2/observable-battle-state/v1",
++      "value": "datarec-2ab9fd58fda5a88552d2d646e9da3ad620cf7946b3360234745b18cb19d3ac89",
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "p1/observable-battle-state/v2",
++      "value": "datarec-04da4f354e51977692e42dd068530391f8f5a0d2aa914073a97fef5cf994d4dd",
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "p2/observable-battle-state/v2",
++      "value": "datarec-e7235ca5006cf80f5ca26b84fdd853d6e9a7245c448b4ae4b7fcd0a329f4ad29",
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "historical-placeholder",
++      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "null",
++      "value": null,
++      "accepted": true
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "wrong-kind-obs-",
++      "value": "obs-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "wrong-kind-belief-",
++      "value": "belief-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "wrong-kind-transition-",
++      "value": "transition-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "wrong-kind-action-",
++      "value": "action-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "missing-prefix",
++      "value": "2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "extra-prefix",
++      "value": "datarec-datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "wrong-colon",
++      "value": "datarec:2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "upper-prefix",
++      "value": "DATAREC-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "upper-hex",
++      "value": "datarec-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "nonhex",
++      "value": "datarec-gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "short",
++      "value": "datarec-222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "long",
++      "value": "datarec-22222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "space-before",
++      "value": " datarec-2222222222222222222222222222222222222222222222222222222222222222",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "space-after",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222 ",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "newline",
++      "value": "datarec-2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "placeholder-newline",
++      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222\n",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "placeholder-upper",
++      "value": "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "number",
++      "value": 1,
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "bool",
++      "value": true,
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "list",
++      "value": [],
++      "accepted": false
++    },
++    {
++      "field": "binding.actor_record",
++      "case": "object",
++      "value": {},
++      "accepted": false
++    }
++  ]
++}

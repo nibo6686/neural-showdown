@@ -1,3 +1,5 @@
+import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
+import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
 import { carryTerminalOwner, withTerminalOwner } from './public_health';
 import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
 import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
@@ -357,6 +359,9 @@ function snapshotsForBeliefs(snapshot: SeededBattleSnapshot, battleId: string) {
 export class PipelineIntegrationSession {
   readonly battle_id: string;
   readonly format: string;
+  readonly #originalCreation: OriginalOwnerCreation;
+  readonly #deliveryLedger = new RequestDeliveryLedger();
+  #deliveryEnabled = false;
   private readonly seed: number[];
   private environment: LocalBattleEnv;
   private snapshot: SeededBattleSnapshot | null;
@@ -380,6 +385,7 @@ export class PipelineIntegrationSession {
     this.format = options.format;
     this.seed = [...options.seed];
     this.settlingOptions = { ...options.settling };
+    this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: SIMULATOR_REVISION });
     this.environment = this.newEnvironment('initial');
     this.snapshot = null;
     this.rawPrefix = [];
@@ -394,11 +400,40 @@ export class PipelineIntegrationSession {
       session.rawPrefix = [...initial.log_delta];
       session.snapshot = session.environment.captureSeededSnapshot(null);
       session.currentBoundaryValue = session.buildInitialBoundary(initial, session.snapshot);
+      if (session.#originalCreation.activate()) {
+        const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
+        session.#deliveryLedger.commit(delivery);
+        session.#deliveryEnabled = true;
+      } else {
+        // The accepted unstarted-restore compatibility path has no birth authority.
+        session.#deliveryLedger.revoke();
+      }
       return session;
     } catch (error) {
+      session.#deliveryLedger.revoke();
+      session.#originalCreation.revoke();
       await session.environment.close();
       throw error;
     }
+  }
+
+  /** Privileged process-local owner access, outside observation and wire APIs. */
+  getOriginalOwnerHolding(owner: PlayerID): OriginalOwnerHandle {
+    return this.#originalCreation.holding(owner);
+  }
+
+  getRequestDeliveryHandle(owner: PlayerID): RequestDeliveryHandle {
+    this.ensureOpen();
+    return this.#deliveryLedger.handle(owner);
+  }
+
+  readRequestDeliveryHistory(handle: RequestDeliveryHandle, owner: PlayerID, expected?: RequestDeliveryBoundary): RequestDeliveryHistory {
+    this.ensureOpen();
+    return this.#deliveryLedger.read(handle, owner, expected);
+  }
+
+  readOriginalOwnerHolding(handle: OriginalOwnerHandle, owner: PlayerID, packed?: string): OriginalOwnerEvidence {
+    return this.#originalCreation.read(handle, owner, packed);
   }
 
   get boundary(): PipelineBoundary {
@@ -493,7 +528,8 @@ export class PipelineIntegrationSession {
 
     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
     try {
-      await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS);
+      const restored = await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS);
+      const restoration = this.#deliveryEnabled ? this.#deliveryLedger.restored(candidate, restored, inputBoundary) : undefined;
       const candidateSnapshot = candidate.captureSeededSnapshot(null);
       if (candidateSnapshot.state_fingerprint !== inputSnapshot.state_fingerprint
         || candidateSnapshot.format !== inputSnapshot.format
@@ -604,9 +640,13 @@ export class PipelineIntegrationSession {
           successor_observation: nextObservations[player],
           successor_belief: nextBeliefs[player],
         } as PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle);
+        validatePipelineEpisodeRecordBundle(bundles[player]!);
       }
 
+      const delivery = this.#deliveryEnabled
+        ? this.#deliveryLedger.prepare(candidate, transitionResult.step_result, nextBoundary, inputBoundary, restoration) : undefined;
       const previousEnvironment = this.environment;
+      if (delivery) this.#deliveryLedger.commit(delivery);
       this.environment = candidate;
       this.rawPrefix = nextRawPrefix;
       this.snapshot = transitionResult.output_snapshot;
@@ -630,6 +670,8 @@ export class PipelineIntegrationSession {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.#deliveryLedger.revoke();
+    this.#originalCreation.revoke();
     await this.environment.close();
     for (const retired of this.retiredEnvironments) {
       await retired.close();
@@ -671,6 +713,7 @@ export class PipelineIntegrationSession {
       this.seed,
       { p1: { controller: 'external' }, p2: { controller: 'external' } },
       this.settlingOptions,
+      suffix === 'initial' ? this.#originalCreation : undefined,
     );
   }
 

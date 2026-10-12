@@ -1,0 +1,720 @@
+--- a/sim-core/src/belief_state.ts
++++ b/sim-core/src/belief_state.ts
+@@ -1,5 +1,6 @@
+ import { assertPublicItemsMatchEvidence } from './public_item';
+ import { assertPublicAbilityMatchesEvidence } from './public_ability';
++import { assertPublicFieldMatchesEvidence } from './public_field';
+ import { assertPublicHealthMatchesEvidence, boundOwnedTarget } from './public_health';
+ import { opponentPublicBoosts } from './public_boosts';
+ import { createHash } from 'node:crypto';
+@@ -473,6 +474,7 @@
+   exactKeys(view.field.side_conditions, ['self', 'opponent'], 'Observation side conditions');
+   assertNumberRecord(view.field.side_conditions.self, 'Observation self side conditions');
+   assertNumberRecord(view.field.side_conditions.opponent, 'Observation opponent side conditions');
++  assertPublicFieldMatchesEvidence(observation.protocol_prefix, view.field);
+   if (!Array.isArray(view.self_team) || !Array.isArray(view.opponent_team)) {
+     throw new BeliefStateError('Observation teams must be arrays.');
+   }
+--- a/sim-core/src/observable_state.ts
++++ b/sim-core/src/observable_state.ts
+@@ -1,5 +1,6 @@
+ import { assertPublicItemsMatchEvidence, projectPublicItems } from './public_item';
+ import { assertPublicAbilityMatchesEvidence } from './public_ability';
++import { assertPublicFieldMatchesEvidence } from './public_field';
+ import { assertPublicHealthMatchesEvidence, copyTerminalOwner, boundOwnedTarget } from './public_health';
+ import { opponentPublicBoosts, type PublicBoosts } from './public_boosts';
+ import { createHash } from 'node:crypto';
+@@ -1635,6 +1636,7 @@
+   const rawProtocolPrefix = normalizeProtocolPrefix(input.protocol_prefix);
+   validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective);
+   const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix);
++  assertPublicFieldMatchesEvidence(protocolPrefix, input.view.field);
+   const view = cloneView(input.view);
+   const publicItems = projectPublicItems(protocolPrefix);
+   for (const pokemon of view.opponent_team) {
+--- a/sim-core/tests/perspective_field_semantics.test.ts
++++ b/sim-core/tests/perspective_field_semantics.test.ts
+@@ -5,17 +5,18 @@
+ import path from 'node:path';
+ import test from 'node:test';
+ import { Battle, Teams } from 'pokemon-showdown';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
+ import { validateObservableBattleState } from '../src/belief_state';
+ import { LocalBattleEnv } from '../src/env_manager';
+ import { runPipelineEpisode, validatePipelineEpisodeFaithfulClaim } from '../src/pipeline_episode';
+ import { validatePipelineEpisodeEvidence } from '../src/pipeline_episode_evidence';
+-import { validatePipelineEpisodeRecordBundle } from '../src/pipeline_integration';
++import { createPipelineIntegrationSession, projectPipelineProtocolPrefix, projectPipelineStepResult, validatePipelineEpisodeRecordBundle } from '../src/pipeline_integration';
+ import { PLAYERS, type PlayerID } from '../src/types';
+-
+-// Characterization of V01 only: passing probes mean a defect was reproduced,
+-// not that field truth is validated. FIELD_SEMANTIC_RED=1 runs the failing guard.
++import { terminalOwnedItems, terminalOwnedRequests } from '../src/public_health';
++
+ const root = path.resolve(__dirname, '../../..');
+-const artifact = (name: string) => path.join(root, 'docs/planning', `perspective-fidelity-prompt4-${name}`);
++const artifact = (name: string) => path.join(root, 'docs/planning', `perspective-fidelity-prompt5-${name}`);
++const originalArtifact = (name: string) => path.join(root, 'docs/planning', `perspective-fidelity-prompt4-${name}`);
+ type Family = 'weather' | 'terrain' | 'pseudo_weather';
+ type Json = Record<string, any>;
+ const refs = ['schema_version', 'observation_id', 'source_kind', 'event_cursor', 'protocol_prefix_hash', 'snapshot_phase'];
+@@ -46,6 +47,41 @@
+   assert.equal(result.error, undefined, `unresolved subprocess: ${result.error?.message}`);
+   assert.equal(result.signal, null);
+   return result;
++}
++function pythonObservation(value: unknown) {
++  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
++  const result = spawnSync(process.env.PYTHON || 'python3', ['-c', [
++    'import sys', 'from neural.pipeline_json_wire import load_json',
++    'from neural.pipeline_record import _prefix, _validate_episode_observation',
++    'from neural.ts_identity import verify_observation', 'from neural.typed_state import validate_public_typed_state',
++    'o = load_json(sys.stdin)', 'verify_observation(o, "compatibility observation")',
++    'try:',
++    ' if o["schema_version"] == "observable-battle-state/v2": _validate_episode_observation(o, o["perspective"], o["battle_id"], "compatibility observation")',
++    ' else: _prefix(o, "compatibility observation"); validate_public_typed_state(o)',
++    'except ValueError as error: print(str(error), file=sys.stderr); sys.exit(2)',
++  ].join('\n')], {cwd: root, env: {...env, PYTHONPATH: path.join(root, 'trainer/src')},
++    input: JSON.stringify(value), encoding: 'utf8', timeout: 30_000});
++  assert.equal(result.error, undefined); assert.equal(result.signal, null);
++  return result;
++}
++function sealBundle(bundle: Json): void {
++  const changed = new Map<string, Json>();
++  for (const which of ['input', 'successor']) {
++    const o = bundle[`${which}_observation`], old = o.observation_id;
++    o.observation_id = `obs-${hash(without(o, ['observation_id', 'protocol_prefix']))}`;
++    changed.set(old, reference(o));
++  }
++  for (const which of ['input', 'successor']) {
++    const b = bundle[`${which}_belief`], o = bundle[`${which}_observation`];
++    b.observation = reference(o);
++    b.observation_history = b.observation_history.map((ref: Json) => changed.get(ref.observation_id) || ref);
++    if (which === 'successor') {
++      b.parent_belief_id = bundle.input_belief.belief_id;
++      b.transition_lineage.input_observation_id = bundle.input_observation.observation_id;
++      b.transition_lineage.output_observation_id = o.observation_id;
++    }
++    b.belief_id = `belief-${hash(without(b, ['belief_id']))}`;
++  }
+ }
+ function expectation(r: Json): any {
+   return {run_id: r.run_id, battle_id: r.battle_id, ruleset: r.ruleset, policy_id: r.policy_id,
+@@ -225,10 +261,21 @@
+     const env = new LocalBattleEnv(`field-terminal-restore-${family}`, 'gen9randombattle', [1,2,3,4]);
+     try {
+       assert.equal(terminalSnapshot.__neural_terminal_request_history.schema_version, 'terminal-request-history/v1');
+-      const restored = await env.resetFromSerialized(structuredClone(terminalSnapshot));
++      const restored = await env.resetFromSerialized(structuredClone(terminalSnapshot), {include_log_delta: true, include_wait_requests: true});
++      const prefix = projectPipelineProtocolPrefix(restored.log_delta);
++      const observations = projectPipelineStepResult(restored, `field-terminal-restore-${family}`, prefix, 'observable-battle-state/v2');
+       for (const player of PLAYERS) {
+         const o = boundaries.at(-1).perspectives[player]; assert.equal(o.request, null);
+         assert.deepEqual(restored.views[player]!.field[family], ledger.at(-1)!.value);
++        assert.equal(observations[player].request, null, 'restoration invents no requests');
++        validateObservableBattleState(observations[player]);
++        const forged = structuredClone(restored);
++        if (family === 'pseudo_weather') forged.views[player]!.field.pseudo_weather = [];
++        else forged.views[player]!.field[family] = family === 'weather' ? 'raindance' : 'grassyterrain';
++        const unchanged = JSON.stringify(forged);
++        assert.throws(() => projectPipelineStepResult(forged, `field-terminal-restore-${family}`, prefix, 'observable-battle-state/v2'), /Public field evidence mismatch/);
++        assert.equal(JSON.stringify(forged), unchanged, 'failed restored projection never normalizes a forged value');
++        assert.deepEqual(restored.views[player]!.field[family], ledger.at(-1)!.value, 'failed restored projection is immutable');
+       }
+     } finally {await env.close();}
+   }
+@@ -238,6 +285,7 @@
+ function save() {fs.writeFileSync(artifact('results.json'), JSON.stringify(results, null, 2) + '\n');}
+ function tsOutcome(run: () => void) {try {run(); return 'accepted';} catch (error) {return String(error);}}
+ function probe(r: Json, player: PlayerID, recordIndex: number, label: string, kind: string) {
++  const unchanged = JSON.stringify(r);
+   const record = r.records[player][recordIndex];
+   // Clone before bound validators: terminal authority is validation-local and
+   // must not accidentally make a previously bound object a standalone proof.
+@@ -257,8 +305,9 @@
+       status: out.status, stdoutBytes: Buffer.byteLength(out.stdout), rows: rows.length, stderr: out.stderr});
+     save();
+   }
+-}
+-test('V01 characterization: source controls and fully resealed false field values through actual publication', async () => {
++  assert.equal(JSON.stringify(r), unchanged, 'validation never mutates or repairs supplied fields');
++}
++test('V01 repaired: source controls and fully resealed false field values through actual publication', async () => {
+   for (const family of ['weather', 'terrain', 'pseudo_weather'] as const) for (const terminal of [false, true]) {
+     const {r, ledger} = await capture(family, terminal), original = structuredClone(r), label = `${family}/${terminal ? 'terminal' : 'lifecycle'}`;
+     checkJoins(r, original);
+@@ -270,6 +319,7 @@
+       && (row.form === 'compact' && !compactApplicable
+         ? row.status === 2 && row.stdoutBytes === 0 && /requires a validated original-to-terminal chain/.test(row.stderr)
+         : row.status === 0)), JSON.stringify(results.slice(controlsAt)));
++    assert.deepEqual(ledger, JSON.parse(fs.readFileSync(originalArtifact(`${family}-${terminal ? 'terminal' : 'lifecycle'}-ledger.json`), 'utf8')), 'preserved independent source ledger');
+     fs.writeFileSync(artifact(`${family}-${terminal ? 'terminal' : 'lifecycle'}-ledger.json`), JSON.stringify(ledger, null, 2) + '\n');
+     for (const player of PLAYERS) for (const which of ['input', 'successor']) {
+       const index = which === 'input' ? 0 : r.records[player].length - 1;
+@@ -283,10 +333,14 @@
+       const before = results.length;
+       probe(candidate, player, index, `${label}/${player}/${which}/false-value`, 'false-value');
+       const observed = results.slice(before);
+-      assert.ok(observed.every(row => row.tsRecord === 'accepted' && row.tsEpisode === 'accepted' && row.tsClaim === 'accepted'
+-        && (row.form === 'compact' && !compactApplicable
+-          ? row.status === 2 && row.stdoutBytes === 0 && /requires a validated original-to-terminal chain/.test(row.stderr)
+-          : row.status === 0)), JSON.stringify(observed));
++      assert.ok(observed.every(row => /Public field evidence mismatch/.test(row.tsRecord) && /Public field evidence mismatch/.test(row.tsEpisode)
++        && row.tsObservations.some((outcome: string) => /Public field evidence mismatch/.test(outcome))
++        && row.status === 2 && row.stdoutBytes === 0 && /Public field evidence mismatch/.test(row.stderr)), JSON.stringify(observed));
++      // A failed validation must not leave authority usable by a later call.
++      assert.match(tsOutcome(() => validatePipelineEpisodeRecordBundle(candidate.records[player][index])), /Public field evidence mismatch/);
++      assert.equal(terminalOwnedItems(candidate.records[player][index].successor_observation.view), undefined, 'failure leaves no terminal item authority');
++      assert.equal(terminalOwnedRequests(candidate.records[player][index].successor_observation.view), undefined, 'failure leaves no terminal request authority');
++      assert.equal(tsOutcome(() => validatePipelineEpisodeRecordBundle(r.records[player][index])), 'accepted');
+       if (!terminal && player === 'p1' && which === 'input') {
+         fs.writeFileSync(artifact(`${family}-reproduction.json`), JSON.stringify(candidate.records[player][index], null, 2) + '\n');
+       }
+@@ -301,20 +355,134 @@
+       checkJoins(candidate, r);
+       const before = results.length; probe(candidate, 'p1', 0, `${label}/${mode}`, 'schema');
+       assert.ok(results.slice(before).every(row => /fields are not exact/.test(row.tsRecord) && /fields are not exact/.test(row.tsEpisode)
+-        && (row.form === 'ordinary' ? row.status === 0 : row.status === 2 && row.stdoutBytes === 0 && /fields are not exact/.test(row.stderr))), JSON.stringify(results.slice(before)));
++        && row.status === 2 && row.stdoutBytes === 0 && /fields are not exact/.test(row.stderr)), JSON.stringify(results.slice(before)));
+     }
+     assert.deepEqual(r, original, 'controls remain immutable');
+     console.log(`${label}: controls, 4 false-value attacks, terminal restoration=${terminal}; results persisted`);
+   }
+   assert.ok(results.filter(row => row.kind === 'control').every(row => row.tsRecord === 'accepted' && row.tsEpisode === 'accepted'));
+-  console.log(`V01 defect characterization: ${results.length} real publication invocations; false-value acceptance is a red semantic finding.`);
++  console.log(`V01 repaired regression: ${results.length} real publication invocations; false fields reject atomically.`);
+ });
+ for (const family of ['weather', 'terrain', 'pseudo_weather'] as const) {
+-  test(`V01 RED WITNESS: ${family} contradiction must reject before publication`, {skip: process.env.FIELD_SEMANTIC_RED !== '1'}, () => {
+-    const candidate = JSON.parse(fs.readFileSync(artifact(`${family}-reproduction.json`), 'utf8'));
++  test(`V01 SAVED WITNESS: ${family} contradiction must reject before publication`, () => {
++    const candidate = JSON.parse(fs.readFileSync(originalArtifact(`${family}-reproduction.json`), 'utf8'));
+     const identities = python([candidate], true); assert.equal(identities.status, 0, identities.stderr);
+     const out = python(candidate);
+-    assert.equal(out.status, 2, `CONFIRMED RED: unchanged public prefix false ${family} was admitted; stdout=${Buffer.byteLength(out.stdout)} bytes, stderr=${out.stderr}`);
++    assert.equal(out.status, 2, out.stderr);
+     assert.equal(out.stdout, '');
++    assert.match(out.stderr, /Public field evidence mismatch/);
+   });
+ }
++
++test('field evidence applies to real waiting/requestless reports and v1/v2 ordinary callers', async () => {
++  const compatibility: Json[] = [];
++  for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2'] as const) {
++    const {battle} = fixture('weather', false), snapshot = structuredClone(battle.toJSON()); battle.destroy();
++    const reset = LocalBattleEnv.prototype.resetWithOptions;
++    let session: Awaited<ReturnType<typeof createPipelineIntegrationSession>>;
++    try {
++      LocalBattleEnv.prototype.resetWithOptions = function(options) {return this.resetFromSerialized(structuredClone(snapshot), options);};
++      session = await createPipelineIntegrationSession({battle_id: `field-compat-${version}`, format: 'gen9randombattle', seed: [1,2,3,4], observation_schema_version: version});
++    } finally {LocalBattleEnv.prototype.resetWithOptions = reset;}
++    try {
++      const actions = Object.fromEntries(PLAYERS.map(player => {
++        const request = session.boundary.perspectives[player].observation.request!;
++        return [player, canonicalActionFromLegalAction(request, request.legal_actions.available_indices[0])];
++      })) as Record<PlayerID, ReturnType<typeof canonicalActionFromLegalAction>>;
++      const stepped = await session.step(actions);
++      const committed = JSON.stringify(session.boundary);
++      for (const player of PLAYERS) {
++        const control = stepped.record_bundles[player];
++        const valid = python(control); assert.equal(valid.status, 0, valid.stderr);
++        assert.equal(control.input_observation.view.field.weather, 'sunnyday');
++        assert.equal(control.successor_observation.view.field.weather, 'raindance');
++        for (const which of ['input', 'successor']) {
++          const forged: Json = structuredClone(control);
++          forged[`${which}_observation`].view.field.weather = which === 'input' ? 'raindance' : 'sunnyday';
++          sealBundle(forged);
++          const identities = python([forged], true); assert.equal(identities.status, 0, identities.stderr);
++          const unchanged = JSON.stringify(forged);
++          assert.throws(() => validatePipelineEpisodeRecordBundle(forged as any), /Public field evidence mismatch/);
++          const rejected = python(forged);
++          assert.equal(rejected.status, 2, rejected.stderr); assert.equal(rejected.stdout, '');
++          assert.match(rejected.stderr, /Public field evidence mismatch/);
++          assert.equal(JSON.stringify(forged), unchanged);
++          compatibility.push({version, player, which, status: rejected.status, stdoutBytes: Buffer.byteLength(rejected.stdout), stderr: rejected.stderr});
++        }
++      }
++      assert.equal(JSON.stringify(session.boundary), committed);
++    } finally {await session.close();}
++
++    for (const submitted of PLAYERS) {
++      const env = new LocalBattleEnv(`field-partial-${submitted}-${version}`, 'gen9randombattle', [1,2,3,4]);
++      const restored = new LocalBattleEnv(`field-partial-restore-${submitted}-${version}`, 'gen9randombattle', [1,2,3,4]);
++      const options = {include_wait_requests: true, include_possible_roles: false, include_log_delta: true};
++      try {
++        const initial = await env.resetFromSerialized(structuredClone(snapshot), options);
++        const request = initial.requests[submitted]!;
++        const action = canonicalActionFromLegalAction(request, request.legal_actions.available_indices[0]);
++        const partial = await env.stepWithCanonicalOptions({[submitted]: action}, options);
++        assert.equal(partial.requests[submitted], null);
++        const replay = await restored.resetFromSerialized(env.serializeBattle(), options);
++        assert.equal(replay.requests[submitted], null, 'restore retains consumed request absence');
++        const prefix = projectPipelineProtocolPrefix(replay.log_delta);
++        const states = projectPipelineStepResult(replay, `field-partial-${submitted}`, prefix, version);
++        assert.equal(states[submitted].decision_availability.reason, 'requestless');
++        for (const player of PLAYERS) {
++          assert.equal(states[player].view.field.weather, 'sunnyday');
++          validateObservableBattleState(states[player]);
++          const valid = pythonObservation(states[player]); assert.equal(valid.status, 0, valid.stderr);
++          const forged = structuredClone(states[player]); forged.view.field.weather = 'raindance';
++          forged.observation_id = `obs-${hash(without(forged, ['observation_id', 'protocol_prefix']))}`;
++          assert.throws(() => validateObservableBattleState(forged), /Public field evidence mismatch/);
++          const rejected = pythonObservation(forged);
++          assert.equal(rejected.status, 2); assert.equal(rejected.stdout, ''); assert.match(rejected.stderr, /Public field evidence mismatch/);
++          compatibility.push({version, player, state: states[player].decision_availability.reason, status: rejected.status, stdoutBytes: 0});
++        }
++        const unchanged = JSON.stringify(replay);
++        const forged = structuredClone(replay); forged.views[submitted]!.field.weather = 'raindance';
++        const forgedUnchanged = JSON.stringify(forged);
++        assert.throws(() => projectPipelineStepResult(forged, `field-partial-${submitted}`, prefix, version), /Public field evidence mismatch/);
++        assert.equal(JSON.stringify(forged), forgedUnchanged);
++        assert.equal(JSON.stringify(replay), unchanged);
++        for (const mutate of [(field: Json) => {delete field.weather;}, (field: Json) => {field.extra = true;},
++          (field: Json) => {field.pseudo_weather = [1];}, (field: Json) => {field.side_conditions.self.extra = true;},
++          (field: Json) => {field.side_conditions = {'opponent|self': {}};}]) {
++          const malformed = structuredClone(replay); mutate(malformed.views[submitted]!.field);
++          const before = JSON.stringify(malformed);
++          assert.throws(() => projectPipelineStepResult(malformed, `field-partial-${submitted}`, prefix, version), /field fields are not exact|field values are malformed|side conditions are malformed/);
++          assert.equal(JSON.stringify(malformed), before);
++        }
++      } finally {await env.close(); await restored.close();}
++    }
++
++    const waitingBattle = new Battle({formatid: 'gen9randombattle', seed: '1,2,3,4'});
++    waitingBattle.setPlayer('p1', {name: 'One', team: Teams.import('Sun (Ninetales)\nLevel: 1\nAbility: Drought\n- Splash\n\nReserve (Eevee)\nAbility: Run Away\n- Splash')!});
++    waitingBattle.setPlayer('p2', {name: 'Two', team: Teams.import('Foe (Eevee)\nLevel: 100\nAbility: Run Away\n- Tackle')!});
++    const waitingSnapshot = structuredClone(waitingBattle.toJSON()); waitingBattle.destroy();
++    const env = new LocalBattleEnv(`field-wait-${version}`, 'gen9randombattle', [1,2,3,4]);
++    try {
++      const options = {include_wait_requests: true, include_possible_roles: false, include_log_delta: true};
++      const initial = await env.resetFromSerialized(waitingSnapshot, options);
++      const result = await env.stepWithOptions({p1: 'move 1', p2: 'move 1'}, options);
++      assert.equal(result.requests.p2?.wait, true, 'real faint yields the opponent waiting request');
++      const prefix = projectPipelineProtocolPrefix([...initial.log_delta, ...result.log_delta]);
++      const states = projectPipelineStepResult(result, 'field-wait', prefix, version);
++      assert.equal(states.p2.decision_availability.reason, 'waiting');
++      const before = JSON.stringify(states);
++      for (const player of PLAYERS) {
++        validateObservableBattleState(states[player]);
++        assert.equal(states[player].view.field.weather, 'sunnyday');
++        const valid = pythonObservation(states[player]); assert.equal(valid.status, 0, valid.stderr);
++        const forged = structuredClone(states[player]); forged.view.field.weather = 'raindance';
++        forged.observation_id = `obs-${hash(without(forged, ['observation_id', 'protocol_prefix']))}`;
++        assert.throws(() => validateObservableBattleState(forged), /Public field evidence mismatch/);
++        const rejected = pythonObservation(forged);
++        assert.equal(rejected.status, 2); assert.equal(rejected.stdout, ''); assert.match(rejected.stderr, /Public field evidence mismatch/);
++        compatibility.push({version, player, state: states[player].decision_availability.reason, status: rejected.status, stdoutBytes: 0});
++      }
++      assert.equal(JSON.stringify(states), before);
++    } finally {await env.close();}
++  }
++  fs.writeFileSync(artifact('compatibility-results.json'), JSON.stringify(compatibility, null, 2) + '\n');
++});
+--- /dev/null
++++ b/sim-core/src/public_field.ts
+@@ -0,0 +1,60 @@
++import { PROTOCOL_CONTRACT } from './protocol_contract';
++
++/** Consume only a prefix whose raw grammar and effect inventory were validated. */
++export function assertPublicFieldMatchesEvidence(prefix: readonly string[], field: {
++  weather: string | null; terrain: string | null; pseudo_weather: string[];
++  side_conditions: {self: Record<string, number>; opponent: Record<string, number>};
++}): void {
++  const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
++  if (!record(field) || Object.keys(field).length !== 4
++    || !['weather', 'terrain', 'pseudo_weather', 'side_conditions'].every(key => Object.hasOwn(field, key))) {
++    throw new Error('Observation field fields are not exact.');
++  }
++  if ((field.weather !== null && typeof field.weather !== 'string')
++    || (field.terrain !== null && typeof field.terrain !== 'string')
++    || !Array.isArray(field.pseudo_weather) || field.pseudo_weather.some(value => typeof value !== 'string')) {
++    throw new Error('Observation field values are malformed.');
++  }
++  const sides = field.side_conditions;
++  if (!record(sides) || Object.keys(sides).length !== 2 || !['self', 'opponent'].every(key => Object.hasOwn(sides, key))
++    || Object.values(sides).some(side => !record(side) || Object.values(side).some(value => typeof value !== 'number' || !Number.isFinite(value)))) {
++    throw new Error('Observation side conditions are malformed.');
++  }
++  let weather: string | null = null;
++  let terrain: string | null = null;
++  let trickRoom = false;
++  const rules = PROTOCOL_CONTRACT.validation_rules;
++  const fail = (detail: string): never => { throw new Error(`Public field evidence mismatch: ${detail}`); };
++  for (const line of prefix) {
++    const parts = line.split('|'), command = parts[1], value = parts[2];
++    if (command === '-weather') {
++      if (value === 'none') {
++        if (weather === null || weather === 'none') fail('weather ends without a public start');
++        weather = 'none';
++      } else {
++        if (!rules.weather.ids.includes(value)) fail('unsupported weather writer');
++        const id = value.toLowerCase();
++        if (parts[3] === '[upkeep]') {
++          if (weather !== id) fail('weather upkeep disagrees with its public start');
++        } else weather = id;
++      }
++    } else if (command === '-fieldstart' || command === '-fieldend') {
++      const id = rules.terrain.ids.find(id => rules.terrain.public_names[id] === value);
++      if (id) {
++        if (command === '-fieldstart') terrain = id;
++        else {
++          if (terrain !== id) fail('terrain ends without its current public start');
++          terrain = null;
++        }
++      } else if (value === rules.trick_room.effect) {
++        const start = command === rules.trick_room.start_command;
++        if (start === trickRoom) fail('Trick Room writer disagrees with its public lifecycle');
++        trickRoom = start;
++      }
++    }
++  }
++  if (field.weather !== weather) fail('weather disagrees with retained public prefix');
++  if (field.terrain !== terrain) fail('terrain disagrees with retained public prefix');
++  // Terrain and other rooms retain their existing coarse list conventions.
++  if (field.pseudo_weather.includes('trickroom') !== trickRoom) fail('Trick Room membership disagrees with retained public prefix');
++}
+--- /dev/null
++++ b/trainer/src/neural/public_field.py
+@@ -0,0 +1,91 @@
++"""Bounded field truth from an already grammar/inventory-validated public prefix."""
++
++import math
++from collections.abc import Mapping
++
++from .protocol_contract import VALIDATION_RULES
++
++
++def _finite_number(value):
++    if type(value) not in (int, float):
++        return False
++    try:
++        return math.isfinite(value)
++    except OverflowError:
++        return False
++
++
++def validate_public_field(observation, label="observation"):
++    weather, terrain, trick_room = None, None, False
++    has_writer = False
++    rules = VALIDATION_RULES
++
++    def fail(detail):
++        raise ValueError(f"Public field evidence mismatch: {detail}")
++
++    for line in observation["protocol_prefix"]:
++        parts = line.split("|")
++        command = parts[1] if len(parts) > 1 else ""
++        value = parts[2] if len(parts) > 2 else ""
++        if command == "-weather":
++            has_writer = True
++            if value == "none":
++                if weather in (None, "none"):
++                    fail("weather ends without a public start")
++                weather = "none"
++            else:
++                if value not in rules["weather"]["ids"]:
++                    fail("unsupported weather writer")
++                effect = value.lower()
++                if len(parts) > 3 and parts[3] == "[upkeep]":
++                    if weather != effect:
++                        fail("weather upkeep disagrees with its public start")
++                else:
++                    weather = effect
++        elif command in ("-fieldstart", "-fieldend"):
++            effect = next((effect for effect in rules["terrain"]["ids"]
++                           if rules["terrain"]["public_names"][effect] == value), None)
++            if effect is not None:
++                has_writer = True
++                if command == "-fieldstart":
++                    terrain = effect
++                else:
++                    if terrain != effect:
++                        fail("terrain ends without its current public start")
++                    terrain = None
++            elif value == rules["trick_room"]["effect"]:
++                has_writer = True
++                start = command == rules["trick_room"]["start_command"]
++                if start == trick_room:
++                    fail("Trick Room writer disagrees with its public lifecycle")
++                trick_room = start
++
++    view = observation.get("view")
++    if not isinstance(view, Mapping) or "field" not in view:
++        if has_writer:
++            fail("field writers require a field view, including after a public clear")
++        return  # Existing genuinely sparse legacy observations have no field evidence.
++    field = view["field"]
++    keys = {"weather", "terrain", "pseudo_weather", "side_conditions"}
++    if not isinstance(field, Mapping):
++        raise ValueError(f"{label} field must be an object")
++    if set(field) != keys:
++        raise ValueError(f"{label} field fields are not exact; missing={sorted(keys - set(field))}, unexpected={sorted(set(field) - keys)}")
++    if any(field[key] is not None and not isinstance(field[key], str) for key in ("weather", "terrain")):
++        raise ValueError(f"{label} field weather/terrain must be strings or null")
++    pseudo = field["pseudo_weather"]
++    if not isinstance(pseudo, list) or any(not isinstance(value, str) for value in pseudo):
++        raise ValueError(f"{label} field pseudo_weather must be a string array")
++    sides = field["side_conditions"]
++    if not isinstance(sides, Mapping) or set(sides) != {"self", "opponent"}:
++        raise ValueError(f"{label} side conditions fields are not exact")
++    for side in sides.values():
++        if not isinstance(side, Mapping) or any(not isinstance(key, str) or not _finite_number(value)
++                                                for key, value in side.items()):
++            raise ValueError(f"{label} side conditions must be finite number maps")
++    if field["weather"] != weather:
++        fail("weather disagrees with retained public prefix")
++    if field["terrain"] != terrain:
++        fail("terrain disagrees with retained public prefix")
++    if ("trickroom" in pseudo) != trick_room:
++        fail("Trick Room membership disagrees with retained public prefix")
+--- a/docs/contracts/OBSERVABLE_STATE.md
++++ b/docs/contracts/OBSERVABLE_STATE.md
+@@ -220,6 +220,20 @@
+ number>}`. They are public, cloned from `BattleView.field`, and eligible for
+ features; raw protocol contradictions are quarantined.
+ 
++The bounded field validator compares weather, terrain and Trick Room membership
++against ordered, grammar-validated public writers in projection and imported
++observation validation (v1/v2). Weather replacement has no intervening clear;
++upkeep corroborates its current start; expiry remains the literal `none` wire
++value. Terrain replacement sets its scalar and public end clears it to null.
++Trick Room reapplication emits an end; switch, faint, suppression and terminal
++records do not fabricate field ends. The existing pseudo-weather list also
++contains terrain entries; only Trick Room membership is checked here. No timers
++or effectiveness state are imported. Supplied field objects require exactly the
++four keys above and their existing types, including finite side-condition maps.
++Python's genuine sparse legacy ordinary observations remain compatible only
++when no required field writer is concealed, even after a clear. This is a
++bounded validation rule, pending independent review, not a broader fidelity claim.
++
+ For field-level completeness, the copied Pokémon and field members have these
+ individual rules (all rows use the same raw-protocol contradiction behavior and
+ model eligibility stated in the preceding table):
+--- a/trainer/src/neural/pipeline_record.py
++++ b/trainer/src/neural/pipeline_record.py
+@@ -1293,9 +1293,9 @@
+         raise PipelineRecordError(f"canonical action validation failed: {exc}") from exc
+ 
+     if trusted_context is None:
+-        for observation in (input_observation, successor_observation):
++        for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
+             try:
+-                validate_public_typed_state(observation, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None)
++                validate_public_typed_state(observation, label, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None)
+             except ValueError as exc:
+                 raise PipelineRecordError(str(exc)) from exc
+             if observation['schema_version'] == 'observable-battle-state/v2':
+--- a/trainer/src/neural/typed_state.py
++++ b/trainer/src/neural/typed_state.py
+@@ -10,6 +10,7 @@
+ from .public_item import validate_public_items
+ from .public_health import validate_public_health, bound_owned_target
+ from .public_ability import validate_public_ability
++from .public_field import validate_public_field
+ 
+ 
+ _ROOT = Path(__file__).resolve().parents[3]
+@@ -173,6 +174,8 @@
+             raise ValueError("request is not owned by its perspective")
+         _assert_no_private_slot_state(observation, label)
+         prefix = observation["protocol_prefix"]
++        if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
++            validate_public_field(observation, label)
+         view = observation.get("view", {})
+         perspective = observation.get("perspective")
+         def validate_consequences():
+--- /dev/null
++++ b/trainer/tests/test_perspective_field_semantics.py
+@@ -0,0 +1,192 @@
++"""Source-ledger regressions at the real ordinary publication boundary."""
++
++import copy
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import unittest
++
++from neural.pipeline_record import PipelineRecordError, validate_pipeline_bundle
++from neural.protocol_contract import validate_protocol_record
++from neural.public_field import validate_public_field
++from neural.ts_identity import verify_bundle_identities
++from neural.typed_state import validate_public_typed_state
++from test_pipeline_record import _bundle, _seal_bundle
++
++
++ROOT = Path(__file__).resolve().parents[2]
++TRUTH = {"weather": "sunnyday", "terrain": "electricterrain", "pseudo_weather": []}
++
++
++def source_control(family, version="v2"):
++    path = ROOT / "docs/planning" / f"perspective-fidelity-prompt4-{family}-reproduction.json"
++    bundle = json.loads(path.read_text(encoding="utf-8"))
++    bundle["input_observation"]["view"]["field"][family] = copy.deepcopy(TRUTH[family])
++    for which in ("input", "successor"):
++        observation = bundle[f"{which}_observation"]
++        observation["schema_version"] = f"observable-battle-state/{version}"
++        if version == "v1":
++            for pokemon in observation["view"]["opponent_team"]:
++                pokemon.pop("public_boosts", None)
++    return _seal_bundle(bundle)
++
++
++def cli(payload):
++    env = {key: value for key, value in os.environ.items()
++           if key.upper() not in {"PYTHONUTF8", "PYTHONIOENCODING"}}
++    env["PYTHONPATH"] = str(ROOT / "trainer/src")
++    return subprocess.run([sys.executable, "-m", "neural.pipeline_record"],
++                          input=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
++                          capture_output=True, env=env, cwd=ROOT, timeout=30)
++
++
++class PerspectiveFieldSemanticsTests(unittest.TestCase):
++    def test_original_saved_witnesses_reject_atomically(self):
++        for family in TRUTH:
++            path = ROOT / "docs/planning" / f"perspective-fidelity-prompt4-{family}-reproduction.json"
++            bundle = json.loads(path.read_text(encoding="utf-8"))
++            before = copy.deepcopy(bundle)
++            verify_bundle_identities(bundle)
++            result = cli(bundle)
++            self.assertEqual(result.returncode, 2, result.stderr)
++            self.assertEqual(result.stdout, b"")
++            self.assertIn(b"Public field evidence mismatch", result.stderr)
++            self.assertEqual(bundle, before)
++
++    def test_source_controls_v1_v2_and_input_successor_rejections(self):
++        for version in ("v1", "v2"):
++            for family in TRUTH:
++                control = source_control(family, version)
++                original = copy.deepcopy(control)
++                verify_bundle_identities(control)
++                validate_pipeline_bundle(control)
++                published = cli(control)
++                self.assertEqual(published.returncode, 0, published.stderr)
++                row = json.loads(published.stdout)
++                self.assertEqual(row["observation_id"], control["input_observation"]["observation_id"])
++                self.assertEqual(row["belief_id"], control["input_belief"]["belief_id"])
++                for which in ("input", "successor"):
++                    with self.subTest(version=version, family=family, which=which):
++                        forged = copy.deepcopy(control)
++                        field = forged[f"{which}_observation"]["view"]["field"]
++                        field[family] = ("raindance" if field[family] != "raindance" else "sunnyday") if family == "weather" else (
++                            "grassyterrain" if field[family] != "grassyterrain" else "electricterrain") if family == "terrain" else (
++                            [] if "trickroom" in field[family] else ["trickroom"])
++                        _seal_bundle(forged)
++                        verify_bundle_identities(forged)
++                        before = copy.deepcopy(forged)
++                        with self.assertRaisesRegex(PipelineRecordError, "Public field evidence mismatch"):
++                            validate_pipeline_bundle(forged)
++                        result = cli(forged)
++                        self.assertEqual(result.returncode, 2, result.stderr)
++                        self.assertEqual(result.stdout, b"")
++                        self.assertIn(b"Public field evidence mismatch", result.stderr)
++                        self.assertEqual(forged, before)
++                        validate_pipeline_bundle(control)
++                self.assertEqual(control, original)
++
++    def test_six_ordinary_exact_key_cases(self):
++        for family in TRUTH:
++            for mode in ("missing", "extra"):
++                with self.subTest(family=family, mode=mode):
++                    bundle = source_control(family)
++                    field = bundle["input_observation"]["view"]["field"]
++                    if mode == "missing":
++                        del field[family]
++                    else:
++                        field["unreviewed_field"] = "trickroom"
++                    _seal_bundle(bundle)
++                    verify_bundle_identities(bundle)
++                    with self.assertRaisesRegex(PipelineRecordError, "fields are not exact"):
++                        validate_pipeline_bundle(bundle)
++                    result = cli(bundle)
++                    self.assertEqual(result.returncode, 2, result.stderr)
++                    self.assertEqual(result.stdout, b"")
++                    self.assertIn(b"fields are not exact", result.stderr)
++
++    def test_field_types_are_enforced_on_both_observations(self):
++        for which in ("input", "successor"):
++            for field, value in (("weather", 1), ("terrain", False), ("pseudo_weather", [1]),
++                                 ("side_conditions", {"self": {"spikes": True}, "opponent": {}}),
++                                 ("side_conditions", {"self": [], "opponent": {}}),
++                                 ("side_conditions", {"self": {}, "opponent": {}, "extra": {}})):
++                with self.subTest(which=which, field=field, value=value):
++                    bundle = source_control("weather")
++                    bundle[f"{which}_observation"]["view"]["field"][field] = value
++                    _seal_bundle(bundle)
++                    verify_bundle_identities(bundle)
++                    with self.assertRaises(PipelineRecordError):
++                        validate_pipeline_bundle(bundle)
++                    result = cli(bundle)
++                    self.assertEqual(result.returncode, 2, result.stderr)
++                    self.assertEqual(result.stdout, b"")
++        observation = source_control("weather")["input_observation"]
++        observation["view"]["field"]["side_conditions"]["self"]["spikes"] = 10 ** 400
++        with self.assertRaisesRegex(ValueError, "finite number maps"):
++            validate_public_field(observation)
++
++    def test_sparse_v1_v2_only_when_no_field_writer_is_hidden(self):
++        for version in ("v1", "v2"):
++            for player in ("p1", "p2"):
++                control = _bundle(perspective=player, version=version)
++                verify_bundle_identities(control)
++                validate_pipeline_bundle(control)
++            for view_mode in ("missing-field", "missing-view"):
++                bundle = source_control("weather", version)
++                if view_mode == "missing-field":
++                    del bundle["input_observation"]["view"]["field"]
++                else:
++                    del bundle["input_observation"]["view"]
++                _seal_bundle(bundle)
++                verify_bundle_identities(bundle)
++                result = cli(bundle)
++                self.assertEqual(result.returncode, 2, result.stderr)
++                self.assertEqual(result.stdout, b"")
++                self.assertIn(b"field writers require a field view", result.stderr)
++            for prefix in (["|-weather|RainDance", "|-weather|none"],
++                           ["|-fieldstart|move: Electric Terrain|[from] ability: Electric Surge|[of] p1a: Pin", "|-fieldend|move: Electric Terrain"],
++                           ["|-fieldstart|move: Trick Room|[of] p1a: Room", "|-fieldend|move: Trick Room"]):
++                for line in prefix:
++                    validate_protocol_record(line)
++                observation = {"schema_version": f"observable-battle-state/{version}", "protocol_prefix": prefix, "view": {}}
++                with self.assertRaisesRegex(ValueError, "field writers require a field view"):
++                    validate_public_typed_state(observation)
++
++    def test_upkeep_never_creates_or_replaces_weather(self):
++        for prefix in (["|-weather|RainDance|[upkeep]"],
++                       ["|-weather|RainDance", "|-weather|SunnyDay|[upkeep]"]):
++            for line in prefix:
++                validate_protocol_record(line)
++            observation = {"protocol_prefix": prefix, "view": {"field": {
++                "weather": "raindance", "terrain": None, "pseudo_weather": [],
++                "side_conditions": {"self": {}, "opponent": {}}}}}
++            with self.assertRaisesRegex(ValueError, "weather upkeep disagrees"):
++                validate_public_field(observation)
++
++    def test_malformed_prefix_rejects_before_field_authority(self):
++        bundle = source_control("weather")
++        original_input = list(bundle["input_observation"]["protocol_prefix"])
++        suffix = bundle["successor_observation"]["protocol_prefix"][len(original_input):]
++        bad = "|-weather|SunnyDay|[from] ability: Drizzle|[of] p1a: Sun"
++        bundle["input_observation"]["protocol_prefix"] = original_input + [bad]
++        bundle["successor_observation"]["protocol_prefix"] = original_input + [bad] + suffix
++        for which in ("input", "successor"):
++            observation = bundle[f"{which}_observation"]
++            bundle[f"{which}_belief"]["source_protocol_prefix"] = list(observation["protocol_prefix"])
++            observation["event_cursor"] = len(observation["protocol_prefix"])
++            observation["protocol_prefix_hash"] = hashlib.sha256(json.dumps(observation["protocol_prefix"], ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
++        _seal_bundle(bundle)
++        verify_bundle_identities(bundle)
++        with self.assertRaisesRegex(PipelineRecordError, "unsupported source grammar"):
++            validate_pipeline_bundle(bundle)
++        result = cli(bundle)
++        self.assertEqual(result.returncode, 2, result.stderr)
++        self.assertEqual(result.stdout, b"")
++        self.assertNotIn(b"Public field evidence mismatch", result.stderr)
++
++
++if __name__ == "__main__":
++    unittest.main()

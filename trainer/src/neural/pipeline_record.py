@@ -18,6 +18,7 @@ import sys
 from typing import Any, Dict, Mapping, Optional, Sequence
 
 from neural.canonical_action import validate_canonical_action
+from neural.pipeline_json_wire import load_json, write_text
 from neural.public_boosts import validate_public_boosts
 from neural.protocol_contract import ProtocolRecordError, validate_protocol_record
 from neural.ts_identity import canonical, digest as ts_digest, verify_belief, verify_bundle_identities, verify_observation
@@ -1292,9 +1293,9 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
         raise PipelineRecordError(f"canonical action validation failed: {exc}") from exc
 
     if trusted_context is None:
-        for observation in (input_observation, successor_observation):
+        for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
             try:
-                validate_public_typed_state(observation, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None)
+                validate_public_typed_state(observation, label, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None)
             except ValueError as exc:
                 raise PipelineRecordError(str(exc)) from exc
             if observation['schema_version'] == 'observable-battle-state/v2':
@@ -1355,10 +1356,7 @@ def main() -> int:
     """Validate one actor bundle, evidence envelope, full result, or bulk sweep."""
 
     try:
-        # Node writes UTF-8 JSON to this bridge.  Reading the underlying bytes lets
-        # json detect UTF-8 itself instead of using Windows' locale text encoding.
-        input_stream = getattr(sys.stdin, "buffer", sys.stdin)
-        bundle = json.load(input_stream)
+        bundle = load_json(sys.stdin)
         if isinstance(bundle, Mapping) and bundle.get("schema_version") in {EPISODE_EVIDENCE_SCHEMA, LEGACY_EPISODE_EVIDENCE_SCHEMA}:
             evidence = validate_pipeline_episode_evidence(bundle)
             output: Any = {
@@ -1372,17 +1370,17 @@ def main() -> int:
             output = validate_pipeline_episode_publication_sweep(bundle)
         else:
             output = validate_pipeline_bundle(bundle)
-        sys.stdout.write(json.dumps(output, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
+        write_text(sys.stdout, json.dumps(output, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
         return 0
     except (json.JSONDecodeError, DatasetLineageError, PipelineRecordError, TypeError, ValueError) as exc:
         diagnostic = getattr(exc, "diagnostic", None)
         if diagnostic is not None:
-            sys.stderr.write(json.dumps({
+            write_text(sys.stderr, json.dumps({
                 "error": "pipeline-record validation failed",
                 "diagnostic": diagnostic,
             }, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
         else:
-            sys.stderr.write(f"pipeline-record validation failed: {exc}\n")
+            write_text(sys.stderr, f"pipeline-record validation failed: {exc}\n")
         return 2
 
 

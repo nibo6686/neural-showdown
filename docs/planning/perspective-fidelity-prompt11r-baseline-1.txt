@@ -1,0 +1,510 @@
+"""Opt-in knowledge wire structure checks. Never verifies source truth or publishes."""
+import hashlib
+import json
+import re
+import sys
+from functools import lru_cache
+from pathlib import Path
+
+MAX_BYTES = 16 * 1024 * 1024
+MAX_DEPTH = 32
+MAX_INTEGER = 2147483647
+CONTRACT_HASHES = {
+    'schema.json': '23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918',
+    'profiles.json': '4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2',
+    'property-types.json': '85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537',
+    'property-contexts.json': '3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe',
+    'typed-references.json': 'eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da',
+}
+
+
+class KnowledgeStructureError(ValueError):
+    """Payload-independent diagnostic code, safe for the local inspection CLI."""
+
+
+def require(condition, code):
+    if not condition:
+        raise KnowledgeStructureError(code)
+
+
+def _parse(data, raw=False):
+    require(type(data) in (bytes, str), 'json input type')
+    try:
+        text = data.decode('utf-8', errors='strict') if type(data) is bytes else data
+        require(len(text.encode('utf-8')) <= MAX_BYTES, 'wire size')
+        require(not text.startswith('\ufeff'), 'json BOM')
+        # Reject excess actual JSON nesting before the platform parser recurses.
+        nesting = 0
+        quoted = escaped = False
+        for char in text:
+            if quoted:
+                if escaped: escaped = False
+                elif char == '\\': escaped = True
+                elif char == '"': quoted = False
+            elif char == '"': quoted = True
+            elif char in '[{':
+                nesting += 1
+                require(nesting <= MAX_DEPTH + 1, 'depth')
+            elif char in ']}': nesting -= 1
+        def pairs(entries):
+            result = {}
+            for key, value in entries:
+                require(key not in result, 'duplicate JSON key')
+                result[key] = value
+            return result
+        def integer(lexeme):
+            require(lexeme != '-0', 'numeric lexeme')
+            require(len(lexeme) <= 11, 'integer range')
+            value = int(lexeme)
+            require(-6 <= value <= MAX_INTEGER, 'integer range')
+            return value
+        def invalid(_): raise KnowledgeStructureError('numeric lexeme')
+        value = json.loads(text, object_pairs_hook=pairs, parse_int=integer,
+                           parse_float=invalid, parse_constant=invalid)
+        _canonical(value, raw=raw)
+        return value
+    except (UnicodeError, json.JSONDecodeError, RecursionError) as error:
+        raise KnowledgeStructureError('invalid JSON/UTF-8') from error
+
+
+def parse_knowledge_json(data):
+    """Strict lexical ingress, separate from schema/structural validation."""
+    return _parse(data)
+
+
+def _canonical(value, raw=False):
+    chunks = []
+    size = 0
+    active = set()
+    def emit(text):
+        nonlocal size
+        block = text.encode('utf-8')
+        size += len(block)
+        require(size <= MAX_BYTES, 'wire size')
+        chunks.append(block)
+    def visit(item, depth, path):
+        require(depth <= MAX_DEPTH, 'depth')
+        typ = type(item)
+        if item is None: emit('null')
+        elif typ is bool: emit('true' if item else 'false')
+        elif typ is int:
+            require(-6 <= item <= MAX_INTEGER, 'integer range')
+            emit(str(item))
+        elif typ is str:
+            special = len(path) >= 2 and path[-2:] == ('raw_request', 'json') and not raw
+            require(len(item) <= (65536 if raw or special else 256), 'string length')
+            require(not any(0xD800 <= ord(char) <= 0xDFFF for char in item), 'surrogate')
+            if special: _parse(item, raw=True)
+            emit(json.dumps(item, ensure_ascii=False, separators=(',', ':')))
+        elif typ in (dict, list):
+            require(id(item) not in active, 'object cycle')
+            require(len(item) <= 4096, 'container bound')
+            active.add(id(item))
+            if typ is list:
+                emit('[')
+                for index, entry in enumerate(item):
+                    if index: emit(',')
+                    visit(entry, depth + 1, path + ('*',))
+                emit(']')
+            else:
+                require(all(type(key) is str and len(key) <= 256 and (raw or key.isascii()) for key in item), 'object keys')
+                emit('{')
+                for index, key in enumerate(sorted(item)):
+                    if index: emit(',')
+                    # Keys have the same scalar restrictions even in captured raw JSON.
+                    require(not any(0xD800 <= ord(c) <= 0xDFFF for c in key), 'surrogate')
+                    emit(json.dumps(key, ensure_ascii=False)); emit(':')
+                    visit(item[key], depth + 1, path + (key,))
+                emit('}')
+            active.remove(id(item))
+        else: raise KnowledgeStructureError('JSON object type')
+    visit(value, 0, ())
+    return b''.join(chunks)
+
+
+def canonical_knowledge_json(value):
+    """Exact bounded pk/v1 canonical bytes; object APIs cannot recover JSON lexemes."""
+    return _canonical(value)
+
+
+def knowledge_identity(value):
+    require(type(value) is dict and value.get('kind') in CONTRACT_HASHES_KINDS, 'identity kind')
+    payload = {key: item for key, item in value.items() if key != 'id'}
+    preimage = ('pk/v1/' + value['kind'] + '\n').encode('ascii') + canonical_knowledge_json(payload)
+    return 'sha256:' + hashlib.sha256(preimage).hexdigest()
+
+
+CONTRACT_HASHES_KINDS = ('origin','source','prefix','evidence','certificate','fact','starting',
+                        'current','request','knowledge','profile','verdict','boundary','binding','audit','projection')
+
+
+@lru_cache(maxsize=1)
+def _contract():
+    folder = Path(__file__).resolve().parents[3] / 'docs/contracts/fixtures/perspective-knowledge-v1'
+    data = {}
+    for name, expected in CONTRACT_HASHES.items():
+        try: wire = (folder / name).read_bytes()
+        except OSError as error: raise KnowledgeStructureError('contract unavailable') from error
+        require(hashlib.sha256(wire).hexdigest() == expected, 'contract content')
+        data[name] = json.loads(wire.decode('utf-8'))
+    return data
+
+
+def _shape(value, schema, definitions):
+    if '$ref' in schema: return _shape(value, definitions[schema['$ref'].split('/')[-1]], definitions)
+    if 'anyOf' in schema:
+        for choice in schema['anyOf']:
+            try: _shape(value, choice, definitions); return
+            except KnowledgeStructureError: pass
+        raise KnowledgeStructureError('schema union')
+    if 'const' in schema: require(type(value) is type(schema['const']) and value == schema['const'], 'schema const')
+    if 'enum' in schema: require(any(type(value) is type(v) and value == v for v in schema['enum']), 'schema enum')
+    typ = schema.get('type')
+    if typ == 'null': require(value is None, 'schema null')
+    elif typ == 'boolean': require(type(value) is bool, 'schema boolean')
+    elif typ == 'integer': require(type(value) is int and schema.get('minimum',0) <= value <= schema.get('maximum',MAX_INTEGER), 'schema integer')
+    elif typ == 'string':
+        require(type(value) is str and len(value) <= schema.get('maxLength',256), 'schema string')
+        if 'pattern' in schema: require(re.fullmatch(schema['pattern'],value) is not None, 'schema pattern')
+    elif typ == 'array':
+        require(type(value) is list and len(value) <= schema['maxItems'], 'schema array')
+        for item in value: _shape(item, schema['items'], definitions)
+    elif typ == 'object':
+        require(type(value) is dict, 'schema object')
+        if schema.get('additionalProperties') is False:
+            require(set(value) == set(schema['required']), 'schema keys')
+            for key, item in value.items(): _shape(item, schema['properties'][key], definitions)
+        else:
+            require(len(value) <= schema['maxProperties'], 'schema dictionary')
+            for key, item in value.items():
+                _shape(key, schema['propertyNames'], definitions)
+                _shape(item, schema['additionalProperties'], definitions)
+
+
+def _edges(row, reference_map):
+    def descend(value, parts):
+        if not parts:
+            if value is not None: yield value
+        elif parts[0] == '*':
+            for item in value: yield from descend(item, parts[1:])
+        else: yield from descend(value[parts[0]], parts[1:])
+    for path, kind in reference_map[row['kind']].items():
+        for ident in descend(row, path.split('.')): yield ident, kind
+
+
+def _ordered(values, code): require(values == sorted(set(values)), code)
+
+
+def _applies(fact, context, rules):
+    own = fact['subject'].startswith(fact['owner'] + ':')
+    tail = fact['subject'].split(':',1)[1]
+    for rule in rules[fact['property']]:
+        if rule['context'] != context or rule['scope'] != 'both' and (rule['scope'] == 'owner') != own: continue
+        selector = rule['subject']; key = fact['effect_key']
+        roster = tail.startswith(('roster:', 'appearance:')) and ':move:' not in tail
+        if selector == 'side' and tail == 'side' and key is None: return True
+        if selector == 'roster' and tail.startswith('roster:') and ':move:' not in tail and key is None: return True
+        if selector == 'roster_or_appearance' and roster and key is None: return True
+        if selector == 'move' and ':move:' in tail and key is None: return True
+        if selector in ('side','roster','roster_or_appearance','move'): continue
+        if key is None and (selector == 'field_effect' or fact['state'] == 'known'): continue
+        if selector in ('persistent_effect_member','single_turn_effect_member','single_move_effect_member'):
+            if roster: return True
+        elif tail == 'side': return True
+    return False
+
+
+def _fact_shape(fact, contract, properties, proofs=True):
+    require(fact['property'] in properties[fact['family']], 'family property')
+    if fact['state'] == 'known':
+        require(fact['value'] is not None and fact['value']['type'] in contract['property-types.json'][fact['property']], 'property value tag')
+        require(fact['reason'] == 'none' and (not proofs or fact['evidence']) and fact['precision'] != 'not_applicable', 'known fact shape')
+    else:
+        require(fact['value'] is None, 'nonknown value')
+        if fact['state'] == 'unknown':
+            require(fact['reason'] != 'none' and fact['precision'] == 'not_applicable', 'unknown shape')
+            require(fact['reason'] != 'hidden_opponent' or not fact['subject'].startswith(fact['owner'] + ':'), 'unknown owner scope')
+        else: require((not proofs or fact['evidence']) and fact['reason'] == ('none' if fact['state'] == 'known_absent' else 'proved_rule_inapplicable'), 'nonknown proof shape')
+    if proofs: _ordered(fact['evidence'], 'fact proof order')
+    value = fact['value']; key = fact['effect_key']; prop = fact['property']
+    effect = 'effect' in contract['property-types.json'][prop]
+    named = prop in ('side_condition_layers','pending_power','field_remaining','weather','weather_effective','terrain')
+    require(effect or named or key is None, 'effect key scope')
+    if value:
+        tag = value['type']; data = value['data']
+        if tag == 'interval': require(data['min'] <= data['max'], 'interval order')
+        if tag == 'effect':
+            require(key == data['name'], 'effect identity')
+            if data['remaining']: require(data['remaining']['data']['min'] <= data['remaining']['data']['max'], 'interval order')
+        if prop == 'side_condition_layers': require(key in ('Spikes','ToxicSpikes') and 1 <= data <= (3 if key == 'Spikes' else 2), 'layer bounds')
+        if effect or named: require(key is not None, 'named effect')
+    if prop == 'field_remaining':
+        require(key is not None, 'timer target')
+        if value:
+            data = value['data']
+            require(key == data['target_kind'] + ':' + data['name'], 'timer target')
+            require(data['remaining']['min'] <= data['remaining']['max'], 'interval order')
+
+
+def check_knowledge_structure(value, required_profile=None):
+    """Check frozen structure/identity/joins; no source authority or fact truth claim."""
+    canonical_knowledge_json(value)  # Bound/cycle/Unicode check before traversal.
+    contract = _contract(); schema = contract['schema.json']; definitions = schema['$defs']
+    _shape(value, schema, definitions)
+    require(value['id'] == knowledge_identity(value), 'root identity')
+    approved = {p['id']:p for p in contract['profiles.json']}
+    require(value['required_profile'] in approved, 'profile manifest')
+    if required_profile is not None: require(value['required_profile'] == required_profile, 'required profile')
+    profile = approved[value['required_profile']]
+    properties = {r['family']:r['properties'] for r in profile['obligations']}
+    rules = contract['property-contexts.json']
+    if value['kind'] == 'projection':
+        require(value['policy'] == profile['policy'], 'projection policy')
+        for context in ('starting','current'):
+            _logical_facts(value[context])
+            for fact in value[context]:
+                _fact_shape(fact,contract,properties,proofs=False)
+                require(fact['owner'] == value['owner'], 'projection owner')
+                require(_applies(fact, 'original' if context == 'starting' else 'current', rules), 'property context')
+                require((fact['freshness'] == 'immutable') == (context == 'starting'), 'projection freshness')
+        _ordered([r['appearance'] for r in value['starting_crosswalk']], 'crosswalk order')
+        for row in value['starting_crosswalk']:
+            require(row['appearance'].startswith(value['owner'] + ':') and row['roster'].startswith(value['owner'] + ':'), 'crosswalk owner')
+        if value['policy'] == 'public-replay-owner-starting/v1': require(value['request'] is None, 'replay request')
+        if value['request'] is not None:
+            _logical_facts(value['request']['facts'])
+            for fact in value['request']['facts']:
+                _fact_shape(fact,contract,properties,proofs=False)
+                require(fact['owner'] == value['owner'] and _applies(fact,'request',rules), 'request owner/context')
+                require(fact['freshness'] == 'current' and (fact['observed_at'] == value['request']['cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None), 'projection request time/freshness')
+        return _diagnostic()
+    tables = {}
+    for kind, rows in value['tables'].items():
+        if value['form'] == 'compact':
+            require(type(rows) is dict and all(key == row['id'] for key,row in rows.items()), 'compact dictionary key')
+            tables[kind] = sorted(rows.values(), key=lambda row:row['id'])
+        else:
+            require(type(rows) is list, 'array encoding'); tables[kind] = rows
+    lookup = {}
+    for kind, rows in tables.items():
+        _ordered([r['id'] for r in rows], 'table duplicate/order')
+        for row in rows:
+            require(row['kind'] == kind and row['id'] == knowledge_identity(row), 'object identity')
+            require(row['id'] not in lookup, 'duplicate global ID'); lookup[row['id']] = row
+    def get(ident, kind):
+        require(ident in lookup and lookup[ident]['kind'] == kind, 'dangling/wrong reference')
+        return lookup[ident]
+    refs = contract['typed-references.json']['internal']
+    adjacency = {}
+    for row in lookup.values():
+        adjacency[row['id']] = []
+        for ident, kind in _edges(row,refs): get(ident,kind); adjacency[row['id']].append(ident)
+    # Iterative graph traversal bounds history depth by entry count, not call stack.
+    colors = {}
+    for ident in lookup:
+        stack = [(ident,False)]
+        while stack:
+            ident, done = stack.pop()
+            if done: colors[ident] = 2; continue
+            require(colors.get(ident) != 1, 'reference cycle')
+            if colors.get(ident) == 2: continue
+            colors[ident] = 1; stack.append((ident,True))
+            stack.extend((child,False) for child in reversed(adjacency[ident]))
+    origin = get(value['origin'],'origin')
+    require(get(value['required_profile'],'profile') == profile, 'profile manifest')
+    for source in tables['source']:
+        require(source['origin'] == origin['id'], 'source origin')
+        st = source['source_type']
+        if st in ('owner_initialization','owner_request'):
+            require(source['owner'] in ('p1','p2') and source['provider'] == ('addressed-team-provider/v1' if st == 'owner_initialization' else 'addressed-request/v1'), 'source addressing')
+            require(source['delivery_seq'] is not None and source['delivery_cursor'] is not None, 'source delivery')
+            if st == 'owner_initialization':
+                require(source['phase'] == 'before_effects' and source['delivery_seq'] == source['delivery_cursor'] == 0 and source['team'] and source['raw_request'] is None, 'original delivery')
+            else: require(source['phase'] == 'chronological' and source['raw_request'] is not None and not source['team'], 'request source shape')
+        else: require(source['owner'] is None and source['provider'] == 'indexed-public/v1' and not source['team'] and source['raw_request'] is None and source['phase'] == 'chronological' and source['delivery_seq'] is None and source['delivery_cursor'] is None, 'public source shape')
+        require([s['slot'] for s in source['team']] == list(range(1,len(source['team'])+1)), 'team slot order')
+    for prefix in tables['prefix']: require(prefix['origin'] == origin['id'], 'prefix origin')
+    for evidence in tables['evidence']:
+        source = get(evidence['source'],'source')
+        require(evidence['origin'] == origin['id'], 'evidence origin')
+        _ordered(evidence['record_indices'], 'record order')
+        require(all(i < len(source['records']) for i in evidence['record_indices']), 'record range')
+        if evidence['scope'] == 'original':
+            require(source['source_type'] in ('owner_initialization','public_replay') and evidence['owner'] in ('p1','p2') and evidence['prefix'] is None and source['owner'] in (None,evidence['owner']), 'original source owner')
+        elif evidence['scope'] == 'public':
+            require(source['source_type'] == 'public_prefix' and evidence['owner'] is None and source['records'] == get(evidence['prefix'],'prefix')['records'], 'public future traversal')
+        else: require(source['source_type'] == 'owner_request' and source['owner'] == evidence['owner'] and len(get(evidence['prefix'],'prefix')['records']) == source['delivery_cursor'], 'request proof')
+        if evidence['team_slot'] is not None:
+            require(1 <= evidence['team_slot'] <= (len(source['team']) if source['source_type'] == 'owner_initialization' else 6), 'evidence team slot')
+    for cert in tables['certificate']:
+        source = get(cert['source'],'source')
+        require(source['source_type'] == 'public_replay' and cert['scan_start'] == 0 and cert['scan_end'] == len(source['records']), 'certificate scan/source')
+        for name in ('witnesses','writers','exclusions'): _ordered(cert[name], 'certificate list order')
+        for ident in cert['witnesses']:
+            witness = get(ident,'evidence')
+            require(witness['source'] == source['id'] and witness['owner'] == cert['owner'] and witness['scope'] == 'original' and witness['writer'] in cert['writers'], 'certificate witness')
+    for fact in tables['fact']:
+        _fact_shape(fact,contract,properties)
+        if fact['freshness'] != 'immutable': require(fact['certificate'] is None, 'current fact/certificate')
+        for ident in fact['evidence']:
+            evidence = get(ident,'evidence')
+            require(evidence['owner'] in (None,fact['owner']), 'foreign private proof')
+            if evidence['scope'] == 'request':
+                require(fact['observed_at'] == get(evidence['source'],'source')['delivery_cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'request observation cursor')
+            elif evidence['record_indices'] and fact['property'] not in ('boundary_kind','request_presence'):
+                require(fact['observed_at'] == max(evidence['record_indices']) + 1, 'observation cursor')
+        if fact['certificate'] is not None:
+            cert = get(fact['certificate'],'certificate')
+            require(cert['owner'] == fact['owner'] and cert['subject'] == fact['subject'] and cert['property'] == fact['property'], 'certificate property/subject')
+    def context_facts(row):
+        _ordered(row['facts'],'context fact order')
+        facts = [get(ident,'fact') for ident in row['facts']]
+        _logical_facts(facts)
+        return facts
+    for start in tables['starting']:
+        require(start['origin'] == origin['id'] and start['policy'] == profile['policy'], 'starting origin/policy')
+        if start['source'] is not None:
+            source=get(start['source'],'source')
+            require(source['owner'] in (None,start['owner']), 'starting owner')
+            require(source['source_type'] == ('owner_initialization' if start['policy'] == 'simulator-causal/v1' else 'public_replay'), 'starting source policy')
+        if start['parent'] is None: require(start['revision'] == 0, 'revision origin')
+        else:
+            parent = get(start['parent'],'starting')
+            require(parent['origin'] == start['origin'] and parent['owner'] == start['owner'] and parent['policy'] == start['policy'] and start['revision'] == parent['revision'] + 1, 'revision join')
+            require(parent['source'] == start['source'], 'revision source')
+            old = {(f['subject'],f['property'],f['effect_key']):f for f in context_facts(parent)}
+            new = {(f['subject'],f['property'],f['effect_key']):f for f in context_facts(start)}
+            require(old.keys() <= new.keys(), 'immutable retention')
+            require(all(f == new[k] or f['state'] == 'unknown' and new[k]['state'] in ('known','known_absent') for k,f in old.items()), 'immutable refinement')
+            require(all(c in start['crosswalk'] for c in parent['crosswalk']), 'crosswalk retention')
+        for fact in context_facts(start):
+            require(fact['owner'] == start['owner'] and fact['subject'].startswith(start['owner'] + ':') and fact['freshness'] == 'immutable', 'starting fact')
+            require(_applies(fact,'original',rules), 'property context')
+            for ident in fact['evidence']:
+                proof = get(ident,'evidence'); require(proof['scope'] == 'original' and proof['source'] == start['source'], 'starting evidence')
+            if start['source'] is not None and get(start['source'],'source')['source_type'] == 'public_replay' and fact['state'] in ('known','known_absent'):
+                require(fact['certificate'] is not None, 'replay original certificate')
+            if fact['certificate'] is not None:
+                cert = get(fact['certificate'],'certificate')
+                require(cert['source'] == start['source'] and cert['witnesses'] == fact['evidence'], 'starting certificate source/witnesses')
+                if fact['state'] in ('known','known_absent'): _original_certificate(cert)
+        _ordered([c['appearance'] for c in start['crosswalk']], 'crosswalk order')
+        for cross in start['crosswalk']:
+            cert = get(cross['certificate'],'certificate')
+            require(cert['owner'] == start['owner'] and cross['appearance'].startswith(start['owner'] + ':') and cross['roster'] == cert['subject'], 'crosswalk owner')
+            require(cert['source'] == start['source'], 'crosswalk certificate source')
+            _original_certificate(cert)
+    for current in tables['current']:
+        prefix = get(current['prefix'],'prefix')
+        require(current['origin'] == origin['id'] and current['cursor'] == len(prefix['records']), 'current prefix/cursor')
+        for fact in context_facts(current):
+            require(fact['owner'] == current['owner'] and fact['freshness'] != 'immutable' and fact['certificate'] is None, 'current fact/certificate')
+            require(_applies(fact,'current',rules), 'property context')
+            require(fact['observed_at'] is None or fact['observed_at'] <= current['cursor'], 'future fact')
+            for ident in fact['evidence']:
+                proof = get(ident,'evidence'); require(proof['scope'] in ('public','request'), 'current future proof')
+                ancestor = get(proof['prefix'],'prefix')['records']
+                require(prefix['records'][:len(ancestor)] == ancestor, 'proof prefix ancestry')
+    for request in tables['request']:
+        source = get(request['source'],'source')
+        require(request['origin'] == origin['id'] and source['owner'] == request['owner'] and source['source_type'] == 'owner_request' and source['delivery_seq'] == request['sequence'] and source['delivery_cursor'] == request['cursor'], 'request delivery join')
+        require(len(get(request['prefix'],'prefix')['records']) == request['cursor'], 'request prefix')
+        for fact in context_facts(request):
+            require(fact['owner'] == request['owner'] and _applies(fact,'request',rules), 'request owner/context')
+            require(fact['certificate'] is None and fact['freshness'] == 'current', 'request fact freshness')
+            require(fact['observed_at'] == request['cursor'] or fact['state'] == 'unknown' and fact['observed_at'] is None, 'request observation cursor')
+            for ident in fact['evidence']:
+                proof = get(ident,'evidence'); require(proof['scope'] == 'request' and proof['source'] == source['id'] and proof['prefix'] == request['prefix'], 'request fact proof')
+    boundaries = sorted(tables['boundary'], key=lambda row:row['index'])
+    require(boundaries and [b['index'] for b in boundaries] == list(range(len(boundaries))), 'history continuity')
+    require(boundaries[-1]['id'] == value['target_boundary'], 'target boundary')
+    previous = {}; latest_request = {}; terminal_seen = False
+    for index, boundary in enumerate(boundaries):
+        require(not terminal_seen or boundary['boundary_type'] == 'restored', 'terminal history lifecycle')
+        terminal_seen = terminal_seen or boundary['boundary_type'] == 'terminal'
+        require(boundary['origin'] == origin['id'] and boundary['parent'] == (None if index == 0 else boundaries[index-1]['id']), 'boundary parent/origin')
+        require(index == 0 and boundary['boundary_type'] == 'initial' or index > 0 and boundary['boundary_type'] != 'initial' and boundary['cursor'] >= boundaries[index-1]['cursor'], 'boundary chronology')
+        require(boundary['restored_from'] == (boundary['parent'] if boundary['boundary_type'] == 'restored' else None), 'restore binding')
+        require([r['owner'] for r in boundary['bindings']] == ['p1','p2'], 'both perspectives')
+        prefixes = []
+        for row in boundary['bindings']:
+            knowledge = get(row['knowledge'],'knowledge'); current = get(knowledge['current'],'current'); start = get(knowledge['starting'],'starting'); verdict = get(row['verdict'],'verdict')
+            require(knowledge['origin'] == origin['id'] and knowledge['owner'] == row['owner'] == current['owner'] == start['owner'] and knowledge['boundary'] == index and knowledge['policy'] == start['policy'] == profile['policy'], 'knowledge join')
+            require(current['cursor'] == boundary['cursor'] and current['parent'] == previous.get(row['owner']), 'current parent/cursor')
+            if row['owner'] in previous:
+                old = get(previous[row['owner']],'current')
+                records = get(old['prefix'],'prefix')['records']
+                require(get(current['prefix'],'prefix')['records'][:len(records)] == records, 'history prefix ancestry')
+                if boundary['boundary_type'] == 'restored':
+                    prevrow = next(r for r in boundaries[index-1]['bindings'] if r['owner'] == row['owner'])
+                    require(get(prevrow['knowledge'],'knowledge')['starting'] == knowledge['starting'] and old['prefix'] == current['prefix'], 'restored context retention')
+                    if knowledge['request'] is None:
+                        retained=lambda row:[ident for ident in row['facts'] if get(ident,'fact')['family'] != 'K20']
+                        require(retained(old) == retained(current), 'restored fact retention')
+            previous[row['owner']] = current['id']; prefixes.append(current['prefix'])
+            if knowledge['request'] is not None:
+                request = get(knowledge['request'],'request')
+                require(request['owner'] == row['owner'] and request['prefix'] == current['prefix'] and request['cursor'] == current['cursor'], 'knowledge request')
+                require(knowledge['policy'] == 'simulator-causal/v1' and boundary['boundary_type'] in ('initial','mid','wait','restored'), 'request lifecycle')
+                require(not terminal_seen, 'restored terminal request')
+                if boundary['boundary_type'] == 'wait': require(not request['actionable'], 'wait actionable')
+                if boundary['boundary_type'] == 'restored': require(request['sequence'] > latest_request.get(row['owner'],-1), 'restored fresh request')
+                latest_request[row['owner']] = request['sequence']
+            require(verdict['knowledge'] == knowledge['id'] and verdict['profile'] == profile['id'], 'verdict join')
+            require([f['family'] for f in verdict['families']] == ['K%02d'%n for n in range(1,21)], 'family order')
+        require(prefixes[0] == prefixes[1], 'boundary public prefix')
+    require(len(tables['binding']) == 2 * (len(boundaries)-1), 'binding closure')
+    seen = set()
+    for binding in tables['binding']:
+        key = binding['owner'], binding['successor_index']
+        require(key not in seen, 'binding duplicate'); seen.add(key)
+        require(binding['origin'] == origin['id'] and binding['input_index'] + 1 == binding['successor_index'] < len(boundaries), 'binding indices')
+        old = next(r for r in boundaries[binding['input_index']]['bindings'] if r['owner'] == binding['owner'])
+        new = next(r for r in boundaries[binding['successor_index']]['bindings'] if r['owner'] == binding['owner'])
+        for field, legacy in (('knowledge','knowledge'),('observation','observation_id'),('belief','belief_id')):
+            require(binding['input_'+field] == old[legacy] and binding['successor_'+field] == new[legacy], 'history/legacy binding join')
+        require(binding['actor_record'] == new['actor_record_id'] and (binding['actor_record'] is None) == (binding['transition'] is None), 'actor/transition join')
+    visited = set(); pending = [value['origin'],value['required_profile'],value['target_boundary']] + [r['id'] for r in tables['binding']]
+    while pending:
+        ident = pending.pop()
+        if ident not in visited: visited.add(ident); pending.extend(adjacency[ident])
+    require(visited == lookup.keys(), 'unreachable entry')
+    return _diagnostic()
+
+
+def _diagnostic():
+    return {'structure_valid':True,'source_semantics_verified':False,
+            'completeness':'not_established','legacy_envelope_verified':False}
+
+
+def _logical_facts(facts):
+    keys=[(f['owner'],f['subject'],f['family'],f['property'],f['effect_key']) for f in facts]
+    require(len(set(keys)) == len(keys), 'logical fact conflict')
+    for fact in facts:
+        if fact['effect_key'] is None and fact['state'] == 'known_absent':
+            require(not any(f['subject'] == fact['subject'] and f['property'] == fact['property'] and f['effect_key'] is not None and f['state'] == 'known' for f in facts), 'collection absence conflict')
+
+
+def _original_certificate(cert):
+    require(cert['continuity'] == 'original_unmodified' and set(cert['exclusions']) == {'acquisition','copy','called','identity_ambiguity','transfer','transform'}, 'original certificate qualification')
+
+
+def serialize_knowledge_wire(value):
+    check_knowledge_structure(value)
+    return canonical_knowledge_json(value)
+
+
+def main():
+    if sys.argv[1:] != ['--check-structure']:
+        sys.stderr.write('expected --check-structure\n'); return 2
+    try:
+        wire = sys.stdin.buffer.read(MAX_BYTES + 1)
+        result = check_knowledge_structure(parse_knowledge_json(wire))
+    except (KnowledgeStructureError, OSError):
+        sys.stderr.write('knowledge structure check failed\n'); return 2
+    sys.stdout.buffer.write(json.dumps(result,separators=(',',':')).encode('ascii') + b'\n')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

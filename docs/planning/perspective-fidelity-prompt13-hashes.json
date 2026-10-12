@@ -1,0 +1,78 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "baseline": "perspective-fidelity-prompt12-source-baseline.json",
+  "protected_entries": 1195,
+  "protected_unchanged": 1195,
+  "protected_changes": {},
+  "lead_planning_protected_drift": {
+    "docs/planning/perspective-fidelity-implementation-plan.md": {
+      "expected": "ad66467abf965b76f6c8bcc84cfa1899f08cb55b24be47aade163af8457358bd",
+      "current": "584669145575394b37c8875094ba688755e51d7cc374e840813409d2624e0b4d"
+    }
+  },
+  "accepted_prompt12_source_files": {
+    "sim-core/src/perspective_knowledge_source.ts": {
+      "accepted": "65e9031a9a4e39380601ae1046d8ba8d3ae7dd54b3053420ca5a0041f9764bca",
+      "current": "65e9031a9a4e39380601ae1046d8ba8d3ae7dd54b3053420ca5a0041f9764bca"
+    },
+    "trainer/src/neural/perspective_knowledge_source.py": {
+      "accepted": "fa081c09ca89e285a556dc12b82499bd4d40b371ce1f119fa94e5fbd62878596",
+      "current": "fa081c09ca89e285a556dc12b82499bd4d40b371ce1f119fa94e5fbd62878596"
+    },
+    "sim-core/tests/perspective_knowledge_source.test.ts": {
+      "accepted": "0baeaa2fa08cd4f80679cc8a2e732fc0d19a189925497c78208f7537d51cf8d9",
+      "current": "0baeaa2fa08cd4f80679cc8a2e732fc0d19a189925497c78208f7537d51cf8d9"
+    },
+    "trainer/tests/test_perspective_knowledge_source.py": {
+      "accepted": "85ebe7359c2c5f4ce54adaa5dbfd8d6b6865645af17bea59b328e44aa0054882",
+      "current": "85ebe7359c2c5f4ce54adaa5dbfd8d6b6865645af17bea59b328e44aa0054882"
+    }
+  },
+  "baseline_sha256": "86c7b58ce75600d2e4f7b6c526c09d239c14f6659f2611ef916280e93f08e89d",
+  "candidate_files": {
+    "sim-core/tests/request_knowledge_characterization.test.ts": {
+      "before": null,
+      "after": "b2fb7b8342bda9327b0d6dadf023de49f9041d71ba33d2f742a2f12bf7f1f9bc"
+    },
+    "trainer/tests/test_request_knowledge_characterization.py": {
+      "before": null,
+      "after": "cd37ea5b0d5784378afeb3c25254a49894ba656e6e4f2b628953d4647f03b894"
+    },
+    "docs/planning/perspective-fidelity-prompt13-witness.cjs": {
+      "before": null,
+      "after": "32c8842b4dafd4890c3be9c307934b9ec3826d724a0e8bf59a308009d138df8b"
+    },
+    "docs/planning/perspective-fidelity-prompt13-check-candidate.py": {
+      "before": null,
+      "after": "9e2899471aed3ba2118bea6ff2906806f6c020ec4e16659007fd96adf0d8dc44"
+    }
+  },
+  "diff_sha256": "c3a8a890ab2783a826206906c9c82ad53c2522180475035996c9e3f23d4dcabb",
+  "unexpected_changed_or_untracked_files_outside_scope": [],
+  "lead_planning_files_not_in_baseline_inventory": [
+    "docs/planning/perspective-fidelity-prompt12-source-artifact-hashes.json",
+    "docs/planning/perspective-fidelity-prompt12-source-baseline.json",
+    "docs/planning/perspective-fidelity-prompt12-source-build.log",
+    "docs/planning/perspective-fidelity-prompt12-source-check-candidate.py",
+    "docs/planning/perspective-fidelity-prompt12-source-contract.log",
+    "docs/planning/perspective-fidelity-prompt12-source-dependencies.json",
+    "docs/planning/perspective-fidelity-prompt12-source-diff-check.log",
+    "docs/planning/perspective-fidelity-prompt12-source-hashes.json",
+    "docs/planning/perspective-fidelity-prompt12-source-lead-review.md",
+    "docs/planning/perspective-fidelity-prompt12-source-local.diff",
+    "docs/planning/perspective-fidelity-prompt12-source-progress.md",
+    "docs/planning/perspective-fidelity-prompt12-source-python-core.log",
+    "docs/planning/perspective-fidelity-prompt12-source-python-legacy.log",
+    "docs/planning/perspective-fidelity-prompt12-source-python-source.log",
+    "docs/planning/perspective-fidelity-prompt12-source-report.md",
+    "docs/planning/perspective-fidelity-prompt12-source-run.log",
+    "docs/planning/perspective-fidelity-prompt12-source-ts-core.log",
+    "docs/planning/perspective-fidelity-prompt12-source-ts-legacy.log",
+    "docs/planning/perspective-fidelity-prompt12-source-ts-source.log",
+    "docs/planning/perspective-fidelity-prompt12-source-validation.json",
+    "docs/planning/perspective-fidelity-prompt12-witness.cjs",
+    "docs/planning/perspective-fidelity-prompt13.md"
+  ],
+  "lead_planning_files_recorded": 33,
+  "lead_planning_files_drift_since_baseline": {}
+}

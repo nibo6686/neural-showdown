@@ -1,0 +1,73 @@
+{
+  "encoding_overrides_unset": true,
+  "python": "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+  "commands": [
+    {
+      "cwd": "sim-core",
+      "argv": [
+        "npm.cmd",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.641,
+      "log": "perspective-fidelity-prompt11r-build.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "-m",
+        "unittest",
+        "trainer.tests.test_perspective_knowledge"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 30.953,
+      "log": "perspective-fidelity-prompt11r-python-validation.log"
+    },
+    {
+      "cwd": "sim-core",
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "dist/tests/perspective_knowledge.test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 23.813,
+      "log": "perspective-fidelity-prompt11r-ts-validation.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "docs/planning/perspective-fidelity-prompt11r-reproduce.py",
+        "green"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.781,
+      "log": "perspective-fidelity-prompt11r-green.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.281,
+      "log": "perspective-fidelity-prompt11r-contract.log"
+    },
+    {
+      "cwd": ".",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.078,
+      "log": "perspective-fidelity-prompt11r-diff-check.log"
+    }
+  ]
+}

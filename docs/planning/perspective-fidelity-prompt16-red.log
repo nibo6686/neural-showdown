@@ -1,0 +1,240 @@
+✖ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p1 (335.1177ms)
+✖ rejected hidden-disabled move restores the live request and legal set for p1 (35.157ms)
+✖ repeated save/restore round trips of a mutated state are stable for p1 (14.4737ms)
+✖ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p2 (27.5175ms)
+✖ rejected hidden-disabled move restores the live request and legal set for p2 (17.4947ms)
+✖ repeated save/restore round trips of a mutated state are stable for p2 (10.0227ms)
+✖ hand-built engine-legal overrides are accepted; the same key built from illegal edits is a typed validation error (24.6269ms)
+✖ a rejected restore leaves the running environment untouched (13.0926ms)
+✔ non-mutated live snapshots carry no override key, including after an ordinary turn (15.6791ms)
+✔ three-seed v1/v2 pipeline corpus (joint, forced-switch, terminal) is byte-identical to the pre-change evidence (29261.5278ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 2
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29998.0911
+
+✖ failing tests:
+
+test at dist\tests\active_request_restore.test.js:64:29
+✖ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p1 (335.1177ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      active: [
+        {
+          canTerastallize: 'Normal',
+  +       maybeTrapped: true,
+          moves: [
+            {
+              disabled: false,
+              id: 'tackle',
+              maxpp: 56,
+  ...
+          ],
+  -       trapped: true
+        }
+      ],
+      side: {
+        id: 'p1',
+        name: 'A',
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:77:34)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:101:29
+✖ rejected hidden-disabled move restores the live request and legal set for p1 (35.157ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      active: [
+        {
+          canTerastallize: 'Normal',
+          maybeDisabled: true,
+          moves: [
+            {
+  +           disabled: false,
+  -           disabled: true,
+  -           disabledSource: '',
+              id: 'tackle',
+              maxpp: 56,
+              move: 'Tackle',
+              pp: 56,
+              target: 'normal'
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:115:34)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:135:29
+✖ repeated save/restore round trips of a mutated state are stable for p1 (14.4737ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    ok(KEY in snapshot.simulator_state)
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:143:30)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:64:29
+✖ rejected switch (maybeTrapped to trapped) restores the live request and legal set for p2 (27.5175ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      active: [
+        {
+          canTerastallize: 'Normal',
+  +       maybeTrapped: true,
+          moves: [
+            {
+              disabled: false,
+              id: 'tackle',
+              maxpp: 56,
+  ...
+          ],
+  -       trapped: true
+        }
+      ],
+      side: {
+        id: 'p2',
+        name: 'B',
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:77:34)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:101:29
+✖ rejected hidden-disabled move restores the live request and legal set for p2 (17.4947ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      active: [
+        {
+          canTerastallize: 'Normal',
+          maybeDisabled: true,
+          moves: [
+            {
+  +           disabled: false,
+  -           disabled: true,
+  -           disabledSource: '',
+              id: 'tackle',
+              maxpp: 56,
+              move: 'Tackle',
+              pp: 56,
+              target: 'normal'
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:115:34)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:135:29
+✖ repeated save/restore round trips of a mutated state are stable for p2 (10.0227ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    ok(KEY in snapshot.simulator_state)
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:143:30)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:164:25
+✖ hand-built engine-legal overrides are accepted; the same key built from illegal edits is a typed validation error (24.6269ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      active: [
+        {
+          canTerastallize: 'Normal',
+  +       maybeTrapped: true,
+          moves: [
+            {
+              disabled: false,
+              id: 'tackle',
+              maxpp: 56,
+  ...
+          ],
+  -       trapped: true
+        }
+      ],
+      side: {
+        id: 'p1',
+        name: 'A',
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:175:26)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist\tests\active_request_restore.test.js:226:25
+✖ a rejected restore leaves the running environment untouched (13.0926ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\active_request_restore.test.js:231:9)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }

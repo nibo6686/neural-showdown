@@ -1,0 +1,47 @@
+✖ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (90.0742ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 266.789
+
+✖ failing tests:
+
+test at dist\tests\record_identity.test.js:143:25
+✖ Python identity canonicalization matches TypeScript JSON scalar and UTF-16 semantics (90.0742ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+  +     '{"10":4,"2":3,"î€€":1,"ð\\udc90€€":2}',
+  +     '08a6ac20632d71d4c2f6d75f318c10259e44e3c2fe01c941546f6ccb0e3b65f4'
+  -     '{"10":4,"2":3,"𐀀":2,"":1}',
+  -     'bf4a6658821cf213439fa47fea89ee6ce9b7542db1abec99a1c0a4539d99a94a'
+      ],
+      [
+  +     '{"text":"Ã© eÌ\\udc81 ðŸ˜€ \\ud800 \\udfff\\n\\t"}',
+  +     'e16bfc5b8c9bda2dd91ad212faff6fed96db1e5dc3fe1ade8812da053023bda2'
+  -     '{"text":"é é 😀 \\ud800 \\udfff\\n\\t"}',
+  -     'a64b6b886eb6ac66bcfb29fc282c31c346071d35e3d522f81afcdc4d8138893a'
+      ],
+      [
+        '{}',
+        '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'
+      ],
+  
+      at TestContext.<anonymous> (C:\Users\cloud\Downloads\neural\final\sim-core\dist\tests\record_identity.test.js:153:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [Array],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,12 @@
+[eval]:1
+const {spawnSync}=require(node:child_process); const p=spawnSync(process.env.PYTHON,[-c,import
+                          ^^^^
+Expected ',', got ':'
+
+SyntaxError: missing ) after argument list
+    at makeContextifyScript (node:internal/vm:194:14)
+    at compileScript (node:internal/process/execution:388:10)
+    at evalTypeScript (node:internal/process/execution:260:22)
+    at node:internal/main/eval_string:71:3
+
+Node.js v24.15.0

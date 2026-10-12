@@ -1,0 +1,25 @@
+✔ real switch lifecycle for p1 preserves typed state, prefix and privacy through restoration (293.2137ms)
+✔ real drag lifecycle for p1 preserves typed state, prefix and privacy through restoration (24.653ms)
+✔ real faint lifecycle for p1 preserves typed state, prefix and privacy through restoration (22.3435ms)
+✔ real shed-tail lifecycle for p1 preserves typed state, prefix and privacy through restoration (41.176ms)
+✔ real failed-shed-tail lifecycle for p1 preserves typed state, prefix and privacy through restoration (22.6255ms)
+✔ real switch lifecycle for p2 preserves typed state, prefix and privacy through restoration (19.7249ms)
+✔ real drag lifecycle for p2 preserves typed state, prefix and privacy through restoration (17.2352ms)
+✔ real faint lifecycle for p2 preserves typed state, prefix and privacy through restoration (17.0033ms)
+✔ real shed-tail lifecycle for p2 preserves typed state, prefix and privacy through restoration (33.6783ms)
+✔ real failed-shed-tail lifecycle for p2 preserves typed state, prefix and privacy through restoration (20.442ms)
+✔ same seed produces the same initial self team state (59.8684ms)
+✔ seeded random controllers settle repeated terminal battles without external input (311.1776ms)
+✔ response shaping can return only p1 without log delta or possible roles (8.4756ms)
+✔ invalid external choices return the pending request instead of hanging (9.5335ms)
+✔ canonical submissions reject stale actions before raw choice forwarding (12.2723ms)
+✔ real forced-switch waits are opt-in, private, non-actionable and preserved by restoration (47.5333ms)
+✔ submitted requests stay absent through restoration while the other player can still choose (73.7779ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2133.5159

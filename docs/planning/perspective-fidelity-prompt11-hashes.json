@@ -1,0 +1,122 @@
+{
+  "head": "accab655c26ada18124e790b16d5770c8bd17894",
+  "protected_unchanged": 1088,
+  "candidate_files": {
+    "sim-core/src/perspective_knowledge.ts": {
+      "before": null,
+      "after": "48243641fb91df1e7af9f31d9b194c6dea480146dc38cc1e66a17ad2d3920f0d"
+    },
+    "trainer/src/neural/perspective_knowledge.py": {
+      "before": null,
+      "after": "5f862f032b57863dcbbcdf05e84259d2810c09ed75b5c4e74ab0233e71dfa27f"
+    },
+    "sim-core/tests/perspective_knowledge.test.ts": {
+      "before": null,
+      "after": "ca625e0cbe11b29abe4832ea46902dafab3dee2478fd721e692c091aca8dcb96"
+    },
+    "trainer/tests/test_perspective_knowledge.py": {
+      "before": null,
+      "after": "1048551a5c6b76c656d04b67b2908808e8da321f7e07275927ce6a09e4d2c7c8"
+    }
+  },
+  "external_additions_not_written_by_this_task": {
+    ".claude/skills/architect-pr-review/SKILL.md": "ae3a3054f13d86f314c37cbf94f39eedc73e1ac4246ceb348d94a2b2abe75115",
+    ".claude/skills/architect-pr-review/agents/openai.yaml": "7d0019a9cf7d1b6f5e998854caad825b52c8744d0355c96c718963b77b355e6c",
+    ".claude/skills/architect-pr-review/references/review-judgment-rubric.md": "d254be5df3c0c61018f9f9e477baa1038ed97f6aa1d0d4d87696887a097d2fa1",
+    ".claude/skills/backlog-prioritization-agent/SKILL.md": "9a4f9186d01a9b31b52814551b2a5cfa0ddfa35e4c95451a52205cade6565559",
+    ".claude/skills/codebase-onboarding-agent/SKILL.md": "0d6dbe2c30e20ec2e9af2d8af420fb5c8312b3222517cccc9143c2240ed5f37e",
+    ".claude/skills/draft-implementation-plan/SKILL.md": "0109388df18acb8d6fcb9bc077c6be4a081a5ec093770a1420f407b72d98dfa7",
+    ".claude/skills/draft-implementation-plan/agents/openai.yaml": "8a2cd416487891e48725ad1708530fc6d78fcc53884251301c49852e2f1380f1",
+    ".claude/skills/draft-implementation-plan/references/implementation-plan-template.md": "f963cd9331194a5973ab7a7234ad8cb98b8d81f36fed9cdf538a12f8d3d7c907",
+    ".claude/skills/full-stack-delivery-agent/SKILL.md": "9a5cdeb71fe3fb2d56f11b7da65fb1101d5cb4ccf636b7987eef60fedc57cc53",
+    ".claude/skills/implement-plan/SKILL.md": "1a19095030c5ff578590da14bb3d6e609c227cc4b0717d3d4f6e07c9569c156e",
+    ".claude/skills/implement-plan/agents/openai.yaml": "856c22ac4d40728f52167f2d0b8c4a4f4a91d92b005cb0013d729282ab462708",
+    ".claude/skills/implement-plan/references/pr-notes-template.md": "d218e6da0a5915e124b23f8213b4ba56c0a3bc05f5b5fe1283c5309b7d3f07f1",
+    ".claude/skills/model-routing-advisor/SKILL.md": "52d87c51f03f90e105b73418572b0f19de4ddbcb17b1abfe8b6a7c4cc47feea0",
+    ".claude/skills/model-routing-advisor/agents/openai.yaml": "c180c967ad190050ea978aacd0175359890a8e6dda2f44ba3ed9721dba80cdc1",
+    ".claude/skills/product-delivery-orchestrator/SKILL.md": "b9e7ba172beca8b1d2c2d28d9cf72fa3f63dde5d11eddb46ceb22e1960c17d1b",
+    ".claude/skills/product-specification-agent/SKILL.md": "34110265f8840477ade77305ed72726da74d4209ebd3df0ba841865483c7a324",
+    ".claude/skills/project-lead/SKILL.md": "1b60b1029f227065036e70c659e5034b7502be460012b427f6754d31f9a270a3",
+    ".claude/skills/project-lead/agents/openai.yaml": "f25dc8efa0bacd52667b50c78579190d35e3eb47028ee4100d5026f1172d367a",
+    ".claude/skills/project-lead/references/codex-coordination.md": "37ed0360e6d6de2f74fb105d44d77877f058f9a88c27ab6dd346d904aab40e83",
+    ".claude/skills/qa-validation-agent/SKILL.md": "02676e9a4e6056a246b5a2610e11b22939e8df278d99e49185160677bfd6d5c7",
+    ".claude/skills/review-plan-tests/SKILL.md": "9c1581675e04a3012bb49d9b68ac5c180a4f9f83b80078a6fa4ef6e233f49d8e",
+    ".claude/skills/review-plan-tests/agents/openai.yaml": "72aeb9d030507b6f9d8ad9e0ad934d63f57ddf0417b7b08bad3242a1f9939458",
+    ".claude/skills/review-plan/SKILL.md": "1bf404f9ce55d64c7ed756b96c05c5ac0046d65ca6212ea546fd6a49316bae74",
+    ".claude/skills/simplify-code/SKILL.md": "b0ae14a1a3358c9c99417b943b0615a2e814742b0eb00c845d2a8e013cd8b318",
+    ".claude/skills/simplify-code/agents/openai.yaml": "8ed8a8e1ecf265646a55043846de05ef1710f81103d987ef74eb9c97c867cfe5",
+    ".claude/skills/update-docs/SKILL.md": "4003e02fd6eeb42130b106bed45add5c163000fb9791489c34ac8cb8b08032de",
+    ".claude/skills/update-docs/agents/openai.yaml": "98aa29df5fbd164aeef39854efd15a414e101358e38ce37e8256a2a579c8d7f9",
+    ".claude/skills/wm-adr/SKILL.md": "66d7ce3d20558474f8691ca81a5b36bfa951a9abc6c7f4d88b5e170fe124c69b",
+    ".claude/skills/wm-application-smoke-test/SKILL.md": "cefb17084c887944274719065e4ebe9ece530374418a5dee90353b9a70b1894c",
+    ".claude/skills/wm-application-smoke-test/agents/openai.yaml": "85268974390a0995990c00f6b91ea6fd5e53572d1bbf5ebb1e74bf696b267e58",
+    ".claude/skills/wm-application-smoke-test/references/execution-and-coverage.md": "344b0cd51472ddb9e9de8cad9d88144012cae7178dbf2944851ca7e772865ec2",
+    ".claude/skills/wm-application-smoke-test/references/optional-integrations.md": "5be3a036935257305c4cb11e3efcea75978f8ba61aecd195968ca7bf4918c7e4",
+    ".claude/skills/wm-application-smoke-test/references/reporting-contract.md": "bf974d2eb31cec0e9cf8142a66eb300cfbc114c1b8813a9d0ad5c3613a8f356e",
+    ".claude/skills/wm-backlog/SKILL.md": "e8a94f1a5e8f4321f84f50e180a873f501f9aa68ec019f9859f90c7f9a343282",
+    ".claude/skills/wm-client-handoff/SKILL.md": "26b5eb9882f64be66d353f6f52bdec7dfc45b4dd12a459eeb66c5165acd2ea81",
+    ".claude/skills/wm-pr-review/SKILL.md": "f63f5e6eee9be915e1d4517ecf4e314f7a6e0e8445ee3a2eb9ae6a567ebcac52",
+    ".claude/skills/wm-qa-plan/SKILL.md": "bc010c2c1c0f1e840cb8c0dd08f3f5f18f910d52b1b8c4645fe92184f261cc3b",
+    ".claude/skills/wm-spec/SKILL.md": "de6925e001a99d1a3aa34cf968b7bb627ed5fe11d6648fb1488d4009202bd14e",
+    "docs/planning/perspective-fidelity-lead-history-through-prompt10.md": "d34dfb0e031f180c2426bd34a87952ed4b92237ef522afa673380d632108d355"
+  },
+  "diff_sha256": "77937986116ce3e39ff2969b07c36433bc3fcc6064f6f0b2ee7ae10bfa38ef61",
+  "runtime_contract_data": {
+    "docs/contracts/fixtures/perspective-knowledge-v1/schema.json": {
+      "sha256": "23ef245ee629cc5611e4ce202bd5bc48bee63648ce474ca62b7c7669c4543918",
+      "new_runtime_dependency": true
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/profiles.json": {
+      "sha256": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+      "new_runtime_dependency": true
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-types.json": {
+      "sha256": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+      "new_runtime_dependency": true
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json": {
+      "sha256": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+      "new_runtime_dependency": true
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/typed-references.json": {
+      "sha256": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+      "new_runtime_dependency": true
+    }
+  },
+  "manifest_or_attestation_updated": false,
+  "matrix_summary": {
+    "scope": "Structural differential only; document semantic-negative expectations are not imported runtime authority",
+    "positive": 26,
+    "document_negative": 43,
+    "negative_structure_reject": 37,
+    "semantic_or_assurance_unverified": [
+      "negative-authority-label-forgery.json",
+      "negative-false-item.json",
+      "negative-unsupported-complete.json",
+      "negative-crosswalk-chronological-relabel.json",
+      "negative-false-original-value.json",
+      "negative-false-replay-reproof.json"
+    ]
+  },
+  "commands": [
+    {
+      "argv": [
+        "D:\\Anaconda\\envs\\neuralgpu\\python.exe",
+        "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"scope\": \"contract fixtures only; no production semantic acceptance\", \"counts\": {\"positive\": 26, \"negative\": 43, \"vectors\": 16}, \"effect_subset_canaries\": 1, \"compact_parity\": true, \"causal_suffix_invariance\": true, \"revision_checks\": {\"representation_positive\": 13, \"representation_negative\": 14, \"coverage_positive\": 2, \"coverage_negative\": 6, \"literal_all_controls\": true, \"same_source_refinement\": true, \"changed_source_fork\": true, \"all_form_suffix_invariance\": true}}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "warning: LF will be replaced by CRLF in docs/contracts/BELIEF_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/DATASET_LINEAGE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/OBSERVABLE_STATE.md.\nThe file will have its original line endings in your working directory\nwarning: LF will be replaced by CRLF in docs/contracts/PIPELINE_EPISODE.md.\nThe file will have its original line endings in your working directory\n"
+    }
+  ]
+}

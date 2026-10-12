@@ -1,0 +1,3114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "value": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "text"
+            },
+            "data": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "integer"
+            },
+            "data": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "boolean"
+            },
+            "data": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "texts"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 256
+              },
+              "maxItems": 6
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "six_stats"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "hp": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "atk": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "hp",
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "five_stats"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "atk": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "stages"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "atk": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "accuracy": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "evasion": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                }
+              },
+              "required": [
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe",
+                "accuracy",
+                "evasion"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "interval"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "max": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "field_timer"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "target_kind": {
+                  "enum": [
+                    "weather",
+                    "terrain",
+                    "pseudo_weather"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "remaining": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target_kind",
+                "name",
+                "remaining"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "power"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "enum": [
+                    "base_move",
+                    "effective_move"
+                  ]
+                },
+                "amount": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              },
+              "required": [
+                "basis",
+                "amount"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "effect"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "source_subject": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "observed_since": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "elapsed": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "remaining": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "const": "interval"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 2147483647
+                            },
+                            "max": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 2147483647
+                            }
+                          },
+                          "required": [
+                            "min",
+                            "max"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "data"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "source_subject",
+                "observed_since",
+                "elapsed",
+                "remaining"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "set": {
+      "type": "object",
+      "properties": {
+        "slot": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "species": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "moves": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "maxItems": 4
+        },
+        "item": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "ability": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "tera_type": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gender": {
+          "anyOf": [
+            {
+              "enum": [
+                "M",
+                "F",
+                "N"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shiny": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ball": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nature": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "six_stats"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "hp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "atk": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "def": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spa": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spd": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spe": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "hp",
+                    "atk",
+                    "def",
+                    "spa",
+                    "spd",
+                    "spe"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ivs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "six_stats"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "hp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "atk": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "def": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spa": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spd": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "spe": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "hp",
+                    "atk",
+                    "def",
+                    "spa",
+                    "spd",
+                    "spe"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "happiness": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "slot",
+        "name",
+        "species",
+        "moves",
+        "item",
+        "ability",
+        "tera_type",
+        "level",
+        "gender",
+        "shiny",
+        "ball",
+        "nature",
+        "evs",
+        "ivs",
+        "happiness"
+      ],
+      "additionalProperties": false
+    },
+    "origin": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "origin"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "battle_key": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "format": {
+          "const": "gen9randombattle"
+        },
+        "engine": {
+          "const": "pokemon-showdown@0.11.10"
+        },
+        "rule_version": {
+          "const": "pk-rules/v1"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "battle_key",
+        "format",
+        "engine",
+        "rule_version"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "source"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "source_type": {
+          "enum": [
+            "owner_initialization",
+            "public_replay",
+            "public_prefix",
+            "owner_request"
+          ]
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "enum": [
+                "p1",
+                "p2"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provider": {
+          "enum": [
+            "addressed-team-provider/v1",
+            "indexed-public/v1",
+            "addressed-request/v1"
+          ]
+        },
+        "delivery_seq": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delivery_cursor": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "phase": {
+          "enum": [
+            "before_effects",
+            "chronological"
+          ]
+        },
+        "team": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/set"
+          },
+          "maxItems": 6
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "maxItems": 4096
+        },
+        "raw_request": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "json": {
+                  "type": "string",
+                  "maxLength": 65536
+                }
+              },
+              "required": [
+                "json"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "source_type",
+        "owner",
+        "provider",
+        "delivery_seq",
+        "delivery_cursor",
+        "phase",
+        "team",
+        "records",
+        "raw_request"
+      ],
+      "additionalProperties": false
+    },
+    "prefix": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "prefix"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "parser": {
+          "const": "indexed-public/v1"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "maxItems": 4096
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "parser",
+        "records"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "evidence"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "enum": [
+                "p1",
+                "p2"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "enum": [
+            "original",
+            "public",
+            "request"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "prefix": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "record_indices": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "maxItems": 4096
+        },
+        "team_slot": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "writer": {
+          "enum": [
+            "submitted-set/v1",
+            "original-possession/v1",
+            "identity-replace/v1",
+            "boundary/v1",
+            "consumption/v1",
+            "raw-request/v1",
+            "terminal-requestless/v1",
+            "appearance/v1",
+            "calculated-owner-stats/v1",
+            "original-default/v1",
+            "side-condition-start/v1",
+            "pending-base-power/v1",
+            "field-timer-range/v1",
+            "layer-count/v1"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "scope",
+        "source",
+        "prefix",
+        "record_indices",
+        "team_slot",
+        "writer"
+      ],
+      "additionalProperties": false
+    },
+    "certificate": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "certificate"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+        },
+        "property": {
+          "enum": [
+            "roster_species",
+            "roster_order",
+            "party_position",
+            "active_slot",
+            "roster_size",
+            "starting_moves",
+            "current_moves",
+            "move_execution",
+            "move_incarnation",
+            "submitted_nature",
+            "submitted_evs",
+            "submitted_ivs",
+            "submitted_happiness",
+            "calculated_stats",
+            "hp_max",
+            "level",
+            "gender",
+            "shiny",
+            "ball",
+            "details",
+            "starting_tera",
+            "hp",
+            "fainted",
+            "status",
+            "status_observed_since",
+            "status_elapsed",
+            "status_remaining",
+            "pp",
+            "max_pp",
+            "disabled",
+            "maybe_disabled",
+            "trapped",
+            "maybe_trapped",
+            "lock",
+            "boosts",
+            "persistent_effect",
+            "single_turn_effect",
+            "single_move_effect",
+            "side_condition",
+            "side_condition_layers",
+            "weather",
+            "weather_effective",
+            "terrain",
+            "pseudo_weather",
+            "field_remaining",
+            "pending_intent",
+            "pending_effect",
+            "pending_power",
+            "form",
+            "types",
+            "tera",
+            "transformed",
+            "appearance",
+            "identity_reveal",
+            "item",
+            "item_held",
+            "item_effective",
+            "ability",
+            "ability_effective",
+            "boundary_kind",
+            "request_presence"
+          ]
+        },
+        "witnesses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "maxItems": 4096
+        },
+        "scan_start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "scan_end": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "writers": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "submitted-set/v1",
+              "original-possession/v1",
+              "identity-replace/v1",
+              "boundary/v1",
+              "consumption/v1",
+              "raw-request/v1",
+              "terminal-requestless/v1",
+              "appearance/v1",
+              "calculated-owner-stats/v1",
+              "original-default/v1",
+              "side-condition-start/v1",
+              "pending-base-power/v1",
+              "field-timer-range/v1",
+              "layer-count/v1"
+            ]
+          },
+          "maxItems": 4096
+        },
+        "continuity": {
+          "enum": [
+            "original_unmodified",
+            "ambiguous",
+            "unsupported"
+          ]
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "transfer",
+              "copy",
+              "called",
+              "transform",
+              "acquisition",
+              "identity_ambiguity"
+            ]
+          },
+          "maxItems": 6
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "owner",
+        "source",
+        "subject",
+        "property",
+        "witnesses",
+        "scan_start",
+        "scan_end",
+        "writers",
+        "continuity",
+        "exclusions"
+      ],
+      "additionalProperties": false
+    },
+    "fact": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "fact"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+        },
+        "family": {
+          "enum": [
+            "K01",
+            "K02",
+            "K03",
+            "K04",
+            "K05",
+            "K06",
+            "K07",
+            "K08",
+            "K09",
+            "K10",
+            "K11",
+            "K12",
+            "K13",
+            "K14",
+            "K15",
+            "K16",
+            "K17",
+            "K18",
+            "K19",
+            "K20"
+          ]
+        },
+        "property": {
+          "enum": [
+            "roster_species",
+            "roster_order",
+            "party_position",
+            "active_slot",
+            "roster_size",
+            "starting_moves",
+            "current_moves",
+            "move_execution",
+            "move_incarnation",
+            "submitted_nature",
+            "submitted_evs",
+            "submitted_ivs",
+            "submitted_happiness",
+            "calculated_stats",
+            "hp_max",
+            "level",
+            "gender",
+            "shiny",
+            "ball",
+            "details",
+            "starting_tera",
+            "hp",
+            "fainted",
+            "status",
+            "status_observed_since",
+            "status_elapsed",
+            "status_remaining",
+            "pp",
+            "max_pp",
+            "disabled",
+            "maybe_disabled",
+            "trapped",
+            "maybe_trapped",
+            "lock",
+            "boosts",
+            "persistent_effect",
+            "single_turn_effect",
+            "single_move_effect",
+            "side_condition",
+            "side_condition_layers",
+            "weather",
+            "weather_effective",
+            "terrain",
+            "pseudo_weather",
+            "field_remaining",
+            "pending_intent",
+            "pending_effect",
+            "pending_power",
+            "form",
+            "types",
+            "tera",
+            "transformed",
+            "appearance",
+            "identity_reveal",
+            "item",
+            "item_held",
+            "item_effective",
+            "ability",
+            "ability_effective",
+            "boundary_kind",
+            "request_presence"
+          ]
+        },
+        "effect_key": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "known",
+            "known_absent",
+            "unknown",
+            "inapplicable"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "none",
+            "hidden_opponent",
+            "never_revealed",
+            "ambiguous_carrier",
+            "private_request_unavailable",
+            "not_emitted",
+            "hidden_timer",
+            "missing_original_authority",
+            "unimplemented_family",
+            "unsupported_writer",
+            "proved_rule_inapplicable",
+            "not_yet_verified"
+          ]
+        },
+        "freshness": {
+          "enum": [
+            "immutable",
+            "current",
+            "last_known"
+          ]
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "public_bucket",
+            "interval",
+            "not_applicable"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "maxItems": 32
+        },
+        "certificate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "owner",
+        "subject",
+        "family",
+        "property",
+        "effect_key",
+        "state",
+        "value",
+        "reason",
+        "freshness",
+        "precision",
+        "observed_at",
+        "evidence",
+        "certificate"
+      ],
+      "additionalProperties": false
+    },
+    "crosswalk": {
+      "type": "object",
+      "properties": {
+        "appearance": {
+          "type": "string",
+          "pattern": "^p[12]:appearance:[1-9][0-9]*$"
+        },
+        "roster": {
+          "type": "string",
+          "pattern": "^p[12]:roster:[1-6]$"
+        },
+        "certificate": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "appearance",
+        "roster",
+        "certificate"
+      ],
+      "additionalProperties": false
+    },
+    "starting": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "starting"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "policy": {
+          "enum": [
+            "simulator-causal/v1",
+            "public-replay-owner-starting/v1"
+          ]
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "maxItems": 4096
+        },
+        "crosswalk": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/crosswalk"
+          },
+          "maxItems": 6
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "policy",
+        "source",
+        "revision",
+        "parent",
+        "facts",
+        "crosswalk"
+      ],
+      "additionalProperties": false
+    },
+    "current": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "current"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "prefix": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "maxItems": 4096
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "prefix",
+        "cursor",
+        "parent",
+        "facts"
+      ],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "request"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "prefix": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "actionable": {
+          "type": "boolean"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "maxItems": 4096
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "source",
+        "prefix",
+        "sequence",
+        "cursor",
+        "actionable",
+        "facts"
+      ],
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "knowledge"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "policy": {
+          "enum": [
+            "simulator-causal/v1",
+            "public-replay-owner-starting/v1"
+          ]
+        },
+        "starting": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "current": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "boundary": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "policy",
+        "starting",
+        "current",
+        "request",
+        "boundary"
+      ],
+      "additionalProperties": false
+    },
+    "application": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "enum": [
+            "original",
+            "current",
+            "request"
+          ]
+        },
+        "scope": {
+          "enum": [
+            "owner",
+            "opponent",
+            "both"
+          ]
+        },
+        "subject": {
+          "enum": [
+            "side",
+            "roster",
+            "roster_or_appearance",
+            "move",
+            "persistent_effect_member",
+            "single_turn_effect_member",
+            "single_move_effect_member",
+            "condition_effect",
+            "weather_effect",
+            "terrain_effect",
+            "room_effect",
+            "pending_effect_member",
+            "field_effect"
+          ]
+        },
+        "coverage": {
+          "const": "all_relevant"
+        }
+      },
+      "required": [
+        "context",
+        "scope",
+        "subject",
+        "coverage"
+      ],
+      "additionalProperties": false
+    },
+    "property_rule": {
+      "type": "object",
+      "properties": {
+        "property": {
+          "enum": [
+            "roster_species",
+            "roster_order",
+            "party_position",
+            "active_slot",
+            "roster_size",
+            "starting_moves",
+            "current_moves",
+            "move_execution",
+            "move_incarnation",
+            "submitted_nature",
+            "submitted_evs",
+            "submitted_ivs",
+            "submitted_happiness",
+            "calculated_stats",
+            "hp_max",
+            "level",
+            "gender",
+            "shiny",
+            "ball",
+            "details",
+            "starting_tera",
+            "hp",
+            "fainted",
+            "status",
+            "status_observed_since",
+            "status_elapsed",
+            "status_remaining",
+            "pp",
+            "max_pp",
+            "disabled",
+            "maybe_disabled",
+            "trapped",
+            "maybe_trapped",
+            "lock",
+            "boosts",
+            "persistent_effect",
+            "single_turn_effect",
+            "single_move_effect",
+            "side_condition",
+            "side_condition_layers",
+            "weather",
+            "weather_effective",
+            "terrain",
+            "pseudo_weather",
+            "field_remaining",
+            "pending_intent",
+            "pending_effect",
+            "pending_power",
+            "form",
+            "types",
+            "tera",
+            "transformed",
+            "appearance",
+            "identity_reveal",
+            "item",
+            "item_held",
+            "item_effective",
+            "ability",
+            "ability_effective",
+            "boundary_kind",
+            "request_presence"
+          ]
+        },
+        "applications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/application"
+          },
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "property",
+        "applications"
+      ],
+      "additionalProperties": false
+    },
+    "obligation": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "enum": [
+            "K01",
+            "K02",
+            "K03",
+            "K04",
+            "K05",
+            "K06",
+            "K07",
+            "K08",
+            "K09",
+            "K10",
+            "K11",
+            "K12",
+            "K13",
+            "K14",
+            "K15",
+            "K16",
+            "K17",
+            "K18",
+            "K19",
+            "K20"
+          ]
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "maxItems": 32
+        },
+        "unknown": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "none",
+              "hidden_opponent",
+              "never_revealed",
+              "ambiguous_carrier",
+              "private_request_unavailable",
+              "not_emitted",
+              "hidden_timer",
+              "missing_original_authority",
+              "unimplemented_family",
+              "unsupported_writer",
+              "proved_rule_inapplicable",
+              "not_yet_verified"
+            ]
+          },
+          "maxItems": 10
+        },
+        "opponent_unknown": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "none",
+              "hidden_opponent",
+              "never_revealed",
+              "ambiguous_carrier",
+              "private_request_unavailable",
+              "not_emitted",
+              "hidden_timer",
+              "missing_original_authority",
+              "unimplemented_family",
+              "unsupported_writer",
+              "proved_rule_inapplicable",
+              "not_yet_verified"
+            ]
+          },
+          "maxItems": 10
+        },
+        "inapplicable": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "proved_rule_inapplicable"
+            ]
+          },
+          "maxItems": 1
+        },
+        "property_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/property_rule"
+          },
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "family",
+        "properties",
+        "unknown",
+        "opponent_unknown",
+        "inapplicable",
+        "property_rules"
+      ],
+      "additionalProperties": false
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "profile"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "name": {
+          "enum": [
+            "addressed-owner-evidence/v1",
+            "public-replay-owner-starting-evidence/v1",
+            "owner-loadout-complete/v1"
+          ]
+        },
+        "policy": {
+          "enum": [
+            "simulator-causal/v1",
+            "public-replay-owner-starting/v1"
+          ]
+        },
+        "engine": {
+          "const": "pokemon-showdown@0.11.10"
+        },
+        "source_version": {
+          "enum": [
+            "addressed-team-provider/v1",
+            "indexed-public/v1"
+          ]
+        },
+        "rule_version": {
+          "const": "pk-rules/v1"
+        },
+        "writer_version": {
+          "const": "pk-writers/v1"
+        },
+        "obligations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/obligation"
+          },
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "name",
+        "policy",
+        "engine",
+        "source_version",
+        "rule_version",
+        "writer_version",
+        "obligations"
+      ],
+      "additionalProperties": false
+    },
+    "family_verdict": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "enum": [
+            "K01",
+            "K02",
+            "K03",
+            "K04",
+            "K05",
+            "K06",
+            "K07",
+            "K08",
+            "K09",
+            "K10",
+            "K11",
+            "K12",
+            "K13",
+            "K14",
+            "K15",
+            "K16",
+            "K17",
+            "K18",
+            "K19",
+            "K20"
+          ]
+        },
+        "result": {
+          "enum": [
+            "supported_complete",
+            "permitted_unknown",
+            "proved_inapplicable",
+            "blocked",
+            "unsupported"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "none",
+            "hidden_opponent",
+            "never_revealed",
+            "ambiguous_carrier",
+            "private_request_unavailable",
+            "not_emitted",
+            "hidden_timer",
+            "missing_original_authority",
+            "unimplemented_family",
+            "unsupported_writer",
+            "proved_rule_inapplicable",
+            "not_yet_verified"
+          ]
+        }
+      },
+      "required": [
+        "family",
+        "result",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "verdict": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "verdict"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "knowledge": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "profile": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "families": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/family_verdict"
+          },
+          "maxItems": 20
+        },
+        "result": {
+          "enum": [
+            "evidence_relative_complete",
+            "strong_complete",
+            "incomplete",
+            "unsupported"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "knowledge",
+        "profile",
+        "families",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "owner_binding": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "knowledge": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "verdict": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observation_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "belief_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actor_record_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "knowledge",
+        "verdict",
+        "observation_id",
+        "belief_id",
+        "actor_record_id"
+      ],
+      "additionalProperties": false
+    },
+    "boundary": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "boundary"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "boundary_type": {
+          "enum": [
+            "initial",
+            "mid",
+            "wait",
+            "requestless",
+            "terminal",
+            "restored"
+          ]
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "restored_from": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/owner_binding"
+          },
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "index",
+        "cursor",
+        "boundary_type",
+        "parent",
+        "restored_from",
+        "bindings"
+      ],
+      "additionalProperties": false
+    },
+    "binding": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "binding"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "input_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "successor_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "input_knowledge": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "successor_knowledge": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "input_observation": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "successor_observation": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "input_belief": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "successor_belief": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "transition": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actor_record": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "origin",
+        "owner",
+        "input_index",
+        "successor_index",
+        "input_knowledge",
+        "successor_knowledge",
+        "input_observation",
+        "successor_observation",
+        "input_belief",
+        "successor_belief",
+        "transition",
+        "actor_record"
+      ],
+      "additionalProperties": false
+    },
+    "tables": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/origin"
+          },
+          "maxItems": 4096
+        },
+        "source": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "maxItems": 4096
+        },
+        "prefix": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prefix"
+          },
+          "maxItems": 4096
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          },
+          "maxItems": 4096
+        },
+        "certificate": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/certificate"
+          },
+          "maxItems": 4096
+        },
+        "fact": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          },
+          "maxItems": 4096
+        },
+        "starting": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/starting"
+          },
+          "maxItems": 4096
+        },
+        "current": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/current"
+          },
+          "maxItems": 4096
+        },
+        "request": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/request"
+          },
+          "maxItems": 4096
+        },
+        "knowledge": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/knowledge"
+          },
+          "maxItems": 4096
+        },
+        "profile": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/profile"
+          },
+          "maxItems": 4096
+        },
+        "verdict": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/verdict"
+          },
+          "maxItems": 4096
+        },
+        "boundary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/boundary"
+          },
+          "maxItems": 4096
+        },
+        "binding": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/binding"
+          },
+          "maxItems": 4096
+        }
+      },
+      "required": [
+        "origin",
+        "source",
+        "prefix",
+        "evidence",
+        "certificate",
+        "fact",
+        "starting",
+        "current",
+        "request",
+        "knowledge",
+        "profile",
+        "verdict",
+        "boundary",
+        "binding"
+      ],
+      "additionalProperties": false
+    },
+    "compact_tables": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/origin"
+          },
+          "maxProperties": 4096
+        },
+        "source": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/source"
+          },
+          "maxProperties": 4096
+        },
+        "prefix": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/prefix"
+          },
+          "maxProperties": 4096
+        },
+        "evidence": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/evidence"
+          },
+          "maxProperties": 4096
+        },
+        "certificate": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/certificate"
+          },
+          "maxProperties": 4096
+        },
+        "fact": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/fact"
+          },
+          "maxProperties": 4096
+        },
+        "starting": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/starting"
+          },
+          "maxProperties": 4096
+        },
+        "current": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/current"
+          },
+          "maxProperties": 4096
+        },
+        "request": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/request"
+          },
+          "maxProperties": 4096
+        },
+        "knowledge": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/knowledge"
+          },
+          "maxProperties": 4096
+        },
+        "profile": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/profile"
+          },
+          "maxProperties": 4096
+        },
+        "verdict": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/verdict"
+          },
+          "maxProperties": 4096
+        },
+        "boundary": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/boundary"
+          },
+          "maxProperties": 4096
+        },
+        "binding": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/binding"
+          },
+          "maxProperties": 4096
+        }
+      },
+      "required": [
+        "origin",
+        "source",
+        "prefix",
+        "evidence",
+        "certificate",
+        "fact",
+        "starting",
+        "current",
+        "request",
+        "knowledge",
+        "profile",
+        "verdict",
+        "boundary",
+        "binding"
+      ],
+      "additionalProperties": false
+    },
+    "audit": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "audit"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "schema": {
+              "const": "perspective-knowledge/v1"
+            },
+            "form": {
+              "const": "ordinary"
+            },
+            "origin": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "required_profile": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "target_boundary": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "tables": {
+              "$ref": "#/$defs/tables"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "schema",
+            "form",
+            "origin",
+            "required_profile",
+            "target_boundary",
+            "tables"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "audit"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "schema": {
+              "const": "perspective-knowledge/v1"
+            },
+            "form": {
+              "const": "full"
+            },
+            "origin": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "required_profile": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "target_boundary": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "tables": {
+              "$ref": "#/$defs/tables"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "schema",
+            "form",
+            "origin",
+            "required_profile",
+            "target_boundary",
+            "tables"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "audit"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "schema": {
+              "const": "perspective-knowledge/v1"
+            },
+            "form": {
+              "const": "compact"
+            },
+            "origin": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "required_profile": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "target_boundary": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "tables": {
+              "$ref": "#/$defs/compact_tables"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "schema",
+            "form",
+            "origin",
+            "required_profile",
+            "target_boundary",
+            "tables"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "safe_fact": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+        },
+        "family": {
+          "enum": [
+            "K01",
+            "K02",
+            "K03",
+            "K04",
+            "K05",
+            "K06",
+            "K07",
+            "K08",
+            "K09",
+            "K10",
+            "K11",
+            "K12",
+            "K13",
+            "K14",
+            "K15",
+            "K16",
+            "K17",
+            "K18",
+            "K19",
+            "K20"
+          ]
+        },
+        "property": {
+          "enum": [
+            "roster_species",
+            "roster_order",
+            "party_position",
+            "active_slot",
+            "roster_size",
+            "starting_moves",
+            "current_moves",
+            "move_execution",
+            "move_incarnation",
+            "submitted_nature",
+            "submitted_evs",
+            "submitted_ivs",
+            "submitted_happiness",
+            "calculated_stats",
+            "hp_max",
+            "level",
+            "gender",
+            "shiny",
+            "ball",
+            "details",
+            "starting_tera",
+            "hp",
+            "fainted",
+            "status",
+            "status_observed_since",
+            "status_elapsed",
+            "status_remaining",
+            "pp",
+            "max_pp",
+            "disabled",
+            "maybe_disabled",
+            "trapped",
+            "maybe_trapped",
+            "lock",
+            "boosts",
+            "persistent_effect",
+            "single_turn_effect",
+            "single_move_effect",
+            "side_condition",
+            "side_condition_layers",
+            "weather",
+            "weather_effective",
+            "terrain",
+            "pseudo_weather",
+            "field_remaining",
+            "pending_intent",
+            "pending_effect",
+            "pending_power",
+            "form",
+            "types",
+            "tera",
+            "transformed",
+            "appearance",
+            "identity_reveal",
+            "item",
+            "item_held",
+            "item_effective",
+            "ability",
+            "ability_effective",
+            "boundary_kind",
+            "request_presence"
+          ]
+        },
+        "effect_key": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "known",
+            "known_absent",
+            "unknown",
+            "inapplicable"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "none",
+            "hidden_opponent",
+            "never_revealed",
+            "ambiguous_carrier",
+            "private_request_unavailable",
+            "not_emitted",
+            "hidden_timer",
+            "missing_original_authority",
+            "unimplemented_family",
+            "unsupported_writer",
+            "proved_rule_inapplicable",
+            "not_yet_verified"
+          ]
+        },
+        "freshness": {
+          "enum": [
+            "immutable",
+            "current",
+            "last_known"
+          ]
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "public_bucket",
+            "interval",
+            "not_applicable"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "subject",
+        "family",
+        "property",
+        "effect_key",
+        "state",
+        "value",
+        "reason",
+        "freshness",
+        "precision",
+        "observed_at"
+      ],
+      "additionalProperties": false
+    },
+    "safe_crosswalk": {
+      "type": "object",
+      "properties": {
+        "appearance": {
+          "type": "string",
+          "pattern": "^p[12]:appearance:[1-9][0-9]*$"
+        },
+        "roster": {
+          "type": "string",
+          "pattern": "^p[12]:roster:[1-6]$"
+        }
+      },
+      "required": [
+        "appearance",
+        "roster"
+      ],
+      "additionalProperties": false
+    },
+    "safe_request": {
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "actionable": {
+          "type": "boolean"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safe_fact"
+          },
+          "maxItems": 4096
+        }
+      },
+      "required": [
+        "sequence",
+        "cursor",
+        "actionable",
+        "facts"
+      ],
+      "additionalProperties": false
+    },
+    "projection": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "projection"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "schema": {
+          "const": "perspective-knowledge-consumer/v1"
+        },
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "policy": {
+          "enum": [
+            "simulator-causal/v1",
+            "public-replay-owner-starting/v1"
+          ]
+        },
+        "boundary": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "required_profile": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "result": {
+          "enum": [
+            "evidence_relative_complete",
+            "strong_complete",
+            "incomplete",
+            "unsupported"
+          ]
+        },
+        "starting": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safe_fact"
+          },
+          "maxItems": 4096
+        },
+        "starting_crosswalk": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safe_crosswalk"
+          },
+          "maxItems": 6
+        },
+        "current": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safe_fact"
+          },
+          "maxItems": 4096
+        },
+        "request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/safe_request"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "schema",
+        "owner",
+        "policy",
+        "boundary",
+        "required_profile",
+        "result",
+        "starting",
+        "starting_crosswalk",
+        "current",
+        "request"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/audit"
+    },
+    {
+      "$ref": "#/$defs/projection"
+    }
+  ]
+}
