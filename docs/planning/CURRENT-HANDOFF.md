@@ -58,9 +58,11 @@ those separately. Prompt26 is the prepared next assigned boundary.
 
 Transfer the entire handoff directory described in TRANSFER-README.md plus the
 conversation transcript. Git bundle carries history/commit; exact-worktree.zip
-preserves original evidence bytes; supporting-materials.zip carries skills,
-safe project config, pinned-source witnesses, five existing LFS objects and
-the earlier evidence snapshot. No global auth or personal settings are included.
+preserves raw bytes of every tracked file at HEAD, including the five LFS
+checkpoints as real files, with a SHA-256 MANIFEST.json; supporting-materials.zip
+carries the custom skills, safe project config, the 21 pinned pokemon-showdown
+sources from git-ignored node_modules, and the 2026-10-10 evidence snapshot.
+No global auth, session, or personal settings are included.
 Ignored bulk data/generated artifacts (~8GB) are excluded; they are not required
 for these development gates and need a separate transfer if wanted later.
 
