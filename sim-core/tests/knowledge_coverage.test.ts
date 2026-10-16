@@ -91,7 +91,7 @@ function validate(value: any, fast = fastSources()): void {
         names.push(name);
       }
       assert.ok(names.some(name => !negative.test(name)), 'positive test citation');
-      assert.ok(names.some(name => negative.test(name)) || negative.test(row.limits), 'negative test citation or explicit negative limit');
+      assert.ok(names.some(name => negative.test(name)), 'negative test citation');
     }
     if (row.status === 'blocked') assert.ok(nonempty(row.blocked_by), 'blocked reason');
     if (row.status === 'legitimately_unknown') {
