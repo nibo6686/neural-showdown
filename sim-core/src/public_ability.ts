@@ -40,10 +40,12 @@ export function publicRevealedAbilities(prefix: readonly string[], rulesContext:
       if (row.invalidated === 'form') {row.base = null; row.copied = false;}
     } else if (['-ability', 'ability'].includes(parts[1])) {
       const domains = readerContext(rulesContext).protocol.validation_rules.ability.payload_domains;
+      const priorTrace = readerContext(rulesContext).protocol.validation_rules.ability.dash_templates.includes('trace-copy-prior-Trace');
+      const fromIndex = priorTrace ? 5 : 4;
       const template = parts[1] === 'ability' && parts.length === 4 ? 'bare_reveal'
         : parts[1] === '-ability' && parts.length === 4 ? 'dash_reveal'
         : parts[1] === '-ability' && parts.length === 5 && parts[4] === 'boost' ? 'dash_boost'
-        : parts[1] === '-ability' && parts.length === 6 && parts[4] === '[from] ability: Trace' ? 'dash_trace_copy' : null;
+        : parts[1] === '-ability' && parts.length === (priorTrace ? 7 : 6) && (!priorTrace || parts[4] === 'Trace') && parts[fromIndex] === '[from] ability: Trace' ? 'dash_trace_copy' : null;
       if (!template || !domains[template].includes(parts[3])) continue;
 
       const row = facts[target] ||= {ability: null, base: null, state: 'unknown', copied: false, cleared: false, invalidated: null, baseWriter: null};
@@ -51,7 +53,7 @@ export function publicRevealedAbilities(prefix: readonly string[], rulesContext:
       if (!changed && !row.base && !row.copied && row.invalidated !== 'transform'
         && (row.invalidated !== 'form' || row.baseWriter === toID(parts[3]))) row.base = toID(parts[3]);
       row.ability = toID(parts[3]); row.state = changed ? 'changed' : 'known'; row.cleared = false;
-      row.copied ||= parts[4] === '[from] ability: Trace';
+      row.copied ||= template === 'dash_trace_copy';
     }
   }
   return facts;

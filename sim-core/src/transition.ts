@@ -9,7 +9,8 @@ import type { ChoiceRequestView, PlayerID, StepResult } from './types';
 export const SEEDED_TRANSITION_SCHEMA_VERSION = 'seeded-transition/v1' as const;
 export const SEEDED_FORCED_SWITCH_SCHEMA_VERSION = 'seeded-forced-switch/v1' as const;
 export const SEEDED_REVIVAL_SCHEMA_VERSION = 'seeded-revival/v1' as const;
-export const SIMULATOR_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
+import { installedNativeProfile } from './version_profile';
+export const SIMULATOR_REVISION = installedNativeProfile().reader.profile.revision;
 export type RootSeed = [number, number, number, number];
 
 export interface SeededBattleSnapshot {

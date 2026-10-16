@@ -1,0 +1,3 @@
+# Private native11 owned request-declared fields
+
+Fixed additive incomplete profile. Current calculated_stats are exactly emitted baseStoredStats, not effective battle/Transform/boosted stats. Current hp_max requires an emitted condition denominator. Exact complete details establish level(default100), gender or genderless absence, and shiny Boolean; missing details remain unknown. Ball retains literal emitted ID; missing is unknown, never inferred default. Original values/interpretation and health/identifier/options semantics are unchanged. No source authority or completeness follows from decoding.

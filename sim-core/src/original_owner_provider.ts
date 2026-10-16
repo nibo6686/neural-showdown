@@ -55,6 +55,17 @@ export class OriginalOwnerCreation {
   #raw: (readonly unknown[] | undefined)[] = [];
   #evidence: (OriginalOwnerEvidence | undefined)[] = [];
   #handles: OriginalOwnerHandle[] = [];
+  #knowledgeReceiver: ((environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]) => void) | null = null;
+  #knowledgeEnvironment: object | null = null;
+  #knowledgeOccurrence: object | null = null;
+  registerKnowledgeReceiver(receiver: (environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]) => void): void {
+    if (this.#phase !== 'new' || this.#knowledgeReceiver || typeof receiver !== 'function') fail('knowledge-receiver-registration');
+    this.#knowledgeReceiver = receiver;
+  }
+  assertKnowledgeEnrollment(environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]): void {
+    if (!['staged', 'active'].includes(this.#phase) || environment !== this.#knowledgeEnvironment
+      || occurrence !== this.#knowledgeOccurrence || rows.length !== 2 || rows.some((row, i) => row !== this.#evidence[i])) fail('foreign-knowledge-enrollment');
+  }
   readonly #labels: OriginalOwnerEvidence['labels'];
 
   constructor(labels: OriginalOwnerEvidence['labels']) { this.#labels = freeze(detach(labels)); }
@@ -65,6 +76,7 @@ export class OriginalOwnerCreation {
   begin(environment: object): void {
     if (this.#phase !== 'new' || this.#environment !== environment) fail('duplicate-or-foreign-creation');
     this.#phase = 'capturing';
+    this.#knowledgeEnvironment = environment; this.#knowledgeOccurrence = Object.freeze(Object.create(null));
   }
   capture<T extends unknown[]>(environment: object, owner: PlayerID, generated: T): T {
     const index = ownerIndex(owner);
@@ -85,7 +97,10 @@ export class OriginalOwnerCreation {
     }));
     this.#evidence[index] = freeze({ owner, labels: this.#labels, raw_team: raw, packed_team: packed,
       creation_sequence: 0, creation_cursor: 0, field_presence, non_submitted_fields });
-    if (this.#evidence[0] && this.#evidence[1]) this.#phase = 'staged';
+    if (this.#evidence[0] && this.#evidence[1]) {
+      this.#phase = 'staged';
+      this.#knowledgeReceiver?.(this.#knowledgeEnvironment!, this.#knowledgeOccurrence!, Object.freeze([...this.#evidence] as OriginalOwnerEvidence[]));
+    }
   }
   diagnostic(environment: object, owner: PlayerID): OriginalOwnerEvidence {
     const row = this.#evidence[ownerIndex(owner)];
@@ -121,6 +136,7 @@ export class OriginalOwnerCreation {
   }
   abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
   revoke(): void {
+    this.#knowledgeReceiver = null; this.#knowledgeEnvironment = null; this.#knowledgeOccurrence = null;
     this.#phase = 'invalid'; this.#environment = null; this.#raw = []; this.#evidence = []; this.#handles = [];
   }
 }

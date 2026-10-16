@@ -1,4 +1,4 @@
-from .version_profile import assert_prepared_protocol_policy, NATIVE11_GRAMMAR_CONTEXT, protocol_context as reader_context, assert_reader_input, HISTORICAL10_CONTEXT
+from .version_profile import assert_prepared_protocol_policy, NATIVE11_CONTEXT, NATIVE11_GRAMMAR_CONTEXT, protocol_context as reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Shared Showdown protocol allowlist and cross-runtime raw-record grammar."""
 import json
 import math
@@ -866,9 +866,11 @@ def _ability_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
     if len(parts) == 5 and parts[4] == "boost":
         require_payload("dash_boost")
         return
-    if (len(parts) == 6 and parts[4] == rules["trace_source_tag"]
-            and parts[5].startswith(rules["trace_of_tag"])):
-        source = parts[5][len(rules["trace_of_tag"]):]
+    prior_trace = 'trace-copy-prior-Trace' in rules['dash_templates']
+    from_index = 5 if prior_trace else 4
+    if (len(parts) == (7 if prior_trace else 6) and (not prior_trace or parts[4] == 'Trace')
+            and parts[from_index] == rules['trace_source_tag'] and parts[from_index + 1].startswith(rules['trace_of_tag'])):
+        source = parts[from_index + 1][len(rules['trace_of_tag']):]
         if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules)
                 or parts[2][:2] == source[:2]):
             _malformed(command, "Trace source must be an opposing active ident")
@@ -1149,6 +1151,8 @@ def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
         at_least(4); ident(); _ident(parts, 3, command, reader_rules=reader_rules)
     elif command in ("damage", "-damage", "heal", "-heal", "sethp", "-sethp"):
         at_least(4)
+        if (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and command == '-heal' and '[from] move: Revival Blessing' in parts and (len(parts) != 5 or parts[4] != '[from] move: Revival Blessing' or not re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)', parts[3]) or int(parts[3].split('/')[0]) != int(parts[3].split('/')[1]) // 2 or int(parts[3].split('/')[1]) > 9007199254740991 or not _is_side_only_player_ident(parts[2], reader_rules=reader_rules)):
+            _malformed(command, 'exact public Revival Blessing bench heal required')
         revival_bench = command == "-heal" and len(parts) == 5 and parts[4] == "[from] move: Revival Blessing" and _is_side_only_player_ident(parts[2], reader_rules=reader_rules)
         if not revival_bench: ident()
         _health_condition(parts, 3, command, reader_rules=reader_rules)

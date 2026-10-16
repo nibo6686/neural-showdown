@@ -1,0 +1,1 @@
+Candidate fixed native11 owner projection only. No full audit/publication or completeness acceptance. Safe fact definitions extracted from unchanged historical schema; property meaning is constrained by the native profile. Request null is inseparable from the private read binding request_adaptation:not_adopted.

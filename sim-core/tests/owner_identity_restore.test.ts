@@ -189,7 +189,7 @@ test('B2 owner privacy', async () => {
 test('B2 close and legacy', async () => {
   const initial = NativeObjectAssociation.prototype.commitInitial, close = LocalBattleEnv.prototype.close, reset = LocalBattleEnv.prototype.resetWithOptions;
   let controller: NativeObjectAssociation | undefined, handle: object | undefined;
-  let s: PipelineIntegrationSession | undefined, legacy: PipelineIntegrationSession | undefined;
+  let s: PipelineIntegrationSession | undefined;
   const donor = new LocalBattleEnv('B2-legacy', options.format, options.seed);
   try {
     NativeObjectAssociation.prototype.commitInitial = function(...args) { initial.apply(this, args); controller = this; handle = this.holding('p1'); throw new Error('B2-init-after-association'); };
@@ -200,12 +200,10 @@ test('B2 close and legacy', async () => {
     const closing = s.close(); assert.throws(() => s!.readNativeObjectHolding(live, 'p1'), /closed/); await closing;
     await donor.reset(); const state = donor.serializeBattle();
     LocalBattleEnv.prototype.resetWithOptions = function(opts) { return this.resetFromSerialized(structuredClone(state), opts); };
-    legacy = await PipelineIntegrationSession.create(options);
-    for (const owner of owners) assert.throws(() => legacy!.getNativeObjectHolding(owner), /unavailable/);
-    await legacy.step();
-    for (const owner of owners) assert.throws(() => legacy!.getNativeObjectHolding(owner), /unavailable/);
-    witness('close-legacy', { level: 'actual-runtime-init-failure-close-and-legacy-restore', init_revoked_before_cleanup: true,
-      synchronous_close_denial: true, authority_free_legacy_usable: true });
+    await assert.rejects(PipelineIntegrationSession.create(options), /native-association\/v1\/foreign-or-stale-restore-ticket/);
+    await assert.rejects(donor.resetFromSerialized(state), /snapshot-admission\/v1\/raw-restore-unsupported/);
+    witness('close-legacy', { level: 'actual-target-init-failure-close-and-rejected-authority-free-restore', init_revoked_before_cleanup: true,
+      synchronous_close_denial: true, target_authority_free_admission_rejected: true });
   } finally { NativeObjectAssociation.prototype.commitInitial = initial; LocalBattleEnv.prototype.close = close;
-    LocalBattleEnv.prototype.resetWithOptions = reset; await s?.close(); await legacy?.close(); await donor.close(); }
+    LocalBattleEnv.prototype.resetWithOptions = reset; await s?.close(); await donor.close(); }
 });

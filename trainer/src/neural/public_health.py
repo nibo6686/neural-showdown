@@ -1,3 +1,4 @@
+from .version_profile import reader_context, HISTORICAL10_CONTEXT, NATIVE11_CONTEXT
 """Independent public and addressed-request health consequence validation."""
 import math
 import re
@@ -136,7 +137,17 @@ def bound_owned_target(observation, target, predecessor=None):
     return authority[1] if authority and target == authority[0] and appearance == authority[0] else target
 
 
-def validate_public_health(observation, predecessor=None):
+def validate_public_health(observation, predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    revival_targets = set()
+    if reader_rules is NATIVE11_CONTEXT:
+        for line in observation['protocol_prefix']:
+            p = line.split('|'); target = _ident(p[2] if len(p)>2 else '')
+            if len(p)>3 and p[1]=='-heal' and '[from] move: Revival Blessing' in p:
+                if p[3]!='50/100': raise ValueError('Public health evidence mismatch: Revival owner-private HP cannot enter public prefix')
+                revival_targets.add(target)
+            elif len(p)>1 and p[1] in ('switch','drag','replace','-damage','-heal','-sethp','faint'):
+                revival_targets.discard(target)
     def fail(message):
         raise ValueError("Public health evidence mismatch: " + message)
 
@@ -167,6 +178,14 @@ def validate_public_health(observation, predecessor=None):
             fail(f"{target} requires exactly one {team} row")
         row = matching[0][1]
         owner = next((entry for entry in owners if _ident(entry.get("ident", "")) == bound_target), None) if team == "self_team" else None
+        if target in revival_targets:
+            if row.get('active') is not False or row.get('fainted') is not False or row.get('status') != public_state.get('status'):
+                fail('Revival bench outcome must remain inactive, unfainted and status-cleared')
+            if team=='self_team':
+                owned=[entry for entry in owners if entry.get('ident')==target]
+                hp=re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?',owned[0].get('condition','')) if len(owned)==1 else None
+                if not hp or owned[0].get('active') is not False or (hp[3] or None)!=public_state.get('status') or int(hp[1])!=int(hp[2])//2 or int(hp[2])>9007199254740991:
+                    fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint')
         owner_public_precision = (owner is None and team == "self_team" and isinstance(row.get("hp_text"), str)
                                   and "/" in row["hp_text"] and "/100" in public_state.get("hp_text", ""))
         expected = {**_condition(owner["condition"]), "active": bool(owner["active"] and not _condition(owner["condition"])["fainted"])} if owner is not None else public_state

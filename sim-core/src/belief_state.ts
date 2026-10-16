@@ -421,7 +421,7 @@ function assertObservation(observation: ObservableBattleState, rulesContext: Rea
   assertSanitizedProtocolPrefix(observation.protocol_prefix, 'Observation protocol prefix');
   validateObservableProtocolPrefix(observation.protocol_prefix, observation.perspective, observation.view, observation.request, rulesContext);
   assertTypedStateMatchesPublicPrefix(observation.protocol_prefix, observation.perspective, observation.view, (target) => boundOwnedTarget(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, target), rulesContext);
-  assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
+  assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, rulesContext);
   assertPublicItemsMatchEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
   if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
     && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {

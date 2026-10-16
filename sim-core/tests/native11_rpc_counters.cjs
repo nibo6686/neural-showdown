@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {Battle,Teams}=require('../node_modules/pokemon-showdown');
+const {EnvironmentManager,LocalBattleEnv}=require('../dist/src/env_manager');
+const original={fromJSON:Battle.fromJSON,generate:Teams.generate,close:LocalBattleEnv.prototype.close,fork:EnvironmentManager.prototype.forkBeliefEnv};
+const counters={reconstruct:0,sample:0,dispose:0};
+Battle.fromJSON=function(...args){counters.reconstruct++;return original.fromJSON.apply(this,args);};
+Teams.generate=function(...args){counters.sample++;return original.generate.apply(this,args);};
+LocalBattleEnv.prototype.close=function(...args){counters.dispose++;return original.close.apply(this,args);};
+EnvironmentManager.prototype.forkBeliefEnv=async function(...args){const before={...counters},entries=[...this.envs.entries()];try{return await original.fork.apply(this,args);}catch(error){assert.match(error.message,/snapshot-admission\/v1\/belief-fork-unsupported/);assert.deepEqual(counters,before);assert.deepEqual([...this.envs.entries()],entries);process.stderr.write('P39_RPC_COUNTERS '+JSON.stringify({before,after:counters,map_unchanged:true,open_envs:entries.length})+'\n');throw error;}};
+process.on('exit',()=>{Battle.fromJSON=original.fromJSON;Teams.generate=original.generate;LocalBattleEnv.prototype.close=original.close;EnvironmentManager.prototype.forkBeliefEnv=original.fork;});

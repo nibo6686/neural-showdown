@@ -1,3 +1,5 @@
+import { OwnedRequestHealthHost } from './owned_request_health';
+import { SwitchEventHost } from './owner_identity_events';
 import { randomBytes } from 'node:crypto';
 import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
 import { installedNativeProfile, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
@@ -418,13 +420,17 @@ function readActiveRequestOverrides(serialized: Record<string, unknown>): Partia
  * disabledSource. Anything else, and a no-op, is rejected: the result becomes
  * side.activeRequest, which the engine's choose paths treat as authority.
  */
-function validateActiveRequestOverride(live: Record<string, unknown>, regeneratedSide: Battle['sides'][number] | undefined, path: string): void {
+function validateActiveRequestOverride(live: Record<string, unknown>, regeneratedSide: Battle['sides'][number] | undefined, path: string, runtime: NativeRuntimeProfile): void {
+  assertNativeRuntimeProfile(runtime);
   const base = regeneratedSide?.activeRequest;
   if (!base || typeof base !== 'object') overrideInvalid(path, 'has no regenerated request to edit');
   const regenerated = base as unknown as Record<string, unknown>;
-  if (Object.keys(live).sort().join() !== Object.keys(regenerated).sort().join()) overrideInvalid(path, 'has keys that differ from the regenerated request');
+  const nativeMarker = runtime.package_version === '0.11.11' && has(live, 'update') && !has(regenerated, 'update');
+  if (nativeMarker && live.update !== true) overrideInvalid(`${path}.update`, 'must be the literal native update:true marker');
+  const liveKeys = Object.keys(live).filter(key => !nativeMarker || key !== 'update');
+  if (liveKeys.sort().join() !== Object.keys(regenerated).sort().join()) overrideInvalid(path, 'has keys that differ from the regenerated request');
   for (const key of Object.keys(live)) {
-    if (key !== 'active' && !isDeepStrictEqual(live[key], regenerated[key])) overrideInvalid(`${path}.${key}`, 'is not an engine-legal edit');
+    if (key !== 'active' && !(nativeMarker && key === 'update') && !isDeepStrictEqual(live[key], regenerated[key])) overrideInvalid(`${path}.${key}`, 'is not an engine-legal edit');
   }
   if (!Array.isArray(live.active) || !Array.isArray(regenerated.active) || live.active.length !== regenerated.active.length) {
     overrideInvalid(`${path}.active`, 'must edit the regenerated active entries');
@@ -763,6 +769,8 @@ export class LocalBattleEnv {
   readonly #originalCreation: OriginalOwnerCreation | undefined;
   readonly #nativeBirth: NativeBirthEnrollment | undefined;
   readonly #objectAssociation: NativeObjectAssociation | undefined;
+  readonly #switchEvents: SwitchEventHost | undefined;
+  readonly #requestHealth: OwnedRequestHealthHost | undefined;
   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
   private readonly heuristicAgent: HeuristicBaselineAgent;
   private battleStream: BattleStream | null;
@@ -787,6 +795,8 @@ export class LocalBattleEnv {
     nativeBirth?: NativeBirthEnrollment,
     objectAssociation?: NativeObjectAssociation,
     runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
+    switchEvents?: SwitchEventHost,
+    requestHealth?: OwnedRequestHealthHost,
   ) {
     assertNativeRuntimeProfile(runtimeProfile);
     this.#runtimeProfile = runtimeProfile;
@@ -795,6 +805,7 @@ export class LocalBattleEnv {
     this.#nativeBirth = nativeBirth;
     nativeBirth?.bind(this);
     this.#objectAssociation = objectAssociation;
+    this.#switchEvents = switchEvents; this.#requestHealth = requestHealth;
     if (nativeBirth) objectAssociation?.bindInitial(this);
     this.id = id;
     this.format = format;
@@ -858,6 +869,8 @@ export class LocalBattleEnv {
     } catch (error) {
       this.#originalCreation?.abortStaging();
       this.#nativeBirth?.abortStaging();
+      this.#requestHealth?.release(this);
+      this.#switchEvents?.release(this);
       this.#requestTrace?.invalidate();
       this.#requestTrace = null;
       throw error;
@@ -894,7 +907,7 @@ export class LocalBattleEnv {
       try {
         for (const [player, request] of Object.entries(requestOverrides)) {
           validateActiveRequestOverride(request, regenerated.sides.find((side) => side.id === player),
-            `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${player}`);
+            `${ACTIVE_REQUEST_OVERRIDES_KEY}.requests.${player}`, this.#runtimeProfile);
         }
       } finally { regenerated.destroy(); }
     }
@@ -914,9 +927,11 @@ export class LocalBattleEnv {
       // clone the simulator-only snapshot so exact branches cannot share mutable
       // state with their source or siblings.
       this.#objectAssociation?.beforeRestore(this, serialized, snapshot, associationTicket);
-      const battle = Battle.fromJSON(snapshot);
+      const battle = associationTicket && this.#requestHealth
+        ? this.#requestHealth.decode(this, associationTicket, () => Battle.fromJSON(snapshot)) : Battle.fromJSON(snapshot);
       try { this.#objectAssociation?.acceptRestore(this, snapshot, battle, associationTicket); }
       catch (error) { battle.destroy(); throw error; }
+      if (associationTicket) this.#switchEvents?.attachRestored(this, battle, this.battleStream!, associationTicket);
       battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
       stream.battle = battle;
       battle.sentLogPos = 0;
@@ -924,7 +939,7 @@ export class LocalBattleEnv {
       battle.sendUpdates();
       for (const side of battle.sides) {
         const override = requestOverrides?.[side.id as PlayerID];
-        if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
+        if (override) side.activeRequest = (this.#requestHealth ? this.#requestHealth.cloneOverlay(this, battle, side.id as PlayerID, override) : structuredClone(override)) as typeof side.activeRequest;
         if (side?.activeRequest) {
           if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
             this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
@@ -949,6 +964,8 @@ export class LocalBattleEnv {
     } catch (error) {
       this.#requestTrace?.invalidate();
       this.#requestTrace = null;
+      this.#requestHealth?.release(this);
+      this.#switchEvents?.release(this);
       this.#objectAssociation?.discard(this);
       throw error;
     }
@@ -959,6 +976,7 @@ export class LocalBattleEnv {
     const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
     if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
     const serialized = battle.toJSON() as Record<string, unknown>;
+    this.#switchEvents?.plainSerialization(this, battle, serialized);
     if (!battle.ended) return this.withActiveRequestOverrides(battle, serialized);
     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
     const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
@@ -999,7 +1017,7 @@ export class LocalBattleEnv {
       for (const side of battle.sides) {
         const live = side?.activeRequest, twin = regenerated.sides.find((entry) => entry.id === side.id);
         if (!live || isDeepStrictEqual(live, twin?.activeRequest)) continue;
-        try { validateActiveRequestOverride(live as unknown as Record<string, unknown>, twin, side.id); } catch (error) {
+        try { validateActiveRequestOverride(live as unknown as Record<string, unknown>, twin, side.id, this.#runtimeProfile); } catch (error) {
           if (!(error instanceof ActiveRequestOverrideValidationError)) throw error;
           // Byte-preserving fallback: the old snapshot is returned, but the drop is observable.
           activeRequestOverrideDiagnostics.dropped++;
@@ -1014,8 +1032,8 @@ export class LocalBattleEnv {
   }
 
   private initializeStreams(): void {
-    const trace = this.#requestTrace = new RequestEmissionTrace();
-    const nativeBirth = this.#nativeBirth, environment = this;
+    const trace = this.#requestTrace = new RequestEmissionTrace((emission, receipt) => this.#requestHealth?.received(this, emission, receipt));
+    const nativeBirth = this.#nativeBirth, environment = this, switchEvents = this.#switchEvents, requestHealth = this.#requestHealth;
     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
     // _write synchronously emits requests then sendUpdates. Count at the source,
     // before getPlayerStreams asynchronously fans out each message.
@@ -1025,10 +1043,15 @@ export class LocalBattleEnv {
       }
       override _writeLine(type: string, message: string): void {
         super._writeLine(type, message);
-        if (type === 'start' && nativeBirth) nativeBirth.observe(environment, this.battle!);
+        if (type === 'start' && nativeBirth) {
+          nativeBirth.observe(environment, this.battle!);
+          switchEvents?.attachBirth(environment, this.battle!, this);
+        }
       }
       override pushMessage(type: string, data: string): void {
-        trace.emitted(type, data);
+        switchEvents?.pushed(environment, this, type, data);
+        const emission = trace.emitted(type, data);
+        requestHealth?.sent(environment, emission);
         settling.emitted(type, data);
         super.pushMessage(type, data);
       }
@@ -1042,6 +1065,7 @@ export class LocalBattleEnv {
       }
     }({ keepAlive: true });
     this.streams = getPlayerStreams(this.battleStream);
+    switchEvents?.bindSpectator(this, this.streams.spectator);
     trace.bind('p1', this.streams.p1);
     trace.bind('p2', this.streams.p2);
     const ownerStreams = this.streams;
@@ -1119,6 +1143,8 @@ export class LocalBattleEnv {
     const raw = this.serializeBattle();
     const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
     this.#objectAssociation?.recordSerialization(this, this.battleStream!.battle!, raw, snapshot);
+    this.#switchEvents?.recordSnapshot(this, raw, snapshot);
+    this.#requestHealth?.recordSnapshot(this, snapshot);
     return snapshot;
   }
 
@@ -1162,6 +1188,8 @@ export class LocalBattleEnv {
     const output = this.captureSeededSnapshot(request.snapshot.branch_id);
     const built = buildSeededForcedSwitchResult(request, output, result);
     this.#objectAssociation?.finalizeSerialization(this, output, built.output_snapshot);
+    this.#switchEvents?.finalizeSnapshot(this, output, built.output_snapshot);
+    this.#requestHealth?.finalizeSnapshot(output, built.output_snapshot);
     return built;
   }
 
@@ -1200,6 +1228,8 @@ export class LocalBattleEnv {
     }
     const built = buildSeededTransitionResult(request, outputSnapshot, stepResult);
     this.#objectAssociation?.finalizeSerialization(this, outputSnapshot, built.output_snapshot);
+    this.#switchEvents?.finalizeSnapshot(this, outputSnapshot, built.output_snapshot);
+    this.#requestHealth?.finalizeSnapshot(outputSnapshot, built.output_snapshot);
     return built;
   }
 
@@ -1207,6 +1237,8 @@ export class LocalBattleEnv {
     this.noteLiveWrite();
     this.#originalCreation?.abortStaging();
     this.#nativeBirth?.abortStaging();
+    this.#requestHealth?.release(this);
+      this.#switchEvents?.release(this);
     this.#objectAssociation?.release(this);
     await this.destroyBattle();
     this.initialized = false;
@@ -1356,6 +1388,7 @@ export class LocalBattleEnv {
     for await (const chunk of this.streams.spectator as unknown as AsyncIterable<string>) {
       if (this.settling.stopped) return;
       appendPublicSpectatorChunk(chunk, this.logLines, this.getReaderContext());
+      this.#switchEvents?.received(this, this.streams.spectator, chunk);
       for (const rawLine of chunk.split('\n')) {
         const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
         if (!line) continue;

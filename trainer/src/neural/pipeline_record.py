@@ -1401,7 +1401,10 @@ def main(argv=None, *, reader_rules=HISTORICAL10_CONTEXT) -> int:
             else:
                 raise PipelineRecordError("reader-profile/v1/invalid-cli-option")
         bundle = load_json(sys.stdin)
-        select_reader_profile(bundle, selection)
+        selected = select_reader_profile(bundle, selection)
+        if selected.id == "native11":
+            from .version_profile import NATIVE11_CONTEXT
+            reader_rules = NATIVE11_CONTEXT
         if isinstance(bundle, Mapping) and bundle.get("schema_version") in {EPISODE_EVIDENCE_SCHEMA, LEGACY_EPISODE_EVIDENCE_SCHEMA}:
             evidence = validate_pipeline_episode_evidence(bundle, reader_rules=reader_rules)
             output: Any = {

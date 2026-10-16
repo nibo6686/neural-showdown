@@ -43,17 +43,22 @@ def validate_prepared_protocol_structure(value,profile):
     common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence']
     _keys(value,common+(['admission_scope','semantic_dispositions'] if profile=='native11' else ['base_lookup_profile','publication','authority','changed_forms']),'container')
     if value['profile']!=profile or value['adopted'] is not False or value['schema_version']!=('inactive-native-protocol/v1' if profile=='native11' else 'importer-replay-compatibility/v1'):_fail('profile-identity')
-    if not _same_json(value['provenance'],PROVENANCE):_fail('provenance')
+    selected_provenance={**PROVENANCE,'source':'Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer','runtime':'Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved'} if profile=='native11' else PROVENANCE
+    if not _same_json(value['provenance'],selected_provenance):_fail('provenance')
     if not _same_json(value['inherited_raw_shape_evidence'],{'contract_sha256':PROVENANCE['historical_contract_sha256'],'scope':'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}):_fail('inherited-evidence')
     if profile=='native11':
-        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent']) or not _same_json(value['semantic_dispositions'],SEMANTIC):_fail('closure-claims')
+        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'trace':'finite-source-qualified-current-copy; prior field is provenance only','revival':'finite-public-bench-health-status-faint-clear; owned selection remains required'}):_fail('closure-claims')
     elif value['base_lookup_profile']!='historical10' or value['publication']!='unsupported-without-persisted-profile-contract' or value['authority'] is not False or not _same_json(value['changed_forms'],['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']):_fail('closure-claims')
     base=_thaw(HISTORICAL10_CONTEXT.protocol);p=value['protocol'];_keys(p,base,'protocol')
-    if p['source_basis']!=['Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
+    if p['source_basis']!=['Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal' if profile=='native11' else 'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
     if not _same_json(p['simulator'],{**base['simulator'],'version':'0.11.11' if profile=='native11' else '0.11.10'}):_fail('simulator')
     rules=copy.deepcopy(base['validation_rules']);form={'tags':['[from] ability: Natural Cure','[silent]']}
     if profile=='native11':rules['major_status']['cure_forms']=[form if x['tags']==['[from] ability: Natural Cure'] else x for x in rules['major_status']['cure_forms']]
     else:rules['major_status']['cure_forms'].append(form)
+    if profile=='native11':
+        rules['ability']['dash_templates']=['reveal','boost','trace-copy-prior-Trace']
+        rules['ability']['payload_domains']['dash_trace_copy']=sorted([a for a in rules['ability']['payload_domains']['dash_trace_copy'] if a!='Steely Spirit']+['Gale Wings'])
+        rules['ability']['source_evidence']['dash_trace_copy']='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification'
     if not _same_json(p['validation_rules'],rules):_fail('rule-template')
     if not _same_json(p['framing_only_records'],[{**base['framing_only_records'][0],'evidence':FRAMING}]):_fail('framing')
     if not _same_json(p['disposition_rules'],{k:SCOPE for k in base['disposition_rules']}):_fail('disposition-claims')
@@ -94,9 +99,11 @@ def validate_prepared_protocol_structure(value,profile):
         if not control or f['record']!=control['record'] or f['token']!=control['token']:_fail('fixture-reference')
     for c in p['valid_record_controls']:
         if c['reconstruction_scope']!=SCOPE:_fail('control-scope')
-        evidence='Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
+        evidence='Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance' if profile=='native11' and c['record']=='|-heal|p1: First|50/100|[from] move: Revival Blessing' else 'Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
         if c['evidence']!=evidence:_fail('control-evidence')
     records=[x['record'] for x in p['valid_record_controls']]
+    if profile=='native11' and '|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' not in records:_fail('trace-controls')
+    if profile=='native11' and '|-heal|p1: First|50/100|[from] move: Revival Blessing' not in records:_fail('revival-controls')
     if NATIVE_NC not in records or profile=='replay-compat-v1' and OLD_NC not in records:_fail('natural-cure-controls')
     for kind in ('malformed','unknown','unproved_semantic_family'):
         if not any(x['kind']==kind for x in p['rejection_fixtures']):_fail('negative-coverage')

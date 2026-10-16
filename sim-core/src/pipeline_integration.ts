@@ -1,3 +1,7 @@
+import { isDeepStrictEqual } from 'node:util';
+import { OwnedRequestHealthHost } from './owned_request_health';
+import { NativeOwnerKnowledgeController, type OwnerKnowledgeHandle, type OwnerKnowledgeRead } from './native_owner_knowledge';
+import { SwitchEventHost, type SwitchEventHandle, type SwitchEventHistory } from './owner_identity_events';
 import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
 import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { assertHistoricalReaderInput } from './version_profile';
@@ -5,7 +9,8 @@ import { NativeBirthEnrollment, NativeObjectAssociation, type NativeBirthHandle,
 import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
 import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
 import { carryTerminalOwner, withTerminalOwner } from './public_health';
-import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
+import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction, type CanonicalActionRequestContext } from './canonical_action';
+import { OwnedDecisionInputController, assertCanonicalContextEqual, sanitizeOwnedDecisionInputError, type OwnedActionOrderCallback, type OwnedDecisionFrame, type OwnedDecisionOrder } from './owned_decision_input';
 import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
 import { LocalBattleEnv } from './env_manager';
 import type { SettlingOptions } from './settling';
@@ -127,12 +132,26 @@ export interface PipelineForcedSwitchStepResult extends ForcedSwitchRoles {
 }
 
 export interface PipelineIntegrationOptions {
+  /** Privileged local recipient registration only; not an RPC option or owner-string grant. */
+  knowledge_recipients?: Readonly<Record<PlayerID, object>>;
   observation_schema_version?: ObservableSchemaVersion;
   settling?: SettlingOptions;
   battle_id: string;
   format: string;
   seed: readonly number[];
 }
+
+function canonicalActionContext(request: Pick<ChoiceRequestView, 'player' | 'rqid' | 'force_switch' | 'legal_actions' | 'side'>): CanonicalActionRequestContext {
+  return freeze(structuredClone({
+    player: request.player,
+    rqid: request.rqid,
+    force_switch: request.force_switch,
+    legal_actions: request.legal_actions,
+    side: request.side,
+  }));
+}
+
+function ownedDecisionError(code: string): Error { return new Error(`owned-decision-input/v1/${code}`); }
 
 export interface PipelineDiagnostic {
   schema_version: 'pipeline-diagnostic/v1';
@@ -204,8 +223,12 @@ function freeze<T>(value: T): T {
  * ObservableBattleState). The format field carries the ruleset label.
  */
 export function projectPipelineProtocolPrefix(records: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
+  return projectProtocolPositions(records, rulesContext).prefix;
+}
+function projectProtocolPositions(records: readonly string[], rulesContext: ReaderContext) {
   readerContext(rulesContext);
   const projected: string[] = [];
+  const positions: Array<number | null> = [];
   for (const [recordIndex, raw] of records.entries()) {
     // Strip only a transport line delimiter; the protocol record itself must
     // reach validation byte-for-byte so malformed fields cannot be repaired.
@@ -229,12 +252,14 @@ export function projectPipelineProtocolPrefix(records: readonly string[], rulesC
         { record_index: recordIndex, record_command: line.slice(1).split('|', 1)[0] },
       );
     }
+    positions.push(null);
     if (line === '|') continue;
     if (line.startsWith('|request|')) continue;
     if (line.startsWith('|tier|')) continue;
+    positions[recordIndex] = projected.length;
     projected.push(line.replace(/^\|t:\|[0-9]+$/, '|t:|0'));
   }
-  return projected;
+  return { prefix: projected, positions };
 }
 
 /** Classify only this perspective's request; never inspect the opponent's request. */
@@ -371,7 +396,15 @@ export class PipelineIntegrationSession {
   readonly #originalCreation: OriginalOwnerCreation;
   readonly #nativeBirth: NativeBirthEnrollment;
   readonly #objectAssociation: NativeObjectAssociation;
+  readonly #switchEvents: SwitchEventHost;
+  readonly #requestHealth: OwnedRequestHealthHost | undefined;
+  readonly #ownerKnowledge: NativeOwnerKnowledgeController | undefined;
   readonly #deliveryLedger = new RequestDeliveryLedger();
+  readonly #ownedDecisionInputs = new OwnedDecisionInputController();
+  readonly #ownedDecisionOccurrence = Object.freeze(Object.create(null)) as object;
+  #ownedDecisionBatch: ReadonlyMap<PlayerID, OwnedDecisionFrame> | null = null;
+  #selectionActive = false;
+  #selectionPoisoned = false;
   #deliveryEnabled = false;
   private readonly seed: number[];
   private environment: LocalBattleEnv;
@@ -399,8 +432,12 @@ export class PipelineIntegrationSession {
     this.seed = [...options.seed];
     this.settlingOptions = { ...options.settling };
     this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: this.rulesContext.profile.revision });
+    this.#ownerKnowledge = options.knowledge_recipients
+      ? new NativeOwnerKnowledgeController(this.#originalCreation, this.#runtimeProfile, options.knowledge_recipients) : undefined;
     this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
     this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
+    this.#switchEvents = new SwitchEventHost(this.#nativeBirth, this.#objectAssociation);
+    this.#requestHealth = options.knowledge_recipients ? new OwnedRequestHealthHost(this.#nativeBirth, this.#objectAssociation) : undefined;
     this.environment = this.newEnvironment('initial');
     this.snapshot = null;
     this.rawPrefix = [];
@@ -413,24 +450,41 @@ export class PipelineIntegrationSession {
     try {
       const initial = await session.environment.resetWithOptions(OPTIONS);
       session.rawPrefix = [...initial.log_delta];
-      session.snapshot = session.environment.captureSeededSnapshot(null);
-      session.currentBoundaryValue = session.buildInitialBoundary(initial, session.snapshot);
+      const snapshot = session.environment.captureSeededSnapshot(null);
+      const boundary = session.buildInitialBoundary(initial, snapshot);
+      // Original enrollment remains tentative inside the unpublished session.
       if (session.#originalCreation.activate()) {
-        const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
-        session.#deliveryLedger.commit(delivery);
-        session.#nativeBirth.activate();
-        session.#objectAssociation.commitInitial(session.environment, session.currentBoundaryValue, session.snapshot);
-        session.#deliveryEnabled = true;
+        session.#nativeBirth.prepareActivation();
+        const delivery = session.#deliveryLedger.prepare(session.environment, initial, boundary, null);
+        const association = session.#objectAssociation.prepareInitial(session.environment, boundary, snapshot);
+        const events = session.#switchEvents.prepare(session.environment, boundary, snapshot, projectProtocolPositions(session.rawPrefix, session.rulesContext), null);
+        const health = session.#requestHealth?.prepare(session.environment, boundary, session.#deliveryLedger, delivery);
+        const knowledge = session.#ownerKnowledge?.prepare(session.environment, boundary, null, session.#requestHealth, health);
+        session.#deliveryLedger.preflight(delivery);
+        session.#objectAssociation.preflight(association);
+        session.#switchEvents.preflight(events);
+        if (health) session.#requestHealth!.preflight(health);
+        if (knowledge) session.#ownerKnowledge!.preflight(knowledge);
+        // No validation/allocation/await/user callback from here to publication.
+        session.#nativeBirth.installActivation();
+        session.#deliveryLedger.installReady();
+        session.#objectAssociation.installReady();
+        session.#switchEvents.installReady();
+        if (health) session.#requestHealth!.installReady();
+        if (knowledge) session.#ownerKnowledge!.installReady();
+        session.snapshot = snapshot; session.currentBoundaryValue = boundary; session.#deliveryEnabled = true;
       } else {
-        // The accepted unstarted-restore compatibility path has no birth authority.
-        session.#deliveryLedger.revoke();
-        session.#nativeBirth.revoke();
+        session.#requestHealth?.revoke(); session.#ownerKnowledge?.revoke();
+        session.#deliveryLedger.revoke(); session.#nativeBirth.revoke(); session.#switchEvents.revoke();
+        session.snapshot = snapshot; session.currentBoundaryValue = boundary;
       }
       return session;
     } catch (error) {
+      session.#requestHealth?.revoke(); session.#ownerKnowledge?.revoke();
       session.#deliveryLedger.revoke();
       session.#originalCreation.revoke();
       session.#nativeBirth.revoke();
+      session.#switchEvents.revoke();
       session.#objectAssociation.revoke();
       await session.environment.close();
       throw error;
@@ -450,6 +504,20 @@ export class PipelineIntegrationSession {
   readNativeBirthHolding(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
     this.ensureOpen();
     return this.#nativeBirth.read(handle, owner);
+  }
+
+  getOwnerKnowledgeHandle(recipient: object): OwnerKnowledgeHandle {
+    this.ensureOpen(); if (!this.#ownerKnowledge) throw new Error('native-owner-knowledge/v1/not-adopted');
+    return this.#ownerKnowledge.handle(recipient);
+  }
+  readOwnerKnowledge(handle: OwnerKnowledgeHandle, recipient: object): OwnerKnowledgeRead {
+    this.ensureOpen(); if (!this.#ownerKnowledge) throw new Error('native-owner-knowledge/v1/not-adopted');
+    return this.#ownerKnowledge.read(handle, recipient);
+  }
+
+  getSwitchEventHolding(owner: PlayerID): SwitchEventHandle { this.ensureOpen(); return this.#switchEvents.holding(owner); }
+  readSwitchEventHolding(handle: SwitchEventHandle, owner: PlayerID): SwitchEventHistory {
+    this.ensureOpen(); return this.#switchEvents.read(handle, owner);
   }
 
   getNativeObjectHolding(owner: PlayerID): NativeObjectHandle {
@@ -474,6 +542,163 @@ export class PipelineIntegrationSession {
     return this.#originalCreation.read(handle, owner, packed);
   }
 
+  /** Runs one synchronous, owner-addressed callback and returns its opaque order. */
+  withOwnedDecisionInput(recipient: object, callback: OwnedActionOrderCallback): OwnedDecisionOrder {
+    if (this.#selectionActive) {
+      this.#selectionPoisoned = true;
+      this.#ownedDecisionInputs.invalidate();
+      this.#ownedDecisionBatch = null;
+      throw ownedDecisionError('reentrant-call');
+    }
+    this.ensureOpen();
+    this.#selectionActive = true;
+    this.#selectionPoisoned = false;
+    try {
+      const boundary = this.boundary;
+      const knowledgeController = this.#ownerKnowledge;
+      if (!knowledgeController) throw ownedDecisionError('unsupported-frame');
+      const handle = knowledgeController.handle(recipient);
+      const knowledge = knowledgeController.read(handle, recipient);
+      const owner = knowledge.projection.owner as PlayerID;
+      if (!PLAYERS.includes(owner)) throw ownedDecisionError('unsupported-frame');
+      const observation = boundary.perspectives[owner].observation;
+      const request = observation.request;
+      if (!request) throw ownedDecisionError('unsupported-frame');
+      const context = canonicalActionContext(request);
+      const legalIndices = Object.freeze([...request.legal_actions.available_indices].sort((a, b) => a - b));
+      const ledgerHandle = this.#deliveryLedger.handle(owner);
+      const history = this.#deliveryLedger.read(ledgerHandle, owner);
+      const deliveryBoundary = history.boundaries.at(-1);
+      const currentDelivery = deliveryBoundary?.current;
+      const selectedReceipt = deliveryBoundary?.selected;
+      if (!deliveryBoundary || !currentDelivery || !selectedReceipt) throw ownedDecisionError('unsupported-frame');
+      const frame: OwnedDecisionFrame = Object.freeze({
+        owner, recipient, knowledge_handle: handle, knowledge, observation,
+        environment: this.environment, boundary, session_occurrence: deliveryBoundary.session_occurrence,
+        delivery_boundary: deliveryBoundary, current_delivery: currentDelivery, selected_receipt: selectedReceipt,
+        action_context: context, legal_indices: legalIndices,
+      });
+      const validate = () => this.recheckOwnedDecisionFrame(frame, ledgerHandle);
+      return this.#ownedDecisionInputs.issue(frame, callback, validate);
+    } catch (error) {
+      this.#ownedDecisionInputs.invalidate();
+      this.#ownedDecisionBatch = null;
+      const safeError = sanitizeOwnedDecisionInputError(error);
+      if (safeError) throw safeError;
+      throw ownedDecisionError('unsupported-frame');
+    } finally {
+      this.#selectionActive = false;
+    }
+  }
+
+  /** Rechecks authentic orders together; step() consumes this authorization synchronously. */
+  assertOwnedDecisionBatch(orders: readonly OwnedDecisionOrder[]): void {
+    if (this.#selectionActive) {
+      this.#selectionPoisoned = true;
+      throw ownedDecisionError('reentrant-call');
+    }
+    this.ensureOpen();
+    this.#ownedDecisionBatch = null;
+    try {
+      const boundary = this.boundary;
+      const actors = this.ownedDecisionActors(boundary);
+      const frames = this.#ownedDecisionInputs.assertBatch(orders, actors, frame => {
+        const handle = this.#deliveryLedger.handle(frame.owner);
+        this.recheckOwnedDecisionFrame(frame, handle);
+      });
+      this.#ownedDecisionBatch = new Map(frames);
+    } catch (error) {
+      const safeError = sanitizeOwnedDecisionInputError(error);
+      if (safeError) throw safeError;
+      throw ownedDecisionError('stale-or-unsupported-frame');
+    }
+  }
+
+  private ownedDecisionActors(boundary: PipelineBoundary): PlayerID[] {
+    if (boundary.kind === 'joint_actionable') return [...PLAYERS];
+    if (boundary.kind === 'one_sided_forced_switch' || boundary.kind === 'one_sided_revival') {
+      const expected = boundary.kind === 'one_sided_revival' ? 'revival_selection' : 'forced_switch';
+      const actor = PLAYERS.find(owner => classifyPipelineRequestState(boundary.perspectives[owner].observation) === expected);
+      if (actor && classifyPipelineRequestState(boundary.perspectives[actor === 'p1' ? 'p2' : 'p1'].observation) === 'waiting') return [actor];
+    }
+    throw ownedDecisionError('unsupported-frame');
+  }
+
+  private recheckOwnedDecisionFrame(frame: OwnedDecisionFrame, ledgerHandle: RequestDeliveryHandle): void {
+    const fail = () => { throw ownedDecisionError(this.closed ? 'revoked' : 'stale-or-unsupported-frame'); };
+    if (this.closed || this.#selectionPoisoned || this.currentBoundaryValue !== frame.boundary
+      || this.environment !== frame.environment || frame.session_occurrence !== (frame.delivery_boundary as RequestDeliveryBoundary).session_occurrence
+      || frame.observation !== this.currentBoundaryValue?.perspectives[frame.owner].observation) fail();
+    const knowledgeController = this.#ownerKnowledge;
+    if (!knowledgeController) throw ownedDecisionError('stale-or-unsupported-frame');
+    let handle!: OwnerKnowledgeHandle;
+    let read!: OwnerKnowledgeRead;
+    try {
+      handle = knowledgeController.handle(frame.recipient);
+      read = knowledgeController.read(handle, frame.recipient);
+    } catch { fail(); }
+    if (handle !== frame.knowledge_handle || read !== frame.knowledge
+      || read.projection.owner !== frame.owner
+      || read.binding.observation_id !== frame.observation.observation_id
+      || read.binding.prefix_cursor !== frame.observation.event_cursor
+      || read.projection.boundary !== frame.boundary.step_index) fail();
+    const row = frame.delivery_boundary;
+    let history: RequestDeliveryHistory;
+    try { history = this.#deliveryLedger.read(ledgerHandle, frame.owner, row); } catch { fail(); }
+    const current = row.current;
+    const selected = row.selected;
+    if (!current || !selected) throw ownedDecisionError('stale-or-unsupported-frame');
+    if (history!.boundaries.at(-1) !== row || row.session_occurrence !== frame.session_occurrence
+      || row.observation_id !== frame.observation.observation_id || row.branch_id !== frame.boundary.branch_id
+      || row.step_index !== frame.boundary.step_index || row.boundary_cursor !== frame.observation.event_cursor
+      || !isDeepStrictEqual(row.prefix, frame.observation.protocol_prefix)
+      || current !== frame.current_delivery || selected !== frame.selected_receipt
+      || current.source !== selected || !row.trace.includes(selected)
+      || !history!.deliveries.includes(current) || current.session_occurrence !== row.session_occurrence) fail();
+    const descriptor = read.projection.request;
+    const requestState = classifyPipelineRequestState(frame.observation);
+    const descriptorOk = descriptor?.schema === 'owned-active-options/v1'
+      && read.binding.request_adaptation === 'owned_health/v1'
+      && read.binding.request_descriptor === 'owned-active-options/v1'
+      && descriptor.sequence === current.sequence && descriptor.cursor === row.boundary_cursor
+      && ((descriptor.state === 'ordinary_pp' && read.binding.request_state === 'move' && requestState === 'actionable')
+        || (descriptor.state === 'forced_switch' && read.binding.request_state === 'forced_switch' && requestState === 'forced_switch')
+        || (descriptor.state === 'revival_selection' && read.binding.request_state === 'revival_selection' && requestState === 'revival_selection'));
+    const observationRequest = frame.observation.request;
+    if (!descriptorOk || !observationRequest || observationRequest.player !== frame.owner
+      || observationRequest.wait || observationRequest.team_preview || !frame.legal_indices.length
+      || !isDeepStrictEqual(frame.legal_indices, [...observationRequest.legal_actions.available_indices].sort((a, b) => a - b))) fail();
+    let fresh: ChoiceRequestView | null = null;
+    try { fresh = this.environment.getRequest(frame.owner); } catch { fail(); }
+    if (!fresh || fresh.player !== frame.owner || fresh.wait || fresh.team_preview) {
+      throw ownedDecisionError('stale-or-unsupported-frame');
+    }
+    try { assertCanonicalContextEqual(frame.action_context, canonicalActionContext(fresh)); } catch { fail(); }
+  }
+
+  private consumeOwnedDecisionBatch(actions: Partial<Record<PlayerID, CanonicalAction>> | undefined, actors: readonly PlayerID[]): void {
+    const batch = this.#ownedDecisionBatch;
+    this.#ownedDecisionBatch = null;
+    if (!batch) return;
+    if (!actions || Object.keys(actions).sort().join(',') !== [...actors].sort().join(',')
+      || batch.size !== actors.length || actors.some(owner => !batch.has(owner))) throw ownedDecisionError('invalid-batch');
+    try {
+      for (const owner of actors) {
+        const frame = batch.get(owner)!;
+        const handle = this.#deliveryLedger.handle(owner);
+        this.recheckOwnedDecisionFrame(frame, handle);
+        const action = actions[owner];
+        if (!action || !frame.legal_indices.includes(action.index)) throw ownedDecisionError('invalid-batch');
+      }
+      this.#ownedDecisionInputs.invalidate();
+    } catch (error) {
+      this.#ownedDecisionInputs.invalidate();
+      const safeError = sanitizeOwnedDecisionInputError(error);
+      if (safeError) throw safeError;
+      throw ownedDecisionError('stale-or-unsupported-frame');
+    }
+  }
+
   get boundary(): PipelineBoundary {
     this.ensureOpen();
     if (!this.currentBoundaryValue) throw new PipelineIntegrationError('pipeline/v1/not-initialized', 'initial boundary is missing');
@@ -496,17 +721,21 @@ export class PipelineIntegrationSession {
   }
 
   async step(actions?: Record<PlayerID, CanonicalAction>): Promise<PipelineStepResult> {
+    this.rejectReentrantSelection();
     this.ensureOpen();
     assertPipelineTransitionSupported(this.boundary.kind);
+    this.consumeOwnedDecisionBatch(actions, PLAYERS);
     return this.executeTransition(actions) as Promise<PipelineStepResult>;
   }
 
   async stepForcedSwitch(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
+    this.rejectReentrantSelection();
     if (action.kind !== 'switch') throw new Error('Forced switch requires a switch action.');
     return this.stepSelection(action);
   }
 
   private async stepSelection(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
+    this.rejectReentrantSelection();
     this.ensureOpen();
     const acting_player = action.player;
     if (acting_player !== 'p1' && acting_player !== 'p2') throw new PipelineIntegrationError('pipeline/v1/invalid-forced-switch-role', 'invalid acting player');
@@ -520,12 +749,20 @@ export class PipelineIntegrationSession {
     if (!live) throw new PipelineIntegrationError('pipeline/v1/request-boundary-changed', 'forced-switch actor has no pending request');
     if (revival) assertRevivalSelection(live);
     else assertOrdinaryForcedSwitch(live);
+    this.consumeOwnedDecisionBatch({ [acting_player]: action }, [acting_player]);
     return this.executeTransition({ [acting_player]: action }, { acting_player, waiting_player }) as Promise<PipelineForcedSwitchStepResult>;
   }
 
   async stepRevival(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
+    this.rejectReentrantSelection();
     if (action.kind !== 'revive') throw new Error('Revival selection requires a revive action.');
     return this.stepSelection(action);
+  }
+
+  private rejectReentrantSelection(): void {
+    if (!this.#selectionActive) return;
+    this.#selectionPoisoned = true;
+    throw ownedDecisionError('reentrant-call');
   }
 
   private async executeTransition(
@@ -565,6 +802,7 @@ export class PipelineIntegrationSession {
     }
 
     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
+    let delivery: object | undefined;
     try {
       const associationTicket = this.#deliveryEnabled ? this.#objectAssociation.prepareRestore(candidate, inputBoundary, inputSnapshot) : undefined;
       if (associationTicket) this.#objectAssociation.assertRestoreAdmission(candidate, inputSnapshot.simulator_state, associationTicket);
@@ -683,27 +921,41 @@ export class PipelineIntegrationSession {
         validatePipelineEpisodeRecordBundle(bundles[player]!, this.rulesContext);
       }
 
-      const delivery = this.#deliveryEnabled
+      delivery = this.#deliveryEnabled
         ? this.#deliveryLedger.prepare(candidate, transitionResult.step_result, nextBoundary, inputBoundary, restoration) : undefined;
       const association = associationTicket ? this.#objectAssociation.prepareCommit(candidate, nextBoundary, transitionResult.output_snapshot, associationTicket) : undefined;
+      const events = this.#deliveryEnabled ? this.#switchEvents.prepare(candidate, nextBoundary, transitionResult.output_snapshot,
+        projectProtocolPositions(nextRawPrefix, this.rulesContext), inputBoundary) : undefined;
+      const health = delivery ? this.#requestHealth?.prepare(candidate, nextBoundary, this.#deliveryLedger, delivery) : undefined;
+      const knowledge = this.#ownerKnowledge?.prepare(candidate, nextBoundary, inputBoundary, this.#requestHealth, health);
+      if (delivery) this.#deliveryLedger.preflight(delivery);
+      if (association) this.#objectAssociation.preflight(association);
+      if (events) this.#switchEvents.preflight(events);
+      if (health) this.#requestHealth!.preflight(health);
+      if (knowledge) this.#ownerKnowledge!.preflight(knowledge);
       const previousEnvironment = this.environment;
-      if (delivery) this.#deliveryLedger.commit(delivery);
-      if (association) this.#objectAssociation.commit(association);
-      this.environment = candidate;
-      this.rawPrefix = nextRawPrefix;
-      this.snapshot = transitionResult.output_snapshot;
-      this.currentBoundaryValue = nextBoundary;
-      // Publication is complete. A disposal error must not report a rejected
-      // candidate after changing committed lineage; retain it for close() retry.
+      const result = { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+      // Retirement allocation also precedes the irreversible assignment section.
       this.retiredEnvironments.add(previousEnvironment);
+      this.#ownedDecisionInputs.invalidate(); this.#ownedDecisionBatch = null;
+      if (delivery) this.#deliveryLedger.installReady();
+      if (association) this.#objectAssociation.installReady();
+      if (events) this.#switchEvents.installReady();
+      if (health) this.#requestHealth!.installReady();
+      if (knowledge) this.#ownerKnowledge!.installReady();
+      this.environment = candidate; this.rawPrefix = nextRawPrefix;
+      this.snapshot = transitionResult.output_snapshot; this.currentBoundaryValue = nextBoundary;
       try {
         await previousEnvironment.close();
         this.retiredEnvironments.delete(previousEnvironment);
       } catch {
         // Retried explicitly when the session is closed.
       }
-      return { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+      return result;
     } catch (error) {
+      this.#requestHealth?.release(candidate); this.#ownerKnowledge?.discard(candidate);
+      if (delivery) this.#deliveryLedger.discard(delivery);
+      this.#switchEvents.release(candidate);
       this.#objectAssociation.discard(candidate);
       await candidate.close();
       throw error;
@@ -713,9 +965,12 @@ export class PipelineIntegrationSession {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.#ownedDecisionInputs.revoke(); this.#ownedDecisionBatch = null;
+    this.#requestHealth?.revoke(); this.#ownerKnowledge?.revoke();
     this.#deliveryLedger.revoke();
     this.#originalCreation.revoke();
     this.#nativeBirth.revoke();
+    this.#switchEvents.revoke();
     this.#objectAssociation.revoke();
     await this.environment.close();
     for (const retired of this.retiredEnvironments) {
@@ -762,6 +1017,7 @@ export class PipelineIntegrationSession {
       suffix === 'initial' ? this.#nativeBirth : undefined,
       this.#objectAssociation,
       this.#runtimeProfile,
+      this.#switchEvents, this.#requestHealth,
     );
   }
 

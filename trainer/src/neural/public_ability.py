@@ -90,17 +90,19 @@ def public_revealed_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
             row["base_writer"] = _REPLACEMENT_BASE_WRITERS.get(_id(parts[3].split(",")[0])) if command == "detailschange" else None
             if row["invalidated"] == "form": row.update(base=None, copied=False)
         elif command in ("-ability", "ability"):
+            prior_trace = 'trace-copy-prior-Trace' in reader_context(reader_rules).protocol['validation_rules']['ability']['dash_templates']
+            from_index = 5 if prior_trace else 4
             template = ("bare_reveal" if command == "ability" and len(parts) == 4
                         else "dash_reveal" if command == "-ability" and len(parts) == 4
                         else "dash_boost" if command == "-ability" and len(parts) == 5 and parts[4] == "boost"
-                        else "dash_trace_copy" if command == "-ability" and len(parts) == 6 and parts[4] == "[from] ability: Trace" else None)
+                        else "dash_trace_copy" if command == "-ability" and len(parts) == (7 if prior_trace else 6) and (not prior_trace or parts[4] == 'Trace') and parts[from_index] == '[from] ability: Trace' else None)
             if template is None or parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["ability"]["payload_domains"][template]: continue
             row = facts.setdefault(target, dict(ability=None, base=None, state="unknown", copied=False, cleared=False, invalidated=None, base_writer=None))
             changed = any(tag.startswith("[from]") for tag in parts[4:])
             if (not changed and not row["base"] and not row["copied"] and row["invalidated"] != "transform"
                     and (row["invalidated"] != "form" or row["base_writer"] == _id(parts[3]))): row["base"] = _id(parts[3])
             row.update(ability=_id(parts[3]), state="changed" if changed else "known", cleared=False)
-            row["copied"] |= len(parts) > 4 and parts[4] == "[from] ability: Trace"
+            row["copied"] |= template == 'dash_trace_copy'
     return facts
 
 

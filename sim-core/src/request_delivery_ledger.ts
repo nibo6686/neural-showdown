@@ -47,6 +47,11 @@ export class RequestDeliveryLedger {
   #restores = new WeakMap<object, { environment: LocalBattleEnv; parent: PipelineBoundary; traces: Record<PlayerID, readonly RequestEmissionReceipt[]> }>();
   #prepared = new WeakMap<object, { parent: PipelineBoundary | null; boundary: PipelineBoundary; histories: Record<PlayerID, RequestDeliveryHistory>; raws: Record<PlayerID, unknown> }>();
 
+  #healthTransfers = new WeakMap<object, { prepared: object; owner: PlayerID; environment: LocalBattleEnv; boundary: PipelineBoundary; row: RequestDeliveryBoundary }>();
+  #healthEnvironments = new WeakMap<object, LocalBattleEnv>();
+
+  #ready: { token: object; state: NonNullable<ReturnType<RequestDeliveryLedger["preparedState"]>> } | null = null;
+  private preparedState(token: object) { return this.#prepared.get(token); }
   #open(): void { if (!this.#valid) fail('revoked'); }
   #owner(owner: PlayerID): void { if (!PLAYERS.includes(owner)) fail('invalid-owner'); }
   #traces(environment: LocalBattleEnv): Record<PlayerID, readonly RequestEmissionReceipt[]> {
@@ -115,15 +120,31 @@ export class RequestDeliveryLedger {
       histories[owner] = Object.freeze({ boundaries: Object.freeze([...prior.boundaries, row]), deliveries });
       raws[owner] = structuredClone(raw(result, owner));
     }
-    const prepared = token(); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
+    const prepared = token(); this.#healthEnvironments.set(prepared, environment); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
   }
-  commit(prepared: object): void {
-    this.#open();
-    const state = this.#prepared.get(prepared);
+  prepareHealthTransfer(prepared: object, owner: PlayerID): object {
+    this.#open(); this.#owner(owner); const state = this.#prepared.get(prepared), environment = this.#healthEnvironments.get(prepared);
+    if (!state || !environment) fail('foreign-health-preparation');
+    const key = token(); this.#healthTransfers.set(key, { prepared, owner, environment, boundary: state.boundary, row: state.histories[owner].boundaries.at(-1)! }); return key;
+  }
+  readHealthTransfer(key: object, owner: PlayerID, environment: object, boundary: PipelineBoundary): RequestDeliveryBoundary {
+    this.#open(); this.#owner(owner); const entry = this.#healthTransfers.get(key);
+    if (!entry || entry.owner !== owner || entry.environment !== environment || entry.boundary !== boundary
+      || !this.#prepared.has(entry.prepared)) fail('foreign-or-revoked-health-transfer'); return entry.row;
+  }
+  discard(prepared: object): void { this.#prepared.delete(prepared); if (this.#ready?.token === prepared) this.#ready = null; }
+  preflight(prepared: object): void {
+    this.#open(); const state = this.#prepared.get(prepared);
     if (!state || state.parent !== this.#parent) fail('foreign-or-stale-preparation');
-    this.#prepared.delete(prepared);
-    this.#parent = state.boundary; this.#histories = state.histories; this.#raw = state.raws;
+    this.#ready = { token: prepared, state };
   }
+  /** Session-only, immediately after preflight; assignment-only installation. */
+  installReady(): void {
+    const ready = this.#ready!;
+    this.#parent = ready.state.boundary; this.#histories = ready.state.histories; this.#raw = ready.state.raws;
+    this.#prepared.delete(ready.token); this.#ready = null;
+  }
+  commit(prepared: object): void { this.preflight(prepared); this.installReady(); }
   handle(owner: PlayerID): RequestDeliveryHandle { this.#open(); this.#owner(owner); return this.#handles[owner]; }
   read(handle: RequestDeliveryHandle, owner: PlayerID, expected?: RequestDeliveryBoundary): RequestDeliveryHistory {
     this.#open(); this.#owner(owner);
@@ -133,8 +154,8 @@ export class RequestDeliveryLedger {
     return history;
   }
   revoke(): void {
-    this.#valid = false; this.#handles = { p1: token(), p2: token() };
-    this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
+    this.#ready = null; this.#valid = false; this.#handles = { p1: token(), p2: token() };
+    this.#healthTransfers = new WeakMap(); this.#healthEnvironments = new WeakMap(); this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
     this.#histories = { p1: { boundaries: [], deliveries: [] }, p2: { boundaries: [], deliveries: [] } };
   }
 }

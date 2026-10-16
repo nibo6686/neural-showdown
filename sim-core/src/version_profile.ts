@@ -44,16 +44,17 @@ export function recognizedReaderRevisions(value: unknown): readonly unknown[] {
   };
   visit(value); return Object.freeze(revisions);
 }
-export function selectReaderProfile(value: unknown, selection: ReaderSelection = 'auto'): typeof HISTORICAL10 {
-  if (selection === 'native11') fail('native11-unadopted');
-  if (selection !== 'historical10' && selection !== 'auto') fail('unknown-profile');
+export function selectReaderProfile(value: unknown, selection: ReaderSelection = 'auto'): typeof HISTORICAL10 | typeof NATIVE11 {
+  if (!['historical10','native11','auto'].includes(selection)) fail('unknown-profile');
   const revisions = recognizedReaderRevisions(value);
   if (revisions.some(r => typeof r !== 'string')) fail('unknown-revision');
   const distinct = new Set(revisions);
   if (distinct.size > 1) fail('conflicting-revisions');
-  if (distinct.size && !distinct.has(HISTORICAL10_REVISION)) fail(distinct.has(NATIVE11_REVISION) ? 'native11-unadopted' : 'unknown-revision');
   if (!distinct.size && selection === 'auto') fail('ambiguous-revision');
-  return HISTORICAL10;
+  const target = selection === 'native11' || selection === 'auto' && distinct.has(NATIVE11_REVISION);
+  if (distinct.size && !distinct.has(target ? NATIVE11_REVISION : HISTORICAL10_REVISION)) fail('unknown-revision');
+  if (target) readerContext(NATIVE11_CONTEXT);
+  return target ? NATIVE11 : HISTORICAL10;
 }
 export function assertHistoricalReaderInput(value: unknown): void { selectReaderProfile(value, 'historical10'); }
 
@@ -64,7 +65,7 @@ import path from 'node:path';
 import type { ProtocolContract } from './protocol_contract';
 /** Fixed semantic assets; no engine/source authority and no caller asset injection. */
 export interface ReaderContext {
-  readonly profile: typeof HISTORICAL10 | typeof REPLAY_COMPAT;
+  readonly profile: typeof HISTORICAL10 | typeof REPLAY_COMPAT | typeof NATIVE11;
   readonly protocol: ProtocolContract;
   readonly inventory: any;
   readonly effects: Readonly<Record<string, any>>;
@@ -96,16 +97,17 @@ for (const entry of [...inventory.condition_inventory, ...inventory.effect_disco
 export const HISTORICAL10_CONTEXT: ReaderContext = freezeTree({ profile: HISTORICAL10, protocol, inventory, effects,
   lifecycle: Object.fromEntries(inventory.public_typed_state_lifecycle.entries.map((e: any) => [`${e.family}:${e.id}`, e])) });
 export function readerContext(context: unknown = HISTORICAL10_CONTEXT): ReaderContext {
+  if (context === NATIVE11_CONTEXT) { ensureOwnedPreparedAssetValidated('native11', NATIVE11_GRAMMAR_CONTEXT); return NATIVE11_CONTEXT; }
   if (context !== HISTORICAL10_CONTEXT) fail((context as any)?.profile?.id === 'native11' ? 'native11-unadopted' : 'unsupported-context');
   return context as ReaderContext;
 }
 export function assertReaderInput(value: unknown, context: ReaderContext = HISTORICAL10_CONTEXT): void {
   assertPublicationReaderContext(context);
-  selectReaderProfile(value, 'historical10');
+  selectReaderProfile(value, context === NATIVE11_CONTEXT ? 'native11' : 'historical10');
 }
 export interface NativeRuntimeProfile {
   readonly reader: ReaderContext;
-  readonly package_version: '0.11.10';
+  readonly package_version: '0.11.11';
   readonly package_root: string;
   readonly entry: string;
   readonly integrity: string;
@@ -121,13 +123,13 @@ export function installedNativeProfile(): NativeRuntimeProfile {
   const lock = JSON.parse(fs.readFileSync(path.join(root, 'sim-core/package-lock.json'), 'utf8'));
   const installedLock = JSON.parse(fs.readFileSync(path.join(root, 'sim-core/node_modules/.package-lock.json'), 'utf8'));
   const locked = lock.packages['node_modules/pokemon-showdown'], installed = installedLock.packages['node_modules/pokemon-showdown'];
-  const expectedIntegrity = 'sha512-FAeLao+7jWwgiMAmO4F6IqICtsOAAiPIHEkKOtHTGbl4dy088rkrcEYqSk+Uasic0oUJkoY8pi77odwX6+OgTg==';
-  if (pkg.version !== '0.11.10' || declaration.dependencies['pokemon-showdown'] !== '0.11.10'
-    || lock.packages[''].dependencies['pokemon-showdown'] !== '0.11.10' || locked?.version !== pkg.version
+  const expectedIntegrity = 'sha512-FdW7gt3TkG4AdXmpMTPYX2kx42VEfY8tQApjW9wEHOGzwH6Kn97wD0o5uIzAc4xpO1W+Tim70Ti9+FNkMNCA2w==';
+  if (pkg.version !== '0.11.11' || declaration.dependencies['pokemon-showdown'] !== '0.11.11'
+    || lock.packages[''].dependencies['pokemon-showdown'] !== '0.11.11' || locked?.version !== pkg.version
     || installed?.version !== pkg.version || locked.integrity !== expectedIntegrity || installed.integrity !== expectedIntegrity
     || entry !== fs.realpathSync(path.join(packageRoot, pkg.main))
     || packageRoot !== fs.realpathSync(path.join(root, 'sim-core/node_modules/pokemon-showdown'))) fail('installed-runtime-mismatch');
-  const runtime = Object.freeze({ reader: HISTORICAL10_CONTEXT, package_version: '0.11.10' as const,
+  const runtime = Object.freeze({ reader: readerContext(NATIVE11_CONTEXT), package_version: '0.11.11' as const,
     package_root: packageRoot, entry, integrity: expectedIntegrity });
   ownedRuntimes.add(runtime); return runtime;
 }
@@ -155,10 +157,16 @@ function pinnedAsset(assetPath: string, expected: string): any {
 /** Fixed local replay decoder, not a native profile or portable publication contract. */
 export const REPLAY_COMPAT = Object.freeze({id: 'replay-compat-v1', revision: 'importer-replay-compatibility/v1', adopted: false} as const);
 export interface ProtocolRulesContext { readonly protocol: ProtocolContract; }
-const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4');
+const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834');
 const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
 export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
 export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
+const targetInventory = loadInactiveTargetInventory();
+const targetEffects = Object.fromEntries([...targetInventory.condition_inventory, ...targetInventory.effect_discovery.additional_entries].map((e: any) => [e.id, e]));
+export const NATIVE11_CONTEXT: ReaderContext = freezeTree({profile: NATIVE11, protocol: targetProtocolAsset.protocol,
+  inventory: targetInventory, effects: targetEffects,
+  lifecycle: Object.fromEntries(targetInventory.public_typed_state_lifecycle.entries.map((e: any) => [`${e.family}:${e.id}`, e]))});
+
 type PreparedValidationState = {phase: 'unvalidated' | 'checking' | 'validated' | 'failed'; error?: unknown};
 const targetValidation: PreparedValidationState = {phase: 'unvalidated'}, replayValidation: PreparedValidationState = {phase: 'unvalidated'};
 let checkingOwnedContext: ProtocolRulesContext | undefined;
@@ -200,16 +208,17 @@ export function helperContext(context: unknown = HISTORICAL10_CONTEXT): ReaderCo
 /** Narrow quarantine for changed families lacking a safe semantic consequence proof. */
 export function assertPreparedProtocolPolicy(record: string, context: unknown): void {
   protocolContext(context);
-  if (context !== NATIVE11_GRAMMAR_CONTEXT && context !== REPLAY_COMPAT_CONTEXT) return;
+  if (context !== NATIVE11_GRAMMAR_CONTEXT && context !== NATIVE11_CONTEXT && context !== REPLAY_COMPAT_CONTEXT) return;
   const p = record.split('|'), command = p[1];
   const stableLeftovers = command === '-heal' && p.length === 5 && p[4] === '[from] item: Leftovers';
-  const family = ['-heal', 'heal', 'cant'].includes(command) && !stableLeftovers ? 'heal-failure'
+  const revival = (context === NATIVE11_CONTEXT || context === NATIVE11_GRAMMAR_CONTEXT) && command === '-heal' && p.includes('[from] move: Revival Blessing');
+  const family = ['-heal', 'heal', 'cant'].includes(command) && !stableLeftovers && !revival ? 'heal-failure'
     : ['-swapsideconditions', 'swapsideconditions'].includes(command) || (command === '-activate' && p[3] === 'move: Court Change') ? 'court-change'
     : command === '-prepare' && p[3] === 'Chilly Reception' ? 'chilly-reception'
     : command === '-damage' && p.includes('[partiallytrapped]') ? 'partial-trap'
     : ['-item', 'item'].includes(command) && p.includes('[from] ability: Magician') ? 'magician'
     : command === '-activate' && ['ability: Mummy', 'ability: Lingering Aroma'].includes(p[3]) ? 'ability-setter'
-    : command === '-ability' && p.length > 5 && p[4] !== '[from] ability: Trace' ? 'ability-setter' : null;
+    : command === '-ability' && p.length > 5 && !p.includes('[from] ability: Trace') ? 'ability-setter' : null;
   if (family) fail('prepared-family-unsupported/' + family);
 }
 export function replayReaderContext(profile: unknown): ReaderContext {
@@ -224,7 +233,7 @@ export function assertPublicationReaderContext(context: unknown): void {
 /** Asset inspection seam: trusted hashes remain code-owned even for an alternate path. */
 export function loadPreparedProtocolAsset(profile: 'native11' | 'replay-compat-v1', assetPath?: string): any {
   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
-  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4'), profile);
+  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'), profile);
   if (profile === 'replay-compat-v1') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'), profile);
   return fail('unknown-grammar-profile');
 }
@@ -247,9 +256,24 @@ export function loadInactiveTargetInventory(assetPath = path.join(root, 'sim-cor
   return candidate;
 }
 let nativeData: any;
+let targetData: any;
+const TARGET_LOOKUP_SHA256 = '66355d0182570b82fea5bdccfb45977386e22b0cdc9e278f9eaab2c151f5fe9b';
 /** Compatibility API name; immutable historical tables, independent of installed native engine. */
 export function runtimeData(context: ReaderContext = HISTORICAL10_CONTEXT): any {
   helperContext(context);
+  if (context === NATIVE11_CONTEXT) {
+  if (!targetData) {
+    const {species, moves, types, aliases} = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/lookups/pokemon-showdown-0.11.11.json'), TARGET_LOOKUP_SHA256).data;
+    const toID = historicalToID;
+    const missingSpecies = Object.freeze({exists: false, types: Object.freeze([])}), missingMove = Object.freeze({exists: false});
+    const id = (value: any) => { const key = toID(value); return toID(aliases[key] || key); };
+    targetData = freezeTree({species: {get: (v: any) => species[id(v)] || missingSpecies},
+      moves: {get: (v: any) => moves[id(v)] || missingMove},
+      getImmunity: (attack: string, defenders: string[]) => defenders.every(d => types[toID(d)]?.damageTaken[attack] !== 3),
+      getEffectiveness: (attack: string, defenders: string[]) => defenders.reduce((n, d) => n + (types[toID(d)]?.damageTaken[attack] === 1 ? 1 : types[toID(d)]?.damageTaken[attack] === 2 ? -1 : 0), 0)});
+  }
+    return targetData;
+  }
   if (!nativeData) {
     const {species, moves, types, aliases} = historicalLookupData();
     const toID = historicalToID;

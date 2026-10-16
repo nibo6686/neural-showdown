@@ -41,19 +41,25 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  const common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence'];
  keys(value,common.concat(profile==='native11'?['admission_scope','semantic_dispositions']:['base_lookup_profile','publication','authority','changed_forms']),'container');
  if(value.profile!==profile||value.adopted!==false||value.schema_version!==(profile==='native11'?'inactive-native-protocol/v1':'importer-replay-compatibility/v1'))fail('profile-identity');
- if(!equal(value.provenance,provenance))fail('provenance');
+ const selectedProvenance=profile==='native11'?{...provenance,source:"Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer",runtime:"Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved"}:provenance;
+ if(!equal(value.provenance,selectedProvenance))fail('provenance');
  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
  if(profile==='native11'){
-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent'])||!equal(value.semantic_dispositions,semantic))fail('closure-claims');
+  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
  keys(p,Object.keys(base),'protocol');
- if(!equal(p.source_basis,['Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
+ if(!equal(p.source_basis,[profile==='native11'?"Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal":'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
  if(!equal(p.simulator,{...base.simulator,version:profile==='native11'?'0.11.11':'0.11.10'}))fail('simulator');
  const rules=JSON.parse(JSON.stringify(base.validation_rules));
  const form={tags:['[from] ability: Natural Cure','[silent]']};
  if(profile==='native11')rules.major_status.cure_forms=rules.major_status.cure_forms.map((x:any)=>equal(x.tags,['[from] ability: Natural Cure'])?form:x);
  else rules.major_status.cure_forms.push(form);
+ if(profile==='native11'){
+  rules.ability.dash_templates=['reveal','boost','trace-copy-prior-Trace'];
+  rules.ability.payload_domains.dash_trace_copy=rules.ability.payload_domains.dash_trace_copy.filter((a:string)=>a!=='Steely Spirit').concat('Gale Wings').sort();
+  rules.ability.source_evidence.dash_trace_copy='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification';
+ }
  if(!equal(p.validation_rules,rules))fail('rule-template');
  if(!equal(p.framing_only_records,[{...base.framing_only_records[0],evidence:framing}]))fail('framing');
  if(!equal(p.disposition_rules,Object.fromEntries(Object.keys(base.disposition_rules).map(k=>[k,scope]))))fail('disposition-claims');
@@ -91,10 +97,12 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  }
  for(const control of p.valid_record_controls){
   if(control.reconstruction_scope!==scope)fail('control-scope');
-  const evidence=profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
+  const evidence=profile==='native11'&&control.record==="|-heal|p1: First|50/100|[from] move: Revival Blessing"?"Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance":profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
   if(control.evidence!==evidence)fail('control-evidence');
  }
  const records=p.valid_record_controls.map((x:any)=>x.record);
+ if(profile==='native11'&&!records.includes("|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"))fail('trace-controls');
+ if(profile==='native11'&&!records.includes("|-heal|p1: First|50/100|[from] move: Revival Blessing"))fail('revival-controls');
  if(!records.includes(nativeNC)||(profile==='replay-compat-v1'&&!records.includes(oldNC)))fail('natural-cure-controls');
  for(const kind of ['malformed','unknown','unproved_semantic_family'])if(!p.rejection_fixtures.some((x:any)=>x.kind===kind))fail('negative-coverage');
 }

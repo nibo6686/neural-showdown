@@ -11,6 +11,8 @@ export interface NativeBirthEvidence {
   readonly original: OriginalOwnerEvidence;
   readonly slot_count: number;
 }
+export interface RequestHealthReceiver { observe(environment: object, battle: Battle): void; enroll(frame: object, environment: object, battle: Battle, rows: AssociationRows): void; restore(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket): void; }
+export type SwitchActorReceiver = (environment: object, battle: Battle, rows: AssociationRows, source?: SeededBattleSnapshot, parent?: PipelineBoundary) => void;
 const owners = ['p1', 'p2'] as const;
 function index(owner: PlayerID): number {
   if (owner !== 'p1' && owner !== 'p2') throw new Error('native-birth/v1/invalid-owner');
@@ -20,6 +22,27 @@ function fail(reason: string): never { throw new Error('native-birth/v1/' + reas
 
 /** Trusted session controller; native references never leave this private creation enrollment. */
 export class NativeBirthEnrollment {
+  #healthReceiver: RequestHealthReceiver | null = null;
+  #healthFrames = new WeakMap<object, { environment: object; battle: Battle; rows: AssociationRows }>();
+  registerRequestHealthReceiver(receiver: RequestHealthReceiver): void {
+    if (this.#healthReceiver) throw new Error('request-health/v1/duplicate-receiver');
+    this.#healthReceiver = receiver;
+  }
+  assertRequestHealthTransfer(frame: object, environment: object, battle: Battle, rows: AssociationRows): void {
+    const held = this.#healthFrames.get(frame);
+    if (!held || held.environment !== environment || held.battle !== battle || held.rows !== rows) throw new Error('request-health/v1/foreign-transfer');
+  }
+  private healthTransfer(environment: object, battle: Battle, rows: AssociationRows): void {
+    if (!this.#healthReceiver) return;
+    const frame = Object.freeze(Object.create(null)); this.#healthFrames.set(frame, {environment, battle, rows});
+    this.#healthReceiver.enroll(frame, environment, battle, rows);
+  }
+
+  #actorReceiver: SwitchActorReceiver | null = null;
+  registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
+    if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
+    this.#actorReceiver = receiver;
+  }
   #phase: 'new' | 'observing' | 'staged' | 'active' | 'invalid' = 'new';
   #environment: object | null = null;
   #battle: Battle | null = null;
@@ -45,6 +68,7 @@ export class NativeBirthEnrollment {
     // packed bytes corroborate submission, never instantiate an original holder.
     for (const owner of owners) this.#originals.diagnostic(environment, owner);
     this.#battle = battle; this.#birthBattle = battle; this.#phase = 'observing';
+    this.#healthReceiver?.observe(environment, battle);
     const native = battle as any;
     const setPlayer = native.setPlayer, getTeam = native.getTeam;
     const playerDescriptor = Object.getOwnPropertyDescriptor(native, 'setPlayer');
@@ -96,7 +120,8 @@ export class NativeBirthEnrollment {
     if (this.#rows[0] && this.#rows[1]) this.#phase = 'staged';
   }
 
-  activate(): void {
+  #activation: NativeBirthHandle[] | null = null;
+  prepareActivation(): void {
     if (this.#phase !== 'staged' || !this.#battle || this.#submission) this.reject('not-staged');
     for (const owner of owners) {
       const row = this.#rows[index(owner)]!, side = this.#battle[owner];
@@ -106,9 +131,13 @@ export class NativeBirthEnrollment {
         || side.pokemon.some(pokemon => !row.sets.includes(pokemon.set))
         || new Set(side.pokemon.map(pokemon => pokemon.set)).size !== row.sets.length) this.reject('constructor-association-mismatch');
     }
-    this.#handles = owners.map(() => Object.freeze(Object.create(null)));
+    this.#activation = owners.map(() => Object.freeze(Object.create(null)));
+  }
+  installActivation(): void {
+    this.#handles = this.#activation!; this.#activation = null;
     this.#phase = 'active'; this.#environment = null; this.#battle = null;
   }
+  activate(): void { this.prepareActivation(); this.installActivation(); }
   /** Trusted B2 producer transfer, not a consumer lookup or serialized certificate. */
   captureBirthObjects(environment: object, battle: Battle): AssociationRows {
     if (!['staged', 'active'].includes(this.#phase) || environment !== this.#birthEnvironment || battle !== this.#birthBattle) fail('foreign-birth-object-source');
@@ -119,6 +148,13 @@ export class NativeBirthEnrollment {
       if (objects.some(p => !p) || new Set(objects).size !== objects.length || side.pokemon.length !== objects.length) fail('constructor-association-mismatch');
       return [owner, { original: row.evidence.original, objects: Object.freeze(objects) }];
     })) as AssociationRows;
+  }
+
+  transferRequestHealthActors(environment: object, battle: Battle): void { this.healthTransfer(environment, battle, this.captureBirthObjects(environment, battle)); }
+
+  transferSwitchActors(environment: object, battle: Battle): void {
+    if (!this.#actorReceiver) fail("missing-actor-receiver");
+    this.#actorReceiver(environment, battle, this.captureBirthObjects(environment, battle));
   }
 
   holding(owner: PlayerID): NativeBirthHandle {
@@ -138,13 +174,13 @@ export class NativeBirthEnrollment {
   abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
   private detach(): void { this.#detach?.(); this.#detach = null; }
   revoke(): void {
-    this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
+    this.#healthFrames = new WeakMap(); this.#activation = null; this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
     this.#submission = null; this.#rows = []; this.#handles = [];
     this.#birthEnvironment = null; this.#birthBattle = null;
   }
 }
 
-type AssociationRows = Record<PlayerID, { original: OriginalOwnerEvidence; objects: readonly any[] }>;
+export type AssociationRows = Record<PlayerID, { original: OriginalOwnerEvidence; objects: readonly any[] }>;
 type Order = Record<PlayerID, readonly number[]>;
 type StateRefs = { root: any; sides: any; rows: Array<{ side: any; pokemon: any; entries: any[]; sets: any[] }> };
 type Serialization = { snapshot: SeededBattleSnapshot; expected: SeededBattleSnapshot; refs: StateRefs;
@@ -177,14 +213,37 @@ function refsUnchanged(refs: StateRefs, state: any): boolean {
 
 /** Private session association: actual serializer/reconstructor occurrences, never imported mappings. */
 export class NativeObjectAssociation {
+  #healthReceiver: RequestHealthReceiver | null = null;
+  #healthFrames = new WeakMap<object, { environment: object; battle: Battle; rows: AssociationRows }>();
+  registerRequestHealthReceiver(receiver: RequestHealthReceiver): void {
+    if (this.#healthReceiver) throw new Error('request-health/v1/duplicate-receiver');
+    this.#healthReceiver = receiver;
+  }
+  assertRequestHealthTransfer(frame: object, environment: object, battle: Battle, rows: AssociationRows): void {
+    const held = this.#healthFrames.get(frame);
+    if (!held || held.environment !== environment || held.battle !== battle || held.rows !== rows) throw new Error('request-health/v1/foreign-transfer');
+  }
+  private healthTransfer(environment: object, battle: Battle, rows: AssociationRows): void {
+    if (!this.#healthReceiver) return;
+    const frame = Object.freeze(Object.create(null)); this.#healthFrames.set(frame, {environment, battle, rows});
+    this.#healthReceiver.enroll(frame, environment, battle, rows);
+  }
+
+  #actorReceiver: SwitchActorReceiver | null = null;
+  registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
+    if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
+    this.#actorReceiver = receiver;
+  }
   #initialEnvironment: object | null = null;
   #disabled = false;
   #closed = false;
   #serializations = new WeakMap<object, Serialization>();
   #pending = new Map<object, PendingAssociation>();
-  #prepared = new Map<object, { environment: object; pending: PendingAssociation; next: PipelineBoundary; entry: Serialization }>();
+  #prepared = new Map<object, { environment: object; pending?: PendingAssociation; next: PipelineBoundary; entry: Serialization }>();
   #current: { environment: object; battle: Battle; parent: PipelineBoundary; entry: Serialization;
     rows: AssociationRows; handles: NativeObjectHandle[]; evidence: NativeObjectEvidence[] } | null = null;
+  #ready: { token: object; state: NonNullable<NativeObjectAssociation["stateType"]>; environment: object } | null = null;
+  private get stateType() { return this.#current; }
   readonly #birth: NativeBirthEnrollment;
   constructor(birth: NativeBirthEnrollment) { this.#birth = birth; }
   bindInitial(environment: object): void {
@@ -238,18 +297,22 @@ export class NativeObjectAssociation {
     if (!refsUnchanged(entry.refs, entry.snapshot.simulator_state)) associationFail('snapshot-reference-mismatch');
     if (!isDeepStrictEqual(entry.snapshot, entry.expected)) associationFail('snapshot-content-mismatch');
   }
-  commitInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): void {
+  prepareInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): object {
     this.ensure(); const entry = this.#serializations.get(snapshot);
     if (this.#current || environment !== this.#initialEnvironment || !entry || entry.environment !== environment) associationFail('missing-initial-serialization');
     this.checkSnapshot(entry);
-    for (const owner of owners) if (this.#birth.read(this.#birth.holding(owner), owner).original !== entry.rows[owner].original) associationFail('original-holder-mismatch');
-    this.install(environment, parent, entry);
+    const rows = this.#birth.captureBirthObjects(environment, entry.battle);
+    for (const owner of owners) if (rows[owner].original !== entry.rows[owner].original) associationFail('original-holder-mismatch');
+    const token = Object.freeze(Object.create(null)); this.#prepared.set(token, { environment, next: parent, entry }); return token;
   }
-  private install(environment: object, parent: PipelineBoundary, entry: Serialization): void {
+  commitInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): void {
+    const token = this.prepareInitial(environment, parent, snapshot); this.preflight(token); this.installReady();
+  }
+  private buildState(environment: object, parent: PipelineBoundary, entry: Serialization) {
     const evidence = owners.map(owner => Object.freeze({ owner, original: entry.rows[owner].original,
       original_slots: Object.freeze([...entry.order[owner]]), observation_id: parent.perspectives[owner].observation.observation_id,
       branch_id: parent.branch_id, step_index: parent.step_index }));
-    this.#current = { environment, battle: entry.battle, parent, entry, rows: entry.rows,
+    return { environment, battle: entry.battle, parent, entry, rows: entry.rows,
       handles: owners.map(() => Object.freeze(Object.create(null))), evidence };
   }
   prepareRestore(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): NativeRestoreTicket {
@@ -259,7 +322,8 @@ export class NativeObjectAssociation {
     if (environment === current.environment || this.#pending.has(environment)) associationFail('reused-candidate');
     this.checkSnapshot(current.entry);
     const ticket = Object.freeze(Object.create(null));
-    this.#pending.set(environment, { ticket, parent, source: current.entry }); return ticket;
+    this.#pending.set(environment, { ticket, parent, source: current.entry });
+    this.#healthReceiver?.restore(environment, parent, snapshot, ticket); return ticket;
   }
   private pending(environment: object, ticket?: NativeRestoreTicket): PendingAssociation {
     this.ensure(); const pending = this.#pending.get(environment);
@@ -304,6 +368,12 @@ export class NativeObjectAssociation {
       rows[owner] = { original: pending.source.rows[owner].original, objects: Object.freeze(objects) };
     }
     pending.rows = rows; pending.battle = battle;
+    this.healthTransfer(environment, battle, rows);
+  }
+  transferSwitchActors(environment: object, battle: Battle, ticket: NativeRestoreTicket): void {
+    const pending = this.pending(environment, ticket);
+    if (!this.#actorReceiver || !pending.rows || pending.battle !== battle) associationFail("missing-restored-actor-source");
+    this.#actorReceiver(environment, battle, pending.rows, pending.source.snapshot, pending.parent);
   }
   prepareCommit(environment: object, next: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket): object {
     const pending = this.pending(environment, ticket), entry = this.#serializations.get(snapshot);
@@ -311,13 +381,21 @@ export class NativeObjectAssociation {
     this.checkSnapshot(entry);
     const token = Object.freeze(Object.create(null)); this.#prepared.set(token, { environment, pending, next, entry }); return token;
   }
-  commit(token: object): void {
+  preflight(token: object): void {
     this.ensure(); const prepared = this.#prepared.get(token);
-    if (!prepared || this.#pending.get(prepared.environment) !== prepared.pending || prepared.pending.parent !== this.#current?.parent) associationFail('foreign-or-stale-preparation');
-    this.install(prepared.environment, prepared.next, prepared.entry);
-    this.discard(prepared.environment);
+    if (!prepared || (prepared.pending ? this.#pending.get(prepared.environment) !== prepared.pending
+      || prepared.pending.parent !== this.#current?.parent : !!this.#current)) associationFail('foreign-or-stale-preparation');
+    this.checkSnapshot(prepared.entry);
+    this.#ready = { token, environment: prepared.environment, state: this.buildState(prepared.environment, prepared.next, prepared.entry) };
   }
+  /** Assignment-only session installation; no validation, allocation or callbacks. */
+  installReady(): void {
+    const ready = this.#ready!; this.#current = ready.state;
+    this.#pending.delete(ready.environment); this.#prepared.delete(ready.token); this.#ready = null;
+  }
+  commit(token: object): void { this.preflight(token); this.installReady(); }
   discard(environment: object): void {
+    if (this.#ready?.environment === environment) this.#ready = null;
     this.#pending.delete(environment);
     for (const [token, prepared] of this.#prepared) if (prepared.environment === environment) this.#prepared.delete(token);
   }
@@ -334,7 +412,7 @@ export class NativeObjectAssociation {
     return this.#current.evidence[slot];
   }
   revoke(): void {
-    this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
+    this.#healthFrames = new WeakMap(); this.#ready = null; this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
   }
 }
 

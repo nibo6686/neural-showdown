@@ -4,6 +4,7 @@ import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, ty
 import { assertHistoricalReaderInput } from './version_profile';
 import { createHash } from 'node:crypto';
 import { canonicalActionFromLegalAction, type CanonicalAction } from './canonical_action';
+import { type OwnedActionOrderRegistrations, type OwnedDecisionOrder } from './owned_decision_input';
 import {
   createPipelineEpisodeEvidence, validatePipelineEpisodeEvidence,
   validatePipelineEpisodePredecessor,
@@ -32,6 +33,10 @@ export interface EpisodeExecutionOptions {
   policy_id?: string;
   /** Synchronous permutation of this player's current legal indices. No opponent input. */
   action_order?: (observation: ObservableBattleState) => readonly number[];
+  /** Experimental owner-addressed ordering; registrations carry the original recipient identity. */
+  owned_action_order?: OwnedActionOrderRegistrations;
+  /** Explicitly acknowledges that owned decision inputs can be incomplete. */
+  accept_incomplete?: true;
 }
 export interface EpisodeContinuationOptions extends EpisodeExecutionOptions {
   /** Fully validated previous evidence ending exactly at the session boundary. */
@@ -120,10 +125,45 @@ function limitsFor(options: EpisodeExecutionOptions): EpisodeLimits {
   const supplied = options.limits ?? {};
   if (Object.keys(supplied).some((k) => !Object.hasOwn(DEFAULT_LIMITS, k))) throw new Error('invalid-options');
   const limits = { ...DEFAULT_LIMITS, ...supplied };
+  const owned = options.owned_action_order;
+  if (owned !== undefined) {
+    const validRecord = !!owned && typeof owned === 'object' && !Array.isArray(owned)
+      && [Object.prototype, null].includes(Object.getPrototypeOf(owned))
+      && Object.keys(owned).sort().join(',') === 'p1,p2';
+    if (!validRecord || options.action_order !== undefined || options.accept_incomplete !== true
+      || !/^.+\/v[1-9][0-9]*$/.test(options.policy_id ?? '')) throw new Error('invalid-options');
+    const recipients = new Set<object>();
+    for (const owner of PLAYERS) {
+      const descriptor = Object.getOwnPropertyDescriptor(owned, owner);
+      if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new Error('invalid-options');
+      const registration = descriptor.value as unknown;
+      if (!registration || typeof registration !== 'object' || Array.isArray(registration)
+        || ![Object.prototype, null].includes(Object.getPrototypeOf(registration))) throw new Error('invalid-options');
+      const fields = Object.getOwnPropertyDescriptors(registration);
+      if (Object.keys(fields).sort().join(',') !== 'callback,recipient'
+        || !Object.hasOwn(fields.callback, 'value') || !Object.hasOwn(fields.recipient, 'value')
+        || typeof fields.callback.value !== 'function' || !fields.recipient.value
+        || typeof fields.recipient.value !== 'object' || Array.isArray(fields.recipient.value)
+        || recipients.has(fields.recipient.value as object)) throw new Error('invalid-options');
+      recipients.add(fields.recipient.value as object);
+    }
+  } else if (options.accept_incomplete !== undefined) throw new Error('invalid-options');
   if (Object.values(limits).some((v) => !Number.isSafeInteger(v) || v <= 0)
     || (options.action_order && !options.policy_id?.trim())
     || (options.policy_id !== undefined && !options.policy_id.trim())) throw new Error('invalid-options');
   return limits;
+}
+function ownedRegistrationsFor(options: EpisodeExecutionOptions): OwnedActionOrderRegistrations | undefined {
+  const source = options.owned_action_order;
+  if (!source) return undefined;
+  const registrations = {} as Record<PlayerID, { recipient: object; callback: (input: any) => readonly number[] }>;
+  for (const owner of PLAYERS) {
+    const descriptor = Object.getOwnPropertyDescriptor(source, owner)!;
+    const registration = descriptor.value as object;
+    const fields = Object.getOwnPropertyDescriptors(registration);
+    registrations[owner] = Object.freeze({ recipient: fields.recipient.value, callback: fields.callback.value });
+  }
+  return Object.freeze(registrations);
 }
 function terminal(boundary: PipelineBoundary): boolean {
   const [p1, p2] = PLAYERS.map((p) => boundary.perspectives[p].observation.view);
@@ -147,17 +187,32 @@ function actingPlayers(boundary: PipelineBoundary): PlayerID[] | null {
   }
   return null;
 }
-function actionTuples(boundary: PipelineBoundary, actors: PlayerID[], options: EpisodeExecutionOptions): Partial<Record<PlayerID, CanonicalAction>>[] {
-  let tuples: Partial<Record<PlayerID, CanonicalAction>>[] = [{}];
+interface EpisodeActionCandidate {
+  actions: Partial<Record<PlayerID, CanonicalAction>>;
+  owned_orders: OwnedDecisionOrder[];
+}
+function actionTuples(
+  boundary: PipelineBoundary, actors: PlayerID[], options: EpisodeExecutionOptions, session: PipelineIntegrationSession,
+): EpisodeActionCandidate[] {
+  let tuples: EpisodeActionCandidate[] = [{ actions: {}, owned_orders: [] }];
   for (const player of actors) {
     const observation = boundary.perspectives[player].observation;
     const request = observation.request!;
     const legal = [...request.legal_actions.available_indices].sort((a, b) => a - b);
-    const ordered = options.action_order ? [...options.action_order(observation)] : legal;
+    const ownedRegistration = options.owned_action_order?.[player];
+    const ownedOrder = ownedRegistration
+      ? session.withOwnedDecisionInput(ownedRegistration.recipient, input => {
+        if (input.knowledge.projection.owner !== player) throw new Error('owned-decision-input/v1/wrong-owner');
+        return ownedRegistration.callback(input);
+      }) : undefined;
+    const ordered = ownedOrder ? [...ownedOrder.indices] : options.action_order ? [...options.action_order(observation)] : legal;
     if (ordered.length !== legal.length || new Set(ordered).size !== legal.length
       || ordered.some((i) => !legal.includes(i))) throw new Error('invalid-policy-order');
     const actions = ordered.map((i) => canonicalActionFromLegalAction(request, i));
-    tuples = tuples.flatMap((tuple) => actions.map((action) => ({ ...tuple, [player]: action })));
+    tuples = tuples.flatMap((tuple) => actions.map((action) => ({
+      actions: { ...tuple.actions, [player]: action },
+      owned_orders: ownedOrder ? [...tuple.owned_orders, ownedOrder] : tuple.owned_orders,
+    })));
   }
   return tuples;
 }
@@ -221,6 +276,8 @@ async function executeEpisode(
     }
     try { result.limits = limitsFor(options); } catch { return result; }
     if (format !== 'gen9randombattle') { stop('unsupported-format', 'Only gen9randombattle is supported.'); return result; }
+    const ownedRegistrations = ownedRegistrationsFor(options);
+    const selectionOptions = ownedRegistrations ? { ...options, owned_action_order: ownedRegistrations } : options;
     session = await create();
     let boundary = session.boundary;
     result.initial_boundary = result.final_boundary = summarizeEpisodeBoundary(boundary);
@@ -234,11 +291,14 @@ async function executeEpisode(
       const actors = actingPlayers(boundary);
       if (!actors) { stop('unsupported-boundary', 'No supported transition exists for the committed request states.'); break; }
       session.assertSupportedSelectionRequests();
-      const actions = actionTuples(boundary, actors, options).find((a) => !attempted.has(tupleKey(a)));
-      if (!actions) { stop('action-exhausted', 'Every request-derived action combination at this boundary was rejected.'); break; }
+      const candidate = actionTuples(boundary, actors, selectionOptions, session)
+        .find((entry) => !attempted.has(tupleKey(entry.actions)));
+      if (!candidate) { stop('action-exhausted', 'Every request-derived action combination at this boundary was rejected.'); break; }
+      const actions = candidate.actions;
       attempted.add(tupleKey(actions));
       result.counts.attempts++;
       try {
+        if (candidate.owned_orders.length) session.assertOwnedDecisionBatch(candidate.owned_orders);
         const committed = actors.length === 2
           ? await session.step(actions as Record<PlayerID, CanonicalAction>)
           : actions[actors[0]]!.kind === 'revive'

@@ -1,0 +1,1599 @@
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "projection"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "schema": {
+      "const": "perspective-knowledge-consumer/native11-loadout-v1"
+    },
+    "owner": {
+      "enum": [
+        "p1",
+        "p2"
+      ]
+    },
+    "policy": {
+      "const": "native-owner-loadout/v1"
+    },
+    "boundary": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "required_profile": {
+      "const": "sha256:2e62db89c4c750234c431699dd8cbfea4bba2c4d434d08d2bf46c91d93342f4e"
+    },
+    "result": {
+      "const": "incomplete"
+    },
+    "starting": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/safe_fact"
+      },
+      "maxItems": 4096
+    },
+    "starting_crosswalk": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "current": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/safe_fact"
+      },
+      "maxItems": 4096
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "owned-active-options/v1"
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^p[12]:roster:[1-6]$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "state": {
+          "enum": [
+            "ordinary_pp",
+            "unsupported",
+            "waiting",
+            "forced_switch",
+            "revival_selection",
+            "terminal",
+            "requestless"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "none",
+            "not_emitted",
+            "unsupported_writer"
+          ]
+        },
+        "options": {
+          "anyOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "option_index": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4
+                  },
+                  "request_move_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "request_move_label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "pp": {
+                    "type": "object",
+                    "properties": {
+                      "state": {
+                        "const": "known"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "precision": {
+                        "const": "exact"
+                      },
+                      "reason": {
+                        "const": "none"
+                      }
+                    },
+                    "required": [
+                      "state",
+                      "value",
+                      "precision",
+                      "reason"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "max_pp": {
+                    "type": "object",
+                    "properties": {
+                      "state": {
+                        "const": "known"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "precision": {
+                        "const": "exact"
+                      },
+                      "reason": {
+                        "const": "none"
+                      }
+                    },
+                    "required": [
+                      "state",
+                      "value",
+                      "precision",
+                      "reason"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "option_index",
+                  "request_move_id",
+                  "request_move_label",
+                  "pp",
+                  "max_pp"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "subject",
+        "sequence",
+        "cursor",
+        "state",
+        "reason",
+        "options"
+      ],
+      "additionalProperties": false
+    },
+    "original_interpretation": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "pattern": "^p[12]:roster:[1-6]$"
+          },
+          "presence": {
+            "type": "object",
+            "properties": {
+              "nature": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "evs": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "ivs": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "happiness": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "level": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "gender": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "shiny": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "pokeball": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              },
+              "teraType": {
+                "enum": [
+                  "present",
+                  "undefined",
+                  "omitted"
+                ]
+              }
+            },
+            "required": [
+              "nature",
+              "evs",
+              "ivs",
+              "happiness",
+              "level",
+              "gender",
+              "shiny",
+              "pokeball",
+              "teraType"
+            ],
+            "additionalProperties": false
+          },
+          "components": {
+            "type": "object",
+            "properties": {
+              "evs": {
+                "type": "object",
+                "properties": {
+                  "hp": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "atk": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "def": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spa": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spd": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spe": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  }
+                },
+                "required": [
+                  "hp",
+                  "atk",
+                  "def",
+                  "spa",
+                  "spd",
+                  "spe"
+                ],
+                "additionalProperties": false
+              },
+              "ivs": {
+                "type": "object",
+                "properties": {
+                  "hp": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "atk": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "def": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spa": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spd": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  },
+                  "spe": {
+                    "enum": [
+                      "present",
+                      "undefined",
+                      "omitted"
+                    ]
+                  }
+                },
+                "required": [
+                  "hp",
+                  "atk",
+                  "def",
+                  "spa",
+                  "spd",
+                  "spe"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "evs",
+              "ivs"
+            ],
+            "additionalProperties": false
+          },
+          "submission": {
+            "type": "object",
+            "properties": {
+              "nature": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evs": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "hp": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "atk": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "def": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spa": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spd": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spe": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "hp",
+                      "atk",
+                      "def",
+                      "spa",
+                      "spd",
+                      "spe"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "ivs": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "hp": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "atk": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "def": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spa": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spd": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "spe": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "hp",
+                      "atk",
+                      "def",
+                      "spa",
+                      "spd",
+                      "spe"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "happiness": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "level": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "gender": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "shiny": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "pokeball": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "teraType": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "nature",
+              "evs",
+              "ivs",
+              "happiness",
+              "level",
+              "gender",
+              "shiny",
+              "pokeball",
+              "teraType"
+            ],
+            "additionalProperties": false
+          },
+          "normalized": {
+            "type": "object",
+            "properties": {
+              "nature": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evs": {
+                "type": "object",
+                "properties": {
+                  "hp": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "atk": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "def": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spa": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spd": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spe": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  }
+                },
+                "required": [
+                  "hp",
+                  "atk",
+                  "def",
+                  "spa",
+                  "spd",
+                  "spe"
+                ],
+                "additionalProperties": false
+              },
+              "ivs": {
+                "type": "object",
+                "properties": {
+                  "hp": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "atk": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "def": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spa": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spd": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spe": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  }
+                },
+                "required": [
+                  "hp",
+                  "atk",
+                  "def",
+                  "spa",
+                  "spd",
+                  "spe"
+                ],
+                "additionalProperties": false
+              },
+              "happiness": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "gender": {
+                "enum": [
+                  "M",
+                  "F",
+                  "N",
+                  null
+                ]
+              },
+              "gender_resolution": {
+                "enum": [
+                  "submitted",
+                  "species_fixed",
+                  "unresolved"
+                ]
+              },
+              "shiny": {
+                "type": "boolean"
+              },
+              "ball": {
+                "type": "string",
+                "maxLength": 256
+              },
+              "starting_tera": {
+                "type": "string",
+                "maxLength": 256
+              },
+              "calculated_stats": {
+                "type": "object",
+                "properties": {
+                  "atk": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "def": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spa": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spd": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "spe": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  }
+                },
+                "required": [
+                  "atk",
+                  "def",
+                  "spa",
+                  "spd",
+                  "spe"
+                ],
+                "additionalProperties": false
+              },
+              "hp_max": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "details": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "nature",
+              "evs",
+              "ivs",
+              "happiness",
+              "level",
+              "gender",
+              "gender_resolution",
+              "shiny",
+              "ball",
+              "starting_tera",
+              "calculated_stats",
+              "hp_max",
+              "details"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "subject",
+          "presence",
+          "components",
+          "submission",
+          "normalized"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "id",
+    "schema",
+    "owner",
+    "policy",
+    "boundary",
+    "required_profile",
+    "result",
+    "starting",
+    "starting_crosswalk",
+    "current",
+    "request",
+    "original_interpretation"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "safe_fact": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+        },
+        "family": {
+          "enum": [
+            "K01",
+            "K02",
+            "K03",
+            "K04",
+            "K05",
+            "K06",
+            "K07",
+            "K08",
+            "K09",
+            "K10",
+            "K11",
+            "K12",
+            "K13",
+            "K14",
+            "K15",
+            "K16",
+            "K17",
+            "K18",
+            "K19",
+            "K20"
+          ]
+        },
+        "property": {
+          "enum": [
+            "roster_species",
+            "roster_order",
+            "party_position",
+            "active_slot",
+            "roster_size",
+            "starting_moves",
+            "current_moves",
+            "move_execution",
+            "move_incarnation",
+            "submitted_nature",
+            "submitted_evs",
+            "submitted_ivs",
+            "submitted_happiness",
+            "calculated_stats",
+            "hp_max",
+            "level",
+            "gender",
+            "shiny",
+            "ball",
+            "details",
+            "starting_tera",
+            "hp",
+            "fainted",
+            "status",
+            "status_observed_since",
+            "status_elapsed",
+            "status_remaining",
+            "pp",
+            "max_pp",
+            "disabled",
+            "maybe_disabled",
+            "trapped",
+            "maybe_trapped",
+            "lock",
+            "boosts",
+            "persistent_effect",
+            "single_turn_effect",
+            "single_move_effect",
+            "side_condition",
+            "side_condition_layers",
+            "weather",
+            "weather_effective",
+            "terrain",
+            "pseudo_weather",
+            "field_remaining",
+            "pending_intent",
+            "pending_effect",
+            "pending_power",
+            "form",
+            "types",
+            "tera",
+            "transformed",
+            "appearance",
+            "identity_reveal",
+            "item",
+            "item_held",
+            "item_effective",
+            "ability",
+            "ability_effective",
+            "boundary_kind",
+            "request_presence"
+          ]
+        },
+        "effect_key": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "known",
+            "known_absent",
+            "unknown",
+            "inapplicable"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "none",
+            "hidden_opponent",
+            "never_revealed",
+            "ambiguous_carrier",
+            "private_request_unavailable",
+            "not_emitted",
+            "hidden_timer",
+            "missing_original_authority",
+            "unimplemented_family",
+            "unsupported_writer",
+            "proved_rule_inapplicable",
+            "not_yet_verified"
+          ]
+        },
+        "freshness": {
+          "enum": [
+            "immutable",
+            "current",
+            "last_known"
+          ]
+        },
+        "precision": {
+          "enum": [
+            "exact",
+            "public_bucket",
+            "interval",
+            "not_applicable"
+          ]
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "owner",
+        "subject",
+        "family",
+        "property",
+        "effect_key",
+        "state",
+        "value",
+        "reason",
+        "freshness",
+        "precision",
+        "observed_at"
+      ],
+      "additionalProperties": false
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "text"
+            },
+            "data": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "integer"
+            },
+            "data": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "boolean"
+            },
+            "data": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "texts"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 256
+              },
+              "maxItems": 6
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "six_stats"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "hp": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "atk": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "hp",
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "five_stats"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "atk": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "stages"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "atk": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "def": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spa": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spd": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "spe": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "accuracy": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                },
+                "evasion": {
+                  "type": "integer",
+                  "minimum": -6,
+                  "maximum": 6
+                }
+              },
+              "required": [
+                "atk",
+                "def",
+                "spa",
+                "spd",
+                "spe",
+                "accuracy",
+                "evasion"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "interval"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "max": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "field_timer"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "target_kind": {
+                  "enum": [
+                    "weather",
+                    "terrain",
+                    "pseudo_weather"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "remaining": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "target_kind",
+                "name",
+                "remaining"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "power"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "basis": {
+                  "enum": [
+                    "base_move",
+                    "effective_move"
+                  ]
+                },
+                "amount": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              },
+              "required": [
+                "basis",
+                "amount"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "effect"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "source_subject": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "observed_since": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "elapsed": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483647
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "remaining": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "const": "interval"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 2147483647
+                            },
+                            "max": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 2147483647
+                            }
+                          },
+                          "required": [
+                            "min",
+                            "max"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "data"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "source_subject",
+                "observed_since",
+                "elapsed",
+                "remaining"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

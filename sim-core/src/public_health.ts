@@ -1,3 +1,4 @@
+import {helperContext, HISTORICAL10_CONTEXT, NATIVE11_CONTEXT, type ReaderContext} from './version_profile';
 import { publicTeamIdent as ident } from './typed_state_lifecycle';
 import {serializeCanonicalAction, type CanonicalAction} from './canonical_action';
 /** Health consequences established by public records and the addressed owner's request. */
@@ -189,7 +190,16 @@ export function boundOwnedTarget(prefix: readonly string[], perspective: string,
 function fail(message: string): never { throw new Error(`Public health evidence mismatch: ${message}`); }
 
 export function assertPublicHealthMatchesEvidence(prefix: readonly string[], perspective: string,
-  view: Row, request: Row | null): void {
+  view: Row, request: Row | null, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  helperContext(rulesContext);
+  const revivalTargets = new Set<string>();
+  if (rulesContext === NATIVE11_CONTEXT) for (const line of prefix) {
+    const parts = line.split('|'), target = ident(parts[2] || '');
+    if (parts[1] === '-heal' && parts.includes('[from] move: Revival Blessing')) {
+      if (parts[3] !== '50/100') fail('Revival owner-private HP cannot enter public prefix');
+      revivalTargets.add(target);
+    } else if (['switch','drag','replace','-damage','-heal','-sethp','faint'].includes(parts[1])) revivalTargets.delete(target);
+  }
   const projected = projectPublicHealth(prefix);
   const requestRows = request && Array.isArray(request.side) ? request.side as Row[] : [];
   let ownedAppearance: string | null = null;
@@ -214,6 +224,14 @@ export function assertPublicHealthMatchesEvidence(prefix: readonly string[], per
     if (matching.length !== 1 || matching[0].team !== expectedTeam) fail(`${target} requires exactly one ${expectedTeam} row`);
     const row = matching[0].row;
     const owner = expectedTeam === 'self_team' ? requestRows.find((entry) => ident(String(entry.ident)) === boundTarget) : undefined;
+    if (revivalTargets.has(target)) {
+      if (row.active !== false || row.fainted !== false || row.status !== publicState.status) fail('Revival bench outcome must remain inactive, unfainted and match ordered public status');
+      if (expectedTeam === 'self_team') {
+        const owned = requestRows.filter(entry => entry.ident === target);
+        const hp = owned.length === 1 && typeof owned[0].condition === 'string' ? /^([1-9][0-9]*)\/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?$/.exec(owned[0].condition) : null;
+        if (!hp || owned[0].active !== false || (hp[3] || null) !== publicState.status || Number(hp[1]) !== Math.floor(Number(hp[2]) / 2) || !Number.isSafeInteger(Number(hp[2]))) fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint');
+      }
+    }
     const ownerPublicPrecision = !owner && expectedTeam === 'self_team' && typeof row.hp_text === 'string'
       && row.hp_text.includes('/') && publicState.hp_text?.includes('/100');
     const expected = owner ? {...condition(String(owner.condition)), active: !!owner.active && !condition(String(owner.condition)).fainted} : publicState;

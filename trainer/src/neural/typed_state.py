@@ -184,7 +184,7 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
         perspective = observation.get("perspective")
         def validate_consequences():
             if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
-                validate_public_health(observation, predecessor)
+                validate_public_health(observation, predecessor, reader_rules=reader_rules)
                 validate_public_items(observation, predecessor)
                 validate_public_ability(observation, predecessor, reader_rules=reader_rules)
         projected = project_public_typed_state(prefix, reader_rules=reader_rules)

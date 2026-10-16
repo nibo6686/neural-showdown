@@ -69,16 +69,16 @@ def recognized_reader_revisions(value):
     return tuple(revisions)
 
 def select_reader_profile(value, selection="auto"):
-    if selection == "native11": _fail("native11-unadopted")
-    if selection not in ("historical10", "auto"): _fail("unknown-profile")
+    if selection not in ("historical10", "native11", "auto"): _fail("unknown-profile")
     revisions = recognized_reader_revisions(value)
     if any(not isinstance(r, str) for r in revisions): _fail("unknown-revision")
     distinct = set(revisions)
     if len(distinct) > 1: _fail("conflicting-revisions")
-    if distinct and HISTORICAL10_REVISION not in distinct:
-        _fail("native11-unadopted" if NATIVE11_REVISION in distinct else "unknown-revision")
     if not distinct and selection == "auto": _fail("ambiguous-revision")
-    return HISTORICAL10
+    target = selection == "native11" or selection == "auto" and NATIVE11_REVISION in distinct
+    if distinct and (NATIVE11_REVISION if target else HISTORICAL10_REVISION) not in distinct: _fail("unknown-revision")
+    if target: reader_context(NATIVE11_CONTEXT)
+    return NATIVE11 if target else HISTORICAL10
 
 def assert_historical_reader_input(value):
     select_reader_profile(value, "historical10")
@@ -114,13 +114,16 @@ HISTORICAL10_CONTEXT = ReaderContext(HISTORICAL10, _freeze(_protocol), _freeze(_
     _freeze({(e['family'], e['id']): e for e in _inventory['public_typed_state_lifecycle']['entries']}))
 
 def reader_context(context=HISTORICAL10_CONTEXT):
+    if context is NATIVE11_CONTEXT:
+        _ensure_owned_prepared_asset_validated('native11', NATIVE11_GRAMMAR_CONTEXT)
+        return context
     if context is not HISTORICAL10_CONTEXT:
         _fail('native11-unadopted' if getattr(getattr(context, 'profile', None), 'id', None) == 'native11' else 'unsupported-context')
     return context
 
 def assert_reader_input(value, context=HISTORICAL10_CONTEXT):
     assert_publication_reader_context(context)
-    select_reader_profile(value, "historical10")
+    select_reader_profile(value, "native11" if context is NATIVE11_CONTEXT else "historical10")
 
 
 def positive_fidelity_scope(profile, ruleset):
@@ -191,7 +194,7 @@ def load_inactive_target_inventory(path=None):
 class ProtocolRulesContext(NamedTuple):
     protocol: Mapping
 
-_TARGET_PROTOCOL_SHA256 = '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4'
+_TARGET_PROTOCOL_SHA256 = 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'
 _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
 def load_prepared_protocol_asset(profile, path=None):
     if profile == 'native11': name, pin = 'protocol_contract_0_11_11.json', _TARGET_PROTOCOL_SHA256
@@ -276,14 +279,21 @@ def assert_publication_reader_context(context):
 
 def assert_prepared_protocol_policy(record, context):
     protocol_context(context)
-    if context is not NATIVE11_GRAMMAR_CONTEXT and context is not REPLAY_COMPAT_CONTEXT: return
+    if context is not NATIVE11_GRAMMAR_CONTEXT and context is not NATIVE11_CONTEXT and context is not REPLAY_COMPAT_CONTEXT: return
     p = record.split('|'); command = p[1] if len(p) > 1 else ''
     effect = p[3] if len(p) > 3 else ''
     stable_leftovers = command == '-heal' and len(p) == 5 and p[4] == '[from] item: Leftovers'
-    family = ('heal-failure' if command in ('-heal', 'heal', 'cant') and not stable_leftovers else
+    revival = (context is NATIVE11_CONTEXT or context is NATIVE11_GRAMMAR_CONTEXT) and command == '-heal' and '[from] move: Revival Blessing' in p
+    family = ('heal-failure' if command in ('-heal', 'heal', 'cant') and not stable_leftovers and not revival else
               'court-change' if command in ('-swapsideconditions', 'swapsideconditions') or command == '-activate' and effect == 'move: Court Change' else
               'chilly-reception' if command == '-prepare' and effect == 'Chilly Reception' else
               'partial-trap' if command == '-damage' and '[partiallytrapped]' in p else
               'magician' if command in ('-item', 'item') and '[from] ability: Magician' in p else
-              'ability-setter' if command == '-activate' and effect in ('ability: Mummy', 'ability: Lingering Aroma') or command == '-ability' and len(p) > 5 and p[4] != '[from] ability: Trace' else None)
+              'ability-setter' if command == '-activate' and effect in ('ability: Mummy', 'ability: Lingering Aroma') or command == '-ability' and len(p) > 5 and '[from] ability: Trace' not in p else None)
     if family: _fail('prepared-family-unsupported/' + family)
+
+# Candidate-only fixed runtime reader. No source authority or positive fidelity scope.
+_target_inventory = load_inactive_target_inventory()
+NATIVE11_CONTEXT = ReaderContext(NATIVE11, _target_protocol_asset['protocol'], _target_inventory,
+    _freeze({e['id']: e for e in (*_target_inventory['condition_inventory'], *_target_inventory['effect_discovery']['additional_entries'])}),
+    _freeze({(e['family'],e['id']): e for e in _target_inventory['public_typed_state_lifecycle']['entries']}))

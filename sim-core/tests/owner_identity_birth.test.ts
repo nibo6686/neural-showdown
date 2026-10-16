@@ -48,14 +48,14 @@ test('B1 generated creation', async () => observe(async rows => {
   } finally { await session?.close(); }
 }));
 
-test('B1 initial effects', async () => {
-  const controls = [
+const initialEffectControls = [
     ['Trace', 'Alakazam\nAbility: Trace\n- Splash', 'Alakazam', 'naturalcure', 'splash'],
     ['Imposter', 'Ditto\nAbility: Imposter\n- Transform', 'Blissey', 'naturalcure', 'softboiled'],
     ['Schooling', 'Wishiwashi\nAbility: Schooling\nLevel: 100\n- Splash', 'Wishiwashi-School', 'schooling', 'splash'],
     ['Crowned', 'Zacian @ Rusted Sword\nAbility: Intrepid Sword\n- Iron Head', 'Zacian-Crowned', 'intrepidsword', 'behemothblade'],
   ];
-  for (const owner of owners) for (const [label, text, species, ability, move] of controls) {
+for (const owner of owners) for (const [label, text, species, ability, move] of initialEffectControls) {
+  test('B1 initial effects ' + label + ' ' + owner, async () => {
     await observe(async rows => {
       const generate = Teams.generate; let calls = 0, session: PipelineIntegrationSession | undefined;
       const raw = Teams.import(text)!;
@@ -72,21 +72,28 @@ test('B1 initial effects', async () => {
           current_species: species, move, same_set_reference: true, generated_reachability: 'not-certified' });
       } finally { Teams.generate = generate; await session?.close(); }
     });
-  }
-});
+  });
+}
 
 test('B1 enrollment faults', async () => {
   const enroll = NativeBirthEnrollment.prototype.enroll, observer = NativeBirthEnrollment.prototype.observe;
+  const capture = NativeBirthEnrollment.prototype.captureBirthObjects;
   const activate = NativeBirthEnrollment.prototype.activate, pushError = BattleStream.prototype.pushError, generate = Teams.generate, close = LocalBattleEnv.prototype.close;
   const cases: Array<[string, RegExp]> = [
     ['missing-owner', /missing-enrollment/], ['duplicate', /duplicate-enrollment/], ['wrong-owner-equal-bytes', /foreign-or-late-enrollment/],
     ['submission', /submission-mismatch/], ['occurrence', /foreign-or-late-enrollment/], ['environment', /foreign-or-late-enrollment/],
     ['side-reference', /constructor-association-mismatch/], ['pokemon-reference', /constructor-association-mismatch/],
-    ['late', /foreign-or-late-enrollment/], ['missing-observer', /not-staged/], ['late-observer', /late-observer/],
+    ['late', /foreign-or-late-enrollment/], ['missing-observer', /^native-birth\/v1\/foreign-birth-object-source$/], ['late-observer', /late-observer/],
   ];
   for (const [fault, pattern] of cases) {
     let controller: NativeBirthEnrollment | undefined, saved: EnrollmentArgs | undefined;
-    const nativeErrors: string[] = []; let cleanupChecks = 0;
+    const nativeErrors: string[] = []; let cleanupChecks = 0, sourceChecks = 0;
+    NativeBirthEnrollment.prototype.captureBirthObjects = function(...args) {
+      if (fault === 'missing-observer') {
+        sourceChecks++; for (const owner of owners) assert.throws(() => this.holding(owner), /unavailable/);
+      }
+      return capture.apply(this, args);
+    };
     LocalBattleEnv.prototype.close = function() {
       assert.ok(controller);
       for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
@@ -126,11 +133,12 @@ test('B1 enrollment faults', async () => {
       await assert.rejects(PipelineIntegrationSession.create(options), (error: Error) => { outer = error; return true; });
       assert.ok([...nativeErrors, outer!.message].some(message => pattern.test(message)), 'exact B1 semantic rejection: ' + fault);
       assert.ok(controller); assert.ok(cleanupChecks > 0, 'revocation observed before cleanup');
+      if (fault === 'missing-observer') assert.ok(sourceChecks > 0, 'actual B1 source gate rejects unenrolled objects');
       for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
       evidence(fault, { level: 'actual-runtime-fault-rejection', expected: pattern.source, authority_unavailable_both_owners: true, revoked_before_cleanup: true });
     } finally {
       NativeBirthEnrollment.prototype.enroll = enroll; NativeBirthEnrollment.prototype.observe = observer;
-      NativeBirthEnrollment.prototype.activate = activate; BattleStream.prototype.pushError = pushError; Teams.generate = generate; LocalBattleEnv.prototype.close = close;
+      NativeBirthEnrollment.prototype.activate = activate; NativeBirthEnrollment.prototype.captureBirthObjects = capture; BattleStream.prototype.pushError = pushError; Teams.generate = generate; LocalBattleEnv.prototype.close = close;
     }
   }
 });
@@ -190,7 +198,7 @@ test('B1 activation failure', async () => {
 
 test('B1 close and restore', async () => {
   const observer = NativeBirthEnrollment.prototype.observe, reset = LocalBattleEnv.prototype.resetWithOptions, diagnostics = LocalBattleEnv.prototype.diagnostics;
-  let observations = 0, session: PipelineIntegrationSession | undefined, legacy: PipelineIntegrationSession | undefined;
+  let observations = 0, session: PipelineIntegrationSession | undefined;
   const donor = new LocalBattleEnv('B1-legacy', options.format, options.seed);
   NativeBirthEnrollment.prototype.observe = function(...args) { observations++; return observer.apply(this, args); };
   try {
@@ -213,13 +221,12 @@ test('B1 close and restore', async () => {
     await closing;
     await donor.reset(); const snapshot = donor.serializeBattle();
     LocalBattleEnv.prototype.resetWithOptions = function(opts) { return this.resetFromSerialized(structuredClone(snapshot), opts); };
-    legacy = await PipelineIntegrationSession.create(options);
-    for (const owner of owners) assert.throws(() => legacy!.getNativeBirthHolding(owner), /unavailable/);
-    await legacy.step();
-    for (const owner of owners) assert.throws(() => legacy!.getNativeBirthHolding(owner), /unavailable/);
-    evidence('lifetime-restore', { level: 'actual-generated-session-and-legacy-restore', no_restore_observer_calls: true,
-      rejected_candidate_preserves_exact_handles_and_rows: true, historical_holding_survives_retirement: true, synchronous_close_denial: true, legacy_birth_unavailable: true,
-      restored_object_mapping: 'unsupported B2' });
+    await assert.rejects(PipelineIntegrationSession.create(options), /native-association\/v1\/foreign-or-stale-restore-ticket/);
+    assert.equal(observations, initial, 'target authority-free initialization cannot mint birth');
+    await assert.rejects(donor.resetFromSerialized(snapshot), /snapshot-admission\/v1\/raw-restore-unsupported/);
+    evidence('lifetime-restore', { level: 'actual-target-generated-session-and-rejected-authority-free-restore', no_restore_observer_calls: true,
+      rejected_candidate_preserves_exact_handles_and_rows: true, historical_holding_survives_retirement: true, synchronous_close_denial: true, target_authority_free_admission_rejected: true,
+      restored_object_mapping: 'separate B2 authority; no new birth' });
   } finally { NativeBirthEnrollment.prototype.observe = observer; LocalBattleEnv.prototype.resetWithOptions = reset; LocalBattleEnv.prototype.diagnostics = diagnostics;
-    await session?.close(); await legacy?.close(); await donor.close(); }
+    await session?.close(); await donor.close(); }
 });

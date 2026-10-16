@@ -1,4 +1,4 @@
-import { assertPreparedProtocolPolicy, NATIVE11_GRAMMAR_CONTEXT, helperContext, protocolContext, assertPublicationReaderContext, type ProtocolRulesContext, readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { assertPreparedProtocolPolicy, NATIVE11_CONTEXT, NATIVE11_GRAMMAR_CONTEXT, helperContext, protocolContext, assertPublicationReaderContext, type ProtocolRulesContext, readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { assertPublicItemsMatchEvidence, projectPublicItems } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
 import { assertPublicFieldMatchesEvidence } from './public_field';
@@ -825,10 +825,12 @@ function requireRawAbilityEvent(parts: string[], command: string, rulesContext: 
     requirePayload('dash_boost');
     return;
   }
-  if (parts.length === 6 && parts[4] === rule.trace_source_tag
-      && parts[5].startsWith(rule.trace_of_tag)) {
+  const priorTrace = rule.dash_templates.includes('trace-copy-prior-Trace');
+  const fromIndex = priorTrace ? 5 : 4;
+  if (parts.length === (priorTrace ? 7 : 6) && (!priorTrace || parts[4] === 'Trace')
+      && parts[fromIndex] === rule.trace_source_tag && parts[fromIndex + 1].startsWith(rule.trace_of_tag)) {
     const actor = parts[2];
-    const source = parts[5].slice(rule.trace_of_tag.length);
+    const source = parts[fromIndex + 1].slice(rule.trace_of_tag.length);
     if (!isCanonicalPlayerIdent(source, true, rulesContext) || actor.slice(0, 2) === source.slice(0, 2)) {
       throw new ObservableStateError(`Malformed raw ${command} record: Trace source must be an opposing active ident.`);
     }
@@ -1117,6 +1119,10 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
     case '-sethp':
       requireAtLeast(4);
       // Revival publicly heals a benched Pokémon using p1:/p2:, not an active position.
+      if ((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && command === '-heal' && parts.includes('[from] move: Revival Blessing')
+          && (parts.length !== 5 || parts[4] !== '[from] move: Revival Blessing' || !/^([1-9][0-9]*)\/([1-9][0-9]*)$/.test(parts[3]) || Number(parts[3].split('/')[0]) !== Math.floor(Number(parts[3].split('/')[1]) / 2) || !Number.isSafeInteger(Number(parts[3].split('/')[1])) || !isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext))) {
+        throw new ObservableStateError('Malformed raw -heal record: exact public Revival Blessing bench heal required.');
+      }
       const revivalBlessingBench = command === '-heal' && parts.length === 5
         && parts[4] === '[from] move: Revival Blessing' && isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext);
       if (!revivalBlessingBench) requireIdent();
@@ -1681,7 +1687,7 @@ export function projectObservableBattleState(input: ObservableStateInput, rulesC
   }
   copyTerminalOwner(input.view as unknown as Record<string, unknown>, view as unknown as Record<string, unknown>);
   assertTypedStateMatchesPublicPrefix(protocolPrefix, input.perspective, view, (target) => boundOwnedTarget(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, target), rulesContext);
-  assertPublicHealthMatchesEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
+  assertPublicHealthMatchesEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, rulesContext);
   assertPublicItemsMatchEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
   assertPublicAbilityMatchesEvidence(protocolPrefix, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, input.perspective, rulesContext);
   if (input.schema_version === PUBLIC_STAGES_SCHEMA_VERSION) {

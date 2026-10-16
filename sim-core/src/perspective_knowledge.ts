@@ -1,4 +1,6 @@
+import { declaredRequestValues, DECLARED_PROPERTIES } from './owned_request_values';
 /** Opt-in knowledge wire structure checks; no source truth or publication. */
+import { interpretOriginalValues, ORIGINAL_FIELDS, ORIGINAL_STATS } from './original_owner_values';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -505,4 +507,241 @@ export function checkKnowledgeStructure(input: unknown,requiredProfile?: string)
 
 export function serializeKnowledgeWire(value: unknown): Buffer {
   checkKnowledgeStructure(value); return canonicalKnowledgeJson(value);
+}
+
+
+const nativeOwnerPins = Object.freeze({
+  'schema.json': '83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94',
+  'profile.json': '38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e',
+});
+let nativeOwnerContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+/** Fixed decoder data only; loading/validating it grants no native source capability. */
+export function nativeOwnerProjectionContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeOwnerContext) return nativeOwnerContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
+    'docs/contracts/fixtures/perspective-knowledge-native11-owner-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries(nativeOwnerPins)) {
+    const bytes = readFileSync(path.join(folder, name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native projection contract content');
+    data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeOwnerContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeOwnerContext!;
+}
+/** Arbitrary data structure check. This never registers a trusted consumer pair. */
+export function checkNativeOwnerProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerProjectionContext(), false); }
+export function checkNativeOwnerHealthProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerHealthProjectionContext(), true); }
+export function checkNativeOwnerActiveOptionsProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerActiveOptionsContext(), true, true); }
+function checkOwnerProjection(input: unknown, context: Readonly<{ schema: Row; profile: Row }>, health: boolean, options = false, identifiers = false, declared = false): void {
+  canonicalKnowledgeJson(input);
+  const value = input as Row;
+  shape(value, context.schema, context.schema.$defs);
+  requireStructure(value.id === knowledgeIdentity(value), 'native projection identity');
+  const old = contract();
+  const size = value.starting.filter((fact: Row) => fact.property === 'roster_size');
+  requireStructure(size.length === 1 && size[0].state === 'known' && size[0].value?.type === 'integer'
+    && size[0].value.data >= 1 && size[0].value.data <= 6, 'native projection roster');
+  const count = size[0].value.data;
+  for (const rule of context.profile.rules) {
+    const facts = value[rule.context].filter((fact: Row) => fact.property === rule.property);
+    const subjects = rule.subject === 'side' ? [value.owner + ':side'] : Array.from({ length: count }, (_, i) => value.owner + ':roster:' + (i + 1));
+    requireStructure(facts.length === subjects.length && subjects.every(subject => facts.some((fact: Row) => fact.subject === subject)), 'native projection coverage');
+    if (rule.property === 'roster_order') requireStructure(facts.every((fact: Row) => fact.value?.type === 'integer' && fact.value.data === Number(fact.subject.split(':').at(-1))), 'native projection original order');
+  }
+  for (const section of ['starting', 'current']) {
+    logicalFacts(value[section]);
+    for (const fact of value[section]) {
+      const rule = context.profile.rules.find((r: Row) => r.context === section && r.property === fact.property && r.family === fact.family);
+      requireStructure(rule && rule.states.includes(fact.state) && (rule.reasons ? rule.reasons[fact.state]?.includes(fact.reason) : fact.reason === rule.reason), 'native projection property scope');
+      requireStructure(fact.owner === value.owner && fact.subject === (rule.subject === 'side' ? value.owner + ':side' : fact.subject)
+        && (rule.subject === 'side' || new RegExp('^' + value.owner + ':roster:[1-6]$').test(fact.subject)), 'native projection subject');
+      const properties = { [rule.family]: [rule.property] };
+      factShape(fact, old, properties, false);
+      requireStructure(fact.effect_key === null && fact.freshness === (section === 'starting' ? 'immutable' : 'current'), 'native projection lifecycle');
+      requireStructure(section === 'starting' ? fact.observed_at === 0 : health && (fact.family === 'K05' || identifiers && ['K18','K19'].includes(fact.family) || declared && ['K03','K04'].includes(fact.family)) && fact.state !== 'unknown' ? Number.isSafeInteger(fact.observed_at) && fact.observed_at >= 0 : fact.observed_at === null, 'native projection cursor');
+      requireStructure(fact.precision === (fact.state === 'known' ? 'exact' : 'not_applicable'), 'native projection precision');
+    }
+  }
+  if (health) {
+    for (let slot = 1; slot <= count; slot++) {
+      const facts = value.current.filter((f: Row) => f.subject === value.owner + ':roster:' + slot && f.family === 'K05');
+      const hp = facts.find((f: Row) => f.property === 'hp'), faint = facts.find((f: Row) => f.property === 'fainted'), status = facts.find((f: Row) => f.property === 'status');
+      if (hp.state === 'unknown') requireStructure(facts.every((f: Row) => f.state === 'unknown' && f.reason === hp.reason), 'native health unavailable tuple');
+      else {
+        requireStructure(hp.state === 'known' && hp.value.type === 'integer' && hp.value.data >= 0 && hp.value.data <= MAX_INTEGER
+          && faint.state === 'known' && faint.value.data === (hp.value.data === 0) && faint.observed_at === hp.observed_at, 'native health tuple');
+        if (hp.value.data === 0) requireStructure(status.state === 'unknown' && status.reason === 'not_emitted', 'native faint status omission');
+        else requireStructure(status.observed_at === hp.observed_at && (status.state === 'known_absent'
+          || status.state === 'known' && ['brn','par','slp','frz','psn','tox'].includes(status.value.data)), 'native health status');
+      }
+    }
+  }
+
+  if (identifiers) {
+    for (const fact of value.current.filter((f: Row) => ['K18','K19'].includes(f.family))) {
+      if (fact.state === 'known') requireStructure(fact.value.type === 'text' && /^[a-z0-9]+$/.test(fact.value.data), 'native identifier literal');
+      if (fact.family === 'K19') requireStructure(fact.state !== 'known_absent', 'native ability absence unsupported');
+    }
+  }
+
+  if (options) {
+    const request = value.request;
+    requireStructure((['terminal','requestless'].includes(request.state)) === (request.sequence === null), 'native option sequence');
+    requireStructure(request.subject === null || new RegExp('^' + value.owner + ':roster:[1-6]$').test(request.subject), 'native option subject');
+    if (request.state === 'ordinary_pp') {
+      requireStructure(request.subject !== null && request.sequence !== null && request.reason === 'none' && Array.isArray(request.options), 'native ordinary options');
+      request.options.forEach((row: Row, i: number) => requireStructure(row.option_index === i + 1 && row.pp.value <= row.max_pp.value, 'native option tuple'));
+    } else {
+      requireStructure(request.options === null && request.reason === (request.state === 'unsupported' ? 'unsupported_writer' : 'not_emitted'), 'native unsupported options');
+      if (request.state !== 'unsupported') requireStructure(request.subject === null && request.reason === 'not_emitted', 'native unavailable options');
+    }
+  }
+
+}
+
+let nativeHealthContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+export function nativeOwnerHealthProjectionContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeHealthContext) return nativeHealthContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
+    'docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries({"schema.json": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17", "profile.json": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e"})) {
+    const bytes = readFileSync(path.join(folder, name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native health contract content');
+    data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native health profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeHealthContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeHealthContext!;
+}
+
+let nativeOptionsContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+export function nativeOwnerActiveOptionsContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeOptionsContext) return nativeOptionsContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
+    'docs/contracts/fixtures/perspective-knowledge-native11-owner-active-options-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries({"schema.json": "23e9740090a94f915b574a802148a1d48a2bedc28e9b17a3f01ee13c9e100596", "profile.json": "c712ff7a34d04c42edaedd250a0d756754cd1e6d18a85e413301844793c635b9"})) {
+    const bytes = readFileSync(path.join(folder, name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native active-options contract content');
+    data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native options profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeOptionsContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeOptionsContext!;
+}
+
+/** Fixed private decoder; validation alone grants no writer/delivery authority. */
+export function checkNativeOwnerIdentifiersProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerIdentifiersContext(), true, true, true); }
+let nativeIdentifiersContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+export function nativeOwnerIdentifiersContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeIdentifiersContext) return nativeIdentifiersContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
+    'docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries({"schema.json": "16ea0bc95124776ac0b6b44dd50ce8656e3378a278d446ce631ecfbd206742e7", "profile.json": "9ffbae284efa10ad62b38a43ae096d741f5210573210e70738d382feafb81c03"})) {
+    const bytes = readFileSync(path.join(folder, name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native identifier contract content');
+    data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native identifier profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeIdentifiersContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeIdentifiersContext!;
+}
+
+/** Additive fixed private decoder. This issues no authenticated source/consumer capability. */
+let nativeLoadoutContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+export function nativeOwnerLoadoutContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeLoadoutContext) return nativeLoadoutContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
+    'docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries({"schema.json": "6298d6dd776bc1667b74555dae60480b4d5affb917ce4f8c16c5fa474edb49f7", "profile.json": "9478d997c9a58d17c6e1ba934e52a7bc0b31f7ae7cf7ce49142593a6e570f800"})) {
+    const bytes = readFileSync(path.join(folder, name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native loadout contract content');
+    data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native loadout profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeLoadoutContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeLoadoutContext!;
+}
+export function checkNativeOwnerLoadoutProjection(input: unknown): void {
+  checkOwnerProjection(input, nativeOwnerLoadoutContext(), true, true, true);
+  checkOriginalInterpretation(input as Row);
+}
+function checkOriginalInterpretation(value: Row): void {
+  const simulator = require('pokemon-showdown'), dex = simulator.Dex.forFormat('gen9randombattle');
+  const size = value.starting.find((f: Row) => f.property === 'roster_size').value.data;
+  requireStructure(value.original_interpretation.length === size, 'native original interpretation coverage');
+  value.original_interpretation.forEach((row: Row, i: number) => {
+    const subject = value.owner + ':roster:' + (i + 1);
+    requireStructure(row.subject === subject, 'native original interpretation order');
+    const species = value.starting.find((f: Row) => f.subject === subject && f.property === 'roster_species').value.data;
+    const raw: Row = { species, moves: ['Splash'] };
+    for (const field of ORIGINAL_FIELDS) {
+      if (row.presence[field] === 'omitted') requireStructure(row.submission[field] === null, 'native original absent submission');
+      else if (row.presence[field] === 'undefined') { requireStructure(row.submission[field] === null, 'native original undefined submission'); raw[field] = undefined; }
+      else {
+        requireStructure(row.submission[field] !== null, 'native original present submission'); raw[field] = row.submission[field];
+        if (field === 'evs' || field === 'ivs') {
+          raw[field] = {};
+          for (const stat of ORIGINAL_STATS) {
+            const mode = row.components[field][stat], number = row.submission[field][stat];
+            requireStructure((mode === 'present') === (number !== null), 'native original component presence');
+            if (mode !== 'omitted') raw[field][stat] = mode === 'undefined' ? undefined : number;
+          }
+        }
+      }
+    }
+    const expected = interpretOriginalValues(raw, dex, simulator);
+    requireStructure(equal(row.normalized, expected.interpretation.normalized) && equal(row.presence, expected.interpretation.presence)
+      && equal(row.components, expected.interpretation.components), 'native original rule interpretation');
+    for (const fact of expected.facts) {
+      const actual = value.starting.find((f: Row) => f.subject === subject && f.property === fact.property);
+      requireStructure(actual.state === fact.state && actual.reason === fact.reason
+        && equal(actual.value, fact.value === null ? null : { type: fact.tag, data: fact.value }), 'native original fact interpretation');
+    }
+  });
+}
+
+/** Fixed private successor decoder; it creates no source/delivery/recipient authority. */
+let nativeDetailsContext: Readonly<{ schema: Row; profile: Row }> | undefined;
+export function nativeOwnerDetailsContext(): Readonly<{ schema: Row; profile: Row }> {
+  if (nativeDetailsContext) return nativeDetailsContext;
+  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..', 'docs/contracts/fixtures/perspective-knowledge-native11-owner-details-v1');
+  const data: Row = {};
+  for (const [name, expected] of Object.entries({"schema.json": "a898550be069a4db85021bffbfd7ab018da0f89be7e83607610fc14b602e1254", "profile.json": "fd32ed99b3b6b25df1ab415aa933b3ccd22f0aa62987b33bc73dfcdf751cf8a4"})) {
+    const bytes = readFileSync(path.join(folder,name));
+    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected,'native details contract content'); data[name] = parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']),'native details profile identity');
+  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+  nativeDetailsContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeDetailsContext!;
+}
+export function checkNativeOwnerDetailsProjection(input: unknown): void {
+  checkOwnerProjection(input,nativeOwnerDetailsContext(),true,true,true,true); const value = input as Row;
+  checkOriginalInterpretation(value);
+  const count = value.starting.find((f: Row) => f.property === 'roster_size').value.data;
+  for (let slot=1;slot<=count;slot++) {
+    const facts = value.current.filter((f: Row) => f.subject === value.owner + ':roster:' + slot);
+    const get = (property: string) => facts.find((f: Row) => f.property === property);
+    for (const property of DECLARED_PROPERTIES) {
+      const f = get(property);
+      if (f.state === 'known' && ['hp_max','level'].includes(property)) requireStructure(Number.isSafeInteger(f.value.data) && f.value.data >= 1 && f.value.data <= (property === 'level' ? 9999 : MAX_INTEGER),'native declared scalar');
+    }
+    const stats = get('calculated_stats');
+    if (stats.state === 'known') declaredRequestValues({stats:stats.value.data});
+    const ball = get('ball'); if (ball.state === 'known') declaredRequestValues({pokeball:ball.value.data});
+    const details = get('details');
+    if (details.state === 'known') {
+      const expected = declaredRequestValues({details:details.value.data}).filter(f => ['details','level','gender','shiny'].includes(f.property));
+      for (const f of expected) { const actual = get(f.property); requireStructure(actual.state === f.state && actual.reason === f.reason
+        && equal(actual.value,f.value === null ? null : {type:f.tag,data:f.value}) && actual.observed_at === details.observed_at,'native declared details tuple'); }
+    } else requireStructure(['level','gender','shiny'].every(property => get(property).state === 'unknown' && get(property).reason === details.reason),'native unavailable details tuple');
+    const hp = get('hp'), max = get('hp_max');
+    if (max.state === 'known') requireStructure(hp.state === 'known' && hp.value.data > 0 && hp.value.data <= max.value.data && hp.observed_at === max.observed_at,'native declared health tuple');
+    if (['terminal','requestless'].includes(value.request.state)) requireStructure(DECLARED_PROPERTIES.every(property => get(property).state === 'unknown' && get(property).reason === 'not_emitted'),'native declared requestless');
+  }
 }
