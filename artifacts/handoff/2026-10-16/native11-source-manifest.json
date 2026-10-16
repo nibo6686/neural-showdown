@@ -1,0 +1,2714 @@
+{
+  "schema": "portable-native11-handoff/v1",
+  "date": "2026-10-16",
+  "accepted_implementation_through": "Prompt60; scoped only",
+  "approved_design_through": "Prompt61",
+  "next_task": "Prompt62 authorized, not started",
+  "archive": {
+    "name": "native11-source.tar.gz",
+    "sha256": "d4b6d691896721e0847399bd8b0b81dc6e244507406f66d8cc26916199c66c82",
+    "bytes": 2468806
+  },
+  "files": {
+    "AGENTS.md": {
+      "sha256": "40516debfcbc82750b91e1936e840ea13d4879fd3191bcd5557bb164796a8c59",
+      "bytes": 9256,
+      "mode": 420
+    },
+    "docs/contracts/BELIEF_STATE.md": {
+      "sha256": "fc0a6478668bbf6268a8489d06f9d26c829fec4f81f6ddc4f161dfaa73e03366",
+      "bytes": 16520,
+      "mode": 420
+    },
+    "docs/contracts/CANONICAL_ACTION.md": {
+      "sha256": "ab9e13407114c151837ed1fe7ecb11b2067ae2dc9632073a6c93d1fc02ce2212",
+      "bytes": 4687,
+      "mode": 420
+    },
+    "docs/contracts/DATASET_LINEAGE.md": {
+      "sha256": "047c5a071add913ee115867b072a1e80ccb9da7f25d04bf6b11c5eb670089aaf",
+      "bytes": 10546,
+      "mode": 420
+    },
+    "docs/contracts/OBSERVABLE_STATE.md": {
+      "sha256": "11f9338b8aff37cbb4ad5c5bf0e67027b3b38607af4c79fb6f3c2e80eb48c25f",
+      "bytes": 55315,
+      "mode": 420
+    },
+    "docs/contracts/PERSPECTIVE_KNOWLEDGE.md": {
+      "sha256": "54aa14e6dae0e864f5b008f44137fcceac951de75ef8f65137e3c53297a7307c",
+      "bytes": 37611,
+      "mode": 420
+    },
+    "docs/contracts/PIPELINE_EPISODE.md": {
+      "sha256": "e255aa880304027f1603ad2f58854918a5a7070e19ca2be6c4580597d0a344fc",
+      "bytes": 29774,
+      "mode": 420
+    },
+    "docs/contracts/PIPELINE_INTEGRATION.md": {
+      "sha256": "01f46209467a810b8777d85c0d4d9bcc2d6c54a56ed70ed31aff4575a7e59d65",
+      "bytes": 26753,
+      "mode": 420
+    },
+    "docs/contracts/REQUEST_KNOWLEDGE.md": {
+      "sha256": "4a94d7d76647ad37bc42e8532f1cc23c729ea834ee182c48922606554f729bf9",
+      "bytes": 9138,
+      "mode": 420
+    },
+    "docs/contracts/SEARCH_SEMANTICS.md": {
+      "sha256": "b90e5fd7d3a3783a8f7cddd9bf3c2c998db6cd7a39fa5005d32578a82d2435e0",
+      "bytes": 10288,
+      "mode": 420
+    },
+    "docs/contracts/SEEDED_TRANSITION.md": {
+      "sha256": "b7412b7bae720d862934d19fefbb923c1e3196fdc71d3bff6e371d9b66e53aec",
+      "bytes": 15743,
+      "mode": 420
+    },
+    "docs/contracts/SIMULATOR_COVERAGE.md": {
+      "sha256": "f8cfa9a8ce90c9fd57c2d3f3de1fa90262d4e22e846c08db5bc6a551c1fdcd63",
+      "bytes": 55611,
+      "mode": 420
+    },
+    "docs/contracts/TRANSITION_RESULT.md": {
+      "sha256": "0df5d962fcec544bb1a366c070ad6e3bc0ab0522c030c07979a2ae42b6444e20",
+      "bytes": 2102,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-active-options-v1/README.md": {
+      "sha256": "60f18c135e91f92df2505f83cdbfbbb9fc957c635267431b5be2d63ac7c51f97",
+      "bytes": 319,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-active-options-v1/profile.json": {
+      "sha256": "c712ff7a34d04c42edaedd250a0d756754cd1e6d18a85e413301844793c635b9",
+      "bytes": 4068,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-active-options-v1/schema.json": {
+      "sha256": "23e9740090a94f915b574a802148a1d48a2bedc28e9b17a3f01ee13c9e100596",
+      "bytes": 22307,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-details-v1/README.md": {
+      "sha256": "00e296dd16e50eee8e51addb8f83b9f5fc87357174a71f6175fd8e3972aa2dbb",
+      "bytes": 606,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-details-v1/profile.json": {
+      "sha256": "fd32ed99b3b6b25df1ab415aa933b3ccd22f0aa62987b33bc73dfcdf751cf8a4",
+      "bytes": 12034,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-details-v1/schema.json": {
+      "sha256": "a898550be069a4db85021bffbfd7ab018da0f89be7e83607610fc14b602e1254",
+      "bytes": 42852,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/README.md": {
+      "sha256": "bc7498dd92a0f3db03f2b1a6e4ce98d49ea8c32cef1969282ff3c7c60638c2d0",
+      "bytes": 251,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/profile.json": {
+      "sha256": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e",
+      "bytes": 3920,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/schema.json": {
+      "sha256": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17",
+      "bytes": 18136,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/README.md": {
+      "sha256": "c7ad6a32be64ed6efcba066d056e87346f4bc4f6efe5867668334a6ec07d4e0f",
+      "bytes": 413,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/profile.json": {
+      "sha256": "9ffbae284efa10ad62b38a43ae096d741f5210573210e70738d382feafb81c03",
+      "bytes": 4529,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/schema.json": {
+      "sha256": "16ea0bc95124776ac0b6b44dd50ce8656e3378a278d446ce631ecfbd206742e7",
+      "bytes": 22308,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/README.md": {
+      "sha256": "4849bdcfc9e148945a58e53cc35c44e84fb95427148529ea88fac1cbed73c52e",
+      "bytes": 590,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/profile.json": {
+      "sha256": "9478d997c9a58d17c6e1ba934e52a7bc0b31f7ae7cf7ce49142593a6e570f800",
+      "bytes": 9103,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/schema.json": {
+      "sha256": "6298d6dd776bc1667b74555dae60480b4d5affb917ce4f8c16c5fa474edb49f7",
+      "bytes": 42728,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/README.md": {
+      "sha256": "ddacdb78a70ac807c7cafa7b9a6743e2bb5f27a8f0f918ffb809f820bd68852d",
+      "bytes": 313,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/profile.json": {
+      "sha256": "38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e",
+      "bytes": 2689,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/schema.json": {
+      "sha256": "83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94",
+      "bytes": 18130,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/author_fixtures.py": {
+      "sha256": "b789e736e686121469a78d00c7cae4194a2904ff30ff16ade86a508de6aa65af",
+      "bytes": 43397,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/canonical-controls-vector.json": {
+      "sha256": "e1d731f9152e1883b3b734d8cabdeecd3fe2d0fce9fab62d5dbaf84e981bf4cc",
+      "bytes": 2082,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/case-manifest.json": {
+      "sha256": "8e1215f33fcd7cb5ff75e58b07e22bac49003f6b2804d32ae5eb0df9b822a6bb",
+      "bytes": 1018,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py": {
+      "sha256": "4c5ca3fe0fc0085a16ba4d58b21fa665f1f116e05bbf131ae0fea2ac9058c7b2",
+      "bytes": 26727,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/effect-collection-canary.json": {
+      "sha256": "26f762595af22229151746809f7558d0090a5adf2b2e95d7fdcef77fdad9931b",
+      "bytes": 6705,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/identity-vectors.json": {
+      "sha256": "178853d96bc18ec2d4ea4bb6810622b79eec8fbe8fc5e11429c212698fbd8c4f",
+      "bytes": 449008,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-array-consumer.json": {
+      "sha256": "18b6a8cb796da6890fa4711a1a2223fb4503971b75f2f9a6e3d7caccdb9c411f",
+      "bytes": 2293,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-capability-words-consumer.json": {
+      "sha256": "8e4cca713644549e7de66826fbfa4cd435e8a4b036a467d61d3b255ad797834d",
+      "bytes": 2512,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-compact.json": {
+      "sha256": "279a6caf379fa6075b739cdd0793d3d5ec934f5a17e5fc3a097f52dbd2e7aec3",
+      "bytes": 158759,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-full.json": {
+      "sha256": "3ebd31925f834780ec8a1cb7bfd34dbf5095c99ffa68485abda226eeb88e1d89",
+      "bytes": 149606,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-ordinary.json": {
+      "sha256": "8391c02039ed2b8884655b41e9b4f533e1cc2364e864bf9d62e8a4c43d38578c",
+      "bytes": 149610,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-missing-hash-consumer.json": {
+      "sha256": "c33317c0ad6f5e19fb9d4d45d5a2278cdebd698d1d985dbabee1bd3c933037d2",
+      "bytes": 2537,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-compact.json": {
+      "sha256": "9acc6dc742e8e6a275f85bde892e151086e8cbabb3d01b39d7bad38b56a0f516",
+      "bytes": 158759,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-full.json": {
+      "sha256": "4a6b256e5957c5435c39a6d04bb6a800b28446f60874a41c49d737b1c3ca49bb",
+      "bytes": 149606,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-ordinary.json": {
+      "sha256": "42d1bbfbca2c844168953b13f6de3d49f897d7fd09c362d78727f70e0734c991",
+      "bytes": 149610,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/legacy-id-regressions.json": {
+      "sha256": "e269666379ebc81d7c970c14372d87acdb787dbbfedbfd16d85cedfcf167c3b7",
+      "bytes": 51986,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/missing-original-full.json": {
+      "sha256": "828b909fc171f46584aa24a6092d6d6b0013af09b807512f691be12a9f3baf80",
+      "bytes": 145172,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-authority-label-forgery.json": {
+      "sha256": "9c245cc9fd62f437c901aa91c5a84086de47f3777adca1426775e666701114f3",
+      "bytes": 149532,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-history.json": {
+      "sha256": "39f6a6bde14f54e7bbe37b20fd44ad6a66db264db483709c4bd6a5b6f5dadd9d",
+      "bytes": 149538,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-origin.json": {
+      "sha256": "e20aa42dbcc0e6fc5b7e6fa60df458fb5cbde25d5cf7d58e603a8e3395b03e9f",
+      "bytes": 149538,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-parent.json": {
+      "sha256": "c0108ad92f3b8a6658b860af14eb3d621cc9ea70022b96e6e3d1a3766fea2eae",
+      "bytes": 149469,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-request.json": {
+      "sha256": "79a6ad7fe8c175fcb2365167d8ed006be212c339af016982744983bc265010ea",
+      "bytes": 149539,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-certificate-property.json": {
+      "sha256": "cd1ef5d9c3291fa4175526008b512184994798a12e204f3fc1c1db54a095ac47",
+      "bytes": 147588,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-future-traversal.json": {
+      "sha256": "ff49a1d5de9d542a7a1202308946a1873355e1a0fbd211cbc9d1f1bf2f3fddec",
+      "bytes": 156309,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-private-traversal.json": {
+      "sha256": "f3e489bd08cbfe7f8e50a78228b5dc246e186893f7e8570eff94ff62581bbd9a",
+      "bytes": 156357,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-foreign-starting.json": {
+      "sha256": "9c29259303150f3805eaa3827859eb2ea876cee5afe69ce903c4f0e29d767458",
+      "bytes": 2476,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-nested-capability.json": {
+      "sha256": "4d33c5f9faa8e47340bec9115b4512047c379e9d99e71765d135d0cd8350d381",
+      "bytes": 2514,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-privileged-field.json": {
+      "sha256": "6cbd685fa5e33770d963897c1cfcfdddb49e39480eea804b6c04659509b84897",
+      "bytes": 2516,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-cross-source-parent.json": {
+      "sha256": "85ad5ae23ba7e11d027495930c9645652de9bc87c9212535c18f3bfc4fa19128",
+      "bytes": 148395,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-chronological-relabel.json": {
+      "sha256": "4f484c20fc5649ba450c2ff748c1416a2dfab97cc9c8d2d19c4c945e422f3895",
+      "bytes": 147581,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-foreign-owner.json": {
+      "sha256": "56336561d525e1b093eeaf1999d59729199383a03783efb00e4e1d24d84fb46d",
+      "bytes": 147585,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-dangling-reference.json": {
+      "sha256": "21afa7bea034722e62d4d4336832f12bfce64ada31ea3418b50a3557ad4a3d1b",
+      "bytes": 149623,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-inapplicable.json": {
+      "sha256": "0fdb4e07fc8212b1064af82dbb605c04742d549a76186099b103a5a0810498bd",
+      "bytes": 149556,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-unknown.json": {
+      "sha256": "dc6537d04afc7ce76db46cbda747a1de90fb897fba1dadf66e5a3535bb078d2b",
+      "bytes": 149542,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-duplicate.json": {
+      "sha256": "397a10419203a0a737a8bfb8de1e39baf9a937318495d554ad3f662ff9f9a268",
+      "bytes": 150194,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-extra-key.json": {
+      "sha256": "a08ebd788951e0664dff8ca49d39c29dd16382109fc39b5b884d788560bfb450",
+      "bytes": 149560,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-item.json": {
+      "sha256": "176f65b7aca8843e86e3d9034f3387cf50aeeddef8837a0d3df3fb72fd7635b1",
+      "bytes": 149594,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-original-value.json": {
+      "sha256": "eef21e5ff962d963dfd45d0eaa69a7d59c8dfaf4b05c0853a10b90d8a4225833",
+      "bytes": 149537,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-replay-reproof.json": {
+      "sha256": "a7f57998013c93d0bcaf4bdbc2249f44644b6aa6c40ab157580ca0fd33c78c70",
+      "bytes": 146319,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-foreign-original-source.json": {
+      "sha256": "f58edb92d2d59e7be7881b6522a53d4d792b5c0ea11405f783f648aecf998c29",
+      "bytes": 149538,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-in-range-future-source.json": {
+      "sha256": "abeb89ea5d954d083d195e8bdaf78d61f59badea0804499b3bed88706c0763cf",
+      "bytes": 156309,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-compact.json": {
+      "sha256": "4793a0f324a3d6c74623647397a66a489d29ff2a514b164b507dd1ab8c3f8d11",
+      "bytes": 159469,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-full.json": {
+      "sha256": "1c2e69f382d77ab4ba1eaa33581a45adf9566c4da064edcf5430bcf9809efa98",
+      "bytes": 150241,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-manifest.json": {
+      "sha256": "55ed1e96c6702e4cde244d2bc7075c73394da4728c9bcb9de3168d2295b23bec",
+      "bytes": 11387,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-missing-key.json": {
+      "sha256": "3caef8b9555bff147cf0c72d9e1f00a3b0c4c5e9c0694464296cb4cb4b4fdfca",
+      "bytes": 149517,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-carryover.json": {
+      "sha256": "368274dc3056f86678f3f5311df9f995204afb63c90435aaafa45808f49da7c1",
+      "bytes": 147132,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-crosswalk-certificate.json": {
+      "sha256": "e64da1c24dc534bc623cbdc17ccde6d3179469b017cc7202deee4805c9dcbd8e",
+      "bytes": 152572,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-fact-certificate.json": {
+      "sha256": "6bc6ed97d73bf4b9622f1da6e073f87b63dae31f53197c36be4ce5a49fdb66c7",
+      "bytes": 152572,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-same-source-proved-change.json": {
+      "sha256": "3a9fc4bfe9730446e833a52dab78bb432b96c8576f7bf23cf690bbf02619db6e",
+      "bytes": 148311,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-starting-revision-fork.json": {
+      "sha256": "4506b39ed572779d3a48a26d80e0490441ba8541de271170ed37a5852af08f63",
+      "bytes": 147585,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-stripped-replay-certificate.json": {
+      "sha256": "bf8f0b60c58f4166ec259865ebedd54a0f20da0893f25ce6f2e554ad3e9cefdb",
+      "bytes": 146250,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-unreachable-entry.json": {
+      "sha256": "2b45867d42fe09048d969f8c31ac7a72700a7d244a0f4a062dec977505dcb7cb",
+      "bytes": 150173,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-unsupported-complete.json": {
+      "sha256": "a9ea2c45f1a17b597e6ada179aac63d8e83a5691a193d61657a4412976a0f2ed",
+      "bytes": 149543,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-weaker-profile.json": {
+      "sha256": "52c3e7e38b799e6be3667d2ed3f5f5aaa82ae4ecc335c2d8ccbb23249d5a9eb9",
+      "bytes": 150164,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-discriminant.json": {
+      "sha256": "b8141a0cd282f6168ddf11380f2a6ace9bb085aa0e15aeb047f9cd6bb6e689df",
+      "bytes": 149541,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-effect-identity.json": {
+      "sha256": "9e216f966618a76475d15cc0738275f7976fe02a157adb88a4ed42211ef7263d",
+      "bytes": 154158,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-owner.json": {
+      "sha256": "eaef7e119d6b7aee453a68ec52cab0ae17690d0d91138fb41d18e3dbfce16bd0",
+      "bytes": 149538,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-policy.json": {
+      "sha256": "c990f97269ed30749a57b968fc0e04f01cf69cc68061fe53424013a3a749562c",
+      "bytes": 149550,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-source.json": {
+      "sha256": "f5777552ed87f7705c7b42df0c41aac9096b2accaf595977879fcc59c081998f",
+      "bytes": 147585,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-type.json": {
+      "sha256": "11c496095701bfa1ec264f37ad9a23bca5f85929f94ec7394e437743d1a0d98c",
+      "bytes": 149540,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-value-tag.json": {
+      "sha256": "d867a10f462c1da1643f4ab5bdbff8c1e1382be719e0e176a5279abf26aa3eb0",
+      "bytes": 149537,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/obligation-canaries.json": {
+      "sha256": "439e93f245c8b74bbcd122f2c079b3475825bec09bc95fea79c02bf9099b705c",
+      "bytes": 139552,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/obligation-universe.json": {
+      "sha256": "c13448d0815b75bca62030bc5eb0f33899b5746fcf7fcaa4621325df5af87a09",
+      "bytes": 2815,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/profiles.json": {
+      "sha256": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+      "bytes": 96925,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json": {
+      "sha256": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+      "bytes": 12040,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/property-types.json": {
+      "sha256": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+      "bytes": 2294,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/property_contexts.py": {
+      "sha256": "8f096515eb3d80e52c96d539f2908a949280e0cad4c89a7158257db6ebbae988",
+      "bytes": 3864,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-compact.json": {
+      "sha256": "e64a312bada693e087f3199db4c127321efb3a1a449cd7c599ec4ffc4f0cdf88",
+      "bytes": 156288,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-full.json": {
+      "sha256": "316141d849beb72056da4aed1e132237448d5cf2a5869e9fc6b39861fa4fa8f8",
+      "bytes": 147585,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json": {
+      "sha256": "2b8e781e4781f62401c03a41cb7c3970023812c49db4dadc4c2b2fc2f04270bc",
+      "bytes": 147589,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-p1-consumer.json": {
+      "sha256": "e3538aa5e221762fb1aa899fc6490733d25d98f8bb9a9af25270e16cbd94f3c6",
+      "bytes": 2136,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-p2-consumer.json": {
+      "sha256": "aab2947e02d0039f620f03fcad133475b3cb48a1a2095ef6fac3db1df474ce04",
+      "bytes": 2305,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-compact.json": {
+      "sha256": "f0706b3c9b2babb2e8fd9acce3f3284c019789c35ab94c522bd0ff9de3348269",
+      "bytes": 154873,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-full.json": {
+      "sha256": "079464d6b50f8388012afafb6b40e8d54fb5ce5dff7f2fd891169655b13f1346",
+      "bytes": 146320,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-ordinary.json": {
+      "sha256": "ad0ad4b958d84bc2dfcd1c30b03bd1eedaec337796bd3b1c60da1a483bd3d3cb",
+      "bytes": 146324,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/representation-canaries.json": {
+      "sha256": "8d8f495972b1fb4114074096137f45d5bdfa4ee2c72ccf3ff0aa4ee7b635b292",
+      "bytes": 75028,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/revision_cases.py": {
+      "sha256": "c310166194a66be55404d09d9f5065d6f412fead4147da9fceb59087ea07ca50",
+      "bytes": 20368,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/revision_checks.py": {
+      "sha256": "aa85c6d05779c32898e21b0b69239169ef60b9699dda17cad22f0f0e7d25588c",
+      "bytes": 10366,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/schema.json": {
+      "sha256": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+      "bytes": 73708,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-compact.json": {
+      "sha256": "452a02656efd6aff68d59e8c2e6ac9e5e5b04d156391da7376fa8fa6d88fd97d",
+      "bytes": 158691,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-concurrent-effects-full.json": {
+      "sha256": "579c19cafe8c766888cabaf322cccf7cc45250570ff9447f634c26f9aa64ab4e",
+      "bytes": 154160,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-full.json": {
+      "sha256": "f4f10a36f9efb279f0d4e4b9f0f84691c8442e1bb6f607a65948053ef4b75871",
+      "bytes": 149538,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-ordinary.json": {
+      "sha256": "89470de82591329770438b7d4ed7f5291a509034b286d1a8d8e7a2fcc01b2b67",
+      "bytes": 149542,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-actionable-consumer.json": {
+      "sha256": "0e8c9a945b83189ea5691a1cffbf058cdd5dbff2bec4a44b60f9e5eeee1c623f",
+      "bytes": 2721,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-consumer.json": {
+      "sha256": "02acd4dbd98e50197981cbc8dd064f05970508f429c720cbbc0b7139ec309106",
+      "bytes": 2476,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-wait-consumer.json": {
+      "sha256": "7cbbf22fe70f203a707259c8ca78ebe0f81510f3792a204761b0795ce63b13a2",
+      "bytes": 2215,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/sim-p2-consumer.json": {
+      "sha256": "fec850e817aa7452d89e58cdc02deda8537c2e403722c56e04fd8bf57cfd10ab",
+      "bytes": 2203,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/trusted-fixture-authority.json": {
+      "sha256": "8db9f5d0b7b1b23ee0363d878e85c0ace7f81fd3f99b65390c9bb2f29dd3b051",
+      "bytes": 886,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/typed-references.json": {
+      "sha256": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+      "bytes": 1917,
+      "mode": 420
+    },
+    "docs/contracts/fixtures/perspective-knowledge-v1/typed_references.py": {
+      "sha256": "21a20cd1945a8e66e0a123b8efdd7b38e935de50b074bc811e700e1b297385d1",
+      "bytes": 2246,
+      "mode": 420
+    },
+    "docs/refactor/AGENT_PROTOCOL.md": {
+      "sha256": "0acf887c2eb602dc092b4a52203a7ddbecfaa283cfd7ee4f752e520bde9051a1",
+      "bytes": 1265,
+      "mode": 420
+    },
+    "pytest.ini": {
+      "sha256": "b9517dd5041899f4b2f8d86329f5419f3eb512efe86a97be509ba2391d820055",
+      "bytes": 109,
+      "mode": 420
+    },
+    "sim-core/package-lock.json": {
+      "sha256": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88",
+      "bytes": 94696,
+      "mode": 420
+    },
+    "sim-core/package.json": {
+      "sha256": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72",
+      "bytes": 849,
+      "mode": 420
+    },
+    "sim-core/scripts/check-simulator-coverage.cjs": {
+      "sha256": "9f33ceb1f17e3433e072e52728554bcc3d043777f2b39328528cb00cdd09fc9b",
+      "bytes": 94796,
+      "mode": 420
+    },
+    "sim-core/scripts/native11_cure_publication.cjs": {
+      "sha256": "5047f378f7ae46d4ab1ebab093ada2ab3ae9c8caddb1927b9e501834bfcab60f",
+      "bytes": 2771,
+      "mode": 420
+    },
+    "sim-core/scripts/recover-ce08a-adversarial.cjs": {
+      "sha256": "d58a71b2e1e2cf9599cde14789a35cbfbd1fee28a79fa5752fdc7dd6c0e719e0",
+      "bytes": 9084,
+      "mode": 420
+    },
+    "sim-core/scripts/simulator-record-comparison.cjs": {
+      "sha256": "e513ef62327e241b4eeaa861b4c549339a3b6fef3197f35ad25245f75197e98a",
+      "bytes": 20085,
+      "mode": 420
+    },
+    "sim-core/simulator_coverage/lookups/pokemon-showdown-0.11.10.json": {
+      "sha256": "21250d247e77879d0f7135a12baeee0ffadc7e00c5456a71dd07c066cd06b921",
+      "bytes": 224513,
+      "mode": 420
+    },
+    "sim-core/simulator_coverage/lookups/pokemon-showdown-0.11.11.json": {
+      "sha256": "66355d0182570b82fea5bdccfb45977386e22b0cdc9e278f9eaab2c151f5fe9b",
+      "bytes": 237493,
+      "mode": 420
+    },
+    "sim-core/simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json": {
+      "sha256": "db6e66f260dc5ec119e45899d3c5795b2ca5ef4f23504a752b76c15b27e8aec2",
+      "bytes": 620610,
+      "mode": 420
+    },
+    "sim-core/simulator_coverage/pokemon-showdown-0.11.11-gen9randombattle.json": {
+      "sha256": "3d5760e2cc189617499cb9ab7e505ecebfeb6a3a6175f7e854c13fc7ba32dab2",
+      "bytes": 151573,
+      "mode": 420
+    },
+    "sim-core/src/action_codec.ts": {
+      "sha256": "7652789d5acc323fae9acbc646c791f58f350b5842e940a013212a155f03c3e5",
+      "bytes": 9488,
+      "mode": 420
+    },
+    "sim-core/src/baselines/heuristic.ts": {
+      "sha256": "0e7ebdf965834cd2090a90e6d173b7dcce1a9a15ea5ac36a3fb588ab3deb2710",
+      "bytes": 13563,
+      "mode": 420
+    },
+    "sim-core/src/baselines/random.ts": {
+      "sha256": "c6dc94d1f87530c89ee178fa35bf2a92e4ba1099c772d1844d009524e2a7f3a9",
+      "bytes": 1434,
+      "mode": 420
+    },
+    "sim-core/src/battle_helpers.ts": {
+      "sha256": "fa200a2914ff6b7444cb50f11802ee14f96f1b72939cdb9d351b10e3eb1acaaa",
+      "bytes": 4526,
+      "mode": 420
+    },
+    "sim-core/src/belief_fork.ts": {
+      "sha256": "69dbe149d2f8ca1ffecb95047ff7c9e52c41b0fc0d4a246d37b92bc4011076be",
+      "bytes": 10299,
+      "mode": 420
+    },
+    "sim-core/src/belief_state.ts": {
+      "sha256": "2a0d23f410749fcafbaee28eefbd0642bde8b10a17a9ccd8c94a8765c7c92aa7",
+      "bytes": 72758,
+      "mode": 420
+    },
+    "sim-core/src/canonical_action.ts": {
+      "sha256": "bb18e6eecdcb4276242d9d6767c4533141e0ebab499afe6ed7669b2d620552ee",
+      "bytes": 9874,
+      "mode": 420
+    },
+    "sim-core/src/damage_calc.ts": {
+      "sha256": "e31c37cfe6e412d19ffe800197dc984dd1acfb9f4091ed0b55c677d03e00d72d",
+      "bytes": 18242,
+      "mode": 420
+    },
+    "sim-core/src/effect_inventory.ts": {
+      "sha256": "17885555fdeed2bbd852da2c797ecc074e5b37cf3840cb1a0bf5aa51a42915ab",
+      "bytes": 4716,
+      "mode": 420
+    },
+    "sim-core/src/env_manager.ts": {
+      "sha256": "cb04df02dc7a5a9e267843e3719320d1bb96b7c42b3b4e04abd4f57bb44b7d6f",
+      "bytes": 76153,
+      "mode": 420
+    },
+    "sim-core/src/native_owner_knowledge.ts": {
+      "sha256": "7e84e5ab0436c4109e6f473e1795ab4ed47b95b5d1128e076813ac3f5155c210",
+      "bytes": 14566,
+      "mode": 420
+    },
+    "sim-core/src/observable_state.ts": {
+      "sha256": "b968ba3582ef8dc837e5cba2aeee533c6ed552b3c2d1cfc955c4191408147907",
+      "bytes": 81569,
+      "mode": 420
+    },
+    "sim-core/src/original_owner_provider.ts": {
+      "sha256": "b6d34c7164cdd0ce59cf5c711eabe3685f9353edd80a2c55194bf9aae25af92d",
+      "bytes": 7964,
+      "mode": 420
+    },
+    "sim-core/src/original_owner_values.ts": {
+      "sha256": "18ddeb96175d08194fa3a4f27d964554682e5bf1427717f6c5320f7839d89463",
+      "bytes": 6046,
+      "mode": 420
+    },
+    "sim-core/src/owned_decision_input.ts": {
+      "sha256": "f5b98916346455656c5fe1d3bd582f64825f43ce40d6daa3867b9eedc2d0cbde",
+      "bytes": 7403,
+      "mode": 420
+    },
+    "sim-core/src/owned_request_health.ts": {
+      "sha256": "5dd861f734668ef4b19d5c8a4d0a3f1ffbd0dd867253f44f9cf423e5a03d6721",
+      "bytes": 33588,
+      "mode": 420
+    },
+    "sim-core/src/owned_request_values.ts": {
+      "sha256": "982ddfab349b150680a5aef8c92b3ec02daea113e6b63fa8da1bf15f5d6a1e10",
+      "bytes": 3196,
+      "mode": 420
+    },
+    "sim-core/src/owner_identity_crosswalk.ts": {
+      "sha256": "8df74aa1079841d416051646ce506af3b91260cb679a06fe902086357a824e64",
+      "bytes": 27939,
+      "mode": 420
+    },
+    "sim-core/src/owner_identity_events.ts": {
+      "sha256": "e39d464013fa9ad6044194fa0684a2d7b16e90570f571909c832f73267ea7384",
+      "bytes": 21287,
+      "mode": 420
+    },
+    "sim-core/src/perspective_knowledge.ts": {
+      "sha256": "fc703e4aff3a2e6743f182176cd06f4d5a61b9144a7ef868535394c53b5d0123",
+      "bytes": 55192,
+      "mode": 420
+    },
+    "sim-core/src/perspective_knowledge_source.ts": {
+      "sha256": "5a3f5a8c4348593ec5a8a7ac28ae94f7514d801e0bfe9261ab369d0c323a87bf",
+      "bytes": 25233,
+      "mode": 420
+    },
+    "sim-core/src/pipeline_episode.ts": {
+      "sha256": "985564bd5c0bb424ba386193f7dc44929866978e2cbc181102b6f4185ed66ec2",
+      "bytes": 26520,
+      "mode": 420
+    },
+    "sim-core/src/pipeline_episode_evidence.ts": {
+      "sha256": "c08a01a277ea74659976922fe7a758497c1609b72244f625401d374dbccb44b7",
+      "bytes": 34334,
+      "mode": 420
+    },
+    "sim-core/src/pipeline_integration.ts": {
+      "sha256": "8dfa068d446d8ab67110fbade350cb36e38ce34b114c137f2f7081ec0c6c54d8",
+      "bytes": 58527,
+      "mode": 420
+    },
+    "sim-core/src/prepared_protocol_contract.ts": {
+      "sha256": "778e14fa3c88e15440d9fe7b837b3e7744090dcd5f9b9b2b2c2b8ca455e9f0ff",
+      "bytes": 14151,
+      "mode": 420
+    },
+    "sim-core/src/protocol_contract.ts": {
+      "sha256": "ef8e4c47200ee0f59693c91542008d60336b289c4d9abc87c1fb6815cded5a5d",
+      "bytes": 36752,
+      "mode": 420
+    },
+    "sim-core/src/public_ability.ts": {
+      "sha256": "1c27734d2f858dcc005221d0f2476c4995135c6db9f7c9c8065194ecc1e05c1b",
+      "bytes": 15091,
+      "mode": 420
+    },
+    "sim-core/src/public_boosts.ts": {
+      "sha256": "c6bf566cd216dd5e29d978726453aca45f0f4d94923f216edeaae7570a792bf5",
+      "bytes": 6203,
+      "mode": 420
+    },
+    "sim-core/src/public_field.ts": {
+      "sha256": "a073d04dbbbc4a166779405abcd75e6210e51b09a8bada182bfb2d90633f044d",
+      "bytes": 3575,
+      "mode": 420
+    },
+    "sim-core/src/public_health.ts": {
+      "sha256": "a8d93ca17a30aebcbcbc87f0e60c3a6e3508aa46db49767a4fc3e6955ef9a611",
+      "bytes": 18086,
+      "mode": 420
+    },
+    "sim-core/src/public_item.ts": {
+      "sha256": "98502db79fb5b92db057e140478106b273ade9134f8a5fab8a3368721dfd4a74",
+      "bytes": 14044,
+      "mode": 420
+    },
+    "sim-core/src/public_move_history.ts": {
+      "sha256": "3ac529d4679df67d98016cc13cec79c8c6709dd6a64455953f2b23b1ba52e926",
+      "bytes": 9229,
+      "mode": 420
+    },
+    "sim-core/src/replay_import.ts": {
+      "sha256": "5a00c1bb7fcc1cf9daacc306ad1b119ff548bcc54010c945a04d9c8eb96b2500",
+      "bytes": 6572,
+      "mode": 420
+    },
+    "sim-core/src/request_delivery_ledger.ts": {
+      "sha256": "30ebc10a13050e2f240a0f4acff17e449335a049245e256923b23c4766e0a06b",
+      "bytes": 10919,
+      "mode": 420
+    },
+    "sim-core/src/request_emission_trace.ts": {
+      "sha256": "00108d4bc662cec0ba319f6864d566d19faeb1b2436ea35234937faae742e62d",
+      "bytes": 5027,
+      "mode": 420
+    },
+    "sim-core/src/request_knowledge.ts": {
+      "sha256": "3cc94815bcb4a54f6af46694c9db7ca7e32ef1206b855e65222e89180ba7a54e",
+      "bytes": 12511,
+      "mode": 420
+    },
+    "sim-core/src/rollout_parity_oracle.ts": {
+      "sha256": "5d648753427955ad7aa9dfa7ff9340de2b3556f844334d64db7fb61e009b0939",
+      "bytes": 69004,
+      "mode": 420
+    },
+    "sim-core/src/server.ts": {
+      "sha256": "8336400ddc77be7209198e48c4f3ad18aedc85e5d1f5239165942b44f9dd988b",
+      "bytes": 12776,
+      "mode": 420
+    },
+    "sim-core/src/settling.ts": {
+      "sha256": "c520a786f90e5765e03c866975d7a130e7ad52e39aa8ca148371b2c83a4891d0",
+      "bytes": 4937,
+      "mode": 420
+    },
+    "sim-core/src/state_extractor.ts": {
+      "sha256": "56edcb7626f317b7dea6304a97f45bd677232ced2a8dc2d8d9c41050bf4169a7",
+      "bytes": 57883,
+      "mode": 420
+    },
+    "sim-core/src/transition.ts": {
+      "sha256": "bb4b9b401b28409fbeba8e69f897942acc2232a9995ccf1d1943f195e87fba22",
+      "bytes": 19766,
+      "mode": 420
+    },
+    "sim-core/src/typed_state_lifecycle.ts": {
+      "sha256": "c41e401580c778ffcd68bd1daa4d07de7a2d545733a9eb29198e895bbeedfe92",
+      "bytes": 11672,
+      "mode": 420
+    },
+    "sim-core/src/types.ts": {
+      "sha256": "3594671834fc26d06e73aabb80844cd83605c836404f2bddb7dcf3fb2648d4dc",
+      "bytes": 5802,
+      "mode": 420
+    },
+    "sim-core/src/version_profile.ts": {
+      "sha256": "12bba6813909386a38104f575f98343bdebee3e0cf67beb7191b5a1a2410c30f",
+      "bytes": 22931,
+      "mode": 420
+    },
+    "sim-core/tests/ability_callback.test.ts": {
+      "sha256": "7606cc59795206c7a7c5f23128248da8a28874db2669f2d092f12ca4d926a4f4",
+      "bytes": 29742,
+      "mode": 420
+    },
+    "sim-core/tests/action_codec.test.ts": {
+      "sha256": "9901cdae365884dd350c602f5db509789a7fdd965594228ebb37ae2cb726a206",
+      "bytes": 6002,
+      "mode": 420
+    },
+    "sim-core/tests/active_request_restore.test.ts": {
+      "sha256": "d1c99bd08dbb501a3a5565688bdc77d95ffba33d16a8633406dc502814766bc7",
+      "bytes": 22638,
+      "mode": 420
+    },
+    "sim-core/tests/added_types.test.ts": {
+      "sha256": "23d1992b5fd9638c36438c9f1a4beb77f38d652ac2490f643e89117d7d91c46d",
+      "bytes": 10855,
+      "mode": 420
+    },
+    "sim-core/tests/belief_fork.test.ts": {
+      "sha256": "5d7fd15e16136af8b7483218b16e45efe68473113baa90398994e694c5fd100e",
+      "bytes": 4160,
+      "mode": 420
+    },
+    "sim-core/tests/belief_state.test.ts": {
+      "sha256": "770a0eefe11c287752e156ba3f8e9b571d0833f5a64c442a32049e565dda5aed",
+      "bytes": 23762,
+      "mode": 420
+    },
+    "sim-core/tests/canonical_action.test.ts": {
+      "sha256": "0a22642dc470c888c9d08ec928605bf4e923ce63037b69228541c55e61d5b29e",
+      "bytes": 4436,
+      "mode": 420
+    },
+    "sim-core/tests/court_change.test.ts": {
+      "sha256": "aae4e554c7b129cd35c5a45b31a02ee93949be2eb280ffe62336a843775f4878",
+      "bytes": 13619,
+      "mode": 420
+    },
+    "sim-core/tests/damage_calc.test.ts": {
+      "sha256": "c9691b7dd3be319888a042e50a7ae666ca0296ef8bc50e937b3d88ccfc82b95b",
+      "bytes": 11074,
+      "mode": 420
+    },
+    "sim-core/tests/entry_hazard.test.ts": {
+      "sha256": "a9192421a3542e39e96d6cc1def9d838425c23b44804dbaca9c82abc63babcd6",
+      "bytes": 16142,
+      "mode": 420
+    },
+    "sim-core/tests/env_manager.test.ts": {
+      "sha256": "867c44976688d5db3ab80f5a5fc32ca659d62c19d27f1ae58ee4be9a2f89e90e",
+      "bytes": 18743,
+      "mode": 420
+    },
+    "sim-core/tests/forced_switch.test.ts": {
+      "sha256": "03ff9021865481001e57c6f27bbd8b9256a24b8dfaab8d31a13467d7ecb192eb",
+      "bytes": 20480,
+      "mode": 420
+    },
+    "sim-core/tests/future_sight.test.ts": {
+      "sha256": "baa1557fc206bf3c4972199292b5d94764fec33751d3ad5ae455cfc210c166f8",
+      "bytes": 13756,
+      "mode": 420
+    },
+    "sim-core/tests/healing_wish.test.ts": {
+      "sha256": "67f5904769f5123c45df7f3cb739d79e3b3626353d2d07486646e2d6433bfce2",
+      "bytes": 12099,
+      "mode": 420
+    },
+    "sim-core/tests/helpers/owner_selection_restore.ts": {
+      "sha256": "1e5a4ed0eec1eff8343d9e3ae8284ec158508b5735fcf07a28325ae34dcef98c",
+      "bytes": 8816,
+      "mode": 420
+    },
+    "sim-core/tests/helpers/state_lifecycle.ts": {
+      "sha256": "d4f44d6ed5f35a406950af0f9b11c9ff172b1b23dec190eb7ead8ab144bf1e70",
+      "bytes": 3714,
+      "mode": 420
+    },
+    "sim-core/tests/illusion.test.ts": {
+      "sha256": "2af13415a40133e0889015f386d48a272feb264626840c86124c33a2c8736463",
+      "bytes": 45903,
+      "mode": 420
+    },
+    "sim-core/tests/item.test.ts": {
+      "sha256": "9cbabfa74f35615e9b88abe3239accf308eb45cbb03157955cc4621f3e02acae",
+      "bytes": 14672,
+      "mode": 420
+    },
+    "sim-core/tests/item_identity.test.ts": {
+      "sha256": "9e5667a03a2470ad4447b131347ea5b467fbf140c9ede5564c39f59cceed536b",
+      "bytes": 77684,
+      "mode": 420
+    },
+    "sim-core/tests/major_status.test.ts": {
+      "sha256": "972332abe17baa77ae6ef5dee31d4fe41e27b1f04d10c65d2d80657322a7acb0",
+      "bytes": 4935,
+      "mode": 420
+    },
+    "sim-core/tests/mechanics_parity.test.ts": {
+      "sha256": "45866fbc57c43c864371ccb1ecc4afd07ebb344e42c614029b86c84601513196",
+      "bytes": 10136,
+      "mode": 420
+    },
+    "sim-core/tests/native11_activation.test.ts": {
+      "sha256": "674c848dac4ae97b0c8b8500e9c98a02c6ba479ac6c3698437af4646e8a4a5e2",
+      "bytes": 6183,
+      "mode": 420
+    },
+    "sim-core/tests/native11_request_timing.test.cjs": {
+      "sha256": "5f593e58a1983bb064a10780791730f0672b8d2eaf7a27e073ae8ebc97280cda",
+      "bytes": 14687,
+      "mode": 420
+    },
+    "sim-core/tests/native11_rpc_counters.cjs": {
+      "sha256": "5df8e9b3e45253f3e31ae3491aeefa946f4b6dc48e854da9a58548ab841e4bc8",
+      "bytes": 1395,
+      "mode": 420
+    },
+    "sim-core/tests/native11_snapshot_handles.test.ts": {
+      "sha256": "2c89e72a261ce566acbbfb70f5043de5fca039d8e64c4ff9d85bc33e27c58cfb",
+      "bytes": 4805,
+      "mode": 420
+    },
+    "sim-core/tests/native11_trace.test.ts": {
+      "sha256": "5d35999ca2ce654e76c82f4db1f23974c06ff2b849befa391947721bc8773e59",
+      "bytes": 11482,
+      "mode": 420
+    },
+    "sim-core/tests/native11_update_overlay.test.cjs": {
+      "sha256": "b1ef06e0db426a6374c2c200af7efc310866a4651a658d7285dd90a23429a518",
+      "bytes": 7185,
+      "mode": 420
+    },
+    "sim-core/tests/native_owner_knowledge.test.ts": {
+      "sha256": "d038f7e3edf1148147fb8b13005f99033f5f8e287d7fc75726a785fa26f89e75",
+      "bytes": 15674,
+      "mode": 420
+    },
+    "sim-core/tests/observable_state.test.ts": {
+      "sha256": "9e609b38df6be3697288ea3e5aa8c007a7f9b28e738280ce8c58ba9beb0bbc6f",
+      "bytes": 31329,
+      "mode": 420
+    },
+    "sim-core/tests/observable_state_fixture.test.ts": {
+      "sha256": "b886bad2a5db48ff5329b6b09da4bd7eef608bdb055ea9ca892a673a804de7d8",
+      "bytes": 12220,
+      "mode": 420
+    },
+    "sim-core/tests/original_owner_loadout.test.ts": {
+      "sha256": "79ee9c377a53520d86f4e221e7d537b31996be89ae3b4c8ebbaeaaf491dc8c88",
+      "bytes": 15516,
+      "mode": 420
+    },
+    "sim-core/tests/original_owner_provider.test.ts": {
+      "sha256": "e523bc6c3430282b685cb30da1cd44bad93a7ff6eca0e87d0d583caaa85409e1",
+      "bytes": 20415,
+      "mode": 420
+    },
+    "sim-core/tests/original_owner_provider_characterization.test.ts": {
+      "sha256": "adea671aaf3285c6e01368c272a66a99633a43d90a6230dd0e5c1bc5d4d82714",
+      "bytes": 10706,
+      "mode": 420
+    },
+    "sim-core/tests/owned_active_options.test.ts": {
+      "sha256": "9b3e569c0b01356b977a27cc9b913a47047a6650c01812cea42af4c26294d695",
+      "bytes": 13752,
+      "mode": 420
+    },
+    "sim-core/tests/owned_request_details.test.ts": {
+      "sha256": "24c38c826b2b765bb109c9ca009ed363448a8da91e50797b606112e07c87d102",
+      "bytes": 15586,
+      "mode": 420
+    },
+    "sim-core/tests/owned_request_health.test.ts": {
+      "sha256": "867c8d2a784101fab816b2b431bce3076a41bb1e1a5d1cb89f54429a691c03d2",
+      "bytes": 15216,
+      "mode": 420
+    },
+    "sim-core/tests/owned_request_identifiers.test.ts": {
+      "sha256": "24a3a0b2809fd6e8955b13eedc32c443db862395022fe124e1b42459b82a472e",
+      "bytes": 13405,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_birth.test.ts": {
+      "sha256": "af7a465f222b0cdf0d8c3ec83885184de3acab7548729aa5cff31cc954b02b1c",
+      "bytes": 16355,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_event_commit.test.ts": {
+      "sha256": "174aa30f0dec2419127be37717a156df9a4870631f695326327285e7458399a7",
+      "bytes": 16782,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_events.test.ts": {
+      "sha256": "6816342435cfffbd2db7d168f0feb23d599cc047a5871e3d8579e53cd17d7f7a",
+      "bytes": 13601,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_forced_restore.test.ts": {
+      "sha256": "82118287aafdcd81cb93e585dddb0a12fbe9d6e8d8952b191972973bd80a25e2",
+      "bytes": 3925,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_restore.test.ts": {
+      "sha256": "5f289efdb6b16431b1f21a6ba6e2bfd95428f1aabc396fb9851de47d99afabba",
+      "bytes": 15049,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_revival_restore.test.ts": {
+      "sha256": "cd2f89cb8f94f95876e1b3732f62b480ab1877078d6ef097c855a58a790b618b",
+      "bytes": 7845,
+      "mode": 420
+    },
+    "sim-core/tests/owner_identity_source_characterization.test.ts": {
+      "sha256": "d767812b34d28f19a2ca8700dc6b40a037e8be5ceb42dd88d9ef06ad885737db",
+      "bytes": 30024,
+      "mode": 420
+    },
+    "sim-core/tests/perspective_field_semantics.test.ts": {
+      "sha256": "841a434e79972e041dfcae41c7fdbbb3f7c9e2e9faaf8f42c2235f1163b52d42",
+      "bytes": 36230,
+      "mode": 420
+    },
+    "sim-core/tests/perspective_knowledge.test.ts": {
+      "sha256": "7554bf922a539dc4f0b9be5253021f81858c17bff06dea870643f4aced9fef98",
+      "bytes": 42629,
+      "mode": 420
+    },
+    "sim-core/tests/perspective_knowledge_source.test.ts": {
+      "sha256": "0baeaa2fa08cd4f80679cc8a2e732fc0d19a189925497c78208f7537d51cf8d9",
+      "bytes": 44812,
+      "mode": 420
+    },
+    "sim-core/tests/perspective_replay_characterization.test.ts": {
+      "sha256": "614b7a418e2cc7914199b94384efa6bc7fb7e468b973a43839859d0e2f7c4ad3",
+      "bytes": 17169,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_episode.test.ts": {
+      "sha256": "bc4933f27cbefa82bae20e67470cd709ade5409109e4686f91b29ef3fdb81901",
+      "bytes": 133693,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_episode_faithful.test.ts": {
+      "sha256": "693c11af6946eb39fc6a9a8bec6c480c1024d81ae83ed851d15b7bc0a026d845",
+      "bytes": 14678,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_episode_saved_helpers.ts": {
+      "sha256": "95bfd6436598753fa0a24bfec1a1de401585f6c3d8ea2c210cae67cc239fcb2c",
+      "bytes": 7842,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_episode_stop_repair.test.ts": {
+      "sha256": "c62098985a9df8fff7291ba8bc4413ea7a27271c9abe3198958846c663e79ebd",
+      "bytes": 8690,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_integration.test.ts": {
+      "sha256": "e830ef61aa2c31f95ee6d43a3acd1e60bd9d03c688ccb8c046020a3c4723abde",
+      "bytes": 63644,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_owned_decision_input.test.ts": {
+      "sha256": "1b93179da734bd28c4c59c2156485511b38b558879ff1e01240bbed69315b4b8",
+      "bytes": 23196,
+      "mode": 420
+    },
+    "sim-core/tests/pipeline_utf8_transport.test.ts": {
+      "sha256": "b284c1614e2fea0d23601275173e775026e42295f8c496e41a68ee4c664d0c9a",
+      "bytes": 4908,
+      "mode": 420
+    },
+    "sim-core/tests/prepared_protocol_contract.test.ts": {
+      "sha256": "e13f83f798c10784dc2edd5bea7b6e06e08853d48509fe012cfad88aa1a7d7f8",
+      "bytes": 5947,
+      "mode": 420
+    },
+    "sim-core/tests/protocol_contract_validation.test.ts": {
+      "sha256": "7ada0d5096ae07287895a9a37d56275a61c867cb188d9819a53e78749356932c",
+      "bytes": 43436,
+      "mode": 420
+    },
+    "sim-core/tests/psych_up.test.ts": {
+      "sha256": "b7cca09ddf4f6bdc1b7158daa4baadcc43164bc2911ef42f80659f061ff475ab",
+      "bytes": 14542,
+      "mode": 420
+    },
+    "sim-core/tests/psych_up_validation.test.ts": {
+      "sha256": "6658d788fa6f1456bfd6648e9eb3124fbeb1657006c636a292dbc18b303fc945",
+      "bytes": 8767,
+      "mode": 420
+    },
+    "sim-core/tests/public_consequence_test_helpers.ts": {
+      "sha256": "d824194402fd81548af18bda39817fea35b49c26d981260268fa98713caafa54",
+      "bytes": 20919,
+      "mode": 420
+    },
+    "sim-core/tests/public_consequences.test.ts": {
+      "sha256": "48250e82424214a81a4005525453cdd528de6d056322dbe1b4ce49bab173f0ae",
+      "bytes": 16521,
+      "mode": 420
+    },
+    "sim-core/tests/public_move_history.test.ts": {
+      "sha256": "aa84ac2713766ea2cd2d08c248b8ddfa64b9f64a70efd63b8cf2f948e7c903a1",
+      "bytes": 9910,
+      "mode": 420
+    },
+    "sim-core/tests/public_move_retention_characterization.test.ts": {
+      "sha256": "09a8b937d34a020141a29afef0d43fb52864fe5caaa71ee5ce77127184ae90eb",
+      "bytes": 25409,
+      "mode": 420
+    },
+    "sim-core/tests/public_stages.test.ts": {
+      "sha256": "2ba9e0bea0b610ee779fd08ba0461446e69f217c88d6d025d26c00750f3be7b4",
+      "bytes": 31374,
+      "mode": 420
+    },
+    "sim-core/tests/record_identity.test.ts": {
+      "sha256": "75d220c7bf50f8849ecf29558652eb0e4da4e3848a8cb6fd01ae273ad696ce0e",
+      "bytes": 14347,
+      "mode": 420
+    },
+    "sim-core/tests/repeat_use.test.ts": {
+      "sha256": "98dcb9b8964d861a6c6fa1b792089e11d2d489f51e6e11e3ce6dc75522beeb00",
+      "bytes": 10139,
+      "mode": 420
+    },
+    "sim-core/tests/replay_compatibility_profile.test.ts": {
+      "sha256": "20f968e3fcf12d93c7e1b3771095ce10b8b299024674cd04783563d91d8cbbae",
+      "bytes": 5638,
+      "mode": 420
+    },
+    "sim-core/tests/replay_import.test.ts": {
+      "sha256": "07d80516611535e422b8e1c62192e9954b830ac2f638c622759aa51203decc74",
+      "bytes": 20226,
+      "mode": 420
+    },
+    "sim-core/tests/request_delivery_ledger.test.ts": {
+      "sha256": "323542511b75e3ccfedb71637fb0d366537bcee498db5d3f8dcbecfaaa98c2a9",
+      "bytes": 24732,
+      "mode": 420
+    },
+    "sim-core/tests/request_emission_trace.test.ts": {
+      "sha256": "5742b47d7bb99fc1b9665a90fc122949c78beadf08f6af5c2d36fee681a7be93",
+      "bytes": 17099,
+      "mode": 420
+    },
+    "sim-core/tests/request_knowledge.test.ts": {
+      "sha256": "08ccca508135d50c1e0597fdec4ab94e92ec484bee2403fcc1e78f9493f0b4f0",
+      "bytes": 33323,
+      "mode": 420
+    },
+    "sim-core/tests/request_knowledge_characterization.test.ts": {
+      "sha256": "b2fb7b8342bda9327b0d6dadf023de49f9041d71ba33d2f742a2f12bf7f1f9bc",
+      "bytes": 21766,
+      "mode": 420
+    },
+    "sim-core/tests/revival.test.ts": {
+      "sha256": "e9f94be23c3fba7ea9b5ff972cb29399d82e30b1a314fa9f9fa3f84b65f8b53c",
+      "bytes": 23918,
+      "mode": 420
+    },
+    "sim-core/tests/roost.test.ts": {
+      "sha256": "b9eb10bf5204265964f652d5cc84a7a13a17c4be694dd44e5bacc43ad8276569",
+      "bytes": 33392,
+      "mode": 420
+    },
+    "sim-core/tests/screen.test.ts": {
+      "sha256": "862b17e3170c217227e4993b0548a0fc283b3d69f70ff18426e7aa6484b65bff",
+      "bytes": 11236,
+      "mode": 420
+    },
+    "sim-core/tests/selective_boosts.test.ts": {
+      "sha256": "8175b0d851c51848be806073d66b6d3f9cc869f57ecdd877920a237eacf53aee",
+      "bytes": 12271,
+      "mode": 420
+    },
+    "sim-core/tests/settling.test.ts": {
+      "sha256": "0c3a80daa61815294d1b9713e51ed36b0e83eecb9ce97aee64fc8bd6f0fe963b",
+      "bytes": 11458,
+      "mode": 420
+    },
+    "sim-core/tests/simulator_coverage.test.ts": {
+      "sha256": "759a64d7a44183a89a0a292eaba464ed937698790e97e7159dfee6692262b689",
+      "bytes": 14225,
+      "mode": 420
+    },
+    "sim-core/tests/singlemove.test.ts": {
+      "sha256": "729000786aab74d94bd6235431978db9d5fc00a12cc66e6a80cd36620ed7e742",
+      "bytes": 12169,
+      "mode": 420
+    },
+    "sim-core/tests/slot_consequence_fixtures.ts": {
+      "sha256": "80f8236264ba8c15ba341a5de68b058defc4abee2840601e4d5573e859e9dee6",
+      "bytes": 4140,
+      "mode": 420
+    },
+    "sim-core/tests/snapshot_admission.test.ts": {
+      "sha256": "e0fc5400d4084ed86af54a28c59dcb9b817fbe72166868ea7c60ef94b651a16f",
+      "bytes": 10475,
+      "mode": 420
+    },
+    "sim-core/tests/soak.test.ts": {
+      "sha256": "824d03964d5ffb8df54686911d664a706c1184ee7553e8a924ced070af5c1b29",
+      "bytes": 13207,
+      "mode": 420
+    },
+    "sim-core/tests/soak.ts": {
+      "sha256": "1ccb4178e7ce54ada5d48ad7666e0cb3dd05161e9267af7a6b7af05a4128705c",
+      "bytes": 966,
+      "mode": 420
+    },
+    "sim-core/tests/spirit_shackle.test.ts": {
+      "sha256": "a5ff0a1405c298f3442e7991eb0da168886feed9499e5660f36a5dd81b27e19e",
+      "bytes": 21136,
+      "mode": 420
+    },
+    "sim-core/tests/state_extractor.test.ts": {
+      "sha256": "285b5dff556935a20702004a7233a18e517c1404f7face971ddd30057f522c70",
+      "bytes": 19706,
+      "mode": 420
+    },
+    "sim-core/tests/target_fidelity_eligibility.test.ts": {
+      "sha256": "6cba826889ef9a4666dc72fcd58373017cec8a0442b91db52955eb041e6f0c9c",
+      "bytes": 8219,
+      "mode": 420
+    },
+    "sim-core/tests/target_inventory.test.ts": {
+      "sha256": "205492f79d9b996f6c3c2b16f3e2271c1808732fcfdc8726cd4e99ec58890702",
+      "bytes": 4993,
+      "mode": 420
+    },
+    "sim-core/tests/target_protocol_grammar.test.ts": {
+      "sha256": "1c6bae832269f1096c13015c386c2100321dafe07e7d4c396a1a76c98ffa8526",
+      "bytes": 5370,
+      "mode": 420
+    },
+    "sim-core/tests/terrain.test.ts": {
+      "sha256": "2c0c3617bb576b4d33c5e39e1910e43875ce82e538ebc8ff1b571672ab467fa7",
+      "bytes": 12356,
+      "mode": 420
+    },
+    "sim-core/tests/topsy_turvy.test.ts": {
+      "sha256": "a8c588f4973b613ea1baa10735e644690a2c445f138388d23a195af154c8e9e0",
+      "bytes": 11153,
+      "mode": 420
+    },
+    "sim-core/tests/topsy_turvy_validation.test.ts": {
+      "sha256": "dc38efcb28681ad27635f169280319cd19855095cd3240c22ea48d226eaf308c",
+      "bytes": 6387,
+      "mode": 420
+    },
+    "sim-core/tests/transform_boosts.test.ts": {
+      "sha256": "eb0263f251a1a129ae1c4508fe90bb804e830441510e5e9015defa4c1750ded2",
+      "bytes": 12167,
+      "mode": 420
+    },
+    "sim-core/tests/transform_types.test.ts": {
+      "sha256": "677b3b1502deb1f4d6996f6a59127c84e6501a1125eafacee76f7ca2f38915ba",
+      "bytes": 11997,
+      "mode": 420
+    },
+    "sim-core/tests/transition.test.ts": {
+      "sha256": "e24542c898c8f11df0a86f2ca4fe7fb3a1dba3bd3f6a7408a1279fb7d9fac7d8",
+      "bytes": 9584,
+      "mode": 420
+    },
+    "sim-core/tests/trick_room.test.ts": {
+      "sha256": "f4797bd1c71da1c9cc6c391c0583e21f5ba1a4c8dea4661db34f6354334990d8",
+      "bytes": 11331,
+      "mode": 420
+    },
+    "sim-core/tests/typed_state_lifecycle.test.ts": {
+      "sha256": "9e1d4956c7508ef43057b77cf9e49066deeb661ebf66a8244c29dd903f7718f5",
+      "bytes": 6570,
+      "mode": 420
+    },
+    "sim-core/tests/version_context.test.ts": {
+      "sha256": "d719a1563eb62cb9d425410852178344a2554ab4ebc093d6ba17453ec0200ed5",
+      "bytes": 8135,
+      "mode": 420
+    },
+    "sim-core/tests/version_profile_dispatch.test.ts": {
+      "sha256": "ccbfed957633fc1e26b3c9d97e00747e9efa3dd7c6f12b5756decf1443dc6d58",
+      "bytes": 11936,
+      "mode": 420
+    },
+    "sim-core/tests/weather.test.ts": {
+      "sha256": "f4d48522928b31796c47c35526148b64a22d47c8198025815c1392db2ebab61f",
+      "bytes": 10756,
+      "mode": 420
+    },
+    "sim-core/tests/wish.test.ts": {
+      "sha256": "b46adde74e2df1b2e79c068f123fedbbb16c97ebd98216ca545ce9468c5df097",
+      "bytes": 11274,
+      "mode": 420
+    },
+    "sim-core/tests/wish_fixture.ts": {
+      "sha256": "c83a6a1b785b14747ac9a8c4471f0f853d2f6d06aca8aa1f9b0684bd1dac6334",
+      "bytes": 1780,
+      "mode": 420
+    },
+    "sim-core/tsconfig.json": {
+      "sha256": "969081c5fa05bb07a78c7596838bb883ac53c67597c743e8c301a32b4b2792a4",
+      "bytes": 402,
+      "mode": 420
+    },
+    "trainer/pyproject.toml": {
+      "sha256": "69b63a4d29261f2e9f1609e08610c3c8955c5d4aedd739a079fec591a4053f37",
+      "bytes": 929,
+      "mode": 420
+    },
+    "trainer/src/neural/__init__.py": {
+      "sha256": "ac1b5976f78cebb6ae3c473715b27ac52efd6aa488e1361b3ed0b82a99efc77c",
+      "bytes": 61,
+      "mode": 420
+    },
+    "trainer/src/neural/action_features.py": {
+      "sha256": "2f6226f35dbf5780094beabbe5a5c2fb35fc40bd83d9ecad213125126e313351",
+      "bytes": 115525,
+      "mode": 420
+    },
+    "trainer/src/neural/action_mapper.py": {
+      "sha256": "afbaec7230282583d47bd690451cd1507ad758e57e6ba2ead1f3f1d378cf9259",
+      "bytes": 23011,
+      "mode": 420
+    },
+    "trainer/src/neural/action_recommender_diagnostic.py": {
+      "sha256": "942e2841e7f68b89c630af708092a26265b464c59130c64636aa9c1878429de0",
+      "bytes": 9097,
+      "mode": 420
+    },
+    "trainer/src/neural/action_side_effects.py": {
+      "sha256": "173fe5698ae38b5cff270eef95e11945a03109bb6e6255384c7a30faa33571f6",
+      "bytes": 39692,
+      "mode": 420
+    },
+    "trainer/src/neural/action_trace.py": {
+      "sha256": "75c5dde4dbfe312aa4d42fb6b3563724d7821a0b86ca078bb00039896668be08",
+      "bytes": 7894,
+      "mode": 420
+    },
+    "trainer/src/neural/action_value_search.py": {
+      "sha256": "e79f814df154489ffb687a66a65da184eeafb50797fea742a3136456208d4331",
+      "bytes": 6702,
+      "mode": 420
+    },
+    "trainer/src/neural/agent_audit.py": {
+      "sha256": "31e5dfadeebc718151588326c1b20c94199740f8659729c0d3b95f5b4c00c439",
+      "bytes": 36364,
+      "mode": 420
+    },
+    "trainer/src/neural/analyze_action_bias.py": {
+      "sha256": "c0ee73d9a218652b0737c6140915180ca1dc223a4a4da4c7cd1fd75b61465533",
+      "bytes": 5055,
+      "mode": 420
+    },
+    "trainer/src/neural/analyze_decisions.py": {
+      "sha256": "4cab24beb812c25cfbb7f111b0ebd634fce7c646b53175807edfa0961defad85",
+      "bytes": 17832,
+      "mode": 420
+    },
+    "trainer/src/neural/analyze_rollout_actions.py": {
+      "sha256": "3533a57f1d02925bbd81a48e624ca19a7b67d5404335b222dd0847d9154729ce",
+      "bytes": 17576,
+      "mode": 420
+    },
+    "trainer/src/neural/analyze_state.py": {
+      "sha256": "3c71f51a48a48d2a381fe08c996f4b23823ed03df1fadec6120e7268df18b029",
+      "bytes": 6965,
+      "mode": 420
+    },
+    "trainer/src/neural/analyze_tactical_failures.py": {
+      "sha256": "8ef26fff83008414aa9382e2948aeac62f9fee224315873581911e9e5a6ee06e",
+      "bytes": 12676,
+      "mode": 420
+    },
+    "trainer/src/neural/approx_battle_state.py": {
+      "sha256": "2dee5abac5e33591e15fb245b320f46c791ee906d801016db79ad6cda242759e",
+      "bytes": 4060,
+      "mode": 420
+    },
+    "trainer/src/neural/audit_vnext_live_inference_readiness.py": {
+      "sha256": "bd5294821bbbcab9f566dbcbd184f2e42a1cd59da2f6550a1ec78cb88648f6a6",
+      "bytes": 10462,
+      "mode": 420
+    },
+    "trainer/src/neural/benchmark_vnext_featuregen.py": {
+      "sha256": "ffb2b11801e65c1168410626d90d469788a48a83ee12af8c85bcbf1534e4e0bb",
+      "bytes": 98406,
+      "mode": 420
+    },
+    "trainer/src/neural/build_action_rank_dataset.py": {
+      "sha256": "472df712b9b47380839de0d2ad891ca448ec4b3d058a03fe6754c68a1623a205",
+      "bytes": 19664,
+      "mode": 420
+    },
+    "trainer/src/neural/build_action_value_dataset.py": {
+      "sha256": "d7ce6085e5061e907cfb8dd61329554edb963b90295b3ed824b7a02967db14b0",
+      "bytes": 19062,
+      "mode": 420
+    },
+    "trainer/src/neural/build_agent_audit_reports.py": {
+      "sha256": "96ba47a71d2aff4f9509676966048495ca0fd9d3f96ec86b126a397eb649d55d",
+      "bytes": 16282,
+      "mode": 420
+    },
+    "trainer/src/neural/build_dataset.py": {
+      "sha256": "2dd81995cc76d7a4b5ff723eb44228edf7b016d48fa826f9c304eaa34ee68de7",
+      "bytes": 21252,
+      "mode": 420
+    },
+    "trainer/src/neural/build_live_private_value_dataset.py": {
+      "sha256": "2069241a62f988ebd1bdc0b78bf3bb160a2ea842d08bd472aae950779c5fe6ba",
+      "bytes": 47977,
+      "mode": 420
+    },
+    "trainer/src/neural/build_live_sim_value_dataset.py": {
+      "sha256": "be19301f11ddb8137fc39843169cd13cf062fca76f41044f90fecd6d656aff46",
+      "bytes": 12297,
+      "mode": 420
+    },
+    "trainer/src/neural/build_replay_policy_dataset.py": {
+      "sha256": "d035fdd49f8764b31014eb3a9bdd0e304dec37f0480b1da8d4108df101320515",
+      "bytes": 13475,
+      "mode": 420
+    },
+    "trainer/src/neural/build_replay_value_dataset.py": {
+      "sha256": "21de7b0fb737ae06ba195edf2bcae2709971103cdce142e7a28b824c881649a6",
+      "bytes": 21229,
+      "mode": 420
+    },
+    "trainer/src/neural/build_value_dataset.py": {
+      "sha256": "15972b27665797dde339605d502da2a8d3f73a338c2474c4f97b5b17c17935f7",
+      "bytes": 17595,
+      "mode": 420
+    },
+    "trainer/src/neural/canonical_action.py": {
+      "sha256": "50058882685ef8e7d825f62c7adc037ccf7deca0ef4b8dfb6717bbe057767aea",
+      "bytes": 8224,
+      "mode": 420
+    },
+    "trainer/src/neural/checkpoints.py": {
+      "sha256": "25f7448ef5bac1ad0cfa84b01b18ba29695779559a33d87cfb24099cd34dc85f",
+      "bytes": 3382,
+      "mode": 420
+    },
+    "trainer/src/neural/collect_selfplay.py": {
+      "sha256": "a48377ad370f0e37bb94939d18077dcd0e7a5d5c9c56fc352cf09ccbdb03c91b",
+      "bytes": 12002,
+      "mode": 420
+    },
+    "trainer/src/neural/compare_action_rankers.py": {
+      "sha256": "4e64c9472ae9a3bacee5489ed49c30147490521f382cccb9d4f39d00fb5feedc",
+      "bytes": 19899,
+      "mode": 420
+    },
+    "trainer/src/neural/compare_checkpoints.py": {
+      "sha256": "32882a2bcc5e6776e4f5bd7f2652a5bf1d7d9de017beadb973e2a00bc398ddd2",
+      "bytes": 6110,
+      "mode": 420
+    },
+    "trainer/src/neural/compare_replay_evals.py": {
+      "sha256": "81d81ed0cf639b181b51265e88392f90130343d78ed24ea8fa5d042d1bdc349a",
+      "bytes": 15265,
+      "mode": 420
+    },
+    "trainer/src/neural/compare_value_models.py": {
+      "sha256": "686d0042d83962680c2de28770771a66028eb365a80676155055c7e4e375c5ba",
+      "bytes": 12974,
+      "mode": 420
+    },
+    "trainer/src/neural/config.py": {
+      "sha256": "b0e11d90ad95664fd3bf6271b6bf49208addfac9a5b854cd44e3835ae731ef91",
+      "bytes": 2148,
+      "mode": 420
+    },
+    "trainer/src/neural/damage_engine.py": {
+      "sha256": "c624c85e79905e82e69674daadb9183c4f656807d5d61dfe66ddf256427d144a",
+      "bytes": 19473,
+      "mode": 420
+    },
+    "trainer/src/neural/dataset_lineage.py": {
+      "sha256": "4178367b0f8dcb319471f749ff6ef64d39b15e0d95716eb5b77876587ce670f0",
+      "bytes": 16370,
+      "mode": 420
+    },
+    "trainer/src/neural/delayed_damage.py": {
+      "sha256": "8d53246c0c2032d386038b9c61cc1a584d81b0bb2ce9995c5b2338698de6fb12",
+      "bytes": 6817,
+      "mode": 420
+    },
+    "trainer/src/neural/diagnose_vnext_value_head.py": {
+      "sha256": "8a4ed9e87b7fc1f6c2c16cc995bc6acd1c270a8cf161449f3a279369078f0c86",
+      "bytes": 14749,
+      "mode": 420
+    },
+    "trainer/src/neural/dynamic_move_mechanics_audit.py": {
+      "sha256": "0ec140922088e928dce8bc1e66c6ef475c81b713514386010e2872687ddcce2f",
+      "bytes": 31428,
+      "mode": 420
+    },
+    "trainer/src/neural/end_of_turn.py": {
+      "sha256": "d179ffe0793aed44eff300431669c1f1871c06d1286942e7d7802acb6590212c",
+      "bytes": 11752,
+      "mode": 420
+    },
+    "trainer/src/neural/entry_hazards.py": {
+      "sha256": "76ab830d99890207df6bab65ba8bdda0075d60be08b2107e6556f27a4a064941",
+      "bytes": 2216,
+      "mode": 420
+    },
+    "trainer/src/neural/env_client.py": {
+      "sha256": "79298157d1145b122934870f7b07095238bb3dec0423976f617eaf1943220f67",
+      "bytes": 29343,
+      "mode": 420
+    },
+    "trainer/src/neural/eval.py": {
+      "sha256": "8590e7a24b43c1969fca8ae6c55eb8cfcb5d88c2b014690dbcb5a0b6548a12c1",
+      "bytes": 27909,
+      "mode": 420
+    },
+    "trainer/src/neural/evaluate_vnext_action_rank.py": {
+      "sha256": "10c55dfde8e602c5f43019d18a9287c943a9c32fc5837211551da027f2107327",
+      "bytes": 21340,
+      "mode": 420
+    },
+    "trainer/src/neural/featurize.py": {
+      "sha256": "0bc5ca36bf799f44ee029b578cb851b86d935fea19dc10d8c358de818dd21af5",
+      "bytes": 8808,
+      "mode": 420
+    },
+    "trainer/src/neural/gen9randbats_mechanics_completeness_audit.py": {
+      "sha256": "6c73d757079d773e0d0c42d39320fb15e633b4988ba9593c21b64bce8f8ece0c",
+      "bytes": 25414,
+      "mode": 420
+    },
+    "trainer/src/neural/import_showdown_logs.py": {
+      "sha256": "d1a7fb0562fe09dba48e0cd5985b87c5a82d78d4ca2032ad6d3505701d5a96ec",
+      "bytes": 3369,
+      "mode": 420
+    },
+    "trainer/src/neural/improve_loop.py": {
+      "sha256": "e05a13c0c0168ccf6c6b6fe55247d08dfce51379c2b7a741dc2d2701fb3378da",
+      "bytes": 10142,
+      "mode": 420
+    },
+    "trainer/src/neural/item_ability_counterfactual_diagnostic.py": {
+      "sha256": "3afc80f400b665834a48c5a53b783135eb24ba84baeeb7e37c2affa92702639d",
+      "bytes": 5096,
+      "mode": 420
+    },
+    "trainer/src/neural/latency.py": {
+      "sha256": "f630ba5e5e42d9da45688a551d048adbc23b8ff845438e1101d51d8f44b36cf8",
+      "bytes": 3139,
+      "mode": 420
+    },
+    "trainer/src/neural/live_action_recommender.py": {
+      "sha256": "d483a5ec55d4324fc9ca5962abfa7868510062211ae7d4028bbd6fdb8c272362",
+      "bytes": 41478,
+      "mode": 420
+    },
+    "trainer/src/neural/live_eval_calibration.py": {
+      "sha256": "de3fc66a7b918acd506edf14328e74a3af93ea27abb0565ce9c3c0e280e29113",
+      "bytes": 16874,
+      "mode": 420
+    },
+    "trainer/src/neural/live_eval_healthcheck.py": {
+      "sha256": "d2ec39d91d14d14799089bb721cfe2f4029661142c19b1f8d4bd18b4068781a1",
+      "bytes": 1568,
+      "mode": 420
+    },
+    "trainer/src/neural/live_eval_server.py": {
+      "sha256": "ea8c46eca011703070c6db309c2549a0fba799888514ea306540047c5ac6e5a5",
+      "bytes": 59159,
+      "mode": 420
+    },
+    "trainer/src/neural/live_opponent_beliefs.py": {
+      "sha256": "45edc5dfe0d3c5abd687ea94f5d95324a3d939d99bf36e8778b3bae774480ba2",
+      "bytes": 15529,
+      "mode": 420
+    },
+    "trainer/src/neural/live_private_features.py": {
+      "sha256": "d96e0aae3009552a9286062e5fd6835485631427ac8dc059a3a249d12bb8b8a4",
+      "bytes": 63562,
+      "mode": 420
+    },
+    "trainer/src/neural/live_private_state.py": {
+      "sha256": "2c75d6391fb3bf7d7b6fcb45afcf86c1e3033ff1f1acc5e6cd626fa393c52e39",
+      "bytes": 14879,
+      "mode": 420
+    },
+    "trainer/src/neural/logging_helper.py": {
+      "sha256": "962f2b1b6348d942b2daec2cf4a36994b181480840cd545f4f8fa9e0c3f3771e",
+      "bytes": 2773,
+      "mode": 420
+    },
+    "trainer/src/neural/loop_detector.py": {
+      "sha256": "5952d131d8e06b98b0dc2a06a4b8aac0db052bd917151352d51fb8cd3f281c87",
+      "bytes": 7854,
+      "mode": 420
+    },
+    "trainer/src/neural/mechanics_audit.py": {
+      "sha256": "e179597677101c6d560ff513cfd6a94215fef1c2687054c2fb64556286819aab",
+      "bytes": 5390,
+      "mode": 420
+    },
+    "trainer/src/neural/meta_prior.py": {
+      "sha256": "21723d7ef3cd5d74fa71228836bf866352aef0e6fc9c005d7959eaeef81f1365",
+      "bytes": 8062,
+      "mode": 420
+    },
+    "trainer/src/neural/metadata_helper.py": {
+      "sha256": "10adafa11541345a19acbe9314251829539e2d181b11ef0e1ec411c3204c4468",
+      "bytes": 3692,
+      "mode": 420
+    },
+    "trainer/src/neural/models/__init__.py": {
+      "sha256": "019e23bce3b2b2ce42204b83c4187d904f0139d33a51dfad82b4bd05ab82cb6e",
+      "bytes": 178,
+      "mode": 420
+    },
+    "trainer/src/neural/models/action_ranker.py": {
+      "sha256": "b52e3554c582a0951c1b92be4a5bf4bfac0ddde1af9fc2d5756b9a4cc1bbcbbe",
+      "bytes": 653,
+      "mode": 420
+    },
+    "trainer/src/neural/models/policy_value_mlp.py": {
+      "sha256": "81523a914878ea70945a70658da08066ae5601c7f84ebefa5499b50cfa5e4f20",
+      "bytes": 2481,
+      "mode": 420
+    },
+    "trainer/src/neural/models/value_mlp.py": {
+      "sha256": "daba171de22f67bb415f732a43e2e0588383e9608c9592301770a59286ba43e3",
+      "bytes": 1032,
+      "mode": 420
+    },
+    "trainer/src/neural/models/vnext_diagnostic.py": {
+      "sha256": "48f11806f8cc3915a5bd37c08dc9b25a21b98d3992b63f5844ba44f76ea28ed1",
+      "bytes": 2706,
+      "mode": 420
+    },
+    "trainer/src/neural/moves_actions_counterfactual_diagnostic.py": {
+      "sha256": "fbfbb00893b9d2168666548b9c0fb2e7dbc775b46a5b082858fae5f86ddeb4d1",
+      "bytes": 9350,
+      "mode": 420
+    },
+    "trainer/src/neural/multihit_trace.py": {
+      "sha256": "3d168a2363bca4608b2ec4fa51d2f59c2f3381acac7661cc06574b889e946e0e",
+      "bytes": 5233,
+      "mode": 420
+    },
+    "trainer/src/neural/one_turn_branch.py": {
+      "sha256": "301172d7832f3acbfb1d8169333850eca9f126861a23e60ed3c08caae976689d",
+      "bytes": 22233,
+      "mode": 420
+    },
+    "trainer/src/neural/opponent_pool.py": {
+      "sha256": "be3fb3fa0112e38dfa320388d894686f50d252ecd6a77bc6c73d42a03bcfff54",
+      "bytes": 2553,
+      "mode": 420
+    },
+    "trainer/src/neural/opponent_set_belief.py": {
+      "sha256": "81f9b69a742d630f7d285a5ed7870072ab6fe6be78ac224fafd90d8eae8df2b0",
+      "bytes": 21334,
+      "mode": 420
+    },
+    "trainer/src/neural/opponent_set_belief_replay_adapter.py": {
+      "sha256": "c6192d87ce4ec77893fa2e34da515353852c375ac216041634ae8860761e7189",
+      "bytes": 16979,
+      "mode": 420
+    },
+    "trainer/src/neural/parse_replay_logs.py": {
+      "sha256": "7f02c81aaba5e29fae0c5f080822a4e9637e225adabb8698e33ad1cc814cd40d",
+      "bytes": 18035,
+      "mode": 420
+    },
+    "trainer/src/neural/perspective_knowledge.py": {
+      "sha256": "2f621fe210d00cf9837980445ad31c1b2c67fea0750e90754a6d69f65e877335",
+      "bytes": 33140,
+      "mode": 420
+    },
+    "trainer/src/neural/perspective_knowledge_source.py": {
+      "sha256": "9bace4e0bb3d5b8d153a4fdbbc96035b8b9551e957acb28cacd81c5567e72ce4",
+      "bytes": 21317,
+      "mode": 420
+    },
+    "trainer/src/neural/pipeline_json_wire.py": {
+      "sha256": "5b03c4029aabe203f25a605cc8a260786597153e6b76dd40ecda4c2aef0459ff",
+      "bytes": 610,
+      "mode": 420
+    },
+    "trainer/src/neural/pipeline_record.py": {
+      "sha256": "60d38e47f5195618256fad3ce47a0d78ca83c7033721091f5dd80d8c6f5f062e",
+      "bytes": 90828,
+      "mode": 420
+    },
+    "trainer/src/neural/prepared_protocol_contract.py": {
+      "sha256": "eaee1c3f2e7c18ed0819029349e80ec5e6555f6a89f9fcb434b7afc1dcb4c736",
+      "bytes": 13364,
+      "mode": 420
+    },
+    "trainer/src/neural/prevention.py": {
+      "sha256": "ed66a598deba6b4dea150628135cebfe24edc6c93725852131971fbfa8e21d17",
+      "bytes": 8857,
+      "mode": 420
+    },
+    "trainer/src/neural/protocol_contract.json": {
+      "sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+      "bytes": 155958,
+      "mode": 420
+    },
+    "trainer/src/neural/protocol_contract.py": {
+      "sha256": "f8822772d886e6d9e93cdd4a005872db96e3f5bac78809cbd6f6425ef3ec9df1",
+      "bytes": 73000,
+      "mode": 420
+    },
+    "trainer/src/neural/protocol_contract_0_11_11.json": {
+      "sha256": "f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834",
+      "bytes": 125829,
+      "mode": 420
+    },
+    "trainer/src/neural/protocol_contract_replay_compat_v1.json": {
+      "sha256": "e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4",
+      "bytes": 129103,
+      "mode": 420
+    },
+    "trainer/src/neural/provenance_contracts.py": {
+      "sha256": "239b51e064420fd9cff1bf5d2d93ec5041478e385812b5262686f68e73c92b01",
+      "bytes": 33296,
+      "mode": 420
+    },
+    "trainer/src/neural/public_ability.py": {
+      "sha256": "304d7aed74c5e3827201a4e01a02841f240ef3f006263c812f4be1941d8364c4",
+      "bytes": 14631,
+      "mode": 420
+    },
+    "trainer/src/neural/public_boosts.py": {
+      "sha256": "840da0d98b29493ad6061d7a4e29452d2fdd48ca20bc0b47166c851e2ddfb3b4",
+      "bytes": 7805,
+      "mode": 420
+    },
+    "trainer/src/neural/public_field.py": {
+      "sha256": "c6ff70b575fe944f532593a561a04af2926bebd733482011b286e71aa47f9fc1",
+      "bytes": 4386,
+      "mode": 420
+    },
+    "trainer/src/neural/public_health.py": {
+      "sha256": "7585a1607249ddbfb3765f82c4fcba63912b8fd1ae156d54a46a5f6b81da62e6",
+      "bytes": 13434,
+      "mode": 420
+    },
+    "trainer/src/neural/public_item.py": {
+      "sha256": "85b7f8069e1169ee6eea27f30418781720aa81964237cb9a5aac6e1f9d0f39c1",
+      "bytes": 15247,
+      "mode": 420
+    },
+    "trainer/src/neural/randbats_meta_prior_audit.py": {
+      "sha256": "ccfdcb24f203fc344f57c0224e4a09ddaae44ebbdde08dd8385820cc348bef49",
+      "bytes": 35143,
+      "mode": 420
+    },
+    "trainer/src/neural/randbats_meta_prior_source.py": {
+      "sha256": "e7b3e368d159fe815ae0acf2bfbe234e6cdf7120bbec7ed2738c9b56bc6649e6",
+      "bytes": 9864,
+      "mode": 420
+    },
+    "trainer/src/neural/replay_fetch.py": {
+      "sha256": "3ff2ff47f870f0a6ae6cbd8d8d939dd4799b4d40bf8bfd9c9ec754808191f221",
+      "bytes": 22080,
+      "mode": 420
+    },
+    "trainer/src/neural/replay_pool_profiler.py": {
+      "sha256": "faeff836d96f10770ce485d75aa3aa9b87d741888e8031280bbd2b53cd0cd4d3",
+      "bytes": 22270,
+      "mode": 420
+    },
+    "trainer/src/neural/replay_sample_manifest.py": {
+      "sha256": "59505e8efbbf9d8a968996d6ec205fd1948b589c07a0d13a0177625adb5a0586",
+      "bytes": 29739,
+      "mode": 420
+    },
+    "trainer/src/neural/request_knowledge.py": {
+      "sha256": "b251c59dcfac38395a8df3e8461bcd2f49f227f3eeb331c500e3c5e54a7cbeff",
+      "bytes": 26505,
+      "mode": 420
+    },
+    "trainer/src/neural/resolved_action_impact.py": {
+      "sha256": "b206bd6fbea12e45b3672e00a6583bae29c686144466be0627d61dfdc8ed7d48",
+      "bytes": 25369,
+      "mode": 420
+    },
+    "trainer/src/neural/resolved_action_impact_diagnostic.py": {
+      "sha256": "866432fb3c4aa8b7001e63d631cd296d22f5aa4e8a76ec8b94b8e655f84500b0",
+      "bytes": 8875,
+      "mode": 420
+    },
+    "trainer/src/neural/rollout_parity.py": {
+      "sha256": "3962591cb342b3b7b1ddd4a924c8ed6f78af3c4aba318201bfe3705b4f6e7117",
+      "bytes": 10551,
+      "mode": 420
+    },
+    "trainer/src/neural/run_agent_tournament.py": {
+      "sha256": "dd235c58b06f96d2eddebb33c65447bc2520c44839bd024cb0a0f9d5e4e75c49",
+      "bytes": 32097,
+      "mode": 420
+    },
+    "trainer/src/neural/runner.py": {
+      "sha256": "85b3cb3e379e8747e443e3984edfe1c146074878209975e5b390a3afc7b99d57",
+      "bytes": 8651,
+      "mode": 420
+    },
+    "trainer/src/neural/runtime.py": {
+      "sha256": "61d9b7e60372bfc5b8d041619952f8de138ff7a0f4dc30b0f458e7c565c9fa00",
+      "bytes": 6143,
+      "mode": 420
+    },
+    "trainer/src/neural/schema.py": {
+      "sha256": "c947f0a99d7480a47967707f9546f7f6e1bbfe3c97b9d37cd8f439fc3f359d58",
+      "bytes": 3135,
+      "mode": 420
+    },
+    "trainer/src/neural/sim_branch_evaluator.py": {
+      "sha256": "2ef56990303144e29c5357e9e768a6008984c13d5523cf4bd7f0e2b39022af10",
+      "bytes": 50505,
+      "mode": 420
+    },
+    "trainer/src/neural/species_status_counterfactual_diagnostic.py": {
+      "sha256": "a2bc8168fe480b6617f4be346d833abdf2864ef8ac7f6d98a7c99de067e381bc",
+      "bytes": 6452,
+      "mode": 420
+    },
+    "trainer/src/neural/state_counterfactual_diagnostic.py": {
+      "sha256": "1dcdc2082a67a9438c17bf1a1ce08878e9a0af45a254f0b36186e1e52537528c",
+      "bytes": 27428,
+      "mode": 420
+    },
+    "trainer/src/neural/summary_writer.py": {
+      "sha256": "9b61c30386904fe3e32b15fac3082d33c544f14a51ff1fb0e1b57bf35ca01786",
+      "bytes": 8783,
+      "mode": 420
+    },
+    "trainer/src/neural/tactical_state.py": {
+      "sha256": "57e996f2ee3e0e66f9baa18a52e8774fe6c587c9d1bd5187396370f21ae36ffe",
+      "bytes": 95533,
+      "mode": 420
+    },
+    "trainer/src/neural/tera_field_counterfactual_diagnostic.py": {
+      "sha256": "6144416abb9cca5ccc83812c13ceb3e07b752e315397710bca9bb95bf50a51eb",
+      "bytes": 6679,
+      "mode": 420
+    },
+    "trainer/src/neural/test_live_eval_payload.py": {
+      "sha256": "a026e27d651c8e74c1b37394ad240936188a1b9460b12374a68d42e24ddc9572",
+      "bytes": 7260,
+      "mode": 420
+    },
+    "trainer/src/neural/test_sim_rollout.py": {
+      "sha256": "42525d3322824cd5a1edbf5503524d0ab48e6b52f1926b736155973686d31b31",
+      "bytes": 1953,
+      "mode": 420
+    },
+    "trainer/src/neural/trace.py": {
+      "sha256": "fa270beba93a7bb94fa051209f32b76072c4d73116655fa2ddd5de4aab71cb44",
+      "bytes": 11378,
+      "mode": 420
+    },
+    "trainer/src/neural/train_action_ranker.py": {
+      "sha256": "98039d0646ddf25cde01884f3a171c5bbf377bd6cc7e5c516bd3467c4d22cf93",
+      "bytes": 27038,
+      "mode": 420
+    },
+    "trainer/src/neural/train_action_value_ranker.py": {
+      "sha256": "2d4f4b5f2d8d5c89cb9e9566475e52bfccb359fc573d99fc84c48c81a191d0a6",
+      "bytes": 27173,
+      "mode": 420
+    },
+    "trainer/src/neural/train_bc.py": {
+      "sha256": "1488822b92e1153d71e41a0caba8ace1066edf13671a6e4b050b1ae213567b81",
+      "bytes": 16193,
+      "mode": 420
+    },
+    "trainer/src/neural/train_live_private_value.py": {
+      "sha256": "bfe3fa58b191fdcdc6f18a5ccce0eb26987a90ffb310270be2c7d544e655ada4",
+      "bytes": 20927,
+      "mode": 420
+    },
+    "trainer/src/neural/train_live_sim_value.py": {
+      "sha256": "b399abe32f4659925080a94f982fe6a04afd09c31c4c0d2364ff489013cfe079",
+      "bytes": 9485,
+      "mode": 420
+    },
+    "trainer/src/neural/train_ppo.py": {
+      "sha256": "6cea8d6511778ecd82a2b075e8e84e4f659f8ca292637781a885ad9dd8a7e5a2",
+      "bytes": 16609,
+      "mode": 420
+    },
+    "trainer/src/neural/train_replay_value.py": {
+      "sha256": "c718f1efe7c56bdb41ef68cfb9bd678edfab9a334e3fba10e26ba78ab6824abe",
+      "bytes": 17507,
+      "mode": 420
+    },
+    "trainer/src/neural/train_value.py": {
+      "sha256": "5df1ff8f522227540f371b761c526f54eca8287aa6ef171a9911a6e4d3d89dba",
+      "bytes": 13025,
+      "mode": 420
+    },
+    "trainer/src/neural/train_vnext_diagnostic.py": {
+      "sha256": "bfdc2df1683b05963d6ac90aa8330949b638e251be83dc53d238561f4f8206eb",
+      "bytes": 61336,
+      "mode": 420
+    },
+    "trainer/src/neural/ts_identity.py": {
+      "sha256": "d9086a839312293258fa7a011b4965811253a9f85f66c4998219368c6cf84651",
+      "bytes": 13074,
+      "mode": 420
+    },
+    "trainer/src/neural/two_ply_branch.py": {
+      "sha256": "59736c6c69b2f0b909501afcaefed17205225c2d9100c77b818767b22c1b948b",
+      "bytes": 30378,
+      "mode": 420
+    },
+    "trainer/src/neural/typed_state.py": {
+      "sha256": "f9daa20f468a8e2f2b58501cf0505c3ce672fdaaebbe6969650c7e83fc03a58d",
+      "bytes": 13221,
+      "mode": 420
+    },
+    "trainer/src/neural/v8_belief_features.py": {
+      "sha256": "0b35c12a908f68b0ab833a007dcf203be749a31287adad887975b04eb4959998",
+      "bytes": 6462,
+      "mode": 420
+    },
+    "trainer/src/neural/validate_sim_core.py": {
+      "sha256": "e09b9bf1c9c97fa1bf545eebedd6cfe7b01cb14b941a7afab34ab5defe1eb32d",
+      "bytes": 8642,
+      "mode": 420
+    },
+    "trainer/src/neural/validate_vnext_live_captures.py": {
+      "sha256": "222ef9b6b11736fbf207a0f9d6f24dbe849829f4198da969e6245a4f2bcf5848",
+      "bytes": 9170,
+      "mode": 420
+    },
+    "trainer/src/neural/value_features.py": {
+      "sha256": "9f60a7269023b5bbeab01e58ecd8ef0e72866593ca2234c5d8ef0d27b0ab6229",
+      "bytes": 16318,
+      "mode": 420
+    },
+    "trainer/src/neural/version_profile.py": {
+      "sha256": "f62490d1203b22845897c1e9c32da2a0412fa361e8eae107fe9664804e92cb84",
+      "bytes": 16915,
+      "mode": 420
+    },
+    "trainer/src/neural/vnext_inference.py": {
+      "sha256": "d5025789028c289dbcd619aedb53a8a59ac00ea7ff29c91b99e4896b6efbb316",
+      "bytes": 11455,
+      "mode": 420
+    },
+    "trainer/src/neural/vnext_labels.py": {
+      "sha256": "33b0ae1fb15c595adbb21d3d2abf861fb9eee3c479492ca1c8c936177301122b",
+      "bytes": 3828,
+      "mode": 420
+    },
+    "trainer/src/neural/vnext_live_shadow.py": {
+      "sha256": "bb6741a55797866e356d3f3fe0c43c3de2427b0af2056681de133bc779fab60b",
+      "bytes": 11781,
+      "mode": 420
+    },
+    "trainer/tests/fixtures/perspective-replay/Gen9OU-2026-10-10-hasklne-loob.html": {
+      "sha256": "c44a0b666b492ebcca9bd200f00b1628daf3f9472c236fb3a36f5947ba94d18f",
+      "bytes": 31999,
+      "mode": 420
+    },
+    "trainer/tests/fixtures/perspective-replay/Gen9RandomBattle-2026-10-10-hasklne-kaiserme.html": {
+      "sha256": "dcdb4065f50d6e0763f077e194564d138458959682d0deea25e03fb1e83e7b42",
+      "bytes": 38133,
+      "mode": 420
+    },
+    "trainer/tests/fixtures/perspective-replay/expected-ledger.json": {
+      "sha256": "e401243743cdfc96823706bd9f8d8eac00ba9d4d48403e6b0f04b726f2720d6f",
+      "bytes": 132004,
+      "mode": 420
+    },
+    "trainer/tests/fixtures/replay_sample.log": {
+      "sha256": "8488c6a42947265f107c573d52365ea620b1fd98a5191685cb82204f5dc3baef",
+      "bytes": 607,
+      "mode": 420
+    },
+    "trainer/tests/prompt39_rpc_control.py": {
+      "sha256": "e85fd41c5ee8146af99677c16b58e230e441811b70160a7e8b6d345232d36425",
+      "bytes": 1379,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v4.py": {
+      "sha256": "3aea8258f661f6adc1160644d223ac1df003fcb8da0bb11d2cace3a2b83b2494",
+      "bytes": 4123,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v5.py": {
+      "sha256": "0e6a934414f7ced94caa618f36aa222d0ef394d4a20ccab3070e4bc6b8b907dc",
+      "bytes": 18832,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v6.py": {
+      "sha256": "c724dba6e6d86e15a911623f439359bb137f2f2d2c7ee456b2aaedc35be5a6d0",
+      "bytes": 6671,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7.py": {
+      "sha256": "25a33b255eac2afb1becf63f970c8869a6f5e16de1669bf80b6cc974d1adadaf",
+      "bytes": 8956,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_action_risk_probability.py": {
+      "sha256": "93b1b722ed1961d0173690faeaa3b448e7bbada5adafcf0a551ae259fc6032f5",
+      "bytes": 11794,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_field_side_effects.py": {
+      "sha256": "9195576414de7d40045d243fdd4d506977c7fde81bccfa420fd1d2ea1008769a",
+      "bytes": 8055,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_forced_decision_secondary_chance.py": {
+      "sha256": "aae292cca0f0047d52de23776a24bf65a7753d98692a79464ec1086ca9f8f7b3",
+      "bytes": 11163,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_hp_side_effects.py": {
+      "sha256": "7f12aa1fc025efd4d97a4f470498141c0ac52e7a66bf876f9b166addd43c2fa4",
+      "bytes": 7023,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_item_effects.py": {
+      "sha256": "bfa3b6690ccfc141e602b292ea51062b5b122b8813cb6a117e928782d19b584c",
+      "bytes": 6760,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_timing_priority.py": {
+      "sha256": "63e8cee4c31c31bfef1a337158f508a1b0db1e160643ee1244b4e24b8714c50a",
+      "bytes": 7837,
+      "mode": 420
+    },
+    "trainer/tests/test_action_features_v7_volatile.py": {
+      "sha256": "078f1208cefd1053bdaba27dc1653f419fea33a0192af5b6839dcdeb0682c574",
+      "bytes": 5880,
+      "mode": 420
+    },
+    "trainer/tests/test_action_rank_manifest.py": {
+      "sha256": "90d78666a22e8e90c9dcb7a803cd1fd963fcc99ab5ae010a4aa0e3bd761ffd78",
+      "bytes": 4107,
+      "mode": 420
+    },
+    "trainer/tests/test_action_ranker.py": {
+      "sha256": "1d689c908f33a8c4051b294d8cc9670d1c49b6ae501bdb740f636c5b86018a49",
+      "bytes": 15621,
+      "mode": 420
+    },
+    "trainer/tests/test_action_stat_delta_fidelity.py": {
+      "sha256": "aa0907ff15347cc6477fd6c61c5d5c30cd35cc7dcc88ed3fa7942d8a2bdfe9e6",
+      "bytes": 4978,
+      "mode": 420
+    },
+    "trainer/tests/test_action_trace.py": {
+      "sha256": "559665af58dd2ebf14be769804e4651bc0c66953f5be2958c12742dca6daf32d",
+      "bytes": 10036,
+      "mode": 420
+    },
+    "trainer/tests/test_action_value_search.py": {
+      "sha256": "7407d33e668fed2eef0c4141408605e98c8349969fa4988f5e6374dbe259b9ad",
+      "bytes": 1016,
+      "mode": 420
+    },
+    "trainer/tests/test_agent_audit.py": {
+      "sha256": "ba8be3f1c778afecb4448f08503f45c8f4d074076e861a16ecfa4a0750496ce4",
+      "bytes": 4497,
+      "mode": 420
+    },
+    "trainer/tests/test_analyze_decisions.py": {
+      "sha256": "c736ceb93ffdcb4bf7642942480a1c0cdbc348dacc6142737a27debf5494293b",
+      "bytes": 6324,
+      "mode": 420
+    },
+    "trainer/tests/test_analyze_state.py": {
+      "sha256": "7f1e84a2d69d9cffa26fe641fbbf79d201a7c165ad6e871826b619b47befb727",
+      "bytes": 1524,
+      "mode": 420
+    },
+    "trainer/tests/test_awbc.py": {
+      "sha256": "3aef9cf6cedd1ed42ef204253038067fcab719af8be4dd8969f0743733193c0a",
+      "bytes": 643,
+      "mode": 420
+    },
+    "trainer/tests/test_belief_branch.py": {
+      "sha256": "fdcc0c63d3d5c1fd557c67892f794a69d65e4f54f147f7be2d308adac99c7729",
+      "bytes": 4374,
+      "mode": 420
+    },
+    "trainer/tests/test_benchmark_vnext_featuregen.py": {
+      "sha256": "77a3e303d21c338c7ea3c191f567b932046cda8e52ac3fbe71cd68eea48e325d",
+      "bytes": 37130,
+      "mode": 420
+    },
+    "trainer/tests/test_canonical_action.py": {
+      "sha256": "552b90eb8ac8afd23df0f4d69f89502c11de5ecbea7ec807010db5d590ce33a0",
+      "bytes": 4031,
+      "mode": 420
+    },
+    "trainer/tests/test_config.py": {
+      "sha256": "2f37afd9118f0442bcc73b1913f990f5c0b071bbd4a5b91a6d6c021b6c984cbc",
+      "bytes": 1815,
+      "mode": 420
+    },
+    "trainer/tests/test_damage_engine.py": {
+      "sha256": "a73477b094bca8b6ee8fbb3ee9bf4bddd3e2847b5fe68d95938f51982bafb66d",
+      "bytes": 17599,
+      "mode": 420
+    },
+    "trainer/tests/test_dataset.py": {
+      "sha256": "bb7cfb6a19e65e7ec3dc2dc022e6c8d06832314fecd9ecf8d4e020490a37e4b3",
+      "bytes": 2604,
+      "mode": 420
+    },
+    "trainer/tests/test_dataset_lineage.py": {
+      "sha256": "b812fc9f31e0f3558ded985bdb9c21df2a3c0ca9f3829aad09c633dda6e4eb7d",
+      "bytes": 6047,
+      "mode": 420
+    },
+    "trainer/tests/test_diagnose_vnext_value_head.py": {
+      "sha256": "ca6cf3fe1bcc3ffcc2c7b08267f9beada10bdc5b54fa865333f0ca179f59a0af",
+      "bytes": 1426,
+      "mode": 420
+    },
+    "trainer/tests/test_dynamic_move_mechanics_audit.py": {
+      "sha256": "e4a1f6f673177aaa8e1c80b4d03d67c8f45640e6a4c37df10c9ac0eca34a0310",
+      "bytes": 2233,
+      "mode": 420
+    },
+    "trainer/tests/test_featurize.py": {
+      "sha256": "c347d6dcef8df53594503f76445c68a1bd59fad4373f5dc02716b89c9e9f1076",
+      "bytes": 4766,
+      "mode": 420
+    },
+    "trainer/tests/test_gen9randbats_mechanics_completeness_audit.py": {
+      "sha256": "b83e2ec2cdc2ba2335aeca63d12382686347d56eaf1ec47a3d7294e739bd2e4f",
+      "bytes": 5648,
+      "mode": 420
+    },
+    "trainer/tests/test_import_showdown_logs.py": {
+      "sha256": "17c55e139c4e9e5ec4fe08ec714199674267b6b87df93dad4fb1efb39cd1d28e",
+      "bytes": 872,
+      "mode": 420
+    },
+    "trainer/tests/test_improve_loop.py": {
+      "sha256": "02aaa45346cb4854b94fde477b400343b0d1e4ed2d0f29780cabd636185207ab",
+      "bytes": 1268,
+      "mode": 420
+    },
+    "trainer/tests/test_latency.py": {
+      "sha256": "c6328e285b4891b030c507b00c9534243df536b67e8324602fdb286ed6858010",
+      "bytes": 1832,
+      "mode": 420
+    },
+    "trainer/tests/test_live_analysis.py": {
+      "sha256": "d414731557c42eed07f48064d2ab1e495c612cd7c880e05920cd38147ee708ef",
+      "bytes": 5942,
+      "mode": 420
+    },
+    "trainer/tests/test_live_eval_calibration.py": {
+      "sha256": "de55c1e4185c4c196fbb6a0f4b1c1c0ee611405c1044446c6dec87db8e3ed0a9",
+      "bytes": 10243,
+      "mode": 420
+    },
+    "trainer/tests/test_live_eval_capture.py": {
+      "sha256": "9a587cb8aef61c5b3b4ce041c68eaa4730481eaa9f19e775276a85cd24f76e79",
+      "bytes": 3834,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_features_v3.py": {
+      "sha256": "c8ebadb9989db3c6d7fd2a54a1829e3e4436282d772e0332630eb8d4199edd45",
+      "bytes": 7531,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_features_v4.py": {
+      "sha256": "23b254e3eddf239d6cba6f605a7d06d228a5fba12cb4a1675ada7a3ce9ed8189",
+      "bytes": 8592,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_features_v5.py": {
+      "sha256": "b1d960c157132bcc1b2e966318df3f54f580ac04e0082ac32665087b5c3425e7",
+      "bytes": 8214,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_features_v6.py": {
+      "sha256": "e72874f9ae2d53baf8f6ea0e9bfb803fdad7921f61671910cc424e0568ecda7a",
+      "bytes": 8922,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_features_v7.py": {
+      "sha256": "6ae9c6b3b7e68c2545043847efc76afafdcfc3bc8209b5055c645dd6b5926df3",
+      "bytes": 6271,
+      "mode": 420
+    },
+    "trainer/tests/test_live_private_value.py": {
+      "sha256": "179981a54449515e6defcfc538cf96f559eb06a5dbd56a5592b848266984e159",
+      "bytes": 29782,
+      "mode": 420
+    },
+    "trainer/tests/test_local_replay_html_transport.py": {
+      "sha256": "b015b869bf3948508bb8b016ec5add41874013a0d81fb9680a7628259bdcb897",
+      "bytes": 11128,
+      "mode": 420
+    },
+    "trainer/tests/test_loop_detector.py": {
+      "sha256": "03980cbfdf871dc4163aa35fc3dc02503f93a46acd32a68691a0b54111e3f959",
+      "bytes": 5384,
+      "mode": 420
+    },
+    "trainer/tests/test_major_status_contract.py": {
+      "sha256": "600687a4076df64e7ea2dd25984c9631debafee434e0fb6fdf236996ab75301e",
+      "bytes": 2216,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_audit.py": {
+      "sha256": "abeae3fb1eddc933a2634eebea7aa63ff01889b5015f28c0353b5aa86c70e321",
+      "bytes": 18080,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_repair_batch_1.py": {
+      "sha256": "d1512f197cd2e495184ba3ca66140d2bcd4279c58bb3ad7366fc228d55ea8dc4",
+      "bytes": 6121,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_repair_batch_2.py": {
+      "sha256": "803b42fc03252e23ca077f6c85128bce019763dc0f9fa5b102e6a50981464cce",
+      "bytes": 5140,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_repair_batch_3.py": {
+      "sha256": "9d0f196c99514459850f4bb5925cea7dd09337c5eecd32741ed5d13281256d28",
+      "bytes": 5316,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_repair_batch_4.py": {
+      "sha256": "d93a4f3197a5a8b1780c4057c2d7179a295ff2dc92ed198554face897e478d20",
+      "bytes": 4804,
+      "mode": 420
+    },
+    "trainer/tests/test_mechanics_repair_batch_5.py": {
+      "sha256": "5ce88f6ed8e54671ceb64f00ed4cf8c6d605acfff75e26a6f083061a110c3f0b",
+      "bytes": 3935,
+      "mode": 420
+    },
+    "trainer/tests/test_meta_prior_belief_contracts.py": {
+      "sha256": "1b3d92d4e613059bade183c358b1c675985dc7221133375ffdc04b38d1da4867",
+      "bytes": 14549,
+      "mode": 420
+    },
+    "trainer/tests/test_model.py": {
+      "sha256": "22b35164075e6d4141542b43a7fafba7c151761d7f740e39669c1b0ab15190cd",
+      "bytes": 596,
+      "mode": 420
+    },
+    "trainer/tests/test_moves_actions_counterfactual.py": {
+      "sha256": "894d52d1ebdeb127748bc85cb0b732b3785adcc6935da9de43966e95cbe9a802",
+      "bytes": 2227,
+      "mode": 420
+    },
+    "trainer/tests/test_no_hardcoded_bans.py": {
+      "sha256": "7e95fc78e4b22a10e6fe6ce4c2644ab017bff8a337233e27bd2d520c484d970d",
+      "bytes": 1336,
+      "mode": 420
+    },
+    "trainer/tests/test_one_turn_branch.py": {
+      "sha256": "d451f25791c771af9f93ef84c7e9769061bac60d28f6e230fa9b7d222f0d40af",
+      "bytes": 17275,
+      "mode": 420
+    },
+    "trainer/tests/test_opponent_pool.py": {
+      "sha256": "501865e912a3f7b7ab04f7981bea7d8ea3a4bf75ed1fe22c6f0e1296378079fb",
+      "bytes": 1037,
+      "mode": 420
+    },
+    "trainer/tests/test_opponent_set_belief_replay_adapter.py": {
+      "sha256": "a6cdecfaba7110f90f0ce9e136ec22fb7157df4fd0284fdeee27d098ce77ca8e",
+      "bytes": 14975,
+      "mode": 420
+    },
+    "trainer/tests/test_perspective_field_semantics.py": {
+      "sha256": "faa3c62345107c0d31032395d62e6a752ac799c1d840a6ff80ce18c2af849a28",
+      "bytes": 10622,
+      "mode": 420
+    },
+    "trainer/tests/test_perspective_knowledge.py": {
+      "sha256": "d75588ba9b03f43d5db53e3c51a7101683af0d7b7c6e89a9aa0a2240804a0ae8",
+      "bytes": 45750,
+      "mode": 420
+    },
+    "trainer/tests/test_perspective_knowledge_source.py": {
+      "sha256": "85ebe7359c2c5f4ce54adaa5dbfd8d6b6865645af17bea59b328e44aa0054882",
+      "bytes": 41305,
+      "mode": 420
+    },
+    "trainer/tests/test_perspective_replay_characterization.py": {
+      "sha256": "8cb1c3736be006b9e6abb5859392c5bf032193c4095bdaab333ad34f86ec4826",
+      "bytes": 10216,
+      "mode": 420
+    },
+    "trainer/tests/test_pipeline_record.py": {
+      "sha256": "d72f998b67541d26bdbd4c7fbd66e7fc6fdddf5411fd982ab9f7727f19953fa9",
+      "bytes": 118975,
+      "mode": 420
+    },
+    "trainer/tests/test_prepared_protocol_contract.py": {
+      "sha256": "2aa6ad34b6cfd4b0de656f22d7ad8acab0288f212ef59f7584a8c6491b6a02a4",
+      "bytes": 6136,
+      "mode": 420
+    },
+    "trainer/tests/test_public_consequences.py": {
+      "sha256": "8116f34d16f656fb2d09fa11b5e9360c03f968dce74561179772c72d4b9ede70",
+      "bytes": 24402,
+      "mode": 420
+    },
+    "trainer/tests/test_public_information_belief_contracts.py": {
+      "sha256": "26cc528b60767e5f0325a4ba31367183130c0662c98c1a3df0c6f58dd5ed2949",
+      "bytes": 22077,
+      "mode": 420
+    },
+    "trainer/tests/test_public_replays.py": {
+      "sha256": "bb4ac45dc1755a4c2334e8202cfbe2b32e92717da629133ec70f7d646c35ee9a",
+      "bytes": 9990,
+      "mode": 420
+    },
+    "trainer/tests/test_randbats_joint_set_posterior_fidelity.py": {
+      "sha256": "9018cc297be4d548c1e7f216fb54ad8f720824bd4267e8f66baa2e920dcad696",
+      "bytes": 16959,
+      "mode": 420
+    },
+    "trainer/tests/test_randbats_meta_prior_audit.py": {
+      "sha256": "4a70b3825da5d358257541dd027affd3ad751ee83c62263121f19fa94f7fb58a",
+      "bytes": 2383,
+      "mode": 420
+    },
+    "trainer/tests/test_randbats_meta_prior_source.py": {
+      "sha256": "a068d0d3b1c551a23939ecdbe30bed972423663320a5f131ebd22c829c23138c",
+      "bytes": 7719,
+      "mode": 420
+    },
+    "trainer/tests/test_replay_policy_lineage.py": {
+      "sha256": "1cfb8428d572a009afa5d4245ca1f50cd4b3871f7c867e990cdadfadbf138574",
+      "bytes": 5082,
+      "mode": 420
+    },
+    "trainer/tests/test_replay_pool_profiler.py": {
+      "sha256": "3cfd47e4240f3ea5b22d4f8c5c08a289739197b97187bd5f11ba6b8081edb14a",
+      "bytes": 6185,
+      "mode": 420
+    },
+    "trainer/tests/test_request_knowledge.py": {
+      "sha256": "fd940db84fab97a3fdfeb69684f4b81a2354aa8c89c080277f3ca448feefdd95",
+      "bytes": 29908,
+      "mode": 420
+    },
+    "trainer/tests/test_request_knowledge_characterization.py": {
+      "sha256": "cd37ea5b0d5784378afeb3c25254a49894ba656e6e4f2b628953d4647f03b894",
+      "bytes": 10735,
+      "mode": 420
+    },
+    "trainer/tests/test_rollout_parity_harness.py": {
+      "sha256": "c587b21588bc1cccacfd86815f79b6b469f0dbbd8f40350b5311523feaebc0bf",
+      "bytes": 15140,
+      "mode": 420
+    },
+    "trainer/tests/test_rollout_regression.py": {
+      "sha256": "9fb534ed3610b6841ac513ee7dd5f65b7300cd1697b6c077807b83ad0d1a7e72",
+      "bytes": 10174,
+      "mode": 420
+    },
+    "trainer/tests/test_runtime.py": {
+      "sha256": "e9e081e5b658d8bd5359691f194920758cf61ad62703b989ae3ffdfdc469a92f",
+      "bytes": 724,
+      "mode": 420
+    },
+    "trainer/tests/test_sim_core_parity.py": {
+      "sha256": "cf04ec755ec899639d8052ddce1f6cda6f7571f2072538822de3b7cbde016379",
+      "bytes": 7787,
+      "mode": 420
+    },
+    "trainer/tests/test_sim_rollout.py": {
+      "sha256": "85436f2d2ffcc2b79d8f5df0d6fd572f9d5648867e68744c25b7a05775d24504",
+      "bytes": 5108,
+      "mode": 420
+    },
+    "trainer/tests/test_sim_rollout_integration.py": {
+      "sha256": "c3531ce6e655aceadb43dea76c3c82cfbea91a5bfe460c84debd20f12badcd8e",
+      "bytes": 2180,
+      "mode": 420
+    },
+    "trainer/tests/test_state_counterfactual_diagnostic.py": {
+      "sha256": "d3d97d79d0fd08c34cbec5e89740f1079498031c99217e3fae7d94fc01db3234",
+      "bytes": 4038,
+      "mode": 420
+    },
+    "trainer/tests/test_state_provenance_no_leakage_contracts.py": {
+      "sha256": "f6252b86f94b4931da8b73d0f8b9a34705042a8539cf92402a2fa69a5214a6c6",
+      "bytes": 24894,
+      "mode": 420
+    },
+    "trainer/tests/test_tactical_state.py": {
+      "sha256": "4f837dd41aa7c33acc5609fafe69de67475ff830c34ff06aabd7ccf9c81193ba",
+      "bytes": 15483,
+      "mode": 420
+    },
+    "trainer/tests/test_target_fidelity_eligibility.py": {
+      "sha256": "b87e596807ff7bdfee622ca1e0225cb9adf2f6370e604895a092640e92cec8c0",
+      "bytes": 7209,
+      "mode": 420
+    },
+    "trainer/tests/test_target_inventory.py": {
+      "sha256": "b8a7a9bed446145879b68bca3ab6c0250e77a48096addc9fa022de7985dd021a",
+      "bytes": 2752,
+      "mode": 420
+    },
+    "trainer/tests/test_target_protocol_grammar.py": {
+      "sha256": "835c34c3fedbecb84c75f25d6b64041b32a4a7089d2b7ae3485d51a9e5ab95e3",
+      "bytes": 6316,
+      "mode": 420
+    },
+    "trainer/tests/test_trace.py": {
+      "sha256": "715f670202d2af75a2d8e86ffdc40a1fb371037b5abea87352b8f1066d5625c6",
+      "bytes": 6498,
+      "mode": 420
+    },
+    "trainer/tests/test_train_bc_resume.py": {
+      "sha256": "e590a9ef80fa5f7c4bff679d1f2f0eb09716c6ab75f4499bbd9de5a30d76aac4",
+      "bytes": 2427,
+      "mode": 420
+    },
+    "trainer/tests/test_train_ppo.py": {
+      "sha256": "7b02852c6f62995b90b8c802f3c822608c3308d1ae5aa4c15a55fdb5c13c8b29",
+      "bytes": 1561,
+      "mode": 420
+    },
+    "trainer/tests/test_train_value.py": {
+      "sha256": "f18b98df35a8ce512c9ab72356fc806313f4856d0d300240604b7d3c3d2ff0a6",
+      "bytes": 1406,
+      "mode": 420
+    },
+    "trainer/tests/test_train_vnext_diagnostic.py": {
+      "sha256": "0364dd216c376cd33fc96770486c0f7ff092337997708fe0fe211a65b0d9e8e1",
+      "bytes": 28324,
+      "mode": 420
+    },
+    "trainer/tests/test_two_ply_branch.py": {
+      "sha256": "143c6f9c3fafc18d60d830d6fe98a760f25643e32387f87dc109a7bf9b700bb2",
+      "bytes": 14524,
+      "mode": 420
+    },
+    "trainer/tests/test_typed_state.py": {
+      "sha256": "e556553a7df4cef57556d868755706b31438bd00859fb325c7c0eb28c1b46655",
+      "bytes": 5857,
+      "mode": 420
+    },
+    "trainer/tests/test_v8_belief_feature_slice.py": {
+      "sha256": "b89ceb35f416120c282e75bb55a36187fe57ed191166909be724895024d5a4fe",
+      "bytes": 9375,
+      "mode": 420
+    },
+    "trainer/tests/test_value_dataset.py": {
+      "sha256": "f7d8f9de3d3d9c7741cc595dad5f01dc28d2cd3a4cafb0fa7b0ce1daa7de8372",
+      "bytes": 4659,
+      "mode": 420
+    },
+    "trainer/tests/test_version_context.py": {
+      "sha256": "e10fdf37a5d9524b534adcf8c4369f6460c4fe9ad1dfa1126228d443b96832d8",
+      "bytes": 4534,
+      "mode": 420
+    },
+    "trainer/tests/test_version_profile_dispatch.py": {
+      "sha256": "245d164a1ccc16b69a4c8b8e13bf26481aab436be6014f86522081068d7f7a7e",
+      "bytes": 5829,
+      "mode": 420
+    },
+    "trainer/tests/test_vnext_inference.py": {
+      "sha256": "13ae302b79362761abceaf53637395d58c7652fc6c3d82c48254242f72b73167",
+      "bytes": 9649,
+      "mode": 420
+    },
+    "trainer/tests/test_vnext_labels.py": {
+      "sha256": "055ff57d0b755b5fd58228c53d92ac2174d8cd5d7c37df0858ecf2f2cc300863",
+      "bytes": 3277,
+      "mode": 420
+    },
+    "trainer/tests/test_vnext_live_shadow.py": {
+      "sha256": "626c75cc26ec0c3a8719168bd5b88083f8cd54ddba828542eefc8139715e310f",
+      "bytes": 6625,
+      "mode": 420
+    }
+  },
+  "provenance": {
+    "accepted_base_archive_sha256": "6eacec9024eae65650fa87c3fb31eeb54f2fd5212397f1c09c7f2b3beea4db4d",
+    "overlay_chain": [
+      {
+        "prompt": 57,
+        "archive_sha256": "ac4712bed8775f1ecc8a245c590aabf4c4216ae47dbf188ea3ebfbe16e41df0f"
+      },
+      {
+        "prompt": 59,
+        "archive_sha256": "33d9bdd1fee6bc56196b8c153afdbd067523692c230b3c7c677c760b30f97541"
+      },
+      {
+        "prompt": 60,
+        "archive_sha256": "5430d047b287c433dc7055964f2d1e35b9688ce32177ee819a64e761c7305230"
+      }
+    ]
+  },
+  "runtime": {
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "python_previous_host": "3.9.6 on macOS; Windows host must be preflighted",
+    "showdown": "0.11.11",
+    "upstream_gitHead": "739a5e1fee432ad80ff7136d70cca993be358b59"
+  },
+  "installed_showdown_files": {
+    "dist/sim/dex.js": "43e1ef7d40d06c8af0a4037b551054b16d23a720564e99f57be93698862725d5",
+    "dist/sim/dex-data.js": "c9d1480d52e57928c27466bce45b062511b348fcf6755dc6ab8b1c312fa3c3c4",
+    "dist/sim/dex-species.js": "8f33a7d2cb5c3eb46b5161817e97c1d1be2b4e4c522ad9b964c23e23dab5eee9",
+    "dist/sim/dex-moves.js": "606f8a451fafd9bce8f4f6c28f4e38eb07d159e047c14e62650bab6a5f999b96",
+    "dist/data/pokedex.js": "72838d54a4c835a0413330a103a541daedbdeaad7dbe4ab97d3379aa01dd725e",
+    "dist/data/moves.js": "99edf5f35b8f0757102976201fe7af2c84b6b7fcb82c2d53da3f2be9709cca19",
+    "dist/data/typechart.js": "7871f541822a95cb9288d89e98cd7f30cfa2ba94938711b3796999411215e05b",
+    "dist/data/aliases.js": "a849096fe98da72b2918ff58a9ead9890c8efded4445fca686c9ba2decb1c957",
+    "dist/data/formats-data.js": "7f8a9bbbb81b7c5fb99371fd29353faf8c4ff036ae679f005e01bc5684205155",
+    "dist/sim/battle.js": "315068a1549bc3a7f33e2f381a8058e6c7eb25bd666a2a5b3bafd3caaa80f388",
+    "dist/sim/side.js": "6aaa5f1b54f0ba557e432c495321c6a8ab1a2eae373bc929f9360a8d7b13418e",
+    "dist/sim/pokemon.js": "bb79a6772ef271f4cb6ba13aed7c73c6d25eda5c43631e916a2bd9d310795781",
+    "dist/sim/state.js": "1a61018be79a8d2a591a129e00379d2d491d8283daed2b8e95cc26bf93f3d540",
+    "dist/sim/battle-stream.js": "3e0ebe049201e08a724d6b74418bcdb41c9628f3885fb73264538795f54ae61f",
+    "dist/data/random-battles/gen9/teams.js": "904680636070705002dff71c2d580941489d0a0fe21a467849aae91047837fa4",
+    "data/random-battles/gen9/sets.json": "928084c1d79130581a738a1dd37cc4e8641354b23b4af6332426ce15157b6a30",
+    "config/formats.ts": "da9c9deb1f08a7d7f97d709f067d6cb420e77cb158a0218d6b1d39e9c5102d57"
+  },
+  "exclusions": [
+    "node_modules",
+    "virtual environments",
+    "compiled outputs",
+    "private replay downloads",
+    "large native envelopes",
+    "live handles/capabilities",
+    "temporary helper files"
+  ],
+  "claims": "Portable source retention, not new Windows or runtime acceptance.",
+  "support_files": {
+    "tests/fixtures/belief_state_v1.json": {
+      "sha256": "8ea87fd2265980ca0e2cc713c4d5932a7bbc63bedb2e0d994f70a4e2e23b3f28",
+      "bytes": 6108,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/canonical_action_v1.json": {
+      "sha256": "5e65c78cf714701ae6da965e3b09f9b01585e3cb5ae596e6ad35b8c2a1c87d2d",
+      "bytes": 7635,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/dataset_lineage_v1.json": {
+      "sha256": "025c963fb150c667fc5addf96addbb86a03a11fbabb907ee9358b0e68f3c4608",
+      "bytes": 2964,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/observable_protocol_terminal_v1.json": {
+      "sha256": "0094da1686ba7e433b8aa25c623eedb352d222c3b8ae6ac24665ca5e70576e8c",
+      "bytes": 484,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/observable_state_v1.json": {
+      "sha256": "01bd667fc62425d89b3f8f216d1eac1756a8d63e9052668a836bb0c8d095b79b",
+      "bytes": 5174,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/observable_state_v2_per_side_gen9randombattle.json": {
+      "sha256": "1b4a04d7358b0cafa5afd70c3a79b661f65832e4ce298f7571db4b7b5cb47a33",
+      "bytes": 3674,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/seeded_transition_v1.json": {
+      "sha256": "5115af7b32e1841f4d5a159e4f0c4dd241f6f20f517cc9ebc7c3d8b93b6a0645",
+      "bytes": 1475,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "tests/fixtures/simulator_record_comparison_windows_v1.json": {
+      "sha256": "d983dbb2d83c944271590c2dd5c28dc693968ec1813aac9af1edb1ca4125e1d4",
+      "bytes": 77947,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "trainer/requirements/simulator-record.txt": {
+      "sha256": "401506d07d080218f8f34b620f5fcf235ab0760463851864d55d4fd6904ca11b",
+      "bytes": 6106,
+      "origin": "handoff repository, supplemental to the accepted candidate snapshot"
+    },
+    "artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json": {
+      "sha256": "83165b940ab2589c001a58ccad9a7668469848d02f6865fcf55b582508f1c0f9",
+      "bytes": 51325,
+      "origin": "handoff repository, existing compact fixture referenced by source tests"
+    },
+    "artifacts/validation/faithful-flag-2026-10-09/segment-start.json": {
+      "sha256": "a468592b1374317504445184242a8438112d381eb18e59931816c3d25b0127c5",
+      "bytes": 111452,
+      "origin": "handoff repository, existing compact fixture referenced by source tests"
+    },
+    "artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json": {
+      "sha256": "aa877df18a98ddca488e9513e23d3bc92e585359c6df002ef45998291cb31487",
+      "bytes": 26985,
+      "origin": "handoff repository, existing compact fixture referenced by source tests"
+    }
+  }
+}

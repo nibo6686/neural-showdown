@@ -1,0 +1,64 @@
+[
+  {
+    "log": "perspective-fidelity-prompt31-historical-TS-readers-sweep-fixed.log",
+    "witness": {
+      "name": "historical",
+      "saved_ids": [
+        "obs-6363cfdfdc72d9021e7e1c657eabd46e7535ef0711aa377ce30df913be209d8f",
+        "act-b87f98654d5e283b62498dc98a32c49cb81416821ed291df69c6f05f561bfe5a",
+        "transition-181098d6cf4b08e4e2332752b0be6a371110427a2e2434b075253d5d3508a371",
+        "belief-fabbc79854be54c8df3c2a67bd94664c0699dff5a39abd3fc2eb96c12523e5e0"
+      ],
+      "constructed_terminal": true,
+      "native_execution": false,
+      "evidence_id": "episode-evidence-cc3a7d90e26923590dcced91c0ed3126046a293a5bf10c94ec4e1f6d8faf8a8d"
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt31-recognized-revision-dispatch-corrected.log",
+    "witness": {
+      "name": "dispatch",
+      "schema_paths": "bundle/evidence/predecessor/result/sweep/compact/evidence-provenance",
+      "explicit_empty_historical": true,
+      "no_arbitrary_key_scan": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt31-coherent-rejection-before-old-rules-corrected.log",
+    "witness": {
+      "name": "negative",
+      "canonical_belief_evidence_resealing": true,
+      "profile_error_before_old_grammar": true,
+      "interleaved_old_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt31-test_historical_paths_and_literals.log",
+    "witness": {
+      "entry_branches": 4,
+      "explicit_empty_historical": true,
+      "name": "python-historical",
+      "no_native_execution": true,
+      "old_literal_output_preserved": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt31-test_revision_structure_negatives.log",
+    "witness": {
+      "actual_result_sweep_guards": true,
+      "name": "python-negative",
+      "resealed_bundle_and_predecessor": true,
+      "singleton_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt31-test_cli_dispatch_branches.log",
+    "witness": {
+      "default_caller_branches": 4,
+      "explicit_historical_empty": true,
+      "name": "cli",
+      "rejection_exit": 2,
+      "rejection_stdout": ""
+    }
+  }
+]

@@ -265,3 +265,7 @@ separate gates. `faithful_complete_episode:false` remains required.
 ## Perspective knowledge opt-in candidate (PK-01)
 
 The separately reviewed candidate [PERSPECTIVE_KNOWLEDGE.md](PERSPECTIVE_KNOWLEDGE.md) freezes an external identity-bound audit/context and trusted single-perspective output. It does not adopt a runtime route or alter existing schema keys, canonical bytes, identity/history meanings, publication eligibility or accepted fidelity flags. Existing consumers remain unchanged; opt-in requires later authorized implementation and source/semantic review. The caller must validate legacy observation/belief/record/history joins independently before accepting a knowledge binding. A matching context hash, source label or imported projection is insufficient. Legacy replay builders remain outside the new contract; no silent fallback.
+
+### Prompt33 candidate: target belief-fork restriction
+
+Historical10 belief forks retain existing behavior. Prepared native11 policy rejects manager/RPC forks before serialization, team sampling, donor Battle construction and manager-map mutation. The direct buildBeliefSnapshot helper checks internally owned installed provenance and applies the same restriction before cloning/sampling. No caller version certificate can authorize a fork. Actual target execution remains a deferred LIVE activation gate.

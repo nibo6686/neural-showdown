@@ -1,0 +1,46 @@
+--- accepted-P39/sim-core/tests/native11_request_timing.test.cjs
++++ corrected-fixture/sim-core/tests/native11_request_timing.test.cjs
+@@ -77,10 +77,38 @@
+ });
+ 
+ test('P39 equal literal requests commit fresh deliveries through real transitions',async()=>{
+- const twin='Same (Snorlax)\nAbility: Immunity\n- Splash\n\nSame (Snorlax)\nAbility: Immunity\n- Splash';let s;
+- try{s=await create([twin,twin]);const originals=owners.map(p=>s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(p),p));
+- for(let i=0;i<2;i++)await s.step({p1:act(s,'p1','switch 2'),p2:act(s,'p2','switch 2')});
+- for(const [i,p] of owners.entries()){const h=history(s,p);assert.deepEqual(h.deliveries.map(x=>x.sequence),[0,1,2]);assert.equal(new Set(h.deliveries.map(x=>x.source.request_record)).size,1);assert.equal(new Set(h.deliveries.map(x=>x.delivery_reference)).size,3);assert.equal(new Set(h.deliveries.map(x=>x.source.producer_occurrence)).size,3);assert.equal(s.readNativeObjectHolding(s.getNativeObjectHolding(p),p).original,originals[i]);}
+- emit('equal-committed-native',{level:'actual-session-constructed-duplicate-label-switches',generated_reachability:'UNPROVED',equal_request_bytes:true,sequences:[0,1,2],distinct_delivery_references:true,distinct_native_occurrences:true,held_originals_retained:true});
++ const teams=['Alpha (Snorlax)\nAbility: Immunity\n- Splash\n\nBeta (Blissey)\nAbility: Healer\n- Splash',
++ 'Gamma (Snorlax)\nAbility: Immunity\n- Splash\n\nDelta (Blissey)\nAbility: Healer\n- Splash'];let s;
++ try{s=await create(teams);
++ const originalHandles=owners.map(p=>s.getOriginalOwnerHolding(p));
++ const originals=owners.map((p,i)=>s.readOriginalOwnerHolding(originalHandles[i],p));
++ const deliveryHandles=owners.map(p=>s.getRequestDeliveryHandle(p));
++ const initialHistories=owners.map(p=>history(s,p));const boundaries=[s.boundary];
++ for(let i=0;i<2;i++){
++  const actions=Object.fromEntries(owners.map(p=>[p,act(s,p,'switch 2')]));
++  const result=await s.step(actions);assert.equal(result.boundary,s.boundary);assert.equal(s.boundary.kind,'joint_actionable');boundaries.push(s.boundary);
++ }
++ const evidence=[];
++ for(const [i,p] of owners.entries()){
++  const h=s.readRequestDeliveryHistory(deliveryHandles[i],p),initial=h.deliveries[0],middle=h.deliveries[1],returning=h.deliveries[2];
++  assert.deepEqual(h.deliveries.map(x=>x.sequence),[0,1,2]);
++  assert.equal(initial.source.request_record,returning.source.request_record,'exact unedited initial/returning native bytes');
++  assert.notEqual(initial.source.request_record,middle.source.request_record);
++  assert.notEqual(initial.delivery_reference,returning.delivery_reference);
++  assert.notEqual(initial.source.producer_occurrence,returning.source.producer_occurrence);
++  assert.equal(new Set(h.deliveries.map(x=>x.delivery_reference)).size,3);
++  assert.equal(new Set(h.deliveries.map(x=>x.source.producer_occurrence)).size,3);
++  for(let j=0;j<3;j++){
++   const row=h.boundaries[j];assert.equal(row.current,h.deliveries[j]);assert.equal(row.selected,row.current.source);assert.equal(row.selected.origin,'native_emission');
++   assert.equal(row.observation_id,boundaries[j].perspectives[p].observation.observation_id);assert.equal(row.branch_id,boundaries[j].branch_id);
++   if(j){assert.deepEqual(row.parent,{observation_id:boundaries[j-1].perspectives[p].observation.observation_id,branch_id:boundaries[j-1].branch_id,step_index:boundaries[j-1].step_index});}
++  }
++  assert.equal(s.readOriginalOwnerHolding(originalHandles[i],p),originals[i]);
++  assert.equal(s.readNativeObjectHolding(s.getNativeObjectHolding(p),p).original,originals[i]);
++  assert.equal(initialHistories[i].deliveries.length,1);assert.equal(initialHistories[i].boundaries.length,1);
++  assert.equal(h.deliveries[0],initialHistories[i].deliveries[0]);assert.equal(h.boundaries[0],initialHistories[i].boundaries[0]);
++  evidence.push({owner:p,initial_return_bytes_equal:true,literal_bytes:Buffer.byteLength(initial.source.request_record),initial_sequence:initial.sequence,return_sequence:returning.sequence,intermediate_differs:true,parent_joins:true,earlier_history_retained:true});
++ }
++ emit('equal-committed-native',{level:'actual-session-constructed-distinct-name-species-joint-switches',generated_reachability:'UNPROVED',equal_pair:[0,2],sequences:[0,1,2],distinct_delivery_references:true,distinct_native_occurrences:true,held_originals_retained:true,owners:evidence});
+  }finally{await s?.close();}
+ });

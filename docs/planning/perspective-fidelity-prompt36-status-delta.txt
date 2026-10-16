@@ -1,0 +1,80 @@
+--- task-start
++++ task-end
+@@ -20,9 +20,14 @@
+  M sim-core/src/public_ability.ts
+  M sim-core/src/public_boosts.ts
+  M sim-core/src/public_field.ts
++ M sim-core/src/public_move_history.ts
++ M sim-core/src/replay_import.ts
+  M sim-core/src/server.ts
+  M sim-core/src/state_extractor.ts
+  M sim-core/src/typed_state_lifecycle.ts
++ M sim-core/tests/public_move_history.test.ts
++ M sim-core/tests/public_move_retention_characterization.test.ts
++ M sim-core/tests/replay_import.test.ts
+  M trainer/src/neural/perspective_knowledge_source.py
+  M trainer/src/neural/pipeline_record.py
+  M trainer/src/neural/protocol_contract.py
+@@ -315,7 +320,43 @@
+ ?? docs/planning/perspective-fidelity-prompt35-test_historical_fresh_process_and_literals.log
+ ?? docs/planning/perspective-fidelity-prompt35-verified-tar-member-parity.log
+ ?? docs/planning/perspective-fidelity-prompt35-witnesses.json
++?? docs/planning/perspective-fidelity-prompt36-api.md
++?? docs/planning/perspective-fidelity-prompt36-asset-guards-final.log
+ ?? docs/planning/perspective-fidelity-prompt36-baseline.json
++?? docs/planning/perspective-fidelity-prompt36-bounded-saved-prefix-and-historical-parity.log
++?? docs/planning/perspective-fidelity-prompt36-build-fixed-call-context.log
++?? docs/planning/perspective-fidelity-prompt36-build-grammar-fixture-correction.log
++?? docs/planning/perspective-fidelity-prompt36-build-review-profile-assets.log
++?? docs/planning/perspective-fidelity-prompt36-build.log
++?? docs/planning/perspective-fidelity-prompt36-candidate.diff
++?? docs/planning/perspective-fidelity-prompt36-command-runner.py
++?? docs/planning/perspective-fidelity-prompt36-commands.json
++?? docs/planning/perspective-fidelity-prompt36-exact-Natural-Cure-profiles.log
++?? docs/planning/perspective-fidelity-prompt36-exact-grammar-final.log
++?? docs/planning/perspective-fidelity-prompt36-final-importer-semantics.log
++?? docs/planning/perspective-fidelity-prompt36-final-saved-prefix.log
++?? docs/planning/perspective-fidelity-prompt36-finite-source-and-saved-hash-integrity.log
++?? docs/planning/perspective-fidelity-prompt36-generated-output.json
++?? docs/planning/perspective-fidelity-prompt36-grammar-provenance.json
++?? docs/planning/perspective-fidelity-prompt36-historical-history-control.log
++?? docs/planning/perspective-fidelity-prompt36-immutable-assets-and-unresolved-families.log
++?? docs/planning/perspective-fidelity-prompt36-immutable-call-selection.log
++?? docs/planning/perspective-fidelity-prompt36-importer-context-semantic-and-publication-boundaries.log
++?? docs/planning/perspective-fidelity-prompt36-line-endings.json
++?? docs/planning/perspective-fidelity-prompt36-live-gates.md
++?? docs/planning/perspective-fidelity-prompt36-preservation.json
++?? docs/planning/perspective-fidelity-prompt36-python-grammar-final.log
++?? docs/planning/perspective-fidelity-prompt36-report.md
++?? docs/planning/perspective-fidelity-prompt36-review.md
++?? docs/planning/perspective-fidelity-prompt36-saved-prefix-extract.py
++?? docs/planning/perspective-fidelity-prompt36-saved-prefix.json
++?? docs/planning/perspective-fidelity-prompt36-source-integrity.json
++?? docs/planning/perspective-fidelity-prompt36-source-integrity.py
++?? docs/planning/perspective-fidelity-prompt36-test_exact_profile_grammar_and_immutability.log
++?? docs/planning/perspective-fidelity-prompt36-test_historical_publication_and_replay_rejection.log
++?? docs/planning/perspective-fidelity-prompt36-validation-notes.md
++?? docs/planning/perspective-fidelity-prompt36-witnesses.json
++?? docs/planning/perspective-fidelity-prompt36-writer-matrix.md
+ ?? docs/refactor/DATA_INGESTION_AND_TRAINING_STRATEGY.md
+ ?? sim-core/simulator_coverage/lookups/
+ ?? sim-core/simulator_coverage/pokemon-showdown-0.11.11-gen9randombattle.json
+@@ -324,13 +365,18 @@
+ ?? sim-core/tests/owner_identity_birth.test.ts
+ ?? sim-core/tests/owner_identity_restore.test.ts
+ ?? sim-core/tests/owner_identity_source_characterization.test.ts
++?? sim-core/tests/replay_compatibility_profile.test.ts
+ ?? sim-core/tests/snapshot_admission.test.ts
+ ?? sim-core/tests/target_fidelity_eligibility.test.ts
+ ?? sim-core/tests/target_inventory.test.ts
++?? sim-core/tests/target_protocol_grammar.test.ts
+ ?? sim-core/tests/version_context.test.ts
+ ?? sim-core/tests/version_profile_dispatch.test.ts
++?? trainer/src/neural/protocol_contract_0_11_11.json
++?? trainer/src/neural/protocol_contract_replay_compat_v1.json
+ ?? trainer/src/neural/version_profile.py
+ ?? trainer/tests/test_target_fidelity_eligibility.py
+ ?? trainer/tests/test_target_inventory.py
++?? trainer/tests/test_target_protocol_grammar.py
+ ?? trainer/tests/test_version_context.py
+ ?? trainer/tests/test_version_profile_dispatch.py

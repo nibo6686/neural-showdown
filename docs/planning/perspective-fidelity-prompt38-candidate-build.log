@@ -1,0 +1,5 @@
+tests/native11_activation.test.ts(7,9): error TS2305: Module '"../src/action_codec"' has no exported member 'canonicalActionFromLegalAction'.
+tests/native11_activation.test.ts(8,9): error TS2305: Module '"../src/protocol_contract"' has no exported member 'validateRawProtocolRecord'.
+tests/native11_activation.test.ts(43,53): error TS2322: Type 'number[]' is not assignable to type '`${number},${string}` | `sodium,${string}` | `gen5,${string}` | undefined'.
+tests/native11_activation.test.ts(48,106): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type 'ChannelMessages<0 | 1 | 2>'.
+  No index signature with a parameter of type 'number' was found on type 'ChannelMessages<0 | 1 | 2>'.

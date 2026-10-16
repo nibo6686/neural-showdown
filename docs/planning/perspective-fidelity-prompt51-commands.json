@@ -1,0 +1,82 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 4.732,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "exact-marker-validator",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P51 exact target marker and historical strict validator controls$",
+      "sim-core/tests/native11_update_overlay.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.978,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "actual-native-overlay-boundary",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P51 actual native update serializer and committed-source boundary$",
+      "sim-core/tests/native11_update_overlay.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.851,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P50-generated-health-writer-delivery-restore-and-privacy",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P50 generated health writer delivery restore and privacy$",
+      "sim-core/dist/tests/owned_request_health.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.625,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P50-scoped-decode-exceptions-and-final-barrier-rollback",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P50 scoped decode exceptions and final barrier rollback$",
+      "sim-core/dist/tests/owned_request_health.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.437,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "unaffected-literal-byte-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt51/byte-parity.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.189,
+    "timeout_seconds": 180
+  }
+]

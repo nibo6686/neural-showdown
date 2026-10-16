@@ -1,0 +1,13 @@
+# Prompt38 isolated candidate API/lifetime
+
+Candidate: `/private/tmp/neural-showdown-native11-prompt38`. The original checkout and its 0.11.10 tree remain rollback. No runtime/snapshot sharing or default promotion.
+
+Candidate-only `installedNativeProfile()` checks actual resolved entry/package root, exact 0.11.11 declaration, both lock entries and verified SRI, then returns a frozen internally owned descriptor tracked by WeakSet. Descriptor copies reject. Its reader is the fixed `NATIVE11_CONTEXT`; no RPC/client native selector is added. Existing manager → env → ManagedPlayer → extractor wiring carries this context. Transition revision now comes from that owned runtime, with the existing identity algorithm unchanged.
+
+`NATIVE11_CONTEXT` combines the fully validated pinned prepared native grammar, inactive target inventory and target-only lookup data. The inventory remains unknown/raw-only/unsupported, adoption false, and positive fidelity scope false. Helper/reader acceptance is confined to this disposable candidate and does not attest semantics or completeness. Historical contexts, wrappers and lookup assets remain separate and fixed. Copied contexts cannot become recognized contexts. Recursive readers retain the supplied context; Python CLI's explicit native11 reader selection selects this decoder, not engine/source authority.
+
+The target minimal lookup comes from verified installed artifact rule data. Species/moves retain only the fields consumed by existing helpers; type and alias tables are separate. Canonical move-name keys preserve synthesized Hidden Power variants that share a Dex ID. Only existing valid species/move alias targets are projected; inconsistent overwrites fail extraction. Other aliases do not manufacture species/move rows. The immutable loader uses code-owned SHA `66355d0182570b82fea5bdccfb45977386e22b0cdc9e278f9eaab2c151f5fe9b`. No historical extraction/asset is modified.
+
+Snapshot admission retains existing private B2 pending parent/serialization/ticket authority and pre-side-effect rejection; standalone target raw restore and belief forks stay unsupported. Managed live handles retain occurrence binding, retry before writes, fresh outputs after consumption and reset/close/restart/post-write revocation. No portable snapshot catalog/schema is introduced.
+
+Native completion remains faithful=false. TS/Python positive target claims and target attempts to enroll historical K-source origins reject. Replay remains importer-only with no persisted portable publication contract. Natural Cure is exact ordered from-tag then silent for native; silent is retained and routed publicly, not used as a privacy selector. All previously quarantined families stay fail-closed.

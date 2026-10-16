@@ -1,3 +1,4 @@
+import { replayReaderContext } from './version_profile';
 import { PlayerStateExtractor } from './state_extractor';
 import { validateObservableProtocolPrefix, validateRawProtocolRecord } from './observable_state';
 import type { BattleView, PlayerID } from './types';
@@ -7,6 +8,8 @@ export interface ReplayImportContext {
   env_id: string;
   format: string;
   perspective: PlayerID;
+  /** Required at runtime, including empty inputs; no implicit decoder fallback. */
+  protocol_profile: 'historical10' | 'replay-compat-v1';
 }
 
 export type ReplayRecordKind = 'protocol' | 'room-presence' | 'replay-rated' | 'framing' | 'tier';
@@ -45,10 +48,16 @@ function freezeTree<T>(value: T): T {
   return value;
 }
 
+function captureImportContext(context: ReplayImportContext): ReplayImportContext {
+  return Object.freeze({env_id: context?.env_id, format: context?.format, perspective: context?.perspective,
+    protocol_profile: context?.protocol_profile});
+}
+
 /** Internal, untrusted trace of a selected decoded replay prefix. */
 export function importReplayPrefix(
   records: readonly string[], sourceCursor: number, context: ReplayImportContext,
 ): ReplayImportResult {
+  context = captureImportContext(context);
   if (!Array.isArray(records) || !Number.isSafeInteger(sourceCursor)
     || sourceCursor < 0 || sourceCursor > records.length
     || !context || typeof context.env_id !== 'string' || !context.env_id.trim()
@@ -56,6 +65,9 @@ export function importReplayPrefix(
     || !['p1', 'p2'].includes(context.perspective)) {
     throw new ReplayImportError('input', null, null, 'Invalid records, source cursor or extractor context.');
   }
+  let rulesContext;
+  try { rulesContext = replayReaderContext(context.protocol_profile); }
+  catch (error) { throw new ReplayImportError('input', null, null, error); }
   const sourceRows: ReplaySourceRow[] = [];
   const sourceToRouted: (number | null)[] = [];
   const routedToSource: number[] = [];
@@ -78,7 +90,7 @@ export function importReplayPrefix(
         kind = 'room-presence';
       } else {
         if (command === 'request' || command === 'split') throw new Error('Private transport is not replay evidence.');
-        validateRawProtocolRecord(record);
+        validateRawProtocolRecord(record, rulesContext);
         if (record === '|') kind = 'framing';
         else if (command === 'tier') kind = 'tier';
       }
@@ -99,14 +111,14 @@ export function importReplayPrefix(
   let current = routedToSource.at(-1) ?? sourceCursor - 1;
   let view: BattleView;
   try {
-    const extractor = new PlayerStateExtractor(context.env_id, context.format, context.perspective);
+    const extractor = new PlayerStateExtractor(context.env_id, context.format, context.perspective, rulesContext);
     for (let index = 0; index < prefix.length; index++) {
       current = routedToSource[index];
       extractor.consumeChunk(prefix[index]);
       extractor.consumePublicHealingWishRecord(prefix[index]);
       view = extractor.getView();
       try {
-        validateObservableProtocolPrefix(prefix.slice(0, index + 1), context.perspective, view);
+        validateObservableProtocolPrefix(prefix.slice(0, index + 1), context.perspective, view, null, rulesContext);
       } catch (error) {
         throw new ReplayImportError('prefix', current, sourceRows[current].record, error);
       }
@@ -117,7 +129,7 @@ export function importReplayPrefix(
     throw new ReplayImportError('extraction', current < 0 ? null : current, sourceRows[current]?.record ?? null, error);
   }
   try {
-    validateObservableProtocolPrefix(prefix, context.perspective, view);
+    validateObservableProtocolPrefix(prefix, context.perspective, view, null, rulesContext);
   } catch (error) {
     throw new ReplayImportError('prefix', current < 0 ? null : current, sourceRows[current]?.record ?? null, error);
   }
@@ -128,7 +140,8 @@ export function importReplayPrefix(
 export function importReplayPrefixWithMoveHistory(
   records: readonly string[], sourceCursor: number, context: ReplayImportContext,
 ): Readonly<{ replay: ReplayImportResult; public_move_history: PublicMoveHistory }> {
+  context = captureImportContext(context);
   const replay = importReplayPrefix(records, sourceCursor, context);
-  const publicMoveHistory = reconstructPublicMoveHistory(replay);
+  const publicMoveHistory = reconstructPublicMoveHistory(replay, replayReaderContext(context.protocol_profile));
   return freezeTree({ replay, public_move_history: publicMoveHistory });
 }

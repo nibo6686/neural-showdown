@@ -1,19 +1,23 @@
+from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Version-two stage evidence reconstructed only from the supplied public prefix."""
 import re
 from neural.protocol_contract import _is_player_ident
 
 KEYS = ('atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion')
 
-def validate_copy_boost_record(parts):
+def validate_copy_boost_record(parts, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if len(parts) != 5 or parts[4] != '[from] move: Psych Up' or any(
-            not _is_player_ident(ident, active_required=True) for ident in parts[2:4]):
+            not _is_player_ident(ident, active_required=True, reader_rules=reader_rules) for ident in parts[2:4]):
         raise ValueError('Unsupported or malformed public boost copy evidence')
 
-def validate_invert_boost_record(parts):
-    if len(parts) != 4 or parts[3] != '[from] move: Topsy-Turvy' or not _is_player_ident(parts[2], active_required=True):
+def validate_invert_boost_record(parts, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    if len(parts) != 4 or parts[3] != '[from] move: Topsy-Turvy' or not _is_player_ident(parts[2], active_required=True, reader_rules=reader_rules):
         raise ValueError('Unsupported or malformed public stage inversion evidence')
 
-def public_boost_evidence(prefix):
+def public_boost_evidence(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     roster, active = {}, {}
     def filled(value): return dict.fromkeys(KEYS, value)
     def key(ident): return re.sub(r'^(p[12])[a-f]:', r'\1:', ident)
@@ -32,14 +36,14 @@ def public_boost_evidence(prefix):
         if cmd == 'gametype' and p[2] != 'singles': raise ValueError('Unsupported public boost evidence: non-singles')
         # Grammar precedes side routing: unresolved roster identity is not a
         # malformed identifier and must retain the existing unknown semantics.
-        if cmd == '-copyboost': validate_copy_boost_record(p)
-        if cmd == '-invertboost': validate_invert_boost_record(p)
+        if cmd == '-copyboost': validate_copy_boost_record(p, reader_rules=reader_rules)
+        if cmd == '-invertboost': validate_invert_boost_record(p, reader_rules=reader_rules)
         ident = p[2] if len(p) > 2 else ''
-        if cmd in actor_commands and not _is_player_ident(ident, active_required=True):
+        if cmd in actor_commands and not _is_player_ident(ident, active_required=True, reader_rules=reader_rules):
             raise ValueError('Malformed public boost player identifier')
-        if cmd == '-transform' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True)):
+        if cmd == '-transform' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True, reader_rules=reader_rules)):
             raise ValueError('Malformed public boost transform target identifier')
-        if cmd == '-clearpositiveboost' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True)):
+        if cmd == '-clearpositiveboost' and (len(p) < 4 or not _is_player_ident(p[3], active_required=True, reader_rules=reader_rules)):
             raise ValueError('Malformed public boost source identifier')
         player = side(ident)
         if cmd == '-swapboost' or (cmd == 'move' and len(p) > 3 and p[3] == 'Baton Pass'):
@@ -100,10 +104,11 @@ def public_boost_evidence(prefix):
     return roster
 
 
-def validate_public_boosts(observation):
+def validate_public_boosts(observation, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if any('public_boosts' in pokemon for pokemon in observation['view']['self_team']):
         raise ValueError('public_boosts is opponent-only')
-    roster = public_boost_evidence(observation['protocol_prefix'])
+    roster = public_boost_evidence(observation['protocol_prefix'], reader_rules=reader_rules)
     allowed = set('slot ident name species base_species current_species displayed_species species_source transformed displayed_species_uncertain illusion_revealed details active fainted hp_text hp_ratio status status_source status_started_turn status_turns_public gender level types terastallized volatiles public_boosts item'.split())
     for pokemon in observation['view']['opponent_team']:
         if set(pokemon) - allowed or (pokemon.get('item') is not None and pokemon['item'] != 'has-item'):

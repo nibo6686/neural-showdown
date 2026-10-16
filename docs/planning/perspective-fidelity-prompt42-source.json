@@ -1,0 +1,22 @@
+{
+  "version": "0.11.11",
+  "revision": "739a5e1fee432ad80ff7136d70cca993be358b59",
+  "installed_equals_verified_artifact": {
+    "data/moves.ts": "9cf8b3460829e76ed4a83cdde072cc7f4648fb224c4f566e5ffd7cbb3009bd7c",
+    "sim/battle.ts": "e3913db4a69c976c749c3633966f4c76e156248915f5859eb7563ec4df554834",
+    "sim/side.ts": "8e8fe18e3b2acc69374e6e8aca35d0efdb203435239434318c8843d8df1a0b0d",
+    "sim/pokemon.ts": "96170cb4f8c0f5f9562bbcc24704ca63e91c929f5ab946ad7b2472fd66c2065c",
+    "data/random-battles/gen9/teams.ts": "b5679261e60a33218094ba0f51eb6ed3161896cb0ebae10acfa6f8ec3bc824ce",
+    "data/random-battles/gen9/sets.json": "928084c1d79130581a738a1dd37cc4e8641354b23b4af6332426ce15157b6a30"
+  },
+  "source_chain": {
+    "move_request": "data/moves.ts:15105-15136",
+    "owner_selection": "sim/side.ts:925-979",
+    "revival_effect": "sim/battle.ts:2778-2795",
+    "health_floor": "sim/pokemon.ts:1661-1674",
+    "split_health": "sim/pokemon.ts:2065-2110",
+    "generator_routes": "data/random-battles/gen9/sets.json:6579-6595,6848-6858; teams.ts randomSet/getAbility/randomTeam"
+  },
+  "scope": "finite source-qualified Revival public bench heal; no general healing, generated-team Revival closure or positive fidelity",
+  "target_protocol_sha256": "f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834"
+}

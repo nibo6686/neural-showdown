@@ -1,0 +1,76 @@
+{
+  "branch": "codex/perspective-fidelity-handoff",
+  "head": "297ce570972007832da61032915a7fddf67d9a1d",
+  "protected_count": 582,
+  "authorized_changes": {
+    "sim-core/src/env_manager.ts": {
+      "before": "dba065ae8d741b3b2fad67cc704250a396755bc6767463b480ffbc3f24e93ae9",
+      "after": "4e656a3db6aa1d18c84529bd7c623ab5a6287aa939cf9defed1c0d961bc2346c"
+    },
+    "sim-core/src/pipeline_integration.ts": {
+      "before": "090c3ca38e1e6b08947b5ddd2dbd8786c8f05419cb76d13f52e6ed291fb20481",
+      "after": "64c1cb503806dbfcf923867d190b06a152a0a2d3e22a6e76ef21179194cc2f4f"
+    }
+  },
+  "unauthorized_changes": [],
+  "user_and_lead_status_unchanged": true,
+  "status_after": " M docs/PROJECT_STATUS.md\n M docs/planning/CURRENT-HANDOFF.md\n M docs/planning/perspective-fidelity-implementation-plan.md\n M sim-core/src/env_manager.ts\n M sim-core/src/pipeline_integration.ts\n M trainer/src/neural_trainer.egg-info/PKG-INFO\n M trainer/src/neural_trainer.egg-info/SOURCES.txt\n?? AGENTS.md\n?? artifacts/validation/ce08a-adversarial-recovery-2026-10-09/run-isolated-controls.py\n?? artifacts/validation/ce08b-independent-review-2026-10-09/invalid-limits-array.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/invalid-limits-null.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/invalid-limits-number.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/reproduce-limit-sibling.cjs\n?? artifacts/validation/ce08b-independent-review-2026-10-09/reproduce.cjs\n?? artifacts/validation/ce08b-independent-review-2026-10-09/seeded-forced-switch-candidate.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/seeded-forced-switch-pre-selection.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/seeded-revival-candidate.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/seeded-revival-pre-selection.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/unknown-limit-key-result.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/unknown-limit-key.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json\n?? artifacts/validation/ce08b-independent-review-2026-10-09/valid-limit-negative-control.json\n?? artifacts/validation/merge-preparation-2026-10-09/final-candidate/hashes.json\n?? artifacts/validation/merge-preparation-2026-10-09/final-candidate/presence.log\n?? artifacts/validation/merge-preparation-2026-10-09/final-candidate/results.json\n?? docs/planning/perspective-fidelity-prompt26-baseline.json\n?? docs/planning/perspective-fidelity-prompt26-build-corrected.log\n?? docs/planning/perspective-fidelity-prompt26-build-direct-writer-correction.log\n?? docs/planning/perspective-fidelity-prompt26-build-indexed-correction.log\n?? docs/planning/perspective-fidelity-prompt26-build-review-corrections.log\n?? docs/planning/perspective-fidelity-prompt26-build.log\n?? docs/planning/perspective-fidelity-prompt26-candidate.diff\n?? docs/planning/perspective-fidelity-prompt26-commands.json\n?? docs/planning/perspective-fidelity-prompt26-design.md\n?? docs/planning/perspective-fidelity-prompt26-duplicates-switch-drag-reentry.log\n?? docs/planning/perspective-fidelity-prompt26-generated-birth-timing.log\n?? docs/planning/perspective-fidelity-prompt26-illusion-transform-review-corrected.log\n?? docs/planning/perspective-fidelity-prompt26-illusion-transform.log\n?? docs/planning/perspective-fidelity-prompt26-indexed-events-corrected.log\n?? docs/planning/perspective-fidelity-prompt26-indexed-events-direct-writer.log\n?? docs/planning/perspective-fidelity-prompt26-indexed-events.log\n?? docs/planning/perspective-fidelity-prompt26-initial-effects.log\n?? docs/planning/perspective-fidelity-prompt26-lead-review.md\n?? docs/planning/perspective-fidelity-prompt26-matrix.md\n?? docs/planning/perspective-fidelity-prompt26-model-negatives.log\n?? docs/planning/perspective-fidelity-prompt26-preservation.json\n?? docs/planning/perspective-fidelity-prompt26-rejection-terminal-cleanup.log\n?? docs/planning/perspective-fidelity-prompt26-report.md\n?? docs/planning/perspective-fidelity-prompt26-restore-continuity-review-corrected.log\n?? docs/planning/perspective-fidelity-prompt26-restore-continuity.log\n?? docs/planning/perspective-fidelity-prompt26-review.md\n?? docs/planning/perspective-fidelity-prompt26-source-oracle.md\n?? docs/planning/perspective-fidelity-prompt26-witness-log-verification.json\n?? docs/planning/perspective-fidelity-prompt26-witnesses-superseded.json\n?? docs/planning/perspective-fidelity-prompt26-witnesses.json\n?? docs/planning/perspective-fidelity-prompt27-activation-failure.log\n?? docs/planning/perspective-fidelity-prompt27-api.md\n?? docs/planning/perspective-fidelity-prompt27-baseline.json\n?? docs/planning/perspective-fidelity-prompt27-build-review-tests-corrected.log\n?? docs/planning/perspective-fidelity-prompt27-build-review-tests.log\n?? docs/planning/perspective-fidelity-prompt27-build.log\n?? docs/planning/perspective-fidelity-prompt27-candidate.diff\n?? docs/planning/perspective-fidelity-prompt27-close-and-restore-reviewed.log\n?? docs/planning/perspective-fidelity-prompt27-close-and-restore.log\n?? docs/planning/perspective-fidelity-prompt27-commands.json\n?? docs/planning/perspective-fidelity-prompt27-enrollment-faults-reviewed.log\n?? docs/planning/perspective-fidelity-prompt27-enrollment-faults.log\n?? docs/planning/perspective-fidelity-prompt27-existing-birth-timing.log\n?? docs/planning/perspective-fidelity-prompt27-existing-delivery-rollback.log\n?? docs/planning/perspective-fidelity-prompt27-existing-original-lifetime.log\n?? docs/planning/perspective-fidelity-prompt27-existing-wire-check.log\n?? docs/planning/perspective-fidelity-prompt27-generated-creation.log\n?? docs/planning/perspective-fidelity-prompt27-initial-effects.log\n?? docs/planning/perspective-fidelity-prompt27-matrix.md\n?? docs/planning/perspective-fidelity-prompt27-owner-isolation.log\n?? docs/planning/perspective-fidelity-prompt27-preservation.json\n?? docs/planning/perspective-fidelity-prompt27-red-missing-api.log\n?? docs/planning/perspective-fidelity-prompt27-report.md\n?? docs/planning/perspective-fidelity-prompt27-review.md\n?? docs/planning/perspective-fidelity-prompt27-validation-inputs-reviewed.json\n?? docs/planning/perspective-fidelity-prompt27-validation-inputs.json\n?? docs/planning/perspective-fidelity-prompt27-witnesses-superseded.json\n?? docs/planning/perspective-fidelity-prompt27-witnesses.json\n?? docs/refactor/DATA_INGESTION_AND_TRAINING_STRATEGY.md\n?? sim-core/src/owner_identity_crosswalk.ts\n?? sim-core/tests/owner_identity_birth.test.ts\n?? sim-core/tests/owner_identity_source_characterization.test.ts\n",
+  "compiler_before": 109,
+  "compiler_after": 111,
+  "compiler_changed": {
+    "sim-core/dist/src/env_manager.js": {
+      "before": "11a000c8e53e8d3e36cdc51054b5a4f574f1722219522a611e1912f359af382e",
+      "after": "835adb8110295705cbe3cbc96297f8f9e034696706f5c454c23bc07bdcc68d7f"
+    },
+    "sim-core/dist/src/pipeline_integration.js": {
+      "before": "980601c10bff02b15bc25c5d1f0ec9c727f2dd3289622d75b10a71177a2c437c",
+      "after": "ea838a5224cf794903f26a8ebe1a3e9d09bf328f19320b02d5b7ebb04a2c301b"
+    }
+  },
+  "compiler_new": {
+    "sim-core/dist/tests/owner_identity_birth.test.js": "e46ae6681b3fcea8436dd2218b3c9a25f9dad1b8d5cc4962e196e4cb4e770ff4",
+    "sim-core/dist/src/owner_identity_crosswalk.js": "15e865e526a63b056600c1dca6bb18b3244b85a56ac5767d3206659c0f205c63"
+  },
+  "changed_inputs": {
+    "sim-core/src/env_manager.ts": "4e656a3db6aa1d18c84529bd7c623ab5a6287aa939cf9defed1c0d961bc2346c",
+    "sim-core/src/pipeline_integration.ts": "64c1cb503806dbfcf923867d190b06a152a0a2d3e22a6e76ef21179194cc2f4f",
+    "sim-core/src/owner_identity_crosswalk.ts": "c08453d1c6585c8c99c8a621db242d5d89a2f9631a063662ccb8e72fd8420e36",
+    "sim-core/tests/owner_identity_birth.test.ts": "fe22bb63f9b6c099a1ab2b2e0ba916a7fbfda264b082cb458776c9a1dec31472"
+  },
+  "candidate_hashes": {
+    "docs/planning/perspective-fidelity-prompt27-report.md": "80b43d96e2472bb2b131f892628b47c8c0e3dff45b8e9f9228b99a71a1af8c28",
+    "docs/planning/perspective-fidelity-prompt27-validation-inputs.json": "6cafa18fabd9f6aae0b1bdf4c0aeac1d0c601f03ed9f1944196a7e48c0427614",
+    "docs/planning/perspective-fidelity-prompt27-activation-failure.log": "d471a5ab3966ca45b1eade7bf35ceb999025649003ccc1d452ec58be5a878404",
+    "docs/planning/perspective-fidelity-prompt27-generated-creation.log": "c67f1126012e94804675c9fa51a50c18a94d334d320f62b08afe8bc435404bab",
+    "docs/planning/perspective-fidelity-prompt27-build-review-tests-corrected.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/planning/perspective-fidelity-prompt27-enrollment-faults.log": "55ba9c3af631369258d5161d5b40ea058d1b2a4a1a352d9a258eb731665f8de6",
+    "docs/planning/perspective-fidelity-prompt27-validation-inputs-reviewed.json": "edf5f331f37660b7b2df3ddac69e76d4794e30230a168dc20e81ee9c440ea661",
+    "docs/planning/perspective-fidelity-prompt27-api.md": "f1307c3d1ff9debb40f23988fae8618b0cd5f193c54102d7ae9bb76d9cf4a2d7",
+    "docs/planning/perspective-fidelity-prompt27-witnesses-superseded.json": "fbdfcf5cfaa6fd6c6bba768ae71191fd5a303fb4c5f8f5920fdb7cf53d2e9b66",
+    "docs/planning/perspective-fidelity-prompt27-initial-effects.log": "68d0d78e14f3418fe218699b86b697d65650ce172eca59dfe858a712c9a51b6f",
+    "docs/planning/perspective-fidelity-prompt27-existing-delivery-rollback.log": "c3434638b9315932c14e4cbdd0709e036e0783bdf1dca9b5300490feea077c70",
+    "docs/planning/perspective-fidelity-prompt27-commands.json": "f6ea6877bc0cd65463ef341c24d71e669cae083c021284ae8bb12433c5456f5d",
+    "docs/planning/perspective-fidelity-prompt27-candidate.diff": "f264b6baaa0faf9b01e3e9aba4321f5fd3bbb6fcba84954a4a4e4f9d56ecc899",
+    "docs/planning/perspective-fidelity-prompt27-red-missing-api.log": "7819676f1caa20e293e517b50fc2a1c06e7b3b3491964ecfed8415352059c018",
+    "docs/planning/perspective-fidelity-prompt27-owner-isolation.log": "6123dac8df5aab4a060046a82d222ec1912c515fea75748cf1bc9052349539f9",
+    "docs/planning/perspective-fidelity-prompt27-build-review-tests.log": "a5bc71aa872a5a28693b00b69c036e6437a921385bda65f8e9ae40767906279b",
+    "docs/planning/perspective-fidelity-prompt27-close-and-restore.log": "c07b6a2a8cfab33931a135425f649f1425504e68320d3209b0c8ba91cdd1576e",
+    "docs/planning/perspective-fidelity-prompt27-review.md": "cb75fba6376f15c1a06796961c0e74401cf6b06ea8d5b6045201a86447fe05bf",
+    "docs/planning/perspective-fidelity-prompt27-witness-log-verification.json": "7bc1f8fb556fabeb9c8af08f235ffce1f264e03b681675d7a2776e413f06cb54",
+    "docs/planning/perspective-fidelity-prompt27-enrollment-faults-reviewed.log": "fed6c6793698c539f0c543306c25a71401c922f207cb6a175a93ac25f3ca5c9e",
+    "docs/planning/perspective-fidelity-prompt27-existing-original-lifetime.log": "1ba5297ceee38476abc48c4377e409d5c89204973a91ae4477e0a720fff8192e",
+    "docs/planning/perspective-fidelity-prompt27-existing-birth-timing.log": "e13c442f5fd399c7fa6c1fb16c4ad25719225acc2db424ba5245a9cb6793cfa6",
+    "docs/planning/perspective-fidelity-prompt27-close-and-restore-reviewed.log": "95e8349e265ad59e1134e1525b6858e154edf623177c30d48cc596d42b83a0b8",
+    "docs/planning/perspective-fidelity-prompt27-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/planning/perspective-fidelity-prompt27-baseline.json": "ead291a22115cb5651e40269babaf0f68da0aecc94111203ae534fb926d1894a",
+    "docs/planning/perspective-fidelity-prompt27-witnesses.json": "df2f53dcff3fbe28be7a18b6371a47ed09672a90d03dea1b40afba7fbfa4a06f",
+    "docs/planning/perspective-fidelity-prompt27-existing-wire-check.log": "d45defc0e16d028caf11eac7dd6c08f9261c4c64a28880b329fc04f4837ef925",
+    "docs/planning/perspective-fidelity-prompt27-matrix.md": "cbfeed4ef79fd0797243408135c8166ac4ffe49c123bd76fe6cdeab21881873d",
+    "sim-core/src/env_manager.ts": "4e656a3db6aa1d18c84529bd7c623ab5a6287aa939cf9defed1c0d961bc2346c",
+    "sim-core/tests/owner_identity_birth.test.ts": "fe22bb63f9b6c099a1ab2b2e0ba916a7fbfda264b082cb458776c9a1dec31472",
+    "sim-core/src/owner_identity_crosswalk.ts": "c08453d1c6585c8c99c8a621db242d5d89a2f9631a063662ccb8e72fd8420e36",
+    "sim-core/src/pipeline_integration.ts": "64c1cb503806dbfcf923867d190b06a152a0a2d3e22a6e76ef21179194cc2f4f"
+  },
+  "historical_EOLevidence": "Reused macOS preflight raw/LF/CRLF reconciliation; historical inventories not revised. All previously pinned dependency/source inputs except authorized env/session source changes preserved.",
+  "pending_checks_or_task_processes": "none"
+}

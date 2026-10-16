@@ -1,0 +1,1917 @@
+--- a/sim-core/src/owner_identity_crosswalk.ts
++++ b/sim-core/src/owner_identity_crosswalk.ts
+@@ -11,6 +11,7 @@
+   readonly original: OriginalOwnerEvidence;
+   readonly slot_count: number;
+ }
++export interface RequestHealthReceiver { observe(environment: object, battle: Battle): void; enroll(frame: object, environment: object, battle: Battle, rows: AssociationRows): void; restore(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket): void; }
+ export type SwitchActorReceiver = (environment: object, battle: Battle, rows: AssociationRows, source?: SeededBattleSnapshot, parent?: PipelineBoundary) => void;
+ const owners = ['p1', 'p2'] as const;
+ function index(owner: PlayerID): number {
+@@ -21,6 +22,22 @@
+ 
+ /** Trusted session controller; native references never leave this private creation enrollment. */
+ export class NativeBirthEnrollment {
++  #healthReceiver: RequestHealthReceiver | null = null;
++  #healthFrames = new WeakMap<object, { environment: object; battle: Battle; rows: AssociationRows }>();
++  registerRequestHealthReceiver(receiver: RequestHealthReceiver): void {
++    if (this.#healthReceiver) throw new Error('request-health/v1/duplicate-receiver');
++    this.#healthReceiver = receiver;
++  }
++  assertRequestHealthTransfer(frame: object, environment: object, battle: Battle, rows: AssociationRows): void {
++    const held = this.#healthFrames.get(frame);
++    if (!held || held.environment !== environment || held.battle !== battle || held.rows !== rows) throw new Error('request-health/v1/foreign-transfer');
++  }
++  private healthTransfer(environment: object, battle: Battle, rows: AssociationRows): void {
++    if (!this.#healthReceiver) return;
++    const frame = Object.freeze(Object.create(null)); this.#healthFrames.set(frame, {environment, battle, rows});
++    this.#healthReceiver.enroll(frame, environment, battle, rows);
++  }
++
+   #actorReceiver: SwitchActorReceiver | null = null;
+   registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
+     if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
+@@ -51,6 +68,7 @@
+     // packed bytes corroborate submission, never instantiate an original holder.
+     for (const owner of owners) this.#originals.diagnostic(environment, owner);
+     this.#battle = battle; this.#birthBattle = battle; this.#phase = 'observing';
++    this.#healthReceiver?.observe(environment, battle);
+     const native = battle as any;
+     const setPlayer = native.setPlayer, getTeam = native.getTeam;
+     const playerDescriptor = Object.getOwnPropertyDescriptor(native, 'setPlayer');
+@@ -132,6 +150,8 @@
+     })) as AssociationRows;
+   }
+ 
++  transferRequestHealthActors(environment: object, battle: Battle): void { this.healthTransfer(environment, battle, this.captureBirthObjects(environment, battle)); }
++
+   transferSwitchActors(environment: object, battle: Battle): void {
+     if (!this.#actorReceiver) fail("missing-actor-receiver");
+     this.#actorReceiver(environment, battle, this.captureBirthObjects(environment, battle));
+@@ -154,13 +174,13 @@
+   abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
+   private detach(): void { this.#detach?.(); this.#detach = null; }
+   revoke(): void {
+-    this.#activation = null; this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
++    this.#healthFrames = new WeakMap(); this.#activation = null; this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
+     this.#submission = null; this.#rows = []; this.#handles = [];
+     this.#birthEnvironment = null; this.#birthBattle = null;
+   }
+ }
+ 
+-type AssociationRows = Record<PlayerID, { original: OriginalOwnerEvidence; objects: readonly any[] }>;
++export type AssociationRows = Record<PlayerID, { original: OriginalOwnerEvidence; objects: readonly any[] }>;
+ type Order = Record<PlayerID, readonly number[]>;
+ type StateRefs = { root: any; sides: any; rows: Array<{ side: any; pokemon: any; entries: any[]; sets: any[] }> };
+ type Serialization = { snapshot: SeededBattleSnapshot; expected: SeededBattleSnapshot; refs: StateRefs;
+@@ -193,6 +213,22 @@
+ 
+ /** Private session association: actual serializer/reconstructor occurrences, never imported mappings. */
+ export class NativeObjectAssociation {
++  #healthReceiver: RequestHealthReceiver | null = null;
++  #healthFrames = new WeakMap<object, { environment: object; battle: Battle; rows: AssociationRows }>();
++  registerRequestHealthReceiver(receiver: RequestHealthReceiver): void {
++    if (this.#healthReceiver) throw new Error('request-health/v1/duplicate-receiver');
++    this.#healthReceiver = receiver;
++  }
++  assertRequestHealthTransfer(frame: object, environment: object, battle: Battle, rows: AssociationRows): void {
++    const held = this.#healthFrames.get(frame);
++    if (!held || held.environment !== environment || held.battle !== battle || held.rows !== rows) throw new Error('request-health/v1/foreign-transfer');
++  }
++  private healthTransfer(environment: object, battle: Battle, rows: AssociationRows): void {
++    if (!this.#healthReceiver) return;
++    const frame = Object.freeze(Object.create(null)); this.#healthFrames.set(frame, {environment, battle, rows});
++    this.#healthReceiver.enroll(frame, environment, battle, rows);
++  }
++
+   #actorReceiver: SwitchActorReceiver | null = null;
+   registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
+     if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
+@@ -286,7 +322,8 @@
+     if (environment === current.environment || this.#pending.has(environment)) associationFail('reused-candidate');
+     this.checkSnapshot(current.entry);
+     const ticket = Object.freeze(Object.create(null));
+-    this.#pending.set(environment, { ticket, parent, source: current.entry }); return ticket;
++    this.#pending.set(environment, { ticket, parent, source: current.entry });
++    this.#healthReceiver?.restore(environment, parent, snapshot, ticket); return ticket;
+   }
+   private pending(environment: object, ticket?: NativeRestoreTicket): PendingAssociation {
+     this.ensure(); const pending = this.#pending.get(environment);
+@@ -331,6 +368,7 @@
+       rows[owner] = { original: pending.source.rows[owner].original, objects: Object.freeze(objects) };
+     }
+     pending.rows = rows; pending.battle = battle;
++    this.healthTransfer(environment, battle, rows);
+   }
+   transferSwitchActors(environment: object, battle: Battle, ticket: NativeRestoreTicket): void {
+     const pending = this.pending(environment, ticket);
+@@ -374,7 +412,7 @@
+     return this.#current.evidence[slot];
+   }
+   revoke(): void {
+-    this.#ready = null; this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
++    this.#healthFrames = new WeakMap(); this.#ready = null; this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
+   }
+ }
+ 
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { OwnedRequestHealthHost } from './owned_request_health';
+ import { SwitchEventHost } from './owner_identity_events';
+ import { randomBytes } from 'node:crypto';
+ import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
+@@ -765,6 +766,7 @@
+   readonly #nativeBirth: NativeBirthEnrollment | undefined;
+   readonly #objectAssociation: NativeObjectAssociation | undefined;
+   readonly #switchEvents: SwitchEventHost | undefined;
++  readonly #requestHealth: OwnedRequestHealthHost | undefined;
+   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
+   private readonly heuristicAgent: HeuristicBaselineAgent;
+   private battleStream: BattleStream | null;
+@@ -790,6 +792,7 @@
+     objectAssociation?: NativeObjectAssociation,
+     runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
+     switchEvents?: SwitchEventHost,
++    requestHealth?: OwnedRequestHealthHost,
+   ) {
+     assertNativeRuntimeProfile(runtimeProfile);
+     this.#runtimeProfile = runtimeProfile;
+@@ -798,7 +801,7 @@
+     this.#nativeBirth = nativeBirth;
+     nativeBirth?.bind(this);
+     this.#objectAssociation = objectAssociation;
+-    this.#switchEvents = switchEvents;
++    this.#switchEvents = switchEvents; this.#requestHealth = requestHealth;
+     if (nativeBirth) objectAssociation?.bindInitial(this);
+     this.id = id;
+     this.format = format;
+@@ -862,6 +865,7 @@
+     } catch (error) {
+       this.#originalCreation?.abortStaging();
+       this.#nativeBirth?.abortStaging();
++      this.#requestHealth?.release(this);
+       this.#switchEvents?.release(this);
+       this.#requestTrace?.invalidate();
+       this.#requestTrace = null;
+@@ -919,7 +923,8 @@
+       // clone the simulator-only snapshot so exact branches cannot share mutable
+       // state with their source or siblings.
+       this.#objectAssociation?.beforeRestore(this, serialized, snapshot, associationTicket);
+-      const battle = Battle.fromJSON(snapshot);
++      const battle = associationTicket && this.#requestHealth
++        ? this.#requestHealth.decode(this, associationTicket, () => Battle.fromJSON(snapshot)) : Battle.fromJSON(snapshot);
+       try { this.#objectAssociation?.acceptRestore(this, snapshot, battle, associationTicket); }
+       catch (error) { battle.destroy(); throw error; }
+       if (associationTicket) this.#switchEvents?.attachRestored(this, battle, this.battleStream!, associationTicket);
+@@ -930,7 +935,7 @@
+       battle.sendUpdates();
+       for (const side of battle.sides) {
+         const override = requestOverrides?.[side.id as PlayerID];
+-        if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
++        if (override) side.activeRequest = (this.#requestHealth ? this.#requestHealth.cloneOverlay(this, battle, side.id as PlayerID, override) : structuredClone(override)) as typeof side.activeRequest;
+         if (side?.activeRequest) {
+           if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
+             this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
+@@ -955,6 +960,7 @@
+     } catch (error) {
+       this.#requestTrace?.invalidate();
+       this.#requestTrace = null;
++      this.#requestHealth?.release(this);
+       this.#switchEvents?.release(this);
+       this.#objectAssociation?.discard(this);
+       throw error;
+@@ -1022,8 +1028,8 @@
+   }
+ 
+   private initializeStreams(): void {
+-    const trace = this.#requestTrace = new RequestEmissionTrace();
+-    const nativeBirth = this.#nativeBirth, environment = this, switchEvents = this.#switchEvents;
++    const trace = this.#requestTrace = new RequestEmissionTrace((emission, receipt) => this.#requestHealth?.received(this, emission, receipt));
++    const nativeBirth = this.#nativeBirth, environment = this, switchEvents = this.#switchEvents, requestHealth = this.#requestHealth;
+     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
+     // _write synchronously emits requests then sendUpdates. Count at the source,
+     // before getPlayerStreams asynchronously fans out each message.
+@@ -1040,7 +1046,8 @@
+       }
+       override pushMessage(type: string, data: string): void {
+         switchEvents?.pushed(environment, this, type, data);
+-        trace.emitted(type, data);
++        const emission = trace.emitted(type, data);
++        requestHealth?.sent(environment, emission);
+         settling.emitted(type, data);
+         super.pushMessage(type, data);
+       }
+@@ -1133,6 +1140,7 @@
+     const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
+     this.#objectAssociation?.recordSerialization(this, this.battleStream!.battle!, raw, snapshot);
+     this.#switchEvents?.recordSnapshot(this, raw, snapshot);
++    this.#requestHealth?.recordSnapshot(this, snapshot);
+     return snapshot;
+   }
+ 
+@@ -1177,6 +1185,7 @@
+     const built = buildSeededForcedSwitchResult(request, output, result);
+     this.#objectAssociation?.finalizeSerialization(this, output, built.output_snapshot);
+     this.#switchEvents?.finalizeSnapshot(this, output, built.output_snapshot);
++    this.#requestHealth?.finalizeSnapshot(output, built.output_snapshot);
+     return built;
+   }
+ 
+@@ -1216,6 +1225,7 @@
+     const built = buildSeededTransitionResult(request, outputSnapshot, stepResult);
+     this.#objectAssociation?.finalizeSerialization(this, outputSnapshot, built.output_snapshot);
+     this.#switchEvents?.finalizeSnapshot(this, outputSnapshot, built.output_snapshot);
++    this.#requestHealth?.finalizeSnapshot(outputSnapshot, built.output_snapshot);
+     return built;
+   }
+ 
+@@ -1223,7 +1233,8 @@
+     this.noteLiveWrite();
+     this.#originalCreation?.abortStaging();
+     this.#nativeBirth?.abortStaging();
+-    this.#switchEvents?.release(this);
++    this.#requestHealth?.release(this);
++      this.#switchEvents?.release(this);
+     this.#objectAssociation?.release(this);
+     await this.destroyBattle();
+     this.initialized = false;
+--- a/sim-core/src/request_emission_trace.ts
++++ b/sim-core/src/request_emission_trace.ts
+@@ -12,7 +12,8 @@
+   readonly request_json: string;
+   readonly receipt: Readonly<{ owner_receipt_index: number; record: string; json: string }>;
+ }
+-type Emission = Omit<RequestEmissionReceipt, 'receipt'>;
++export type RequestProducerEmission = Omit<RequestEmissionReceipt, 'receipt'>;
++type Emission = RequestProducerEmission;
+ const token = (): Readonly<object> => Object.freeze(Object.create(null));
+ 
+ /** Private producer/owner-stream FIFO evidence, not freshness or action authority. */
+@@ -26,6 +27,8 @@
+   #pending: Record<PlayerID, Emission[]> = { p1: [], p2: [] };
+   #rows: Record<PlayerID, RequestEmissionReceipt[]> = { p1: [], p2: [] };
+   #counts: Record<PlayerID, number> = { p1: 0, p2: 0 };
++
++  constructor(private readonly healthReceipt?: (emission: RequestProducerEmission, receipt: RequestEmissionReceipt) => void) {}
+ 
+   #requireValid(): void { if (!this.#valid) throw new Error('request-trace/v1/invalidated'); }
+   #owner(owner: PlayerID): void {
+@@ -51,7 +54,7 @@
+       if (emit() !== undefined) this.#reject('non-synchronous-producer');
+     } finally { this.#origin = previous; }
+   }
+-  emitted(type: string, data: string): void {
++  emitted(type: string, data: string): RequestProducerEmission | undefined {
+     this.#requireValid();
+     if (type !== 'sideupdate') return;
+     const split = data.indexOf('\n'), record = data.slice(split + 1);
+@@ -60,9 +63,10 @@
+     if (split < 0 || (owner !== 'p1' && owner !== 'p2')) this.#reject('unsupported-owner');
+     if (!this.#origin || !this.#streams[owner]) this.#reject('unsupported-producer');
+     if (record.includes('\n')) this.#reject('multi-record-request');
+-    this.#pending[owner].push(Object.freeze({ owner, producer_occurrence: this.#occurrence,
++    const emission = Object.freeze({ owner, producer_occurrence: this.#occurrence,
+       emission_index: ++this.#nextEmission, owner_emission_index: ++this.#counts[owner], origin: this.#origin,
+-      request_record: record, request_json: record.slice(record.indexOf('|request|') + '|request|'.length) }));
++      request_record: record, request_json: record.slice(record.indexOf('|request|') + '|request|'.length) });
++    this.#pending[owner].push(emission); return emission;
+   }
+   received(owner: PlayerID, stream: object, record: string): void {
+     this.#requireValid(); this.#owner(owner);
+@@ -71,10 +75,11 @@
+     if (!next) this.#reject('missing-or-duplicate-emission');
+     if (next.request_record !== record) this.#reject('receipt-order-or-text-mismatch');
+     this.#pending[owner].shift();
+-    this.#rows[owner].push(Object.freeze({ ...next, receipt: Object.freeze({
++    const receipt = Object.freeze({ ...next, receipt: Object.freeze({
+       owner_receipt_index: this.#rows[owner].length + 1, record,
+       json: record.slice(record.indexOf('|request|') + '|request|'.length),
+-    }) }));
++    }) });
++    this.#rows[owner].push(receipt); this.healthReceipt?.(next, receipt);
+   }
+   handle(owner: PlayerID): RequestTraceHandle {
+     this.#requireValid(); this.#owner(owner);
+--- a/sim-core/src/request_delivery_ledger.ts
++++ b/sim-core/src/request_delivery_ledger.ts
+@@ -46,6 +46,9 @@
+   #raw: Record<PlayerID, unknown> = { p1: null, p2: null };
+   #restores = new WeakMap<object, { environment: LocalBattleEnv; parent: PipelineBoundary; traces: Record<PlayerID, readonly RequestEmissionReceipt[]> }>();
+   #prepared = new WeakMap<object, { parent: PipelineBoundary | null; boundary: PipelineBoundary; histories: Record<PlayerID, RequestDeliveryHistory>; raws: Record<PlayerID, unknown> }>();
++
++  #healthTransfers = new WeakMap<object, { prepared: object; owner: PlayerID; environment: LocalBattleEnv; boundary: PipelineBoundary; row: RequestDeliveryBoundary }>();
++  #healthEnvironments = new WeakMap<object, LocalBattleEnv>();
+ 
+   #ready: { token: object; state: NonNullable<ReturnType<RequestDeliveryLedger["preparedState"]>> } | null = null;
+   private preparedState(token: object) { return this.#prepared.get(token); }
+@@ -117,7 +120,17 @@
+       histories[owner] = Object.freeze({ boundaries: Object.freeze([...prior.boundaries, row]), deliveries });
+       raws[owner] = structuredClone(raw(result, owner));
+     }
+-    const prepared = token(); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
++    const prepared = token(); this.#healthEnvironments.set(prepared, environment); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
++  }
++  prepareHealthTransfer(prepared: object, owner: PlayerID): object {
++    this.#open(); this.#owner(owner); const state = this.#prepared.get(prepared), environment = this.#healthEnvironments.get(prepared);
++    if (!state || !environment) fail('foreign-health-preparation');
++    const key = token(); this.#healthTransfers.set(key, { prepared, owner, environment, boundary: state.boundary, row: state.histories[owner].boundaries.at(-1)! }); return key;
++  }
++  readHealthTransfer(key: object, owner: PlayerID, environment: object, boundary: PipelineBoundary): RequestDeliveryBoundary {
++    this.#open(); this.#owner(owner); const entry = this.#healthTransfers.get(key);
++    if (!entry || entry.owner !== owner || entry.environment !== environment || entry.boundary !== boundary
++      || !this.#prepared.has(entry.prepared)) fail('foreign-or-revoked-health-transfer'); return entry.row;
+   }
+   discard(prepared: object): void { this.#prepared.delete(prepared); if (this.#ready?.token === prepared) this.#ready = null; }
+   preflight(prepared: object): void {
+@@ -142,7 +155,7 @@
+   }
+   revoke(): void {
+     this.#ready = null; this.#valid = false; this.#handles = { p1: token(), p2: token() };
+-    this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
++    this.#healthTransfers = new WeakMap(); this.#healthEnvironments = new WeakMap(); this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
+     this.#histories = { p1: { boundaries: [], deliveries: [] }, p2: { boundaries: [], deliveries: [] } };
+   }
+ }
+--- a/sim-core/src/perspective_knowledge.ts
++++ b/sim-core/src/perspective_knowledge.ts
+@@ -529,9 +529,11 @@
+   nativeOwnerContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeOwnerContext!;
+ }
+ /** Arbitrary data structure check. This never registers a trusted consumer pair. */
+-export function checkNativeOwnerProjection(input: unknown): void {
++export function checkNativeOwnerProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerProjectionContext(), false); }
++export function checkNativeOwnerHealthProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerHealthProjectionContext(), true); }
++function checkOwnerProjection(input: unknown, context: Readonly<{ schema: Row; profile: Row }>, health: boolean): void {
+   canonicalKnowledgeJson(input);
+-  const context = nativeOwnerProjectionContext(), value = input as Row;
++  const value = input as Row;
+   shape(value, context.schema, context.schema.$defs);
+   requireStructure(value.id === knowledgeIdentity(value), 'native projection identity');
+   const old = contract();
+@@ -549,14 +551,45 @@
+     logicalFacts(value[section]);
+     for (const fact of value[section]) {
+       const rule = context.profile.rules.find((r: Row) => r.context === section && r.property === fact.property && r.family === fact.family);
+-      requireStructure(rule && rule.states.includes(fact.state) && fact.reason === rule.reason, 'native projection property scope');
++      requireStructure(rule && rule.states.includes(fact.state) && (rule.reasons ? rule.reasons[fact.state]?.includes(fact.reason) : fact.reason === rule.reason), 'native projection property scope');
+       requireStructure(fact.owner === value.owner && fact.subject === (rule.subject === 'side' ? value.owner + ':side' : fact.subject)
+         && (rule.subject === 'side' || new RegExp('^' + value.owner + ':roster:[1-6]$').test(fact.subject)), 'native projection subject');
+       const properties = { [rule.family]: [rule.property] };
+       factShape(fact, old, properties, false);
+       requireStructure(fact.effect_key === null && fact.freshness === (section === 'starting' ? 'immutable' : 'current'), 'native projection lifecycle');
+-      requireStructure(fact.observed_at === (section === 'starting' ? 0 : null), 'native projection cursor');
++      requireStructure(section === 'starting' ? fact.observed_at === 0 : health && fact.family === 'K05' && fact.state !== 'unknown' ? Number.isSafeInteger(fact.observed_at) && fact.observed_at >= 0 : fact.observed_at === null, 'native projection cursor');
+       requireStructure(fact.precision === (fact.state === 'known' ? 'exact' : 'not_applicable'), 'native projection precision');
+     }
+   }
+-}
++  if (health) {
++    for (let slot = 1; slot <= count; slot++) {
++      const facts = value.current.filter((f: Row) => f.subject === value.owner + ':roster:' + slot && f.family === 'K05');
++      const hp = facts.find((f: Row) => f.property === 'hp'), faint = facts.find((f: Row) => f.property === 'fainted'), status = facts.find((f: Row) => f.property === 'status');
++      if (hp.state === 'unknown') requireStructure(facts.every((f: Row) => f.state === 'unknown' && f.reason === hp.reason), 'native health unavailable tuple');
++      else {
++        requireStructure(hp.state === 'known' && hp.value.type === 'integer' && hp.value.data >= 0 && hp.value.data <= MAX_INTEGER
++          && faint.state === 'known' && faint.value.data === (hp.value.data === 0) && faint.observed_at === hp.observed_at, 'native health tuple');
++        if (hp.value.data === 0) requireStructure(status.state === 'unknown' && status.reason === 'not_emitted', 'native faint status omission');
++        else requireStructure(status.observed_at === hp.observed_at && (status.state === 'known_absent'
++          || status.state === 'known' && ['brn','par','slp','frz','psn','tox'].includes(status.value.data)), 'native health status');
++      }
++    }
++  }
++
++}
++
++let nativeHealthContext: Readonly<{ schema: Row; profile: Row }> | undefined;
++export function nativeOwnerHealthProjectionContext(): Readonly<{ schema: Row; profile: Row }> {
++  if (nativeHealthContext) return nativeHealthContext;
++  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
++    'docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1');
++  const data: Row = {};
++  for (const [name, expected] of Object.entries({"schema.json": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17", "profile.json": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e"})) {
++    const bytes = readFileSync(path.join(folder, name));
++    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native health contract content');
++    data[name] = parseKnowledgeJson(bytes);
++  }
++  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native health profile identity');
++  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
++  nativeHealthContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeHealthContext!;
++}
+--- a/sim-core/src/native_owner_knowledge.ts
++++ b/sim-core/src/native_owner_knowledge.ts
+@@ -1,5 +1,6 @@
++import { OwnedRequestHealthHost } from './owned_request_health';
+ import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+-import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext } from './perspective_knowledge';
++import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection } from './perspective_knowledge';
+ import { assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
+ import type { PipelineBoundary } from './pipeline_integration';
+ import type { PlayerID } from './types';
+@@ -7,7 +8,7 @@
+ export type OwnerKnowledgeHandle = Readonly<object>;
+ export interface OwnerKnowledgeRead {
+   readonly projection: Readonly<Record<string, any>>;
+-  readonly binding: Readonly<{ observation_id: string; prefix_cursor: number; request_adaptation: 'not_adopted' }>;
++  readonly binding: Readonly<{ observation_id: string; prefix_cursor: number; request_adaptation: 'not_adopted' | 'owned_health/v1'; request_descriptor?: 'not_adopted'; request_state?: string }>;
+ }
+ const owners = ['p1', 'p2'] as const;
+ const token = (): object => Object.freeze(Object.create(null));
+@@ -18,7 +19,7 @@
+ type Frame = { environment: object; occurrence: object; rows: readonly OriginalOwnerEvidence[] };
+ type State = { parent: PipelineBoundary; source: Frame; starting: Record<PlayerID, readonly Record<string, any>[]>;
+   reads: Record<PlayerID, OwnerKnowledgeRead>; handles: Record<PlayerID, OwnerKnowledgeHandle> };
+-type Preparation = { environment: object; parent: PipelineBoundary | null; state: State };
++type Preparation = { environment: object; parent: PipelineBoundary | null; state: State; health?: { host: OwnedRequestHealthHost; token: object } };
+ 
+ /** Fixed addressed private consumer; never an import factory or native actor resolver. */
+ export class NativeOwnerKnowledgeController {
+@@ -61,9 +62,10 @@
+     this.#creation.assertKnowledgeEnrollment(this.#frame.environment, this.#frame.occurrence, this.#frame.rows);
+     return this.#frame;
+   }
+-  prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null): object {
+-    const source = this.source(), prior = this.#current, profile = nativeOwnerProjectionContext().profile;
++  prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null, healthHost?: OwnedRequestHealthHost, healthToken?: object): object {
++    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerHealthProjectionContext() : nativeOwnerProjectionContext()).profile;
+     if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
++    health?.host.assertPreparedBinding(health.token, environment, boundary, source.rows);
+     const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex) });
+     const reads = {} as Record<PlayerID, OwnerKnowledgeRead>;
+     for (const owner of owners) {
+@@ -71,27 +73,31 @@
+       if (obs.perspective !== owner || obs.battle_id !== source.rows[0].labels.battle_id
+         || obs.event_cursor !== obs.protocol_prefix.length || boundary.battle_id !== obs.battle_id) fail('boundary');
+       const count = source.rows[owners.indexOf(owner)].raw_team.length;
+-      const current = profile.rules.filter((r: any) => r.context === 'current').flatMap((rule: any) => {
++      const current = profile.rules.filter((r: any) => r.context === 'current' && r.family !== 'K05').flatMap((rule: any) => {
+         const subjects = rule.subject === 'side' ? [owner + ':side'] : Array.from({ length: count }, (_, i) => owner + ':roster:' + (i + 1));
+         return subjects.map(subject => freeze({ owner, subject, family: rule.family, property: rule.property, effect_key: null,
+           state: 'unknown', value: null, reason: 'unimplemented_family', freshness: 'current', precision: 'not_applicable', observed_at: null }));
+       });
++      const adapted = health?.host.readPrepared(health.token, owner);
++      if (adapted) current.push(...adapted.facts);
+       const projection: Record<string, any> = { kind: 'projection', id: '', schema: 'perspective-knowledge-consumer/v1', owner,
+         policy: profile.policy, boundary: boundary.step_index, required_profile: profile.id, result: 'incomplete',
+         starting: starting[owner], starting_crosswalk: [], current, request: null };
+-      projection.id = knowledgeIdentity(projection); checkNativeOwnerProjection(projection);
++      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerHealthProjection : checkNativeOwnerProjection)(projection);
+       reads[owner] = freeze({ projection, binding: { observation_id: obs.observation_id,
+-        prefix_cursor: obs.event_cursor, request_adaptation: 'not_adopted' as const } });
++        prefix_cursor: obs.event_cursor, ...(adapted ? { request_adaptation: 'owned_health/v1' as const, request_descriptor: 'not_adopted' as const, request_state: adapted.state } : { request_adaptation: 'not_adopted' as const }) } });
+     }
+     const prepared = token();
+-    this.#prepared.set(prepared, { environment, parent, state: { parent: boundary, source, starting, reads,
++    this.#prepared.set(prepared, { environment, parent, health, state: { parent: boundary, source, starting, reads,
+       handles: { p1: token(), p2: token() } } }); return prepared;
+   }
+   preflight(prepared: object): void {
+     const source = this.source(), entry = this.#prepared.get(prepared);
+     if (!entry || entry.parent !== (this.#current?.parent ?? null) || entry.state.source !== source) fail('foreign-or-stale-preparation');
++    entry.health?.host.assertPreparedBinding(entry.health.token, entry.environment, entry.state.parent, source.rows);
++    entry.health?.host.preflight(entry.health.token);
+     for (const owner of owners) {
+-      checkNativeOwnerProjection(entry.state.reads[owner].projection);
++      (entry.health ? checkNativeOwnerHealthProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
+       if (this.#current && entry.state.starting[owner] !== this.#current.starting[owner]) fail('starting-lineage');
+     }
+     this.#ready = entry;
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { OwnedRequestHealthHost } from './owned_request_health';
+ import { NativeOwnerKnowledgeController, type OwnerKnowledgeHandle, type OwnerKnowledgeRead } from './native_owner_knowledge';
+ import { SwitchEventHost, type SwitchEventHandle, type SwitchEventHistory } from './owner_identity_events';
+ import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
+@@ -382,6 +383,7 @@
+   readonly #nativeBirth: NativeBirthEnrollment;
+   readonly #objectAssociation: NativeObjectAssociation;
+   readonly #switchEvents: SwitchEventHost;
++  readonly #requestHealth: OwnedRequestHealthHost | undefined;
+   readonly #ownerKnowledge: NativeOwnerKnowledgeController | undefined;
+   readonly #deliveryLedger = new RequestDeliveryLedger();
+   #deliveryEnabled = false;
+@@ -416,6 +418,7 @@
+     this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
+     this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
+     this.#switchEvents = new SwitchEventHost(this.#nativeBirth, this.#objectAssociation);
++    this.#requestHealth = options.knowledge_recipients ? new OwnedRequestHealthHost(this.#nativeBirth, this.#objectAssociation) : undefined;
+     this.environment = this.newEnvironment('initial');
+     this.snapshot = null;
+     this.rawPrefix = [];
+@@ -436,26 +439,29 @@
+         const delivery = session.#deliveryLedger.prepare(session.environment, initial, boundary, null);
+         const association = session.#objectAssociation.prepareInitial(session.environment, boundary, snapshot);
+         const events = session.#switchEvents.prepare(session.environment, boundary, snapshot, projectProtocolPositions(session.rawPrefix, session.rulesContext), null);
+-        const knowledge = session.#ownerKnowledge?.prepare(session.environment, boundary, null);
++        const health = session.#requestHealth?.prepare(session.environment, boundary, session.#deliveryLedger, delivery);
++        const knowledge = session.#ownerKnowledge?.prepare(session.environment, boundary, null, session.#requestHealth, health);
+         session.#deliveryLedger.preflight(delivery);
+         session.#objectAssociation.preflight(association);
+         session.#switchEvents.preflight(events);
++        if (health) session.#requestHealth!.preflight(health);
+         if (knowledge) session.#ownerKnowledge!.preflight(knowledge);
+         // No validation/allocation/await/user callback from here to publication.
+         session.#nativeBirth.installActivation();
+         session.#deliveryLedger.installReady();
+         session.#objectAssociation.installReady();
+         session.#switchEvents.installReady();
++        if (health) session.#requestHealth!.installReady();
+         if (knowledge) session.#ownerKnowledge!.installReady();
+         session.snapshot = snapshot; session.currentBoundaryValue = boundary; session.#deliveryEnabled = true;
+       } else {
+-        session.#ownerKnowledge?.revoke();
++        session.#requestHealth?.revoke(); session.#ownerKnowledge?.revoke();
+         session.#deliveryLedger.revoke(); session.#nativeBirth.revoke(); session.#switchEvents.revoke();
+         session.snapshot = snapshot; session.currentBoundaryValue = boundary;
+       }
+       return session;
+     } catch (error) {
+-      session.#ownerKnowledge?.revoke();
++      session.#requestHealth?.revoke(); session.#ownerKnowledge?.revoke();
+       session.#deliveryLedger.revoke();
+       session.#originalCreation.revoke();
+       session.#nativeBirth.revoke();
+@@ -732,10 +738,12 @@
+       const association = associationTicket ? this.#objectAssociation.prepareCommit(candidate, nextBoundary, transitionResult.output_snapshot, associationTicket) : undefined;
+       const events = this.#deliveryEnabled ? this.#switchEvents.prepare(candidate, nextBoundary, transitionResult.output_snapshot,
+         projectProtocolPositions(nextRawPrefix, this.rulesContext), inputBoundary) : undefined;
+-      const knowledge = this.#ownerKnowledge?.prepare(candidate, nextBoundary, inputBoundary);
++      const health = delivery ? this.#requestHealth?.prepare(candidate, nextBoundary, this.#deliveryLedger, delivery) : undefined;
++      const knowledge = this.#ownerKnowledge?.prepare(candidate, nextBoundary, inputBoundary, this.#requestHealth, health);
+       if (delivery) this.#deliveryLedger.preflight(delivery);
+       if (association) this.#objectAssociation.preflight(association);
+       if (events) this.#switchEvents.preflight(events);
++      if (health) this.#requestHealth!.preflight(health);
+       if (knowledge) this.#ownerKnowledge!.preflight(knowledge);
+       const previousEnvironment = this.environment;
+       const result = { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+@@ -744,6 +752,7 @@
+       if (delivery) this.#deliveryLedger.installReady();
+       if (association) this.#objectAssociation.installReady();
+       if (events) this.#switchEvents.installReady();
++      if (health) this.#requestHealth!.installReady();
+       if (knowledge) this.#ownerKnowledge!.installReady();
+       this.environment = candidate; this.rawPrefix = nextRawPrefix;
+       this.snapshot = transitionResult.output_snapshot; this.currentBoundaryValue = nextBoundary;
+@@ -755,7 +764,7 @@
+       }
+       return result;
+     } catch (error) {
+-      this.#ownerKnowledge?.discard(candidate);
++      this.#requestHealth?.release(candidate); this.#ownerKnowledge?.discard(candidate);
+       if (delivery) this.#deliveryLedger.discard(delivery);
+       this.#switchEvents.release(candidate);
+       this.#objectAssociation.discard(candidate);
+@@ -767,7 +776,7 @@
+   async close(): Promise<void> {
+     if (this.closed) return;
+     this.closed = true;
+-    this.#ownerKnowledge?.revoke();
++    this.#requestHealth?.revoke(); this.#ownerKnowledge?.revoke();
+     this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
+     this.#nativeBirth.revoke();
+@@ -818,7 +827,7 @@
+       suffix === 'initial' ? this.#nativeBirth : undefined,
+       this.#objectAssociation,
+       this.#runtimeProfile,
+-      this.#switchEvents,
++      this.#switchEvents, this.#requestHealth,
+     );
+   }
+ 
+--- /dev/null
++++ b/sim-core/src/owned_request_health.ts
+@@ -0,0 +1,260 @@
++import { Battle, Side, Pokemon } from 'pokemon-showdown';
++import { isDeepStrictEqual } from 'node:util';
++import { NativeBirthEnrollment, NativeObjectAssociation, type AssociationRows, type NativeRestoreTicket } from './owner_identity_crosswalk';
++import type { PipelineBoundary } from './pipeline_integration';
++import type { SeededBattleSnapshot } from './transition';
++import type { PlayerID } from './types';
++import type { OriginalOwnerEvidence } from './original_owner_provider';
++import type { RequestEmissionReceipt, RequestProducerEmission } from './request_emission_trace';
++import type { RequestDeliveryLedger, RequestDeliveryBoundary } from './request_delivery_ledger';
++const owners = ['p1', 'p2'] as const;
++const pinned = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests')!;
++const sideDataPin = Object.getOwnPropertyDescriptor(Side.prototype, 'getRequestData')!;
++const sideEmitPin = Object.getOwnPropertyDescriptor(Side.prototype, 'emitRequest')!;
++const rowPin = Object.getOwnPropertyDescriptor(Pokemon.prototype, 'getSwitchRequestData')!;
++let decoding = false;
++function need(value: unknown, reason: string): asserts value { if (!value) throw new Error('request-health/v1/' + reason); }
++const token = (): object => Object.freeze(Object.create(null));
++type Row = { actor: any; data: any; condition: string; hp: number; maxhp: number; status: string; fainted: boolean };
++type Capture = { owner: PlayerID; request: any; rows: readonly Row[] };
++type World = { battle: Battle; rows?: AssociationRows; undo: Array<() => void>; sides: Set<object>; decodeCalls: number; receipts: Set<object> };
++type SnapshotRows = { rows: Partial<Record<PlayerID, readonly { slot: number; condition: string }[]>>; originals: Partial<Record<PlayerID, object>> };
++type Prepared = { environment: object; boundary: PipelineBoundary; ledger: RequestDeliveryLedger;
++  transfers: Record<PlayerID, object>; captures: Partial<Record<PlayerID, Capture>>; facts: Record<PlayerID, readonly any[]>; states: Record<PlayerID, string> };
++/** Exact native writer lineage and held B1/B2 associations. No JSON/source admission. */
++export class OwnedRequestHealthHost {
++  readonly #birth: NativeBirthEnrollment;
++  #closed = false;
++  #worlds = new Map<object, World>();
++  #rowData = new WeakMap<object, Row>();
++  #sideData = new WeakMap<object, readonly Row[]>();
++  #requests = new WeakMap<object, Capture>();
++  #emissions = new WeakMap<object, Capture>();
++  #receipts = new WeakMap<object, Capture>();
++  #latest = new Map<object, Partial<Record<PlayerID, Capture>>>();
++  #snapshots = new WeakMap<object, SnapshotRows>();
++  #restores = new Map<object, { parent: PipelineBoundary; snapshot: SeededBattleSnapshot; ticket: object; rows?: SnapshotRows }>();
++  #sending: { environment: object; capture: Capture } | null = null;
++  #prepared = new Map<object, Prepared>();
++  #ready: Prepared | null = null;
++  #parent: PipelineBoundary | null = null;
++  constructor(birth: NativeBirthEnrollment, association: NativeObjectAssociation) {
++    this.#birth = birth;
++    const receiver = (issuer: NativeBirthEnrollment | NativeObjectAssociation) => ({
++      observe: (environment: object, battle: Battle) => this.attach(environment, battle, true),
++      enroll: (frame: object, environment: object, battle: Battle, rows: AssociationRows) => {
++        this.open(); issuer.assertRequestHealthTransfer(frame, environment, battle, rows);
++        const world = this.#worlds.get(environment); need(world?.battle === battle && !world.rows, 'foreign-or-duplicate-enrollment');
++        need(owners.every(owner => rows[owner]?.original.owner === owner
++          && rows[owner].objects.length === rows[owner].original.raw_team.length
++          && rows[owner].objects.every(actor => actor?.side === battle[owner])), 'owner-association');
++        world.rows = rows;
++      },
++      restore: (environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket) => {
++        this.open(); need(parent === this.#parent && !this.#restores.has(environment), 'foreign-restore-parent');
++        this.#restores.set(environment, { parent, snapshot, ticket, rows: this.#snapshots.get(snapshot) });
++      },
++    });
++    birth.registerRequestHealthReceiver(receiver(birth)); association.registerRequestHealthReceiver(receiver(association));
++  }
++  private open(): void { need(!this.#closed, 'revoked'); }
++  private replace(world: World, object: any, key: string, value: any): void {
++    const descriptor = Object.getOwnPropertyDescriptor(object, key);
++    Object.defineProperty(object, key, { configurable: true, writable: true, value });
++    world.undo.push(() => { if (descriptor) Object.defineProperty(object, key, descriptor); else delete object[key]; });
++  }
++  private attach(environment: object, battle: Battle, initial: boolean): void {
++    this.open(); need(!this.#worlds.has(environment) && !Object.hasOwn(battle, 'getRequests')
++      && battle.getRequests === pinned.value && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests'), pinned), 'noncanonical-producer');
++    const world: World = { battle, undo: [], sides: new Set(), decodeCalls: 0, receipts: new Set() }; this.#worlds.set(environment, world);
++    this.replace(world, battle, 'getRequests', (...args: any[]) => {
++      if (decoding) need(++world.decodeCalls === 1, 'multiple-regeneration');
++      if (initial && !world.rows) this.#birth.transferRequestHealthActors(environment, battle);
++      this.attachSides(environment, world);
++      return pinned.value.apply(battle, args);
++    });
++  }
++  private attachSides(environment: object, world: World): void {
++    for (const owner of owners) {
++      const side: any = world.battle[owner]; if (!side) continue;
++      if (world.sides.has(side)) continue;
++      need(!Object.hasOwn(side, 'getRequestData') && !Object.hasOwn(side, 'emitRequest')
++        && side.getRequestData === sideDataPin.value && side.emitRequest === sideEmitPin.value
++        && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Side.prototype, 'getRequestData'), sideDataPin)
++        && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Side.prototype, 'emitRequest'), sideEmitPin), 'noncanonical-side');
++      const getData = side.getRequestData, emit = side.emitRequest;
++      for (const actor of side.pokemon) {
++        need(!Object.hasOwn(actor, 'getSwitchRequestData') && actor.getSwitchRequestData === rowPin.value
++          && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Pokemon.prototype, 'getSwitchRequestData'), rowPin), 'noncanonical-pokemon');
++        const writer = actor.getSwitchRequestData;
++        this.replace(world, actor, 'getSwitchRequestData', (...args: any[]) => {
++          const data = writer.apply(actor, args);
++          if (args[0] !== true) this.#rowData.set(data, { actor, data, condition: data.condition,
++            hp: actor.hp, maxhp: actor.maxhp, status: actor.status, fainted: actor.fainted });
++          return data;
++        });
++      }
++      this.replace(world, side, 'getRequestData', (...args: any[]) => {
++        const data = getData.apply(side, args), rows = data.pokemon.map((entry: any) => this.#rowData.get(entry));
++        if (args[0] !== true && rows.every(Boolean)) this.#sideData.set(data, Object.freeze(rows));
++        return data;
++      });
++      this.replace(world, side, 'emitRequest', (request: any = side.activeRequest, updated = false) => {
++        const rows = request && this.#sideData.get(request.side);
++        const capture = rows && { owner, request, rows };
++        if (capture) { this.checkCapture(capture, world, false); this.#requests.set(request, capture); }
++        need(!this.#sending, 'nested-send'); this.#sending = capture ? { environment, capture } : null;
++        try { return emit.call(side, request, updated); } finally { this.#sending = null; }
++      });
++      world.sides.add(side);
++    }
++  }
++  /** Only the final admitted synchronous native decode. Probe callers never use this seam. */
++  decode(environment: object, ticket: object, operation: () => Battle): Battle {
++    this.open(); const restore = this.#restores.get(environment);
++    need(restore?.ticket === ticket && !decoding, 'foreign-or-nested-decode');
++    const descriptor = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests');
++    need(isDeepStrictEqual(descriptor, pinned), 'prototype-descriptor');
++    decoding = true; let captured: Battle | undefined, count = 0, returned: Battle | undefined;
++    Object.defineProperty(Battle.prototype, 'getRequests', { ...pinned, value: function(this: Battle, ...args: any[]) {
++      need(++count === 1 && !Object.hasOwn(this, 'getRequests'), 'multiple-or-noncanonical-decode');
++      captured = this;
++      // Restore canonical prototype during instance installation, then retain interception until decode returns.
++      Object.defineProperty(Battle.prototype, 'getRequests', pinned);
++      host.attach(environment, this, false); host.attachSides(environment, host.#worlds.get(environment)!);
++      Object.defineProperty(Battle.prototype, 'getRequests', intercept);
++      return (this.getRequests as any)(...args);
++    } });
++    const host = this, intercept = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests')!;
++    try {
++      returned = operation(); need(!captured || captured === returned, 'foreign-decoded-battle');
++      const expected = (restore.snapshot.simulator_state as any).sides.some((side: any) => side.activeRequest === undefined);
++      need(count === (expected ? 1 : 0), 'missing-regeneration');
++      if (!captured) { Object.defineProperty(Battle.prototype, 'getRequests', pinned); this.attach(environment, returned, false); }
++      return returned;
++    } catch (error) { this.release(environment); throw error; }
++    finally { Object.defineProperty(Battle.prototype, 'getRequests', pinned); decoding = false; }
++  }
++  sent(environment: object, emission: RequestProducerEmission | undefined): void {
++    if (!emission || !this.#sending) return;
++    const context = this.#sending;
++    need(context.environment === environment && context.capture.owner === emission.owner
++      && JSON.stringify(context.capture.request) === emission.request_json, 'send-join');
++    this.#emissions.set(emission, context.capture);
++  }
++  received(environment: object, emission: RequestProducerEmission, receipt: RequestEmissionReceipt): void {
++    const capture = this.#emissions.get(emission); if (!capture) return;
++    need(capture.owner === receipt.owner && this.#worlds.has(environment), 'receipt-join');
++    this.#receipts.set(receipt, capture); this.#worlds.get(environment)!.receipts.add(receipt);
++    const latest = this.#latest.get(environment) ?? {}; latest[capture.owner] = capture; this.#latest.set(environment, latest);
++  }
++  private checkCapture(capture: Capture, world: World, settled: boolean): void {
++    const data = capture.request.side;
++    need(data?.id === capture.owner && data.pokemon.length === capture.rows.length
++      && capture.rows.every((row, i) => data.pokemon[i] === row.data && row.data.condition === row.condition
++        && row.actor.side === world.battle[capture.owner]), 'altered-writer-row');
++    if (world.rows) need(capture.rows.length === world.rows[capture.owner].objects.length
++      && new Set(capture.rows.map(row => row.actor)).size === capture.rows.length
++      && capture.rows.every(row => world.rows![capture.owner].objects.includes(row.actor)), 'unbound-or-duplicate-subject');
++    if (settled) need(capture.rows.every(row => row.actor.hp === row.hp && row.actor.maxhp === row.maxhp
++      && row.actor.status === row.status && row.actor.fainted === row.fainted), 'stale-settled-value');
++  }
++  recordSnapshot(environment: object, snapshot: SeededBattleSnapshot): void {
++    const world = this.#worlds.get(environment); if (!world?.rows) return;
++    const saved: SnapshotRows = { rows: {}, originals: {} };
++    for (const owner of owners) {
++      const capture = this.#latest.get(environment)?.[owner];
++      if (!capture || capture.request !== world.battle[owner]?.activeRequest) continue;
++      this.checkCapture(capture, world, true);
++      const actors = world.rows[owner].objects;
++      saved.rows[owner] = Object.freeze(capture.rows.map(row => {
++        const slot = actors.indexOf(row.actor) + 1; need(slot, 'unbound-serialization-row'); return Object.freeze({ slot, condition: row.condition });
++      })); saved.originals[owner] = world.rows[owner].original;
++    }
++    this.#snapshots.set(snapshot, saved);
++  }
++  finalizeSnapshot(source: SeededBattleSnapshot, target: SeededBattleSnapshot): void {
++    const held = this.#snapshots.get(source); if (held) this.#snapshots.set(target, held);
++  }
++  cloneOverlay(environment: object, battle: Battle, owner: PlayerID, override: any): any {
++    const pending = this.#restores.get(environment), world = this.#worlds.get(environment);
++    need(pending && world?.battle === battle && world.rows, 'overlay-world');
++    need((pending.snapshot.simulator_state as any).__neural_active_request_overrides?.requests?.[owner] === override, 'foreign-overlay-occurrence');
++    const result = structuredClone(override), held = pending.rows?.rows[owner];
++    if (!held || pending.rows!.originals[owner] !== world.rows[owner].original) return result;
++    need(result.side?.pokemon.length === held.length, 'overlay-row-count');
++    const rows = held.map((entry, i) => {
++      const actor = world.rows![owner].objects[entry.slot - 1], data = result.side.pokemon[i];
++      need(actor && data.condition === entry.condition, 'overlay-lineage');
++      return { actor, data, condition: data.condition, hp: actor.hp, maxhp: actor.maxhp, status: actor.status, fainted: actor.fainted };
++    });
++    this.#sideData.set(result.side, Object.freeze(rows)); return result;
++  }
++  prepare(environment: object, boundary: PipelineBoundary, ledger: RequestDeliveryLedger, delivery: object): object {
++    this.open(); const world = this.#worlds.get(environment); need(world?.rows, 'missing-enrollment');
++    const facts = {} as Record<PlayerID, readonly any[]>, states = {} as Record<PlayerID, string>, captures: Prepared['captures'] = {};
++    const transfers = {} as Record<PlayerID, object>;
++    for (const owner of owners) {
++      const transfer = transfers[owner] = ledger.prepareHealthTransfer(delivery, owner);
++      const row = ledger.readHealthTransfer(transfer, owner, environment, boundary);
++      const capture = row.selected && this.#receipts.get(row.selected);
++      const observation = boundary.perspectives[owner].observation;
++      states[owner] = observation.view.terminated ? 'terminal' : !row.current ? 'requestless' : capture?.request.wait ? 'waiting'
++        : capture?.request.forceSwitch ? capture.request.side.pokemon.some((entry: any) => entry.reviving) ? 'revival_selection' : 'forced_switch'
++        : capture?.request.active ? 'move' : 'unsupported';
++      const usable = !!capture && row.current !== null && !observation.view.terminated && states[owner] !== 'unsupported';
++      if (usable) { this.checkCapture(capture!, world, true); captures[owner] = capture!; }
++      const out: any[] = [];
++      for (const [i, actor] of world.rows[owner].objects.entries()) {
++        const writer = usable ? capture!.rows.filter(row => row.actor === actor) : [];
++        need(writer.length <= 1, 'duplicate-subject');
++        const condition = writer[0]?.condition;
++        const positive = condition?.match(/^([1-9][0-9]*)\/([1-9][0-9]*)(?: (brn|par|slp|frz|psn|tox))?$/);
++        if (condition !== undefined) need(condition === '0 fnt' || positive && positive[0] === condition, 'condition-grammar');
++        if (positive) need(Number.isSafeInteger(+positive[1]) && +positive[1] <= +positive[2] && +positive[2] <= 2147483647
++          && +positive[1] === actor.hp && +positive[2] === actor.maxhp && (positive[3] ?? '') === actor.status && !actor.fainted, 'condition-value');
++        if (condition === '0 fnt') need(actor.hp === 0 && actor.fainted === true, 'faint-value');
++        const absent = !usable || condition === undefined;
++        for (const property of ['hp', 'fainted', 'status']) {
++          const unknown = absent || property === 'status' && condition === '0 fnt';
++          const value = property === 'hp' ? condition === '0 fnt' ? 0 : positive ? +positive[1] : null
++            : property === 'fainted' ? condition === '0 fnt' : positive?.[3] ?? null;
++          out.push(Object.freeze({ owner, subject: owner + ':roster:' + (i + 1), family: 'K05', property, effect_key: null,
++            state: unknown ? 'unknown' : value === null ? 'known_absent' : 'known',
++            value: unknown || value === null ? null : Object.freeze({ type: property === 'hp' ? 'integer' : property === 'fainted' ? 'boolean' : 'text', data: value }),
++            reason: unknown ? states[owner] === 'terminal' || states[owner] === 'requestless' || property === 'status' && condition === '0 fnt' ? 'not_emitted' : 'unsupported_writer' : 'none',
++            freshness: 'current', precision: unknown || value === null ? 'not_applicable' : 'exact', observed_at: unknown ? null : row.boundary_cursor }));
++        }
++      }
++      facts[owner] = Object.freeze(out);
++    }
++    const key = token(); this.#prepared.set(key, { environment, boundary, ledger, transfers, captures, facts, states }); return key;
++  }
++  assertPreparedBinding(key: object, environment: object, boundary: PipelineBoundary, originals: readonly OriginalOwnerEvidence[]): void {
++    this.open(); const entry = this.#prepared.get(key), world = this.#worlds.get(environment);
++    need(entry?.environment === environment && entry.boundary === boundary && world?.rows
++      && owners.every((owner, i) => world.rows![owner].original === originals[i]), 'foreign-knowledge-binding');
++  }
++  readPrepared(key: object, owner: PlayerID): { facts: readonly any[]; state: string } {
++    this.open(); const entry = this.#prepared.get(key); need(entry && owners.includes(owner), 'foreign-preparation');
++    return { facts: entry.facts[owner], state: entry.states[owner] };
++  }
++  preflight(key: object): void {
++    this.open(); const entry = this.#prepared.get(key); need(entry, 'foreign-preparation');
++    const world = this.#worlds.get(entry.environment); need(world?.rows, 'revoked-world');
++    for (const owner of owners) {
++      entry.ledger.readHealthTransfer(entry.transfers[owner], owner, entry.environment, entry.boundary);
++      if (entry.captures[owner]) this.checkCapture(entry.captures[owner]!, world, true);
++    }
++    this.#ready = entry;
++  }
++  installReady(): void { this.#parent = this.#ready!.boundary; this.#ready = null; this.#prepared.clear(); }
++  release(environment: object): void {
++    const world = this.#worlds.get(environment); world?.receipts.forEach(receipt => this.#receipts.delete(receipt)); world?.undo.reverse().forEach(undo => undo());
++    this.#worlds.delete(environment); this.#latest.delete(environment); this.#restores.delete(environment);
++    for (const [key, value] of this.#prepared) if (value.environment === environment) this.#prepared.delete(key);
++    if (this.#ready?.environment === environment) this.#ready = null;
++  }
++  revoke(): void { for (const environment of this.#worlds.keys()) this.release(environment); this.#closed = true;
++    this.#prepared.clear(); this.#ready = null; this.#receipts = new WeakMap(); this.#emissions = new WeakMap(); this.#snapshots = new WeakMap(); }
++}
+--- /dev/null
++++ b/sim-core/tests/owned_request_health.test.ts
+@@ -0,0 +1,131 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { Battle, Teams } from 'pokemon-showdown';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { OwnedRequestHealthHost } from '../src/owned_request_health';
++import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
++import { NativeBirthEnrollment, NativeObjectAssociation } from '../src/owner_identity_crosswalk';
++import { LocalBattleEnv } from '../src/env_manager';
++import { checkNativeOwnerHealthProjection, checkNativeOwnerProjection, knowledgeIdentity } from '../src/perspective_knowledge';
++import { choice, joint, native, env } from './helpers/owner_selection_restore';
++const owners = ['p1', 'p2'] as const;
++const r = () => ({ p1: {}, p2: {} });
++const base = { battle_id: 'P50', format: 'gen9randombattle', seed: [1,2,3,4], observation_schema_version: 'observable-battle-state/v2' as const };
++const read = (s: PipelineIntegrationSession, recipient: object) => s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(recipient), recipient);
++const health = (s: PipelineIntegrationSession, recipient: object, slot: number, property: string) => read(s, recipient).projection.current.find((f: any) => f.subject.endsWith(':roster:'+slot) && f.property === property);
++const emit = (name: string, evidence: object) => console.log('P50_WITNESS '+JSON.stringify({name,...evidence}));
++async function create(recipients: ReturnType<typeof r>, teams?: string[]) {
++  const generate = Teams.generate; let calls=0;
++  if (teams) Teams.generate = () => { const team=Teams.import(teams[calls++])!; for(const set of team) if(!Object.hasOwn(set,'item'))set.item=''; return team; };
++  try {return await PipelineIntegrationSession.create({...base,knowledge_recipients:recipients});} finally {Teams.generate=generate;}
++}
++function check(s: PipelineIntegrationSession, recipients: ReturnType<typeof r>) {
++  for(const owner of owners) {
++    const pair=read(s,recipients[owner]), battle=native(s), side=battle[owner]!;
++    checkNativeOwnerHealthProjection(pair.projection);assert.throws(()=>checkNativeOwnerProjection(pair.projection));
++    assert.equal(pair.projection.result,'incomplete');assert.equal(pair.projection.request,null);
++    assert.equal(pair.binding.request_adaptation,'owned_health/v1');assert.equal(pair.binding.request_descriptor,'not_adopted');
++    for(const [i,set] of side.team.entries()) {
++      const actor=side.pokemon.find(p=>p.set===set)!;assert.ok(actor);
++      assert.equal(health(s,recipients[owner],i+1,'hp').value.data,actor.hp);
++      assert.equal(health(s,recipients[owner],i+1,'fainted').value.data,actor.fainted);
++      const status=health(s,recipients[owner],i+1,'status');
++      if(actor.fainted){assert.equal(status.state,'unknown');assert.equal(status.reason,'not_emitted');}
++      else if(actor.status)assert.equal(status.value.data,actor.status);
++      else{assert.equal(status.state,'known_absent');assert.equal(status.value,null);}
++    }
++    for(const fact of pair.projection.current)if(fact.family!=='K05')assert.equal(fact.state,'unknown');
++    assert.throws(()=>s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(recipients[owner]),recipients[owner==='p1'?'p2':'p1']),/copied-or-stale/);
++  }
++}
++test('P50 generated health writer delivery restore and privacy',async()=>{
++  const recipients=r(),s=await create(recipients),pin=Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests');
++  try {
++    check(s,recipients);const projection=read(s,recipients.p1).projection;
++    for(const fault of ['faint-absence','current-ability','bad-status','cursor']){const copy:any=structuredClone(projection);const fact=copy.current.find((f:any)=>f.property==='status');if(fault==='faint-absence'){fact.property='fainted';fact.state='known_absent';fact.value=null;fact.precision='not_applicable';}if(fault==='current-ability'){const a=copy.current.find((f:any)=>f.property==='ability');a.state='known';a.value={type:'text',data:'Pressure'};a.reason='none';a.precision='exact';a.observed_at=0;}if(fault==='bad-status'){fact.state='known';fact.value={type:'text',data:'garbage'};fact.reason='none';fact.precision='exact';}if(fault==='cursor')fact.observed_at=-1;copy.id=knowledgeIdentity(copy);assert.throws(()=>checkNativeOwnerHealthProjection(copy));}
++    const first=owners.map(p=>read(s,recipients[p])),bytes=JSON.stringify(first);
++    for(let n=0;n<2;n++){
++      const step=await s.step({p1:choice(s,'p1','switch 2'),p2:choice(s,'p2','switch 2')});check(s,recipients);
++      for(const [i,p] of owners.entries())assert.equal(read(s,recipients[p]).projection.starting,first[i].projection.starting);
++      assert.equal(JSON.stringify(first),bytes);assert.deepEqual(Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests'),pin);
++      const ordinary=JSON.stringify({step,snapshot:(s as any).snapshot,diagnostics:env(s).diagnostics()});
++      for(const key of ['owned_health','request_descriptor','request-health','original_slot'])assert.ok(!ordinary.includes(key));
++    }
++    const history=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle('p1'),'p1');assert.deepEqual(history.deliveries.map(d=>d.sequence),[0,1,2]);
++    emit('generated',{both_owners:true,actual_writer_receipt_committed_consumer:true,two_held_reorders:true,starting_refs_and_suffix_immutable:true,privacy:true});
++  } finally {await s.close();}
++});
++test('P50 constructed equal deliveries update forced Revival wait terminal',async()=>{
++  let recipients=r(),s=await create(recipients,['Alpha (Snorlax)\nAbility: Immunity\n- Splash\n\nBeta (Blissey)\nAbility: Healer\n- Splash','Gamma (Snorlax)\nAbility: Immunity\n- Splash\n\nDelta (Blissey)\nAbility: Healer\n- Splash']);
++  try{
++    const first=owners.map(p=>s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p).deliveries[0]);
++    for(let n=0;n<2;n++)await joint(s,'p1','switch 2','switch 2');check(s,recipients);
++    for(const [i,p] of owners.entries()){const last=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p).deliveries[2];assert.equal(last.source.request_record,first[i].source.request_record);assert.notEqual(last.delivery_reference,first[i].delivery_reference);}
++  }finally{await s.close();}
++  recipients=r();s=await create(recipients,['First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer (Pawmot)\nAbility: Iron Fist\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash','Watcher (Giratina)\nAbility: Pressure\n- Splash\n- Will-O-Wisp\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash']);
++  try{
++    await joint(s,'p1','move 1','move 2');check(s,recipients);assert.equal(health(s,recipients.p1,1,'status').value.data,'brn');
++    await joint(s,'p1','move 2');check(s,recipients);assert.equal(read(s,recipients.p1).binding.request_state,'forced_switch');assert.equal(read(s,recipients.p2).binding.request_state,'waiting');
++    assert.equal(health(s,recipients.p1,1,'status').state,'unknown');assert.equal(health(s,recipients.p1,1,'fainted').value.data,true);
++    await s.stepForcedSwitch(choice(s,'p1','switch 2'));await joint(s,'p1','move 1');check(s,recipients);assert.equal(read(s,recipients.p1).binding.request_state,'revival_selection');
++    await s.stepRevival(choice(s,'p1','switch 2'));check(s,recipients);assert.equal(health(s,recipients.p1,1,'fainted').value.data,false);assert.equal(health(s,recipients.p1,1,'status').state,'known_absent');
++  }finally{await s.close();}
++  let association: NativeObjectAssociation;const commit=NativeObjectAssociation.prototype.prepareCommit;
++  NativeObjectAssociation.prototype.prepareCommit=function(...args){association=this;return commit.apply(this,args);};
++  recipients=r();s=await create(recipients,['Mewtwo\nLevel: 100\nAbility: Pressure\n- Psystrike','Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash']);
++  try{await joint(s,'p1','move 1');for(const p of owners){const pair=read(s,recipients[p]);assert.equal(pair.binding.request_state,'terminal');assert.ok(pair.projection.current.filter((f:any)=>f.family==='K05').every((f:any)=>f.state==='unknown'&&f.reason==='not_emitted'));}
++    const candidate=(s as any).newEnvironment('terminal-zero-capture') as LocalBattleEnv;
++    try {const ticket=association!.prepareRestore(candidate,s.boundary,(s as any).snapshot);const terminal=await candidate.resetFromSerialized((s as any).snapshot.simulator_state,{include_wait_requests:true},ticket);assert.equal(terminal.requests.p1,null);assert.equal(terminal.requests.p2,null);}finally{await candidate.close();}
++  }finally{NativeObjectAssociation.prototype.prepareCommit=commit;await s.close();}
++  recipients=r();s=await create(recipients,['Snorlax\nAbility: Immunity\n- Splash\n\nBlissey\nAbility: Healer\n- Splash','Wobbuffet\nAbility: Shadow Tag\n- Splash\n\nSnorlax\nAbility: Immunity\n- Splash']);
++  const received=OwnedRequestHealthHost.prototype.received;let updates=0;
++  OwnedRequestHealthHost.prototype.received=function(...args){if(JSON.parse(args[2].request_json)?.update)updates++;return received.apply(this,args);};
++  try{const before=read(s,recipients.p1);await assert.rejects(joint(s,'p1','switch 2'),/rejected-action/);assert.ok(updates>0);assert.equal(read(s,recipients.p1),before);await joint(s,'p1','move 1');check(s,recipients);}finally{OwnedRequestHealthHost.prototype.received=received;await s.close();}
++  emit('constructed',{generated_reachability:'not-certified',equal_byte_fresh_commit:true,native_update_receipt_rejection_parent_retained:true,forced:true,Revival:true,waiting:true,terminal_health_unknown:true,actual_admitted_terminal_zero_capture:true,status_omission_vs_absence:true});
++});
++test('P50 source transfer and settled contradiction rollback retry',async()=>{
++  const register=NativeBirthEnrollment.prototype.registerRequestHealthReceiver;
++  for(const fault of ['frame','rows','owner']){
++    let cause: Error | undefined;
++    NativeBirthEnrollment.prototype.registerRequestHealthReceiver=function(receiver){register.call(this,{...receiver,enroll:(frame,e,b,rows)=>{try {receiver.enroll(fault==='frame'?{}:frame,e,b,fault==='rows'?{...rows}:fault==='owner'?{p1:rows.p2,p2:rows.p1}:rows);} catch(error) {cause=error as Error; throw error;}}});};
++    try{await assert.rejects(create(r()),/settling\/v1\/simulator-error/);assert.match(cause?.message??'',/request-health\/v1\/foreign-transfer/);}finally{NativeBirthEnrollment.prototype.registerRequestHealthReceiver=register;}
++  }
++  const recipients=r(),s=await create(recipients),preflight=OwnedRequestHealthHost.prototype.preflight;
++  const prior=s.boundary,old=read(s,recipients.p1),handle=s.getOwnerKnowledgeHandle(recipients.p1);
++  const prepare=OwnedRequestHealthHost.prototype.prepare;let failedHost:OwnedRequestHealthHost,failedToken:object;
++  OwnedRequestHealthHost.prototype.prepare=function(...args){const key=prepare.apply(this,args);return {...key};};
++  await assert.rejects(joint(s,'p1','switch 2','switch 2'),/foreign-knowledge-binding/);assert.equal(read(s,recipients.p1),old);
++  OwnedRequestHealthHost.prototype.prepare=function(...args){failedHost=this;failedToken=prepare.apply(this,args);const battle=(args[0] as any).battleStream.battle;battle.p1.pokemon[0].hp--;return failedToken;};
++  try{
++    await assert.rejects(joint(s,'p1','switch 2','switch 2'),/stale-settled-value/);assert.equal(s.boundary,prior);assert.equal(read(s,recipients.p1),old);assert.equal(s.getOwnerKnowledgeHandle(recipients.p1),handle);
++    assert.throws(()=>failedHost!.readPrepared(failedToken!,'p1'),/foreign-preparation/);assert.throws(()=>failedHost!.readPrepared({...failedToken!},'p1'),/foreign-preparation/);
++    OwnedRequestHealthHost.prototype.prepare=prepare;await joint(s,'p1','switch 2','switch 2');check(s,recipients);assert.equal(read(s,recipients.p1).projection.starting,old.projection.starting);
++  }finally{OwnedRequestHealthHost.prototype.prepare=prepare;OwnedRequestHealthHost.prototype.preflight=preflight;await s.close();}
++  emit('source',{actual_copied_frame_rows_wrong_owner_reject:true,actual_copied_health_token_reject:true,stale_settled_value_reject:true,unchanged_committed_pair:true,revoked_preparation:true,fresh_retry:true});
++});
++test('P50 scoped decode exceptions and final barrier rollback',async()=>{
++  const recipients=r(),s=await create(recipients),decode=OwnedRequestHealthHost.prototype.decode,pin=Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests');
++  const prepare=OwnedRequestHealthHost.prototype.prepare,preflight=NativeOwnerKnowledgeController.prototype.preflight;let fault='throw';let currentHost:OwnedRequestHealthHost;
++  OwnedRequestHealthHost.prototype.decode=function(e,t,op){
++    currentHost=this;
++    if(fault==='throw')return decode.call(this,e,t,()=>{op();throw new Error('P50-native-decode-throw');});
++    if(fault==='foreign')return decode.call(this,e,t,()=>{op();return new Battle({formatid:'gen9randombattle'});});
++    if(fault==='nested')return decode.call(this,e,t,()=>decode.call(this,e,t,op));
++    return decode.call(this,e,t,op);
++  };
++  try{
++    for(fault of ['throw','foreign','nested']){await assert.rejects(joint(s,'p1','switch 2','switch 2'),/P50-native-decode-throw|foreign-decoded-battle|foreign-or-nested-decode/);assert.deepEqual(Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests'),pin);}
++    const accept=NativeObjectAssociation.prototype.acceptRestore;
++    NativeObjectAssociation.prototype.acceptRestore=function(...args){accept.apply(this,args);currentHost.cloneOverlay(args[0],args[2],'p1',{side:{id:'p1',pokemon:[]}});};
++    fault='overlay';try {await assert.rejects(joint(s,'p1','switch 2','switch 2'),/foreign-overlay-occurrence/);}finally{NativeObjectAssociation.prototype.acceptRestore=accept;}
++    OwnedRequestHealthHost.prototype.decode=decode;
++    const old=read(s,recipients.p1),boundary=s.boundary;let preparedHost:OwnedRequestHealthHost,prepared:object,closedCheck=false;
++    OwnedRequestHealthHost.prototype.prepare=function(...args){preparedHost=this;prepared=prepare.apply(this,args);return prepared;};
++    NativeOwnerKnowledgeController.prototype.preflight=function(key){preflight.call(this,key);throw new Error('P50-final-preflight');};
++    const close=LocalBattleEnv.prototype.close;
++    LocalBattleEnv.prototype.close=function(){if(this.id.includes('step-')){assert.throws(()=>preparedHost!.readPrepared(prepared!,'p1'),/foreign-preparation/);closedCheck=true;}return close.call(this);};
++    try{await assert.rejects(joint(s,'p1','switch 2','switch 2'),/P50-final-preflight/);assert.ok(closedCheck);assert.equal(s.boundary,boundary);assert.equal(read(s,recipients.p1),old);}finally{LocalBattleEnv.prototype.close=close;NativeOwnerKnowledgeController.prototype.preflight=preflight;}
++    await joint(s,'p1','switch 2','switch 2');check(s,recipients);assert.deepEqual(Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests'),pin);
++  }finally{OwnedRequestHealthHost.prototype.decode=decode;OwnedRequestHealthHost.prototype.prepare=prepare;NativeOwnerKnowledgeController.prototype.preflight=preflight;await s.close();}
++  emit('decode-barrier',{actual_throw_foreign_nested:true,actual_foreign_overlay_reject:true,descriptor_exact_finally:true,final_preflight_reject_before_install:true,revocation_before_cleanup:true,fresh_retry:true});
++});
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/README.md
+@@ -0,0 +1,3 @@
++# Native owner health projection
++
++Fixed private incomplete HP/fainted/status slice only. Request descriptor unadopted. Starting rules preserve owner-v1 meanings; no historical/full audit/source/publication acceptance. Unknown health remains blocking.
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/profile.json
+@@ -0,0 +1,195 @@
++{
++  "kind": "profile",
++  "name": "native-owner-request-health/v1",
++  "policy": "native-owner-request-health/v1",
++  "provider": "native-owner-request-health-provider/v1",
++  "engine": "pokemon-showdown@0.11.11",
++  "format": "gen9randombattle",
++  "result": "incomplete",
++  "request_adaptation": "owned_health/v1",
++  "rules": [
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_order",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K02",
++      "property": "starting_moves",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K02",
++      "property": "current_moves",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "hp",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "fainted",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "status",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    }
++  ],
++  "generator_metadata": {
++    "role": "nonempty_text",
++    "speciesId": "pinned_species_id_inert"
++  },
++  "id": "sha256:d8f4c5c03fcd4f7e461ab09710117d6bf9d215f6d2f217138c197aad44812a9e"
++}
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/schema.json
+@@ -0,0 +1,730 @@
++{
++  "type": "object",
++  "properties": {
++    "kind": {
++      "const": "projection"
++    },
++    "id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "schema": {
++      "const": "perspective-knowledge-consumer/v1"
++    },
++    "owner": {
++      "enum": [
++        "p1",
++        "p2"
++      ]
++    },
++    "policy": {
++      "const": "native-owner-request-health/v1"
++    },
++    "boundary": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 2147483647
++    },
++    "required_profile": {
++      "const": "sha256:d8f4c5c03fcd4f7e461ab09710117d6bf9d215f6d2f217138c197aad44812a9e"
++    },
++    "result": {
++      "const": "incomplete"
++    },
++    "starting": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "starting_crosswalk": {
++      "type": "array",
++      "maxItems": 0
++    },
++    "current": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "request": {
++      "type": "null"
++    }
++  },
++  "required": [
++    "kind",
++    "id",
++    "schema",
++    "owner",
++    "policy",
++    "boundary",
++    "required_profile",
++    "result",
++    "starting",
++    "starting_crosswalk",
++    "current",
++    "request"
++  ],
++  "additionalProperties": false,
++  "$defs": {
++    "safe_fact": {
++      "type": "object",
++      "properties": {
++        "owner": {
++          "enum": [
++            "p1",
++            "p2"
++          ]
++        },
++        "subject": {
++          "type": "string",
++          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++        },
++        "family": {
++          "enum": [
++            "K01",
++            "K02",
++            "K03",
++            "K04",
++            "K05",
++            "K06",
++            "K07",
++            "K08",
++            "K09",
++            "K10",
++            "K11",
++            "K12",
++            "K13",
++            "K14",
++            "K15",
++            "K16",
++            "K17",
++            "K18",
++            "K19",
++            "K20"
++          ]
++        },
++        "property": {
++          "enum": [
++            "roster_species",
++            "roster_order",
++            "party_position",
++            "active_slot",
++            "roster_size",
++            "starting_moves",
++            "current_moves",
++            "move_execution",
++            "move_incarnation",
++            "submitted_nature",
++            "submitted_evs",
++            "submitted_ivs",
++            "submitted_happiness",
++            "calculated_stats",
++            "hp_max",
++            "level",
++            "gender",
++            "shiny",
++            "ball",
++            "details",
++            "starting_tera",
++            "hp",
++            "fainted",
++            "status",
++            "status_observed_since",
++            "status_elapsed",
++            "status_remaining",
++            "pp",
++            "max_pp",
++            "disabled",
++            "maybe_disabled",
++            "trapped",
++            "maybe_trapped",
++            "lock",
++            "boosts",
++            "persistent_effect",
++            "single_turn_effect",
++            "single_move_effect",
++            "side_condition",
++            "side_condition_layers",
++            "weather",
++            "weather_effective",
++            "terrain",
++            "pseudo_weather",
++            "field_remaining",
++            "pending_intent",
++            "pending_effect",
++            "pending_power",
++            "form",
++            "types",
++            "tera",
++            "transformed",
++            "appearance",
++            "identity_reveal",
++            "item",
++            "item_held",
++            "item_effective",
++            "ability",
++            "ability_effective",
++            "boundary_kind",
++            "request_presence"
++          ]
++        },
++        "effect_key": {
++          "anyOf": [
++            {
++              "type": "string",
++              "maxLength": 256
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "state": {
++          "enum": [
++            "known",
++            "known_absent",
++            "unknown",
++            "inapplicable"
++          ]
++        },
++        "value": {
++          "anyOf": [
++            {
++              "$ref": "#/$defs/value"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "hidden_opponent",
++            "never_revealed",
++            "ambiguous_carrier",
++            "private_request_unavailable",
++            "not_emitted",
++            "hidden_timer",
++            "missing_original_authority",
++            "unimplemented_family",
++            "unsupported_writer",
++            "proved_rule_inapplicable",
++            "not_yet_verified"
++          ]
++        },
++        "freshness": {
++          "enum": [
++            "immutable",
++            "current",
++            "last_known"
++          ]
++        },
++        "precision": {
++          "enum": [
++            "exact",
++            "public_bucket",
++            "interval",
++            "not_applicable"
++          ]
++        },
++        "observed_at": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "owner",
++        "subject",
++        "family",
++        "property",
++        "effect_key",
++        "state",
++        "value",
++        "reason",
++        "freshness",
++        "precision",
++        "observed_at"
++      ],
++      "additionalProperties": false
++    },
++    "value": {
++      "anyOf": [
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "text"
++            },
++            "data": {
++              "type": "string",
++              "maxLength": 256
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "integer"
++            },
++            "data": {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "boolean"
++            },
++            "data": {
++              "type": "boolean"
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "texts"
++            },
++            "data": {
++              "type": "array",
++              "items": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "maxItems": 6
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "six_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "hp": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "hp",
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "five_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "stages"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "accuracy": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "evasion": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe",
++                "accuracy",
++                "evasion"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "interval"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "min": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "max": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "min",
++                "max"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "field_timer"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "target_kind": {
++                  "enum": [
++                    "weather",
++                    "terrain",
++                    "pseudo_weather"
++                  ]
++                },
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "remaining": {
++                  "type": "object",
++                  "properties": {
++                    "min": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    "max": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    }
++                  },
++                  "required": [
++                    "min",
++                    "max"
++                  ],
++                  "additionalProperties": false
++                }
++              },
++              "required": [
++                "target_kind",
++                "name",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "power"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "basis": {
++                  "enum": [
++                    "base_move",
++                    "effective_move"
++                  ]
++                },
++                "amount": {
++                  "type": "integer",
++                  "minimum": 1,
++                  "maximum": 65535
++                }
++              },
++              "required": [
++                "basis",
++                "amount"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "effect"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "source_subject": {
++                  "anyOf": [
++                    {
++                      "type": "string",
++                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "observed_since": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "elapsed": {
++                  "anyOf": [
++                    {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "remaining": {
++                  "anyOf": [
++                    {
++                      "type": "object",
++                      "properties": {
++                        "type": {
++                          "const": "interval"
++                        },
++                        "data": {
++                          "type": "object",
++                          "properties": {
++                            "min": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            },
++                            "max": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            }
++                          },
++                          "required": [
++                            "min",
++                            "max"
++                          ],
++                          "additionalProperties": false
++                        }
++                      },
++                      "required": [
++                        "type",
++                        "data"
++                      ],
++                      "additionalProperties": false
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                }
++              },
++              "required": [
++                "name",
++                "source_subject",
++                "observed_since",
++                "elapsed",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        }
++      ]
++    }
++  }
++}

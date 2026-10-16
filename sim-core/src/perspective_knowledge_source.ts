@@ -1,3 +1,4 @@
+import { guardHistoricalKnowledgeSource } from './version_profile';
 /**
  * PK-02B-Source: non-publishing source and legacy verification seam.
  *
@@ -72,6 +73,7 @@ export interface RegistryAvailability {
 export class SourceRegistry {
   readonly availability: RegistryAvailability;
   constructor(token: symbol, data: RegistryData) {
+    guardHistoricalKnowledgeSource();
     if (token !== REGISTRY_TOKEN) fail('capability/registry');
     registries.set(this, data);
     this.availability = deepFreeze({
@@ -96,11 +98,13 @@ function checkedRecords(records: unknown, code: string): string[] {
  * becomes unusable after `freeze`. There is no audit-scanning factory.
  */
 export class SourceRegistryBuilder {
+  constructor() { guardHistoricalKnowledgeSource(); }
   #data: RegistryData | null = { origin: null, initialization: new Map(), requests: new Map(), ledger: null, replay: null };
 
   #open(): RegistryData { need(this.#data, 'registry/frozen'); return this.#data; }
 
   setOrigin(origin: Record<string, unknown>): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); need(data.origin === null, 'registry/duplicate');
     const copy = snapshot(origin, 'registry/origin') as Row;
     need(Object.keys(copy).sort().join() === 'battle_key,engine,format,rule_version' && typeof copy.battle_key === 'string' && copy.battle_key.length > 0, 'registry/origin');
@@ -110,6 +114,7 @@ export class SourceRegistryBuilder {
 
   /** Test-owned initialization witness: never evidence that a production provider exists. */
   addInitializationWitness(owner: string, team: readonly Row[]): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); need(OWNERS.includes(owner) && !data.initialization.has(owner), 'registry/initialization');
     const copy = snapshot(team as Row[], 'registry/initialization');
     need(Array.isArray(copy) && copy.length >= 1 && copy.length <= 6 && copy.every((set, i) => set !== null && typeof set === 'object' && set.slot === i + 1), 'registry/initialization');
@@ -117,6 +122,7 @@ export class SourceRegistryBuilder {
   }
 
   addRequestDelivery(owner: string, sequence: number, cursor: number, json: string): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); const key = `${owner}:${sequence}`;
     need(OWNERS.includes(owner) && Number.isInteger(sequence) && sequence >= 0 && Number.isInteger(cursor) && cursor >= 0 && typeof json === 'string' && !data.requests.has(key), 'registry/request');
     snapshot({ raw_request: { json } }, 'registry/request'); // exact text must obey the raw-request limits
@@ -124,17 +130,20 @@ export class SourceRegistryBuilder {
   }
 
   setPublicLedger(records: readonly string[]): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); need(data.ledger === null, 'registry/duplicate');
     data.ledger = deepFreeze(checkedRecords(records, 'registry/ledger'));
   }
 
   /** Explicit owner-selected local replay source evidence; no external loading. */
   setReplaySource(records: readonly string[]): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); need(data.replay === null, 'registry/duplicate');
     data.replay = deepFreeze(checkedRecords(records, 'registry/replay'));
   }
 
   freeze(): SourceRegistry {
+    guardHistoricalKnowledgeSource();
     const data = this.#open();
     for (const owner of OWNERS) {
       const cursors = [...data.requests].filter(([key]) => key.startsWith(owner + ':')).map(([key, v]) => [Number(key.slice(3)), v.cursor]).sort((a, b) => a[0] - b[0]);
@@ -232,6 +241,7 @@ export interface LegacyAvailability {
 export class LegacyContext {
   readonly availability: LegacyAvailability;
   constructor(token: symbol, data: ContextData) {
+    guardHistoricalKnowledgeSource();
     if (token !== LEGACY_TOKEN) fail('capability/legacy');
     contexts.set(this, data);
     this.availability = deepFreeze({
@@ -249,6 +259,7 @@ export class LegacyContextBuilder {
   readonly #adapters = new Map<string, LegacyEnvelopeAdapter>([[ordinaryBundleAdapter.schema_version, ordinaryBundleAdapter]]);
 
   constructor(extraAdapters: readonly LegacyEnvelopeAdapter[] = []) {
+    guardHistoricalKnowledgeSource();
     for (const adapter of extraAdapters) {
       need(adapter && typeof adapter.schema_version === 'string' && typeof adapter.verify === 'function' && !this.#adapters.has(adapter.schema_version), 'legacy/adapter');
       this.#adapters.set(adapter.schema_version, adapter);
@@ -258,6 +269,7 @@ export class LegacyContextBuilder {
 
   /** Verifies a supplied envelope with its adapter; unsupported kinds fail explicitly. */
   addEnvelope(envelope: unknown): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open();
     const kind = envelope !== null && typeof envelope === 'object' ? (envelope as Row).schema_version : undefined;
     const adapter = typeof kind === 'string' ? this.#adapters.get(kind) : undefined;
@@ -276,6 +288,7 @@ export class LegacyContextBuilder {
     input: { observation: unknown; belief: unknown };
     successor: { observation: unknown; belief: unknown };
   }): void {
+    guardHistoricalKnowledgeSource();
     const data = this.#open();
     let copy: Row;
     try { copy = structuredClone(evidence) as Row; } catch { return fail('legacy/validator-rejected'); }
@@ -323,6 +336,7 @@ export class LegacyContextBuilder {
   }
 
   freeze(): LegacyContext {
+    guardHistoricalKnowledgeSource();
     const data = this.#open(); this.#data = null;
     return new LegacyContext(LEGACY_TOKEN, data);
   }
@@ -432,6 +446,7 @@ function joinLegacy(tables: Record<string, Row[]>, audit: Row, data: ContextData
 export function checkKnowledgeSourceBinding(
   audit: unknown, registry: SourceRegistry, legacy: LegacyContext | null, requiredProfile: string,
 ): KnowledgeSourceDiagnostic {
+  guardHistoricalKnowledgeSource();
   need(typeof requiredProfile === 'string', 'profile');
   const copy = snapshot(audit, 'structure') as Row; // one immutable view for every later step
   try { checkKnowledgeStructure(copy, requiredProfile); }

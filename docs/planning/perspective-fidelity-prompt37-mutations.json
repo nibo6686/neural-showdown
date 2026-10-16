@@ -1,0 +1,296 @@
+[
+  {
+    "name": "extra-container",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "complete"
+    ],
+    "value": true,
+    "expected": "container-keys"
+  },
+  {
+    "name": "numeric-adoption",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "adopted"
+    ],
+    "value": 0,
+    "expected": "profile-identity"
+  },
+  {
+    "name": "executed-provenance",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "provenance",
+      "runtime"
+    ],
+    "value": "PASS",
+    "expected": "provenance"
+  },
+  {
+    "name": "closure-promotion",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "semantic_dispositions",
+      "effect_lifecycle"
+    ],
+    "value": "complete",
+    "expected": "closure-claims"
+  },
+  {
+    "name": "wrong-simulator",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "simulator",
+      "version"
+    ],
+    "value": "0.11.10",
+    "expected": "simulator"
+  },
+  {
+    "name": "extra-nested-rule",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "validation_rules",
+      "major_status",
+      "extra"
+    ],
+    "value": true,
+    "expected": "rule-template"
+  },
+  {
+    "name": "wrong-nested-type",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "validation_rules",
+      "integer",
+      "safe_limit"
+    ],
+    "value": true,
+    "expected": "rule-template"
+  },
+  {
+    "name": "wrong-native-NC-order",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "validation_rules",
+      "major_status",
+      "cure_forms",
+      1,
+      "tags"
+    ],
+    "value": [
+      "[silent]",
+      "[from] ability: Natural Cure"
+    ],
+    "expected": "rule-template"
+  },
+  {
+    "name": "duplicate-token",
+    "profile": "native11",
+    "op": "duplicate-token",
+    "expected": "token-partition"
+  },
+  {
+    "name": "unknown-supported-token",
+    "profile": "native11",
+    "op": "add-token",
+    "expected": "token-partition"
+  },
+  {
+    "name": "unsupported-kind",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "recognized_unsupported_commands",
+      0,
+      "kind"
+    ],
+    "value": "unknown",
+    "expected": "unsupported-classification"
+  },
+  {
+    "name": "missing-fixture",
+    "profile": "native11",
+    "op": "missing-fixture",
+    "expected": "protocol-structure"
+  },
+  {
+    "name": "fixture-extra-key",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "record_fixtures",
+      0,
+      "complete"
+    ],
+    "value": true,
+    "expected": "protocol-structure"
+  },
+  {
+    "name": "fixture-promotion",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "record_fixtures",
+      0,
+      "inventory_classification"
+    ],
+    "value": "represented",
+    "expected": "fixture-acceptance-claim"
+  },
+  {
+    "name": "broken-reference",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "record_fixtures",
+      0,
+      "fixture_reference"
+    ],
+    "value": "control:9999",
+    "expected": "fixture-reference"
+  },
+  {
+    "name": "bad-control-scope",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "valid_record_controls",
+      0,
+      "reconstruction_scope"
+    ],
+    "value": "native accepted",
+    "expected": "control-scope"
+  },
+  {
+    "name": "coherent-invalid-positive",
+    "profile": "native11",
+    "op": "invalid-positive",
+    "expected": "positive-rejected"
+  },
+  {
+    "name": "accepted-negative",
+    "profile": "native11",
+    "op": "accepted-negative",
+    "expected": "negative-accepted"
+  },
+  {
+    "name": "wrong-negative-reason",
+    "profile": "native11",
+    "op": "wrong-negative-reason",
+    "expected": "negative-reason"
+  },
+  {
+    "name": "negative-extra-key",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "rejection_fixtures",
+      0,
+      "authority"
+    ],
+    "value": true,
+    "expected": "protocol-structure"
+  },
+  {
+    "name": "replay-authority",
+    "profile": "replay-compat-v1",
+    "op": "set",
+    "path": [
+      "authority"
+    ],
+    "value": true,
+    "expected": "closure-claims"
+  },
+  {
+    "name": "replay-wrong-version",
+    "profile": "replay-compat-v1",
+    "op": "set",
+    "path": [
+      "protocol",
+      "simulator",
+      "version"
+    ],
+    "value": "0.11.11",
+    "expected": "simulator"
+  },
+  {
+    "name": "replay-extra-NC-tag",
+    "profile": "replay-compat-v1",
+    "op": "replay-rule",
+    "expected": "rule-template"
+  },
+  {
+    "name": "false-source-closure",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "source_basis"
+    ],
+    "value": [
+      "target runtime fully accepted"
+    ],
+    "expected": "source-claims"
+  },
+  {
+    "name": "claimed-emitter",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "record_fixtures",
+      0,
+      "pinned_emitter_sources"
+    ],
+    "value": [
+      "target live complete"
+    ],
+    "expected": "fixture-evidence"
+  },
+  {
+    "name": "unsupported-evidence",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "recognized_unsupported_commands",
+      0,
+      "reason"
+    ],
+    "value": "target complete",
+    "expected": "unsupported-evidence"
+  },
+  {
+    "name": "control-evidence",
+    "profile": "native11",
+    "op": "set",
+    "path": [
+      "protocol",
+      "valid_record_controls",
+      0,
+      "evidence"
+    ],
+    "value": "runtime accepted",
+    "expected": "control-evidence"
+  }
+]

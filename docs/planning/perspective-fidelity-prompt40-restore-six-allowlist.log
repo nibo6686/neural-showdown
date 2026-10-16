@@ -1,0 +1,32 @@
+B2_WITNESS {"name":"reordered","level":"actual-generated-session-plus-generated-input-uninterrupted-native-control","expected_orders":[[2,1,3,4,5,6],[1,2,3,4,5,6],[2,1,3,4,5,6]],"both_owner_orders_match":true,"requests_match":true,"originals_same_reference":true,"no_name_or_position_inference":true}
+B2_WITNESS {"name":"references","level":"actual-session-serializer-reconstructor-wiring","restored_occurrences":2,"all_objects_fresh":true,"sets_disjoint_from_prior_live_refs":true,"final_input_set_refs_exact":true,"held_originals_same":true,"birth_occurrences":1}
+B2_WITNESS {"name":"missing-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"foreign-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"same-label-sibling-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-snapshot","level":"actual-session-rejection","expected":"foreign-serialization-occurrence","committed_associations_unchanged":true}
+B2_WITNESS {"name":"set-copy","level":"actual-session-rejection","expected":"snapshot-reference-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"permutation","level":"actual-session-rejection","expected":"snapshot-content-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"snapshot-owner","level":"actual-session-rejection","expected":"snapshot-content-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"missing-ticket","level":"actual-session-rejection","expected":"foreign-or-stale-restore-ticket","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-ticket","level":"actual-session-rejection","expected":"foreign-or-stale-restore-ticket","committed_associations_unchanged":true}
+B2_WITNESS {"name":"wrong-native-owner","level":"actual-session-rejection","expected":"reconstructed-object-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"final-input-set-copy","level":"actual-session-rejection","expected":"reconstruction-input-occurrence-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"final-input-row-copy","level":"actual-session-rejection","expected":"reconstruction-input-occurrence-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"rollback","level":"actual-session-post-prepare-failure","old_handles_and_rows_unchanged":true,"candidate_revoked_before_cleanup":true,"valid_fresh_retry":true}
+B2_WITNESS {"name":"privacy","level":"actual-generated-session","wrong_owner_rejections":2,"forged_foreign_rejections":10,"no_new_association_fields_in_legacy_outputs":true}
+B2_WITNESS {"name":"close-legacy","level":"actual-target-init-failure-close-and-rejected-authority-free-restore","init_revoked_before_cleanup":true,"synchronous_close_denial":true,"target_authority_free_admission_rejected":true}
+✔ B2 generated reordered continuity (222.896834ms)
+✔ B2 reference continuity (68.146042ms)
+✔ B2 parent and snapshot faults (119.404458ms)
+✔ B2 rollback (32.405208ms)
+✔ B2 owner privacy (25.179875ms)
+✔ B2 close and legacy (17.627292ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 608.19375

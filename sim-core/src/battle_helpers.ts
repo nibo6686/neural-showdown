@@ -1,4 +1,5 @@
-import { Dex, toID } from 'pokemon-showdown';
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { historicalToID as toID } from './version_profile';
 import type { PlayerID, PokemonView } from './types';
 
 export function splitProtocolLine(line: string): string[] {
@@ -93,16 +94,17 @@ export function isFainted(condition: string): boolean {
   return parseCondition(condition).fainted;
 }
 
-export function moveTypeMultiplier(moveType: string, defenderTypes: string[]): number {
+export function moveTypeMultiplier(moveType: string, defenderTypes: string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): number {
+  readerContext(rulesContext);
   if (!moveType || !defenderTypes.length) {
     return 1;
   }
 
-  if (!Dex.getImmunity(moveType, defenderTypes)) {
+  if (!runtimeData(rulesContext).getImmunity(moveType, defenderTypes)) {
     return 0;
   }
 
-  const stage = Dex.getEffectiveness(moveType, defenderTypes);
+  const stage = runtimeData(rulesContext).getEffectiveness(moveType, defenderTypes);
   return 2 ** stage;
 }
 
@@ -114,7 +116,8 @@ export function upsertUnique(values: string[], value: string): string[] {
   return values.includes(value) ? values : [...values, value];
 }
 
-export function resolveTypes(species: string, teraType: string | null, terastallized: boolean): string[] {
+export function resolveTypes(species: string, teraType: string | null, terastallized: boolean, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
+  readerContext(rulesContext);
   // Pokemon.getTypes() only substitutes a Tera type when it is not Stellar.
   // Stellar is still a public Tera state, but leaves defensive typing at the
   // species' current types (and has separate offensive rules in Showdown).
@@ -122,7 +125,7 @@ export function resolveTypes(species: string, teraType: string | null, terastall
     return [teraType];
   }
 
-  const speciesData = Dex.species.get(species);
+  const speciesData = runtimeData(rulesContext).species.get(species);
   return speciesData.exists ? [...speciesData.types] : [];
 }
 

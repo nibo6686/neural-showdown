@@ -1,0 +1,11 @@
+# Prompt36 validation notes
+
+The positive selectors are exact anchored Node names and exact pytest node IDs. One workload runs at a time. The command runner uses real 180-second watchdogs and process-group termination, explicit Node 24.21.0 and accepted Python 3.9.6, absolute trainer/src PYTHONPATH, and removes encoding/report overrides. No task process remains running.
+
+Initial build passed. Two initial TS grammar checks found test fixture errors: bare `curestatus` was correctly rejected as an unsupported command rather than the expected malformed-shape error; the Psychic Terrain source emits `-hint`, not `hint`. Corrections preserve distinct intended rejections; final grammar checks pass. The command ledger retains both initial exit-1 results. Their same-named log paths now contain corrected passing output; this note preserves the initial diagnostic disposition.
+
+A test-only correction rebuild passed. Independent review then required explicit existing caller profiles and removal of contradictory inherited candidate controls; the corresponding source/asset/caller correction rebuild passed. Only affected grammar/asset checks and one exact old history control were rerun. A final source correction snapshots caller context once at both import APIs, closing a mutable getter gap between import/history; its build and new exact mutation control plus affected importer checks pass. Four builds total passed: initial, test-fixture correction, review API/asset correction, and immutable-call capture correction. No blanket historical retest was performed.
+
+The saved HTML is independently hash-verified before creating a compact prefix. HTML text entities and escaped slashes are decoded as transport; no protocol tags or gameplay records are removed. Source cursor 45 includes the exact Natural Cure record at index44; routed index34 accounts for explicit metadata/framing handling. No later prefix or replay oracle is executed. Constructed lower-level source-shaped controls and this unversioned saved replay control are not generated-format target witnesses.
+
+Passing historical publication literals and existing unaffected B1/B2/context/fidelity evidence are reused within their scope. Candidate grammar policy tests prove only fixed PRE rules and intended stops; all actual target emission/publication gates remain UNEXECUTED.

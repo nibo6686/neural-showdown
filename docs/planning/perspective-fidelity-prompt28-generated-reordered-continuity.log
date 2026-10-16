@@ -1,0 +1,21 @@
+✖ B2 generated reordered continuity (159.268458ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 278.911916
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_restore.test.js:29:25
+✖ B2 generated reordered continuity (159.268458ms)
+  Error: native-association/v1/missing-prepared-association
+      at associationFail (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/owner_identity_crosswalk.js:179:42)
+      at NativeObjectAssociation.prepareCommit (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/owner_identity_crosswalk.js:339:13)
+      at PipelineIntegrationSession.executeTransition (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/pipeline_integration.js:548:77)
+      at async TestContext.<anonymous> (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/owner_identity_restore.test.js:41:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

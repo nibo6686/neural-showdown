@@ -1,0 +1,157 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 2,
+    "seconds": 3.83,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-type-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.823,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-semantic-context",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P32 historical semantic context$",
+      "sim-core/dist/tests/version_context.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.694,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "installed-runtime-ownership",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P32 installed runtime ownership$",
+      "sim-core/dist/tests/version_context.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.154,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "old-runtime-producer-canary",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P32 old runtime producer canary$",
+      "sim-core/dist/tests/version_context.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.861,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_recursive_context_and_literal_outputs",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_version_context.py::test_recursive_context_and_literal_outputs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 2.683,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_recursive_context_and_literal_outputs",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_version_context.py::test_recursive_context_and_literal_outputs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.713,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_immutable_and_unsupported_contexts",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_version_context.py::test_immutable_and_unsupported_contexts"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.467,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_cli_compact_and_negative",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_version_context.py::test_cli_compact_and_negative"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.665,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-native-data-frozen",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 2.149,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "old-runtime-producer-canary",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P32 old runtime producer canary$",
+      "sim-core/dist/tests/version_context.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.373,
+    "timeout_seconds": 180
+  }
+]

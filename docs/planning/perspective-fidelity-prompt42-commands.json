@@ -1,0 +1,370 @@
+[
+  {
+    "name": "new-selection-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 2,
+    "seconds": 4.406,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "selection-type-corrected-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.812,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "forced-three-exact",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed forced B2 p1|P42 constructed forced B2 p2|P42 genuine generated KO forced B2)$",
+      "sim-core/dist/tests/owner_identity_forced_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 1.743,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-two-red-plus-selectors",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2|P42 target Pawmot Rabsca generated selector source routes)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.494,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-p2-heal-diagnostic",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--require",
+      "/private/tmp/neural-prompt42-20261013/diagnostic.cjs",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P42 constructed revival B2 p2$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.434,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "finite-heal-and-fixture-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 2,
+    "seconds": 2.451,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "owned-context-type-corrected-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 2.036,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "forced-corrected-three-exact",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed forced B2 p1|P42 constructed forced B2 p2|P42 genuine generated KO forced B2)$",
+      "sim-core/dist/tests/owner_identity_forced_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.018,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-finite-heal-two-exact",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.395,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-finite-heal-diagnostic",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--require",
+      "/private/tmp/neural-prompt42-20261013/diagnostic.cjs",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.541,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "split-health-context-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 2,
+    "seconds": 2.056,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "health-callsite-corrected-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.83,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-split-health-two-exact",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.026,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "final-heal-controls-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.891,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-final-audience-and-heal-controls",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2|P42 finite Revival grammar and unrelated quarantine)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.957,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "coherent-prefix-negative-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 2.502,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-p1-coherent-private-prefix",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P42 constructed revival B2 p1$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.679,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "affected-historical-revival-grammar",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^revival bench-heal grammar requires exact source evidence$",
+      "sim-core/dist/tests/revival.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.225,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "reviewed-bench-consequence-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.925,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "reviewed-revival-bench-two-exact",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.349,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "exact-row-reference-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.893,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "forced-final-exact-row-reference",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed forced B2 p1|P42 constructed forced B2 p2|P42 genuine generated KO forced B2)$",
+      "sim-core/dist/tests/owner_identity_forced_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.007,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "revival-final-exact-row-reference",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:P42 constructed revival B2 p1|P42 constructed revival B2 p2)$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.207,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "affected-historical-bundle-literal",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt42-20261013/historical.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.253,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "reviewed-obligation-lifetime-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.942,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "reviewed-later-status-wrong-HP",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P42 constructed revival B2 p1$",
+      "sim-core/dist/tests/owner_identity_revival_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.056,
+    "timeout_seconds": 180
+  }
+]

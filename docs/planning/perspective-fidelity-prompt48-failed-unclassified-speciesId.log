@@ -1,0 +1,25 @@
+✖ P48 generated authentic consumer restore and isolation (626.536167ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1271.721292
+
+✖ failing tests:
+
+test at sim-core/dist/tests/native_owner_knowledge.test.js:31:25
+✖ P48 generated authentic consumer restore and isolation (626.536167ms)
+  Error: native-original/unsupported-field
+      at fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/perspective_knowledge_source.js:39:29)
+      at need (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/perspective_knowledge_source.js:41:5)
+      at nativeOwnerStartingFacts (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/perspective_knowledge_source.js:436:9)
+      at NativeOwnerKnowledgeController.prepare (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/native_owner_knowledge.js:68:125)
+      at PipelineIntegrationSession.create (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:318:60)
+      at async TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/native_owner_knowledge.test.js:35:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    code: 'native-original/unsupported-field'
+  }

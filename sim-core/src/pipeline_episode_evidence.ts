@@ -1,3 +1,5 @@
+import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { assertHistoricalReaderInput } from './version_profile';
 import { withTerminalOwner } from './public_health';
 import {serializeCanonicalAction, type CanonicalAction} from './canonical_action';
 import { createHash } from 'node:crypto';
@@ -253,7 +255,8 @@ export function createPipelineEpisodeEvidence(input: {
   boundaries: readonly PipelineBoundary[];
   transitions: readonly { transition: EpisodeEvidenceTransition; actors: PlayerID[] }[];
   predecessor?: PipelineEpisodeEvidence | null;
-}): PipelineEpisodeEvidence | null {
+}, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): PipelineEpisodeEvidence | null {
+  readerContext(rulesContext);
   if (!input.boundaries.length || input.transitions.length !== input.boundaries.length - 1) return null;
   const boundaries = input.boundaries.map(evidenceBoundary);
   if (boundaries.some((boundary) => PLAYERS.some((player) =>
@@ -289,7 +292,7 @@ export function createPipelineEpisodeEvidence(input: {
   const withClosure = { ...partial, closure: closureBase } as Omit<PipelineEpisodeEvidence, 'evidence_id'>;
   if (input.kind === 'fresh_episode' && predecessor) throw new Error('evidence-fresh-predecessor');
   if (input.kind === 'continuation_segment' && predecessor) {
-    validatePipelineEpisodeEvidence(predecessor);
+    validatePipelineEpisodeEvidence(predecessor, undefined, undefined, undefined, rulesContext);
     if (predecessor.battle_id !== input.battle_id || predecessor.ruleset !== input.ruleset
       || predecessor.source_ref !== sourceRef || terminalEvidence(predecessor.commits.at(-1)?.boundary ?? predecessor.origin.boundary)
       || !sameBoundary(predecessor.commits.at(-1)?.boundary ?? predecessor.origin.boundary, boundaries[0])) {
@@ -346,7 +349,8 @@ function expectedActors(boundary: EpisodeEvidenceBoundary): PlayerID[] | null {
   return null;
 }
 
-function validateBoundary(value: unknown, label: string, battleId: string, predecessor?: EpisodeEvidenceBoundary, transition?: EpisodeEvidenceTransition, actions?: Partial<Record<PlayerID, CanonicalAction>>): asserts value is EpisodeEvidenceBoundary {
+function validateBoundary(value: unknown, label: string, battleId: string, predecessor?: EpisodeEvidenceBoundary, transition?: EpisodeEvidenceTransition, actions?: Partial<Record<PlayerID, CanonicalAction>>, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): asserts value is EpisodeEvidenceBoundary {
+  readerContext(rulesContext);
   if (!isRecord(value)) throw new Error(`${label}-object`);
   exactKeys(value, ['step_index', 'kind', 'branch_id', 'state_fingerprint', 'perspectives'], label);
   if (!Number.isSafeInteger(value.step_index) || (value.step_index as number) < 0
@@ -364,8 +368,8 @@ function validateBoundary(value: unknown, label: string, battleId: string, prede
       predecessor: predecessor.perspectives[player] as unknown as Record<string, unknown>, before: predecessor,
       transition, after: value as unknown as EpisodeEvidenceBoundary,
       action: actions?.[player],
-    }, observation as Record<string, unknown>, () => validateObservableBattleState(observation));
-    else validateObservableBattleState(observation);
+    }, observation as Record<string, unknown>, () => validateObservableBattleState(observation, rulesContext));
+    else validateObservableBattleState(observation, rulesContext);
     const validatedObservation = observation as ObservableBattleState;
     if (validatedObservation.schema_version !== 'observable-battle-state/v2'
       || validatedObservation.source_kind !== 'sim_core' || validatedObservation.battle_id !== battleId
@@ -399,8 +403,9 @@ function validateEpisodeClosure(
   envelope: Record<string, unknown>,
   origin: PipelineEpisodeEvidence['origin'],
   finalBoundary: EpisodeEvidenceBoundary,
-  depth: number,
+  depth: number, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): void {
+  readerContext(rulesContext);
   if (!isRecord(envelope.closure)) throw new Error('evidence-closure-object');
   const closure = envelope.closure;
   exactKeys(closure, ['schema_version', 'origin_coverage', 'predecessor', 'terminal', 'complete_capture'], 'evidence-closure');
@@ -427,7 +432,7 @@ function validateEpisodeClosure(
     expectedCoverage = 'segment_only';
   } else {
     const predecessor = closure.predecessor as unknown as PipelineEpisodeEvidence;
-    validatePipelineEpisodeEvidence(predecessor, undefined, undefined, depth + 1);
+    validatePipelineEpisodeEvidence(predecessor, undefined, undefined, depth + 1, rulesContext);
     if (predecessor.battle_id !== envelope.battle_id || predecessor.ruleset !== envelope.ruleset
       || predecessor.source_ref !== envelope.source_ref) throw new Error('evidence-predecessor-episode');
     const predecessorFinal = predecessor.commits.at(-1)?.boundary ?? predecessor.origin.boundary;
@@ -447,8 +452,10 @@ export function validatePipelineEpisodeEvidence(
   value: unknown,
   records?: Record<PlayerID, readonly EpisodeEvidenceRecord[]>,
   expected?: EpisodeEvidenceExpectation,
-  depth = 0,
+  depth = 0, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): asserts value is PipelineEpisodeEvidence {
+  readerContext(rulesContext);
+  assertReaderInput({ schema_version: 'pipeline-episode/v1', evidence_envelope: value, records }, rulesContext);
   if (depth > 64) throw new Error('evidence-predecessor-depth');
   rejectPrivateKeys(value);
   if (!isRecord(value)) throw new Error('evidence-object');
@@ -475,7 +482,7 @@ export function validatePipelineEpisodeEvidence(
   let ownerSource: {before: EpisodeEvidenceBoundary; transition: EpisodeEvidenceTransition} | undefined;
   if (!isLegacy && isRecord(value.closure) && value.closure.predecessor !== null) {
     const predecessor = value.closure.predecessor;
-    validatePipelineEpisodeEvidence(predecessor, undefined, undefined, depth + 1);
+    validatePipelineEpisodeEvidence(predecessor, undefined, undefined, depth + 1, rulesContext);
     if (value.origin.kind !== 'continuation_segment' || predecessor.battle_id !== value.battle_id
       || predecessor.ruleset !== value.ruleset || predecessor.source_ref !== value.source_ref
       || canonical((predecessor.commits.at(-1)?.boundary || predecessor.origin.boundary)) !== canonical(value.origin.boundary)) throw new Error('evidence-predecessor-boundary-join');
@@ -486,7 +493,7 @@ export function validatePipelineEpisodeEvidence(
     };
     ownerSource = authoritySource(predecessor);
   }
-  validateBoundary(value.origin.boundary, 'origin-boundary', value.battle_id, ownerSource?.before, ownerSource?.transition);
+  validateBoundary(value.origin.boundary, 'origin-boundary', value.battle_id, ownerSource?.before, ownerSource?.transition, undefined, rulesContext);
   const originBoundary = value.origin.boundary as unknown as EpisodeEvidenceBoundary;
   if (expected) {
     const rootSummary = expected.initial_boundary!;
@@ -546,7 +553,7 @@ export function validatePipelineEpisodeEvidence(
       serializeCanonicalAction(record.action, request, player);
       actions[player] = record.action;
     }
-    validateBoundary(rawCommit.boundary, `commit-${index}-boundary`, value.battle_id, previous, transition, actions);
+    validateBoundary(rawCommit.boundary, `commit-${index}-boundary`, value.battle_id, previous, transition, actions, rulesContext);
     const next = rawCommit.boundary as EpisodeEvidenceBoundary;
     if (seenTransitions.has(transition.transition_id)) throw new Error('evidence-duplicate-transition');
     seenTransitions.add(transition.transition_id);
@@ -566,7 +573,7 @@ export function validatePipelineEpisodeEvidence(
     previous = next;
   }
 
-  if (!isLegacy) validateEpisodeClosure(value, typedOrigin, previous, depth);
+  if (!isLegacy) validateEpisodeClosure(value, typedOrigin, previous, depth, rulesContext);
 
   if (records) for (const player of PLAYERS) {
     const expectedIds = commits.flatMap((commit) => commit.actors.includes(player) ? [commit.transition.transition_id] : []);
@@ -599,9 +606,10 @@ export function validatePipelineEpisodeEvidence(
 export function validatePipelineEpisodePredecessor(
   value: unknown,
   currentBoundary: PipelineBoundary,
-  ruleset?: string,
+  ruleset?: string, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): asserts value is PipelineEpisodeEvidence {
-  validatePipelineEpisodeEvidence(value);
+  readerContext(rulesContext);
+  validatePipelineEpisodeEvidence(value, undefined, undefined, undefined, rulesContext);
   const predecessor = value as PipelineEpisodeEvidence;
   const final = predecessor.commits.at(-1)?.boundary ?? predecessor.origin.boundary;
   if (predecessor.battle_id !== currentBoundary.battle_id
@@ -609,4 +617,11 @@ export function validatePipelineEpisodePredecessor(
     || predecessor.source_ref !== `sim-core://${currentBoundary.battle_id}`
     || terminalEvidence(final)
     || !sameBoundary(final, evidenceBoundary(currentBoundary))) throw new Error('evidence-predecessor-origin');
+}
+
+export function validateHistoricalPipelineEpisodeEvidence(
+  value: unknown, records?: Record<PlayerID, readonly EpisodeEvidenceRecord[]>, expected?: EpisodeEvidenceExpectation
+): asserts value is PipelineEpisodeEvidence {
+  const rulesContext = HISTORICAL10_CONTEXT;
+  validatePipelineEpisodeEvidence(value, records, expected, undefined, rulesContext);
 }

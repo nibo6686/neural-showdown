@@ -1,0 +1,47 @@
+{
+  "unchanged_protected_count": 1281,
+  "allowed_changed": {
+    "sim-core/src/pipeline_integration.ts": {
+      "before": "eef21491c6481ad31145932fb76c9f9487d16453eb2d3ce5001d7f585ff0334f",
+      "after": "56f812245e1d0e8e5c8f5fd65ae544659ae3dd0d6e2afbc2e12339785c2cd692"
+    },
+    "sim-core/src/pipeline_episode_evidence.ts": {
+      "before": "1f1de5c349c970d2d12a70873342a353f69dde83f427aa8fac67e11264ab52f1",
+      "after": "95ad320c7e5c7d9d2e417050f137e30de5368e657dba07ebd67288b558beddd0"
+    },
+    "sim-core/src/pipeline_episode.ts": {
+      "before": "353aac765d4995796818485d254fdbd09416b5c715981f052e0d6f5eb8415fcd",
+      "after": "4877d482cedfa523632edfdf97170fd86649574c35a403f385f4a198de8bc519"
+    },
+    "trainer/src/neural/pipeline_record.py": {
+      "before": "be7cad8208de961dd95c2b076ac2fb79ed14e6a918eceebced6ccc1b03aba8ad",
+      "after": "c6aa55c6da6bb43ffc6edc83e6695d89b28332194f791b2e650cc21e40247888"
+    }
+  },
+  "new": {
+    "sim-core/src/version_profile.ts": "5de895a6aa2b5996f0ca3bb1f1500736246516e5edc0451353f841f1dd4242f3",
+    "trainer/src/neural/version_profile.py": "9e7df534cfcdd632f52c25dfb30e6505f5430085efd2573bb9f09c94370aff84",
+    "sim-core/tests/version_profile_dispatch.test.ts": "ccbfed957633fc1e26b3c9d97e00747e9efa3dd7c6f12b5756decf1443dc6d58",
+    "trainer/tests/test_version_profile_dispatch.py": "245d164a1ccc16b69a4c8b8e13bf26481aab436be6014f86522081068d7f7a7e"
+  },
+  "compiled_changed": {
+    "sim-core/dist/src/pipeline_episode_evidence.js": {
+      "before": "d6e98d29bac4abb52e3339a74e088ad0c4323ea5fa22df0a0c60df0f0466044c",
+      "after": "6c7ab39e315f4dab66421e6d629f335d31d7901dc6e789c2019fc150b3e1cd47"
+    },
+    "sim-core/dist/src/pipeline_episode.js": {
+      "before": "1630ddd18e608b8099f2fe8fb560f2f9b23bfdc89f677b543e0ba40c89cd2fcc",
+      "after": "795faea5546041e7c12418c0b22e900f21b3cb2c1eccb0da21575434e30e4771"
+    },
+    "sim-core/dist/src/pipeline_integration.js": {
+      "before": "1489e845fa4d81737f736878bd56e81975c77fd1e786ad4ff1e238604fee0156",
+      "after": "4a1cd982c3d628e76f7510dc29493293ac2a66ade6b50bed58449abd0fd084f9"
+    }
+  },
+  "compiled_new": {
+    "sim-core/dist/tests/version_profile_dispatch.test.js": "b6ecd4498937917b88a6aef66765dd82e49f55e25d7b97fb479f4fa63dc429e2",
+    "sim-core/dist/src/version_profile.js": "611c2fb0c271c7051666f78ed1f908103f3c2a7313ead366a734736d3cd112a0"
+  },
+  "unrelated_status_unchanged": true,
+  "no_task_process_pending": true
+}

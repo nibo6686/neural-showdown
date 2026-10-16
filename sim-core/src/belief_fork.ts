@@ -1,3 +1,5 @@
+import { installedNativeProfile, assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
+import { assertBeliefForkPolicy } from './owner_identity_crosswalk';
 import { Battle, Dex, Teams, toID } from 'pokemon-showdown';
 import type { BattleView, PlayerID } from './types';
 
@@ -135,7 +137,10 @@ export function buildBeliefSnapshot(
   perspective: PlayerID,
   format: string,
   beliefSeed: number[],
+  runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
 ): { snapshot: AnyRecord; metadata: BeliefForkMetadata } {
+  assertNativeRuntimeProfile(runtimeProfile);
+  assertBeliefForkPolicy(runtimeProfile.package_version);
   const snapshot = structuredClone(serialized);
   const opponent: PlayerID = perspective === 'p1' ? 'p2' : 'p1';
   const opponentIndex = opponent === 'p1' ? 0 : 1;

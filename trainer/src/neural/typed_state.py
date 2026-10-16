@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
+
 import json
 import re
 from pathlib import Path
@@ -32,8 +34,9 @@ def _public_team_ident(value: str) -> str:
     return f"{match.group(1)}: {match.group(2)}" if match else value
 
 
-def project_public_typed_state(prefix):
+def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
     """Replay normalized public events into only source-backed typed state."""
+    reader_context(reader_rules)
     volatiles = {}
     active = {}
     sides = {"p1": {}, "p2": {}}
@@ -89,7 +92,7 @@ def project_public_typed_state(prefix):
             continue
         if command in ("-start", "-end"):
             value = parts[3] if len(parts) > 3 else ""
-            entry = _ENTRIES.get(("move_volatile", _effect_id(value)))
+            entry = reader_context(reader_rules).lifecycle.get(("move_volatile", _effect_id(value)))
             if not entry or entry["disposition"] == "raw-only":
                 continue
             if entry["disposition"] != "evidence-derived-typed":
@@ -112,7 +115,7 @@ def project_public_typed_state(prefix):
             value = parts[3] if len(parts) > 3 else ""
             effect = _effect_id(re.sub(r"^move:\s*", "", value, flags=re.IGNORECASE))
             side = (parts[2] if len(parts) > 2 else "").split(":", 1)[0]
-            entry = _ENTRIES.get(("side_condition", effect))
+            entry = reader_context(reader_rules).lifecycle.get(("side_condition", effect))
             if side not in sides or not entry:
                 continue
             if entry["disposition"] == "raw-only":
@@ -137,7 +140,7 @@ def project_public_typed_state(prefix):
                 state.pop(effect, None)
             continue
         if command == "-swapsideconditions":
-            for effect in _COURT_CHANGE_IDS:
+            for effect in reader_context(reader_rules).inventory["public_typed_state_lifecycle"]["court_change_ids"]:
                 p1 = sides["p1"].get(effect)
                 p2 = sides["p2"].get(effect)
                 if p1 is None:
@@ -166,8 +169,9 @@ def _assert_no_private_slot_state(value, location="observation"):
             _assert_no_private_slot_state(child, f"{location}[{index}]")
 
 
-def validate_public_typed_state(observation, label="observation", predecessor=None):
+def validate_public_typed_state(observation, label="observation", predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT):
     """Reject typed values that are not derivable from the retained public prefix."""
+    reader_context(reader_rules)
     try:
         request = observation.get("request")
         if isinstance(request, dict) and request.get("player") != observation.get("perspective"):
@@ -175,15 +179,15 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
         _assert_no_private_slot_state(observation, label)
         prefix = observation["protocol_prefix"]
         if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
-            validate_public_field(observation, label)
+            validate_public_field(observation, label, reader_rules=reader_rules)
         view = observation.get("view", {})
         perspective = observation.get("perspective")
         def validate_consequences():
             if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
                 validate_public_health(observation, predecessor)
                 validate_public_items(observation, predecessor)
-                validate_public_ability(observation, predecessor)
-        projected = project_public_typed_state(prefix)
+                validate_public_ability(observation, predecessor, reader_rules=reader_rules)
+        projected = project_public_typed_state(prefix, reader_rules=reader_rules)
         has_typed_view = any(key in view for key in ("self_team", "opponent_team", "field"))
         has_derived_state = (any(projected["volatiles_by_ident"].values())
                              or any(projected["side_conditions_by_player"].values()))
@@ -230,7 +234,7 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
             for team_name in ("self_team", "opponent_team"):
                 for pokemon in view.get(team_name, []):
                     row_ident = _public_team_ident(pokemon.get("ident", ""))
-                    if _is_player_ident(row_ident) and row_ident == ident:
+                    if _is_player_ident(row_ident, reader_rules=reader_rules) and row_ident == ident:
                         rows.append((team_name, pokemon))
             if (len(rows) != 1 or rows[0][0] != expected_team
                     or not isinstance(rows[0][1].get("volatiles"), list)):

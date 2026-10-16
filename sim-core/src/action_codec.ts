@@ -1,9 +1,11 @@
-import { Dex, toID } from 'pokemon-showdown';
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { historicalToID as toID } from './version_profile';
 import { ACTION_SPACE_SIZE, createEmptyLegalActionSet, type ChoiceRequestView, type LegalAction, type LegalActionSet, type PlayerID, type RequestActiveView, type RequestMoveView, type RequestSidePokemonView } from './types';
 import { isFainted } from './battle_helpers';
 
-function normalizeMove(move: any, slot: number): RequestMoveView {
-  const dexMove = Dex.moves.get(move?.move || '');
+function normalizeMove(move: any, slot: number, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): RequestMoveView {
+  readerContext(rulesContext);
+  const dexMove = runtimeData(rulesContext).moves.get(move?.move || '');
   return {
     slot,
     move: move?.move || `move-${slot}`,
@@ -94,7 +96,8 @@ function removeChoiceFromActionSet(set: LegalActionSet, choice: string): LegalAc
   return next;
 }
 
-export function buildLegalActionSet(rawRequest: any): LegalActionSet {
+export function buildLegalActionSet(rawRequest: any, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): LegalActionSet {
+  readerContext(rulesContext);
   const set = createEmptyLegalActionSet();
 
   if (!rawRequest || rawRequest.wait || rawRequest.teamPreview) {
@@ -134,7 +137,7 @@ export function buildLegalActionSet(rawRequest: any): LegalActionSet {
   }
 
   const moves = Array.isArray(active.moves)
-    ? active.moves.map((move: any, index: number) => normalizeMove(move, index + 1))
+    ? active.moves.map((move: any, index: number) => normalizeMove(move, index + 1, rulesContext))
     : [];
 
   const teraAlreadyUsed = sidePokemon.some((pokemon: RequestSidePokemonView) => pokemon.terastallized);
@@ -182,7 +185,8 @@ export function buildLegalActionSet(rawRequest: any): LegalActionSet {
   return set;
 }
 
-export function normalizeRequest(player: PlayerID, rawRequest: any): ChoiceRequestView {
+export function normalizeRequest(player: PlayerID, rawRequest: any, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): ChoiceRequestView {
+  readerContext(rulesContext);
   const side = Array.isArray(rawRequest?.side?.pokemon)
     ? rawRequest.side.pokemon.map((pokemon: any, index: number) => normalizeSidePokemon(pokemon, index + 1))
     : [];
@@ -191,7 +195,7 @@ export function normalizeRequest(player: PlayerID, rawRequest: any): ChoiceReque
   const teraAlreadyUsed = side.some((pokemon: RequestSidePokemonView) => pokemon.terastallized);
   const active: RequestActiveView | null = rawActive ? {
     moves: Array.isArray(rawActive.moves)
-      ? rawActive.moves.map((move: any, index: number) => normalizeMove(move, index + 1))
+      ? rawActive.moves.map((move: any, index: number) => normalizeMove(move, index + 1, rulesContext))
       : [],
     can_terastallize: !!rawActive.canTerastallize && !teraAlreadyUsed,
     tera_type: typeof rawActive.canTerastallize === 'string' ? rawActive.canTerastallize : null,
@@ -208,7 +212,7 @@ export function normalizeRequest(player: PlayerID, rawRequest: any): ChoiceReque
     rqid: Number.isFinite(rawRequest?.rqid) ? rawRequest.rqid : null,
     active,
     side,
-    legal_actions: buildLegalActionSet(rawRequest),
+    legal_actions: buildLegalActionSet(rawRequest, rulesContext),
     raw: rawRequest ?? null,
   };
 }

@@ -1,0 +1,180 @@
+[
+  {
+    "name": "bounded-fixture-source-derivation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt37-20261012/derive.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.2,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 2,
+    "seconds": 4.908,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-owned-reference-type-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 2.094,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "full-assets-direct-mutations-and-integrity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P37 full assets direct mutations and integrity$",
+      "sim-core/dist/tests/prepared_protocol_contract.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.233,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-bare-swap-classification",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 2.035,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "full-assets-direct-mutations-and-integrity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P37 full assets direct mutations and integrity$",
+      "sim-core/dist/tests/prepared_protocol_contract.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.224,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-claim-field-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.836,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "full-assets-direct-mutations-and-integrity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P37 full assets direct mutations and integrity$",
+      "sim-core/dist/tests/prepared_protocol_contract.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.197,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "owned-bootstrap-and-sticky-failure-fresh-processes",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P37 owned bootstrap and sticky failure fresh processes$",
+      "sim-core/dist/tests/prepared_protocol_contract.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.226,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_full_assets_mutations_and_integrity",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_prepared_protocol_contract.py::test_full_assets_mutations_and_integrity"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 3.475,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_owned_bootstrap_threads_and_sticky_failure",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_prepared_protocol_contract.py::test_owned_bootstrap_threads_and_sticky_failure"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.655,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-and-prefix-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P36 bounded saved prefix and historical parity$",
+      "sim-core/dist/tests/replay_compatibility_profile.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.798,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-publication-parity",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_protocol_grammar.py::test_historical_publication_and_replay_rejection"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.778,
+    "timeout_seconds": 180
+  }
+]

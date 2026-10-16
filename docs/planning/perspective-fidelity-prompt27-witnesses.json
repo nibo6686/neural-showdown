@@ -1,0 +1,222 @@
+[
+  {
+    "name": "generated",
+    "level": "actual-generated-session",
+    "owners": [
+      {
+        "owner": "p1",
+        "slots": 6
+      },
+      {
+        "owner": "p2",
+        "slots": 6
+      }
+    ],
+    "before_construction": true,
+    "original_reference_binding": true,
+    "separate_occurrences": true,
+    "log": "perspective-fidelity-prompt27-generated-creation.log"
+  },
+  {
+    "name": "Trace-p1",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p1",
+    "before_species": "Alakazam",
+    "current_species": "Alakazam",
+    "move": "splash",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Imposter-p1",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p1",
+    "before_species": "Ditto",
+    "current_species": "Blissey",
+    "move": "softboiled",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Schooling-p1",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p1",
+    "before_species": "Wishiwashi",
+    "current_species": "Wishiwashi-School",
+    "move": "splash",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Crowned-p1",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p1",
+    "before_species": "Zacian",
+    "current_species": "Zacian-Crowned",
+    "move": "behemothblade",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Trace-p2",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p2",
+    "before_species": "Alakazam",
+    "current_species": "Alakazam",
+    "move": "splash",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Imposter-p2",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p2",
+    "before_species": "Ditto",
+    "current_species": "Blissey",
+    "move": "softboiled",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Schooling-p2",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p2",
+    "before_species": "Wishiwashi",
+    "current_species": "Wishiwashi-School",
+    "move": "splash",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "Crowned-p2",
+    "level": "actual-session-constructed-mechanic",
+    "owner": "p2",
+    "before_species": "Zacian",
+    "current_species": "Zacian-Crowned",
+    "move": "behemothblade",
+    "same_set_reference": true,
+    "generated_reachability": "not-certified",
+    "log": "perspective-fidelity-prompt27-initial-effects.log"
+  },
+  {
+    "name": "missing-owner",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "missing-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "duplicate",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "duplicate-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "wrong-owner-equal-bytes",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "foreign-or-late-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "submission",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "submission-mismatch",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "occurrence",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "foreign-or-late-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "environment",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "foreign-or-late-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "late",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "foreign-or-late-enrollment",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "missing-observer",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "not-staged",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "late-observer",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "late-observer",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "isolation",
+    "level": "actual-generated-session",
+    "cross_owner_rejects": 2,
+    "forged_or_foreign_rejects": 10,
+    "private_controller_not_enumerable": true,
+    "no_birth_fields_in_existing_outputs": true,
+    "log": "perspective-fidelity-prompt27-owner-isolation.log"
+  },
+  {
+    "name": "activation-failure",
+    "level": "actual-session-fault-after-enrollment",
+    "revoked_before_async_cleanup": true,
+    "log": "perspective-fidelity-prompt27-activation-failure.log"
+  },
+  {
+    "name": "lifetime-restore",
+    "level": "actual-generated-session-and-legacy-restore",
+    "no_restore_observer_calls": true,
+    "rejected_candidate_preserves_exact_handles_and_rows": true,
+    "historical_holding_survives_retirement": true,
+    "synchronous_close_denial": true,
+    "legacy_birth_unavailable": true,
+    "restored_object_mapping": "unsupported B2",
+    "log": "perspective-fidelity-prompt27-close-and-restore-reviewed.log"
+  },
+  {
+    "name": "side-reference",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "constructor-association-mismatch",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  },
+  {
+    "name": "pokemon-reference",
+    "level": "actual-runtime-fault-rejection",
+    "expected": "constructor-association-mismatch",
+    "authority_unavailable_both_owners": true,
+    "revoked_before_cleanup": true,
+    "log": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+  }
+]

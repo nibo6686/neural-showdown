@@ -1,0 +1,166 @@
+[
+  {
+    "name": "prepared-rollback-red",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 prepared candidate rejection revokes tokens and preserves committed authority$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 1.471,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "candidate-timing-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 3.997,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "prepared-rollback-green",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 prepared candidate rejection revokes tokens and preserves committed authority$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.466,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "generated-public-order",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 generated public order restore early return and equal native occurrence$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.349,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "generated-public-order-fifo-oracle",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 generated public order restore early return and equal native occurrence$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.398,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "native-updates-terminal-wait",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 actual updated request terminal null and waiting classification$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.374,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "actual-RPC-belief-guard",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "trainer/tests/prompt39_rpc_control.py"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.282,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "rollback-cleanup-lifetime",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 prepared candidate rejection revokes tokens and preserves committed authority$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.445,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "equal-literal-committed-deliveries",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 equal literal requests commit fresh deliveries through real transitions$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.316,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "held-parent-continuity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 generated public order restore early return and equal native occurrence$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.4,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "equal-literal-committed-deliveries-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 equal literal requests commit fresh deliveries through real transitions$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 1.387,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "equal-literal-committed-deliveries-corrected-kind",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P39 equal literal requests commit fresh deliveries through real transitions$",
+      "sim-core/tests/native11_request_timing.test.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.381,
+    "timeout_seconds": 180
+  }
+]

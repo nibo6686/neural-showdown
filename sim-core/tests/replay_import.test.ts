@@ -51,7 +51,7 @@ sys.stdout.buffer.write(json.dumps(value['protocol_log'],ensure_ascii=False).enc
 }
 const actual = ledger.fixtures.map((fixture: any) => ({ fixture, records: load(fixture) }));
 function context(owner: PlayerID = 'p1', format = 'gen9randombattle') {
-  return { env_id: 'prompt19-é-Ω', format, perspective: owner };
+  return { env_id: 'prompt19-é-Ω', format, perspective: owner, protocol_profile: 'historical10' as const };
 }
 function reject(records: unknown, cursor: unknown, index: number | null, stage = 'admission', ctx = context()) {
   assert.throws(() => importReplayPrefix(records as string[], cursor as number, ctx), (error: unknown) => {

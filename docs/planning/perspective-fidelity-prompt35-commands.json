@@ -1,0 +1,262 @@
+[
+  {
+    "name": "old-lookup-extraction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/extract.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 1.459,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-extraction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/inventory.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.932,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "old-lookup-minimal-types",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/extract.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.402,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-final-dispositions",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/inventory.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.271,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 4.384,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-lookups-fresh-process-without-engine",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P35 historical lookups fresh process without engine$",
+      "sim-core/dist/tests/target_inventory.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.179,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-omission-mutation-guards",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P35 inactive inventory omission mutation guards$",
+      "sim-core/dist/tests/target_inventory.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.176,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_historical_fresh_process_and_literals",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_inventory.py::test_historical_fresh_process_and_literals"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 3.59,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_candidate_integrity_and_immutability",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_inventory.py::test_candidate_integrity_and_immutability"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.807,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-ability-flags",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/inventory.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.344,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-candidate-ability-field",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.896,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-omission-mutation-guards",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P35 inactive inventory omission mutation guards$",
+      "sim-core/dist/tests/target_inventory.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.159,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "candidate-checker-with-engine-blocked",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--require",
+      "/private/tmp/neural-prompt35-20261012/noengine.cjs",
+      "sim-core/scripts/check-simulator-coverage.cjs",
+      "--candidate-profile=native11"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.102,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_candidate_integrity_and_immutability",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_inventory.py::test_candidate_integrity_and_immutability"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.659,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "verified-tar-member-parity",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "/private/tmp/neural-prompt35-20261012/archive-proof.py"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 1.505,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-explicit-scope",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt35-20261012/inventory.cjs"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.346,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-candidate-explicit-scope",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.837,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "inactive-inventory-omission-mutation-guards-final",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P35 inactive inventory omission mutation guards$",
+      "sim-core/dist/tests/target_inventory.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.205,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "candidate-integrity-python-final",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_inventory.py::test_candidate_integrity_and_immutability"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.524,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "candidate-checker-no-engine-final",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--require",
+      "/private/tmp/neural-prompt35-20261012/noengine.cjs",
+      "sim-core/scripts/check-simulator-coverage.cjs",
+      "--candidate-profile=native11"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.042,
+    "timeout_seconds": 180
+  }
+]

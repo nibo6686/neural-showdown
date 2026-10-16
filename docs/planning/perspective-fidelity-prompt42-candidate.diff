@@ -1,0 +1,501 @@
+--- before/sim-core/src/belief_state.ts
++++ candidate/sim-core/src/belief_state.ts
+@@ -421,7 +421,7 @@
+   assertSanitizedProtocolPrefix(observation.protocol_prefix, 'Observation protocol prefix');
+   validateObservableProtocolPrefix(observation.protocol_prefix, observation.perspective, observation.view, observation.request, rulesContext);
+   assertTypedStateMatchesPublicPrefix(observation.protocol_prefix, observation.perspective, observation.view, (target) => boundOwnedTarget(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, target), rulesContext);
+-  assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
++  assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, rulesContext);
+   assertPublicItemsMatchEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
+   if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
+     && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {
+--- before/sim-core/src/prepared_protocol_contract.ts
++++ candidate/sim-core/src/prepared_protocol_contract.ts
+@@ -41,15 +41,15 @@
+  const common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence'];
+  keys(value,common.concat(profile==='native11'?['admission_scope','semantic_dispositions']:['base_lookup_profile','publication','authority','changed_forms']),'container');
+  if(value.profile!==profile||value.adopted!==false||value.schema_version!==(profile==='native11'?'inactive-native-protocol/v1':'importer-replay-compatibility/v1'))fail('profile-identity');
+- const selectedProvenance=profile==='native11'?{...provenance,source:"Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector",runtime:"Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved"}:provenance;
++ const selectedProvenance=profile==='native11'?{...provenance,source:"Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer",runtime:"Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved"}:provenance;
+  if(!equal(value.provenance,selectedProvenance))fail('provenance');
+  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
+  if(profile==='native11'){
+-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source'])||!equal(value.semantic_dispositions,{...semantic,trace:'finite-source-qualified-current-copy; prior field is provenance only'}))fail('closure-claims');
++  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
+  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
+  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
+  keys(p,Object.keys(base),'protocol');
+- if(!equal(p.source_basis,[profile==='native11'?"Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved":'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
++ if(!equal(p.source_basis,[profile==='native11'?"Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal":'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
+  if(!equal(p.simulator,{...base.simulator,version:profile==='native11'?'0.11.11':'0.11.10'}))fail('simulator');
+  const rules=JSON.parse(JSON.stringify(base.validation_rules));
+  const form={tags:['[from] ability: Natural Cure','[silent]']};
+@@ -97,11 +97,12 @@
+  }
+  for(const control of p.valid_record_controls){
+   if(control.reconstruction_scope!==scope)fail('control-scope');
+-  const evidence=profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
++  const evidence=profile==='native11'&&control.record==="|-heal|p1: First|50/100|[from] move: Revival Blessing"?"Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance":profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
+   if(control.evidence!==evidence)fail('control-evidence');
+  }
+  const records=p.valid_record_controls.map((x:any)=>x.record);
+  if(profile==='native11'&&!records.includes("|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"))fail('trace-controls');
++ if(profile==='native11'&&!records.includes("|-heal|p1: First|50/100|[from] move: Revival Blessing"))fail('revival-controls');
+  if(!records.includes(nativeNC)||(profile==='replay-compat-v1'&&!records.includes(oldNC)))fail('natural-cure-controls');
+  for(const kind of ['malformed','unknown','unproved_semantic_family'])if(!p.rejection_fixtures.some((x:any)=>x.kind===kind))fail('negative-coverage');
+ }
+--- before/sim-core/src/version_profile.ts
++++ candidate/sim-core/src/version_profile.ts
+@@ -157,7 +157,7 @@
+ /** Fixed local replay decoder, not a native profile or portable publication contract. */
+ export const REPLAY_COMPAT = Object.freeze({id: 'replay-compat-v1', revision: 'importer-replay-compatibility/v1', adopted: false} as const);
+ export interface ProtocolRulesContext { readonly protocol: ProtocolContract; }
+-const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316');
++const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834');
+ const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
+ export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
+ export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
+@@ -211,7 +211,8 @@
+   if (context !== NATIVE11_GRAMMAR_CONTEXT && context !== NATIVE11_CONTEXT && context !== REPLAY_COMPAT_CONTEXT) return;
+   const p = record.split('|'), command = p[1];
+   const stableLeftovers = command === '-heal' && p.length === 5 && p[4] === '[from] item: Leftovers';
+-  const family = ['-heal', 'heal', 'cant'].includes(command) && !stableLeftovers ? 'heal-failure'
++  const revival = (context === NATIVE11_CONTEXT || context === NATIVE11_GRAMMAR_CONTEXT) && command === '-heal' && p.includes('[from] move: Revival Blessing');
++  const family = ['-heal', 'heal', 'cant'].includes(command) && !stableLeftovers && !revival ? 'heal-failure'
+     : ['-swapsideconditions', 'swapsideconditions'].includes(command) || (command === '-activate' && p[3] === 'move: Court Change') ? 'court-change'
+     : command === '-prepare' && p[3] === 'Chilly Reception' ? 'chilly-reception'
+     : command === '-damage' && p.includes('[partiallytrapped]') ? 'partial-trap'
+@@ -232,7 +233,7 @@
+ /** Asset inspection seam: trusted hashes remain code-owned even for an alternate path. */
+ export function loadPreparedProtocolAsset(profile: 'native11' | 'replay-compat-v1', assetPath?: string): any {
+   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
+-  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316'), profile);
++  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'), profile);
+   if (profile === 'replay-compat-v1') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'), profile);
+   return fail('unknown-grammar-profile');
+ }
+--- before/sim-core/src/public_health.ts
++++ candidate/sim-core/src/public_health.ts
+@@ -1,3 +1,4 @@
++import {helperContext, HISTORICAL10_CONTEXT, NATIVE11_CONTEXT, type ReaderContext} from './version_profile';
+ import { publicTeamIdent as ident } from './typed_state_lifecycle';
+ import {serializeCanonicalAction, type CanonicalAction} from './canonical_action';
+ /** Health consequences established by public records and the addressed owner's request. */
+@@ -189,7 +190,16 @@
+ function fail(message: string): never { throw new Error(`Public health evidence mismatch: ${message}`); }
+ 
+ export function assertPublicHealthMatchesEvidence(prefix: readonly string[], perspective: string,
+-  view: Row, request: Row | null): void {
++  view: Row, request: Row | null, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
++  helperContext(rulesContext);
++  const revivalTargets = new Set<string>();
++  if (rulesContext === NATIVE11_CONTEXT) for (const line of prefix) {
++    const parts = line.split('|'), target = ident(parts[2] || '');
++    if (parts[1] === '-heal' && parts.includes('[from] move: Revival Blessing')) {
++      if (parts[3] !== '50/100') fail('Revival owner-private HP cannot enter public prefix');
++      revivalTargets.add(target);
++    } else if (['switch','drag','replace','-damage','-heal','-sethp','faint'].includes(parts[1])) revivalTargets.delete(target);
++  }
+   const projected = projectPublicHealth(prefix);
+   const requestRows = request && Array.isArray(request.side) ? request.side as Row[] : [];
+   let ownedAppearance: string | null = null;
+@@ -214,6 +224,14 @@
+     if (matching.length !== 1 || matching[0].team !== expectedTeam) fail(`${target} requires exactly one ${expectedTeam} row`);
+     const row = matching[0].row;
+     const owner = expectedTeam === 'self_team' ? requestRows.find((entry) => ident(String(entry.ident)) === boundTarget) : undefined;
++    if (revivalTargets.has(target)) {
++      if (row.active !== false || row.fainted !== false || row.status !== publicState.status) fail('Revival bench outcome must remain inactive, unfainted and match ordered public status');
++      if (expectedTeam === 'self_team') {
++        const owned = requestRows.filter(entry => entry.ident === target);
++        const hp = owned.length === 1 && typeof owned[0].condition === 'string' ? /^([1-9][0-9]*)\/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?$/.exec(owned[0].condition) : null;
++        if (!hp || owned[0].active !== false || (hp[3] || null) !== publicState.status || Number(hp[1]) !== Math.floor(Number(hp[2]) / 2) || !Number.isSafeInteger(Number(hp[2]))) fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint');
++      }
++    }
+     const ownerPublicPrecision = !owner && expectedTeam === 'self_team' && typeof row.hp_text === 'string'
+       && row.hp_text.includes('/') && publicState.hp_text?.includes('/100');
+     const expected = owner ? {...condition(String(owner.condition)), active: !!owner.active && !condition(String(owner.condition)).fainted} : publicState;
+--- before/sim-core/src/observable_state.ts
++++ candidate/sim-core/src/observable_state.ts
+@@ -1,4 +1,4 @@
+-import { assertPreparedProtocolPolicy, NATIVE11_GRAMMAR_CONTEXT, helperContext, protocolContext, assertPublicationReaderContext, type ProtocolRulesContext, readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
++import { assertPreparedProtocolPolicy, NATIVE11_CONTEXT, NATIVE11_GRAMMAR_CONTEXT, helperContext, protocolContext, assertPublicationReaderContext, type ProtocolRulesContext, readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+ import { assertPublicItemsMatchEvidence, projectPublicItems } from './public_item';
+ import { assertPublicAbilityMatchesEvidence } from './public_ability';
+ import { assertPublicFieldMatchesEvidence } from './public_field';
+@@ -1119,6 +1119,10 @@
+     case '-sethp':
+       requireAtLeast(4);
+       // Revival publicly heals a benched Pokémon using p1:/p2:, not an active position.
++      if ((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && command === '-heal' && parts.includes('[from] move: Revival Blessing')
++          && (parts.length !== 5 || parts[4] !== '[from] move: Revival Blessing' || !/^([1-9][0-9]*)\/([1-9][0-9]*)$/.test(parts[3]) || Number(parts[3].split('/')[0]) !== Math.floor(Number(parts[3].split('/')[1]) / 2) || !Number.isSafeInteger(Number(parts[3].split('/')[1])) || !isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext))) {
++        throw new ObservableStateError('Malformed raw -heal record: exact public Revival Blessing bench heal required.');
++      }
+       const revivalBlessingBench = command === '-heal' && parts.length === 5
+         && parts[4] === '[from] move: Revival Blessing' && isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext);
+       if (!revivalBlessingBench) requireIdent();
+@@ -1683,7 +1687,7 @@
+   }
+   copyTerminalOwner(input.view as unknown as Record<string, unknown>, view as unknown as Record<string, unknown>);
+   assertTypedStateMatchesPublicPrefix(protocolPrefix, input.perspective, view, (target) => boundOwnedTarget(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, target), rulesContext);
+-  assertPublicHealthMatchesEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
++  assertPublicHealthMatchesEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, rulesContext);
+   assertPublicItemsMatchEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
+   assertPublicAbilityMatchesEvidence(protocolPrefix, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, input.perspective, rulesContext);
+   if (input.schema_version === PUBLIC_STAGES_SCHEMA_VERSION) {
+--- before/trainer/src/neural/public_health.py
++++ candidate/trainer/src/neural/public_health.py
+@@ -1,3 +1,4 @@
++from .version_profile import reader_context, HISTORICAL10_CONTEXT, NATIVE11_CONTEXT
+ """Independent public and addressed-request health consequence validation."""
+ import math
+ import re
+@@ -136,7 +137,17 @@
+     return authority[1] if authority and target == authority[0] and appearance == authority[0] else target
+ 
+ 
+-def validate_public_health(observation, predecessor=None):
++def validate_public_health(observation, predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT):
++    reader_context(reader_rules)
++    revival_targets = set()
++    if reader_rules is NATIVE11_CONTEXT:
++        for line in observation['protocol_prefix']:
++            p = line.split('|'); target = _ident(p[2] if len(p)>2 else '')
++            if len(p)>3 and p[1]=='-heal' and '[from] move: Revival Blessing' in p:
++                if p[3]!='50/100': raise ValueError('Public health evidence mismatch: Revival owner-private HP cannot enter public prefix')
++                revival_targets.add(target)
++            elif len(p)>1 and p[1] in ('switch','drag','replace','-damage','-heal','-sethp','faint'):
++                revival_targets.discard(target)
+     def fail(message):
+         raise ValueError("Public health evidence mismatch: " + message)
+ 
+@@ -167,6 +178,14 @@
+             fail(f"{target} requires exactly one {team} row")
+         row = matching[0][1]
+         owner = next((entry for entry in owners if _ident(entry.get("ident", "")) == bound_target), None) if team == "self_team" else None
++        if target in revival_targets:
++            if row.get('active') is not False or row.get('fainted') is not False or row.get('status') != public_state.get('status'):
++                fail('Revival bench outcome must remain inactive, unfainted and status-cleared')
++            if team=='self_team':
++                owned=[entry for entry in owners if entry.get('ident')==target]
++                hp=re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?',owned[0].get('condition','')) if len(owned)==1 else None
++                if not hp or owned[0].get('active') is not False or (hp[3] or None)!=public_state.get('status') or int(hp[1])!=int(hp[2])//2 or int(hp[2])>9007199254740991:
++                    fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint')
+         owner_public_precision = (owner is None and team == "self_team" and isinstance(row.get("hp_text"), str)
+                                   and "/" in row["hp_text"] and "/100" in public_state.get("hp_text", ""))
+         expected = {**_condition(owner["condition"]), "active": bool(owner["active"] and not _condition(owner["condition"])["fainted"])} if owner is not None else public_state
+--- before/trainer/src/neural/protocol_contract.py
++++ candidate/trainer/src/neural/protocol_contract.py
+@@ -1,4 +1,4 @@
+-from .version_profile import assert_prepared_protocol_policy, NATIVE11_GRAMMAR_CONTEXT, protocol_context as reader_context, assert_reader_input, HISTORICAL10_CONTEXT
++from .version_profile import assert_prepared_protocol_policy, NATIVE11_CONTEXT, NATIVE11_GRAMMAR_CONTEXT, protocol_context as reader_context, assert_reader_input, HISTORICAL10_CONTEXT
+ """Shared Showdown protocol allowlist and cross-runtime raw-record grammar."""
+ import json
+ import math
+@@ -1151,6 +1151,8 @@
+         at_least(4); ident(); _ident(parts, 3, command, reader_rules=reader_rules)
+     elif command in ("damage", "-damage", "heal", "-heal", "sethp", "-sethp"):
+         at_least(4)
++        if (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and command == '-heal' and '[from] move: Revival Blessing' in parts and (len(parts) != 5 or parts[4] != '[from] move: Revival Blessing' or not re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)', parts[3]) or int(parts[3].split('/')[0]) != int(parts[3].split('/')[1]) // 2 or int(parts[3].split('/')[1]) > 9007199254740991 or not _is_side_only_player_ident(parts[2], reader_rules=reader_rules)):
++            _malformed(command, 'exact public Revival Blessing bench heal required')
+         revival_bench = command == "-heal" and len(parts) == 5 and parts[4] == "[from] move: Revival Blessing" and _is_side_only_player_ident(parts[2], reader_rules=reader_rules)
+         if not revival_bench: ident()
+         _health_condition(parts, 3, command, reader_rules=reader_rules)
+--- before/trainer/src/neural/typed_state.py
++++ candidate/trainer/src/neural/typed_state.py
+@@ -184,7 +184,7 @@
+         perspective = observation.get("perspective")
+         def validate_consequences():
+             if observation.get("schema_version") in ("observable-battle-state/v1", "observable-battle-state/v2"):
+-                validate_public_health(observation, predecessor)
++                validate_public_health(observation, predecessor, reader_rules=reader_rules)
+                 validate_public_items(observation, predecessor)
+                 validate_public_ability(observation, predecessor, reader_rules=reader_rules)
+         projected = project_public_typed_state(prefix, reader_rules=reader_rules)
+--- before/trainer/src/neural/version_profile.py
++++ candidate/trainer/src/neural/version_profile.py
+@@ -194,7 +194,7 @@
+ class ProtocolRulesContext(NamedTuple):
+     protocol: Mapping
+ 
+-_TARGET_PROTOCOL_SHA256 = '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316'
++_TARGET_PROTOCOL_SHA256 = 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'
+ _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
+ def load_prepared_protocol_asset(profile, path=None):
+     if profile == 'native11': name, pin = 'protocol_contract_0_11_11.json', _TARGET_PROTOCOL_SHA256
+@@ -283,7 +283,8 @@
+     p = record.split('|'); command = p[1] if len(p) > 1 else ''
+     effect = p[3] if len(p) > 3 else ''
+     stable_leftovers = command == '-heal' and len(p) == 5 and p[4] == '[from] item: Leftovers'
+-    family = ('heal-failure' if command in ('-heal', 'heal', 'cant') and not stable_leftovers else
++    revival = (context is NATIVE11_CONTEXT or context is NATIVE11_GRAMMAR_CONTEXT) and command == '-heal' and '[from] move: Revival Blessing' in p
++    family = ('heal-failure' if command in ('-heal', 'heal', 'cant') and not stable_leftovers and not revival else
+               'court-change' if command in ('-swapsideconditions', 'swapsideconditions') or command == '-activate' and effect == 'move: Court Change' else
+               'chilly-reception' if command == '-prepare' and effect == 'Chilly Reception' else
+               'partial-trap' if command == '-damage' and '[partiallytrapped]' in p else
+--- before/trainer/src/neural/prepared_protocol_contract.py
++++ candidate/trainer/src/neural/prepared_protocol_contract.py
+@@ -43,14 +43,14 @@
+     common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence']
+     _keys(value,common+(['admission_scope','semantic_dispositions'] if profile=='native11' else ['base_lookup_profile','publication','authority','changed_forms']),'container')
+     if value['profile']!=profile or value['adopted'] is not False or value['schema_version']!=('inactive-native-protocol/v1' if profile=='native11' else 'importer-replay-compatibility/v1'):_fail('profile-identity')
+-    selected_provenance={**PROVENANCE,'source':'Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector','runtime':'Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved'} if profile=='native11' else PROVENANCE
++    selected_provenance={**PROVENANCE,'source':'Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer','runtime':'Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved'} if profile=='native11' else PROVENANCE
+     if not _same_json(value['provenance'],selected_provenance):_fail('provenance')
+     if not _same_json(value['inherited_raw_shape_evidence'],{'contract_sha256':PROVENANCE['historical_contract_sha256'],'scope':'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}):_fail('inherited-evidence')
+     if profile=='native11':
+-        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'trace':'finite-source-qualified-current-copy; prior field is provenance only'}):_fail('closure-claims')
++        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'trace':'finite-source-qualified-current-copy; prior field is provenance only','revival':'finite-public-bench-health-status-faint-clear; owned selection remains required'}):_fail('closure-claims')
+     elif value['base_lookup_profile']!='historical10' or value['publication']!='unsupported-without-persisted-profile-contract' or value['authority'] is not False or not _same_json(value['changed_forms'],['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']):_fail('closure-claims')
+     base=_thaw(HISTORICAL10_CONTEXT.protocol);p=value['protocol'];_keys(p,base,'protocol')
+-    if p['source_basis']!=['Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved' if profile=='native11' else 'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
++    if p['source_basis']!=['Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal' if profile=='native11' else 'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
+     if not _same_json(p['simulator'],{**base['simulator'],'version':'0.11.11' if profile=='native11' else '0.11.10'}):_fail('simulator')
+     rules=copy.deepcopy(base['validation_rules']);form={'tags':['[from] ability: Natural Cure','[silent]']}
+     if profile=='native11':rules['major_status']['cure_forms']=[form if x['tags']==['[from] ability: Natural Cure'] else x for x in rules['major_status']['cure_forms']]
+@@ -99,10 +99,11 @@
+         if not control or f['record']!=control['record'] or f['token']!=control['token']:_fail('fixture-reference')
+     for c in p['valid_record_controls']:
+         if c['reconstruction_scope']!=SCOPE:_fail('control-scope')
+-        evidence='Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
++        evidence='Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance' if profile=='native11' and c['record']=='|-heal|p1: First|50/100|[from] move: Revival Blessing' else 'Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
+         if c['evidence']!=evidence:_fail('control-evidence')
+     records=[x['record'] for x in p['valid_record_controls']]
+     if profile=='native11' and '|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' not in records:_fail('trace-controls')
++    if profile=='native11' and '|-heal|p1: First|50/100|[from] move: Revival Blessing' not in records:_fail('revival-controls')
+     if NATIVE_NC not in records or profile=='replay-compat-v1' and OLD_NC not in records:_fail('natural-cure-controls')
+     for kind in ('malformed','unknown','unproved_semantic_family'):
+         if not any(x['kind']==kind for x in p['rejection_fixtures']):_fail('negative-coverage')
+--- before/trainer/src/neural/protocol_contract_0_11_11.json
++++ candidate/trainer/src/neural/protocol_contract_0_11_11.json
+@@ -5,15 +5,16 @@
+   "admission_scope": [
+     "Inherited historical raw-shape baseline, not semantic acceptance",
+     "Natural Cure exact ordered source-tag then silent",
+-    "Trace exact prior-Trace positional field and opposing active source"
++    "Trace exact prior-Trace positional field and opposing active source",
++    "Revival Blessing exact public bench 50/100 heal; silent faint/status clear"
+   ],
+   "provenance": {
+     "historical_contract_sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+     "old_abilities_sha256": "7975eb69496fb38ec8c9f2d7288dedea14e78ec81579f6e2b58ad1c9716d3ce6",
+     "target_abilities_sha256": "175067b1e827ca11ae4728169215c9bdd27ac4cb3e35d2e83eaaaee7e9e8c842",
+     "target_revision": "739a5e1fee432ad80ff7136d70cca993be358b59",
+-    "source": "Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector",
+-    "runtime": "Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved"
++    "source": "Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer",
++    "runtime": "Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved"
+   },
+   "protocol": {
+     "schema_version": "showdown-protocol-contract/v2",
+@@ -25,7 +26,7 @@
+       "game_type": "singles"
+     },
+     "source_basis": [
+-      "Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved"
++      "Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal"
+     ],
+     "supported_commands": [
+       "ability",
+@@ -3265,6 +3266,12 @@
+         "record": "|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey",
+         "evidence": "Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance",
+         "reconstruction_scope": "PRE grammar only; no native runtime, semantic closure or publication acceptance"
++      },
++      {
++        "token": "-heal",
++        "record": "|-heal|p1: First|50/100|[from] move: Revival Blessing",
++        "evidence": "Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance",
++        "reconstruction_scope": "PRE grammar only; no native runtime, semantic closure or publication acceptance"
+       }
+     ],
+     "framing_only_records": [
+@@ -3286,7 +3293,8 @@
+     "psychic_terrain_hint": "raw-only-presentation-no-typed-consequence",
+     "effect_lifecycle": "unsupported-target-closure-unproved",
+     "admin_nonselected": "unsupported-existing-stop",
+-    "trace": "finite-source-qualified-current-copy; prior field is provenance only"
++    "trace": "finite-source-qualified-current-copy; prior field is provenance only",
++    "revival": "finite-public-bench-health-status-faint-clear; owned selection remains required"
+   },
+   "inherited_raw_shape_evidence": {
+     "contract_sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+--- /dev/null
++++ candidate/sim-core/tests/helpers/owner_selection_restore.ts
+@@ -0,0 +1,60 @@
++import assert from 'node:assert/strict';
++import {Battle,Teams} from 'pokemon-showdown';
++import {spawnSync} from 'node:child_process';
++import path from 'node:path';
++import {createHash} from 'node:crypto';
++import {PipelineIntegrationSession,validatePipelineEpisodeRecordBundle} from '../../src/pipeline_integration';
++import {NativeObjectAssociation} from '../../src/owner_identity_crosswalk';
++import {LocalBattleEnv} from '../../src/env_manager';
++import {canonicalActionFromLegalAction} from '../../src/canonical_action';
++import {NATIVE11_CONTEXT,positiveFidelityScope} from '../../src/version_profile';
++const owners=['p1','p2'] as const;
++export type Owner=typeof owners[number];
++export const other=(owner:Owner):Owner=>owner==='p1'?'p2':'p1';
++export const emit=(name:string,data:object)=>console.log('P42_WITNESS '+JSON.stringify({name,...data}));
++export const env=(s:PipelineIntegrationSession):LocalBattleEnv=>(s as any).environment;
++export const native=(s:PipelineIntegrationSession):Battle=>(env(s) as any).battleStream.battle;
++export const holding=(s:PipelineIntegrationSession,p:Owner)=>s.readNativeObjectHolding(s.getNativeObjectHolding(p),p);
++export function choice(s:PipelineIntegrationSession,p:Owner,text:string){const r=s.boundary.perspectives[p].observation.request!;const a=r.legal_actions.actions.find(a=>a?.choice===text);assert.ok(a,text+' legal for '+p);return canonicalActionFromLegalAction(r,a.index);}
++export const joint=(s:PipelineIntegrationSession,p:Owner,a:string,b='move 1')=>s.step({p1:choice(s,'p1',p==='p1'?a:b),p2:choice(s,'p2',p==='p2'?a:b)});
++export async function constructed(owner:Owner,healer='Pawmot'){
++ const generate=Teams.generate;let count=0;
++ const own=Teams.import('First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer ('+healer+')\nAbility: '+(healer==='Pawmot'?'Iron Fist':'Synchronize')+'\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash')!;
++ const wait=Teams.import('Watcher (Giratina)\nAbility: Pressure\n- Splash\n- Will-O-Wisp\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash')!;
++ Teams.generate=function(){return structuredClone(owners[count++]===owner?own:wait);};
++ try{return await PipelineIntegrationSession.create({battle_id:'P42-'+owner+'-'+healer,format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:'observable-battle-state/v2'});}finally{Teams.generate=generate;}
++}
++export function publish(bundle:any,error?:RegExp){const bytes=JSON.stringify(bundle);if(!error)validatePipelineEpisodeRecordBundle(bundle,NATIVE11_CONTEXT);else assert.throws(()=>validatePipelineEpisodeRecordBundle(bundle,NATIVE11_CONTEXT),error);
++ const r=spawnSync(process.env.PYTHON!,['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:path.resolve(__dirname,'../../../..'),env:process.env,input:bytes,encoding:'utf8',timeout:30000});assert.equal(r.status,error?2:0,r.stderr||String(r.error));if(error){assert.equal(r.stdout,'');assert.match(r.stderr,error);}else assert.ok(JSON.parse(r.stdout));assert.equal(JSON.stringify(bundle),bytes);}
++export async function checked(s:PipelineIntegrationSession,run:()=>Promise<any>,expected:Record<Owner,number[]>){
++ const prior=s.boundary,old=owners.flatMap(p=>native(s)[p]!.pokemon),oldsets=old.map(p=>p.set),held=owners.map(p=>s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(p),p));
++ const handles=owners.map(p=>s.getNativeObjectHolding(p)),deliveries=owners.map(p=>s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p));
++ const accept=NativeObjectAssociation.prototype.acceptRestore;let restored=0;
++ NativeObjectAssociation.prototype.acceptRestore=function(environment,input,battle,ticket){accept.call(this,environment,input,battle,ticket);restored++;
++  for(const [i,p] of owners.entries())for(const [position,mon] of battle[p]!.pokemon.entries()){assert.ok(!old.includes(mon));assert.ok(!oldsets.includes(mon.set));const raw=(input as any).sides[i];assert.equal(mon.set,raw.pokemon[position].set);assert.equal(battle[p]!.team.indexOf(mon.set)+1,holding(s,p).original_slots[position]);assert.equal(raw.team.split('').indexOf(String(position+1))+1,holding(s,p).original_slots[position]);}
++ };
++ try{const result=await run();assert.equal(restored,1);
++  for(const [i,p] of owners.entries()){
++   const h=holding(s,p);assert.equal(h.original,held[i]);assert.deepEqual(h.original_slots,expected[p]);assert.equal(h.observation_id,s.boundary.perspectives[p].observation.observation_id);assert.equal(h.branch_id,s.boundary.branch_id);assert.equal(h.step_index,prior.step_index+1);
++   assert.throws(()=>s.readNativeObjectHolding(handles[i],p),/foreign-or-forged-holding/);assert.throws(()=>s.readNativeObjectHolding(s.getNativeObjectHolding(p),other(p)),/foreign-or-forged-holding/);
++   const history=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p),last=history.boundaries.at(-1)!;
++   assert.equal(last.parent!.observation_id,prior.perspectives[p].observation.observation_id);assert.equal(last.parent!.branch_id,prior.branch_id);assert.equal(last.parent!.step_index,prior.step_index);
++   assert.equal(last.current!.owner,p);assert.ok(history.deliveries.length>=deliveries[i].deliveries.length);assert.ok(last.trace.some(r=>r.origin==='restore_reemit'));
++   assert.ok(!JSON.stringify(result).includes('original_slots'));assert.ok(!JSON.stringify(result).includes('packed_team'));assert.ok(!JSON.stringify(result).includes('objectAssociation'));
++  }
++  assert.equal(positiveFidelityScope('native11','gen9randombattle'),false);return result;
++ }finally{NativeObjectAssociation.prototype.acceptRestore=accept;}
++}
++export async function rollback(s:PipelineIntegrationSession,run:()=>Promise<any>){
++ const prepare=NativeObjectAssociation.prototype.prepareCommit,close=LocalBattleEnv.prototype.close;
++ const boundary=s.boundary,rows=owners.map(p=>holding(s,p)),handles=owners.map(p=>s.getNativeObjectHolding(p)),history=owners.map(p=>s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p));let controller:NativeObjectAssociation|undefined,token:object|undefined,cleanup=false;
++ NativeObjectAssociation.prototype.prepareCommit=function(...args){controller=this;token=prepare.apply(this,args);throw new Error('P42-post-prepare');};
++ LocalBattleEnv.prototype.close=function(){if(this.id.includes('step-')&&controller&&token){assert.throws(()=>controller!.commit(token!),/foreign-or-stale-preparation/);cleanup=true;}return close.call(this);};
++ try{await assert.rejects(run(),/P42-post-prepare/);assert.ok(cleanup);assert.equal(s.boundary,boundary);for(const [i,p] of owners.entries()){assert.equal(s.getNativeObjectHolding(p),handles[i]);assert.equal(holding(s,p),rows[i]);assert.equal(s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p),history[i]);}}finally{NativeObjectAssociation.prototype.prepareCommit=prepare;LocalBattleEnv.prototype.close=close;}
++ emit('selection-post-prepare-rollback',{revoked_before_cleanup:true,both_exact_holdings_and_deliveries_retained:true,fresh_retry:'executed by caller'});
++}
++export async function parentFault(s:PipelineIntegrationSession,run:()=>Promise<any>){const prepare=NativeObjectAssociation.prototype.prepareRestore,before=s.boundary,held=owners.map(p=>holding(s,p));NativeObjectAssociation.prototype.prepareRestore=function(e,p,snapshot){return prepare.call(this,e,{...p},snapshot);};try{await assert.rejects(run(),/foreign-or-missing-parent/);assert.equal(s.boundary,before);for(const [i,p] of owners.entries())assert.equal(holding(s,p),held[i]);}finally{NativeObjectAssociation.prototype.prepareRestore=prepare;}}
++
++const canonical=(x:any):string=>x===null||typeof x!=='object'?JSON.stringify(x):Array.isArray(x)?'['+x.map(canonical).join(',')+']':'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}';
++const digest=(x:any)=>createHash('sha256').update(canonical(x)).digest('hex');
++export function reseal(b:any){const o=b.successor_observation,prior=o.observation_id;o.protocol_prefix_hash=digest(o.protocol_prefix);o.observation_id='obs-'+digest(Object.fromEntries(Object.entries(o).filter(([k])=>!['observation_id','protocol_prefix'].includes(k))));const belief=b.successor_belief;belief.source_protocol_prefix=structuredClone(o.protocol_prefix);const ref={schema_version:o.schema_version,observation_id:o.observation_id,source_kind:o.source_kind,event_cursor:o.event_cursor,protocol_prefix_hash:o.protocol_prefix_hash,snapshot_phase:o.snapshot_phase};for(const r of [belief.observation,...belief.observation_history])if(r.observation_id===prior)Object.assign(r,ref);for(const t of belief.transition_history)if(t.output_observation_id===prior)t.output_observation_id=o.observation_id;belief.transition_lineage.output_observation_id=o.observation_id;belief.belief_id='belief-'+digest(Object.fromEntries(Object.entries(belief).filter(([k])=>k!=='belief_id')));}
+--- /dev/null
++++ candidate/sim-core/tests/owner_identity_forced_restore.test.ts
+@@ -0,0 +1,35 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import {Dex} from 'pokemon-showdown';
++import {canonicalActionFromLegalAction} from '../src/canonical_action';
++import {PipelineIntegrationSession} from '../src/pipeline_integration';
++import {constructed,checked,choice,joint,emit,holding,other,parentFault,publish,rollback,reseal} from './helpers/owner_selection_restore';
++for(const actor of ['p1','p2'] as const)test('P42 constructed forced B2 '+actor,async()=>{
++ const s=await constructed(actor);
++ try{
++  await joint(s,actor,'move 2');assert.equal(s.boundary.kind,'one_sided_forced_switch');assert.equal(s.boundary.perspectives[other(actor)].observation.request!.wait,true);
++  assert.deepEqual(holding(s,actor).original_slots,[1,2,3]);
++  const action=choice(s,actor,'switch 2'),run=()=>s.stepForcedSwitch(action);
++  await assert.rejects(s.stepForcedSwitch({...action,player:other(actor)}),/unsupported-forced-switch-boundary/);
++  await parentFault(s,run);if(actor==='p1')await rollback(s,run);
++  const expected={ [actor]:[2,1,3],[other(actor)]:[1,2] } as any;
++  const result=await checked(s,run,expected);assert.deepEqual(Object.keys(result.record_bundles),[actor]);publish(result.record_bundles[actor]);
++  const privateRow=structuredClone(result.record_bundles[actor]);privateRow.successor_observation.view.opponent_team[0].original_slots=[1];reseal(privateRow);publish(privateRow,/public schema|unsupported|unexpected|unknown|keys|private/i);
++  await checked(s,()=>joint(s,actor,'move 2'),expected);
++  emit('constructed-forced-'+actor,{level:'actual-constructed-creation-KO-held-restoration',actor,waiting:other(actor),literal_orders:expected,actor_only_publication:true,parent_fault:true,ordinary_continuation:true});
++ }finally{await s.close();}
++});
++test('P42 genuine generated KO forced B2',async()=>{
++ const s=await PipelineIntegrationSession.create({battle_id:'P42-generated-KO',format:'gen9randombattle',seed:[101,202,303,404],observation_schema_version:'observable-battle-state/v2'});let steps=0;
++ try{
++  while(steps<20&&s.boundary.kind==='joint_actionable'){const actions=Object.fromEntries((['p1','p2'] as const).map(p=>{const req=s.boundary.perspectives[p].observation.request!;const attack=req.legal_actions.actions.filter(a=>a?.kind==='move'&&Dex.moves.get(a!.move!).basePower>0&&!Dex.moves.get(a!.move!).selfSwitch&&!Dex.moves.get(a!.move!).forceSwitch).sort((a,b)=>Dex.moves.get(b!.move!).basePower-Dex.moves.get(a!.move!).basePower)[0];assert.ok(attack,'bounded non-pivot damaging choice');return [p,canonicalActionFromLegalAction(req,attack.index)];}));await s.step(actions as any);steps++;}
++  assert.equal(s.boundary.kind,'one_sided_forced_switch');assert.ok(s.boundary.perspectives.p1.observation.protocol_prefix.some(r=>r.startsWith('|faint|')));
++  const actor=s.boundary.perspectives.p1.observation.request!.force_switch?'p1':'p2',waiting=other(actor);
++  const old=[1,2,3,4,5,6],waitorder=[1,2,3,4,5,6];assert.deepEqual(holding(s,actor).original_slots,old);assert.deepEqual(holding(s,waiting).original_slots,waitorder);
++  const request=s.boundary.perspectives[actor].observation.request!,a=request.legal_actions.actions.find(a=>a?.kind==='switch')!;assert.ok(a);
++  const slot=a.slot!,expectedOrder=old.slice();[expectedOrder[0],expectedOrder[slot-1]]=[expectedOrder[slot-1],expectedOrder[0]];
++  const result=await checked(s,()=>s.stepForcedSwitch(choice(s,actor,a.choice)),{[actor]:expectedOrder,[waiting]:waitorder} as any);
++  assert.deepEqual(Object.keys(result.record_bundles),[actor]);publish(result.record_bundles[actor]);await s.step();
++  emit('generated-KO',{level:'actual-unmodified-target-generated-session',steps,actor,original_orders:{[actor]:expectedOrder,[waiting]:waitorder},ordinary_continuation:true});
++ }catch(e){emit('generated-KO-blocker',{steps,boundary:s.boundary.kind,error:String(e),generated_KO_restoration:'UNPROVED'});throw e;}finally{await s.close();}
++});
+--- /dev/null
++++ candidate/sim-core/tests/owner_identity_revival_restore.test.ts
+@@ -0,0 +1,76 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import {Teams} from 'pokemon-showdown';
++import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
++import {validateRawProtocolRecord} from '../src/observable_state';
++import {NATIVE11_CONTEXT,HISTORICAL10_CONTEXT,REPLAY_COMPAT_CONTEXT} from '../src/version_profile';
++import {spawnSync} from 'node:child_process';
++import {constructed,checked,choice,joint,emit,holding,other,parentFault,publish,rollback,reseal,native} from './helpers/owner_selection_restore';
++for(const [actor,healer] of [['p1','Pawmot'],['p2','Rabsca']] as const)test('P42 constructed revival B2 '+actor,async()=>{
++ const s=await constructed(actor,healer);
++ try{
++  await joint(s,actor,'move 1','move 2');assert.equal(s.boundary.perspectives[actor].observation.view.self_team[0].status,'brn');
++  await joint(s,actor,'move 2');assert.equal(s.boundary.kind,'one_sided_forced_switch');
++  await s.stepForcedSwitch(choice(s,actor,'switch 2'));
++  await joint(s,actor,'move 1');assert.equal(s.boundary.kind,'one_sided_revival');assert.equal(s.boundary.perspectives[other(actor)].observation.request!.wait,true);
++  const first=s.boundary.perspectives[actor].observation.view.self_team.find(p=>p.name==='First')!;assert.equal(first.fainted,true);
++  const action=choice(s,actor,'switch 2');assert.equal(action.kind,'revive');const run=()=>s.stepRevival(action);
++  await assert.rejects(s.stepRevival({...action,player:other(actor)}),/unsupported-forced-switch-boundary/);
++  await parentFault(s,run);if(actor==='p1')await rollback(s,run);
++  const orders={ [actor]:[2,1,3],[other(actor)]:[1,2] } as any;
++  const result=await checked(s,run,orders);assert.deepEqual(Object.keys(result.record_bundles),[actor]);publish(result.record_bundles[actor]);
++  const expected='|-heal|'+actor+': First|50/100|[from] move: Revival Blessing';
++  for(const p of ['p1','p2'] as const){assert.ok(s.boundary.perspectives[p].observation.protocol_prefix.includes(expected));const team=p===actor?s.boundary.perspectives[p].observation.view.self_team:s.boundary.perspectives[p].observation.view.opponent_team;const healed=team.find(p=>p.name==='First')!;assert.equal(healed.fainted,false);assert.equal(healed.status,null);assert.equal(healed.active,false);assert.ok(healed.hp_ratio!>0&&healed.hp_ratio!<=0.5);}
++  const channels=extractChannelMessages(native(s).log.join('\n'),[0,1,2]);
++  const secret=native(s)[actor]!.pokemon[1].getHealth().secret,privateHeal=expected.replace('50/100',secret);
++  const ownChannel=actor==='p1'?1:2,waitingChannel=actor==='p1'?2:1;
++  assert.ok(channels[ownChannel].includes(privateHeal));assert.ok(channels[0].includes(expected));assert.ok(channels[waitingChannel].includes(expected));assert.ok(!channels[waitingChannel].includes(privateHeal));
++  if(actor==='p1'){const secretLeak=structuredClone(result.record_bundles[actor]);secretLeak.successor_observation.protocol_prefix=secretLeak.successor_observation.protocol_prefix.map((r:string)=>r===expected?privateHeal:r);reseal(secretLeak);publish(secretLeak,/Public health evidence mismatch.*private HP/i);}
++  const falseOutcome=structuredClone(result.record_bundles[actor]);falseOutcome.successor_observation.view.self_team.find((p:any)=>p.name==='First').fainted=true;reseal(falseOutcome);publish(falseOutcome,/health.*mismatch|fainted|faint/i);
++  if(actor==='p1')for(const [condition,hpText,ratio,status,fainted] of [['1/500','1/500',1/500,null,false],['200/400 brn','200/400',0.5,'brn',false],['0 fnt','0',0,null,true]] as const){
++    const forged=structuredClone(result.record_bundles[actor]);const o=forged.successor_observation;
++    const row=o.view.self_team.find((p:any)=>p.name==='First')!,req=o.request.side.find((p:any)=>p.ident===actor+': First')!;
++    Object.assign(row,{hp_text:hpText,hp_ratio:ratio,status,fainted,active:false});req.condition=condition;req.active=false;reseal(forged);
++    publish(forged,/Public health evidence mismatch.*Revival bench outcome/i);
++  }
++  if(actor==='p1'){
++    const forged=structuredClone(result.record_bundles[actor]);const o=forged.successor_observation;
++    o.protocol_prefix.push('|-status|p1a: First|brn');o.event_cursor=o.protocol_prefix.length;
++    const row=o.view.self_team.find((p:any)=>p.name==='First')!,req=o.request.side.find((p:any)=>p.ident==='p1: First')!;
++    Object.assign(row,{hp_text:'1/500',hp_ratio:1/500,status:'brn',fainted:false,active:false});req.condition='1/500 brn';reseal(forged);
++    publish(forged,/Public health evidence mismatch.*Revival bench outcome/i);
++  }
++  const returning={ [actor]:[1,2,3],[other(actor)]:[1,2] } as any;
++  await checked(s,()=>joint(s,actor,'switch 2'),returning);await checked(s,()=>joint(s,actor,'move 1'),returning);
++  emit('revival-'+actor,{level:'actual-constructed-creation-through-native-revival-held-restore',healer,waiting:other(actor),selected_original_slot:1,selected_party_slot:2,orders,returning_orders:returning,heal:expected,actor_only_publication:true,silent_status_faint_clear:true,ordinary_continuation:true});
++ }finally{await s.close();}
++});
++test('P42 target Pawmot Rabsca generated selector source routes',()=>{
++ const gen:any=Teams.getGenerator('gen9randombattle','1,2,3,4');
++ for(const species of ['Pawmot','Rabsca']){
++  const set=gen.randomSet(species,{},true);assert.ok(set.moves.map((m:string)=>m.toLowerCase().replace(/[^a-z]/g,'')).includes('revivalblessing'));emit('selector-'+species,{level:'actual-constrained-target-randomSet',species,moves:set.moves,ability:set.ability,full_generated_team_witness:'UNEXECUTED'});
++ }
++});
++
++test('P42 finite Revival grammar and unrelated quarantine',()=>{
++ const publicHeal='|-heal|p1: First|50/100|[from] move: Revival Blessing';
++ const secretHeal=publicHeal.replace('50/100','201/403');
++ for(const line of [publicHeal,secretHeal])validateRawProtocolRecord(line,NATIVE11_CONTEXT);
++ const malformed=[publicHeal.replace('p1: First','p1a: First'),publicHeal.replace('50/100','51/100'),publicHeal.replace('50/100','50/100 brn'),publicHeal+'|[silent]',publicHeal+'|[from] move: Revival Blessing',publicHeal.replace('p1: First','p3: First')];
++ for(const line of malformed)assert.throws(()=>validateRawProtocolRecord(line,NATIVE11_CONTEXT),/Malformed raw -heal record/);
++ const siblings=[publicHeal.replace('Revival Blessing','Recover'),publicHeal.replace('move: Revival Blessing','ability: Regenerator'),publicHeal.replace('Revival Blessing','Healing Wish'),publicHeal.replace('|[from] move: Revival Blessing','')];
++ for(const line of siblings)assert.throws(()=>validateRawProtocolRecord(line,NATIVE11_CONTEXT),/prepared-family-unsupported\/heal-failure/);
++ validateRawProtocolRecord(publicHeal,HISTORICAL10_CONTEXT);assert.throws(()=>validateRawProtocolRecord(publicHeal,REPLAY_COMPAT_CONTEXT),/prepared-family-unsupported\/heal-failure/);
++ const script=`import json,sys
++from neural.protocol_contract import validate_protocol_record
++from neural.version_profile import NATIVE11_CONTEXT
++a=json.load(sys.stdin)
++for r in a['positive']:validate_protocol_record(r,reader_rules=NATIVE11_CONTEXT)
++for kind in ('malformed','siblings'):
++ for r in a[kind]:
++  try:validate_protocol_record(r,reader_rules=NATIVE11_CONTEXT)
++  except ValueError as e: assert ('Malformed raw -heal record' if kind=='malformed' else 'prepared-family-unsupported/heal-failure') in str(e),str(e)
++  else:raise AssertionError('negative accepted')
++print('P42 Python finite heal positives/malformed/quarantine PASS')`;
++ const py=spawnSync(process.env.PYTHON!,['-c',script],{env:process.env,input:JSON.stringify({positive:[publicHeal,secretHeal],malformed,siblings}),encoding:'utf8',timeout:30000});assert.equal(py.status,0,py.stderr);console.log(py.stdout.trim());emit('finite-heal-grammar',{public:'50/100',transport:'floor(maxHP/2)/maxHP',malformed:malformed.length,unrelated_quarantines:siblings.length,python:true});
++});

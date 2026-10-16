@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+    "/private/tmp/neural-prompt57/run.py",
+    "build"
+  ],
+  "reported_result": "Python runner was mistakenly launched with Node; JavaScript SyntaxError before tsc/build/log runner execution. Author reported it; exact stderr was not separately captured. No source or build outputs changed by this invocation.",
+  "followup": "Correct Python launcher used; two actual failed builds and the successful corrected build are retained in commands/logs."
+}

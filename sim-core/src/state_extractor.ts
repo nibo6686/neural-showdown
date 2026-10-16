@@ -1,6 +1,7 @@
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { abilityEffectiveness, publicGasSources, publicTraceAbilities, publicRevealedAbilities, preservesOwnedAbilityForForm } from './public_ability';
 import {projectPublicOwnedItemHistory, ambiguousOwnedItemTargets} from './public_item';
-import { Dex, toID } from 'pokemon-showdown';
+import { historicalToID as toID } from './version_profile';
 import { isCanonicalPlayerIdent, PROTOCOL_CONTRACT, RECOGNIZED_UNSUPPORTED_RAW_COMMANDS, SUPPORTED_RAW_COMMANDS } from './protocol_contract';
 import { classifyEffectRecord } from './effect_inventory';
 import { ObservableStateError, validateRawProtocolRecord } from './observable_state';
@@ -27,11 +28,12 @@ import {
 } from './battle_helpers';
 
 /** `getPlayerStreams` removes the split marker before it reaches its owner. */
-export function isOwnerPrivateHealingWishHeal(line: string, owner: PlayerID): boolean {
+export function isOwnerPrivateHealingWishHeal(line: string, owner: PlayerID, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): boolean {
+  readerContext(rulesContext);
   const parts = splitProtocolLine(line);
   if (parts.length !== 5 || parts[1] !== '-heal'
     || parts[4] !== '[from] move: Healing Wish'
-    || !isCanonicalPlayerIdent(parts[2], true)
+    || !isCanonicalPlayerIdent(parts[2], true, rulesContext)
     || !parts[2].startsWith(`${owner}a:`)) return false;
   return /^([1-9][0-9]*)\/\1$/.test(parts[3] || '');
 }
@@ -42,7 +44,8 @@ function isPublicHealingWishHeal(line: string): boolean {
     && parts[3] === '100/100' && parts[4] === '[from] move: Healing Wish';
 }
 
-function createPokemonView(slot: number, ident = '', details = ''): PokemonView {
+function createPokemonView(slot: number, ident = '', details = '', rulesContext: ReaderContext = HISTORICAL10_CONTEXT): PokemonView {
+  readerContext(rulesContext);
   const parsedDetails = parseDetails(details);
   const parsedCondition = parseCondition('');
 
@@ -79,7 +82,7 @@ function createPokemonView(slot: number, ident = '', details = ''): PokemonView 
     ability_suppressed: false,
     moves: [],
     revealed_moves: [],
-    types: resolveTypes(parsedDetails.species, parsedDetails.teraType, false),
+    types: resolveTypes(parsedDetails.species, parsedDetails.teraType, false, rulesContext),
     tera_type: parsedDetails.teraType,
     terastallized: false,
     stats: {},
@@ -93,6 +96,9 @@ function createPokemonView(slot: number, ident = '', details = ''): PokemonView 
 }
 
 export class PlayerStateExtractor {
+  getReaderContext(): ReaderContext { return this.rulesContext; }
+  private readonly rulesContext: ReaderContext;
+
   readonly envId: string;
   readonly player: PlayerID;
   readonly opponent: PlayerID;
@@ -130,12 +136,13 @@ export class PlayerStateExtractor {
   private defensiveTypes(pokemon: PokemonView | undefined, species: string, teraType: string | null, terastallized: boolean): string[] {
     if (terastallized && teraType && teraType !== 'Stellar') return [teraType];
     const publicTypes = pokemon && this.publicTypeChanges.get(pokemon);
-    const ordinary = publicTypes ? [...publicTypes] : resolveTypes(species, teraType, terastallized);
+    const ordinary = publicTypes ? [...publicTypes] : resolveTypes(species, teraType, terastallized, this.rulesContext);
     const added = pokemon && this.publicAddedTypes.get(pokemon);
     return added ? [...new Set([...ordinary, added])] : ordinary;
   }
 
-  constructor(envId: string, format: string, player: PlayerID) {
+  constructor(envId: string, format: string, player: PlayerID, rulesContext: ReaderContext = HISTORICAL10_CONTEXT) {
+    this.rulesContext = readerContext(rulesContext);
     this.envId = envId;
     this.player = player;
     this.opponent = player === 'p1' ? 'p2' : 'p1';
@@ -154,16 +161,16 @@ export class PlayerStateExtractor {
       }
       // The owner-private branch holds exact HP. It is deliberately omitted:
       // the spectator's paired public 100/100 record is routed below.
-      if (isOwnerPrivateHealingWishHeal(line, this.player)) continue;
+      if (isOwnerPrivateHealingWishHeal(line, this.player, this.rulesContext)) continue;
       if (line.startsWith('|')) {
         const command = line.split('|')[1];
-        if (command && (SUPPORTED_RAW_COMMANDS.has(command) || RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command))) {
-          validateRawProtocolRecord(line);
+        if (command && (new Set(readerContext(this.rulesContext).protocol.supported_commands).has(command) || new Map(readerContext(this.rulesContext).protocol.recognized_unsupported_commands.map(entry => [entry.token, entry])).has(command))) {
+          validateRawProtocolRecord(line, this.rulesContext);
         }
       } else if (/^\s*\|/.test(line)) {
         // Detect a protocol record with leading whitespace without repairing
         // it; the validator must see and reject the original line.
-        validateRawProtocolRecord(line);
+        validateRawProtocolRecord(line, this.rulesContext);
       }
       if (line.startsWith('|') && !line.startsWith('|request|')) this.publicAbilityPrefix.push(line);
       this.consumeLine(line);
@@ -173,7 +180,7 @@ export class PlayerStateExtractor {
   /** Route the one public Healing Wish result from the spectator stream. */
   consumePublicHealingWishRecord(line: string): void {
     if (!isPublicHealingWishHeal(line)) return;
-    validateRawProtocolRecord(line);
+    validateRawProtocolRecord(line, this.rulesContext);
     this.consumeLine(line);
   }
 
@@ -181,7 +188,7 @@ export class PlayerStateExtractor {
     const selfTeam = this.ownRequestData ? this.selfFromRequest(this.ownRequestData) : this.view.self_team;
     const gasPresent = publicGasSources(this.publicAbilityPrefix).size > 0;
     const applyEffectiveness = (pokemon: PokemonView, owned: boolean): PokemonView => {
-      const effective = abilityEffectiveness(pokemon, gasPresent, pokemon.item, owned || !!pokemon.item && pokemon.item !== 'has-item');
+      const effective = abilityEffectiveness(pokemon, gasPresent, pokemon.item, owned || !!pokemon.item && pokemon.item !== 'has-item', this.rulesContext);
       const clone = this.cloneWithStatusEvidence(pokemon);
       clone.ability_effectiveness = effective;
       // Existing owner field is supported by the addressed request. Opponent
@@ -361,13 +368,13 @@ export class PlayerStateExtractor {
 
   private handleRequest(rawJson: string): void {
     const rawRequest = JSON.parse(rawJson);
-    this.currentRequest = normalizeRequest(this.player, rawRequest);
+    this.currentRequest = normalizeRequest(this.player, rawRequest, this.rulesContext);
     if (Array.isArray(rawRequest?.side?.pokemon)) {this.ownRequestData = rawRequest; this.submittedSwitch = null;}
   }
 
   private selfFromRequest(rawRequest: any): PokemonView[] {
     const requestSide = Array.isArray(rawRequest?.side?.pokemon) ? rawRequest.side.pokemon : [];
-    const terminalTrace = this.view.terminated ? publicTraceAbilities(this.publicAbilityPrefix) : {};
+    const terminalTrace = this.view.terminated ? publicTraceAbilities(this.publicAbilityPrefix, this.rulesContext) : {};
     const submitted = this.view.terminated && this.submittedSwitch
       && this.publicAbilityPrefix.slice(this.submittedSwitch.cursor).filter((line) => line.startsWith(`|switch|${this.player}a: `)).length === 1
       && !this.publicAbilityPrefix.slice(this.submittedSwitch.cursor).some((line) => line.startsWith(`|drag|${this.player}a: `))
@@ -503,7 +510,7 @@ export class PlayerStateExtractor {
 
     const team = side === this.player ? this.view.self_team : this.view.opponent_team;
     const slot = team.length + 1;
-    const pokemon = createPokemonView(slot, '', parts[3] || '');
+    const pokemon = createPokemonView(slot, '', parts[3] || '', this.rulesContext);
     if (parts[4] === 'item') {
       pokemon.item = 'has-item';
     }
@@ -542,7 +549,7 @@ export class PlayerStateExtractor {
     }
     // Preserve the earlier roster entry separately in case this is its imposter.
     // A fresh appearance must not inherit that teammate's move/item evidence.
-    const pokemon = createPokemonView(prior.slot, ident, details);
+    const pokemon = createPokemonView(prior.slot, ident, details, this.rulesContext);
     if (prior.item === 'has-item') pokemon.item = 'has-item';
     // clearVolatile restores the simulator's current ability to baseAbility
     // before every switch-in. Carry only a value already revealed by prior
@@ -586,7 +593,7 @@ export class PlayerStateExtractor {
     // Illusion display, and must not be inferred from the displaced roster entry.
     pokemon.tera_type = parsedDetails.teraType || pokemon.tera_type;
     pokemon.terastallized = !!parsedDetails.teraType;
-    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized, this.rulesContext);
     pokemon.item_suppressed = this.view.field.pseudo_weather.includes('magicroom');
     this.updateActiveIndices();
   }
@@ -604,7 +611,7 @@ export class PlayerStateExtractor {
     const hadReplacement = this.publicTypeChanges.delete(pokemon);
     const hadAdded = this.publicAddedTypes.delete(pokemon);
     if (hadReplacement || hadAdded) {
-      pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+      pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized, this.rulesContext);
     }
     pokemon.boosts = {};
     // Pinned Pokemon.clearVolatile restores the live ability to baseAbility on
@@ -670,7 +677,7 @@ export class PlayerStateExtractor {
     }
     this.publicTypeChanges.delete(pokemon);
     this.publicAddedTypes.delete(pokemon);
-    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized);
+    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, pokemon.terastallized, this.rulesContext);
   }
 
   private handleReplace(parts: string[]): void {
@@ -746,12 +753,12 @@ export class PlayerStateExtractor {
     pokemon.ability_suppressed = false;
     this.publicTypeChanges.delete(pokemon);
     this.publicAddedTypes.delete(pokemon);
-    pokemon.types = resolveTypes(species, pokemon.tera_type, pokemon.terastallized);
+    pokemon.types = resolveTypes(species, pokemon.tera_type, pokemon.terastallized, this.rulesContext);
   }
 
   private handleInvertBoosts(parts: string[]): void {
     if (parts.length !== 4 || parts[3] !== '[from] move: Topsy-Turvy'
-      || !isCanonicalPlayerIdent(parts[2], true)) return;
+      || !isCanonicalPlayerIdent(parts[2], true, this.rulesContext)) return;
     const player = parseIdent(parts[2]).player;
     if (!player) return;
     const team = player === this.player ? this.view.self_team : this.view.opponent_team;
@@ -762,7 +769,7 @@ export class PlayerStateExtractor {
 
   private handleCopyBoosts(parts: string[]): void {
     if (parts.length !== 5 || parts[4] !== '[from] move: Psych Up') return;
-    if (!isCanonicalPlayerIdent(parts[2], true) || !isCanonicalPlayerIdent(parts[3], true)) return;
+    if (!isCanonicalPlayerIdent(parts[2], true, this.rulesContext) || !isCanonicalPlayerIdent(parts[3], true, this.rulesContext)) return;
     const recipientIdent = parseIdent(parts[2]);
     const donorIdent = parseIdent(parts[3]);
     if (!recipientIdent.player || !donorIdent.player) return;
@@ -811,7 +818,7 @@ export class PlayerStateExtractor {
     // Transform copies ordinary types (ignoring target Tera) and the added slot
     // at this instant. Copy only public evidence and never alias either map.
     const ordinary = target && this.publicTypeChanges.get(target);
-    this.publicTypeChanges.set(pokemon, ordinary ? [...ordinary] : resolveTypes(currentSpecies, null, false));
+    this.publicTypeChanges.set(pokemon, ordinary ? [...ordinary] : resolveTypes(currentSpecies, null, false, this.rulesContext));
     const added = target && this.publicAddedTypes.get(target);
     if (added) this.publicAddedTypes.set(pokemon, added);
     else this.publicAddedTypes.delete(pokemon);
@@ -849,7 +856,7 @@ export class PlayerStateExtractor {
     // For an unrevealed Illusion this intentionally uses the appearance, not
     // the hidden roster identity.
     pokemon.terastallized = false;
-    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, false);
+    pokemon.types = resolveTypes(pokemon.species, pokemon.tera_type, false, this.rulesContext);
     pokemon.fainted = true;
     pokemon.active = false;
     pokemon.hp_ratio = 0;
@@ -974,7 +981,7 @@ export class PlayerStateExtractor {
 
   private handleVolatile(parts: string[]): void {
     const ident = parts[2] || '';
-    if (classifyEffectRecord(parts[1] || '', parts[3] || '') === 'raw-only') return;
+    if (classifyEffectRecord(parts[1] || '', parts[3] || '', this.rulesContext) === 'raw-only') return;
     const effect = normalizeEffectId(parts[3] || '');
     const parsedIdent = parseIdent(ident);
     if (!parsedIdent.player || !effect) {
@@ -1009,13 +1016,13 @@ export class PlayerStateExtractor {
   }
 
   private handleWeather(parts: string[]): void {
-    if (classifyEffectRecord(parts[1] || '', parts[2] || '') === 'raw-only') return;
+    if (classifyEffectRecord(parts[1] || '', parts[2] || '', this.rulesContext) === 'raw-only') return;
     const weather = normalizeEffectId(parts[2] || '');
     this.view.field.weather = weather || null;
   }
 
   private handlePseudoWeather(parts: string[]): void {
-    if (classifyEffectRecord(parts[1] || '', parts[2] || '') === 'raw-only') return;
+    if (classifyEffectRecord(parts[1] || '', parts[2] || '', this.rulesContext) === 'raw-only') return;
     const effect = normalizeEffectId(parts[2] || '');
     if (!effect) {
       return;
@@ -1045,14 +1052,14 @@ export class PlayerStateExtractor {
 
   private handleSideCondition(parts: string[]): void {
     const side = (parts[2] || '').split(':', 1)[0];
-    if (classifyEffectRecord(parts[1] || '', parts[3] || '') === 'raw-only') return;
+    if (classifyEffectRecord(parts[1] || '', parts[3] || '', this.rulesContext) === 'raw-only') return;
     const effect = normalizeEffectId(parts[3] || '');
     if ((side !== 'p1' && side !== 'p2') || !effect) {
       return;
     }
 
     const target = side === this.player ? this.view.field.side_conditions.self : this.view.field.side_conditions.opponent;
-    const lifecycle = typedStateLifecycleEntry('side_condition', effect);
+    const lifecycle = typedStateLifecycleEntry('side_condition', effect, this.rulesContext);
     if (!lifecycle || lifecycle.disposition !== 'evidence-derived-typed') return;
     if (parts[1] === '-sideend') {
       delete target[effect];
@@ -1074,7 +1081,7 @@ export class PlayerStateExtractor {
     // and leave all non-Court field data where it was.
     const self = this.view.field.side_conditions.self;
     const opponent = this.view.field.side_conditions.opponent;
-    for (const effect of PUBLIC_TYPED_STATE_LIFECYCLE.court_change_ids) {
+    for (const effect of readerContext(this.rulesContext).inventory.public_typed_state_lifecycle.court_change_ids) {
       const selfValue = self[effect];
       const opponentValue = opponent[effect];
       if (opponentValue === undefined) delete self[effect]; else self[effect] = opponentValue;
@@ -1118,7 +1125,7 @@ export class PlayerStateExtractor {
     const pokemon = this.findOrCreatePokemon(team, ident, '');
     const changed = parts.slice(4).some((value) => value.toLowerCase().startsWith('[from]'));
     if (!pokemon.base_ability && !changed) {
-      pokemon.base_ability = publicRevealedAbilities(this.publicAbilityPrefix)[ident.replace(/^(p[12])a: /, '$1: ')]?.base || null;
+      pokemon.base_ability = publicRevealedAbilities(this.publicAbilityPrefix, this.rulesContext)[ident.replace(/^(p[12])a: /, '$1: ')]?.base || null;
     }
     pokemon.ability = ability || pokemon.ability;
     pokemon.ability_state = changed ? 'changed' : 'known';
@@ -1216,8 +1223,8 @@ export class PlayerStateExtractor {
       return found;
     }
 
-    const pokemon = createPokemonView(team.length + 1, ident, details);
-    const speciesData = Dex.species.get(pokemon.species);
+    const pokemon = createPokemonView(team.length + 1, ident, details, this.rulesContext);
+    const speciesData = runtimeData(this.rulesContext).species.get(pokemon.species);
     if (speciesData.exists) {
       pokemon.types = [...speciesData.types];
     }

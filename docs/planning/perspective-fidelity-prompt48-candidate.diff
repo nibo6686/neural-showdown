@@ -1,0 +1,1443 @@
+--- a/sim-core/src/original_owner_provider.ts
++++ b/sim-core/src/original_owner_provider.ts
+@@ -55,6 +55,17 @@
+   #raw: (readonly unknown[] | undefined)[] = [];
+   #evidence: (OriginalOwnerEvidence | undefined)[] = [];
+   #handles: OriginalOwnerHandle[] = [];
++  #knowledgeReceiver: ((environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]) => void) | null = null;
++  #knowledgeEnvironment: object | null = null;
++  #knowledgeOccurrence: object | null = null;
++  registerKnowledgeReceiver(receiver: (environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]) => void): void {
++    if (this.#phase !== 'new' || this.#knowledgeReceiver || typeof receiver !== 'function') fail('knowledge-receiver-registration');
++    this.#knowledgeReceiver = receiver;
++  }
++  assertKnowledgeEnrollment(environment: object, occurrence: object, rows: readonly OriginalOwnerEvidence[]): void {
++    if (!['staged', 'active'].includes(this.#phase) || environment !== this.#knowledgeEnvironment
++      || occurrence !== this.#knowledgeOccurrence || rows.length !== 2 || rows.some((row, i) => row !== this.#evidence[i])) fail('foreign-knowledge-enrollment');
++  }
+   readonly #labels: OriginalOwnerEvidence['labels'];
+ 
+   constructor(labels: OriginalOwnerEvidence['labels']) { this.#labels = freeze(detach(labels)); }
+@@ -65,6 +76,7 @@
+   begin(environment: object): void {
+     if (this.#phase !== 'new' || this.#environment !== environment) fail('duplicate-or-foreign-creation');
+     this.#phase = 'capturing';
++    this.#knowledgeEnvironment = environment; this.#knowledgeOccurrence = Object.freeze(Object.create(null));
+   }
+   capture<T extends unknown[]>(environment: object, owner: PlayerID, generated: T): T {
+     const index = ownerIndex(owner);
+@@ -85,7 +97,10 @@
+     }));
+     this.#evidence[index] = freeze({ owner, labels: this.#labels, raw_team: raw, packed_team: packed,
+       creation_sequence: 0, creation_cursor: 0, field_presence, non_submitted_fields });
+-    if (this.#evidence[0] && this.#evidence[1]) this.#phase = 'staged';
++    if (this.#evidence[0] && this.#evidence[1]) {
++      this.#phase = 'staged';
++      this.#knowledgeReceiver?.(this.#knowledgeEnvironment!, this.#knowledgeOccurrence!, Object.freeze([...this.#evidence] as OriginalOwnerEvidence[]));
++    }
+   }
+   diagnostic(environment: object, owner: PlayerID): OriginalOwnerEvidence {
+     const row = this.#evidence[ownerIndex(owner)];
+@@ -121,6 +136,7 @@
+   }
+   abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
+   revoke(): void {
++    this.#knowledgeReceiver = null; this.#knowledgeEnvironment = null; this.#knowledgeOccurrence = null;
+     this.#phase = 'invalid'; this.#environment = null; this.#raw = []; this.#evidence = []; this.#handles = [];
+   }
+ }
+--- a/sim-core/src/perspective_knowledge.ts
++++ b/sim-core/src/perspective_knowledge.ts
+@@ -506,3 +506,57 @@
+ export function serializeKnowledgeWire(value: unknown): Buffer {
+   checkKnowledgeStructure(value); return canonicalKnowledgeJson(value);
+ }
++
++
++const nativeOwnerPins = Object.freeze({
++  'schema.json': '83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94',
++  'profile.json': '38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e',
++});
++let nativeOwnerContext: Readonly<{ schema: Row; profile: Row }> | undefined;
++/** Fixed decoder data only; loading/validating it grants no native source capability. */
++export function nativeOwnerProjectionContext(): Readonly<{ schema: Row; profile: Row }> {
++  if (nativeOwnerContext) return nativeOwnerContext;
++  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
++    'docs/contracts/fixtures/perspective-knowledge-native11-owner-v1');
++  const data: Row = {};
++  for (const [name, expected] of Object.entries(nativeOwnerPins)) {
++    const bytes = readFileSync(path.join(folder, name));
++    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native projection contract content');
++    data[name] = parseKnowledgeJson(bytes);
++  }
++  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native profile identity');
++  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
++  nativeOwnerContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeOwnerContext!;
++}
++/** Arbitrary data structure check. This never registers a trusted consumer pair. */
++export function checkNativeOwnerProjection(input: unknown): void {
++  canonicalKnowledgeJson(input);
++  const context = nativeOwnerProjectionContext(), value = input as Row;
++  shape(value, context.schema, context.schema.$defs);
++  requireStructure(value.id === knowledgeIdentity(value), 'native projection identity');
++  const old = contract();
++  const size = value.starting.filter((fact: Row) => fact.property === 'roster_size');
++  requireStructure(size.length === 1 && size[0].state === 'known' && size[0].value?.type === 'integer'
++    && size[0].value.data >= 1 && size[0].value.data <= 6, 'native projection roster');
++  const count = size[0].value.data;
++  for (const rule of context.profile.rules) {
++    const facts = value[rule.context].filter((fact: Row) => fact.property === rule.property);
++    const subjects = rule.subject === 'side' ? [value.owner + ':side'] : Array.from({ length: count }, (_, i) => value.owner + ':roster:' + (i + 1));
++    requireStructure(facts.length === subjects.length && subjects.every(subject => facts.some((fact: Row) => fact.subject === subject)), 'native projection coverage');
++    if (rule.property === 'roster_order') requireStructure(facts.every((fact: Row) => fact.value?.type === 'integer' && fact.value.data === Number(fact.subject.split(':').at(-1))), 'native projection original order');
++  }
++  for (const section of ['starting', 'current']) {
++    logicalFacts(value[section]);
++    for (const fact of value[section]) {
++      const rule = context.profile.rules.find((r: Row) => r.context === section && r.property === fact.property && r.family === fact.family);
++      requireStructure(rule && rule.states.includes(fact.state) && fact.reason === rule.reason, 'native projection property scope');
++      requireStructure(fact.owner === value.owner && fact.subject === (rule.subject === 'side' ? value.owner + ':side' : fact.subject)
++        && (rule.subject === 'side' || new RegExp('^' + value.owner + ':roster:[1-6]$').test(fact.subject)), 'native projection subject');
++      const properties = { [rule.family]: [rule.property] };
++      factShape(fact, old, properties, false);
++      requireStructure(fact.effect_key === null && fact.freshness === (section === 'starting' ? 'immutable' : 'current'), 'native projection lifecycle');
++      requireStructure(fact.observed_at === (section === 'starting' ? 0 : null), 'native projection cursor');
++      requireStructure(fact.precision === (fact.state === 'known' ? 'exact' : 'not_applicable'), 'native projection precision');
++    }
++  }
++}
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { NativeOwnerKnowledgeController, type OwnerKnowledgeHandle, type OwnerKnowledgeRead } from './native_owner_knowledge';
+ import { SwitchEventHost, type SwitchEventHandle, type SwitchEventHistory } from './owner_identity_events';
+ import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
+ import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+@@ -128,6 +129,8 @@
+ }
+ 
+ export interface PipelineIntegrationOptions {
++  /** Privileged local recipient registration only; not an RPC option or owner-string grant. */
++  knowledge_recipients?: Readonly<Record<PlayerID, object>>;
+   observation_schema_version?: ObservableSchemaVersion;
+   settling?: SettlingOptions;
+   battle_id: string;
+@@ -379,6 +382,7 @@
+   readonly #nativeBirth: NativeBirthEnrollment;
+   readonly #objectAssociation: NativeObjectAssociation;
+   readonly #switchEvents: SwitchEventHost;
++  readonly #ownerKnowledge: NativeOwnerKnowledgeController | undefined;
+   readonly #deliveryLedger = new RequestDeliveryLedger();
+   #deliveryEnabled = false;
+   private readonly seed: number[];
+@@ -407,6 +411,8 @@
+     this.seed = [...options.seed];
+     this.settlingOptions = { ...options.settling };
+     this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: this.rulesContext.profile.revision });
++    this.#ownerKnowledge = options.knowledge_recipients
++      ? new NativeOwnerKnowledgeController(this.#originalCreation, this.#runtimeProfile, options.knowledge_recipients) : undefined;
+     this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
+     this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
+     this.#switchEvents = new SwitchEventHost(this.#nativeBirth, this.#objectAssociation);
+@@ -430,21 +436,26 @@
+         const delivery = session.#deliveryLedger.prepare(session.environment, initial, boundary, null);
+         const association = session.#objectAssociation.prepareInitial(session.environment, boundary, snapshot);
+         const events = session.#switchEvents.prepare(session.environment, boundary, snapshot, projectProtocolPositions(session.rawPrefix, session.rulesContext), null);
++        const knowledge = session.#ownerKnowledge?.prepare(session.environment, boundary, null);
+         session.#deliveryLedger.preflight(delivery);
+         session.#objectAssociation.preflight(association);
+         session.#switchEvents.preflight(events);
++        if (knowledge) session.#ownerKnowledge!.preflight(knowledge);
+         // No validation/allocation/await/user callback from here to publication.
+         session.#nativeBirth.installActivation();
+         session.#deliveryLedger.installReady();
+         session.#objectAssociation.installReady();
+         session.#switchEvents.installReady();
++        if (knowledge) session.#ownerKnowledge!.installReady();
+         session.snapshot = snapshot; session.currentBoundaryValue = boundary; session.#deliveryEnabled = true;
+       } else {
++        session.#ownerKnowledge?.revoke();
+         session.#deliveryLedger.revoke(); session.#nativeBirth.revoke(); session.#switchEvents.revoke();
+         session.snapshot = snapshot; session.currentBoundaryValue = boundary;
+       }
+       return session;
+     } catch (error) {
++      session.#ownerKnowledge?.revoke();
+       session.#deliveryLedger.revoke();
+       session.#originalCreation.revoke();
+       session.#nativeBirth.revoke();
+@@ -468,6 +479,15 @@
+   readNativeBirthHolding(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
+     this.ensureOpen();
+     return this.#nativeBirth.read(handle, owner);
++  }
++
++  getOwnerKnowledgeHandle(recipient: object): OwnerKnowledgeHandle {
++    this.ensureOpen(); if (!this.#ownerKnowledge) throw new Error('native-owner-knowledge/v1/not-adopted');
++    return this.#ownerKnowledge.handle(recipient);
++  }
++  readOwnerKnowledge(handle: OwnerKnowledgeHandle, recipient: object): OwnerKnowledgeRead {
++    this.ensureOpen(); if (!this.#ownerKnowledge) throw new Error('native-owner-knowledge/v1/not-adopted');
++    return this.#ownerKnowledge.read(handle, recipient);
+   }
+ 
+   getSwitchEventHolding(owner: PlayerID): SwitchEventHandle { this.ensureOpen(); return this.#switchEvents.holding(owner); }
+@@ -712,9 +732,11 @@
+       const association = associationTicket ? this.#objectAssociation.prepareCommit(candidate, nextBoundary, transitionResult.output_snapshot, associationTicket) : undefined;
+       const events = this.#deliveryEnabled ? this.#switchEvents.prepare(candidate, nextBoundary, transitionResult.output_snapshot,
+         projectProtocolPositions(nextRawPrefix, this.rulesContext), inputBoundary) : undefined;
++      const knowledge = this.#ownerKnowledge?.prepare(candidate, nextBoundary, inputBoundary);
+       if (delivery) this.#deliveryLedger.preflight(delivery);
+       if (association) this.#objectAssociation.preflight(association);
+       if (events) this.#switchEvents.preflight(events);
++      if (knowledge) this.#ownerKnowledge!.preflight(knowledge);
+       const previousEnvironment = this.environment;
+       const result = { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+       // Retirement allocation also precedes the irreversible assignment section.
+@@ -722,6 +744,7 @@
+       if (delivery) this.#deliveryLedger.installReady();
+       if (association) this.#objectAssociation.installReady();
+       if (events) this.#switchEvents.installReady();
++      if (knowledge) this.#ownerKnowledge!.installReady();
+       this.environment = candidate; this.rawPrefix = nextRawPrefix;
+       this.snapshot = transitionResult.output_snapshot; this.currentBoundaryValue = nextBoundary;
+       try {
+@@ -732,6 +755,7 @@
+       }
+       return result;
+     } catch (error) {
++      this.#ownerKnowledge?.discard(candidate);
+       if (delivery) this.#deliveryLedger.discard(delivery);
+       this.#switchEvents.release(candidate);
+       this.#objectAssociation.discard(candidate);
+@@ -743,6 +767,7 @@
+   async close(): Promise<void> {
+     if (this.closed) return;
+     this.closed = true;
++    this.#ownerKnowledge?.revoke();
+     this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
+     this.#nativeBirth.revoke();
+--- /dev/null
++++ b/sim-core/src/native_owner_knowledge.ts
+@@ -0,0 +1,158 @@
++import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
++import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext } from './perspective_knowledge';
++import { assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
++import type { PipelineBoundary } from './pipeline_integration';
++import type { PlayerID } from './types';
++
++export type OwnerKnowledgeHandle = Readonly<object>;
++export interface OwnerKnowledgeRead {
++  readonly projection: Readonly<Record<string, any>>;
++  readonly binding: Readonly<{ observation_id: string; prefix_cursor: number; request_adaptation: 'not_adopted' }>;
++}
++const owners = ['p1', 'p2'] as const;
++const token = (): object => Object.freeze(Object.create(null));
++function fail(reason: string): never { throw new Error('native-owner-knowledge/v1/' + reason); }
++function freeze<T>(value: T): T {
++  if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value;
++}
++type Frame = { environment: object; occurrence: object; rows: readonly OriginalOwnerEvidence[] };
++type State = { parent: PipelineBoundary; source: Frame; starting: Record<PlayerID, readonly Record<string, any>[]>;
++  reads: Record<PlayerID, OwnerKnowledgeRead>; handles: Record<PlayerID, OwnerKnowledgeHandle> };
++type Preparation = { environment: object; parent: PipelineBoundary | null; state: State };
++
++/** Fixed addressed private consumer; never an import factory or native actor resolver. */
++export class NativeOwnerKnowledgeController {
++  readonly #creation: OriginalOwnerCreation;
++  readonly #runtime: NativeRuntimeProfile;
++  readonly #dex: any;
++  readonly #recipients: Record<PlayerID, object>;
++  #frame: Frame | null = null;
++  #current: State | null = null;
++  #prepared = new Map<object, Preparation>();
++  #ready: Preparation | null = null;
++  #closed = false;
++  constructor(creation: OriginalOwnerCreation, runtime: NativeRuntimeProfile, recipients: Readonly<Record<PlayerID, object>>) {
++    assertNativeRuntimeProfile(runtime);
++    const profile = nativeOwnerProjectionContext().profile;
++    if (runtime.package_version !== '0.11.11' || profile.engine !== 'pokemon-showdown@' + runtime.package_version) fail('runtime-profile');
++    if (!recipients || ![Object.prototype, null].includes(Object.getPrototypeOf(recipients))
++      || Object.keys(recipients).sort().join(',') !== 'p1,p2'
++      || owners.some(owner => !Object.hasOwn(Object.getOwnPropertyDescriptor(recipients, owner) ?? {}, 'value'))
++      || owners.some(owner => !recipients[owner] || typeof recipients[owner] !== 'object' || Array.isArray(recipients[owner]))
++      || recipients.p1 === recipients.p2) fail('recipient-registration');
++    this.#creation = creation; this.#runtime = runtime;
++    this.#dex = require(runtime.entry).Dex.forFormat(profile.format);
++    this.#recipients = Object.freeze({ p1: recipients.p1, p2: recipients.p2 });
++    creation.registerKnowledgeReceiver((environment, occurrence, rows) => {
++      if (this.#closed || this.#frame) fail('duplicate-or-late-enrollment');
++      creation.assertKnowledgeEnrollment(environment, occurrence, rows);
++      for (const [i, owner] of owners.entries()) {
++        const row = rows[i];
++        if (row.owner !== owner || row.labels.format !== profile.format || row.labels.simulator_revision !== runtime.reader.profile.revision
++          || row.creation_sequence !== 0 || row.creation_cursor !== 0) fail('source-profile');
++      }
++      this.#frame = Object.freeze({ environment, occurrence, rows });
++    });
++  }
++  private open(): void { if (this.#closed) fail('revoked'); }
++  private source(): Frame {
++    this.open(); assertNativeRuntimeProfile(this.#runtime);
++    if (!this.#frame) fail('missing-enrollment');
++    this.#creation.assertKnowledgeEnrollment(this.#frame.environment, this.#frame.occurrence, this.#frame.rows);
++    return this.#frame;
++  }
++  prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null): object {
++    const source = this.source(), prior = this.#current, profile = nativeOwnerProjectionContext().profile;
++    if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
++    const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex) });
++    const reads = {} as Record<PlayerID, OwnerKnowledgeRead>;
++    for (const owner of owners) {
++      const obs = boundary.perspectives[owner].observation;
++      if (obs.perspective !== owner || obs.battle_id !== source.rows[0].labels.battle_id
++        || obs.event_cursor !== obs.protocol_prefix.length || boundary.battle_id !== obs.battle_id) fail('boundary');
++      const count = source.rows[owners.indexOf(owner)].raw_team.length;
++      const current = profile.rules.filter((r: any) => r.context === 'current').flatMap((rule: any) => {
++        const subjects = rule.subject === 'side' ? [owner + ':side'] : Array.from({ length: count }, (_, i) => owner + ':roster:' + (i + 1));
++        return subjects.map(subject => freeze({ owner, subject, family: rule.family, property: rule.property, effect_key: null,
++          state: 'unknown', value: null, reason: 'unimplemented_family', freshness: 'current', precision: 'not_applicable', observed_at: null }));
++      });
++      const projection: Record<string, any> = { kind: 'projection', id: '', schema: 'perspective-knowledge-consumer/v1', owner,
++        policy: profile.policy, boundary: boundary.step_index, required_profile: profile.id, result: 'incomplete',
++        starting: starting[owner], starting_crosswalk: [], current, request: null };
++      projection.id = knowledgeIdentity(projection); checkNativeOwnerProjection(projection);
++      reads[owner] = freeze({ projection, binding: { observation_id: obs.observation_id,
++        prefix_cursor: obs.event_cursor, request_adaptation: 'not_adopted' as const } });
++    }
++    const prepared = token();
++    this.#prepared.set(prepared, { environment, parent, state: { parent: boundary, source, starting, reads,
++      handles: { p1: token(), p2: token() } } }); return prepared;
++  }
++  preflight(prepared: object): void {
++    const source = this.source(), entry = this.#prepared.get(prepared);
++    if (!entry || entry.parent !== (this.#current?.parent ?? null) || entry.state.source !== source) fail('foreign-or-stale-preparation');
++    for (const owner of owners) {
++      checkNativeOwnerProjection(entry.state.reads[owner].projection);
++      if (this.#current && entry.state.starting[owner] !== this.#current.starting[owner]) fail('starting-lineage');
++    }
++    this.#ready = entry;
++  }
++  /** Trusted session barrier only: preflight precedes assignment-only installation. */
++  installReady(): void { this.#current = this.#ready!.state; this.#ready = null; this.#prepared.clear(); }
++  private owner(recipient: object): PlayerID {
++    this.open(); const owner = owners.find(owner => this.#recipients[owner] === recipient);
++    if (!owner || !this.#current) fail('foreign-recipient'); return owner;
++  }
++  handle(recipient: object): OwnerKnowledgeHandle { const owner = this.owner(recipient); return this.#current!.handles[owner]; }
++  read(handle: OwnerKnowledgeHandle, recipient: object): OwnerKnowledgeRead {
++    const owner = this.owner(recipient);
++    if (handle !== this.#current!.handles[owner]) fail('foreign-copied-or-stale-handle');
++    return this.#current!.reads[owner];
++  }
++  discard(environment: object): void {
++    if (this.#ready?.environment === environment) this.#ready = null;
++    for (const [key, value] of this.#prepared) if (value.environment === environment) this.#prepared.delete(key);
++  }
++  revoke(): void { this.#closed = true; this.#frame = null; this.#current = null; this.#ready = null; this.#prepared.clear(); }
++}
++
++function need(condition: unknown, code: string): asserts condition { if (!condition) throw new Error(code); }
++
++/** Finite value interpreter only. Its output has no enrollment/consumer authority. */
++function nativeOwnerStartingFacts(evidence: OriginalOwnerEvidence, runtime: NativeRuntimeProfile, dex: any): readonly Record<string, any>[] {
++  assertNativeRuntimeProfile(runtime);
++  need(runtime.package_version === '0.11.11', 'native-original/runtime');
++  const owner = evidence.owner;
++  need(owners.includes(owner) && evidence.raw_team.length >= 1 && evidence.raw_team.length <= 6, 'native-original/roster');
++  const rules = nativeOwnerProjectionContext().profile.rules;
++  const facts: Record<string, any>[] = [];
++  const fact = (subject: string, property: string, value: any, tag: string) => {
++    const rule = rules.find((r: Record<string, any>) => r.context === 'starting' && r.property === property);
++    need(rule, 'native-original/property');
++    facts.push(freeze({ owner, subject, family: rule.family, property, effect_key: null,
++      state: value === null ? 'known_absent' : 'known', value: value === null ? null : { type: tag, data: value },
++      reason: 'none', freshness: 'immutable', precision: value === null ? 'not_applicable' : 'exact', observed_at: 0 }));
++  };
++  fact(owner + ':side', 'roster_size', evidence.raw_team.length, 'integer');
++  for (let i = 0; i < evidence.raw_team.length; i++) {
++    const set = evidence.raw_team[i] as Record<string, any>, presence = evidence.field_presence[i], extra = evidence.non_submitted_fields[i];
++    need(set && presence && extra && extra.unsupported.every(key => key === 'speciesId'), 'native-original/unsupported-field');
++    // Pinned gen9 generator writes speciesId from species.id; bookkeeping is not a fact/actor resolver.
++    if (Object.hasOwn(set, 'speciesId')) need(typeof set.speciesId === 'string'
++      && dex.species.get(set.species).exists === true && dex.species.get(set.species).id === set.speciesId, 'native-original/generator-species-id');
++    need(extra.generator_metadata.length === (Object.hasOwn(set, 'role') ? 1 : 0)
++      && extra.generator_metadata.every(key => key === 'role') && (!Object.hasOwn(set, 'role') || typeof set.role === 'string' && set.role.length > 0), 'native-original/generator-metadata');
++    for (const field of ['species', 'ability', 'item', 'moves']) need(presence[field] === 'present' && Object.hasOwn(set, field), 'native-original/missing-required-field');
++    need(typeof set.species === 'string' && set.species.length > 0 && typeof set.ability === 'string' && set.ability.length > 0
++      && typeof set.item === 'string' && Array.isArray(set.moves) && set.moves.length >= 1 && set.moves.length <= 4
++      && set.moves.every((move: unknown) => typeof move === 'string' && move.length > 0)
++      && Array.from({length: set.moves.length}, (_, n) => n).every(n => Object.hasOwn(set.moves, n)), 'native-original/required-value');
++    need(dex.species.get(set.species).exists === true && dex.abilities.get(set.ability).exists === true
++      && (set.item === '' || dex.items.get(set.item).exists === true)
++      && set.moves.every((move: string) => dex.moves.get(move).exists === true), 'native-original/unknown-submitted-value');
++    const subject = owner + ':roster:' + (i + 1);
++    fact(subject, 'roster_order', i + 1, 'integer'); fact(subject, 'roster_species', set.species, 'text');
++    fact(subject, 'ability', set.ability, 'text'); fact(subject, 'item', set.item === '' ? null : set.item, 'text');
++    fact(subject, 'starting_moves', [...set.moves], 'texts');
++  }
++  return Object.freeze(facts);
++}
+--- /dev/null
++++ b/sim-core/tests/native_owner_knowledge.test.ts
+@@ -0,0 +1,191 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { Teams } from 'pokemon-showdown';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
++import { OriginalOwnerCreation } from '../src/original_owner_provider';
++import { LocalBattleEnv } from '../src/env_manager';
++import { checkNativeOwnerProjection, checkKnowledgeStructure, knowledgeIdentity } from '../src/perspective_knowledge';
++import { installedNativeProfile } from '../src/version_profile';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++import type { PlayerID } from '../src/types';
++const owners = ['p1', 'p2'] as const;
++const base = { battle_id: 'P48', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
++const recipients = () => ({ p1: {}, p2: {} });
++const environment = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
++const read = (s: PipelineIntegrationSession, recipient: object) => s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(recipient), recipient);
++const value = (pair: ReturnType<typeof read>, slot: number, property: string) => pair.projection.starting.find((f: any) => f.subject.endsWith(':roster:' + slot) && f.property === property);
++const witness = (name: string, data: object) => console.log('P48_WITNESS ' + JSON.stringify({ name, ...data }));
++function switches(s: PipelineIntegrationSession) {
++  return Object.fromEntries(owners.map(owner => {
++    const request = environment(s).getRequest(owner)!;
++    const index = request.legal_actions.available_indices.find(i => request.legal_actions.actions[i]?.choice === 'switch 2');
++    assert.notEqual(index, undefined); return [owner, canonicalActionFromLegalAction(request, index!)];
++  })) as Record<PlayerID, ReturnType<typeof canonicalActionFromLegalAction>>;
++}
++
++test('P48 generated authentic consumer restore and isolation', async () => {
++  const r = recipients(); let s: PipelineIntegrationSession | undefined, other: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create({ ...base, knowledge_recipients: r });
++    const initial = { p1: read(s, r.p1), p2: read(s, r.p2) }, handles = owners.map(owner => s!.getOwnerKnowledgeHandle(r[owner]));
++    for (const owner of owners) {
++      const pair = initial[owner], raw = s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner).raw_team as any[];
++      assert.equal(pair.projection.owner, owner); assert.equal(pair.projection.result, 'incomplete'); assert.equal(pair.projection.request, null);
++      assert.deepEqual(pair.projection.starting_crosswalk, []); assert.equal(pair.binding.request_adaptation, 'not_adopted');
++      assert.equal(pair.binding.prefix_cursor, s.boundary.perspectives[owner].observation.event_cursor);
++      assert.ok(Object.isFrozen(pair) && Object.isFrozen(pair.projection) && Object.isFrozen(pair.binding));
++      assert.ok(pair.projection.current.every((f: any) => f.state === 'unknown' && f.reason === 'unimplemented_family' && f.value === null));
++      assert.equal(pair.projection.starting.find((f: any) => f.property === 'roster_size').value.data, 6);
++      for (let i = 0; i < 6; i++) {
++        for (const property of ['ability', 'item']) assert.equal(value(pair, i + 1, property).value?.data ?? '', raw[i][property]);
++        assert.equal(value(pair, i + 1, 'roster_species').value.data, raw[i].species);
++        assert.deepEqual(value(pair, i + 1, 'starting_moves').value.data, raw[i].moves);
++        assert.equal(value(pair, i + 1, 'roster_order').value.data, i + 1);
++      }
++      checkNativeOwnerProjection(pair.projection);
++      assert.throws(() => checkKnowledgeStructure(pair.projection));
++      assert.throws(() => s!.getOwnerKnowledgeHandle({ ...r[owner] }), /foreign-recipient/);
++      assert.throws(() => s!.getOwnerKnowledgeHandle(owner as any), /foreign-recipient/);
++      assert.throws(() => s!.readOwnerKnowledge({ ...s!.getOwnerKnowledgeHandle(r[owner]) }, r[owner]), /copied-or-stale/);
++      assert.throws(() => s!.readOwnerKnowledge(s!.getOwnerKnowledgeHandle(r[owner]), r[owner === 'p1' ? 'p2' : 'p1']), /copied-or-stale/);
++    }
++    other = await PipelineIntegrationSession.create({ ...base, knowledge_recipients: r });
++    assert.throws(() => s!.readOwnerKnowledge(other!.getOwnerKnowledgeHandle(r.p1), r.p1), /copied-or-stale/);
++    for (let n = 1; n <= 2; n++) {
++      const step = await s.step(switches(s));
++      for (const owner of owners) {
++        const current = read(s, r[owner]);
++        assert.equal(current.projection.starting, initial[owner].projection.starting);
++        assert.equal(current.projection.starting[0], initial[owner].projection.starting[0]);
++        assert.equal(current.projection.boundary, n); assert.equal(initial[owner].projection.boundary, 0);
++        assert.equal(current.binding.observation_id, s.boundary.perspectives[owner].observation.observation_id);
++        assert.ok(current.binding.prefix_cursor > initial[owner].binding.prefix_cursor);
++        assert.throws(() => s!.readOwnerKnowledge(handles[owner === 'p1' ? 0 : 1], r[owner]), /stale-handle/);
++      }
++      const ordinary = JSON.stringify({ step, snapshot: (s as any).snapshot, diagnostics: environment(s).diagnostics() });
++      for (const field of ['request_adaptation', 'native-owner-original', 'knowledge_recipients', 'original_slot']) assert.ok(!ordinary.includes(field));
++    }
++    const h = s.getOwnerKnowledgeHandle(r.p1); await s.close(); assert.throws(() => s!.readOwnerKnowledge(h, r.p1), /closed/);
++    witness('generated', { genuine_both_owner_prepacking_source: true, exact_consumer_values: true, two_held_reorders: true,
++      identical_starting_fact_objects: true, recipient_and_issuer_isolation: true, stale_closed_denial: true, ordinary_outputs_private: true });
++  } finally { await s?.close(); await other?.close(); }
++});
++
++test('P48 constructed initial effects and empty original item', async () => {
++  const generate = Teams.generate;
++  for (const effect of ['Trace', 'form']) {
++    let s: PipelineIntegrationSession | undefined, calls = 0; const r = recipients();
++    const chosen = Teams.import(effect === 'Trace' ? 'Gardevoir @ Leftovers\nAbility: Trace\n- Psychic'
++      : 'Zacian @ Rusted Sword\nAbility: Intrepid Sword\n- Iron Head')!;
++    const opposite = Teams.import('Blissey\nAbility: Natural Cure\n- Soft-Boiled')!; opposite[0].item = '';
++    Teams.generate = function() { return structuredClone(calls++ === 0 ? chosen : opposite); };
++    try {
++      s = await PipelineIntegrationSession.create({ ...base, knowledge_recipients: r });
++      const native = (environment(s) as any).battleStream.battle;
++      const p1 = read(s, r.p1), p2 = read(s, r.p2);
++      assert.equal(value(p1, 1, 'roster_species').value.data, chosen[0].species);
++      assert.equal(value(p1, 1, 'ability').value.data, chosen[0].ability);
++      assert.deepEqual(value(p1, 1, 'starting_moves').value.data, chosen[0].moves);
++      if (effect === 'Trace') assert.equal(native.p1.active[0].ability, 'naturalcure');
++      else { assert.equal(native.p1.active[0].species.name, 'Zacian-Crowned'); assert.equal(native.p1.activeRequest.active[0].moves[0].id, 'behemothblade'); }
++      assert.equal(value(p2, 1, 'item').state, 'known_absent'); assert.equal(value(p2, 1, 'item').value, null);
++      assert.ok(p1.projection.current.every((f: any) => f.state === 'unknown'));
++      witness(effect, { actual_session_constructed_initial_mechanic: true, generated_reachability: 'not-certified',
++        original_fields_retained: true, current_blocked: true, explicit_empty_item_absence: true });
++    } finally { Teams.generate = generate; await s?.close(); }
++  }
++});
++
++test('P48 source attacks and projection nonauthority', async () => {
++  const register = OriginalOwnerCreation.prototype.registerKnowledgeReceiver, generate = Teams.generate;
++  const cases = ['missing', 'duplicate', 'environment', 'occurrence-copy', 'rows-copy', 'wrong-owner', 'missing-item', 'undefined-ability', 'unsupported', 'role'];
++  for (const fault of cases) {
++    const r = recipients();
++    OriginalOwnerCreation.prototype.registerKnowledgeReceiver = function(receiver) {
++      if (fault === 'missing') return;
++      register.call(this, (environment, occurrence, rows) => {
++        if (fault === 'environment') environment = {};
++        if (fault === 'occurrence-copy') occurrence = { ...occurrence };
++        if (fault === 'rows-copy') rows = rows.map(row => ({ ...row }));
++        if (fault === 'wrong-owner') rows = [rows[1], rows[0]];
++        receiver(environment, occurrence, rows);
++        if (fault === 'duplicate') receiver(environment, occurrence, rows);
++      });
++    };
++    Teams.generate = function(...args) {
++      const teams = generate.apply(this, args);
++      if (fault === 'missing-item') delete (teams[0] as any).item;
++      if (fault === 'undefined-ability') (teams[0] as any).ability = undefined;
++      if (fault === 'unsupported') (teams[0] as any).alien_field = 'not submitted';
++      if (fault === 'role') (teams[0] as any).role = undefined;
++      return teams;
++    };
++    try {
++      const expected = fault === 'missing' ? /missing-enrollment/ : fault === 'duplicate' ? /duplicate-or-late-enrollment/
++        : ['environment', 'occurrence-copy', 'rows-copy', 'wrong-owner'].includes(fault) ? /foreign-knowledge-enrollment/
++        : ['missing-item', 'undefined-ability'].includes(fault) ? /native-original\/missing-required-field/
++        : fault === 'unsupported' ? /native-original\/unsupported-field/ : /native-original\/generator-metadata/;
++      await assert.rejects(PipelineIntegrationSession.create({ ...base, knowledge_recipients: r }), expected);
++      witness(fault, { actual_session_rejection: true, expected: expected.source });
++    } finally { OriginalOwnerCreation.prototype.registerKnowledgeReceiver = register; Teams.generate = generate; }
++  }
++  const r = recipients(); let s: PipelineIntegrationSession | undefined;
++  try {
++    const runtime = installedNativeProfile(), creation = new OriginalOwnerCreation({ battle_id: 'model', format: base.format, simulator_revision: runtime.reader.profile.revision });
++    assert.throws(() => new NativeOwnerKnowledgeController(creation, { ...runtime }, r), /unowned-runtime-profile/);
++    assert.throws(() => new NativeOwnerKnowledgeController(creation, runtime, { p1: r.p1, p2: r.p1 }), /recipient-registration/);
++    s = await PipelineIntegrationSession.create({ ...base, knowledge_recipients: r });
++    const live = read(s, r.p1);
++    for (const kind of ['profile', 'current-known', 'missing-fact', 'absence', 'crosswalk', 'complete']) {
++      const copy: any = structuredClone(live.projection);
++      if (kind === 'profile') copy.required_profile = 'sha256:' + '0'.repeat(64);
++      if (kind === 'current-known') copy.current[0] = { ...copy.starting[0], freshness: 'current' };
++      if (kind === 'missing-fact') copy.starting.splice(1, 1);
++      if (kind === 'absence') { copy.starting[1].state = 'known_absent'; copy.starting[1].value = null; copy.starting[1].precision = 'not_applicable'; }
++      if (kind === 'crosswalk') copy.starting_crosswalk = [{ appearance: 'p1:appearance:1', roster: 'p1:roster:1' }];
++      if (kind === 'complete') copy.result = 'strong_complete';
++      copy.id = knowledgeIdentity(copy);
++      assert.throws(() => checkNativeOwnerProjection(copy));
++    }
++    const falseOriginal: any = structuredClone(live.projection);
++    falseOriginal.starting.find((f: any) => f.property === 'ability').value.data = 'NotTheOriginal';
++    falseOriginal.id = knowledgeIdentity(falseOriginal); checkNativeOwnerProjection(falseOriginal);
++    assert.throws(() => s!.readOwnerKnowledge(falseOriginal, r.p1), /copied-or-stale/);
++    assert.throws(() => s!.readOwnerKnowledge(structuredClone(live) as any, r.p1), /copied-or-stale/);
++    witness('structure', { coherent_negative_classes: 6, raw_false_original_structural_only: true, no_import_or_authority_mint: true,
++      runtime_constructor_checks: 'lower-level-unowned-profile-and-recipient', ordinary_action_authority_unchanged: true });
++  } finally { await s?.close(); }
++});
++
++test('P48 final barrier revocation rollback and fresh retry', async () => {
++  const prepare = NativeOwnerKnowledgeController.prototype.prepare, preflight = NativeOwnerKnowledgeController.prototype.preflight,
++    install = NativeOwnerKnowledgeController.prototype.installReady, close = LocalBattleEnv.prototype.close;
++  let controller: NativeOwnerKnowledgeController, token: object, mode = 'creation', installed = 0, s: PipelineIntegrationSession | undefined;
++  const r = recipients();
++  NativeOwnerKnowledgeController.prototype.prepare = function(...args) { controller = this; token = prepare.apply(this, args); return token; };
++  NativeOwnerKnowledgeController.prototype.preflight = function(token) { preflight.call(this, token); throw new Error('P48-final-' + mode); };
++  NativeOwnerKnowledgeController.prototype.installReady = function() { installed++; return install.call(this); };
++  LocalBattleEnv.prototype.close = async function() { assert.throws(() => controller!.preflight(token), /revoked|foreign-or-stale-preparation/); return close.call(this); };
++  try {
++    await assert.rejects(PipelineIntegrationSession.create({ ...base, knowledge_recipients: r }), /P48-final-creation/); assert.equal(installed, 0);
++    NativeOwnerKnowledgeController.prototype.preflight = preflight; LocalBattleEnv.prototype.close = close;
++    s = await PipelineIntegrationSession.create({ ...base, knowledge_recipients: r }); const before = owners.map(owner => ({ handle: s!.getOwnerKnowledgeHandle(r[owner]), read: read(s!, r[owner]),
++      event: s!.getSwitchEventHolding(owner), delivery: s!.readRequestDeliveryHistory(s!.getRequestDeliveryHandle(owner), owner), native: s!.getNativeObjectHolding(owner) }));
++    const boundary = s.boundary; installed = 0; mode = 'successor';
++    NativeOwnerKnowledgeController.prototype.preflight = function(token) { preflight.call(this, token); throw new Error('P48-final-successor'); };
++    LocalBattleEnv.prototype.close = async function() { assert.throws(() => controller!.preflight(token), /foreign-or-stale-preparation/); return close.call(this); };
++    await assert.rejects(s.step(switches(s)), /P48-final-successor/); assert.equal(installed, 0); assert.equal(s.boundary, boundary);
++    for (const [i, owner] of owners.entries()) {
++      assert.equal(s.getOwnerKnowledgeHandle(r[owner]), before[i].handle); assert.equal(read(s, r[owner]), before[i].read);
++      assert.equal(s.getSwitchEventHolding(owner), before[i].event); assert.equal(s.getNativeObjectHolding(owner), before[i].native);
++      assert.equal(s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(owner), owner), before[i].delivery);
++    }
++    NativeOwnerKnowledgeController.prototype.preflight = preflight; LocalBattleEnv.prototype.close = close;
++    await s.step(switches(s)); assert.equal(installed, 1); assert.equal(read(s, r.p1).projection.starting, before[0].read.projection.starting);
++    const current = s.getOwnerKnowledgeHandle(r.p1); await s.close(); assert.throws(() => s!.readOwnerKnowledge(current, r.p1), /closed/);
++    witness('barrier', { actual_creation_and_successor_final_preflight_faults: true, revocation_before_cleanup: true,
++      exact_all_committed_handles_preserved: true, fresh_retry_identical_starting: true, closed_denial: true });
++  } finally { NativeOwnerKnowledgeController.prototype.prepare = prepare; NativeOwnerKnowledgeController.prototype.preflight = preflight;
++    NativeOwnerKnowledgeController.prototype.installReady = install; LocalBattleEnv.prototype.close = close; await s?.close(); }
++});
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/README.md
+@@ -0,0 +1 @@
++Candidate fixed native11 owner projection only. No full audit/publication or completeness acceptance. Safe fact definitions extracted from unchanged historical schema; property meaning is constrained by the native profile. Request null is inseparable from the private read binding request_adaptation:not_adopted.
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/profile.json
+@@ -0,0 +1,128 @@
++{
++  "kind": "profile",
++  "name": "native-owner-original/v1",
++  "policy": "native-owner-original/v1",
++  "provider": "native-owner-original-provider/v1",
++  "engine": "pokemon-showdown@0.11.11",
++  "format": "gen9randombattle",
++  "result": "incomplete",
++  "request_adaptation": "not_adopted",
++  "rules": [
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_order",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K02",
++      "property": "starting_moves",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K02",
++      "property": "current_moves",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    }
++  ],
++  "generator_metadata": {
++    "role": "nonempty_text",
++    "speciesId": "pinned_species_id_inert"
++  },
++  "id": "sha256:e81b9dde6a35b6e52bd3f782ea731179892c24c78c8d919aac07b4c7af396e45"
++}
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/schema.json
+@@ -0,0 +1,730 @@
++{
++  "type": "object",
++  "properties": {
++    "kind": {
++      "const": "projection"
++    },
++    "id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "schema": {
++      "const": "perspective-knowledge-consumer/v1"
++    },
++    "owner": {
++      "enum": [
++        "p1",
++        "p2"
++      ]
++    },
++    "policy": {
++      "const": "native-owner-original/v1"
++    },
++    "boundary": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 2147483647
++    },
++    "required_profile": {
++      "const": "sha256:e81b9dde6a35b6e52bd3f782ea731179892c24c78c8d919aac07b4c7af396e45"
++    },
++    "result": {
++      "const": "incomplete"
++    },
++    "starting": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "starting_crosswalk": {
++      "type": "array",
++      "maxItems": 0
++    },
++    "current": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "request": {
++      "type": "null"
++    }
++  },
++  "required": [
++    "kind",
++    "id",
++    "schema",
++    "owner",
++    "policy",
++    "boundary",
++    "required_profile",
++    "result",
++    "starting",
++    "starting_crosswalk",
++    "current",
++    "request"
++  ],
++  "additionalProperties": false,
++  "$defs": {
++    "safe_fact": {
++      "type": "object",
++      "properties": {
++        "owner": {
++          "enum": [
++            "p1",
++            "p2"
++          ]
++        },
++        "subject": {
++          "type": "string",
++          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++        },
++        "family": {
++          "enum": [
++            "K01",
++            "K02",
++            "K03",
++            "K04",
++            "K05",
++            "K06",
++            "K07",
++            "K08",
++            "K09",
++            "K10",
++            "K11",
++            "K12",
++            "K13",
++            "K14",
++            "K15",
++            "K16",
++            "K17",
++            "K18",
++            "K19",
++            "K20"
++          ]
++        },
++        "property": {
++          "enum": [
++            "roster_species",
++            "roster_order",
++            "party_position",
++            "active_slot",
++            "roster_size",
++            "starting_moves",
++            "current_moves",
++            "move_execution",
++            "move_incarnation",
++            "submitted_nature",
++            "submitted_evs",
++            "submitted_ivs",
++            "submitted_happiness",
++            "calculated_stats",
++            "hp_max",
++            "level",
++            "gender",
++            "shiny",
++            "ball",
++            "details",
++            "starting_tera",
++            "hp",
++            "fainted",
++            "status",
++            "status_observed_since",
++            "status_elapsed",
++            "status_remaining",
++            "pp",
++            "max_pp",
++            "disabled",
++            "maybe_disabled",
++            "trapped",
++            "maybe_trapped",
++            "lock",
++            "boosts",
++            "persistent_effect",
++            "single_turn_effect",
++            "single_move_effect",
++            "side_condition",
++            "side_condition_layers",
++            "weather",
++            "weather_effective",
++            "terrain",
++            "pseudo_weather",
++            "field_remaining",
++            "pending_intent",
++            "pending_effect",
++            "pending_power",
++            "form",
++            "types",
++            "tera",
++            "transformed",
++            "appearance",
++            "identity_reveal",
++            "item",
++            "item_held",
++            "item_effective",
++            "ability",
++            "ability_effective",
++            "boundary_kind",
++            "request_presence"
++          ]
++        },
++        "effect_key": {
++          "anyOf": [
++            {
++              "type": "string",
++              "maxLength": 256
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "state": {
++          "enum": [
++            "known",
++            "known_absent",
++            "unknown",
++            "inapplicable"
++          ]
++        },
++        "value": {
++          "anyOf": [
++            {
++              "$ref": "#/$defs/value"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "hidden_opponent",
++            "never_revealed",
++            "ambiguous_carrier",
++            "private_request_unavailable",
++            "not_emitted",
++            "hidden_timer",
++            "missing_original_authority",
++            "unimplemented_family",
++            "unsupported_writer",
++            "proved_rule_inapplicable",
++            "not_yet_verified"
++          ]
++        },
++        "freshness": {
++          "enum": [
++            "immutable",
++            "current",
++            "last_known"
++          ]
++        },
++        "precision": {
++          "enum": [
++            "exact",
++            "public_bucket",
++            "interval",
++            "not_applicable"
++          ]
++        },
++        "observed_at": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "owner",
++        "subject",
++        "family",
++        "property",
++        "effect_key",
++        "state",
++        "value",
++        "reason",
++        "freshness",
++        "precision",
++        "observed_at"
++      ],
++      "additionalProperties": false
++    },
++    "value": {
++      "anyOf": [
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "text"
++            },
++            "data": {
++              "type": "string",
++              "maxLength": 256
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "integer"
++            },
++            "data": {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "boolean"
++            },
++            "data": {
++              "type": "boolean"
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "texts"
++            },
++            "data": {
++              "type": "array",
++              "items": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "maxItems": 6
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "six_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "hp": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "hp",
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "five_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "stages"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "accuracy": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "evasion": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe",
++                "accuracy",
++                "evasion"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "interval"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "min": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "max": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "min",
++                "max"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "field_timer"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "target_kind": {
++                  "enum": [
++                    "weather",
++                    "terrain",
++                    "pseudo_weather"
++                  ]
++                },
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "remaining": {
++                  "type": "object",
++                  "properties": {
++                    "min": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    "max": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    }
++                  },
++                  "required": [
++                    "min",
++                    "max"
++                  ],
++                  "additionalProperties": false
++                }
++              },
++              "required": [
++                "target_kind",
++                "name",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "power"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "basis": {
++                  "enum": [
++                    "base_move",
++                    "effective_move"
++                  ]
++                },
++                "amount": {
++                  "type": "integer",
++                  "minimum": 1,
++                  "maximum": 65535
++                }
++              },
++              "required": [
++                "basis",
++                "amount"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "effect"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "source_subject": {
++                  "anyOf": [
++                    {
++                      "type": "string",
++                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "observed_since": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "elapsed": {
++                  "anyOf": [
++                    {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "remaining": {
++                  "anyOf": [
++                    {
++                      "type": "object",
++                      "properties": {
++                        "type": {
++                          "const": "interval"
++                        },
++                        "data": {
++                          "type": "object",
++                          "properties": {
++                            "min": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            },
++                            "max": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            }
++                          },
++                          "required": [
++                            "min",
++                            "max"
++                          ],
++                          "additionalProperties": false
++                        }
++                      },
++                      "required": [
++                        "type",
++                        "data"
++                      ],
++                      "additionalProperties": false
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                }
++              },
++              "required": [
++                "name",
++                "source_subject",
++                "observed_since",
++                "elapsed",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        }
++      ]
++    }
++  }
++}

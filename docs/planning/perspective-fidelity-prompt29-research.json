@@ -1,0 +1,67 @@
+{
+  "scope": "source/metadata/hash inspection only; no runtime imports, builds or tests",
+  "scratch": "/private/tmp/neural-prompt29-20261012",
+  "commands": [
+    {
+      "command": "python3 /private/tmp/neural-prompt29-20261012/fetch.py",
+      "purpose": "registry metadata and verified tarball acquisition/extraction",
+      "result": "success with system curl --fail --location --max-time 60; Python urllib first failed sandbox DNS, then CA lookup; no certificate checks disabled"
+    },
+    {
+      "command": "python3 /private/tmp/neural-prompt29-20261012/upstream.py",
+      "purpose": "exact upstream revision archive and raw-source comparison",
+      "result": "success; 386 files match; no differences"
+    },
+    {
+      "command": "python3 /private/tmp/neural-prompt29-20261012/diff.py",
+      "purpose": "finite artifact file/hash comparison and selected raw diffs",
+      "result": "success; installed old bundled files match"
+    },
+    {
+      "command": "python3 /private/tmp/neural-prompt29-20261012/seams.py",
+      "purpose": "source-method hash and generator data comparison",
+      "result": "success; 14 raw-identical seams"
+    },
+    {
+      "command": "rg/sed/cat on requested local contracts, consumers and scratch diffs",
+      "purpose": "bounded source inspection",
+      "result": "completed; inspected source list in matrix/baseline"
+    }
+  ],
+  "script_hashes": {
+    "/private/tmp/neural-prompt29-20261012/fetch.py": "29720440b0d0eedb4e3468b4a8ddd2d588e5895fc066de052e06ae3faeb6a0d1",
+    "/private/tmp/neural-prompt29-20261012/seams.py": "a4bcfeee67f087267e5a27efd6c336e357455d9ee99e820ac103839942e0c7f2",
+    "/private/tmp/neural-prompt29-20261012/diff.py": "5ca806caf9a692733783c512f60dfcac568d3d930f2b38802508b41bd7316a43",
+    "/private/tmp/neural-prompt29-20261012/upstream.py": "77df521ddcd246ce43ef715b45468e0ff8f55d1fcdeedb44ea6ccab48e47415e"
+  },
+  "preservation": {
+    "frozen_input_count": 1379,
+    "changed": {},
+    "preexisting_status_equal": true,
+    "new_docs_only": true,
+    "project_generated_output": []
+  },
+  "limitations": [
+    "No target package runtime executed/imported; dependency resolution and native ABI unverified",
+    "No replay read/download or emitter revision authenticated",
+    "No cross-version snapshot execution, generation or historical fixture retest",
+    "No full mechanics/format reachability closure; finite changed-source families only"
+  ],
+  "route": [
+    {
+      "lane": "parent",
+      "class": "demanding compatibility judgment",
+      "model": "warm parent retained",
+      "effort": "inherited",
+      "responsibility": "provenance/B1/B2/generation/identity/history policy and synthesis"
+    },
+    {
+      "lane": "espeon",
+      "class": "supporting read-only analysis",
+      "model": "gpt-5.6-luna",
+      "effort": "xhigh",
+      "responsibility": "B3/protocol finite diffs only; no tests/writes/downstream",
+      "effective_telemetry": "unavailable"
+    }
+  ]
+}

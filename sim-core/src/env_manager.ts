@@ -1,3 +1,7 @@
+import { randomBytes } from 'node:crypto';
+import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
+import { installedNativeProfile, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
+import { NativeBirthEnrollment, NativeObjectAssociation, type NativeRestoreTicket } from './owner_identity_crosswalk';
 import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
 import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
 import { isDeepStrictEqual } from 'node:util';
@@ -59,22 +63,24 @@ const ACTIVE_REQUEST_OVERRIDES_SCHEMA_VERSION = 'active-request-overrides/v1' as
 const PRIVATE_SPECTATOR_COMMANDS = new Set(['request', 'error', 'split', 'debug', 'showteam']);
 
 /** The spectator channel is the sole source of public-prefix evidence. */
-export function validatePublicSpectatorRecord(record: string): void {
+export function validatePublicSpectatorRecord(record: string, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
   if (!record.startsWith('|')) throw new Error('Spectator output contained a non-protocol record.');
   const command = record.slice(1).split('|', 1)[0];
   if (PRIVATE_SPECTATOR_COMMANDS.has(command)) {
     throw new Error(`Private ${command} record entered the spectator channel.`);
   }
-  if (command === 'bigerror') validateRawProtocolRecord(record);
+  if (command === 'bigerror') validateRawProtocolRecord(record, rulesContext);
 }
 
 /** Validate each spectator transport record before it becomes public-log evidence. */
-export function appendPublicSpectatorChunk(chunk: string, logLines: string[]): void {
+export function appendPublicSpectatorChunk(chunk: string, logLines: string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
   const acceptedLines: string[] = [];
   for (const rawLine of chunk.split('\n')) {
     const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
     if (!line) continue;
-    validatePublicSpectatorRecord(line);
+    validatePublicSpectatorRecord(line, rulesContext);
     acceptedLines.push(line);
   }
   logLines.push(...acceptedLines);
@@ -283,7 +289,8 @@ function canonicalizeTerminalRequest(value: unknown, player: PlayerID, path: str
   return { side: { id: player, pokemon } };
 }
 
-function readTerminalRequestHistory(serialized: Record<string, unknown>): TerminalRequestHistory | null {
+function readTerminalRequestHistory(serialized: Record<string, unknown>, rulesContext: ReaderContext): TerminalRequestHistory | null {
+  readerContext(rulesContext);
   const raw = serialized[TERMINAL_REQUEST_HISTORY_KEY];
   if (raw === undefined) return null;
   const history = recordAt(raw, TERMINAL_REQUEST_HISTORY_KEY);
@@ -313,7 +320,7 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
         || typeof value.force_switch !== 'boolean' || value.force_switch !== request.side.pokemon.some((row) => row.active && row.condition === '0 fnt')) terminalHistoryInvalid(path, 'must contain a historical owned action and prefix cursor');
       const action = recordAt(value.action, `${path}.action`) as unknown as CanonicalAction;
       if (action.kind !== 'switch') terminalHistoryInvalid(`${path}.action`, 'must be a submitted switch');
-      try {canonicalActionToChoice(action, normalizeRequest(player, {...request, rqid: action.rqid, active: [{moves: []}], forceSwitch: value.force_switch ? [true] : undefined}));}
+      try {canonicalActionToChoice(action, normalizeRequest(player, {...request, rqid: action.rqid, active: [{moves: []}], forceSwitch: value.force_switch ? [true] : undefined}, rulesContext));}
       catch {terminalHistoryInvalid(`${path}.action`, 'must match the historical owned switch choices');}
       const owner = request.side.pokemon[action.switch_slot! - 1];
       const side = (serialized.sides as any[])?.find((entry) => entry.id === player);
@@ -332,7 +339,7 @@ function readTerminalRequestHistory(serialized: Record<string, unknown>): Termin
         || Dex.species.get(owner.details.split(',')[0]).id !== Dex.species.get(active[0].set?.species || '').id) terminalHistoryInvalid(path, 'does not join the source terminal owned base identity');
       const channel = player === 'p1' ? 1 : 2;
       const prefix = extractChannelMessages((serialized.log as string[]).join('\n'), [channel])[channel]
-        .filter((line) => line.startsWith('|') && !line.startsWith('|request|') && !isOwnerPrivateHealingWishHeal(line, player));
+        .filter((line) => line.startsWith('|') && !line.startsWith('|request|') && !isOwnerPrivateHealingWishHeal(line, player, rulesContext));
       const cursor = value.cursor as number;
       const ownSwitches = prefix.flatMap((line, index) => line.startsWith(`|switch|${player}a: `) ? [index] : []);
       const switchIndex = ownSwitches.at(-1);
@@ -470,6 +477,7 @@ function normalizeStepResultOptions(options?: StepResultOptions): Required<StepR
 }
 
 interface ManagedPlayerDeps {
+  rulesContext: ReaderContext;
   receiveRequestRecord: (record: string) => void;
   env: LocalBattleEnv;
   player: PlayerID;
@@ -500,6 +508,7 @@ class ManagedPlayer {
   private invalidChoices: Set<string>;
 
   constructor(deps: ManagedPlayerDeps) {
+    if (readerContext(deps.rulesContext) !== deps.env.getReaderContext() || deps.tracker.getReaderContext() !== deps.rulesContext) throw new Error('reader-profile/v1/producer-context-mismatch');
     this.receiveRequestRecord = deps.receiveRequestRecord;
     this.env = deps.env;
     this.player = deps.player;
@@ -598,6 +607,7 @@ class ManagedPlayer {
     this.currentRequest = null;
     this.waitingRequest = null;
     this.pendingChoice = choice;
+    this.env.noteLiveWrite();
     void this.stream.write(choice);
   }
 
@@ -659,7 +669,8 @@ class ManagedPlayer {
       this.currentRequest = null;
       this.pendingChoice = 'default';
       this.invalidChoices.clear();
-      void this.stream.write('default');
+      this.env.noteLiveWrite();
+    void this.stream.write('default');
       return;
     }
 
@@ -673,6 +684,7 @@ class ManagedPlayer {
     const decision = this.suggest(this.controller);
     this.currentRequest = null;
     this.pendingChoice = decision.choice;
+    this.env.noteLiveWrite();
     void this.stream.write(decision.choice);
   }
 
@@ -699,7 +711,8 @@ class ManagedPlayer {
         const decision = this.suggest(this.controller, filteredRequest);
         this.currentRequest = null;
         this.pendingChoice = decision.choice;
-        void this.stream.write(decision.choice);
+        this.env.noteLiveWrite();
+    void this.stream.write(decision.choice);
         return;
       }
       this.env.markError(new Error(`Player ${this.player}: ${message} after choice ${choice || 'unknown'}.`));
@@ -736,6 +749,11 @@ function offsetSeed(seed: [number, number, number, number], delta: number): [num
 }
 
 export class LocalBattleEnv {
+  #liveWorldOccurrence: object = Object.freeze(Object.create(null));
+  getLiveWorldOccurrence(): object { return this.#liveWorldOccurrence; }
+  noteLiveWrite(): void { this.#liveWorldOccurrence = Object.freeze(Object.create(null)); }
+  readonly #runtimeProfile: NativeRuntimeProfile;
+  getReaderContext(): ReaderContext { return this.#runtimeProfile.reader; }
   readonly id: string;
   readonly format: string;
   readonly seed: [number, number, number, number];
@@ -743,6 +761,8 @@ export class LocalBattleEnv {
 
   #requestTrace: RequestEmissionTrace | null = null;
   readonly #originalCreation: OriginalOwnerCreation | undefined;
+  readonly #nativeBirth: NativeBirthEnrollment | undefined;
+  readonly #objectAssociation: NativeObjectAssociation | undefined;
   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
   private readonly heuristicAgent: HeuristicBaselineAgent;
   private battleStream: BattleStream | null;
@@ -764,9 +784,18 @@ export class LocalBattleEnv {
     controllers?: Partial<Record<PlayerID, ControllerSpec>>,
     settlingOptions: SettlingOptions = {},
     originalCreation?: OriginalOwnerCreation,
+    nativeBirth?: NativeBirthEnrollment,
+    objectAssociation?: NativeObjectAssociation,
+    runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
   ) {
+    assertNativeRuntimeProfile(runtimeProfile);
+    this.#runtimeProfile = runtimeProfile;
     this.#originalCreation = originalCreation;
     originalCreation?.bind(this);
+    this.#nativeBirth = nativeBirth;
+    nativeBirth?.bind(this);
+    this.#objectAssociation = objectAssociation;
+    if (nativeBirth) objectAssociation?.bindInitial(this);
     this.id = id;
     this.format = format;
     this.seed = createSeed(seed);
@@ -795,6 +824,7 @@ export class LocalBattleEnv {
   }
 
   async resetWithOptions(options?: StepResultOptions): Promise<StepResult> {
+    this.noteLiveWrite();
     this.#originalCreation?.begin(this);
     try {
       await this.destroyBattle();
@@ -827,6 +857,7 @@ export class LocalBattleEnv {
       return result;
     } catch (error) {
       this.#originalCreation?.abortStaging();
+      this.#nativeBirth?.abortStaging();
       this.#requestTrace?.invalidate();
       this.#requestTrace = null;
       throw error;
@@ -839,11 +870,18 @@ export class LocalBattleEnv {
     return this.#originalCreation.diagnostic(this, owner);
   }
 
-  async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
+  async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions, associationTicket?: NativeRestoreTicket): Promise<StepResult> {
+    if (snapshotRestorePolicy(this.#runtimeProfile.package_version) === 'held-b2-required') {
+      if (!this.#objectAssociation) throw new Error('snapshot-admission/v1/raw-restore-unsupported');
+      this.#objectAssociation.assertRestoreAdmission(this, serialized, associationTicket);
+    }
+    this.noteLiveWrite();
     this.#originalCreation?.abandonForRestore(this);
+    this.#nativeBirth?.abandonForRestore(this);
+    if (this.#nativeBirth) this.#objectAssociation?.disableLegacy(this);
     // Validate a cloned snapshot before disrupting a running battle. The
     // optional history is opaque restoration metadata, not simulator input.
-    const terminalHistory = readTerminalRequestHistory(serialized);
+    const terminalHistory = readTerminalRequestHistory(serialized, this.getReaderContext());
     const requestOverrides = readActiveRequestOverrides(serialized);
     const { [TERMINAL_REQUEST_HISTORY_KEY]: _history, [ACTIVE_REQUEST_OVERRIDES_KEY]: _overrides, ...simulatorSnapshot } = serialized;
     const snapshot = structuredClone(simulatorSnapshot) as Record<string, unknown>;
@@ -875,7 +913,10 @@ export class LocalBattleEnv {
       // Battle.fromJSON may retain nested references from the supplied object;
       // clone the simulator-only snapshot so exact branches cannot share mutable
       // state with their source or siblings.
+      this.#objectAssociation?.beforeRestore(this, serialized, snapshot, associationTicket);
       const battle = Battle.fromJSON(snapshot);
+      try { this.#objectAssociation?.acceptRestore(this, snapshot, battle, associationTicket); }
+      catch (error) { battle.destroy(); throw error; }
       battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
       stream.battle = battle;
       battle.sentLogPos = 0;
@@ -908,6 +949,7 @@ export class LocalBattleEnv {
     } catch (error) {
       this.#requestTrace?.invalidate();
       this.#requestTrace = null;
+      this.#objectAssociation?.discard(this);
       throw error;
     }
   }
@@ -973,12 +1015,17 @@ export class LocalBattleEnv {
 
   private initializeStreams(): void {
     const trace = this.#requestTrace = new RequestEmissionTrace();
+    const nativeBirth = this.#nativeBirth, environment = this;
     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
     // _write synchronously emits requests then sendUpdates. Count at the source,
     // before getPlayerStreams asynchronously fans out each message.
     this.battleStream = new class extends BattleStream {
       override _write(chunk: string): void {
         trace.atProducer('native_emission', () => super._write(chunk));
+      }
+      override _writeLine(type: string, message: string): void {
+        super._writeLine(type, message);
+        if (type === 'start' && nativeBirth) nativeBirth.observe(environment, this.battle!);
       }
       override pushMessage(type: string, data: string): void {
         trace.emitted(type, data);
@@ -1000,23 +1047,25 @@ export class LocalBattleEnv {
     const ownerStreams = this.streams;
     this.players = {
       p1: new ManagedPlayer({
+        rulesContext: this.getReaderContext(),
         env: this,
         player: 'p1',
         stream: this.streams.p1 as unknown as PlayerStream,
         receiveRequestRecord: (record) => trace.received('p1', ownerStreams.p1, record),
         controller: this.controllers.p1.controller,
-        tracker: new PlayerStateExtractor(this.id, this.format, 'p1'),
+        tracker: new PlayerStateExtractor(this.id, this.format, 'p1', this.getReaderContext()),
         randomAgent: this.randomAgents.p1,
         heuristicAgent: this.heuristicAgent,
         settling,
       }),
       p2: new ManagedPlayer({
+        rulesContext: this.getReaderContext(),
         env: this,
         player: 'p2',
         stream: this.streams.p2 as unknown as PlayerStream,
         receiveRequestRecord: (record) => trace.received('p2', ownerStreams.p2, record),
         controller: this.controllers.p2.controller,
-        tracker: new PlayerStateExtractor(this.id, this.format, 'p2'),
+        tracker: new PlayerStateExtractor(this.id, this.format, 'p2', this.getReaderContext()),
         randomAgent: this.randomAgents.p2,
         heuristicAgent: this.heuristicAgent,
         settling,
@@ -1067,7 +1116,10 @@ export class LocalBattleEnv {
 
   captureSeededSnapshot(parentBranchId: string | null = null): SeededBattleSnapshot {
     this.ensureReady();
-    return createSeededBattleSnapshot(this.format, this.seed, this.serializeBattle(), parentBranchId);
+    const raw = this.serializeBattle();
+    const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
+    this.#objectAssociation?.recordSerialization(this, this.battleStream!.battle!, raw, snapshot);
+    return snapshot;
   }
 
   getRequest(player: PlayerID): ChoiceRequestView | null {
@@ -1107,7 +1159,10 @@ export class LocalBattleEnv {
       player: request.acting_player, rqid: actor.rqid, force_switch: true, legal_actions: actor.legal_actions, side: actor.side,
     });
     const result = await this.stepWithCanonicalOptions(request.actions, { ...options, include_wait_requests: true });
-    return buildSeededForcedSwitchResult(request, this.captureSeededSnapshot(request.snapshot.branch_id), result);
+    const output = this.captureSeededSnapshot(request.snapshot.branch_id);
+    const built = buildSeededForcedSwitchResult(request, output, result);
+    this.#objectAssociation?.finalizeSerialization(this, output, built.output_snapshot);
+    return built;
   }
 
   async stepSeededTransition(request: SeededTransitionRequest, options?: StepResultOptions): Promise<SeededTransitionResult> {
@@ -1143,11 +1198,16 @@ export class LocalBattleEnv {
     if (fingerprintSimulatorState(outputSnapshot.simulator_state) !== outputSnapshot.state_fingerprint) {
       throw new Error('Seeded transition output fingerprint is inconsistent.');
     }
-    return buildSeededTransitionResult(request, outputSnapshot, stepResult);
+    const built = buildSeededTransitionResult(request, outputSnapshot, stepResult);
+    this.#objectAssociation?.finalizeSerialization(this, outputSnapshot, built.output_snapshot);
+    return built;
   }
 
   async close(): Promise<void> {
+    this.noteLiveWrite();
     this.#originalCreation?.abortStaging();
+    this.#nativeBirth?.abortStaging();
+    this.#objectAssociation?.release(this);
     await this.destroyBattle();
     this.initialized = false;
   }
@@ -1250,6 +1310,7 @@ export class LocalBattleEnv {
   }
 
   markError(error: Error): void {
+    this.noteLiveWrite();
     this.lastError = error;
     this.settling.fail('simulator-error');
   }
@@ -1271,6 +1332,7 @@ export class LocalBattleEnv {
   }
 
   private async destroyCurrentBattle(): Promise<void> {
+    this.noteLiveWrite();
     this.#requestTrace?.invalidate();
     this.#requestTrace = null;
     this.settling.fail('cancelled');
@@ -1293,7 +1355,7 @@ export class LocalBattleEnv {
     }
     for await (const chunk of this.streams.spectator as unknown as AsyncIterable<string>) {
       if (this.settling.stopped) return;
-      appendPublicSpectatorChunk(chunk, this.logLines);
+      appendPublicSpectatorChunk(chunk, this.logLines, this.getReaderContext());
       for (const rawLine of chunk.split('\n')) {
         const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
         if (!line) continue;
@@ -1382,19 +1444,25 @@ export class LocalBattleEnv {
 }
 
 export class EnvironmentManager {
+  readonly #runtimeProfile: NativeRuntimeProfile;
+  constructor(runtimeProfile: NativeRuntimeProfile = installedNativeProfile()) {
+    assertNativeRuntimeProfile(runtimeProfile); this.#runtimeProfile = runtimeProfile;
+  }
   private readonly envs = new Map<string, LocalBattleEnv>();
-  private readonly snapshotHandles = new Map<string, { envId: string; snapshot: SeededBattleSnapshot }>();
+  private readonly snapshotHandles = new Map<string, { envId: string; environment: LocalBattleEnv; occurrence: object; snapshot: SeededBattleSnapshot }>();
+  private readonly snapshotNamespace = BigInt('0x' + randomBytes(16).toString('hex')).toString();
   private nextId = 1;
   private nextSnapshotHandle = 1;
 
   createEnv(format: string, seed?: number[], controllers?: Partial<Record<PlayerID, ControllerSpec>>): { env_id: string } {
     const envId = `env-${this.nextId++}`;
-    const env = new LocalBattleEnv(envId, format, seed, controllers);
+    const env = new LocalBattleEnv(envId, format, seed, controllers, {}, undefined, undefined, undefined, this.#runtimeProfile);
     this.envs.set(envId, env);
     return { env_id: envId };
   }
 
   async resetEnv(envId: string, options?: StepResultOptions): Promise<StepResult> {
+    this.revokeSnapshots(envId);
     return this.requireEnv(envId).resetWithOptions(options);
   }
 
@@ -1404,15 +1472,16 @@ export class EnvironmentManager {
     beliefSeed: number[],
     options?: StepResultOptions,
   ): Promise<{ env_id: string; result: StepResult; belief: BeliefForkMetadata }> {
+    assertBeliefForkPolicy(this.#runtimeProfile.package_version);
     const source = this.requireEnv(sourceEnvId);
     const serialized = source.serializeBattle();
     const view = source.buildResponseView(perspective, false);
-    const built = buildBeliefSnapshot(serialized, view, perspective, source.format, beliefSeed);
+    const built = buildBeliefSnapshot(serialized, view, perspective, source.format, beliefSeed, this.#runtimeProfile);
     const envId = `env-${this.nextId++}`;
     const env = new LocalBattleEnv(envId, source.format, source.seed, {
       p1: { controller: 'external' },
       p2: { controller: 'external' },
-    });
+    }, {}, undefined, undefined, undefined, this.#runtimeProfile);
     this.envs.set(envId, env);
     try {
       const result = await env.resetFromSerialized(built.snapshot, options);
@@ -1471,7 +1540,7 @@ export class EnvironmentManager {
       throw new Error('Seeded transition RPC snapshots must use an opaque server-managed handle.');
     }
     const stored = this.snapshotHandles.get(request.snapshot.snapshot_handle);
-    if (!stored || stored.envId !== envId) {
+    if (!stored || stored.envId !== envId || stored.environment !== env || stored.occurrence !== env.getLiveWorldOccurrence()) {
       throw new Error('Unknown seeded transition snapshot handle.');
     }
     const snapshot = stored.snapshot;
@@ -1493,13 +1562,20 @@ export class EnvironmentManager {
       actions: request.actions,
       step_index: request.step_index,
     };
-    const result = await env.stepSeededTransition(internalRequest, options);
+    let result: SeededTransitionResult;
+    try { result = await env.stepSeededTransition(internalRequest, options); }
+    catch (error) {
+      if (stored.occurrence !== env.getLiveWorldOccurrence()) this.revokeSnapshots(envId);
+      throw error;
+    }
+    this.revokeSnapshots(envId);
     const outputHandle = this.storeSnapshot(envId, result.output_snapshot);
     return toSeededTransitionPublicResult(result, outputHandle);
   }
 
   async closeEnv(envId: string): Promise<{ env_id: string; closed: true }> {
     const env = this.requireEnv(envId);
+    this.revokeSnapshots(envId);
     await env.close();
     this.envs.delete(envId);
     for (const [handle, stored] of this.snapshotHandles) {
@@ -1532,6 +1608,7 @@ export class EnvironmentManager {
   }
 
   async closeAll(): Promise<void> {
+    this.snapshotHandles.clear();
     for (const env of this.envs.values()) {
       await env.close();
     }
@@ -1540,9 +1617,15 @@ export class EnvironmentManager {
   }
 
   private storeSnapshot(envId: string, snapshot: SeededBattleSnapshot): string {
-    const handle = `snapshot-${this.nextSnapshotHandle++}`;
-    this.snapshotHandles.set(handle, { envId, snapshot: structuredClone(snapshot) });
+    const environment = this.requireEnv(envId), occurrence = environment.getLiveWorldOccurrence();
+    for (const [key, held] of this.snapshotHandles) if (held.envId === envId && held.occurrence !== occurrence) this.snapshotHandles.delete(key);
+    const handle = `snapshot-${this.snapshotNamespace}${this.nextSnapshotHandle++}`;
+    this.snapshotHandles.set(handle, { envId, environment, occurrence, snapshot: structuredClone(snapshot) });
     return handle;
+  }
+
+  private revokeSnapshots(envId: string): void {
+    for (const [handle, held] of this.snapshotHandles) if (held.envId === envId) this.snapshotHandles.delete(handle);
   }
 
   private requireEnv(envId: string): LocalBattleEnv {

@@ -1,0 +1,19 @@
+{
+  "status": "NOT CREATED: automatic approval review rejected archive copies; explicit archive authorization required",
+  "candidate": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+  "planned_four_file_overlay": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/unreviewed-prompt57-source-overlay.tar.gz",
+  "planned_manifest": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/unreviewed-prompt57-overlay-manifest.json",
+  "overlay_files": {
+    "sim-core/src/pipeline_episode.ts": "985564bd5c0bb424ba386193f7dc44929866978e2cbc181102b6f4185ed66ec2",
+    "sim-core/src/pipeline_integration.ts": "8dfa068d446d8ab67110fbade350cb36e38ce34b114c137f2f7081ec0c6c54d8",
+    "sim-core/src/owned_decision_input.ts": "f5b98916346455656c5fe1d3bd582f64825f43ce40d6daa3867b9eedc2d0cbde",
+    "sim-core/tests/pipeline_owned_decision_input.test.ts": "1b93179da734bd28c4c59c2156485511b38b558879ff1e01240bbed69315b4b8"
+  },
+  "accepted_base_archive_sha256": "6eacec9024eae65650fa87c3fb31eeb54f2fd5212397f1c09c7f2b3beea4db4d",
+  "reconstruction": "Use retained accepted Prompt54 source archive plus exact candidate diff/these four source/test files after archive approval; no live authority is recoverable.",
+  "no_copy_attempted_after_rejection": true,
+  "rejections": [
+    "Broad source/assets archive classified as unapproved sensitive-data copy beyond Prompt57 scope.",
+    "Four-file reduced overlay classified as private source/test copy into separate durable destination without sufficiently specific user authorization."
+  ]
+}

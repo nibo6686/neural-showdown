@@ -400,3 +400,7 @@ drift self-tests and three coverage tests pass; matching broader evidence is ret
 See the PIPELINE-002 checkpoint for exact scope and identities. Selective stage clears,
 other excluded effects, feature extraction and broader lifecycle completeness remain
 separate gates. `faithful_complete_episode:false` remains required.
+
+### Prompt33 candidate: target restore admission
+
+Prepared native11 policy supports only the existing private B2 pending parent/held serialization/ticket chain. Admission checks exact references, unchanged contents, current parent and unreconstructed pending state before cloning, overlay validation probes, authority abandonment, fromJSON, retirement or writes. Target standalone/initial authority-free raw restore is unsupported. Historical10 legacy restores remain compatible. This adds no snapshot schema, caller version certificate, birth authority or portable import. Old-runtime PRE policy/caller evidence and deferred actual target LIVE evidence remain distinct.

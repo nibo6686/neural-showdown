@@ -1,0 +1,261 @@
+[96msrc/baselines/heuristic.ts[0m:[93m1[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:fs' or its corresponding type declarations.
+
+[7m1[0m import fs from 'node:fs';
+[7m [0m [91m               ~~~~~~~~~[0m
+[96msrc/baselines/heuristic.ts[0m:[93m2[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:path' or its corresponding type declarations.
+
+[7m2[0m import path from 'node:path';
+[7m [0m [91m                 ~~~~~~~~~~~[0m
+[96msrc/baselines/heuristic.ts[0m:[93m66[0m:[93m38[0m - [91merror[0m[90m TS2580: [0mCannot find name 'require'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m66[0m     const packageRoot = path.dirname(require.resolve('pokemon-showdown/package.json'));
+[7m  [0m [91m                                     ~~~~~~~[0m
+[96msrc/belief_fork.ts[0m:[93m144[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m144[0m   const snapshot = structuredClone(serialized);
+[7m   [0m [91m                   ~~~~~~~~~~~~~~~[0m
+[96msrc/belief_state.ts[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m7[0m import { createHash } from 'node:crypto';
+[7m [0m [91m                           ~~~~~~~~~~~~~[0m
+[96msrc/canonical_action.ts[0m:[93m1[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m1[0m import { createHash } from 'node:crypto';
+[7m [0m [91m                           ~~~~~~~~~~~~~[0m
+[96msrc/effect_inventory.ts[0m:[93m2[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:fs' or its corresponding type declarations.
+
+[7m2[0m import fs from 'node:fs';
+[7m [0m [91m               ~~~~~~~~~[0m
+[96msrc/effect_inventory.ts[0m:[93m3[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:path' or its corresponding type declarations.
+
+[7m3[0m import path from 'node:path';
+[7m [0m [91m                 ~~~~~~~~~~~[0m
+[96msrc/effect_inventory.ts[0m:[93m44[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name '__dirname'.
+
+[7m44[0m   let directory = __dirname;
+[7m  [0m [91m                  ~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m2[0m:[93m29[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m2[0m import { randomBytes } from 'node:crypto';
+[7m [0m [91m                            ~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m8[0m:[93m35[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:util' or its corresponding type declarations.
+
+[7m8[0m import { isDeepStrictEqual } from 'node:util';
+[7m [0m [91m                                  ~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m331[0m:[93m24[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m331[0m         const source = structuredClone(serialized); delete source[TERMINAL_REQUEST_HISTORY_KEY];
+[7m   [0m [91m                       ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m334[0m:[93m81[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m334[0m         sourceActive = activePokemon && {fullname: activePokemon.fullname, set: structuredClone(activePokemon.set)};
+[7m   [0m [91m                                                                                ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m354[0m:[93m35[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m354[0m       switches[player] = {action: structuredClone(action), cursor: value.cursor as number, force_switch: value.force_switch};
+[7m   [0m [91m                                  ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m892[0m:[93m22[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m892[0m     const snapshot = structuredClone(simulatorSnapshot) as Record<string, unknown>;
+[7m   [0m [91m                     ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m898[0m:[93m43[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m898[0m       const regenerated = Battle.fromJSON(structuredClone(snapshot) as any);
+[7m   [0m [91m                                          ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m933[0m:[93m44[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m933[0m         if (override) side.activeRequest = structuredClone(override) as unknown as typeof side.activeRequest;
+[7m   [0m [91m                                           ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m1004[0m:[93m41[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m1004[0m     const regenerated = Battle.fromJSON(structuredClone(serialized) as any);
+[7m    [0m [91m                                        ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m1017[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m1017[0m         requests[side.id] = structuredClone(live);
+[7m    [0m [91m                            ~~~~~~~~~~~~~~~[0m
+[96msrc/env_manager.ts[0m:[93m1641[0m:[93m82[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m1641[0m     this.snapshotHandles.set(handle, { envId, environment, occurrence, snapshot: structuredClone(snapshot) });
+[7m    [0m [91m                                                                                 ~~~~~~~~~~~~~~~[0m
+[96msrc/observable_state.ts[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m7[0m import { createHash } from 'node:crypto';
+[7m [0m [91m                           ~~~~~~~~~~~~~[0m
+[96msrc/owner_identity_crosswalk.ts[0m:[93m1[0m:[93m35[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:util' or its corresponding type declarations.
+
+[7m1[0m import { isDeepStrictEqual } from 'node:util';
+[7m [0m [91m                                  ~~~~~~~~~~~[0m
+[96msrc/owner_identity_crosswalk.ts[0m:[93m241[0m:[93m62[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m241[0m     this.#serializations.set(snapshot, { snapshot, expected: structuredClone(snapshot), refs, environment, battle, rows, order });
+[7m   [0m [91m                                                             ~~~~~~~~~~~~~~~[0m
+[96msrc/owner_identity_crosswalk.ts[0m:[93m250[0m:[93m78[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m250[0m     this.#serializations.set(target, { ...entry, snapshot: target, expected: structuredClone(target), refs: stateRefs(target.simulator_state) });
+[7m   [0m [91m                                                                             ~~~~~~~~~~~~~~~[0m
+[96msrc/owner_identity_events.ts[0m:[93m1[0m:[93m35[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:util' or its corresponding type declarations.
+
+[7m1[0m import { isDeepStrictEqual } from 'node:util';
+[7m [0m [91m                                  ~~~~~~~~~~~[0m
+[96msrc/protocol_contract.ts[0m:[93m2[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:fs' or its corresponding type declarations.
+
+[7m2[0m import fs from 'node:fs';
+[7m [0m [91m               ~~~~~~~~~[0m
+[96msrc/protocol_contract.ts[0m:[93m3[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:path' or its corresponding type declarations.
+
+[7m3[0m import path from 'node:path';
+[7m [0m [91m                 ~~~~~~~~~~~[0m
+[96msrc/protocol_contract.ts[0m:[93m505[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name '__dirname'.
+
+[7m505[0m   let directory = __dirname;
+[7m   [0m [91m                  ~~~~~~~~~[0m
+[96msrc/public_health.ts[0m:[93m149[0m:[93m145[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m149[0m   terminalOwners.set(view, {prefix: [...next], abilitySuffix: [...suffix], perspective, appearance: terminalAppearance, actual, roster, owners: structuredClone(owners!), items, history});
+[7m   [0m [91m                                                                                                                                                ~~~~~~~~~~~~~~~[0m
+[96msrc/request_delivery_ledger.ts[0m:[93m1[0m:[93m35[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:util' or its corresponding type declarations.
+
+[7m1[0m import { isDeepStrictEqual } from 'node:util';
+[7m [0m [91m                                  ~~~~~~~~~~~[0m
+[96msrc/request_delivery_ledger.ts[0m:[93m116[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m116[0m       raws[owner] = structuredClone(raw(result, owner));
+[7m   [0m [91m                    ~~~~~~~~~~~~~~~[0m
+[96msrc/settling.ts[0m:[93m41[0m:[93m38[0m - [91merror[0m[90m TS2304: [0mCannot find name 'performance'.
+
+[7m41[0m     this.now = options.now ?? (() => performance.now());
+[7m  [0m [91m                                     ~~~~~~~~~~~[0m
+[96msrc/settling.ts[0m:[93m43[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'setTimeout'.
+
+[7m43[0m       const timer = setTimeout(expire, ms);
+[7m  [0m [91m                    ~~~~~~~~~~[0m
+[96msrc/settling.ts[0m:[93m44[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'clearTimeout'.
+
+[7m44[0m       return () => clearTimeout(timer);
+[7m  [0m [91m                   ~~~~~~~~~~~~[0m
+[96msrc/state_extractor.ts[0m:[93m126[0m:[93m93[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m126[0m     this.submittedSwitch = ident ? {ident, cursor: this.publicAbilityPrefix.length, action: structuredClone(action!), force_switch: forceSwitch} : null;
+[7m   [0m [91m                                                                                            ~~~~~~~~~~~~~~~[0m
+[96msrc/state_extractor.ts[0m:[93m129[0m:[93m68[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m129[0m     return this.submittedSwitch && this.view.terminated ? {action: structuredClone(this.submittedSwitch.action), cursor: this.submittedSwitch.cursor, force_switch: this.submittedSwitch.force_switch} : null;
+[7m   [0m [91m                                                                   ~~~~~~~~~~~~~~~[0m
+[96msrc/state_extractor.ts[0m:[93m133[0m:[93m44[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m133[0m     this.submittedSwitch = {ident, action: structuredClone(value.action), cursor: value.cursor, force_switch: value.force_switch};
+[7m   [0m [91m                                           ~~~~~~~~~~~~~~~[0m
+[96msrc/state_extractor.ts[0m:[93m243[0m:[93m34[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m243[0m     return this.ownRequestData ? structuredClone(this.ownRequestData) : null;
+[7m   [0m [91m                                 ~~~~~~~~~~~~~~~[0m
+[96msrc/state_extractor.ts[0m:[93m247[0m:[93m27[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m247[0m     this.ownRequestData = structuredClone(rawRequest);
+[7m   [0m [91m                          ~~~~~~~~~~~~~~~[0m
+[96msrc/transition.ts[0m:[93m1[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m1[0m import { createHash } from 'node:crypto';
+[7m [0m [91m                           ~~~~~~~~~~~~~[0m
+[96msrc/transition.ts[0m:[93m141[0m:[93m22[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m141[0m   const normalized = structuredClone(simulatorState);
+[7m   [0m [91m                     ~~~~~~~~~~~~~~~[0m
+[96msrc/transition.ts[0m:[93m143[0m:[93m42[0m - [91merror[0m[90m TS7006: [0mParameter 'record' implicitly has an 'any' type.
+
+[7m143[0m     normalized.log = normalized.log.map((record) => (
+[7m   [0m [91m                                         ~~~~~~[0m
+[96msrc/transition.ts[0m:[93m225[0m:[93m22[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m225[0m     simulator_state: structuredClone(simulatorState),
+[7m   [0m [91m                     ~~~~~~~~~~~~~~~[0m
+[96msrc/typed_state_lifecycle.ts[0m:[93m2[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:fs' or its corresponding type declarations.
+
+[7m2[0m import fs from 'node:fs';
+[7m [0m [91m               ~~~~~~~~~[0m
+[96msrc/typed_state_lifecycle.ts[0m:[93m3[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:path' or its corresponding type declarations.
+
+[7m3[0m import path from 'node:path';
+[7m [0m [91m                 ~~~~~~~~~~~[0m
+[96msrc/typed_state_lifecycle.ts[0m:[93m29[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name '__dirname'.
+
+[7m29[0m   let directory = __dirname;
+[7m  [0m [91m                  ~~~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m62[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:fs' or its corresponding type declarations.
+
+[7m62[0m import fs from 'node:fs';
+[7m  [0m [91m               ~~~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m63[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:crypto' or its corresponding type declarations.
+
+[7m63[0m import { createHash } from 'node:crypto';
+[7m  [0m [91m                           ~~~~~~~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m64[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:path' or its corresponding type declarations.
+
+[7m64[0m import path from 'node:path';
+[7m  [0m [91m                 ~~~~~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m81[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name '__dirname'.
+
+[7m81[0m   let directory = __dirname;
+[7m  [0m [91m                  ~~~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m118[0m:[93m33[0m - [91merror[0m[90m TS2580: [0mCannot find name 'require'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m118[0m   const entry = fs.realpathSync(require.resolve('pokemon-showdown'));
+[7m   [0m [91m                                ~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m119[0m:[93m39[0m - [91merror[0m[90m TS2580: [0mCannot find name 'require'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m119[0m   const packagePath = fs.realpathSync(require.resolve('pokemon-showdown/package.json'));
+[7m   [0m [91m                                      ~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m152[0m:[93m14[0m - [91merror[0m[90m TS2580: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m152[0m   let bytes: Buffer;
+[7m   [0m [91m             ~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m181[0m:[93m21[0m - [91merror[0m[90m TS2580: [0mCannot find name 'require'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m181[0m   const validator = require('./prepared_protocol_contract') as typeof import('./prepared_protocol_contract');
+[7m   [0m [91m                    ~~~~~~~[0m
+[96msrc/version_profile.ts[0m:[93m235[0m:[93m79[0m - [91merror[0m[90m TS2580: [0mCannot find name 'require'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+
+[7m235[0m   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
+[7m   [0m [91m                                                                              ~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m1[0m:[93m20[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:assert/strict' or its corresponding type declarations.
+
+[7m1[0m import assert from 'node:assert/strict';
+[7m [0m [91m                   ~~~~~~~~~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m2[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:test' or its corresponding type declarations.
+
+[7m2[0m import test from 'node:test';
+[7m [0m [91m                 ~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m3[0m:[93m23[0m - [91merror[0m[90m TS2307: [0mCannot find module 'node:util' or its corresponding type declarations.
+
+[7m3[0m import { types } from 'node:util';
+[7m [0m [91m                      ~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m31[0m:[93m49[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m31[0m const witness = (name: string, data: object) => console.log('P45_WITNESS ' + JSON.stringify({ name, ...data }));
+[7m  [0m [91m                                                ~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m51[0m:[93m67[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m51[0m     assert.deepEqual(raw.log, control.log); assert.deepEqual(raw, structuredClone(raw));
+[7m  [0m [91m                                                                  ~~~~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m76[0m:[93m78[0m - [91merror[0m[90m TS2304: [0mCannot find name 'structuredClone'.
+
+[7m76[0m       assert.equal(types.isProxy(state.log), false); assert.deepEqual(state, structuredClone(state));
+[7m  [0m [91m                                                                             ~~~~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m105[0m:[93m51[0m - [91merror[0m[90m TS2304: [0mCannot find name 'setImmediate'.
+
+[7m105[0m     b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
+[7m   [0m [91m                                                  ~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m105[0m:[93m104[0m - [91merror[0m[90m TS2304: [0mCannot find name 'setImmediate'.
+
+[7m105[0m     b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
+[7m   [0m [91m                                                                                                       ~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m108[0m:[93m67[0m - [91merror[0m[90m TS2304: [0mCannot find name 'setImmediate'.
+
+[7m108[0m     b.add('equal'); b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
+[7m   [0m [91m                                                                  ~~~~~~~~~~~~[0m
+[96mtests/owner_identity_events.test.ts[0m:[93m108[0m:[93m120[0m - [91merror[0m[90m TS2304: [0mCannot find name 'setImmediate'.
+
+[7m108[0m     b.add('equal'); b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
+[7m   [0m [91m                                                                                                                       ~~~~~~~~~~~~[0m
+

@@ -1,0 +1,1090 @@
+{
+  "candidate_root": "/private/tmp/neural-showdown-native11-prompt38",
+  "frozen_inputs": {
+    "/private/tmp/neural-showdown-native11-prompt38": {
+      "sim-core/src/env_manager.ts": {
+        "before": "063239ab028418caa49a2b1bcf1cf4894733be8abc34c6ad527089899b8883f2",
+        "after": "cb04df02dc7a5a9e267843e3719320d1bb96b7c42b3b4e04abd4f57bb44b7d6f",
+        "unchanged": false
+      },
+      "sim-core/src/pipeline_integration.ts": {
+        "before": "23c81995420e26ab18cb1dd64353a612c11a97a3cf292b11257a263c8ff3a20c",
+        "after": "23c81995420e26ab18cb1dd64353a612c11a97a3cf292b11257a263c8ff3a20c",
+        "unchanged": true
+      },
+      "sim-core/src/owned_request_health.ts": {
+        "before": "7688a6ce0c9f50d561fe158861f28e6d85a322b45db85d135139ecba93c29e77",
+        "after": "7688a6ce0c9f50d561fe158861f28e6d85a322b45db85d135139ecba93c29e77",
+        "unchanged": true
+      },
+      "sim-core/src/request_emission_trace.ts": {
+        "before": "00108d4bc662cec0ba319f6864d566d19faeb1b2436ea35234937faae742e62d",
+        "after": "00108d4bc662cec0ba319f6864d566d19faeb1b2436ea35234937faae742e62d",
+        "unchanged": true
+      },
+      "sim-core/src/request_delivery_ledger.ts": {
+        "before": "30ebc10a13050e2f240a0f4acff17e449335a049245e256923b23c4766e0a06b",
+        "after": "30ebc10a13050e2f240a0f4acff17e449335a049245e256923b23c4766e0a06b",
+        "unchanged": true
+      },
+      "sim-core/src/owner_identity_crosswalk.ts": {
+        "before": "8df74aa1079841d416051646ce506af3b91260cb679a06fe902086357a824e64",
+        "after": "8df74aa1079841d416051646ce506af3b91260cb679a06fe902086357a824e64",
+        "unchanged": true
+      },
+      "sim-core/src/native_owner_knowledge.ts": {
+        "before": "71b841c36770f83ee23df18fb5b13059f2fb41bda8b294fd105f0d72b25d7edd",
+        "after": "71b841c36770f83ee23df18fb5b13059f2fb41bda8b294fd105f0d72b25d7edd",
+        "unchanged": true
+      },
+      "sim-core/src/perspective_knowledge.ts": {
+        "before": "1b28a95bcb6fd2725752001a8bcdec55f991c90a1a8587b5ec14ce0d346af542",
+        "after": "1b28a95bcb6fd2725752001a8bcdec55f991c90a1a8587b5ec14ce0d346af542",
+        "unchanged": true
+      },
+      "sim-core/src/version_profile.ts": {
+        "before": "12bba6813909386a38104f575f98343bdebee3e0cf67beb7191b5a1a2410c30f",
+        "after": "12bba6813909386a38104f575f98343bdebee3e0cf67beb7191b5a1a2410c30f",
+        "unchanged": true
+      },
+      "sim-core/package.json": {
+        "before": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72",
+        "after": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72",
+        "unchanged": true
+      },
+      "sim-core/package-lock.json": {
+        "before": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88",
+        "after": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/case-manifest.json": {
+        "before": "8e1215f33fcd7cb5ff75e58b07e22bac49003f6b2804d32ae5eb0df9b822a6bb",
+        "after": "8e1215f33fcd7cb5ff75e58b07e22bac49003f6b2804d32ae5eb0df9b822a6bb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/trusted-fixture-authority.json": {
+        "before": "8db9f5d0b7b1b23ee0363d878e85c0ace7f81fd3f99b65390c9bb2f29dd3b051",
+        "after": "8db9f5d0b7b1b23ee0363d878e85c0ace7f81fd3f99b65390c9bb2f29dd3b051",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-foreign-original-source.json": {
+        "before": "f58edb92d2d59e7be7881b6522a53d4d792b5c0ea11405f783f648aecf998c29",
+        "after": "f58edb92d2d59e7be7881b6522a53d4d792b5c0ea11405f783f648aecf998c29",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-crosswalk-certificate.json": {
+        "before": "e64da1c24dc534bc623cbdc17ccde6d3179469b017cc7202deee4805c9dcbd8e",
+        "after": "e64da1c24dc534bc623cbdc17ccde6d3179469b017cc7202deee4805c9dcbd8e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-unreachable-entry.json": {
+        "before": "2b45867d42fe09048d969f8c31ac7a72700a7d244a0f4a062dec977505dcb7cb",
+        "after": "2b45867d42fe09048d969f8c31ac7a72700a7d244a0f4a062dec977505dcb7cb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-compact.json": {
+        "before": "4793a0f324a3d6c74623647397a66a489d29ff2a514b164b507dd1ab8c3f8d11",
+        "after": "4793a0f324a3d6c74623647397a66a489d29ff2a514b164b507dd1ab8c3f8d11",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-authority-label-forgery.json": {
+        "before": "9c245cc9fd62f437c901aa91c5a84086de47f3777adca1426775e666701114f3",
+        "after": "9c245cc9fd62f437c901aa91c5a84086de47f3777adca1426775e666701114f3",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-ordinary.json": {
+        "before": "8391c02039ed2b8884655b41e9b4f533e1cc2364e864bf9d62e8a4c43d38578c",
+        "after": "8391c02039ed2b8884655b41e9b4f533e1cc2364e864bf9d62e8a4c43d38578c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-source.json": {
+        "before": "f5777552ed87f7705c7b42df0c41aac9096b2accaf595977879fcc59c081998f",
+        "after": "f5777552ed87f7705c7b42df0c41aac9096b2accaf595977879fcc59c081998f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-p2-consumer.json": {
+        "before": "aab2947e02d0039f620f03fcad133475b3cb48a1a2095ef6fac3db1df474ce04",
+        "after": "aab2947e02d0039f620f03fcad133475b3cb48a1a2095ef6fac3db1df474ce04",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py": {
+        "before": "4c5ca3fe0fc0085a16ba4d58b21fa665f1f116e05bbf131ae0fea2ac9058c7b2",
+        "after": "4c5ca3fe0fc0085a16ba4d58b21fa665f1f116e05bbf131ae0fea2ac9058c7b2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-ordinary.json": {
+        "before": "42d1bbfbca2c844168953b13f6de3d49f897d7fd09c362d78727f70e0734c991",
+        "after": "42d1bbfbca2c844168953b13f6de3d49f897d7fd09c362d78727f70e0734c991",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-stripped-replay-certificate.json": {
+        "before": "bf8f0b60c58f4166ec259865ebedd54a0f20da0893f25ce6f2e554ad3e9cefdb",
+        "after": "bf8f0b60c58f4166ec259865ebedd54a0f20da0893f25ce6f2e554ad3e9cefdb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-owner.json": {
+        "before": "eaef7e119d6b7aee453a68ec52cab0ae17690d0d91138fb41d18e3dbfce16bd0",
+        "after": "eaef7e119d6b7aee453a68ec52cab0ae17690d0d91138fb41d18e3dbfce16bd0",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property_contexts.py": {
+        "before": "8f096515eb3d80e52c96d539f2908a949280e0cad4c89a7158257db6ebbae988",
+        "after": "8f096515eb3d80e52c96d539f2908a949280e0cad4c89a7158257db6ebbae988",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-policy.json": {
+        "before": "c990f97269ed30749a57b968fc0e04f01cf69cc68061fe53424013a3a749562c",
+        "after": "c990f97269ed30749a57b968fc0e04f01cf69cc68061fe53424013a3a749562c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-p1-consumer.json": {
+        "before": "e3538aa5e221762fb1aa899fc6490733d25d98f8bb9a9af25270e16cbd94f3c6",
+        "after": "e3538aa5e221762fb1aa899fc6490733d25d98f8bb9a9af25270e16cbd94f3c6",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-parent.json": {
+        "before": "c0108ad92f3b8a6658b860af14eb3d621cc9ea70022b96e6e3d1a3766fea2eae",
+        "after": "c0108ad92f3b8a6658b860af14eb3d621cc9ea70022b96e6e3d1a3766fea2eae",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-origin.json": {
+        "before": "e20aa42dbcc0e6fc5b7e6fa60df458fb5cbde25d5cf7d58e603a8e3395b03e9f",
+        "after": "e20aa42dbcc0e6fc5b7e6fa60df458fb5cbde25d5cf7d58e603a8e3395b03e9f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json": {
+        "before": "2b8e781e4781f62401c03a41cb7c3970023812c49db4dadc4c2b2fc2f04270bc",
+        "after": "2b8e781e4781f62401c03a41cb7c3970023812c49db4dadc4c2b2fc2f04270bc",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/identity-vectors.json": {
+        "before": "178853d96bc18ec2d4ea4bb6810622b79eec8fbe8fc5e11429c212698fbd8c4f",
+        "after": "178853d96bc18ec2d4ea4bb6810622b79eec8fbe8fc5e11429c212698fbd8c4f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-starting-revision-fork.json": {
+        "before": "4506b39ed572779d3a48a26d80e0490441ba8541de271170ed37a5852af08f63",
+        "after": "4506b39ed572779d3a48a26d80e0490441ba8541de271170ed37a5852af08f63",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-nested-capability.json": {
+        "before": "4d33c5f9faa8e47340bec9115b4512047c379e9d99e71765d135d0cd8350d381",
+        "after": "4d33c5f9faa8e47340bec9115b4512047c379e9d99e71765d135d0cd8350d381",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/effect-collection-canary.json": {
+        "before": "26f762595af22229151746809f7558d0090a5adf2b2e95d7fdcef77fdad9931b",
+        "after": "26f762595af22229151746809f7558d0090a5adf2b2e95d7fdcef77fdad9931b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-foreign-starting.json": {
+        "before": "9c29259303150f3805eaa3827859eb2ea876cee5afe69ce903c4f0e29d767458",
+        "after": "9c29259303150f3805eaa3827859eb2ea876cee5afe69ce903c4f0e29d767458",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/typed-references.json": {
+        "before": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+        "after": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/obligation-canaries.json": {
+        "before": "439e93f245c8b74bbcd122f2c079b3475825bec09bc95fea79c02bf9099b705c",
+        "after": "439e93f245c8b74bbcd122f2c079b3475825bec09bc95fea79c02bf9099b705c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-duplicate.json": {
+        "before": "397a10419203a0a737a8bfb8de1e39baf9a937318495d554ad3f662ff9f9a268",
+        "after": "397a10419203a0a737a8bfb8de1e39baf9a937318495d554ad3f662ff9f9a268",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-in-range-future-source.json": {
+        "before": "abeb89ea5d954d083d195e8bdaf78d61f59badea0804499b3bed88706c0763cf",
+        "after": "abeb89ea5d954d083d195e8bdaf78d61f59badea0804499b3bed88706c0763cf",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-capability-words-consumer.json": {
+        "before": "8e4cca713644549e7de66826fbfa4cd435e8a4b036a467d61d3b255ad797834d",
+        "after": "8e4cca713644549e7de66826fbfa4cd435e8a4b036a467d61d3b255ad797834d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/revision_cases.py": {
+        "before": "c310166194a66be55404d09d9f5065d6f412fead4147da9fceb59087ea07ca50",
+        "after": "c310166194a66be55404d09d9f5065d6f412fead4147da9fceb59087ea07ca50",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json": {
+        "before": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+        "after": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-future-traversal.json": {
+        "before": "ff49a1d5de9d542a7a1202308946a1873355e1a0fbd211cbc9d1f1bf2f3fddec",
+        "after": "ff49a1d5de9d542a7a1202308946a1873355e1a0fbd211cbc9d1f1bf2f3fddec",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-unknown.json": {
+        "before": "dc6537d04afc7ce76db46cbda747a1de90fb897fba1dadf66e5a3535bb078d2b",
+        "after": "dc6537d04afc7ce76db46cbda747a1de90fb897fba1dadf66e5a3535bb078d2b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dangling-reference.json": {
+        "before": "21afa7bea034722e62d4d4336832f12bfce64ada31ea3418b50a3557ad4a3d1b",
+        "after": "21afa7bea034722e62d4d4336832f12bfce64ada31ea3418b50a3557ad4a3d1b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/obligation-universe.json": {
+        "before": "c13448d0815b75bca62030bc5eb0f33899b5746fcf7fcaa4621325df5af87a09",
+        "after": "c13448d0815b75bca62030bc5eb0f33899b5746fcf7fcaa4621325df5af87a09",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-full.json": {
+        "before": "f4f10a36f9efb279f0d4e4b9f0f84691c8442e1bb6f607a65948053ef4b75871",
+        "after": "f4f10a36f9efb279f0d4e4b9f0f84691c8442e1bb6f607a65948053ef4b75871",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-item.json": {
+        "before": "176f65b7aca8843e86e3d9034f3387cf50aeeddef8837a0d3df3fb72fd7635b1",
+        "after": "176f65b7aca8843e86e3d9034f3387cf50aeeddef8837a0d3df3fb72fd7635b1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/missing-original-full.json": {
+        "before": "828b909fc171f46584aa24a6092d6d6b0013af09b807512f691be12a9f3baf80",
+        "after": "828b909fc171f46584aa24a6092d6d6b0013af09b807512f691be12a9f3baf80",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-full.json": {
+        "before": "3ebd31925f834780ec8a1cb7bfd34dbf5095c99ffa68485abda226eeb88e1d89",
+        "after": "3ebd31925f834780ec8a1cb7bfd34dbf5095c99ffa68485abda226eeb88e1d89",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/profiles.json": {
+        "before": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+        "after": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-effect-identity.json": {
+        "before": "9e216f966618a76475d15cc0738275f7976fe02a157adb88a4ed42211ef7263d",
+        "after": "9e216f966618a76475d15cc0738275f7976fe02a157adb88a4ed42211ef7263d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-missing-key.json": {
+        "before": "3caef8b9555bff147cf0c72d9e1f00a3b0c4c5e9c0694464296cb4cb4b4fdfca",
+        "after": "3caef8b9555bff147cf0c72d9e1f00a3b0c4c5e9c0694464296cb4cb4b4fdfca",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-array-consumer.json": {
+        "before": "18b6a8cb796da6890fa4711a1a2223fb4503971b75f2f9a6e3d7caccdb9c411f",
+        "after": "18b6a8cb796da6890fa4711a1a2223fb4503971b75f2f9a6e3d7caccdb9c411f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-missing-hash-consumer.json": {
+        "before": "c33317c0ad6f5e19fb9d4d45d5a2278cdebd698d1d985dbabee1bd3c933037d2",
+        "after": "c33317c0ad6f5e19fb9d4d45d5a2278cdebd698d1d985dbabee1bd3c933037d2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-compact.json": {
+        "before": "279a6caf379fa6075b739cdd0793d3d5ec934f5a17e5fc3a097f52dbd2e7aec3",
+        "after": "279a6caf379fa6075b739cdd0793d3d5ec934f5a17e5fc3a097f52dbd2e7aec3",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/typed_references.py": {
+        "before": "21a20cd1945a8e66e0a123b8efdd7b38e935de50b074bc811e700e1b297385d1",
+        "after": "21a20cd1945a8e66e0a123b8efdd7b38e935de50b074bc811e700e1b297385d1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-same-source-proved-change.json": {
+        "before": "3a9fc4bfe9730446e833a52dab78bb432b96c8576f7bf23cf690bbf02619db6e",
+        "after": "3a9fc4bfe9730446e833a52dab78bb432b96c8576f7bf23cf690bbf02619db6e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-private-traversal.json": {
+        "before": "f3e489bd08cbfe7f8e50a78228b5dc246e186893f7e8570eff94ff62581bbd9a",
+        "after": "f3e489bd08cbfe7f8e50a78228b5dc246e186893f7e8570eff94ff62581bbd9a",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-chronological-relabel.json": {
+        "before": "4f484c20fc5649ba450c2ff748c1416a2dfab97cc9c8d2d19c4c945e422f3895",
+        "after": "4f484c20fc5649ba450c2ff748c1416a2dfab97cc9c8d2d19c4c945e422f3895",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-replay-reproof.json": {
+        "before": "a7f57998013c93d0bcaf4bdbc2249f44644b6aa6c40ab157580ca0fd33c78c70",
+        "after": "a7f57998013c93d0bcaf4bdbc2249f44644b6aa6c40ab157580ca0fd33c78c70",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-compact.json": {
+        "before": "e64a312bada693e087f3199db4c127321efb3a1a449cd7c599ec4ffc4f0cdf88",
+        "after": "e64a312bada693e087f3199db4c127321efb3a1a449cd7c599ec4ffc4f0cdf88",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-full.json": {
+        "before": "4a6b256e5957c5435c39a6d04bb6a800b28446f60874a41c49d737b1c3ca49bb",
+        "after": "4a6b256e5957c5435c39a6d04bb6a800b28446f60874a41c49d737b1c3ca49bb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-compact.json": {
+        "before": "f0706b3c9b2babb2e8fd9acce3f3284c019789c35ab94c522bd0ff9de3348269",
+        "after": "f0706b3c9b2babb2e8fd9acce3f3284c019789c35ab94c522bd0ff9de3348269",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-manifest.json": {
+        "before": "55ed1e96c6702e4cde244d2bc7075c73394da4728c9bcb9de3168d2295b23bec",
+        "after": "55ed1e96c6702e4cde244d2bc7075c73394da4728c9bcb9de3168d2295b23bec",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-value-tag.json": {
+        "before": "d867a10f462c1da1643f4ab5bdbff8c1e1382be719e0e176a5279abf26aa3eb0",
+        "after": "d867a10f462c1da1643f4ab5bdbff8c1e1382be719e0e176a5279abf26aa3eb0",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-carryover.json": {
+        "before": "368274dc3056f86678f3f5311df9f995204afb63c90435aaafa45808f49da7c1",
+        "after": "368274dc3056f86678f3f5311df9f995204afb63c90435aaafa45808f49da7c1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/legacy-id-regressions.json": {
+        "before": "e269666379ebc81d7c970c14372d87acdb787dbbfedbfd16d85cedfcf167c3b7",
+        "after": "e269666379ebc81d7c970c14372d87acdb787dbbfedbfd16d85cedfcf167c3b7",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-inapplicable.json": {
+        "before": "0fdb4e07fc8212b1064af82dbb605c04742d549a76186099b103a5a0810498bd",
+        "after": "0fdb4e07fc8212b1064af82dbb605c04742d549a76186099b103a5a0810498bd",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/author_fixtures.py": {
+        "before": "b789e736e686121469a78d00c7cae4194a2904ff30ff16ade86a508de6aa65af",
+        "after": "b789e736e686121469a78d00c7cae4194a2904ff30ff16ade86a508de6aa65af",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-ordinary.json": {
+        "before": "ad0ad4b958d84bc2dfcd1c30b03bd1eedaec337796bd3b1c60da1a483bd3d3cb",
+        "after": "ad0ad4b958d84bc2dfcd1c30b03bd1eedaec337796bd3b1c60da1a483bd3d3cb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-foreign-owner.json": {
+        "before": "56336561d525e1b093eeaf1999d59729199383a03783efb00e4e1d24d84fb46d",
+        "after": "56336561d525e1b093eeaf1999d59729199383a03783efb00e4e1d24d84fb46d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-original-value.json": {
+        "before": "eef21e5ff962d963dfd45d0eaa69a7d59c8dfaf4b05c0853a10b90d8a4225833",
+        "after": "eef21e5ff962d963dfd45d0eaa69a7d59c8dfaf4b05c0853a10b90d8a4225833",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-full.json": {
+        "before": "316141d849beb72056da4aed1e132237448d5cf2a5869e9fc6b39861fa4fa8f8",
+        "after": "316141d849beb72056da4aed1e132237448d5cf2a5869e9fc6b39861fa4fa8f8",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property-types.json": {
+        "before": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+        "after": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-extra-key.json": {
+        "before": "a08ebd788951e0664dff8ca49d39c29dd16382109fc39b5b884d788560bfb450",
+        "after": "a08ebd788951e0664dff8ca49d39c29dd16382109fc39b5b884d788560bfb450",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-unsupported-complete.json": {
+        "before": "a9ea2c45f1a17b597e6ada179aac63d8e83a5691a193d61657a4412976a0f2ed",
+        "after": "a9ea2c45f1a17b597e6ada179aac63d8e83a5691a193d61657a4412976a0f2ed",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/schema.json": {
+        "before": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+        "after": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-history.json": {
+        "before": "39f6a6bde14f54e7bbe37b20fd44ad6a66db264db483709c4bd6a5b6f5dadd9d",
+        "after": "39f6a6bde14f54e7bbe37b20fd44ad6a66db264db483709c4bd6a5b6f5dadd9d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-concurrent-effects-full.json": {
+        "before": "579c19cafe8c766888cabaf322cccf7cc45250570ff9447f634c26f9aa64ab4e",
+        "after": "579c19cafe8c766888cabaf322cccf7cc45250570ff9447f634c26f9aa64ab4e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-certificate-property.json": {
+        "before": "cd1ef5d9c3291fa4175526008b512184994798a12e204f3fc1c1db54a095ac47",
+        "after": "cd1ef5d9c3291fa4175526008b512184994798a12e204f3fc1c1db54a095ac47",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-consumer.json": {
+        "before": "02acd4dbd98e50197981cbc8dd064f05970508f429c720cbbc0b7139ec309106",
+        "after": "02acd4dbd98e50197981cbc8dd064f05970508f429c720cbbc0b7139ec309106",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-actionable-consumer.json": {
+        "before": "0e8c9a945b83189ea5691a1cffbf058cdd5dbff2bec4a44b60f9e5eeee1c623f",
+        "after": "0e8c9a945b83189ea5691a1cffbf058cdd5dbff2bec4a44b60f9e5eeee1c623f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-request.json": {
+        "before": "79a6ad7fe8c175fcb2365167d8ed006be212c339af016982744983bc265010ea",
+        "after": "79a6ad7fe8c175fcb2365167d8ed006be212c339af016982744983bc265010ea",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-discriminant.json": {
+        "before": "b8141a0cd282f6168ddf11380f2a6ace9bb085aa0e15aeb047f9cd6bb6e689df",
+        "after": "b8141a0cd282f6168ddf11380f2a6ace9bb085aa0e15aeb047f9cd6bb6e689df",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-compact.json": {
+        "before": "9acc6dc742e8e6a275f85bde892e151086e8cbabb3d01b39d7bad38b56a0f516",
+        "after": "9acc6dc742e8e6a275f85bde892e151086e8cbabb3d01b39d7bad38b56a0f516",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-privileged-field.json": {
+        "before": "6cbd685fa5e33770d963897c1cfcfdddb49e39480eea804b6c04659509b84897",
+        "after": "6cbd685fa5e33770d963897c1cfcfdddb49e39480eea804b6c04659509b84897",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-cross-source-parent.json": {
+        "before": "85ad5ae23ba7e11d027495930c9645652de9bc87c9212535c18f3bfc4fa19128",
+        "after": "85ad5ae23ba7e11d027495930c9645652de9bc87c9212535c18f3bfc4fa19128",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/revision_checks.py": {
+        "before": "aa85c6d05779c32898e21b0b69239169ef60b9699dda17cad22f0f0e7d25588c",
+        "after": "aa85c6d05779c32898e21b0b69239169ef60b9699dda17cad22f0f0e7d25588c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-fact-certificate.json": {
+        "before": "6bc6ed97d73bf4b9622f1da6e073f87b63dae31f53197c36be4ce5a49fdb66c7",
+        "after": "6bc6ed97d73bf4b9622f1da6e073f87b63dae31f53197c36be4ce5a49fdb66c7",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-full.json": {
+        "before": "1c2e69f382d77ab4ba1eaa33581a45adf9566c4da064edcf5430bcf9809efa98",
+        "after": "1c2e69f382d77ab4ba1eaa33581a45adf9566c4da064edcf5430bcf9809efa98",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-ordinary.json": {
+        "before": "89470de82591329770438b7d4ed7f5291a509034b286d1a8d8e7a2fcc01b2b67",
+        "after": "89470de82591329770438b7d4ed7f5291a509034b286d1a8d8e7a2fcc01b2b67",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-weaker-profile.json": {
+        "before": "52c3e7e38b799e6be3667d2ed3f5f5aaa82ae4ecc335c2d8ccbb23249d5a9eb9",
+        "after": "52c3e7e38b799e6be3667d2ed3f5f5aaa82ae4ecc335c2d8ccbb23249d5a9eb9",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/representation-canaries.json": {
+        "before": "8d8f495972b1fb4114074096137f45d5bdfa4ee2c72ccf3ff0aa4ee7b635b292",
+        "after": "8d8f495972b1fb4114074096137f45d5bdfa4ee2c72ccf3ff0aa4ee7b635b292",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-type.json": {
+        "before": "11c496095701bfa1ec264f37ad9a23bca5f85929f94ec7394e437743d1a0d98c",
+        "after": "11c496095701bfa1ec264f37ad9a23bca5f85929f94ec7394e437743d1a0d98c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-compact.json": {
+        "before": "452a02656efd6aff68d59e8c2e6ac9e5e5b04d156391da7376fa8fa6d88fd97d",
+        "after": "452a02656efd6aff68d59e8c2e6ac9e5e5b04d156391da7376fa8fa6d88fd97d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/canonical-controls-vector.json": {
+        "before": "e1d731f9152e1883b3b734d8cabdeecd3fe2d0fce9fab62d5dbaf84e981bf4cc",
+        "after": "e1d731f9152e1883b3b734d8cabdeecd3fe2d0fce9fab62d5dbaf84e981bf4cc",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-wait-consumer.json": {
+        "before": "7cbbf22fe70f203a707259c8ca78ebe0f81510f3792a204761b0795ce63b13a2",
+        "after": "7cbbf22fe70f203a707259c8ca78ebe0f81510f3792a204761b0795ce63b13a2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-full.json": {
+        "before": "079464d6b50f8388012afafb6b40e8d54fb5ce5dff7f2fd891169655b13f1346",
+        "after": "079464d6b50f8388012afafb6b40e8d54fb5ce5dff7f2fd891169655b13f1346",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p2-consumer.json": {
+        "before": "fec850e817aa7452d89e58cdc02deda8537c2e403722c56e04fd8bf57cfd10ab",
+        "after": "fec850e817aa7452d89e58cdc02deda8537c2e403722c56e04fd8bf57cfd10ab",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/README.md": {
+        "before": "ddacdb78a70ac807c7cafa7b9a6743e2bb5f27a8f0f918ffb809f820bd68852d",
+        "after": "ddacdb78a70ac807c7cafa7b9a6743e2bb5f27a8f0f918ffb809f820bd68852d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/schema.json": {
+        "before": "83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94",
+        "after": "83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-v1/profile.json": {
+        "before": "38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e",
+        "after": "38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/README.md": {
+        "before": "bc7498dd92a0f3db03f2b1a6e4ce98d49ea8c32cef1969282ff3c7c60638c2d0",
+        "after": "bc7498dd92a0f3db03f2b1a6e4ce98d49ea8c32cef1969282ff3c7c60638c2d0",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/schema.json": {
+        "before": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17",
+        "after": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1/profile.json": {
+        "before": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e",
+        "after": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e",
+        "unchanged": true
+      }
+    },
+    "/Users/nbolger/Desktop/neural-showdown": {
+      "sim-core/src/env_manager.ts": {
+        "before": "d5ffe6fb552ba032fdedde31a842840e7b1440ebb50680dad7a276b47e68f6a7",
+        "after": "d5ffe6fb552ba032fdedde31a842840e7b1440ebb50680dad7a276b47e68f6a7",
+        "unchanged": true
+      },
+      "sim-core/src/pipeline_integration.ts": {
+        "before": "d0092a9a947f84a92d9d2b09308fe8a7eb1d2c5d9ccac1b59c82ef26a40754d5",
+        "after": "d0092a9a947f84a92d9d2b09308fe8a7eb1d2c5d9ccac1b59c82ef26a40754d5",
+        "unchanged": true
+      },
+      "sim-core/src/request_emission_trace.ts": {
+        "before": "025e4b5be52fdc9047ab8cdd8021a3b4a6e8a374d2fe4504ae6bc79fdf62cb70",
+        "after": "025e4b5be52fdc9047ab8cdd8021a3b4a6e8a374d2fe4504ae6bc79fdf62cb70",
+        "unchanged": true
+      },
+      "sim-core/src/request_delivery_ledger.ts": {
+        "before": "3ebea16700700a3017e3c2fe5ff2f5d0556caac07c5f450fff23480177f02070",
+        "after": "3ebea16700700a3017e3c2fe5ff2f5d0556caac07c5f450fff23480177f02070",
+        "unchanged": true
+      },
+      "sim-core/src/owner_identity_crosswalk.ts": {
+        "before": "2f69a4687f10287492b85fd803d9ac7ed4d209a1dceec946eaf5ab9042a19d8a",
+        "after": "2f69a4687f10287492b85fd803d9ac7ed4d209a1dceec946eaf5ab9042a19d8a",
+        "unchanged": true
+      },
+      "sim-core/src/perspective_knowledge.ts": {
+        "before": "6293777fc4676eaca104050048adb90b0369d2d007a1a4a984354de17f53616e",
+        "after": "6293777fc4676eaca104050048adb90b0369d2d007a1a4a984354de17f53616e",
+        "unchanged": true
+      },
+      "sim-core/src/version_profile.ts": {
+        "before": "84d60df17c866fd976504cdd953cca8039777e38fe4fdbe6e97d179f4d556af3",
+        "after": "84d60df17c866fd976504cdd953cca8039777e38fe4fdbe6e97d179f4d556af3",
+        "unchanged": true
+      },
+      "sim-core/package.json": {
+        "before": "1a81e29560c44c3997437e4f2cf22e2312e71e32448f600394dd5c0d1413f3f4",
+        "after": "1a81e29560c44c3997437e4f2cf22e2312e71e32448f600394dd5c0d1413f3f4",
+        "unchanged": true
+      },
+      "sim-core/package-lock.json": {
+        "before": "4897b92e6a6c82db2b8fe5cedb69c9b15386a0bff4d8d2a30b7a2c6d1d9a33c5",
+        "after": "4897b92e6a6c82db2b8fe5cedb69c9b15386a0bff4d8d2a30b7a2c6d1d9a33c5",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/case-manifest.json": {
+        "before": "8e1215f33fcd7cb5ff75e58b07e22bac49003f6b2804d32ae5eb0df9b822a6bb",
+        "after": "8e1215f33fcd7cb5ff75e58b07e22bac49003f6b2804d32ae5eb0df9b822a6bb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/trusted-fixture-authority.json": {
+        "before": "8db9f5d0b7b1b23ee0363d878e85c0ace7f81fd3f99b65390c9bb2f29dd3b051",
+        "after": "8db9f5d0b7b1b23ee0363d878e85c0ace7f81fd3f99b65390c9bb2f29dd3b051",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-foreign-original-source.json": {
+        "before": "f58edb92d2d59e7be7881b6522a53d4d792b5c0ea11405f783f648aecf998c29",
+        "after": "f58edb92d2d59e7be7881b6522a53d4d792b5c0ea11405f783f648aecf998c29",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-crosswalk-certificate.json": {
+        "before": "e64da1c24dc534bc623cbdc17ccde6d3179469b017cc7202deee4805c9dcbd8e",
+        "after": "e64da1c24dc534bc623cbdc17ccde6d3179469b017cc7202deee4805c9dcbd8e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-unreachable-entry.json": {
+        "before": "2b45867d42fe09048d969f8c31ac7a72700a7d244a0f4a062dec977505dcb7cb",
+        "after": "2b45867d42fe09048d969f8c31ac7a72700a7d244a0f4a062dec977505dcb7cb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-compact.json": {
+        "before": "4793a0f324a3d6c74623647397a66a489d29ff2a514b164b507dd1ab8c3f8d11",
+        "after": "4793a0f324a3d6c74623647397a66a489d29ff2a514b164b507dd1ab8c3f8d11",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-authority-label-forgery.json": {
+        "before": "9c245cc9fd62f437c901aa91c5a84086de47f3777adca1426775e666701114f3",
+        "after": "9c245cc9fd62f437c901aa91c5a84086de47f3777adca1426775e666701114f3",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-ordinary.json": {
+        "before": "8391c02039ed2b8884655b41e9b4f533e1cc2364e864bf9d62e8a4c43d38578c",
+        "after": "8391c02039ed2b8884655b41e9b4f533e1cc2364e864bf9d62e8a4c43d38578c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-source.json": {
+        "before": "f5777552ed87f7705c7b42df0c41aac9096b2accaf595977879fcc59c081998f",
+        "after": "f5777552ed87f7705c7b42df0c41aac9096b2accaf595977879fcc59c081998f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-p2-consumer.json": {
+        "before": "aab2947e02d0039f620f03fcad133475b3cb48a1a2095ef6fac3db1df474ce04",
+        "after": "aab2947e02d0039f620f03fcad133475b3cb48a1a2095ef6fac3db1df474ce04",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/check_contract.py": {
+        "before": "4c5ca3fe0fc0085a16ba4d58b21fa665f1f116e05bbf131ae0fea2ac9058c7b2",
+        "after": "4c5ca3fe0fc0085a16ba4d58b21fa665f1f116e05bbf131ae0fea2ac9058c7b2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-ordinary.json": {
+        "before": "42d1bbfbca2c844168953b13f6de3d49f897d7fd09c362d78727f70e0734c991",
+        "after": "42d1bbfbca2c844168953b13f6de3d49f897d7fd09c362d78727f70e0734c991",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-stripped-replay-certificate.json": {
+        "before": "bf8f0b60c58f4166ec259865ebedd54a0f20da0893f25ce6f2e554ad3e9cefdb",
+        "after": "bf8f0b60c58f4166ec259865ebedd54a0f20da0893f25ce6f2e554ad3e9cefdb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-owner.json": {
+        "before": "eaef7e119d6b7aee453a68ec52cab0ae17690d0d91138fb41d18e3dbfce16bd0",
+        "after": "eaef7e119d6b7aee453a68ec52cab0ae17690d0d91138fb41d18e3dbfce16bd0",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property_contexts.py": {
+        "before": "8f096515eb3d80e52c96d539f2908a949280e0cad4c89a7158257db6ebbae988",
+        "after": "8f096515eb3d80e52c96d539f2908a949280e0cad4c89a7158257db6ebbae988",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-policy.json": {
+        "before": "c990f97269ed30749a57b968fc0e04f01cf69cc68061fe53424013a3a749562c",
+        "after": "c990f97269ed30749a57b968fc0e04f01cf69cc68061fe53424013a3a749562c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-p1-consumer.json": {
+        "before": "e3538aa5e221762fb1aa899fc6490733d25d98f8bb9a9af25270e16cbd94f3c6",
+        "after": "e3538aa5e221762fb1aa899fc6490733d25d98f8bb9a9af25270e16cbd94f3c6",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-parent.json": {
+        "before": "c0108ad92f3b8a6658b860af14eb3d621cc9ea70022b96e6e3d1a3766fea2eae",
+        "after": "c0108ad92f3b8a6658b860af14eb3d621cc9ea70022b96e6e3d1a3766fea2eae",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-origin.json": {
+        "before": "e20aa42dbcc0e6fc5b7e6fa60df458fb5cbde25d5cf7d58e603a8e3395b03e9f",
+        "after": "e20aa42dbcc0e6fc5b7e6fa60df458fb5cbde25d5cf7d58e603a8e3395b03e9f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json": {
+        "before": "2b8e781e4781f62401c03a41cb7c3970023812c49db4dadc4c2b2fc2f04270bc",
+        "after": "2b8e781e4781f62401c03a41cb7c3970023812c49db4dadc4c2b2fc2f04270bc",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/identity-vectors.json": {
+        "before": "178853d96bc18ec2d4ea4bb6810622b79eec8fbe8fc5e11429c212698fbd8c4f",
+        "after": "178853d96bc18ec2d4ea4bb6810622b79eec8fbe8fc5e11429c212698fbd8c4f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-starting-revision-fork.json": {
+        "before": "4506b39ed572779d3a48a26d80e0490441ba8541de271170ed37a5852af08f63",
+        "after": "4506b39ed572779d3a48a26d80e0490441ba8541de271170ed37a5852af08f63",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-nested-capability.json": {
+        "before": "4d33c5f9faa8e47340bec9115b4512047c379e9d99e71765d135d0cd8350d381",
+        "after": "4d33c5f9faa8e47340bec9115b4512047c379e9d99e71765d135d0cd8350d381",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/effect-collection-canary.json": {
+        "before": "26f762595af22229151746809f7558d0090a5adf2b2e95d7fdcef77fdad9931b",
+        "after": "26f762595af22229151746809f7558d0090a5adf2b2e95d7fdcef77fdad9931b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-foreign-starting.json": {
+        "before": "9c29259303150f3805eaa3827859eb2ea876cee5afe69ce903c4f0e29d767458",
+        "after": "9c29259303150f3805eaa3827859eb2ea876cee5afe69ce903c4f0e29d767458",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/typed-references.json": {
+        "before": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+        "after": "eb8809992e2cdd4033287bf319a4dd126c94d73e07c99a4552f695c59d06c7da",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/obligation-canaries.json": {
+        "before": "439e93f245c8b74bbcd122f2c079b3475825bec09bc95fea79c02bf9099b705c",
+        "after": "439e93f245c8b74bbcd122f2c079b3475825bec09bc95fea79c02bf9099b705c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-duplicate.json": {
+        "before": "397a10419203a0a737a8bfb8de1e39baf9a937318495d554ad3f662ff9f9a268",
+        "after": "397a10419203a0a737a8bfb8de1e39baf9a937318495d554ad3f662ff9f9a268",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-in-range-future-source.json": {
+        "before": "abeb89ea5d954d083d195e8bdaf78d61f59badea0804499b3bed88706c0763cf",
+        "after": "abeb89ea5d954d083d195e8bdaf78d61f59badea0804499b3bed88706c0763cf",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-capability-words-consumer.json": {
+        "before": "8e4cca713644549e7de66826fbfa4cd435e8a4b036a467d61d3b255ad797834d",
+        "after": "8e4cca713644549e7de66826fbfa4cd435e8a4b036a467d61d3b255ad797834d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/revision_cases.py": {
+        "before": "c310166194a66be55404d09d9f5065d6f412fead4147da9fceb59087ea07ca50",
+        "after": "c310166194a66be55404d09d9f5065d6f412fead4147da9fceb59087ea07ca50",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json": {
+        "before": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+        "after": "3cd45e33eda64255e7cc9e8dd9f8b9208fe2b28ddfdbbcc1b6df143cbb2fbbfe",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-future-traversal.json": {
+        "before": "ff49a1d5de9d542a7a1202308946a1873355e1a0fbd211cbc9d1f1bf2f3fddec",
+        "after": "ff49a1d5de9d542a7a1202308946a1873355e1a0fbd211cbc9d1f1bf2f3fddec",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-unknown.json": {
+        "before": "dc6537d04afc7ce76db46cbda747a1de90fb897fba1dadf66e5a3535bb078d2b",
+        "after": "dc6537d04afc7ce76db46cbda747a1de90fb897fba1dadf66e5a3535bb078d2b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dangling-reference.json": {
+        "before": "21afa7bea034722e62d4d4336832f12bfce64ada31ea3418b50a3557ad4a3d1b",
+        "after": "21afa7bea034722e62d4d4336832f12bfce64ada31ea3418b50a3557ad4a3d1b",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/obligation-universe.json": {
+        "before": "c13448d0815b75bca62030bc5eb0f33899b5746fcf7fcaa4621325df5af87a09",
+        "after": "c13448d0815b75bca62030bc5eb0f33899b5746fcf7fcaa4621325df5af87a09",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-full.json": {
+        "before": "f4f10a36f9efb279f0d4e4b9f0f84691c8442e1bb6f607a65948053ef4b75871",
+        "after": "f4f10a36f9efb279f0d4e4b9f0f84691c8442e1bb6f607a65948053ef4b75871",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-item.json": {
+        "before": "176f65b7aca8843e86e3d9034f3387cf50aeeddef8837a0d3df3fb72fd7635b1",
+        "after": "176f65b7aca8843e86e3d9034f3387cf50aeeddef8837a0d3df3fb72fd7635b1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/missing-original-full.json": {
+        "before": "828b909fc171f46584aa24a6092d6d6b0013af09b807512f691be12a9f3baf80",
+        "after": "828b909fc171f46584aa24a6092d6d6b0013af09b807512f691be12a9f3baf80",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-full.json": {
+        "before": "3ebd31925f834780ec8a1cb7bfd34dbf5095c99ffa68485abda226eeb88e1d89",
+        "after": "3ebd31925f834780ec8a1cb7bfd34dbf5095c99ffa68485abda226eeb88e1d89",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/profiles.json": {
+        "before": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+        "after": "4311d5c78136ad5ffa43eaed07b38c1ae5f60de6495a3ebb75a94ef30bff48e2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-effect-identity.json": {
+        "before": "9e216f966618a76475d15cc0738275f7976fe02a157adb88a4ed42211ef7263d",
+        "after": "9e216f966618a76475d15cc0738275f7976fe02a157adb88a4ed42211ef7263d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-missing-key.json": {
+        "before": "3caef8b9555bff147cf0c72d9e1f00a3b0c4c5e9c0694464296cb4cb4b4fdfca",
+        "after": "3caef8b9555bff147cf0c72d9e1f00a3b0c4c5e9c0694464296cb4cb4b4fdfca",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-array-consumer.json": {
+        "before": "18b6a8cb796da6890fa4711a1a2223fb4503971b75f2f9a6e3d7caccdb9c411f",
+        "after": "18b6a8cb796da6890fa4711a1a2223fb4503971b75f2f9a6e3d7caccdb9c411f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-missing-hash-consumer.json": {
+        "before": "c33317c0ad6f5e19fb9d4d45d5a2278cdebd698d1d985dbabee1bd3c933037d2",
+        "after": "c33317c0ad6f5e19fb9d4d45d5a2278cdebd698d1d985dbabee1bd3c933037d2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-hash-compact.json": {
+        "before": "279a6caf379fa6075b739cdd0793d3d5ec934f5a17e5fc3a097f52dbd2e7aec3",
+        "after": "279a6caf379fa6075b739cdd0793d3d5ec934f5a17e5fc3a097f52dbd2e7aec3",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/typed_references.py": {
+        "before": "21a20cd1945a8e66e0a123b8efdd7b38e935de50b074bc811e700e1b297385d1",
+        "after": "21a20cd1945a8e66e0a123b8efdd7b38e935de50b074bc811e700e1b297385d1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-same-source-proved-change.json": {
+        "before": "3a9fc4bfe9730446e833a52dab78bb432b96c8576f7bf23cf690bbf02619db6e",
+        "after": "3a9fc4bfe9730446e833a52dab78bb432b96c8576f7bf23cf690bbf02619db6e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-compact-private-traversal.json": {
+        "before": "f3e489bd08cbfe7f8e50a78228b5dc246e186893f7e8570eff94ff62581bbd9a",
+        "after": "f3e489bd08cbfe7f8e50a78228b5dc246e186893f7e8570eff94ff62581bbd9a",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-chronological-relabel.json": {
+        "before": "4f484c20fc5649ba450c2ff748c1416a2dfab97cc9c8d2d19c4c945e422f3895",
+        "after": "4f484c20fc5649ba450c2ff748c1416a2dfab97cc9c8d2d19c4c945e422f3895",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-replay-reproof.json": {
+        "before": "a7f57998013c93d0bcaf4bdbc2249f44644b6aa6c40ab157580ca0fd33c78c70",
+        "after": "a7f57998013c93d0bcaf4bdbc2249f44644b6aa6c40ab157580ca0fd33c78c70",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-compact.json": {
+        "before": "e64a312bada693e087f3199db4c127321efb3a1a449cd7c599ec4ffc4f0cdf88",
+        "after": "e64a312bada693e087f3199db4c127321efb3a1a449cd7c599ec4ffc4f0cdf88",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-full.json": {
+        "before": "4a6b256e5957c5435c39a6d04bb6a800b28446f60874a41c49d737b1c3ca49bb",
+        "after": "4a6b256e5957c5435c39a6d04bb6a800b28446f60874a41c49d737b1c3ca49bb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-compact.json": {
+        "before": "f0706b3c9b2babb2e8fd9acce3f3284c019789c35ab94c522bd0ff9de3348269",
+        "after": "f0706b3c9b2babb2e8fd9acce3f3284c019789c35ab94c522bd0ff9de3348269",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-manifest.json": {
+        "before": "55ed1e96c6702e4cde244d2bc7075c73394da4728c9bcb9de3168d2295b23bec",
+        "after": "55ed1e96c6702e4cde244d2bc7075c73394da4728c9bcb9de3168d2295b23bec",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-value-tag.json": {
+        "before": "d867a10f462c1da1643f4ab5bdbff8c1e1382be719e0e176a5279abf26aa3eb0",
+        "after": "d867a10f462c1da1643f4ab5bdbff8c1e1382be719e0e176a5279abf26aa3eb0",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-carryover.json": {
+        "before": "368274dc3056f86678f3f5311df9f995204afb63c90435aaafa45808f49da7c1",
+        "after": "368274dc3056f86678f3f5311df9f995204afb63c90435aaafa45808f49da7c1",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/legacy-id-regressions.json": {
+        "before": "e269666379ebc81d7c970c14372d87acdb787dbbfedbfd16d85cedfcf167c3b7",
+        "after": "e269666379ebc81d7c970c14372d87acdb787dbbfedbfd16d85cedfcf167c3b7",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-dishonest-inapplicable.json": {
+        "before": "0fdb4e07fc8212b1064af82dbb605c04742d549a76186099b103a5a0810498bd",
+        "after": "0fdb4e07fc8212b1064af82dbb605c04742d549a76186099b103a5a0810498bd",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/author_fixtures.py": {
+        "before": "b789e736e686121469a78d00c7cae4194a2904ff30ff16ade86a508de6aa65af",
+        "after": "b789e736e686121469a78d00c7cae4194a2904ff30ff16ade86a508de6aa65af",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-ordinary.json": {
+        "before": "ad0ad4b958d84bc2dfcd1c30b03bd1eedaec337796bd3b1c60da1a483bd3d3cb",
+        "after": "ad0ad4b958d84bc2dfcd1c30b03bd1eedaec337796bd3b1c60da1a483bd3d3cb",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-crosswalk-foreign-owner.json": {
+        "before": "56336561d525e1b093eeaf1999d59729199383a03783efb00e4e1d24d84fb46d",
+        "after": "56336561d525e1b093eeaf1999d59729199383a03783efb00e4e1d24d84fb46d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-false-original-value.json": {
+        "before": "eef21e5ff962d963dfd45d0eaa69a7d59c8dfaf4b05c0853a10b90d8a4225833",
+        "after": "eef21e5ff962d963dfd45d0eaa69a7d59c8dfaf4b05c0853a10b90d8a4225833",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-full.json": {
+        "before": "316141d849beb72056da4aed1e132237448d5cf2a5869e9fc6b39861fa4fa8f8",
+        "after": "316141d849beb72056da4aed1e132237448d5cf2a5869e9fc6b39861fa4fa8f8",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/property-types.json": {
+        "before": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+        "after": "85c7b3f94a69dad7b5105d475cc62681ab1e591bf2f8cdf9c43ee3f11ee86537",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-extra-key.json": {
+        "before": "a08ebd788951e0664dff8ca49d39c29dd16382109fc39b5b884d788560bfb450",
+        "after": "a08ebd788951e0664dff8ca49d39c29dd16382109fc39b5b884d788560bfb450",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-unsupported-complete.json": {
+        "before": "a9ea2c45f1a17b597e6ada179aac63d8e83a5691a193d61657a4412976a0f2ed",
+        "after": "a9ea2c45f1a17b597e6ada179aac63d8e83a5691a193d61657a4412976a0f2ed",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/schema.json": {
+        "before": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+        "after": "5e555304407609cc2f717a083dfe7213a4a53a911a0b65a17992e29fbd26acce",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-history.json": {
+        "before": "39f6a6bde14f54e7bbe37b20fd44ad6a66db264db483709c4bd6a5b6f5dadd9d",
+        "after": "39f6a6bde14f54e7bbe37b20fd44ad6a66db264db483709c4bd6a5b6f5dadd9d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-concurrent-effects-full.json": {
+        "before": "579c19cafe8c766888cabaf322cccf7cc45250570ff9447f634c26f9aa64ab4e",
+        "after": "579c19cafe8c766888cabaf322cccf7cc45250570ff9447f634c26f9aa64ab4e",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-certificate-property.json": {
+        "before": "cd1ef5d9c3291fa4175526008b512184994798a12e204f3fc1c1db54a095ac47",
+        "after": "cd1ef5d9c3291fa4175526008b512184994798a12e204f3fc1c1db54a095ac47",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-consumer.json": {
+        "before": "02acd4dbd98e50197981cbc8dd064f05970508f429c720cbbc0b7139ec309106",
+        "after": "02acd4dbd98e50197981cbc8dd064f05970508f429c720cbbc0b7139ec309106",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-actionable-consumer.json": {
+        "before": "0e8c9a945b83189ea5691a1cffbf058cdd5dbff2bec4a44b60f9e5eeee1c623f",
+        "after": "0e8c9a945b83189ea5691a1cffbf058cdd5dbff2bec4a44b60f9e5eeee1c623f",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-broken-request.json": {
+        "before": "79a6ad7fe8c175fcb2365167d8ed006be212c339af016982744983bc265010ea",
+        "after": "79a6ad7fe8c175fcb2365167d8ed006be212c339af016982744983bc265010ea",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-discriminant.json": {
+        "before": "b8141a0cd282f6168ddf11380f2a6ace9bb085aa0e15aeb047f9cd6bb6e689df",
+        "after": "b8141a0cd282f6168ddf11380f2a6ace9bb085aa0e15aeb047f9cd6bb6e689df",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/inert-self-hash-compact.json": {
+        "before": "9acc6dc742e8e6a275f85bde892e151086e8cbabb3d01b39d7bad38b56a0f516",
+        "after": "9acc6dc742e8e6a275f85bde892e151086e8cbabb3d01b39d7bad38b56a0f516",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-consumer-privileged-field.json": {
+        "before": "6cbd685fa5e33770d963897c1cfcfdddb49e39480eea804b6c04659509b84897",
+        "after": "6cbd685fa5e33770d963897c1cfcfdddb49e39480eea804b6c04659509b84897",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-cross-source-parent.json": {
+        "before": "85ad5ae23ba7e11d027495930c9645652de9bc87c9212535c18f3bfc4fa19128",
+        "after": "85ad5ae23ba7e11d027495930c9645652de9bc87c9212535c18f3bfc4fa19128",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/revision_checks.py": {
+        "before": "aa85c6d05779c32898e21b0b69239169ef60b9699dda17cad22f0f0e7d25588c",
+        "after": "aa85c6d05779c32898e21b0b69239169ef60b9699dda17cad22f0f0e7d25588c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-old-source-fact-certificate.json": {
+        "before": "6bc6ed97d73bf4b9622f1da6e073f87b63dae31f53197c36be4ce5a49fdb66c7",
+        "after": "6bc6ed97d73bf4b9622f1da6e073f87b63dae31f53197c36be4ce5a49fdb66c7",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-inert-orphan-full.json": {
+        "before": "1c2e69f382d77ab4ba1eaa33581a45adf9566c4da064edcf5430bcf9809efa98",
+        "after": "1c2e69f382d77ab4ba1eaa33581a45adf9566c4da064edcf5430bcf9809efa98",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-ordinary.json": {
+        "before": "89470de82591329770438b7d4ed7f5291a509034b286d1a8d8e7a2fcc01b2b67",
+        "after": "89470de82591329770438b7d4ed7f5291a509034b286d1a8d8e7a2fcc01b2b67",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-weaker-profile.json": {
+        "before": "52c3e7e38b799e6be3667d2ed3f5f5aaa82ae4ecc335c2d8ccbb23249d5a9eb9",
+        "after": "52c3e7e38b799e6be3667d2ed3f5f5aaa82ae4ecc335c2d8ccbb23249d5a9eb9",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/representation-canaries.json": {
+        "before": "8d8f495972b1fb4114074096137f45d5bdfa4ee2c72ccf3ff0aa4ee7b635b292",
+        "after": "8d8f495972b1fb4114074096137f45d5bdfa4ee2c72ccf3ff0aa4ee7b635b292",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/negative-wrong-type.json": {
+        "before": "11c496095701bfa1ec264f37ad9a23bca5f85929f94ec7394e437743d1a0d98c",
+        "after": "11c496095701bfa1ec264f37ad9a23bca5f85929f94ec7394e437743d1a0d98c",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-compact.json": {
+        "before": "452a02656efd6aff68d59e8c2e6ac9e5e5b04d156391da7376fa8fa6d88fd97d",
+        "after": "452a02656efd6aff68d59e8c2e6ac9e5e5b04d156391da7376fa8fa6d88fd97d",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/canonical-controls-vector.json": {
+        "before": "e1d731f9152e1883b3b734d8cabdeecd3fe2d0fce9fab62d5dbaf84e981bf4cc",
+        "after": "e1d731f9152e1883b3b734d8cabdeecd3fe2d0fce9fab62d5dbaf84e981bf4cc",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p1-wait-consumer.json": {
+        "before": "7cbbf22fe70f203a707259c8ca78ebe0f81510f3792a204761b0795ce63b13a2",
+        "after": "7cbbf22fe70f203a707259c8ca78ebe0f81510f3792a204761b0795ce63b13a2",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/replay-suffix-full.json": {
+        "before": "079464d6b50f8388012afafb6b40e8d54fb5ce5dff7f2fd891169655b13f1346",
+        "after": "079464d6b50f8388012afafb6b40e8d54fb5ce5dff7f2fd891169655b13f1346",
+        "unchanged": true
+      },
+      "docs/contracts/fixtures/perspective-knowledge-v1/sim-p2-consumer.json": {
+        "before": "fec850e817aa7452d89e58cdc02deda8537c2e403722c56e04fd8bf57cfd10ab",
+        "after": "fec850e817aa7452d89e58cdc02deda8537c2e403722c56e04fd8bf57cfd10ab",
+        "unchanged": true
+      }
+    }
+  },
+  "dependency_provenance_reused": {
+    "sim-core/package.json": {
+      "accepted": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72",
+      "current": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72"
+    },
+    "sim-core/package-lock.json": {
+      "accepted": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88",
+      "current": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88"
+    },
+    "sim-core/node_modules/pokemon-showdown/package.json": {
+      "accepted": "561152e07c4a0f4a8ddb0ab60bc3f4c3225bac24b207a70545f528d5bc4727e9",
+      "current": "561152e07c4a0f4a8ddb0ab60bc3f4c3225bac24b207a70545f528d5bc4727e9"
+    },
+    "sim-core/node_modules/pokemon-showdown/dist/sim/index.js": {
+      "accepted": "9f45e9b8f8574c00ceef424ccd84298ce09aab9f17854839767612d38307f4e6",
+      "current": "9f45e9b8f8574c00ceef424ccd84298ce09aab9f17854839767612d38307f4e6"
+    },
+    "sim-core/node_modules/pokemon-showdown/build": {
+      "accepted": "9172c1b59203f31d5565ecd4aafbd2962741c5dc99cd3ac487d42e0e4fa854d0",
+      "current": "9172c1b59203f31d5565ecd4aafbd2962741c5dc99cd3ac487d42e0e4fa854d0"
+    },
+    "sim-core/node_modules/pokemon-showdown/PROTOCOL.md": {
+      "accepted": "399a301c48de30dabd849d5447c8a10cddca96feabbd3c1b4444239c20321dbd",
+      "current": "399a301c48de30dabd849d5447c8a10cddca96feabbd3c1b4444239c20321dbd"
+    }
+  },
+  "changed_and_new_inputs": {
+    "sim-core/src/env_manager.ts": "cb04df02dc7a5a9e267843e3719320d1bb96b7c42b3b4e04abd4f57bb44b7d6f",
+    "sim-core/tests/native11_update_overlay.test.cjs": "b1ef06e0db426a6374c2c200af7efc310866a4651a658d7285dd90a23429a518"
+  },
+  "preserved_failed_diagnostic": {
+    "perspective-fidelity-prompt50-exact-overlay-boundary.log": "1b2e2850848d9b536a84c7fb43f71a6f633cbc0214db87fb0567c221cbdb8c2c"
+  },
+  "affected_ignored_generated_outputs": {
+    "sim-core/dist/src/env_manager.js": "73e1dfe7efa8a4061132571bc9686009f2dcbc5a563c97a7b397d09be5d7b692"
+  },
+  "inventory_limit": "Scoped inputs/outputs only; no whole-tree/dependency rehash or acceptance attestation.",
+  "evidence": {
+    "perspective-fidelity-prompt51-P50-generated-health-writer-delivery-restore-and-privacy.log": "d5f7243348c739215d127b35b75e3d6e0d6550aea4e3875fd97b048151fabfb6",
+    "perspective-fidelity-prompt51-P50-scoped-decode-exceptions-and-final-barrier-rollback.log": "71281635705ca1d55500247e1cfa6efcdbafb832dce0e7c24759bf7d612c8891",
+    "perspective-fidelity-prompt51-actual-native-overlay-boundary.log": "c392f870e051e5c3b23849bb8286f51d50b82421e8bd4a55c96f5e0e63c7ef35",
+    "perspective-fidelity-prompt51-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "perspective-fidelity-prompt51-byte-parity.cjs": "0e2469a4a3c44578c5ee40d8f7395eca8822524ca23821a36436ff5df2a89c8a",
+    "perspective-fidelity-prompt51-candidate.diff": "8a99e2fd3f61a6cf3f7032aaf67f11c67bf51274b9d3767f6a1f6566a44b7612",
+    "perspective-fidelity-prompt51-commands.json": "ece1cf2f5e94432b06c6236b76928b6cc9c3da7e2aa9a0318f03117b67b189cb",
+    "perspective-fidelity-prompt51-exact-marker-validator.log": "78f6992d39723f109766b9086e756e4d8b496af91ed142df2193c916bf4d18a2",
+    "perspective-fidelity-prompt51-first-prompt.md": "56860adbe37645e14e2e521fbdb441962469566a1dbe0d8018d2b33c55f06ca6",
+    "perspective-fidelity-prompt51-report.md": "1db8b020e25e3f24c3a34c9a06635e752e9653d631daf49b2cd3b3f2721ee8c1",
+    "perspective-fidelity-prompt51-run.py": "a7a229a380b99cc9ed81c7010ec28b541c1b9c7ab6af4593b21c5c4e71d4c7b1",
+    "perspective-fidelity-prompt51-unaffected-literal-byte-parity.log": "74dbce4deb73f542514c28f997be6c4495fe51d504abb799c1a4577201f4e67e"
+  }
+}

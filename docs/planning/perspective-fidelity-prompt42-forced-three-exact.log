@@ -1,0 +1,88 @@
+P42_WITNESS {"name":"selection-post-prepare-rollback","revoked_before_cleanup":true,"both_exact_holdings_and_deliveries_retained":true,"fresh_retry":"executed by caller"}
+P42_WITNESS {"name":"generated-KO-blocker","steps":1,"boundary":"one_sided_forced_switch","error":"AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  ok(s.boundary.perspectives.p1.observation.protocol_prefix.some(r => r.startsWith('|faint|')))\n","generated_KO_restoration":"UNPROVED"}
+✖ P42 constructed forced B2 p1 (786.182583ms)
+✖ P42 constructed forced B2 p2 (108.7595ms)
+✖ P42 genuine generated KO forced B2 (129.499583ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1690.744041
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_forced_restore.test.js:11:29
+✖ P42 constructed forced B2 p1 (786.182583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /private|unsupported|extra|Unknown|Unexpected/i. Input:
+  
+  'Error: Observation Pokémon view does not match the supported public schema.'
+  
+      at publish (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:54:26)
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_forced_restore.test.js:29:51)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: Observation Pokémon view does not match the supported public schema.
+        at assertObservablePokemon (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:148:15)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:341:45
+        at Array.forEach (<anonymous>)
+        at assertObservation (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:341:24)
+        at validateObservableBattleState (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:401:5)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:709:58
+        at withTerminalOwner (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/public_health.js:183:16)
+        at validatePipelineEpisodeRecordBundle (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:705:43)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:54:102
+        at getActual (node:assert:611:5),
+    expected: /private|unsupported|extra|Unknown|Unexpected/i,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at sim-core/dist/tests/owner_identity_forced_restore.test.js:11:29
+✖ P42 constructed forced B2 p2 (108.7595ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /private|unsupported|extra|Unknown|Unexpected/i. Input:
+  
+  'Error: Observation Pokémon view does not match the supported public schema.'
+  
+      at publish (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:54:26)
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_forced_restore.test.js:29:51)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: Observation Pokémon view does not match the supported public schema.
+        at assertObservablePokemon (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:148:15)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:341:45
+        at Array.forEach (<anonymous>)
+        at assertObservation (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:341:24)
+        at validateObservableBattleState (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/belief_state.js:401:5)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:709:58
+        at withTerminalOwner (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/public_health.js:183:16)
+        at validatePipelineEpisodeRecordBundle (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:705:43)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:54:102
+        at getActual (node:assert:611:5),
+    expected: /private|unsupported|extra|Unknown|Unexpected/i,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at sim-core/dist/tests/owner_identity_forced_restore.test.js:37:25
+✖ P42 genuine generated KO forced B2 (129.499583ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    ok(s.boundary.perspectives.p1.observation.protocol_prefix.some(r => r.startsWith('|faint|')))
+  
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_forced_restore.test.js:46:26)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

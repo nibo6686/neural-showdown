@@ -1,3 +1,7 @@
+import { positiveFidelityScope, assertPositiveFidelityClaim, assertTargetEpisodeStatus } from './version_profile';
+import { installedNativeProfile } from './version_profile';
+import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { assertHistoricalReaderInput } from './version_profile';
 import { createHash } from 'node:crypto';
 import { canonicalActionFromLegalAction, type CanonicalAction } from './canonical_action';
 import {
@@ -68,29 +72,35 @@ export interface PipelineEpisodeResult {
 }
 
 /** False is conservative; true requires the full accepted capture and actor contracts. */
-export function validatePipelineEpisodeFaithfulClaim(result: PipelineEpisodeResult): boolean {
+export function validatePipelineEpisodeFaithfulClaim(result: PipelineEpisodeResult, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): boolean {
+  readerContext(rulesContext);
+  assertReaderInput(result, rulesContext);
   const fields = ['schema_version','run_id','battle_id','ruleset','policy_id','limits','status','stop','counts','initial_boundary','final_boundary','transition_ids','records','evidence_envelope','faithful_complete_episode'];
   if (result.schema_version !== PIPELINE_EPISODE_VERSION || typeof result.faithful_complete_episode !== 'boolean'
     || Object.keys(result).sort().join('|') !== fields.sort().join('|')) throw new Error('episode-faithful-schema');
+  assertPositiveFidelityClaim(rulesContext.profile.id, result.ruleset, result.faithful_complete_episode);
   const envelope = result.evidence_envelope;
   const eligible = result.ruleset === 'gen9randombattle' && result.status === 'completed'
     && result.stop.code === 'episode/v1/terminal' && envelope?.schema_version === 'pipeline-episode-evidence/v2'
     && envelope.closure?.complete_capture === true;
-  if (!eligible) {
+  if (!eligible && rulesContext.profile.id === 'historical10') {
     if (result.faithful_complete_episode) throw new Error('episode-faithful-ineligible');
     return false;
   }
+  if (!envelope) throw new Error('episode-faithful-evidence');
   validatePipelineEpisodeEvidence(envelope, result.records as unknown as Record<PlayerID, EpisodeEvidenceRecord[]>, {
     run_id: result.run_id, battle_id: result.battle_id, ruleset: result.ruleset, policy_id: result.policy_id,
     limits: result.limits, origin_kind: envelope.origin.kind, initial_boundary: result.initial_boundary,
-  } as EpisodeEvidenceExpectation);
+  } as EpisodeEvidenceExpectation, undefined, rulesContext);
+  if (rulesContext.profile.id !== 'historical10') assertTargetEpisodeStatus(result.status, result.stop, envelope.closure?.terminal !== null && envelope.closure?.terminal !== undefined);
   const keys = ['max_transitions', 'max_attempts', 'max_rejections_per_boundary'];
   if (!result.limits || Object.keys(result.limits).sort().join('|') !== keys.sort().join('|')
     || Object.values(result.limits).some(v => !Number.isSafeInteger(v) || v <= 0)) throw new Error('episode-faithful-limits');
   const counts = result.counts;
   if (Object.keys(counts).sort().join('|') !== ['attempts','committed_transitions','rejected_candidates','rejections_at_final_boundary'].sort().join('|')
     || Object.values(counts).some(v => !Number.isSafeInteger(v) || v < 0)
-    || counts.committed_transitions !== envelope.commits.length || counts.attempts !== counts.committed_transitions + counts.rejected_candidates
+    || counts.committed_transitions !== envelope.commits.length || (counts.attempts < counts.committed_transitions + counts.rejected_candidates
+      || counts.attempts > counts.committed_transitions + counts.rejected_candidates + (rulesContext.profile.id === 'historical10' ? 0 : 1))
     || counts.rejections_at_final_boundary > counts.rejected_candidates || counts.attempts > result.limits.max_attempts
     || counts.committed_transitions > result.limits.max_transitions || counts.rejections_at_final_boundary > result.limits.max_rejections_per_boundary
     || JSON.stringify(result.transition_ids) !== JSON.stringify(envelope.commits.map(c => c.transition.transition_id))) throw new Error('episode-faithful-counts');
@@ -101,8 +111,8 @@ export function validatePipelineEpisodeFaithfulClaim(result: PipelineEpisodeResu
       || summary.perspectives[p].request_state !== classifyPipelineRequestState(final.perspectives[p])
       || summary.perspectives[p].winner !== final.perspectives[p].view.winner
       || !/^belief-[a-f0-9]{64}$/.test(summary.perspectives[p].belief_id))) throw new Error('episode-faithful-final-boundary');
-  for (const p of PLAYERS) for (const record of result.records[p]) validatePipelineEpisodeRecordBundle(record);
-  return true;
+  for (const p of PLAYERS) for (const record of result.records[p]) validatePipelineEpisodeRecordBundle(record, rulesContext);
+  return eligible && positiveFidelityScope(rulesContext.profile.id, result.ruleset);
 }
 
 const DEFAULT_LIMITS: EpisodeLimits = { max_transitions: 256, max_attempts: 512, max_rejections_per_boundary: 3 };
@@ -174,19 +184,22 @@ function classifyError(error: unknown): { status: 'truncated' | 'failed'; stop: 
 
 /** Owns and closes a fresh session. Only the returned per-player bundles are records. */
 export async function runPipelineEpisode(options: PipelineEpisodeOptions): Promise<PipelineEpisodeResult> {
-  return executeEpisode(options.battle_id, options.format, options, () => createPipelineIntegrationSession(options));
+  const rulesContext = installedNativeProfile().reader;
+  return executeEpisode(options.battle_id, options.format, options, () => createPipelineIntegrationSession(options), undefined, undefined, rulesContext);
 }
 /** Transfers exclusive ownership of an existing session; outcome covers this segment only. */
 export async function continuePipelineEpisode(session: PipelineIntegrationSession, options: EpisodeContinuationOptions = {}): Promise<PipelineEpisodeResult> {
-  if (options.predecessor_evidence) validatePipelineEpisodePredecessor(options.predecessor_evidence, session.boundary, session.format);
-  return executeEpisode(session.battle_id, session.format, options, async () => session, session, options.predecessor_evidence ?? null);
+  const rulesContext = session.getReaderContext();
+  if (options.predecessor_evidence) validatePipelineEpisodePredecessor(options.predecessor_evidence, session.boundary, session.format, rulesContext);
+  return executeEpisode(session.battle_id, session.format, options, async () => session, session, options.predecessor_evidence ?? null, rulesContext);
 }
 
 async function executeEpisode(
   battleId: string, format: string, options: EpisodeExecutionOptions,
   create: () => Promise<PipelineIntegrationSession>, owned?: PipelineIntegrationSession,
-  predecessorEvidence: PipelineEpisodeEvidence | null = null,
+  predecessorEvidence: PipelineEpisodeEvidence | null = null, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): Promise<PipelineEpisodeResult> {
+  readerContext(rulesContext);
   const policy = options.policy_id ?? 'ascending-request-indices/v1';
   const result: PipelineEpisodeResult = {
     schema_version: PIPELINE_EPISODE_VERSION, run_id: '', battle_id: battleId, ruleset: format, policy_id: policy,
@@ -278,10 +291,10 @@ async function executeEpisode(
         run_id: result.run_id, battle_id: battleId, ruleset: format,
         kind: owned ? 'continuation_segment' : 'fresh_episode',
         boundaries: evidenceBoundaries, transitions: evidenceTransitions, predecessor: predecessorEvidence,
-      });
+      }, rulesContext);
       if (result.evidence_envelope) {
         evidenceStage = 'validation';
-        faithfulCandidate = validatePipelineEpisodeFaithfulClaim(result);
+        faithfulCandidate = validatePipelineEpisodeFaithfulClaim(result, rulesContext);
         if (!faithfulCandidate) validatePipelineEpisodeEvidence(
           result.evidence_envelope,
           result.records as unknown as Record<PlayerID, EpisodeEvidenceRecord[]>,
@@ -290,7 +303,7 @@ async function executeEpisode(
             policy_id: result.policy_id, limits: result.limits,
             origin_kind: owned ? 'continuation_segment' : 'fresh_episode',
             initial_boundary: result.initial_boundary,
-          } as EpisodeEvidenceExpectation,
+          } as EpisodeEvidenceExpectation, undefined, rulesContext
         );
       }
     } catch {
@@ -311,7 +324,12 @@ async function executeEpisode(
           ...(previous.evidence_failure_stage === undefined ? {} : {evidence_failure_stage: previous.evidence_failure_stage}) };
       }
     }
-    result.faithful_complete_episode = faithfulCandidate && result.status === 'completed' && result.stop.code === 'episode/v1/terminal';
+    result.faithful_complete_episode = positiveFidelityScope(rulesContext.profile.id, format) && faithfulCandidate && result.status === 'completed' && result.stop.code === 'episode/v1/terminal';
   }
   return result;
+}
+
+export function validateHistoricalPipelineEpisodeFaithfulClaim(result: PipelineEpisodeResult): boolean {
+  const rulesContext = HISTORICAL10_CONTEXT;
+  return validatePipelineEpisodeFaithfulClaim(result, rulesContext);
 }

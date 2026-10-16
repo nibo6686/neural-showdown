@@ -1,0 +1,120 @@
+[
+  {
+    "name": "target-B1-B2-test-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 3.903,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "birth-six-allowlist",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:B1 generated creation|B1 initial effects|B1 enrollment faults|B1 owner isolation|B1 activation failure|B1 close and restore)$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.612,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "restore-six-allowlist",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:B2 generated reordered continuity|B2 reference continuity|B2 parent and snapshot faults|B2 rollback|B2 owner privacy|B2 close and legacy)$",
+      "sim-core/dist/tests/owner_identity_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.678,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "birth-two-failed-diagnostic",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--require",
+      "/private/tmp/neural-prompt40-20261013/diagnostic.cjs",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^(?:B1 initial effects|B1 enrollment faults)$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.477,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "missing-observer-source-oracle-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 2.012,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "birth-enrollment-source-gate-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1 enrollment faults$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.6,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "restore-close-final-fixture",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B2 close and legacy$",
+      "sim-core/dist/tests/owner_identity_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.394,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "birth-close-final-fixture",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1 close and restore$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.442,
+    "timeout_seconds": 180
+  }
+]

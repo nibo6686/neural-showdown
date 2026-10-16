@@ -1,3 +1,4 @@
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -78,19 +79,20 @@ function commandFamily(command: string): { family: EffectFamily; categories: str
   return null;
 }
 
-export function classifyEffectRecord(command: string, rawValue: string): EffectDisposition {
+export function classifyEffectRecord(command: string, rawValue: string, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): EffectDisposition {
+  readerContext(rulesContext);
   const rule = commandFamily(command);
   if (!rule) return 'represented';
 
-  const special = manifest.effect_discovery.special_values.find((item) =>
+  const special = readerContext(rulesContext).inventory.effect_discovery.special_values.find((item: {commands: string[]; id: string; classification: string}) =>
     item.commands.includes(command) && item.id === toEffectID(rawValue));
   if (special) return special.classification as EffectDisposition;
 
   const sourcePrefix = /^(move|ability|item):\s*/i.exec(rawValue);
   const identifier = toEffectID(sourcePrefix ? rawValue.slice(sourcePrefix[0].length) : rawValue);
-  const item = entries.get(identifier);
+  const item = readerContext(rulesContext).effects[identifier];
   if (!item) throw new EffectInventoryError(command, rule.family, rawValue);
-  const lifecycle = lifecycleEntries.get(`${rule.family}:${identifier}`);
+  const lifecycle = readerContext(rulesContext).lifecycle[`${rule.family}:${identifier}`];
   if (lifecycle?.disposition === 'raw-only') return 'raw-only';
   if (lifecycle?.disposition === 'source-proven-unreachable' || lifecycle?.disposition === 'unsupported-fail-closed') {
     throw new EffectInventoryError(command, rule.family, rawValue, lifecycle.disposition);

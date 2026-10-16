@@ -1,0 +1,514 @@
+diff --git a/sim-core/src/env_manager.ts b/sim-core/src/env_manager.ts
+index fca793c..ae6aed7 100644
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { NativeBirthEnrollment } from './owner_identity_crosswalk';
+ import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
+ import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { isDeepStrictEqual } from 'node:util';
+@@ -743,6 +744,7 @@ export class LocalBattleEnv {
+ 
+   #requestTrace: RequestEmissionTrace | null = null;
+   readonly #originalCreation: OriginalOwnerCreation | undefined;
++  readonly #nativeBirth: NativeBirthEnrollment | undefined;
+   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
+   private readonly heuristicAgent: HeuristicBaselineAgent;
+   private battleStream: BattleStream | null;
+@@ -764,9 +766,12 @@ export class LocalBattleEnv {
+     controllers?: Partial<Record<PlayerID, ControllerSpec>>,
+     settlingOptions: SettlingOptions = {},
+     originalCreation?: OriginalOwnerCreation,
++    nativeBirth?: NativeBirthEnrollment,
+   ) {
+     this.#originalCreation = originalCreation;
+     originalCreation?.bind(this);
++    this.#nativeBirth = nativeBirth;
++    nativeBirth?.bind(this);
+     this.id = id;
+     this.format = format;
+     this.seed = createSeed(seed);
+@@ -827,6 +832,7 @@ export class LocalBattleEnv {
+       return result;
+     } catch (error) {
+       this.#originalCreation?.abortStaging();
++      this.#nativeBirth?.abortStaging();
+       this.#requestTrace?.invalidate();
+       this.#requestTrace = null;
+       throw error;
+@@ -841,6 +847,7 @@ export class LocalBattleEnv {
+ 
+   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions): Promise<StepResult> {
+     this.#originalCreation?.abandonForRestore(this);
++    this.#nativeBirth?.abandonForRestore(this);
+     // Validate a cloned snapshot before disrupting a running battle. The
+     // optional history is opaque restoration metadata, not simulator input.
+     const terminalHistory = readTerminalRequestHistory(serialized);
+@@ -973,6 +980,7 @@ export class LocalBattleEnv {
+ 
+   private initializeStreams(): void {
+     const trace = this.#requestTrace = new RequestEmissionTrace();
++    const nativeBirth = this.#nativeBirth, environment = this;
+     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
+     // _write synchronously emits requests then sendUpdates. Count at the source,
+     // before getPlayerStreams asynchronously fans out each message.
+@@ -980,6 +988,10 @@ export class LocalBattleEnv {
+       override _write(chunk: string): void {
+         trace.atProducer('native_emission', () => super._write(chunk));
+       }
++      override _writeLine(type: string, message: string): void {
++        super._writeLine(type, message);
++        if (type === 'start' && nativeBirth) nativeBirth.observe(environment, this.battle!);
++      }
+       override pushMessage(type: string, data: string): void {
+         trace.emitted(type, data);
+         settling.emitted(type, data);
+@@ -1148,6 +1160,7 @@ export class LocalBattleEnv {
+ 
+   async close(): Promise<void> {
+     this.#originalCreation?.abortStaging();
++    this.#nativeBirth?.abortStaging();
+     await this.destroyBattle();
+     this.initialized = false;
+   }
+diff --git a/sim-core/src/pipeline_integration.ts b/sim-core/src/pipeline_integration.ts
+index 3d4caca..efb5039 100644
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { NativeBirthEnrollment, type NativeBirthHandle, type NativeBirthEvidence } from './owner_identity_crosswalk';
+ import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
+ import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { carryTerminalOwner, withTerminalOwner } from './public_health';
+@@ -360,6 +361,7 @@ export class PipelineIntegrationSession {
+   readonly battle_id: string;
+   readonly format: string;
+   readonly #originalCreation: OriginalOwnerCreation;
++  readonly #nativeBirth: NativeBirthEnrollment;
+   readonly #deliveryLedger = new RequestDeliveryLedger();
+   #deliveryEnabled = false;
+   private readonly seed: number[];
+@@ -386,6 +388,7 @@ export class PipelineIntegrationSession {
+     this.seed = [...options.seed];
+     this.settlingOptions = { ...options.settling };
+     this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: SIMULATOR_REVISION });
++    this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
+     this.environment = this.newEnvironment('initial');
+     this.snapshot = null;
+     this.rawPrefix = [];
+@@ -403,15 +406,18 @@ export class PipelineIntegrationSession {
+       if (session.#originalCreation.activate()) {
+         const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
+         session.#deliveryLedger.commit(delivery);
++        session.#nativeBirth.activate();
+         session.#deliveryEnabled = true;
+       } else {
+         // The accepted unstarted-restore compatibility path has no birth authority.
+         session.#deliveryLedger.revoke();
++        session.#nativeBirth.revoke();
+       }
+       return session;
+     } catch (error) {
+       session.#deliveryLedger.revoke();
+       session.#originalCreation.revoke();
++      session.#nativeBirth.revoke();
+       await session.environment.close();
+       throw error;
+     }
+@@ -422,6 +428,16 @@ export class PipelineIntegrationSession {
+     return this.#originalCreation.holding(owner);
+   }
+ 
++  getNativeBirthHolding(owner: PlayerID): NativeBirthHandle {
++    this.ensureOpen();
++    return this.#nativeBirth.holding(owner);
++  }
++
++  readNativeBirthHolding(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
++    this.ensureOpen();
++    return this.#nativeBirth.read(handle, owner);
++  }
++
+   getRequestDeliveryHandle(owner: PlayerID): RequestDeliveryHandle {
+     this.ensureOpen();
+     return this.#deliveryLedger.handle(owner);
+@@ -672,6 +688,7 @@ export class PipelineIntegrationSession {
+     this.closed = true;
+     this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
++    this.#nativeBirth.revoke();
+     await this.environment.close();
+     for (const retired of this.retiredEnvironments) {
+       await retired.close();
+@@ -714,6 +731,7 @@ export class PipelineIntegrationSession {
+       { p1: { controller: 'external' }, p2: { controller: 'external' } },
+       this.settlingOptions,
+       suffix === 'initial' ? this.#originalCreation : undefined,
++      suffix === 'initial' ? this.#nativeBirth : undefined,
+     );
+   }
+ 
+diff --git a/sim-core/src/owner_identity_crosswalk.ts b/sim-core/src/owner_identity_crosswalk.ts
+new file mode 100644
+index 0000000..a71009c
+--- /dev/null
++++ b/sim-core/src/owner_identity_crosswalk.ts
+@@ -0,0 +1,127 @@
++import type { Battle } from 'pokemon-showdown';
++import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
++import type { PlayerID } from './types';
++
++export type NativeBirthHandle = Readonly<object>;
++export interface NativeBirthEvidence {
++  readonly owner: PlayerID;
++  readonly original: OriginalOwnerEvidence;
++  readonly slot_count: number;
++}
++const owners = ['p1', 'p2'] as const;
++function index(owner: PlayerID): number {
++  if (owner !== 'p1' && owner !== 'p2') throw new Error('native-birth/v1/invalid-owner');
++  return owner === 'p1' ? 0 : 1;
++}
++function fail(reason: string): never { throw new Error('native-birth/v1/' + reason); }
++
++/** Trusted session controller; native references never leave this private creation enrollment. */
++export class NativeBirthEnrollment {
++  #phase: 'new' | 'observing' | 'staged' | 'active' | 'invalid' = 'new';
++  #environment: object | null = null;
++  #battle: Battle | null = null;
++  #submission: { owner: PlayerID; options: object; occurrence: object; enrolled: boolean } | null = null;
++  #rows: Array<{ evidence: NativeBirthEvidence; sets: readonly object[]; occurrence: object } | undefined> = [];
++  #handles: NativeBirthHandle[] = [];
++  #detach: (() => void) | null = null;
++  readonly #originals: OriginalOwnerCreation;
++  constructor(originals: OriginalOwnerCreation) { this.#originals = originals; }
++
++  bind(environment: object): void {
++    if (this.#phase !== 'new' || this.#environment) this.reject('duplicate-environment');
++    this.#environment = environment;
++  }
++  private reject(reason: string): never { this.revoke(); return fail(reason); }
++
++  observe(environment: object, battle: Battle): void {
++    if (this.#phase !== 'new' || this.#environment !== environment || this.#battle) this.reject('foreign-or-duplicate-creation');
++    if (battle.started || battle.sides.some(side => !!side)) this.reject('late-observer');
++    // Possession of this exact creation controller and its bound env is required;
++    // packed bytes corroborate submission, never instantiate an original holder.
++    for (const owner of owners) this.#originals.diagnostic(environment, owner);
++    this.#battle = battle; this.#phase = 'observing';
++    const native = battle as any;
++    const setPlayer = native.setPlayer, getTeam = native.getTeam;
++    const playerDescriptor = Object.getOwnPropertyDescriptor(native, 'setPlayer');
++    const teamDescriptor = Object.getOwnPropertyDescriptor(native, 'getTeam');
++    this.#detach = () => {
++      if (playerDescriptor) Object.defineProperty(native, 'setPlayer', playerDescriptor); else delete native.setPlayer;
++      if (teamDescriptor) Object.defineProperty(native, 'getTeam', teamDescriptor); else delete native.getTeam;
++    };
++    native.setPlayer = (owner: PlayerID, options: { team?: unknown }) => {
++      const slot = index(owner);
++      if (this.#phase !== 'observing' || this.#submission || this.#rows[slot] || battle.sides[slot]) this.reject('duplicate-or-late-submission');
++      const original = this.#originals.diagnostic(environment, owner);
++      if (typeof options.team !== 'string' || options.team !== original.packed_team) this.reject('submission-mismatch');
++      const occurrence = Object.freeze(Object.create(null));
++      const submission = this.#submission = { owner, options, occurrence, enrolled: false };
++      try {
++        const value = setPlayer.call(battle, owner, options);
++        if (!submission.enrolled) this.reject('missing-enrollment');
++        if (this.#rows[0] && this.#rows[1]) this.detach();
++        return value;
++      } catch (error) { this.revoke(); throw error; }
++      finally { this.#submission = null; }
++    };
++    native.getTeam = (options: object) => {
++      const submission = this.#submission;
++      if (!submission || options !== submission.options || this.#phase !== 'observing') this.reject('unscoped-or-late-unpack');
++      const sets = getTeam.call(battle, options);
++      this.enroll(environment, battle, submission.occurrence, submission.owner, options, sets);
++      return sets;
++    };
++  }
++
++  /** Invoked only by the actual observed getTeam return, before Side construction. */
++  enroll(environment: object, battle: Battle, occurrence: object, owner: PlayerID, options: object, sets: readonly object[]): void {
++    const slot = index(owner), submission = this.#submission;
++    if (this.#phase !== 'observing' || this.#environment !== environment || this.#battle !== battle
++      || !submission || submission.occurrence !== occurrence || submission.owner !== owner || submission.options !== options) {
++      this.reject('foreign-or-late-enrollment');
++    }
++    if (submission.enrolled || this.#rows[slot]) this.reject('duplicate-enrollment');
++    if (battle.started || battle.sides[slot]) this.reject('post-construction-enrollment');
++    const original = this.#originals.diagnostic(environment, owner);
++    if ((options as { team?: unknown }).team !== original.packed_team) this.reject('submission-mismatch');
++    if (!Array.isArray(sets) || sets.length !== original.raw_team.length || !sets.length
++      || sets.some(set => !set || typeof set !== 'object' || Array.isArray(set)) || new Set(sets).size !== sets.length
++      || this.#rows.some(row => row?.sets.some(set => sets.includes(set)))) this.reject('invalid-set-occurrence');
++    this.#rows[slot] = { evidence: Object.freeze({ owner, original, slot_count: sets.length }), sets: Object.freeze([...sets]), occurrence };
++    submission.enrolled = true;
++    if (this.#rows[0] && this.#rows[1]) this.#phase = 'staged';
++  }
++
++  activate(): void {
++    if (this.#phase !== 'staged' || !this.#battle || this.#submission) this.reject('not-staged');
++    for (const owner of owners) {
++      const row = this.#rows[index(owner)]!, side = this.#battle[owner];
++      const held = this.#originals.read(this.#originals.holding(owner), owner);
++      if (held !== row.evidence.original || !side || side.team.length !== row.sets.length
++        || !side.team.every((set, i) => set === row.sets[i]) || side.pokemon.length !== row.sets.length
++        || side.pokemon.some(pokemon => !row.sets.includes(pokemon.set))
++        || new Set(side.pokemon.map(pokemon => pokemon.set)).size !== row.sets.length) this.reject('constructor-association-mismatch');
++    }
++    this.#handles = owners.map(() => Object.freeze(Object.create(null)));
++    this.#phase = 'active'; this.#environment = null; this.#battle = null;
++  }
++  holding(owner: PlayerID): NativeBirthHandle {
++    const slot = index(owner);
++    if (this.#phase !== 'active') fail('unavailable');
++    return this.#handles[slot];
++  }
++  read(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
++    const slot = index(owner);
++    if (this.#phase !== 'active' || handle !== this.#handles[slot]) fail('foreign-or-forged-holding');
++    return this.#rows[slot]!.evidence;
++  }
++  abandonForRestore(environment: object): void {
++    if (this.#phase !== 'new' || this.#environment !== environment) this.reject('restore-cannot-mint-birth');
++    this.revoke();
++  }
++  abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
++  private detach(): void { this.#detach?.(); this.#detach = null; }
++  revoke(): void {
++    this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
++    this.#submission = null; this.#rows = []; this.#handles = [];
++  }
++}
+diff --git a/sim-core/tests/owner_identity_birth.test.ts b/sim-core/tests/owner_identity_birth.test.ts
+new file mode 100644
+index 0000000..a49b664
+--- /dev/null
++++ b/sim-core/tests/owner_identity_birth.test.ts
+@@ -0,0 +1,225 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { BattleStream, Teams } from 'pokemon-showdown';
++import { NativeBirthEnrollment } from '../src/owner_identity_crosswalk';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { LocalBattleEnv } from '../src/env_manager';
++import type { PlayerID } from '../src/types';
++
++const owners = ['p1', 'p2'] as const;
++const options = { battle_id: 'B1', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
++const env = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
++const holding = (s: PipelineIntegrationSession, owner: PlayerID) => s.readNativeBirthHolding(s.getNativeBirthHolding(owner), owner);
++const original = (s: PipelineIntegrationSession, owner: PlayerID) => s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner);
++const evidence = (name: string, data: object) => console.log('B1_WITNESS ' + JSON.stringify({ name, ...data }));
++type EnrollmentArgs = Parameters<NativeBirthEnrollment['enroll']>;
++
++async function observe<T>(body: (rows: Array<{ controller: NativeBirthEnrollment; args: EnrollmentArgs; before: unknown[] }>) => Promise<T>) {
++  const enroll = NativeBirthEnrollment.prototype.enroll;
++  const rows: Array<{ controller: NativeBirthEnrollment; args: EnrollmentArgs; before: unknown[] }> = [];
++  NativeBirthEnrollment.prototype.enroll = function(...args) {
++    assert.ok(!args[1].started && !args[1].sides[args[3] === 'p1' ? 0 : 1]);
++    for (const owner of owners) assert.throws(() => this.holding(owner), /unavailable/);
++    rows.push({ controller: this, args, before: structuredClone([...args[5]]) });
++    return enroll.apply(this, args);
++  };
++  try { return await body(rows); } finally { NativeBirthEnrollment.prototype.enroll = enroll; }
++}
++
++test('B1 generated creation', async () => observe(async rows => {
++  let session: PipelineIntegrationSession | undefined;
++  try {
++    session = await PipelineIntegrationSession.create(options);
++    assert.equal(rows.length, 2); assert.equal(rows[0].controller, rows[1].controller);
++    assert.notEqual(rows[0].args[2], rows[1].args[2], 'distinct submitted owner occurrences');
++    for (const [i, owner] of owners.entries()) {
++      const row = rows[i], born = holding(session, owner), held = original(session, owner);
++      assert.equal(row.args[3], owner); assert.equal(born.original, held); assert.equal(born.slot_count, 6);
++      assert.equal((row.args[4] as { team: string }).team, held.packed_team);
++      assert.deepEqual(row.before, Teams.unpack(held.packed_team));
++      const side = row.args[1][owner]!;
++      for (const [j, set] of row.args[5].entries()) assert.equal(side.team[j], set);
++      assert.ok(side.pokemon.every(p => row.args[5].includes(p.set)));
++      assert.ok(Object.isFrozen(born) && Object.isFrozen(held.raw_team));
++      assert.deepEqual(Object.keys(born), ['owner', 'original', 'slot_count']);
++    }
++    evidence('generated', { level: 'actual-generated-session', owners: owners.map(owner => ({ owner, slots: holding(session!, owner).slot_count })),
++      before_construction: true, original_reference_binding: true, separate_occurrences: true });
++  } finally { await session?.close(); }
++}));
++
++test('B1 initial effects', async () => {
++  const controls = [
++    ['Trace', 'Alakazam\nAbility: Trace\n- Splash', 'Alakazam', 'naturalcure', 'splash'],
++    ['Imposter', 'Ditto\nAbility: Imposter\n- Transform', 'Blissey', 'naturalcure', 'softboiled'],
++    ['Schooling', 'Wishiwashi\nAbility: Schooling\nLevel: 100\n- Splash', 'Wishiwashi-School', 'schooling', 'splash'],
++    ['Crowned', 'Zacian @ Rusted Sword\nAbility: Intrepid Sword\n- Iron Head', 'Zacian-Crowned', 'intrepidsword', 'behemothblade'],
++  ];
++  for (const owner of owners) for (const [label, text, species, ability, move] of controls) {
++    await observe(async rows => {
++      const generate = Teams.generate; let calls = 0, session: PipelineIntegrationSession | undefined;
++      const raw = Teams.import(text)!;
++      Teams.generate = function() { return structuredClone(owners[calls++] === owner ? raw : Teams.import('Blissey\nAbility: Natural Cure\n- Soft-Boiled')!); };
++      try {
++        session = await PipelineIntegrationSession.create(options);
++        const row = rows.find(r => r.args[3] === owner)!; const native = row.args[1][owner]!.active[0];
++        assert.equal(native.set, row.args[5][0]); assert.equal(native.species.name, species); assert.equal(native.ability, ability);
++        assert.equal((row.args[1][owner]!.activeRequest as any).active[0].moves[0].id, move);
++        assert.deepEqual(holding(session, owner).original.raw_team, raw);
++        assert.equal(holding(session, owner).original, original(session, owner));
++        assert.notEqual(row.before[0], native.set);
++        evidence(label + '-' + owner, { level: 'actual-session-constructed-mechanic', owner, before_species: (row.before[0] as any).species,
++          current_species: species, move, same_set_reference: true, generated_reachability: 'not-certified' });
++      } finally { Teams.generate = generate; await session?.close(); }
++    });
++  }
++});
++
++test('B1 enrollment faults', async () => {
++  const enroll = NativeBirthEnrollment.prototype.enroll, observer = NativeBirthEnrollment.prototype.observe;
++  const activate = NativeBirthEnrollment.prototype.activate, pushError = BattleStream.prototype.pushError, generate = Teams.generate, close = LocalBattleEnv.prototype.close;
++  const cases: Array<[string, RegExp]> = [
++    ['missing-owner', /missing-enrollment/], ['duplicate', /duplicate-enrollment/], ['wrong-owner-equal-bytes', /foreign-or-late-enrollment/],
++    ['submission', /submission-mismatch/], ['occurrence', /foreign-or-late-enrollment/], ['environment', /foreign-or-late-enrollment/],
++    ['side-reference', /constructor-association-mismatch/], ['pokemon-reference', /constructor-association-mismatch/],
++    ['late', /foreign-or-late-enrollment/], ['missing-observer', /not-staged/], ['late-observer', /late-observer/],
++  ];
++  for (const [fault, pattern] of cases) {
++    let controller: NativeBirthEnrollment | undefined, saved: EnrollmentArgs | undefined;
++    const nativeErrors: string[] = []; let cleanupChecks = 0;
++    LocalBattleEnv.prototype.close = function() {
++      assert.ok(controller);
++      for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
++      cleanupChecks++; return close.call(this);
++    };
++    BattleStream.prototype.pushError = function(error, recoverable) { nativeErrors.push(error.message); return pushError.call(this, error, recoverable); };
++    NativeBirthEnrollment.prototype.observe = function(environment, battle) {
++      controller = this;
++      if (fault === 'missing-observer') return;
++      if (fault === 'late-observer') battle.started = true;
++      return observer.call(this, environment, battle);
++    };
++    if (fault === 'wrong-owner-equal-bytes') Teams.generate = function() { return Teams.import('Same (Snorlax)\nAbility: Immunity\n- Splash')!; };
++    NativeBirthEnrollment.prototype.enroll = function(...args) {
++      controller = this; saved = args;
++      if (fault === 'missing-owner' && args[3] === 'p2') return;
++      if (fault === 'wrong-owner-equal-bytes') args[3] = 'p2';
++      if (fault === 'submission') (args[4] as { team: string }).team += '|foreign';
++      if (fault === 'occurrence') args[2] = {};
++      if (fault === 'environment') args[0] = {};
++      enroll.apply(this, args);
++      if (fault === 'duplicate') enroll.apply(this, args);
++    };
++    NativeBirthEnrollment.prototype.activate = function() {
++      if (fault === 'late') return enroll.apply(this, saved!);
++      const side = saved?.[1].p1;
++      if (fault === 'side-reference') {
++        assert.ok(side); side.team[0] = { ...side.team[0] }; // Equal values are not the enrolled reference.
++      }
++      if (fault === 'pokemon-reference') {
++        assert.ok(side); Object.defineProperty(side.pokemon[1], 'set', { value: side.pokemon[0].set });
++      }
++      return activate.call(this);
++    };
++    try {
++      let outer: Error | undefined;
++      await assert.rejects(PipelineIntegrationSession.create(options), (error: Error) => { outer = error; return true; });
++      assert.ok([...nativeErrors, outer!.message].some(message => pattern.test(message)), 'exact B1 semantic rejection: ' + fault);
++      assert.ok(controller); assert.ok(cleanupChecks > 0, 'revocation observed before cleanup');
++      for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
++      evidence(fault, { level: 'actual-runtime-fault-rejection', expected: pattern.source, authority_unavailable_both_owners: true, revoked_before_cleanup: true });
++    } finally {
++      NativeBirthEnrollment.prototype.enroll = enroll; NativeBirthEnrollment.prototype.observe = observer;
++      NativeBirthEnrollment.prototype.activate = activate; BattleStream.prototype.pushError = pushError; Teams.generate = generate; LocalBattleEnv.prototype.close = close;
++    }
++  }
++});
++
++test('B1 owner isolation', async () => {
++  let session: PipelineIntegrationSession | undefined, foreign: PipelineIntegrationSession | undefined;
++  try {
++    session = await PipelineIntegrationSession.create(options); foreign = await PipelineIntegrationSession.create(options);
++    for (const owner of owners) {
++      const handle = session.getNativeBirthHolding(owner), other = owner === 'p1' ? 'p2' : 'p1';
++      assert.throws(() => session!.readNativeBirthHolding(handle, other), /foreign-or-forged-holding/);
++      for (const copied of [{}, { ...handle }, structuredClone(handle), JSON.parse(JSON.stringify(handle)), foreign.getNativeBirthHolding(owner)]) {
++        assert.throws(() => session!.readNativeBirthHolding(copied, owner), /foreign-or-forged-holding/);
++      }
++      assert.equal(session.readNativeBirthHolding(handle, owner).original.owner, owner);
++      assert.equal(Reflect.ownKeys(handle).length, 0);
++      const view = session.boundary.perspectives[owner].observation;
++      const wire = JSON.stringify({ view, boundary: session.boundary, snapshot: env(session).serializeBattle(), diagnostics: env(session).diagnostics() });
++      for (const forbidden of ['nativeBirth', 'NativeBirth', 'slot_count', 'creation_sequence', 'raw_team', 'packed_team', 'occurrence']) assert.ok(!wire.includes('"' + forbidden + '"'));
++      assert.ok(!Object.keys(session).some(key => /birth|original/i.test(key)));
++      assert.deepEqual(Object.keys(holding(session, owner)), ['owner', 'original', 'slot_count']);
++    }
++    // Existing raw native snapshots intentionally contain engine sets/seeds. B1 adds none;
++    // the exact preservation control checks those historical bytes independently.
++    evidence('isolation', { level: 'actual-generated-session', cross_owner_rejects: 2, forged_or_foreign_rejects: 10,
++      private_controller_not_enumerable: true, no_birth_fields_in_existing_outputs: true });
++  } finally { await session?.close(); await foreign?.close(); }
++});
++
++test('B1 activation failure', async () => {
++  const activate = NativeBirthEnrollment.prototype.activate, close = LocalBattleEnv.prototype.close, enroll = NativeBirthEnrollment.prototype.enroll;
++  let enrollments = 0;
++  NativeBirthEnrollment.prototype.enroll = function(...args) { const value = enroll.apply(this, args); enrollments++; return value; };
++  let controller: NativeBirthEnrollment | undefined;
++  let release!: () => void, reached!: () => void;
++  const cleanupGate = new Promise<void>(resolve => { release = resolve; });
++  const cleanupReached = new Promise<void>(resolve => { reached = resolve; });
++  NativeBirthEnrollment.prototype.activate = function() {
++    controller = this; assert.equal(enrollments, 2);
++    for (const owner of owners) assert.throws(() => this.holding(owner), /unavailable/);
++    throw new Error('B1-after-tentative-before-activation');
++  };
++  LocalBattleEnv.prototype.close = async function() {
++    if (controller) for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
++    reached(); await cleanupGate; return close.call(this);
++  };
++  const creation = PipelineIntegrationSession.create(options);
++  // Attach rejection handling before waiting so the harness has no unhandled promise.
++  const rejected = assert.rejects(creation, /B1-after-tentative-before-activation/);
++  try {
++    await cleanupReached; assert.ok(controller);
++    for (const owner of owners) assert.throws(() => controller!.holding(owner), /unavailable/);
++    release(); await rejected;
++    evidence('activation-failure', { level: 'actual-session-fault-after-enrollment', revoked_before_async_cleanup: true });
++  } finally { release(); NativeBirthEnrollment.prototype.activate = activate; LocalBattleEnv.prototype.close = close; NativeBirthEnrollment.prototype.enroll = enroll; }
++});
++
++test('B1 close and restore', async () => {
++  const observer = NativeBirthEnrollment.prototype.observe, reset = LocalBattleEnv.prototype.resetWithOptions, diagnostics = LocalBattleEnv.prototype.diagnostics;
++  let observations = 0, session: PipelineIntegrationSession | undefined, legacy: PipelineIntegrationSession | undefined;
++  const donor = new LocalBattleEnv('B1-legacy', options.format, options.seed);
++  NativeBirthEnrollment.prototype.observe = function(...args) { observations++; return observer.apply(this, args); };
++  try {
++    session = await PipelineIntegrationSession.create(options);
++    const handles = owners.map(owner => session!.getNativeBirthHolding(owner));
++    const rows = owners.map(owner => holding(session!, owner)); const initial = observations;
++    const boundary = session.boundary;
++    LocalBattleEnv.prototype.diagnostics = function() { const value = diagnostics.call(this); return this.id.includes('step-') ? { ...value, last_error: 'B1-candidate-rejection' } : value; };
++    await assert.rejects(session.step(), /rejected-action/);
++    assert.equal(session.boundary, boundary);
++    for (const [i, owner] of owners.entries()) {
++      assert.equal(session.getNativeBirthHolding(owner), handles[i]);
++      assert.equal(session.readNativeBirthHolding(handles[i], owner), rows[i]);
++    }
++    LocalBattleEnv.prototype.diagnostics = diagnostics;
++    await session.step(); assert.equal(observations, initial, 'actual candidate restore never calls birth observer');
++    for (const [i, owner] of owners.entries()) assert.equal(session.readNativeBirthHolding(handles[i], owner), rows[i]);
++    const closing = session.close();
++    for (const [i, owner] of owners.entries()) assert.throws(() => session!.readNativeBirthHolding(handles[i], owner), /closed/);
++    await closing;
++    await donor.reset(); const snapshot = donor.serializeBattle();
++    LocalBattleEnv.prototype.resetWithOptions = function(opts) { return this.resetFromSerialized(structuredClone(snapshot), opts); };
++    legacy = await PipelineIntegrationSession.create(options);
++    for (const owner of owners) assert.throws(() => legacy!.getNativeBirthHolding(owner), /unavailable/);
++    await legacy.step();
++    for (const owner of owners) assert.throws(() => legacy!.getNativeBirthHolding(owner), /unavailable/);
++    evidence('lifetime-restore', { level: 'actual-generated-session-and-legacy-restore', no_restore_observer_calls: true,
++      rejected_candidate_preserves_exact_handles_and_rows: true, historical_holding_survives_retirement: true, synchronous_close_denial: true, legacy_birth_unavailable: true,
++      restored_object_mapping: 'unsupported B2' });
++  } finally { NativeBirthEnrollment.prototype.observe = observer; LocalBattleEnv.prototype.resetWithOptions = reset; LocalBattleEnv.prototype.diagnostics = diagnostics;
++    await session?.close(); await legacy?.close(); await donor.close(); }
++});

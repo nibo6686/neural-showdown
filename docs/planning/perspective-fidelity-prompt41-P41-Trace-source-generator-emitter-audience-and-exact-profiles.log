@@ -1,0 +1,106 @@
+✖ P41 Trace source generator emitter audience and exact profiles (523.747459ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1163.630083
+
+✖ failing tests:
+
+test at sim-core/dist/tests/native11_trace.test.js:56:25
+✖ P41 Trace source generator emitter audience and exact profiles (523.747459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      'Adaptability',
+      'Aftermath',
+      'Air Lock',
+      'Analytic',
+  ...
+      'Fur Coat',
+  -   'Gale Wings',
+      'Galvanize',
+      'Good as Gold',
+      'Gooey',
+      'Grassy Surge',
+      'Grim Neigh',
+  ...
+      'Static',
+  +   'Steely Spirit',
+      'Sticky Hold',
+      'Storm Drain',
+      'Strong Jaw',
+      'Sturdy',
+      'Supreme Overlord',
+  
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/native11_trace.test.js:61:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [
+      'Adaptability',  'Aftermath',       'Air Lock',         'Analytic',
+      'Anger Shell',   'Arena Trap',      'Aroma Veil',       'Bad Dreams',
+      'Beads of Ruin', 'Berserk',         'Big Pecks',        'Blaze',
+      'Bulletproof',   'Cheek Pouch',     'Chilling Neigh',   'Chlorophyll',
+      'Clear Body',    'Cloud Nine',      'Competitive',      'Compound Eyes',
+      'Contrary',      'Corrosion',       'Cud Chew',         'Cursed Body',
+      'Cute Charm',    'Damp',            'Dancer',           'Dauntless Shield',
+      'Defiant',       'Download',        "Dragon's Maw",     'Drizzle',
+      'Drought',       'Dry Skin',        'Early Bird',       'Earth Eater',
+      'Effect Spore',  'Electric Surge',  'Electromorphosis', 'Filter',
+      'Flame Body',    'Flash Fire',      'Flower Veil',      'Fluffy',
+      'Frisk',         'Full Metal Body', 'Fur Coat',         'Galvanize',
+      'Good as Gold',  'Gooey',           'Grassy Surge',     'Grim Neigh',
+      'Gulp Missile',  'Guts',            'Hadron Engine',    'Harvest',
+      'Heatproof',     'Heavy Metal',     'Huge Power',       'Hustle',
+      'Hydration',     'Ice Body',        'Ice Scales',       'Infiltrator',
+      'Inner Focus',   'Insomnia',        'Intimidate',       'Intrepid Sword',
+      'Iron Fist',     'Justified',       'Keen Eye',         'Leaf Guard',
+      'Levitate',      'Libero',          'Light Metal',      'Lightning Rod',
+      'Limber',        'Liquid Ooze',     'Liquid Voice',     'Magic Bounce',
+      'Magic Guard',   'Magician',        'Magnet Pull',      'Mega Launcher',
+      "Mind's Eye",    'Mirror Armor',    'Mold Breaker',     'Motor Drive',
+      'Moxie',         'Multiscale',      'Mycelium Might',   'Natural Cure',
+      'No Guard',      'Oblivious',       'Orichalcum Pulse', 'Overcoat',
+      'Overgrow',      'Own Tempo',       'Pickpocket',       'Pixilate',
+      ... 86 more items
+    ],
+    expected: [
+      'Adaptability',   'Aftermath',       'Air Lock',         'Analytic',
+      'Anger Shell',    'Arena Trap',      'Aroma Veil',       'Bad Dreams',
+      'Beads of Ruin',  'Berserk',         'Big Pecks',        'Blaze',
+      'Bulletproof',    'Cheek Pouch',     'Chilling Neigh',   'Chlorophyll',
+      'Clear Body',     'Cloud Nine',      'Competitive',      'Compound Eyes',
+      'Contrary',       'Corrosion',       'Cud Chew',         'Cursed Body',
+      'Cute Charm',     'Damp',            'Dancer',           'Dauntless Shield',
+      'Defiant',        'Download',        "Dragon's Maw",     'Drizzle',
+      'Drought',        'Dry Skin',        'Early Bird',       'Earth Eater',
+      'Effect Spore',   'Electric Surge',  'Electromorphosis', 'Filter',
+      'Flame Body',     'Flash Fire',      'Flower Veil',      'Fluffy',
+      'Frisk',          'Full Metal Body', 'Fur Coat',         'Gale Wings',
+      'Galvanize',      'Good as Gold',    'Gooey',            'Grassy Surge',
+      'Grim Neigh',     'Gulp Missile',    'Guts',             'Hadron Engine',
+      'Harvest',        'Heatproof',       'Heavy Metal',      'Huge Power',
+      'Hustle',         'Hydration',       'Ice Body',         'Ice Scales',
+      'Infiltrator',    'Inner Focus',     'Insomnia',         'Intimidate',
+      'Intrepid Sword', 'Iron Fist',       'Justified',        'Keen Eye',
+      'Leaf Guard',     'Levitate',        'Libero',           'Light Metal',
+      'Lightning Rod',  'Limber',          'Liquid Ooze',      'Liquid Voice',
+      'Magic Bounce',   'Magic Guard',     'Magician',         'Magnet Pull',
+      'Mega Launcher',  "Mind's Eye",      'Mirror Armor',     'Mold Breaker',
+      'Motor Drive',    'Moxie',           'Multiscale',       'Mycelium Might',
+      'Natural Cure',   'No Guard',        'Oblivious',        'Orichalcum Pulse',
+      'Overcoat',       'Overgrow',        'Own Tempo',        'Pickpocket',
+      ... 86 more items
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

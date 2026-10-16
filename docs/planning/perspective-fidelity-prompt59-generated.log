@@ -1,0 +1,24 @@
+✖ P59 generated both owners restore reorder and real decision caller (167.108291ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1264.083083
+
+✖ failing tests:
+
+test at sim-core/dist/tests/original_owner_loadout.test.js:109:25
+✖ P59 generated both owners restore reorder and real decision caller (167.108291ms)
+  Error: native-original-values/v1/rules
+      at need (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/src/original_owner_values.js:10:11)
+      at interpretOriginalValues (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/src/original_owner_values.js:14:5)
+      at nativeOwnerStartingFacts (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/src/native_owner_knowledge.js:184:88)
+      at NativeOwnerKnowledgeController.prepare (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/src/native_owner_knowledge.js:71:65)
+      at PipelineIntegrationSession.create (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/src/pipeline_integration.js:339:60)
+      at async create (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/tests/original_owner_loadout.test.js:61:16)
+      at async TestContext.<anonymous> (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/tests/original_owner_loadout.test.js:110:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

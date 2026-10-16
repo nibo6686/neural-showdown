@@ -1,0 +1,22 @@
+B2_WITNESS {"name":"missing-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"foreign-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"same-label-sibling-parent","level":"actual-session-rejection","expected":"foreign-or-missing-parent","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-snapshot","level":"actual-session-rejection","expected":"foreign-serialization-occurrence","committed_associations_unchanged":true}
+B2_WITNESS {"name":"set-copy","level":"actual-session-rejection","expected":"snapshot-reference-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"permutation","level":"actual-session-rejection","expected":"snapshot-content-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"snapshot-owner","level":"actual-session-rejection","expected":"snapshot-content-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"missing-ticket","level":"actual-session-rejection","expected":"foreign-or-stale-restore-ticket","committed_associations_unchanged":true}
+B2_WITNESS {"name":"copied-ticket","level":"actual-session-rejection","expected":"foreign-or-stale-restore-ticket","committed_associations_unchanged":true}
+B2_WITNESS {"name":"wrong-native-owner","level":"actual-session-rejection","expected":"reconstructed-object-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"final-input-set-copy","level":"actual-session-rejection","expected":"reconstruction-input-occurrence-mismatch","committed_associations_unchanged":true}
+B2_WITNESS {"name":"final-input-row-copy","level":"actual-session-rejection","expected":"reconstruction-input-occurrence-mismatch","committed_associations_unchanged":true}
+✔ B2 parent and snapshot faults (613.358334ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1050.089542

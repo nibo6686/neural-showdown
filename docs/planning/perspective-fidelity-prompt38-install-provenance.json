@@ -1,0 +1,74 @@
+{
+  "prompt": 38,
+  "recorded_at": "2026-10-13",
+  "scope": "Candidate sim-core dependency installation and provenance only; no source implementation, build, test, import, simulator execution, or generation.",
+  "candidate_root": "/private/tmp/neural-showdown-native11-prompt38",
+  "candidate_package_root": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+  "original_root": "/Users/nbolger/Desktop/neural-showdown",
+  "runtime": {
+    "node": "v24.21.0",
+    "node_path": "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+    "npm": "11.19.0",
+    "npm_path": "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/npm",
+    "isolated_cache": "/private/tmp/neural-npm-cache-prompt38"
+  },
+  "verified_artifact": {
+    "path": "/private/tmp/neural-prompt29-20261012/0.11.11.tgz",
+    "bytes": 16897160,
+    "version": "0.11.11",
+    "sha256": "49af14aaed1084887f756372c7386c9987905930cc848ed31e9202c10c592d66",
+    "sha1": "2b2f877df641a231a0078512505c9a84a39084a7",
+    "integrity": "sha512-FdW7gt3TkG4AdXmpMTPYX2kx42VEfY8tQApjW9wEHOGzwH6Kn97wD0o5uIzAc4xpO1W+Tim70Ti9+FNkMNCA2w==",
+    "registry_tarball": "https://registry.npmjs.org/pokemon-showdown/-/pokemon-showdown-0.11.11.tgz",
+    "registry_gitHead": "739a5e1fee432ad80ff7136d70cca993be358b59",
+    "registry_metadata": "/private/tmp/neural-prompt29-20261012/npm-0.11.11.json",
+    "tag_metadata": "/private/tmp/neural-prompt29-20261012/tag11.json",
+    "engine": ">=16.0.0",
+    "tar_package_json_sha256": "561152e07c4a0f4a8ddb0ab60bc3f4c3225bac24b207a70545f528d5bc4727e9"
+  },
+  "commands": [
+    {
+      "command": "shasum -a 256 0.11.11.tgz; shasum -a 1 0.11.11.tgz; openssl dgst -sha512 -binary 0.11.11.tgz | base64",
+      "result": "success; all three values match the accepted Prompt29 artifact evidence"
+    },
+    {
+      "command": "npm install /private/tmp/neural-prompt29-20261012/0.11.11.tgz --save-exact --ignore-scripts --no-audit --no-fund",
+      "result": "exit 124 at the 180-second process-group deadline; sandbox DNS returned ENOTFOUND for registry manifests; no candidate files changed"
+    },
+    {
+      "command": "npm install /private/tmp/neural-prompt29-20261012/0.11.11.tgz --ignore-scripts --no-save --package-lock=false --no-audit --no-fund",
+      "result": "exit 0; added 186 packages in 7s using the verified local artifact; elevated network path was required for transitive manifests"
+    },
+    {
+      "command": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
+      "result": "exit 0; lock reconciled to the exact manifest and registry resolutions"
+    }
+  ],
+  "lifecycle": {
+    "ignore_scripts": true,
+    "reason": "The verified 0.11.11 tarball ships compiled dist/sim/index.js, declarations, and build output; no lifecycle build is needed for the installed artifact.",
+    "lock_has_install_script": false
+  },
+  "candidate_identity": {
+    "package_json_sha256": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72",
+    "package_lock_sha256": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88",
+    "package_lock_version": 3,
+    "lock_package_count": 213,
+    "installed_package_json_sha256": "561152e07c4a0f4a8ddb0ab60bc3f4c3225bac24b207a70545f528d5bc4727e9",
+    "installed_sim_index_sha256": "9f45e9b8f8574c00ceef424ccd84298ce09aab9f17854839767612d38307f4e6",
+    "installed_build_sha256": "9172c1b59203f31d5565ecd4aafbd2962741c5dc99cd3ac487d42e0e4fa854d0",
+    "installed_protocol_sha256": "399a301c48de30dabd849d5447c8a10cddca96feabbd3c1b4444239c20321dbd",
+    "installed_package_json_byte_identical_to_tar_member": true
+  },
+  "original_preservation": {
+    "original_sim_core_package_json_sha256": "1a81e29560c44c3997437e4f2cf22e2312e71e32448f600394dd5c0d1413f3f4",
+    "original_sim_core_package_lock_sha256": "4897b92e6a6c82db2b8fe5cedb69c9b15386a0bff4d8d2a30b7a2c6d1d9a33c5",
+    "original_dependency_tree_modified": false
+  },
+  "validation_exclusions": [
+    "No simulator imports or runtime execution",
+    "No candidate build",
+    "No tests or generated creation/step/restore canary",
+    "No source or dependency edits in the original checkout"
+  ]
+}

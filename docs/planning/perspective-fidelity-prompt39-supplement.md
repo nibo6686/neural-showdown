@@ -1,0 +1,11 @@
+# Prompt39 supplemental equal-byte committed-delivery proof
+
+**PASS — pending proof executed; return for lead acceptance.** Only the existing candidate CJS case changed. Distinctly named Snorlax/Blissey teams with Immunity/Healer and no items perform two legal joint switches, chosen from each current owned request, returning to the original active configuration. Fixture is constructed; generated reachability is unproved.
+
+Initial and returning native request records compare strictly without normalization/editing: p1=811 bytes, p2=812 bytes. Intermediate requests differ. Both owners have committed sequences0→1→2, three distinct delivery references and native producer occurrences, exact predecessor observation/branch/step joins, retained independently held originals through the original handles and current native holdings, and unchanged initial history objects. Successful ordinary session validation remains enabled.
+
+Exact case: `P39 equal literal requests commit fresh deliveries through real transitions`, selected with anchored Node `--test-name-pattern` against `sim-core/tests/native11_request_timing.test.cjs`. Final exit0, one pass, no other case executed; real180-second process-group deadline. No build or accepted-check rerun. The first corrected run encountered a test-only enum typo (`joint_decision`); source inspection corrected it to the actual `joint_actionable`, then this same exact case passed. Both attempts have distinct logs; no fixture cycling or production repair occurred.
+
+All262 protected candidate inputs match lead-accepted hashes; production, health validation, package/locks, quarantine and positive-fidelity policy are unchanged. The original duplicate-label failure log retains its hash. Earlier reports remain historical checkpoints; this supplement supplies the formerly pending proof without relabeling that failure.
+
+[Final log](perspective-fidelity-prompt39-equal-literal-committed-deliveries-corrected-kind.log), [test-only diff](perspective-fidelity-prompt39-supplement.diff), [hashes](perspective-fidelity-prompt39-supplement-hashes.json), [commands](perspective-fidelity-prompt39-commands.json). No commits/publication/training. Expanded B1/B2, semantic closure and B3/B4 remain later. Stop for lead disposition.

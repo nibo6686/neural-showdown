@@ -1,0 +1,13 @@
+P42_WITNESS {"name":"selection-post-prepare-rollback","revoked_before_cleanup":true,"both_exact_holdings_and_deliveries_retained":true,"fresh_retry":"executed by caller"}
+P42_WITNESS {"name":"revival-p1","level":"actual-constructed-creation-through-native-revival-held-restore","healer":"Pawmot","waiting":"p2","selected_original_slot":1,"selected_party_slot":2,"orders":{"p1":[2,1,3],"p2":[1,2]},"returning_orders":{"p1":[1,2,3],"p2":[1,2]},"heal":"|-heal|p1: First|50/100|[from] move: Revival Blessing","actor_only_publication":true,"silent_status_faint_clear":true,"ordinary_continuation":true}
+P42_WITNESS {"name":"revival-p2","level":"actual-constructed-creation-through-native-revival-held-restore","healer":"Rabsca","waiting":"p1","selected_original_slot":1,"selected_party_slot":2,"orders":{"p2":[2,1,3],"p1":[1,2]},"returning_orders":{"p2":[1,2,3],"p1":[1,2]},"heal":"|-heal|p2: First|50/100|[from] move: Revival Blessing","actor_only_publication":true,"silent_status_faint_clear":true,"ordinary_continuation":true}
+✔ P42 constructed revival B2 p1 (797.765583ms)
+✔ P42 constructed revival B2 p2 (304.467083ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1259.529

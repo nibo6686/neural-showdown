@@ -1,0 +1,23 @@
+✖ P31 historical TS readers (459.286958ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 954.930375
+
+✖ failing tests:
+
+test at sim-core/dist/tests/version_profile_dispatch.test.js:70:25
+✖ P31 historical TS readers (459.286958ms)
+  Error: evidence-terminal-perspectives
+      at terminalEvidence (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/pipeline_episode_evidence.js:102:15)
+      at createPipelineEpisodeEvidence (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/pipeline_episode_evidence.js:188:19)
+      at fixtures (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/version_profile_dispatch.test.js:43:84)
+      at TestContext.<anonymous> (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/version_profile_dispatch.test.js:76:15)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)

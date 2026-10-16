@@ -1,0 +1,49 @@
+[
+  {
+    "immutable": true,
+    "interleaved_historical_unchanged": true,
+    "name": "python-context-negatives",
+    "target_semantics_unproved": true,
+    "unsupported_before_semantics": true
+  },
+  {
+    "branches": 4,
+    "exact_context": true,
+    "name": "python-recursive",
+    "nested_evidence_calls": 5,
+    "old_literals": true,
+    "singleton_mutation_isolated": true
+  },
+  {
+    "name": "historical-context",
+    "actual_saved_readers": true,
+    "nested_observation_calls": 24,
+    "exact_context": true,
+    "legacy_global_mutation_isolated": true,
+    "identities_unchanged": true,
+    "target_semantics_unproved": true
+  },
+  {
+    "name": "runtime-ownership",
+    "actual_installed_paths_checked": true,
+    "model_metadata_fault_injected_at_real_read": true,
+    "constructors_rejected_before_native_creation": true,
+    "copied_descriptor_rejected": true
+  },
+  {
+    "compact_literal": true,
+    "invalid_exit": 2,
+    "invalid_stdout": "",
+    "name": "python-cli"
+  },
+  {
+    "name": "producer-canary",
+    "actual_generated_old_runtime": true,
+    "manager_and_session": true,
+    "one_step": true,
+    "extractor_contexts": 16,
+    "both_owner_birth_restore_delivery_available": true,
+    "context_absent_from_wire": true,
+    "target_coexistence_unproved": true
+  }
+]

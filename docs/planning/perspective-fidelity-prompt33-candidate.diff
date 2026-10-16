@@ -1,0 +1,411 @@
+--- before/sim-core/src/pipeline_integration.ts
++++ after/sim-core/src/pipeline_integration.ts
+@@ -567,6 +567,7 @@
+     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
+     try {
+       const associationTicket = this.#deliveryEnabled ? this.#objectAssociation.prepareRestore(candidate, inputBoundary, inputSnapshot) : undefined;
++      if (associationTicket) this.#objectAssociation.assertRestoreAdmission(candidate, inputSnapshot.simulator_state, associationTicket);
+       const restored = await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS, associationTicket);
+       const restoration = this.#deliveryEnabled ? this.#deliveryLedger.restored(candidate, restored, inputBoundary) : undefined;
+       const candidateSnapshot = candidate.captureSeededSnapshot(null);
+--- before/sim-core/src/owner_identity_crosswalk.ts
++++ after/sim-core/src/owner_identity_crosswalk.ts
+@@ -266,6 +266,13 @@
+     if (!pending || ticket !== pending.ticket || pending.parent !== this.#current?.parent) associationFail('foreign-or-stale-restore-ticket');
+     return pending;
+   }
++  /** Read-only admission of the already held pending B2 chain, before any clone or native probe. */
++  assertRestoreAdmission(environment: object, serialized: Record<string, unknown>, ticket?: NativeRestoreTicket): void {
++    const pending = this.pending(environment, ticket);
++    this.checkSnapshot(pending.source);
++    if (pending.source !== this.#current?.entry || serialized !== pending.source.snapshot.simulator_state
++      || pending.input || pending.battle) associationFail('restore-admission-mismatch');
++  }
+   beforeRestore(environment: object, serialized: Record<string, unknown>, input: Record<string, unknown>, ticket?: NativeRestoreTicket): void {
+     if (this.#disabled) return;
+     const pending = this.pending(environment, ticket);
+@@ -330,3 +337,14 @@
+     this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
+   }
+ }
++
++
++/** Policy decisions only: supplied strings never enroll a native world or authorize reconstruction. */
++export function snapshotRestorePolicy(packageVersion: string): 'legacy' | 'held-b2-required' {
++  if (packageVersion === '0.11.10') return 'legacy';
++  if (packageVersion === '0.11.11') return 'held-b2-required';
++  throw new Error('snapshot-admission/v1/unsupported-runtime');
++}
++export function assertBeliefForkPolicy(packageVersion: string): void {
++  if (snapshotRestorePolicy(packageVersion) !== 'legacy') throw new Error('snapshot-admission/v1/belief-fork-unsupported');
++}
+--- before/sim-core/src/env_manager.ts
++++ after/sim-core/src/env_manager.ts
+@@ -1,3 +1,5 @@
++import { randomBytes } from 'node:crypto';
++import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
+ import { installedNativeProfile, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
+ import { NativeBirthEnrollment, NativeObjectAssociation, type NativeRestoreTicket } from './owner_identity_crosswalk';
+ import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
+@@ -605,6 +607,7 @@
+     this.currentRequest = null;
+     this.waitingRequest = null;
+     this.pendingChoice = choice;
++    this.env.noteLiveWrite();
+     void this.stream.write(choice);
+   }
+ 
+@@ -666,7 +669,8 @@
+       this.currentRequest = null;
+       this.pendingChoice = 'default';
+       this.invalidChoices.clear();
+-      void this.stream.write('default');
++      this.env.noteLiveWrite();
++    void this.stream.write('default');
+       return;
+     }
+ 
+@@ -680,6 +684,7 @@
+     const decision = this.suggest(this.controller);
+     this.currentRequest = null;
+     this.pendingChoice = decision.choice;
++    this.env.noteLiveWrite();
+     void this.stream.write(decision.choice);
+   }
+ 
+@@ -706,7 +711,8 @@
+         const decision = this.suggest(this.controller, filteredRequest);
+         this.currentRequest = null;
+         this.pendingChoice = decision.choice;
+-        void this.stream.write(decision.choice);
++        this.env.noteLiveWrite();
++    void this.stream.write(decision.choice);
+         return;
+       }
+       this.env.markError(new Error(`Player ${this.player}: ${message} after choice ${choice || 'unknown'}.`));
+@@ -743,6 +749,9 @@
+ }
+ 
+ export class LocalBattleEnv {
++  #liveWorldOccurrence: object = Object.freeze(Object.create(null));
++  getLiveWorldOccurrence(): object { return this.#liveWorldOccurrence; }
++  noteLiveWrite(): void { this.#liveWorldOccurrence = Object.freeze(Object.create(null)); }
+   readonly #runtimeProfile: NativeRuntimeProfile;
+   getReaderContext(): ReaderContext { return this.#runtimeProfile.reader; }
+   readonly id: string;
+@@ -815,6 +824,7 @@
+   }
+ 
+   async resetWithOptions(options?: StepResultOptions): Promise<StepResult> {
++    this.noteLiveWrite();
+     this.#originalCreation?.begin(this);
+     try {
+       await this.destroyBattle();
+@@ -861,6 +871,11 @@
+   }
+ 
+   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions, associationTicket?: NativeRestoreTicket): Promise<StepResult> {
++    if (snapshotRestorePolicy(this.#runtimeProfile.package_version) === 'held-b2-required') {
++      if (!this.#objectAssociation) throw new Error('snapshot-admission/v1/raw-restore-unsupported');
++      this.#objectAssociation.assertRestoreAdmission(this, serialized, associationTicket);
++    }
++    this.noteLiveWrite();
+     this.#originalCreation?.abandonForRestore(this);
+     this.#nativeBirth?.abandonForRestore(this);
+     if (this.#nativeBirth) this.#objectAssociation?.disableLegacy(this);
+@@ -1189,6 +1204,7 @@
+   }
+ 
+   async close(): Promise<void> {
++    this.noteLiveWrite();
+     this.#originalCreation?.abortStaging();
+     this.#nativeBirth?.abortStaging();
+     this.#objectAssociation?.release(this);
+@@ -1294,6 +1310,7 @@
+   }
+ 
+   markError(error: Error): void {
++    this.noteLiveWrite();
+     this.lastError = error;
+     this.settling.fail('simulator-error');
+   }
+@@ -1315,6 +1332,7 @@
+   }
+ 
+   private async destroyCurrentBattle(): Promise<void> {
++    this.noteLiveWrite();
+     this.#requestTrace?.invalidate();
+     this.#requestTrace = null;
+     this.settling.fail('cancelled');
+@@ -1431,7 +1449,8 @@
+     assertNativeRuntimeProfile(runtimeProfile); this.#runtimeProfile = runtimeProfile;
+   }
+   private readonly envs = new Map<string, LocalBattleEnv>();
+-  private readonly snapshotHandles = new Map<string, { envId: string; snapshot: SeededBattleSnapshot }>();
++  private readonly snapshotHandles = new Map<string, { envId: string; environment: LocalBattleEnv; occurrence: object; snapshot: SeededBattleSnapshot }>();
++  private readonly snapshotNamespace = BigInt('0x' + randomBytes(16).toString('hex')).toString();
+   private nextId = 1;
+   private nextSnapshotHandle = 1;
+ 
+@@ -1443,6 +1462,7 @@
+   }
+ 
+   async resetEnv(envId: string, options?: StepResultOptions): Promise<StepResult> {
++    this.revokeSnapshots(envId);
+     return this.requireEnv(envId).resetWithOptions(options);
+   }
+ 
+@@ -1452,10 +1472,11 @@
+     beliefSeed: number[],
+     options?: StepResultOptions,
+   ): Promise<{ env_id: string; result: StepResult; belief: BeliefForkMetadata }> {
++    assertBeliefForkPolicy(this.#runtimeProfile.package_version);
+     const source = this.requireEnv(sourceEnvId);
+     const serialized = source.serializeBattle();
+     const view = source.buildResponseView(perspective, false);
+-    const built = buildBeliefSnapshot(serialized, view, perspective, source.format, beliefSeed);
++    const built = buildBeliefSnapshot(serialized, view, perspective, source.format, beliefSeed, this.#runtimeProfile);
+     const envId = `env-${this.nextId++}`;
+     const env = new LocalBattleEnv(envId, source.format, source.seed, {
+       p1: { controller: 'external' },
+@@ -1519,7 +1540,7 @@
+       throw new Error('Seeded transition RPC snapshots must use an opaque server-managed handle.');
+     }
+     const stored = this.snapshotHandles.get(request.snapshot.snapshot_handle);
+-    if (!stored || stored.envId !== envId) {
++    if (!stored || stored.envId !== envId || stored.environment !== env || stored.occurrence !== env.getLiveWorldOccurrence()) {
+       throw new Error('Unknown seeded transition snapshot handle.');
+     }
+     const snapshot = stored.snapshot;
+@@ -1541,13 +1562,20 @@
+       actions: request.actions,
+       step_index: request.step_index,
+     };
+-    const result = await env.stepSeededTransition(internalRequest, options);
++    let result: SeededTransitionResult;
++    try { result = await env.stepSeededTransition(internalRequest, options); }
++    catch (error) {
++      if (stored.occurrence !== env.getLiveWorldOccurrence()) this.revokeSnapshots(envId);
++      throw error;
++    }
++    this.revokeSnapshots(envId);
+     const outputHandle = this.storeSnapshot(envId, result.output_snapshot);
+     return toSeededTransitionPublicResult(result, outputHandle);
+   }
+ 
+   async closeEnv(envId: string): Promise<{ env_id: string; closed: true }> {
+     const env = this.requireEnv(envId);
++    this.revokeSnapshots(envId);
+     await env.close();
+     this.envs.delete(envId);
+     for (const [handle, stored] of this.snapshotHandles) {
+@@ -1580,6 +1608,7 @@
+   }
+ 
+   async closeAll(): Promise<void> {
++    this.snapshotHandles.clear();
+     for (const env of this.envs.values()) {
+       await env.close();
+     }
+@@ -1588,9 +1617,15 @@
+   }
+ 
+   private storeSnapshot(envId: string, snapshot: SeededBattleSnapshot): string {
+-    const handle = `snapshot-${this.nextSnapshotHandle++}`;
+-    this.snapshotHandles.set(handle, { envId, snapshot: structuredClone(snapshot) });
++    const environment = this.requireEnv(envId), occurrence = environment.getLiveWorldOccurrence();
++    for (const [key, held] of this.snapshotHandles) if (held.envId === envId && held.occurrence !== occurrence) this.snapshotHandles.delete(key);
++    const handle = `snapshot-${this.snapshotNamespace}${this.nextSnapshotHandle++}`;
++    this.snapshotHandles.set(handle, { envId, environment, occurrence, snapshot: structuredClone(snapshot) });
+     return handle;
++  }
++
++  private revokeSnapshots(envId: string): void {
++    for (const [handle, held] of this.snapshotHandles) if (held.envId === envId) this.snapshotHandles.delete(handle);
+   }
+ 
+   private requireEnv(envId: string): LocalBattleEnv {
+--- before/sim-core/src/belief_fork.ts
++++ after/sim-core/src/belief_fork.ts
+@@ -1,3 +1,5 @@
++import { installedNativeProfile, assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
++import { assertBeliefForkPolicy } from './owner_identity_crosswalk';
+ import { Battle, Dex, Teams, toID } from 'pokemon-showdown';
+ import type { BattleView, PlayerID } from './types';
+ 
+@@ -135,7 +137,10 @@
+   perspective: PlayerID,
+   format: string,
+   beliefSeed: number[],
++  runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
+ ): { snapshot: AnyRecord; metadata: BeliefForkMetadata } {
++  assertNativeRuntimeProfile(runtimeProfile);
++  assertBeliefForkPolicy(runtimeProfile.package_version);
+   const snapshot = structuredClone(serialized);
+   const opponent: PlayerID = perspective === 'p1' ? 'p2' : 'p1';
+   const opponentIndex = opponent === 'p1' ? 0 : 1;
+--- before/docs/contracts/SEEDED_TRANSITION.md
++++ after/docs/contracts/SEEDED_TRANSITION.md
+@@ -224,3 +224,7 @@
+ The action is captured only after live canonical request validation. Restoration validates its legal historical request slot, stable owned fullname/base species against pinned source `side.active[0]` (including an entry-hazard faint), and source emission order. A regular choice begins after the last turn record. A forced replacement begins at Battle.go's exact blank/timestamp frame immediately preceding its sole switch. Wrong side, slot, force flag, cursor, version, and missing provenance reject before environment replacement. No terminal future request or pending action is synthesized.
+ 
+ This metadata is private simulator-snapshot restoration data. It is covered by the existing snapshot fingerprint but never enters canonical public observation identity, public protocol, or opponent roster. Public ordinary/full/bulk publication independently validates predecessor, canonical action, transition, origin and prefix joins; it does not trust snapshot metadata. Legacy bare terminal simulator JSON remains readable with its existing limitation: it cannot recover private history it never retained. These implementations await independent acceptance and leave complete-episode gates open.
++
++### Prompt33 candidate: managed live handle admission
++
++Opaque manager handles address a held snapshot plus the exact environment and private world/reset occurrence. JSON reference copies address that existing entry; raw state/foreign/restarted handles cannot enroll. Preflight failure retains a valid entry for retry. Native choice writes invalidate the previous occurrence; successful seeded execution consumes prior entries and issues a fresh output handle. Reset/close/cleanup and post-write failure revoke stale access before awaited cleanup. This is live-world stepping, not B2 reconstruction or portable snapshot import. Wire fields and canonical identity algorithms are unchanged.
+--- before/docs/contracts/BELIEF_STATE.md
++++ after/docs/contracts/BELIEF_STATE.md
+@@ -265,3 +265,7 @@
+ ## Perspective knowledge opt-in candidate (PK-01)
+ 
+ The separately reviewed candidate [PERSPECTIVE_KNOWLEDGE.md](PERSPECTIVE_KNOWLEDGE.md) freezes an external identity-bound audit/context and trusted single-perspective output. It does not adopt a runtime route or alter existing schema keys, canonical bytes, identity/history meanings, publication eligibility or accepted fidelity flags. Existing consumers remain unchanged; opt-in requires later authorized implementation and source/semantic review. The caller must validate legacy observation/belief/record/history joins independently before accepting a knowledge binding. A matching context hash, source label or imported projection is insufficient. Legacy replay builders remain outside the new contract; no silent fallback.
++
++### Prompt33 candidate: target belief-fork restriction
++
++Historical10 belief forks retain existing behavior. Prepared native11 policy rejects manager/RPC forks before serialization, team sampling, donor Battle construction and manager-map mutation. The direct buildBeliefSnapshot helper checks internally owned installed provenance and applies the same restriction before cloning/sampling. No caller version certificate can authorize a fork. Actual target execution remains a deferred LIVE activation gate.
+--- before/docs/contracts/PIPELINE_INTEGRATION.md
++++ after/docs/contracts/PIPELINE_INTEGRATION.md
+@@ -400,3 +400,7 @@
+ See the PIPELINE-002 checkpoint for exact scope and identities. Selective stage clears,
+ other excluded effects, feature extraction and broader lifecycle completeness remain
+ separate gates. `faithful_complete_episode:false` remains required.
++
++### Prompt33 candidate: target restore admission
++
++Prepared native11 policy supports only the existing private B2 pending parent/held serialization/ticket chain. Admission checks exact references, unchanged contents, current parent and unreconstructed pending state before cloning, overlay validation probes, authority abandonment, fromJSON, retirement or writes. Target standalone/initial authority-free raw restore is unsupported. Historical10 legacy restores remain compatible. This adds no snapshot schema, caller version certificate, birth authority or portable import. Old-runtime PRE policy/caller evidence and deferred actual target LIVE evidence remain distinct.
+--- /dev/null
++++ sim-core/tests/snapshot_admission.test.ts
+@@ -0,0 +1,132 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { Battle, Teams } from 'pokemon-showdown';
++import { snapshotRestorePolicy, assertBeliefForkPolicy, NativeObjectAssociation } from '../src/owner_identity_crosswalk';
++import { LocalBattleEnv, EnvironmentManager } from '../src/env_manager';
++import { PipelineIntegrationSession, projectPipelineProtocolPrefix } from '../src/pipeline_integration';
++import { installedNativeProfile } from '../src/version_profile';
++import { buildBeliefSnapshot } from '../src/belief_fork';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++import { projectObservableBattleState } from '../src/observable_state';
++import { SEEDED_TRANSITION_SCHEMA_VERSION } from '../src/transition';
++import type { StepResult, PlayerID } from '../src/types';
++const owners = ['p1','p2'] as const;
++const seed = [1,2,3,4];
++const emit = (name: string, data: object) => console.log('P33_WITNESS '+JSON.stringify({name,...data}));
++function actions(result: StepResult) { return Object.fromEntries(owners.map(p => {
++  const r=result.requests[p]!; return [p,canonicalActionFromLegalAction(r,r.legal_actions.available_indices[0])];
++})) as any; }
++function observations(result: StepResult, prefix: string[]) { return Object.fromEntries(owners.map(p => [p,projectObservableBattleState({
++  schema_version:'observable-battle-state/v1',source_kind:'sim_core',battle_id:result.env_id,perspective:p,snapshot_phase:'pre_decision',
++  protocol_prefix:projectPipelineProtocolPrefix(prefix),
++  view:result.views[p]!,request:result.requests[p]!,
++})])) as any; }
++const options = {view_players:[...owners], include_log_delta:true};
++function wire(result: StepResult, snapshot: any, step_index=0, prefix: string[]=result.log_delta!) { return {schema_version:SEEDED_TRANSITION_SCHEMA_VERSION,snapshot,observations:observations(result,prefix),actions:actions(result),step_index}; }
++
++test('P33 PRE fixed policy and held admission', async () => {
++  assert.equal(snapshotRestorePolicy('0.11.10'),'legacy'); assert.equal(snapshotRestorePolicy('0.11.11'),'held-b2-required');
++  assert.throws(()=>snapshotRestorePolicy('unknown'),/unsupported-runtime/);
++  assertBeliefForkPolicy('0.11.10'); assert.throws(()=>assertBeliefForkPolicy('0.11.11'),/belief-fork-unsupported/);
++  let s: PipelineIntegrationSession|undefined, legacy: LocalBattleEnv|undefined, checks=0;
++  const admission=NativeObjectAssociation.prototype.assertRestoreAdmission, fromJSON=Battle.fromJSON;
++  let reconstructions=0;
++  Battle.fromJSON=function(...args:any[]) {reconstructions++; return (fromJSON as any).apply(this,args);};
++  NativeObjectAssociation.prototype.assertRestoreAdmission=function(env,serialized,ticket) {
++    checks++;const before=reconstructions;
++    assert.throws(()=>admission.call(this,env,serialized,undefined),/restore-ticket/);
++    assert.throws(()=>admission.call(this,env,serialized,{...ticket}),/restore-ticket/);
++    assert.throws(()=>admission.call(this,{},serialized,ticket),/restore-ticket/);
++    assert.throws(()=>admission.call(this,env,structuredClone(serialized),ticket),/admission-mismatch/);
++    assert.equal(reconstructions,before);
++    return admission.call(this,env,serialized,ticket);
++  };
++  try {
++    s=await PipelineIntegrationSession.create({battle_id:'P33-held',format:'gen9randombattle',seed});
++    const saved=structuredClone((s as any).snapshot.simulator_state);
++    const a=Object.fromEntries(owners.map(p=>{const r=s!.boundary.perspectives[p].observation.request!;return [p,canonicalActionFromLegalAction(r,r.legal_actions.available_indices[0])];})) as any;
++    await s.step(a); assert.equal(checks,1);
++    legacy=new LocalBattleEnv('P33-legacy','gen9randombattle',seed);
++    const restored=await legacy.resetFromSerialized(saved,options);
++    assert.equal(restored.requests.p1?.side.length,6);
++    const built=buildBeliefSnapshot(saved,restored.views.p1!,'p1','gen9randombattle',seed);
++    assert.equal(built.snapshot.sides.length,2);
++    emit('pre-policy',{target_policy_only:true,actual_old_held_session:true,actual_old_raw_restore_and_direct_belief:true,
++      rejected_chain_controls_before_fromJSON:true,target_callers:'UNEXECUTED'});
++  } finally {NativeObjectAssociation.prototype.assertRestoreAdmission=admission;Battle.fromJSON=fromJSON;await legacy?.close();await s?.close();}
++});
++
++test('P33 PRE live handle lifecycle', async () => {
++  const manager=new EnvironmentManager();let id=manager.createEnv('gen9randombattle',seed).env_id;
++  const make=(r: StepResult, ref: any, index=0)=>wire(r,ref,index,(manager as any).envs.get(id).logLines);
++  try {
++    let result=await manager.resetEnv(id,options);const ref=manager.captureSeededSnapshotEnv(id), held=make(result,JSON.parse(JSON.stringify(ref)));
++    const bad=structuredClone(held);bad.snapshot.branch_id='branch-'+'0'.repeat(64);
++    await assert.rejects(manager.stepSeededTransitionEnv(id,bad,options),/metadata/);
++    const invalid=structuredClone(held);invalid.actions.p2.rqid=999;
++    await assert.rejects(manager.stepSeededTransitionEnv(id,invalid,options));
++    const next=await manager.stepSeededTransitionEnv(id,held,options);assert.notEqual(next.output_snapshot.snapshot_handle,ref.snapshot_handle);
++    await assert.rejects(manager.stepSeededTransitionEnv(id,held,options),/Unknown/);
++    const retry=make(next.step_result,next.output_snapshot,1);
++    const advanced=await manager.stepSeededTransitionEnv(id,retry,options);
++    assert.notEqual(advanced.output_snapshot.snapshot_handle,next.output_snapshot.snapshot_handle);
++    const stale=make(advanced.step_result,advanced.output_snapshot,2);
++    await manager.resetEnv(id,options);
++    await assert.rejects(manager.stepSeededTransitionEnv(id,stale,options),/Unknown/);
++    result=await manager.resetEnv(id,options);const pending=make(result,manager.captureSeededSnapshotEnv(id));
++    const submit=LocalBattleEnv.prototype.stepWithCanonicalOptions;
++    LocalBattleEnv.prototype.stepWithCanonicalOptions=async function(...args) {await submit.apply(this,args);throw new Error('P33-post-write');};
++    try {await assert.rejects(manager.stepSeededTransitionEnv(id,pending,options),/P33-post-write/);}
++    finally {LocalBattleEnv.prototype.stepWithCanonicalOptions=submit;}
++    await assert.rejects(manager.stepSeededTransitionEnv(id,pending,options),/Unknown/);
++    const closingRef=manager.captureSeededSnapshotEnv(id), closing=manager.closeEnv(id);
++    await assert.rejects(manager.stepSeededTransitionEnv(id,{...held,snapshot:closingRef},options),/Unknown/);
++    await closing;
++    const restarted=new EnvironmentManager(), freshId=restarted.createEnv('gen9randombattle',seed).env_id;
++    try {await restarted.resetEnv(freshId,options);restarted.captureSeededSnapshotEnv(freshId);await assert.rejects(restarted.stepSeededTransitionEnv(freshId,held,options),/Unknown/);}
++    finally {await restarted.closeAll();}
++    emit('pre-live-handles',{actual_old_runtime:true,json_copy_addressed_held_entry:true,preflight_retry:true,fresh_output_retry:true,
++      consumed_reset_close_restart_and_post_write_revocation:true,restoration_authority:false});
++  } finally {await manager.closeAll();}
++});
++
++// Activation must supply real owned native11 support. These selectors remain unexecuted PRE.
++const live = String(installedNativeProfile().package_version)==='0.11.11';
++test('P33 LIVE target raw and belief guards before effects',{skip:!live},async()=>{
++  const fromJSON=Battle.fromJSON,generate=Teams.generate,close=LocalBattleEnv.prototype.close;
++  let reconstruct=0,sample=0,dispose=0;
++  Battle.fromJSON=function(...a:any[]){reconstruct++;return (fromJSON as any).apply(this,a);};
++  Teams.generate=function(...a:any[]){sample++;return (generate as any).apply(this,a);};
++  LocalBattleEnv.prototype.close=async function(){dispose++;return close.call(this);};
++  const env=new LocalBattleEnv('P33-live','gen9randombattle',seed),manager=new EnvironmentManager();
++  try {
++    await assert.rejects(env.resetFromSerialized({__neural_terminal_request_history:{},__neural_active_request_overrides:{}}),/raw-restore-unsupported/);
++    await assert.rejects(manager.forkBeliefEnv('missing','p1',seed),/belief-fork-unsupported/);
++    assert.throws(()=>buildBeliefSnapshot({} as any,{} as any,'p1','gen9randombattle',seed),/belief-fork-unsupported/);
++    assert.deepEqual([reconstruct,sample,dispose],[0,0,0]);assert.equal(manager.diagnostics().open_env_count,0);
++  } finally {Battle.fromJSON=fromJSON;Teams.generate=generate;LocalBattleEnv.prototype.close=close;await env.close();await manager.closeAll();}
++});
++
++test('P33 LIVE held admission precedes probes and abandonment',{skip:!live},async()=>{
++  const reset=LocalBattleEnv.prototype.resetFromSerialized, fromJSON=Battle.fromJSON;
++  let s:PipelineIntegrationSession|undefined, probes=0, checked=0;
++  Battle.fromJSON=function(...args:any[]){probes++;return (fromJSON as any).apply(this,args);};
++  LocalBattleEnv.prototype.resetFromSerialized=async function(serialized,opts,ticket){
++    const before=probes, occurrence=this.getLiveWorldOccurrence();
++    await assert.rejects(reset.call(this,serialized,opts,undefined),/restore-ticket/);
++    await assert.rejects(reset.call(this,serialized,opts,{...ticket}),/restore-ticket/);
++    await assert.rejects(reset.call(this,structuredClone(serialized),opts,ticket),/admission-mismatch/);
++    assert.equal(probes,before);assert.equal(this.getLiveWorldOccurrence(),occurrence);
++    checked++;return reset.call(this,serialized,opts,ticket);
++  };
++  try {
++    s=await PipelineIntegrationSession.create({battle_id:'P33-live-held',format:'gen9randombattle',seed});
++    const held=owners.map(p=>s!.readOriginalOwnerHolding(s!.getOriginalOwnerHolding(p),p));
++    const source=(s as any).environment as LocalBattleEnv, before=probes, occurrence=source.getLiveWorldOccurrence();
++    await assert.rejects(reset.call(source,(s as any).snapshot.simulator_state),/restore-ticket/);
++    assert.equal(probes,before);assert.equal(source.getLiveWorldOccurrence(),occurrence);
++    const a=Object.fromEntries(owners.map(p=>{const r=s!.boundary.perspectives[p].observation.request!;return [p,canonicalActionFromLegalAction(r,r.legal_actions.available_indices[0])];})) as any;
++    await s.step(a);assert.equal(checked,1);
++    for(const [i,p] of owners.entries())assert.equal(s.readNativeObjectHolding(s.getNativeObjectHolding(p),p).original,held[i]);
++  } finally {LocalBattleEnv.prototype.resetFromSerialized=reset;Battle.fromJSON=fromJSON;await s?.close();}
++});

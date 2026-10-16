@@ -1,0 +1,20 @@
+P46_WITNESS {"name":"missing","expected":"switch-events\\/v1\\/unavailable-log-proof"}
+P46_WITNESS {"name":"duplicate","expected":"switch-events\\/v1\\/unavailable-log-proof"}
+P46_WITNESS {"name":"foreign-stream","expected":"switch-events\\/v1\\/unavailable-log-proof"}
+P46_WITNESS {"name":"parent","expected":"switch-events\\/v1\\/foreign-event-parent"}
+P46_WITNESS {"name":"snapshot","expected":"switch-events\\/v1\\/foreign-event-snapshot"}
+P46_WITNESS {"name":"future","expected":"switch-events\\/v1\\/future-or-mismatched-cutoff"}
+P46_WITNESS {"name":"writer","expected":"switch-events\\/v1\\/invalid-switch-writer"}
+P46_WITNESS {"name":"historical-marker","expected":"switch-events\\/v1\\/invalid-switch-writer"}
+P46_WITNESS {"name":"historical-secret","expected":"switch-events\\/v1\\/invalid-switch-writer"}
+P46_WITNESS {"name":"late-marker","expected":"switch-events\\/v1\\/invalid-switch-writer"}
+P46_WITNESS {"name":"faults","actual_session_policy_rejections":10,"supported_move_version_splice_stimulus_before_committed_send":true,"framing_tier_time_fixture":true,"exact_prior_handles_and_retry":true}
+✔ P46 positional filter splice and receipt faults (323.666791ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 444.715167

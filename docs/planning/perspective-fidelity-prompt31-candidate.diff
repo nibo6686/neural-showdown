@@ -1,0 +1,527 @@
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { assertHistoricalReaderInput } from './version_profile';
+ import { NativeBirthEnrollment, NativeObjectAssociation, type NativeBirthHandle, type NativeBirthEvidence, type NativeObjectHandle, type NativeObjectEvidence } from './owner_identity_crosswalk';
+ import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
+ import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
+@@ -764,12 +765,14 @@
+ 
+ /** Ordinary publication validates the whole owned action and transition before terminal alias authority. */
+ export function validatePipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle): void {
++  assertHistoricalReaderInput(bundle);
+   if (bundle.schema_version !== PIPELINE_BUNDLE_SCHEMA_VERSION) throw new Error('Linked record schema is invalid');
+   validatePipelineEpisodeRecordBundle(bundle);
+ }
+ 
+ /** Reuse the accepted action/belief/terminal joins for every episode actor kind. */
+ export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle): void {
++  assertHistoricalReaderInput(bundle);
+   const schemas = {
+     [PIPELINE_BUNDLE_SCHEMA_VERSION]: PIPELINE_TRANSITION_REFERENCE_SCHEMA_VERSION,
+     [PIPELINE_FORCED_SWITCH_BUNDLE_VERSION]: PIPELINE_FORCED_SWITCH_REFERENCE_VERSION,
+@@ -825,3 +828,10 @@
+       serializeBeliefState(bundle.successor_belief);
+     });
+ }
++
++export function validateHistoricalPipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle): void {
++  validatePipelineLinkedRecordBundle(bundle);
++}
++export function validateHistoricalPipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle): void {
++  validatePipelineEpisodeRecordBundle(bundle);
++}
+--- a/sim-core/src/pipeline_episode_evidence.ts
++++ b/sim-core/src/pipeline_episode_evidence.ts
+@@ -1,3 +1,4 @@
++import { assertHistoricalReaderInput } from './version_profile';
+ import { withTerminalOwner } from './public_health';
+ import {serializeCanonicalAction, type CanonicalAction} from './canonical_action';
+ import { createHash } from 'node:crypto';
+@@ -449,6 +450,7 @@
+   expected?: EpisodeEvidenceExpectation,
+   depth = 0,
+ ): asserts value is PipelineEpisodeEvidence {
++  assertHistoricalReaderInput({ schema_version: 'pipeline-episode/v1', evidence_envelope: value, records });
+   if (depth > 64) throw new Error('evidence-predecessor-depth');
+   rejectPrivateKeys(value);
+   if (!isRecord(value)) throw new Error('evidence-object');
+@@ -610,3 +612,9 @@
+     || terminalEvidence(final)
+     || !sameBoundary(final, evidenceBoundary(currentBoundary))) throw new Error('evidence-predecessor-origin');
+ }
++
++export function validateHistoricalPipelineEpisodeEvidence(
++  value: unknown, records?: Record<PlayerID, readonly EpisodeEvidenceRecord[]>, expected?: EpisodeEvidenceExpectation,
++): asserts value is PipelineEpisodeEvidence {
++  validatePipelineEpisodeEvidence(value, records, expected);
++}
+--- a/sim-core/src/pipeline_episode.ts
++++ b/sim-core/src/pipeline_episode.ts
+@@ -1,3 +1,4 @@
++import { assertHistoricalReaderInput } from './version_profile';
+ import { createHash } from 'node:crypto';
+ import { canonicalActionFromLegalAction, type CanonicalAction } from './canonical_action';
+ import {
+@@ -69,6 +70,7 @@
+ 
+ /** False is conservative; true requires the full accepted capture and actor contracts. */
+ export function validatePipelineEpisodeFaithfulClaim(result: PipelineEpisodeResult): boolean {
++  assertHistoricalReaderInput(result);
+   const fields = ['schema_version','run_id','battle_id','ruleset','policy_id','limits','status','stop','counts','initial_boundary','final_boundary','transition_ids','records','evidence_envelope','faithful_complete_episode'];
+   if (result.schema_version !== PIPELINE_EPISODE_VERSION || typeof result.faithful_complete_episode !== 'boolean'
+     || Object.keys(result).sort().join('|') !== fields.sort().join('|')) throw new Error('episode-faithful-schema');
+@@ -315,3 +317,7 @@
+   }
+   return result;
+ }
++
++export function validateHistoricalPipelineEpisodeFaithfulClaim(result: PipelineEpisodeResult): boolean {
++  return validatePipelineEpisodeFaithfulClaim(result);
++}
+--- a/trainer/src/neural/pipeline_record.py
++++ b/trainer/src/neural/pipeline_record.py
+@@ -9,6 +9,8 @@
+ """
+ 
+ from __future__ import annotations
++
++from neural.version_profile import assert_historical_reader_input, select_reader_profile
+ 
+ import hashlib
+ import json
+@@ -496,6 +498,7 @@
+ 
+ def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int = 0, *, _records=None, _compact=False) -> Dict[str, Any]:
+     """Validate the two-perspective committed-boundary chain without producing DATA rows."""
++    assert_historical_reader_input({"schema_version": "pipeline-episode/v1", "evidence_envelope": envelope, "records": _records})
+     if _depth > 64:
+         raise PipelineRecordError("episode predecessor chain is too deep")
+     envelope = _object(envelope, "episode evidence")
+@@ -721,6 +724,7 @@
+ 
+ def validate_pipeline_episode_result(result_value: Mapping[str, Any]) -> list[Dict[str, Any]]:
+     """Validate all commits and actor records before returning any DATA-001 rows."""
++    assert_historical_reader_input(result_value)
+     result = _object(result_value, "pipeline episode result")
+     expected_keys = {
+         "schema_version", "run_id", "battle_id", "ruleset", "policy_id", "limits", "status", "stop",
+@@ -950,6 +954,7 @@
+ 
+ def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any]) -> list[Dict[str, Any]]:
+     """Validate every segment actor row against one validated envelope, then return rows atomically."""
++    assert_historical_reader_input(sweep_value)
+ 
+     sweep = _object(sweep_value, "pipeline episode publication sweep")
+     _reject_sweep_private_payload(sweep, "pipeline episode publication sweep")
+@@ -1100,6 +1105,7 @@
+ 
+ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+     """Validate exact per-perspective joins and create a DATA-001 record."""
++    assert_historical_reader_input(bundle)
+ 
+     _object(bundle, "pipeline bundle")
+     _reject_private_payload(bundle, "pipeline bundle")
+@@ -1352,11 +1358,34 @@
+     return record
+ 
+ 
+-def main() -> int:
++def validate_historical_pipeline_bundle(bundle):
++    return validate_pipeline_bundle(bundle)
++
++def validate_historical_pipeline_episode_evidence(envelope, **kwargs):
++    return validate_pipeline_episode_evidence(envelope, **kwargs)
++
++def validate_historical_pipeline_episode_result(result):
++    return validate_pipeline_episode_result(result)
++
++def validate_historical_pipeline_episode_publication_sweep(sweep):
++    return validate_pipeline_episode_publication_sweep(sweep)
++
++
++def main(argv=None) -> int:
+     """Validate one actor bundle, evidence envelope, full result, or bulk sweep."""
+ 
+     try:
++        args = [] if argv is None else argv
++        selection = "historical10"
++        if args:
++            if len(args) == 1 and args[0].startswith("--reader-profile="):
++                selection = args[0].split("=", 1)[1]
++            elif len(args) == 2 and args[0] == "--reader-profile":
++                selection = args[1]
++            else:
++                raise PipelineRecordError("reader-profile/v1/invalid-cli-option")
+         bundle = load_json(sys.stdin)
++        select_reader_profile(bundle, selection)
+         if isinstance(bundle, Mapping) and bundle.get("schema_version") in {EPISODE_EVIDENCE_SCHEMA, LEGACY_EPISODE_EVIDENCE_SCHEMA}:
+             evidence = validate_pipeline_episode_evidence(bundle)
+             output: Any = {
+@@ -1385,4 +1414,4 @@
+ 
+ 
+ if __name__ == "__main__":
+-    raise SystemExit(main())
++    raise SystemExit(main(sys.argv[1:]))
+--- /dev/null
++++ b/sim-core/src/version_profile.ts
+@@ -0,0 +1,58 @@
++/** Fixed decoder selection only; no engine or source authority. */
++export const HISTORICAL10_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
++export const NATIVE11_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.11' as const;
++export const HISTORICAL10 = Object.freeze({ id: 'historical10', revision: HISTORICAL10_REVISION, adopted: true });
++export const NATIVE11 = Object.freeze({ id: 'native11', revision: NATIVE11_REVISION, adopted: false });
++export type ReaderSelection = 'historical10' | 'native11' | 'auto';
++function fail(reason: string): never { throw new Error('reader-profile/v1/' + reason); }
++const record = (v: unknown): v is Record<string, any> => !!v && typeof v === 'object' && !Array.isArray(v);
++const bundles = new Set(['pipeline-linked-record/v1', 'pipeline-forced-switch-record/v1', 'pipeline-revival-record/v1']);
++const envelopes = new Set(['pipeline-episode-evidence/v1', 'pipeline-episode-evidence/v2']);
++/** Only recognized schema paths, including predecessor and compact sweep beliefs. */
++export function recognizedReaderRevisions(value: unknown): readonly unknown[] {
++  const revisions: unknown[] = [], active = new Set<object>();
++  const revision = (v: unknown) => { if (record(v) && Object.hasOwn(v, 'simulator_revision')) revisions.push(v.simulator_revision); };
++  const evidence = (v: unknown) => { if (record(v) && record(v.provenance) && v.provenance.kind === 'simulator_only_truth') revision(v.provenance); };
++  const belief = (v: unknown) => {
++    if (!record(v)) return;
++    revision(v.transition_lineage);
++    if (Array.isArray(v.transition_history)) v.transition_history.forEach(revision);
++    if (Array.isArray(v.evidence)) v.evidence.forEach(evidence);
++  };
++  const actor = (v: unknown) => {
++    if (!record(v)) return;
++    revision(v.transition); belief(v.input_belief); belief(v.successor_belief);
++  };
++  const actors = (v: unknown) => { if (record(v)) for (const owner of ['p1', 'p2']) if (Array.isArray(v[owner])) v[owner].forEach(actor); };
++  const visit = (v: unknown, depth = 0): void => {
++    if (!record(v)) return;
++    if (depth > 64 || active.has(v)) fail('invalid-predecessor-chain');
++    active.add(v);
++    if (bundles.has(v.schema_version)) actor(v);
++    else if (envelopes.has(v.schema_version)) {
++      if (Array.isArray(v.commits)) v.commits.forEach((c: unknown) => { if (record(c)) revision(c.transition); });
++      if (v.schema_version === 'pipeline-episode-evidence/v2' && record(v.closure)) visit(v.closure.predecessor, depth + 1);
++    } else if (v.schema_version === 'pipeline-episode/v1') { actors(v.records); visit(v.evidence_envelope, depth); }
++    else if (v.schema_version === 'pipeline-episode-publication-sweep/v1') {
++      actors(v.records); visit(v.evidence_envelope, depth);
++      if (Array.isArray(v.beliefs)) v.beliefs.forEach((b: unknown) => { if (record(b)) { belief(b.fields); if (record(b.arrays)) {
++        if (record(b.arrays.transition_history) && Array.isArray(b.arrays.transition_history.items)) b.arrays.transition_history.items.forEach(revision);
++        if (record(b.arrays.evidence) && Array.isArray(b.arrays.evidence.items)) b.arrays.evidence.items.forEach(evidence);
++      } } });
++    }
++    active.delete(v);
++  };
++  visit(value); return Object.freeze(revisions);
++}
++export function selectReaderProfile(value: unknown, selection: ReaderSelection = 'auto'): typeof HISTORICAL10 {
++  if (selection === 'native11') fail('native11-unadopted');
++  if (selection !== 'historical10' && selection !== 'auto') fail('unknown-profile');
++  const revisions = recognizedReaderRevisions(value);
++  if (revisions.some(r => typeof r !== 'string')) fail('unknown-revision');
++  const distinct = new Set(revisions);
++  if (distinct.size > 1) fail('conflicting-revisions');
++  if (distinct.size && !distinct.has(HISTORICAL10_REVISION)) fail(distinct.has(NATIVE11_REVISION) ? 'native11-unadopted' : 'unknown-revision');
++  if (!distinct.size && selection === 'auto') fail('ambiguous-revision');
++  return HISTORICAL10;
++}
++export function assertHistoricalReaderInput(value: unknown): void { selectReaderProfile(value, 'historical10'); }
+--- /dev/null
++++ b/trainer/src/neural/version_profile.py
+@@ -0,0 +1,84 @@
++"""Fixed decoder selection only; never engine/source authority."""
++from collections.abc import Mapping
++from typing import NamedTuple
++
++HISTORICAL10_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.10"
++NATIVE11_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.11"
++class ReaderProfile(NamedTuple):
++    id: str
++    revision: str
++    adopted: bool
++HISTORICAL10 = ReaderProfile("historical10", HISTORICAL10_REVISION, True)
++NATIVE11 = ReaderProfile("native11", NATIVE11_REVISION, False)
++class ReaderProfileError(ValueError):
++    pass
++def _fail(reason):
++    raise ReaderProfileError("reader-profile/v1/" + reason)
++
++def recognized_reader_revisions(value):
++    revisions, active = [], set()
++    def revision(v):
++        if isinstance(v, Mapping) and "simulator_revision" in v:
++            revisions.append(v["simulator_revision"])
++    def evidence(v):
++        if isinstance(v, Mapping) and isinstance(v.get("provenance"), Mapping) and v["provenance"].get("kind") == "simulator_only_truth":
++            revision(v["provenance"])
++    def belief(v):
++        if isinstance(v, Mapping):
++            revision(v.get("transition_lineage"))
++            if isinstance(v.get("transition_history"), list):
++                for t in v["transition_history"]: revision(t)
++            if isinstance(v.get("evidence"), list):
++                for e in v["evidence"]: evidence(e)
++    def actor(v):
++        if isinstance(v, Mapping):
++            revision(v.get("transition")); belief(v.get("input_belief")); belief(v.get("successor_belief"))
++    def actors(v):
++        if isinstance(v, Mapping):
++            for owner in ("p1", "p2"):
++                if isinstance(v.get(owner), list):
++                    for a in v[owner]: actor(a)
++    def visit(v, depth=0):
++        if not isinstance(v, Mapping): return
++        if depth > 64 or id(v) in active: _fail("invalid-predecessor-chain")
++        active.add(id(v)); schema = v.get("schema_version")
++        if schema in ("pipeline-linked-record/v1", "pipeline-forced-switch-record/v1", "pipeline-revival-record/v1"):
++            actor(v)
++        elif schema in ("pipeline-episode-evidence/v1", "pipeline-episode-evidence/v2"):
++            if isinstance(v.get("commits"), list):
++                for c in v["commits"]:
++                    if isinstance(c, Mapping): revision(c.get("transition"))
++            if schema == "pipeline-episode-evidence/v2" and isinstance(v.get("closure"), Mapping):
++                visit(v["closure"].get("predecessor"), depth + 1)
++        elif schema == "pipeline-episode/v1":
++            actors(v.get("records")); visit(v.get("evidence_envelope"), depth)
++        elif schema == "pipeline-episode-publication-sweep/v1":
++            actors(v.get("records")); visit(v.get("evidence_envelope"), depth)
++            if isinstance(v.get("beliefs"), list):
++                for b in v["beliefs"]:
++                    if isinstance(b, Mapping):
++                        belief(b.get("fields"))
++                        arrays = b.get("arrays")
++                        if isinstance(arrays, Mapping):
++                            for key, consumer in (("transition_history", revision), ("evidence", evidence)):
++                                encoded = arrays.get(key)
++                                if isinstance(encoded, Mapping) and isinstance(encoded.get("items"), list):
++                                    for item in encoded["items"]: consumer(item)
++        active.remove(id(v))
++    visit(value)
++    return tuple(revisions)
++
++def select_reader_profile(value, selection="auto"):
++    if selection == "native11": _fail("native11-unadopted")
++    if selection not in ("historical10", "auto"): _fail("unknown-profile")
++    revisions = recognized_reader_revisions(value)
++    if any(not isinstance(r, str) for r in revisions): _fail("unknown-revision")
++    distinct = set(revisions)
++    if len(distinct) > 1: _fail("conflicting-revisions")
++    if distinct and HISTORICAL10_REVISION not in distinct:
++        _fail("native11-unadopted" if NATIVE11_REVISION in distinct else "unknown-revision")
++    if not distinct and selection == "auto": _fail("ambiguous-revision")
++    return HISTORICAL10
++
++def assert_historical_reader_input(value):
++    select_reader_profile(value, "historical10")
+--- /dev/null
++++ b/sim-core/tests/version_profile_dispatch.test.ts
+@@ -0,0 +1,128 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { readFileSync, writeFileSync } from 'node:fs';
++import path from 'node:path';
++import { createHash } from 'node:crypto';
++import { selectReaderProfile, recognizedReaderRevisions, HISTORICAL10, HISTORICAL10_REVISION as OLD, NATIVE11_REVISION as TARGET } from '../src/version_profile';
++import { validateHistoricalPipelineLinkedRecordBundle, validateHistoricalPipelineEpisodeRecordBundle, validatePipelineLinkedRecordBundle } from '../src/pipeline_integration';
++import { createPipelineEpisodeEvidence, sealPipelineEpisodeEvidence, validateHistoricalPipelineEpisodeEvidence, episodeEvidenceContentDigest as digest } from '../src/pipeline_episode_evidence';
++import { summarizeEpisodeBoundary, validateHistoricalPipelineEpisodeFaithfulClaim } from '../src/pipeline_episode';
++import { rehash } from './public_consequence_test_helpers';
++const root = path.resolve(__dirname, '../../..');
++const load = (f: string) => JSON.parse(readFileSync(path.join(root, f), 'utf8'));
++const saved = load('docs/planning/perspective-fidelity-prompt25-wire-before.json').find((r: any) => r.schema.endsWith('/v2'));
++const savedBundle = () => structuredClone(saved.next.record_bundles.p1);
++const witness = (name: string, detail: object) => console.log('P31_WITNESS ' + JSON.stringify({ name, ...detail }));
++
++// Reader-only constructed terminal form over saved native inputs. No battle runs.
++function fixtures() {
++  const records = structuredClone(saved.next.record_bundles), terminal = structuredClone(saved.next.boundary);
++  for (const owner of ['p1', 'p2']) {
++    const b = records[owner], o = b.successor_observation;
++    o.protocol_prefix.push('|win|Agent-1'); o.event_cursor = o.protocol_prefix.length; o.protocol_prefix_hash = digest(o.protocol_prefix);
++    o.request = null; o.snapshot_phase = 'terminal'; o.view.terminated = true; o.view.winner = 'p1';
++    o.decision_availability = { available: false, reason: 'terminal', legal_action_indices: null };
++    b.successor_belief.source_protocol_prefix = [...o.protocol_prefix]; rehash(b);
++    terminal.perspectives[owner] = { observation: o, belief: b.successor_belief };
++  }
++  terminal.kind = 'terminal';
++  const limits = { max_transitions: 2, max_attempts: 2, max_rejections_per_boundary: 1 }, policy = 'P31-reader-control';
++  const initial = summarizeEpisodeBoundary(saved.initial), final = summarizeEpisodeBoundary(terminal);
++  const run = 'episode-' + createHash('sha256').update(JSON.stringify({ schema: 'pipeline-episode/v1', battle_id: saved.initial.battle_id,
++    format: 'gen9randombattle', policy, limits, initial_boundary: initial })).digest('hex');
++  const { action_id: _action, ...transition } = records.p1.transition;
++  const envelope = createPipelineEpisodeEvidence({ run_id: run, battle_id: saved.initial.battle_id, ruleset: 'gen9randombattle', kind: 'fresh_episode',
++    boundaries: [saved.initial, terminal], transitions: [{ transition, actors: ['p1', 'p2'] }] })!;
++  const result = { schema_version: 'pipeline-episode/v1', run_id: run, battle_id: saved.initial.battle_id, ruleset: 'gen9randombattle', policy_id: policy,
++    limits, status: 'completed', stop: { code: 'episode/v1/terminal', reason: 'reader-only constructed terminal' },
++    counts: { attempts: 1, committed_transitions: 1, rejected_candidates: 0, rejections_at_final_boundary: 0 }, initial_boundary: initial,
++    final_boundary: final, transition_ids: [transition.transition_id], records: { p1: [records.p1], p2: [records.p2] }, evidence_envelope: envelope, faithful_complete_episode: true };
++  const arrays = ['observation_history', 'simulator_snapshot_history', 'transition_history', 'candidates', 'evidence', 'contradictions', 'unresolved'];
++  const beliefs: any[] = [], compactRecords: any = { p1: [], p2: [] };
++  for (const owner of ['p1', 'p2']) {
++    const b = records[owner];
++    for (const belief of [b.input_belief, b.successor_belief]) {
++      const fields = structuredClone(belief), encoded: any = {};
++      delete fields.belief_id; delete fields.source_protocol_prefix;
++      for (const k of arrays) { encoded[k] = { mode: 'full', items: fields[k] }; delete fields[k]; }
++      beliefs.push({ belief_id: belief.belief_id, base_belief_id: null, fields, arrays: encoded });
++    }
++    compactRecords[owner].push({ transition_id: b.transition.transition_id, action: b.action,
++      input_belief_id: b.input_belief.belief_id, successor_belief_id: b.successor_belief.belief_id });
++  }
++  const { records: _records, evidence_envelope: _env, ...metadata } = result;
++  const sweep = { schema_version: 'pipeline-episode-publication-sweep/v1', result: metadata, evidence_envelope: envelope, records: compactRecords, beliefs };
++  return { bundle: savedBundle(), envelope, result, sweep };
++}
++
++function resealRevision(b: any, revision: string) {
++  const oldId = b.transition.transition_id, oldBranch = b.transition.branch_id;
++  const id = 'transition-' + digest({ schema_version: 'seeded-transition/v1', parent_branch_id: b.transition.parent_branch_id,
++    input_state_fingerprint: b.transition.input_state_fingerprint, output_state_fingerprint: b.transition.output_state_fingerprint,
++    root_seed: saved.snapshot.root_seed, action_ids: { p1: saved.next.record_bundles.p1.action.action_id, p2: saved.next.record_bundles.p2.action.action_id },
++    simulator_revision: revision, step_index: b.transition.step_index });
++  const branch = 'branch-' + digest({ schema_version: 'seeded-transition/v1', parent_branch_id: b.transition.parent_branch_id,
++    root_seed: saved.snapshot.root_seed, state_fingerprint: b.transition.output_state_fingerprint, transition_id: id });
++  const update = (t: any) => { if (t?.transition_id === oldId) { t.transition_id = id; t.simulator_revision = revision; if (t.branch_id === oldBranch) t.branch_id = branch; } };
++  update(b.transition);
++  for (const belief of [b.input_belief, b.successor_belief]) {
++    update(belief.transition_lineage); belief.transition_history.forEach(update);
++    update(belief.simulator_snapshot); belief.simulator_snapshot_history.forEach(update);
++    // Snapshot references have no revision field; preserve their schema.
++    for (const t of [belief.simulator_snapshot, ...belief.simulator_snapshot_history]) if (t) delete t.simulator_revision;
++  }
++  rehash(b);
++}
++test('P31 historical TS readers', () => {
++  const b = savedBundle(), ids = [b.input_observation.observation_id, b.action.action_id, b.transition.transition_id, b.successor_belief.belief_id];
++  validatePipelineLinkedRecordBundle(b); validateHistoricalPipelineLinkedRecordBundle(b); validateHistoricalPipelineEpisodeRecordBundle(b);
++  assert.deepEqual([b.input_observation.observation_id, b.action.action_id, b.transition.transition_id, b.successor_belief.belief_id], ids);
++  const f: any = fixtures(); validateHistoricalPipelineEpisodeEvidence(f.envelope);
++  assert.equal(validateHistoricalPipelineEpisodeFaithfulClaim(f.result as any), true);
++  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
++  const negatives: any = {};
++  for (const [name, revision] of [['target', TARGET], ['unknown', 'sim-core@unknown']]) { const b = savedBundle(); resealRevision(b, revision); negatives[name] = b; }
++  negatives.conflict = savedBundle(); negatives.conflict.successor_belief.transition_lineage.simulator_revision = TARGET; rehash(negatives.conflict);
++  const prior = load('artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json');
++  const current: any = { ...prior.commits.at(-1).boundary, battle_id: prior.battle_id, perspectives: Object.fromEntries(['p1','p2'].map(p => [p,{observation: prior.commits.at(-1).boundary.perspectives[p]}])) };
++  const continuation = createPipelineEpisodeEvidence({ run_id: 'episode-' + 'a'.repeat(64), battle_id: prior.battle_id, ruleset: prior.ruleset, kind: 'continuation_segment', boundaries: [current], transitions: [], predecessor: prior })!;
++  validateHistoricalPipelineEpisodeEvidence(continuation); f.continuation = continuation;
++  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
++  const changedPrior = structuredClone(prior); changedPrior.commits[0].transition.simulator_revision = TARGET;
++  continuation.closure!.predecessor = sealPipelineEpisodeEvidence(changedPrior); negatives.predecessor = sealPipelineEpisodeEvidence(continuation);
++  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-resealed-negatives.json'), JSON.stringify(negatives));
++  witness('historical', { saved_ids: ids, constructed_terminal: true, native_execution: false, evidence_id: f.envelope.evidence_id });
++});
++
++test('P31 recognized revision dispatch', () => {
++  const b = savedBundle(); assert.equal(selectReaderProfile(b), HISTORICAL10);
++  const empty = load('artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json');
++  assert.equal(selectReaderProfile(empty, 'historical10'), HISTORICAL10); assert.throws(() => selectReaderProfile(empty), /ambiguous-revision/);
++  assert.equal(validateHistoricalPipelineEpisodeFaithfulClaim(empty), false);
++  for (const selection of ['native11', 'unknown']) assert.throws(() => selectReaderProfile(b, selection as any), /native11-unadopted|unknown-profile/);
++  const cases: any[] = [
++    { schema_version: 'pipeline-episode-evidence/v2', commits: [{ transition: { simulator_revision: OLD } }], closure: { predecessor: { schema_version: 'pipeline-episode-evidence/v1', commits: [{ transition: { simulator_revision: TARGET } }] } } },
++    { schema_version: 'pipeline-episode-publication-sweep/v1', beliefs: [{ fields: { transition_lineage: { simulator_revision: TARGET } }, arrays: { transition_history: { items: [{ simulator_revision: OLD }] } } }] },
++    { schema_version: 'pipeline-linked-record/v1', transition: { simulator_revision: OLD }, successor_belief: { evidence: [{ provenance: { kind: 'simulator_only_truth', simulator_revision: TARGET } }] } },
++  ];
++  for (const c of cases) assert.throws(() => selectReaderProfile(c, 'historical10'), /conflicting-revisions/);
++  assert.deepEqual(recognizedReaderRevisions({ schema_version: 'pipeline-linked-record/v1', request: { simulator_revision: TARGET }, transition: { simulator_revision: OLD } }), [OLD]);
++  const cycle: any = { schema_version: 'pipeline-episode-evidence/v2', closure: {} }; cycle.closure.predecessor = cycle;
++  assert.throws(() => selectReaderProfile(cycle, 'historical10'), /invalid-predecessor-chain/);
++  witness('dispatch', { schema_paths: 'bundle/evidence/predecessor/result/sweep/compact/evidence-provenance', explicit_empty_historical: true, no_arbitrary_key_scan: true });
++});
++
++test('P31 coherent rejection before old rules', () => {
++  for (const revision of [TARGET, 'sim-core@unknown']) {
++    const b = savedBundle(); resealRevision(b, revision); assert.throws(() => validateHistoricalPipelineLinkedRecordBundle(b), /native11-unadopted|unknown-revision/);
++    // Malformed old grammar deliberately behind dispatch: profile error must win.
++    b.input_observation.protocol_prefix.push('|unrecognized|');
++    assert.throws(() => validatePipelineLinkedRecordBundle(b), /native11-unadopted|unknown-revision/);
++  }
++  const conflict = savedBundle(); conflict.successor_belief.transition_lineage.simulator_revision = TARGET; rehash(conflict);
++  assert.throws(() => validateHistoricalPipelineLinkedRecordBundle(conflict), /conflicting-revisions/);
++  const f = fixtures(), e = structuredClone(f.envelope); e.commits[0].transition.simulator_revision = TARGET;
++  const sealed = sealPipelineEpisodeEvidence(e); assert.throws(() => validateHistoricalPipelineEpisodeEvidence(sealed), /native11-unadopted/);
++  validatePipelineLinkedRecordBundle(savedBundle());
++  witness('negative', { canonical_belief_evidence_resealing: true, profile_error_before_old_grammar: true, interleaved_old_unchanged: true });
++});
+--- /dev/null
++++ b/trainer/tests/test_version_profile_dispatch.py
+@@ -0,0 +1,79 @@
++"""Lean old-reader caller proof only: saved inputs, no native battles."""
++import copy
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++import pytest
++from neural import pipeline_record as reader
++from neural.version_profile import select_reader_profile, recognized_reader_revisions, HISTORICAL10, NATIVE11_REVISION as TARGET, HISTORICAL10_REVISION as OLD
++
++ROOT = Path(__file__).resolve().parents[2]
++DOC = ROOT / 'docs/planning'
++def load(name):
++    return json.loads((DOC / ('perspective-fidelity-prompt31-' + name + '.json')).read_text())
++def literal(value):
++    return json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':')) + '\n'
++def witness(name, **kwargs):
++    print('P31_WITNESS ' + json.dumps(dict(name=name, **kwargs), sort_keys=True))
++
++def test_historical_paths_and_literals():
++    f, expected = load('reader-fixtures'), load('old-publication-goldens')
++    cases = [('bundle', reader.validate_historical_pipeline_bundle), ('envelope', reader.validate_historical_pipeline_episode_evidence),
++             ('result', reader.validate_historical_pipeline_episode_result), ('sweep', reader.validate_historical_pipeline_episode_publication_sweep)]
++    for name, function in cases:
++        value = f[name]; before = literal(value); actual = function(value)
++        assert literal(actual) == expected[name]['api_literal']
++        assert literal(value) == before
++    assert reader.validate_historical_pipeline_episode_evidence(f['continuation'])['complete_capture'] is False
++    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text())
++    assert select_reader_profile(empty, 'historical10') is HISTORICAL10
++    assert reader.validate_historical_pipeline_episode_result(empty) == []
++    with pytest.raises(ValueError, match='ambiguous-revision'): select_reader_profile(empty)
++    witness('python-historical', entry_branches=4, old_literal_output_preserved=True, explicit_empty_historical=True, no_native_execution=True)
++
++def test_revision_structure_negatives():
++    f, negatives = load('reader-fixtures'), load('resealed-negatives')
++    for name, pattern in [('target', 'native11-unadopted'), ('unknown', 'unknown-revision'), ('conflict', 'conflicting-revisions')]:
++        with pytest.raises(ValueError, match=pattern): reader.validate_historical_pipeline_bundle(negatives[name])
++    with pytest.raises(ValueError, match='native11-unadopted'): reader.validate_historical_pipeline_episode_evidence(negatives['predecessor'])
++    bad_result = copy.deepcopy(f['result']); bad_result['records']['p1'][0] = negatives['target']
++    with pytest.raises(ValueError, match='conflicting-revisions'): reader.validate_historical_pipeline_episode_result(bad_result)
++    bad_sweep = copy.deepcopy(f['sweep']); bad_sweep['beliefs'][1]['fields']['transition_lineage']['simulator_revision'] = TARGET
++    with pytest.raises(ValueError, match='conflicting-revisions'): reader.validate_historical_pipeline_episode_publication_sweep(bad_sweep)
++    bad_evidence = copy.deepcopy(f['bundle']); bad_evidence['successor_belief']['evidence'] = [{'provenance': {'kind': 'simulator_only_truth', 'simulator_revision': TARGET}}]
++    with pytest.raises(ValueError, match='conflicting-revisions'): reader.validate_pipeline_bundle(bad_evidence)
++    assert recognized_reader_revisions({'schema_version': 'pipeline-linked-record/v1', 'transition': {'simulator_revision': OLD}, 'request': {'simulator_revision': TARGET}}) == (OLD,)
++    for selection, pattern in [('native11', 'native11-unadopted'), ('alien', 'unknown-profile')]:
++        with pytest.raises(ValueError, match=pattern): select_reader_profile(f['bundle'], selection)
++    assert select_reader_profile(f['bundle']) is HISTORICAL10
++    # Reserved calls never change the active singleton/default reader.
++    assert reader.SIMULATOR_REVISION == OLD
++    assert reader.validate_pipeline_bundle(f['bundle'])['record_id'] == json.loads(load('old-publication-goldens')['bundle']['api_literal'])['record_id']
++    witness('python-negative', resealed_bundle_and_predecessor=True, actual_result_sweep_guards=True, singleton_unchanged=True)
++
++def test_cli_dispatch_branches():
++    f, goldens = load('reader-fixtures'), load('old-publication-goldens')
++    env = dict(os.environ)
++    for key in list(env):
++        if key in ('PYTHONUTF8', 'PYTHONIOENCODING') or key.startswith(('REPORT_', 'PROMPT')): env.pop(key)
++    env['PYTHONPATH'] = str(ROOT / 'trainer/src')
++    def cli(value, *args):
++        return subprocess.run([sys.executable, '-m', 'neural.pipeline_record', *args], input=json.dumps(value), text=True,
++                              capture_output=True, cwd=ROOT, env=env, timeout=20)
++    for name in ('bundle', 'envelope', 'result', 'sweep'):
++        result = cli(f[name]); assert result.returncode == 0, result.stderr
++        assert result.stdout == goldens[name]['cli_literal']
++    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text())
++    result = cli(empty, '--reader-profile', 'historical10'); assert result.returncode == 0 and result.stdout == '[]\n', result.stderr
++    failures = [(empty, ('--reader-profile=auto',), 'ambiguous-revision'),
++                (f['bundle'], ('--reader-profile=native11',), 'native11-unadopted'),
++                (f['bundle'], ('--reader-profile=alien',), 'unknown-profile'),
++                (load('resealed-negatives')['unknown'], (), 'unknown-revision')]
++    for value, args, pattern in failures:
++        result = cli(value, *args); assert result.returncode == 2 and result.stdout == '', result.stdout
++        assert pattern in result.stderr
++    witness('cli', default_caller_branches=4, explicit_historical_empty=True, rejection_exit=2, rejection_stdout='')

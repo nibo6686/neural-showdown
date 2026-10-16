@@ -1,0 +1,18 @@
+B1_WITNESS {"name":"missing-owner","level":"actual-runtime-fault-rejection","expected":"missing-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"duplicate","level":"actual-runtime-fault-rejection","expected":"duplicate-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"wrong-owner-equal-bytes","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"submission","level":"actual-runtime-fault-rejection","expected":"submission-mismatch","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"occurrence","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"environment","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"late","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"missing-observer","level":"actual-runtime-fault-rejection","expected":"not-staged","authority_unavailable_both_owners":true}
+B1_WITNESS {"name":"late-observer","level":"actual-runtime-fault-rejection","expected":"late-observer","authority_unavailable_both_owners":true}
+✔ B1 enrollment faults (146.7345ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 230.359

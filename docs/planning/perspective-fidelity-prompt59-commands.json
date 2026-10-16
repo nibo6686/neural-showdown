@@ -1,0 +1,131 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 2,
+    "seconds": 4.086,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-build.log"
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 0,
+    "seconds": 2.161,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-build-attempt1.log"
+  },
+  {
+    "name": "generated",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P59 generated both owners restore reorder and real decision caller$",
+      "sim-core/dist/tests/original_owner_loadout.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 1,
+    "seconds": 1.305,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-generated.log"
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 0,
+    "seconds": 2.151,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-build-attempt2.log"
+  },
+  {
+    "name": "generated",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P59 generated both owners restore reorder and real decision caller$",
+      "sim-core/dist/tests/original_owner_loadout.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.726,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-generated-attempt1.log"
+  },
+  {
+    "name": "literal",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P59 literal submitted default partial and rule exception oracle$",
+      "sim-core/dist/tests/original_owner_loadout.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.293,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-literal.log"
+  },
+  {
+    "name": "initial",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P59 constructed Trace and Schooling retain originals through restoration$",
+      "sim-core/dist/tests/original_owner_loadout.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.38,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-initial.log"
+  },
+  {
+    "name": "authority",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P59 source authority and final preparation failure preserve fresh retry$",
+      "sim-core/dist/tests/original_owner_loadout.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.364,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-authority.log"
+  },
+  {
+    "name": "parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt59/parity.cjs"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.914,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt59-parity.log"
+  }
+]

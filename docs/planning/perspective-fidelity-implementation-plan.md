@@ -5,6 +5,8 @@
 
 ## Source Materials
 
+- [Five-replay diagnostic disposition](perspective-fidelity-five-replay-diagnostic-disposition.md): reported Natural Cure compatibility, Tera current/history semantics and planned owner-backfill gaps. Prompt28 stays unchanged; freeze inputs and source-prove compatibility before repair.
+
 - [Prompt 3 finding matrix](perspective-fidelity-prompt3-matrix.md) and [tasks](perspective-fidelity-prompt3-tasks.md): source findings and proposed repairs.
 - [Knowledge contract](../contracts/PERSPECTIVE_KNOWLEDGE.md) and [Prompt 10 review](perspective-fidelity-prompt10-lead-review.md): accepted contract basis and structural limits.
 - [Archived lead history](perspective-fidelity-lead-history-through-prompt10.md): verbatim prior plan and detailed evidence/reuse chronology.
@@ -49,7 +51,43 @@ These are local review boundaries, not published PRs. S = small bounded review c
 | S02a original retention / 23 | Private pre-pack originals and actual session creation wiring | Locally accepted bounded runtime retention | Fresh144 focused checks, wire parity; registry/fact adoption separate |
 | S01c-2a emission trace / 24 | Native exact owner request emissions, producer provenance and routed receipts | Locally accepted bounded runtime trace | Fresh162 focused checks and wire parity; trusted FIFO, no causal commitment |
 | S01c-2b committed ledger / 25 | Session delivery selection, sequence, exact prefix/observation joins and rollback | Locally accepted private runtime commitment | Fresh179 focused checks, wire parity; no current action/fact or registry adoption |
-| S02b source checkpoint / 26 | Native birth/request/indexed-event/restore hook proof | Test/design prompt prepared | Executed actual-source witnesses before production crosswalk; carriers remain unbound |
+| S02b source checkpoint / 26 | Native birth/request/indexed-event/restore hook proof | Locally accepted source characterization only | Eight exact cases; missing runtime associations retained; see Prompt26 lead review |
+| S02b B1 / 27 | Private native birth enrollment | Locally accepted bounded runtime enrollment | Exact producer enrollment, atomic activation, owner privacy and lifetime; see Prompt27 lead review |
+| S02b B2 / 28 | Private restored-object association | Locally accepted joint/reorder/restore scope | Forced/revival B2 witnesses remain unexecuted; see Prompt28 lead review |
+| Version checkpoint / 29 | 0.11.10 to 0.11.11 impact and migration assessment | Accepted assessment; target approved for planning | Historical readers, held same-runtime snapshots, explicit replay profiles; see Prompt29 lead decision |
+| Migration plan / 30 | Bounded version/profile and target activation plan | Direction/A1–A3 approved with lead amendments | No automatic 11-boundary execution; see Prompt30 lead review |
+| Historical readers / 31 | Prompt30 lean PR-01 fixed reader/profile wiring | Locally accepted historical API/dispatch | Native11 remains unadopted; full contexts not yet wired; see Prompt31 lead review |
+| Preactivation contexts / 32 | Immutable reader/helper contexts and native ownership | Locally accepted old-runtime wiring | Fresh-process historical lookup assets and LIVE target contexts remain unproved; see Prompt32 lead review |
+| Snapshot preparation / 33 | Prompt30 PR-02 target admission/legacy restrictions | Locally accepted PRE/old-runtime scope | LIVE target payload/counter extensions remain activation requirements; see Prompt33 lead review |
+| Claim quarantine / 34 | Prompt30 PR-03 target fidelity/K-source restrictions | Locally accepted PRE/historical behavior | Native11 LIVE claims/source/CLI remain unexecuted; see Prompt34 lead review |
+| Asset preparation / 35 | Historical lookup independence and inactive target inventory | Locally accepted asset preparation | Target counts static; full runtime/dynamic/lifecycle/coexistence proof remains pending |
+| Grammar preparation / 36 | Prompt30 PR-05 exact target and importer replay policies | Locally accepted PRE/importer scope | Full profile-contract validation remains required; target semantics/LIVE proof deferred |
+| Profile validation / 37 | Full TS/Python prepared-contract validation | Locally accepted PRE scope | Final build/six focused checks reused; protected hashes match; no target runtime or semantic acceptance |
+| Candidate activation / 38 | Prompt30 PR-06 isolated native11 installation and runtime wiring | Locally accepted executed LIVE scope | Original/candidate hashes match; no blanket G04-14 or semantic closure; target fidelity disabled |
+| Target timing / 39 | Prompt30 PR-07 actual request timing and delivery continuity | Locally accepted bounded scope | Supplemental equal-byte committed proof accepted; failed evidence preserved |
+| Target owner authority / 40 | Prompt30 PR-08 B1/B2 joint and restore proof | Eleven cases accepted; initial effects blocked | Trace quarantine preserved; seven later rows unexecuted; two test-only corrections accepted |
+| Target Trace / 41 | Finite setter form and initial-effect proof | Locally accepted; bounded PR-08 closed | Exact target form and eight rows passed; prior eleven cases reused; no generic setter acceptance |
+| Target one-sided B2 / 42 | Prompt30 PR-09/10 forced-switch and Revival | Executed bounded scope accepted | Generated KO; constructed mirrored Revival; finite consequence checks; full generated Revival remains unproved |
+| Migration reconciliation / 43 | Prompt30 PR-11 scope and next-boundary decision | Readiness assessment accepted | Bounded B3 preparation permitted; full migration/default/positive fidelity blocked |
+| B3 preparation / 44 | Private direct-switch association design | Accepted with staged implementation | Private transfer/log seam approved; no-fail installation required, not yet proven |
+| B3 infrastructure / 45 | Tentative actor leases, tracked log and plain serialization | Locally accepted bounded scope | Actor/log/send/serialization proof; no committed authority yet |
+| B3 committed binding / 46 | Positional normalized-prefix joins and atomic session installation | Locally accepted direct-switch scope | Committed owner histories and transaction proof; no broader actor/K adoption |
+| B4 preparation / 47 | Native original-owner source and knowledge adoption design | Finite projection/consumer approved | Incomplete TS-private target projection; current adapters, crosswalk/full audits deferred |
+| Native starting adoption / 48 | Authenticated original-owner facts and addressed consumer | Locally accepted finite projection | Starting immutable; incomplete current; no full source audit/publication |
+| Owned-request design / 49 | Finite current native request adapter | Health-only design approved | Dedicated transfer, scoped final restore hook, additive binding; legitimate zero-capture clarified |
+| Owned health adoption / 50 | Authentic current HP/status/faint projection | Core scope accepted; overlay unproved | Incomplete private projection; actual updated override drop preserved |
+| Native updated overlay / 51 | Exact update:true compatibility and held health adoption | Guard repair accepted; committed proof deferred | Recovery contract is separate; discarded candidate never a committed source |
+| Active move/PP design / 52 | Finite current owned request move-slot semantics | Ordinary request-option design approved | Local PP/maxPP only; no possession/incarnations/action authority; unsupported variants blocked |
+| Request-option adoption / 53 | Source-bound ordinary active PP/maxPP descriptor | Locally accepted finite scope | Nullable unsupported branches; no possession/incarnation/action authority |
+| Owned identifiers / 54 | Current request-emitted item and ability | Locally accepted finite scope | Fresh owned IDs; no effectiveness/base/history; incomplete private projection |
+| Decision consumer design / 55 | Actual owner-addressed decision-input adoption | Design approved; execution unblocked by Prompt56 | Approved API and incomplete-input policy govern Prompt57 |
+| Candidate recovery / 56 | Exact accepted sources and locked runtime in durable storage | Accepted scoped | 995 source hashes, 505 archive members, six pins and 17 native inputs verified; fresh authority required |
+| Decision consumer implementation / 57 | Owner-addressed knowledge at real episode caller | Accepted scoped; retention verified | Five focused controls/default parity; four-file overlay archived and hash-verified; no promotion |
+| Requirements reconciliation / 58 | Finite remaining decision-information and training prerequisites | Accepted planning roadmap | 61-property crosswalk; full K and proposed experiment remain separate; not runtime proof |
+| Original loadout/details/stats / 59 | Finite immutable original K03/K04 adoption | Accepted scoped; explicit blocking limits | Four cases/default parity; partial submitted tuples and random original details unresolved; seven-file retention authorized |
+| Current owned details/stats / 60 | Authenticated emitted current K03/K04 fields | Accepted scoped | Four cases/parity; overlay fallback runtime-unexecuted; eight-file retention authorized |
+| Owned move continuity / 61 | Possession/incarnation, PP freshness and emitted request flags | Design approved scoped | Exact private alias/restore bridge and ordinary/base support; copied/replacement authority excluded |
+| Owned move implementation / 62 | Safe move history at actual decision consumer | Authorized bounded implementation | Approved Prompt61 APIs/lifetimes; conservative stale PP; no whole-family closure |
 | S01, M | Raw request knownness | Priority repair planned | Source seam; K07/K08 before adoption |
 | S02, M | Original owner provider/identity | Priority repair planned | Legitimate pre-effect delivery |
 | S03, M | Retention/restoration | Planned | S01/S02; stale/current and request lifetimes |

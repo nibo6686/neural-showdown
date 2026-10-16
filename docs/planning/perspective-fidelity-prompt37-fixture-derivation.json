@@ -1,0 +1,1129 @@
+{
+  "native11": [
+    {
+      "token": "ability",
+      "record": "|ability|p1a: Rayquaza|Air Lock",
+      "accept": true
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Rayquaza|Air Lock",
+      "accept": true
+    },
+    {
+      "token": "block",
+      "record": "|block|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "-block",
+      "record": "|-block|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "bigerror",
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 10 turns (on turn 1000).",
+      "accept": true
+    },
+    {
+      "token": "boost",
+      "record": "|boost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "-boost",
+      "record": "|-boost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "clearallboost",
+      "record": "|clearallboost",
+      "accept": true
+    },
+    {
+      "token": "-clearallboost",
+      "record": "|-clearallboost",
+      "accept": true
+    },
+    {
+      "token": "clearnegativeboost",
+      "record": "|clearnegativeboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-clearnegativeboost",
+      "record": "|-clearnegativeboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "clearpositiveboost",
+      "record": "|clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "accept": true
+    },
+    {
+      "token": "-clearpositiveboost",
+      "record": "|-clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "accept": true
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure|[silent]",
+      "accept": true
+    },
+    {
+      "token": "damage",
+      "record": "|damage|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-damage",
+      "record": "|-damage|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "drag",
+      "record": "|drag|p1a: Pikachu|Pikachu, L50|100/100",
+      "accept": true
+    },
+    {
+      "token": "detailschange",
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77",
+      "accept": true
+    },
+    {
+      "token": "end",
+      "record": "|end",
+      "accept": true
+    },
+    {
+      "token": "-end",
+      "record": "|-end|p1a: Pikachu|confusion",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "enditem",
+      "record": "|enditem|p1a: Pikachu|Leftovers",
+      "accept": true
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Pikachu|Air Balloon",
+      "accept": true
+    },
+    {
+      "token": "faint",
+      "record": "|faint|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "fieldend",
+      "record": "|fieldend|RainDance",
+      "accept": true
+    },
+    {
+      "token": "-fieldend",
+      "record": "|-fieldend|RainDance",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "fieldstart",
+      "record": "|fieldstart|move: Gravity",
+      "accept": true
+    },
+    {
+      "token": "-fieldstart",
+      "record": "|-fieldstart|move: Gravity",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "formechange",
+      "record": "|formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "accept": true
+    },
+    {
+      "token": "-formechange",
+      "record": "|-formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "accept": true
+    },
+    {
+      "token": "gen",
+      "record": "|gen|9",
+      "accept": true
+    },
+    {
+      "token": "heal",
+      "record": "|heal|p1a: Pikachu|100/100",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/heal-failure"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p2a: Blissey|50/100|[from] item: Leftovers",
+      "accept": true
+    },
+    {
+      "token": "hitcount",
+      "record": "|hitcount|p1a: Pikachu|2",
+      "accept": true
+    },
+    {
+      "token": "immune",
+      "record": "|immune|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-immune",
+      "record": "|-immune|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "item",
+      "record": "|item|p1a: Pikachu|Leftovers",
+      "accept": true
+    },
+    {
+      "token": "-item",
+      "record": "|-item|p1a: Pikachu|Air Balloon",
+      "accept": true
+    },
+    {
+      "token": "miss",
+      "record": "|miss|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-miss",
+      "record": "|-miss|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "move",
+      "record": "|move|p1a: Pikachu|Thunderbolt|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-nothing",
+      "record": "|-nothing",
+      "accept": true
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
+      "accept": true
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "cant",
+      "record": "|cant|p1a: Pikachu|move: Disable",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/heal-failure"
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p1a: Pikachu|2",
+      "accept": true
+    },
+    {
+      "token": "player",
+      "record": "|player|p1|Alice|avatar",
+      "accept": true
+    },
+    {
+      "token": "poke",
+      "record": "|poke|p1|Pikachu, L50",
+      "accept": true
+    },
+    {
+      "token": "replace",
+      "record": "|replace|p1a: Pikachu|Pikachu, L50",
+      "accept": true
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":7}",
+      "accept": true
+    },
+    {
+      "token": "resisted",
+      "record": "|resisted|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-resisted",
+      "record": "|-resisted|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "rule",
+      "record": "|rule|Species Clause",
+      "accept": true
+    },
+    {
+      "token": "sidestart",
+      "record": "|sidestart|p1: Alice|move: Stealth Rock",
+      "accept": true
+    },
+    {
+      "token": "-hint",
+      "record": "|-hint|Illusion ended",
+      "accept": true
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Spectral Thief|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-copyboost",
+      "record": "|-copyboost|p1a: Pikachu|p2a: Gengar|[from] move: Psych Up",
+      "accept": true
+    },
+    {
+      "token": "-invertboost",
+      "record": "|-invertboost|p2a: Gengar|[from] move: Topsy-Turvy",
+      "accept": true
+    },
+    {
+      "token": "-sidestart",
+      "record": "|-sidestart|p1: Alice|move: Stealth Rock",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "sideend",
+      "record": "|sideend|p1: Alice|move: Stealth Rock",
+      "accept": true
+    },
+    {
+      "token": "-sideend",
+      "record": "|-sideend|p1: Alice|Stealth Rock|[from] move: Rapid Spin|[of] p1a: Alice",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "start",
+      "record": "|start",
+      "accept": true
+    },
+    {
+      "token": "-start",
+      "record": "|-start|p1a: Pikachu|confusion",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Pikachu|brn",
+      "accept": true
+    },
+    {
+      "token": "switch",
+      "record": "|switch|p1a: Pikachu|Pikachu, L50|100/100",
+      "accept": true
+    },
+    {
+      "token": "teamsize",
+      "record": "|teamsize|p1|6",
+      "accept": true
+    },
+    {
+      "token": "terastallize",
+      "record": "|terastallize|p1a: Pikachu|Electric",
+      "accept": true
+    },
+    {
+      "token": "-terastallize",
+      "record": "|-terastallize|p1a: Pikachu|Electric",
+      "accept": true
+    },
+    {
+      "token": "tier",
+      "record": "|tier|[Gen 9] Random Battle",
+      "accept": true
+    },
+    {
+      "token": "turn",
+      "record": "|turn|1",
+      "accept": true
+    },
+    {
+      "token": "unboost",
+      "record": "|unboost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "-unboost",
+      "record": "|-unboost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "upkeep",
+      "record": "|upkeep",
+      "accept": true
+    },
+    {
+      "token": "weather",
+      "record": "|weather|SunnyDay",
+      "accept": true
+    },
+    {
+      "token": "-weather",
+      "record": "|-weather|SunnyDay",
+      "accept": false,
+      "reason": "Native11 candidate effect/lifecycle semantics unproved."
+    },
+    {
+      "token": "win",
+      "record": "|win|Alice",
+      "accept": true
+    },
+    {
+      "token": "tie",
+      "record": "|tie",
+      "accept": true
+    },
+    {
+      "token": "transform",
+      "record": "|transform|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-transform",
+      "record": "|-transform|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "setboost",
+      "record": "|setboost|p1a: Pikachu|atk|6",
+      "accept": true
+    },
+    {
+      "token": "-setboost",
+      "record": "|-setboost|p1a: Pikachu|atk|-6|[from] move: Belly Drum",
+      "accept": true
+    },
+    {
+      "token": "sethp",
+      "record": "|sethp|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-sethp",
+      "record": "|-sethp|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-swapsideconditions",
+      "record": "|-swapsideconditions",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/court-change"
+    },
+    {
+      "token": "crit",
+      "record": "|crit|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-crit",
+      "record": "|-crit|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "supereffective",
+      "record": "|supereffective|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-supereffective",
+      "record": "|-supereffective|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "fail",
+      "record": "|fail|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-fail",
+      "record": "|-fail|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "activate",
+      "record": "|activate|p1a: Pikachu|ability: Static",
+      "accept": true
+    },
+    {
+      "token": "-activate",
+      "record": "|-activate|p1a: Pikachu|ability: Static",
+      "accept": true
+    },
+    {
+      "token": "-fieldactivate",
+      "record": "|-fieldactivate|move: Gravity",
+      "accept": true
+    },
+    {
+      "token": "-message",
+      "record": "|-message|battle message",
+      "accept": true
+    },
+    {
+      "token": "prepare",
+      "record": "|prepare|p1a: Pikachu|Dig",
+      "accept": true
+    },
+    {
+      "token": "-prepare",
+      "record": "|-prepare|p1a: Pikachu|Dig",
+      "accept": true
+    },
+    {
+      "token": "mustrecharge",
+      "record": "|mustrecharge|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-mustrecharge",
+      "record": "|-mustrecharge|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "clearboost",
+      "record": "|clearboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-clearboost",
+      "record": "|-clearboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "c",
+      "record": "|c|Alice|hello",
+      "accept": true
+    },
+    {
+      "token": "chat",
+      "record": "|chat|Alice|hello",
+      "accept": true
+    },
+    {
+      "token": "error",
+      "record": "|error|[Invalid choice]",
+      "accept": true
+    },
+    {
+      "token": "gametype",
+      "record": "|gametype|singles",
+      "accept": true
+    },
+    {
+      "token": "rated",
+      "record": "|rated",
+      "accept": true
+    },
+    {
+      "token": "teampreview",
+      "record": "|teampreview",
+      "accept": true
+    },
+    {
+      "token": "clearpoke",
+      "record": "|clearpoke",
+      "accept": true
+    },
+    {
+      "token": "done",
+      "record": "|done",
+      "accept": true
+    },
+    {
+      "token": "inactive",
+      "record": "|inactive|Alice is inactive",
+      "accept": true
+    },
+    {
+      "token": "inactiveoff",
+      "record": "|inactiveoff|Alice is active",
+      "accept": true
+    },
+    {
+      "token": "t:",
+      "record": "|t:|123",
+      "accept": true
+    },
+    {
+      "token": "message",
+      "record": "|message|Pokémon",
+      "accept": true
+    }
+  ],
+  "replay-compat-v1": [
+    {
+      "token": "ability",
+      "record": "|ability|p1a: Rayquaza|Air Lock",
+      "accept": true
+    },
+    {
+      "token": "-ability",
+      "record": "|-ability|p1a: Rayquaza|Air Lock",
+      "accept": true
+    },
+    {
+      "token": "block",
+      "record": "|block|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "-block",
+      "record": "|-block|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "bigerror",
+      "record": "|bigerror|You will auto-tie if the battle doesn't end in 10 turns (on turn 1000).",
+      "accept": true
+    },
+    {
+      "token": "boost",
+      "record": "|boost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "-boost",
+      "record": "|-boost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "clearallboost",
+      "record": "|clearallboost",
+      "accept": true
+    },
+    {
+      "token": "-clearallboost",
+      "record": "|-clearallboost",
+      "accept": true
+    },
+    {
+      "token": "clearnegativeboost",
+      "record": "|clearnegativeboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-clearnegativeboost",
+      "record": "|-clearnegativeboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "clearpositiveboost",
+      "record": "|clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "accept": true
+    },
+    {
+      "token": "-clearpositiveboost",
+      "record": "|-clearpositiveboost|p1a: Pikachu|p2a: Gengar|Mirror Armor",
+      "accept": true
+    },
+    {
+      "token": "-curestatus",
+      "record": "|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure",
+      "accept": true
+    },
+    {
+      "token": "damage",
+      "record": "|damage|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-damage",
+      "record": "|-damage|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "drag",
+      "record": "|drag|p1a: Pikachu|Pikachu, L50|100/100",
+      "accept": true
+    },
+    {
+      "token": "detailschange",
+      "record": "|detailschange|p1a: Palafin|Palafin-Hero, L77",
+      "accept": true
+    },
+    {
+      "token": "end",
+      "record": "|end",
+      "accept": true
+    },
+    {
+      "token": "-end",
+      "record": "|-end|p1a: Pikachu|confusion",
+      "accept": true
+    },
+    {
+      "token": "enditem",
+      "record": "|enditem|p1a: Pikachu|Leftovers",
+      "accept": true
+    },
+    {
+      "token": "-enditem",
+      "record": "|-enditem|p1a: Pikachu|Air Balloon",
+      "accept": true
+    },
+    {
+      "token": "faint",
+      "record": "|faint|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "fieldend",
+      "record": "|fieldend|RainDance",
+      "accept": true
+    },
+    {
+      "token": "-fieldend",
+      "record": "|-fieldend|RainDance",
+      "accept": true
+    },
+    {
+      "token": "fieldstart",
+      "record": "|fieldstart|move: Gravity",
+      "accept": true
+    },
+    {
+      "token": "-fieldstart",
+      "record": "|-fieldstart|move: Gravity",
+      "accept": true
+    },
+    {
+      "token": "formechange",
+      "record": "|formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "accept": true
+    },
+    {
+      "token": "-formechange",
+      "record": "|-formechange|p1a: Pikachu|Pikachu-Rock-Star",
+      "accept": true
+    },
+    {
+      "token": "gen",
+      "record": "|gen|9",
+      "accept": true
+    },
+    {
+      "token": "heal",
+      "record": "|heal|p1a: Pikachu|100/100",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/heal-failure"
+    },
+    {
+      "token": "-heal",
+      "record": "|-heal|p2a: Blissey|50/100|[from] item: Leftovers",
+      "accept": true
+    },
+    {
+      "token": "hitcount",
+      "record": "|hitcount|p1a: Pikachu|2",
+      "accept": true
+    },
+    {
+      "token": "immune",
+      "record": "|immune|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-immune",
+      "record": "|-immune|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "item",
+      "record": "|item|p1a: Pikachu|Leftovers",
+      "accept": true
+    },
+    {
+      "token": "-item",
+      "record": "|-item|p1a: Pikachu|Air Balloon",
+      "accept": true
+    },
+    {
+      "token": "miss",
+      "record": "|miss|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-miss",
+      "record": "|-miss|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "move",
+      "record": "|move|p1a: Pikachu|Thunderbolt|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-nothing",
+      "record": "|-nothing",
+      "accept": true
+    },
+    {
+      "token": "-singlemove",
+      "record": "|-singlemove|p1a: Pikachu|Destiny Bond",
+      "accept": true
+    },
+    {
+      "token": "-singleturn",
+      "record": "|-singleturn|p1a: Pikachu|Protect",
+      "accept": true
+    },
+    {
+      "token": "cant",
+      "record": "|cant|p1a: Pikachu|move: Disable",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/heal-failure"
+    },
+    {
+      "token": "-hitcount",
+      "record": "|-hitcount|p1a: Pikachu|2",
+      "accept": true
+    },
+    {
+      "token": "player",
+      "record": "|player|p1|Alice|avatar",
+      "accept": true
+    },
+    {
+      "token": "poke",
+      "record": "|poke|p1|Pikachu, L50",
+      "accept": true
+    },
+    {
+      "token": "replace",
+      "record": "|replace|p1a: Pikachu|Pikachu, L50",
+      "accept": true
+    },
+    {
+      "token": "request",
+      "record": "|request|{\"rqid\":7}",
+      "accept": true
+    },
+    {
+      "token": "resisted",
+      "record": "|resisted|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-resisted",
+      "record": "|-resisted|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "rule",
+      "record": "|rule|Species Clause",
+      "accept": true
+    },
+    {
+      "token": "sidestart",
+      "record": "|sidestart|p1: Alice|move: Stealth Rock",
+      "accept": true
+    },
+    {
+      "token": "-hint",
+      "record": "|-hint|Illusion ended",
+      "accept": true
+    },
+    {
+      "token": "-anim",
+      "record": "|-anim|p1a: Pikachu|Spectral Thief|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-copyboost",
+      "record": "|-copyboost|p1a: Pikachu|p2a: Gengar|[from] move: Psych Up",
+      "accept": true
+    },
+    {
+      "token": "-invertboost",
+      "record": "|-invertboost|p2a: Gengar|[from] move: Topsy-Turvy",
+      "accept": true
+    },
+    {
+      "token": "-sidestart",
+      "record": "|-sidestart|p1: Alice|move: Stealth Rock",
+      "accept": true
+    },
+    {
+      "token": "sideend",
+      "record": "|sideend|p1: Alice|move: Stealth Rock",
+      "accept": true
+    },
+    {
+      "token": "-sideend",
+      "record": "|-sideend|p1: Alice|Stealth Rock|[from] move: Rapid Spin|[of] p1a: Alice",
+      "accept": true
+    },
+    {
+      "token": "start",
+      "record": "|start",
+      "accept": true
+    },
+    {
+      "token": "-start",
+      "record": "|-start|p1a: Pikachu|confusion",
+      "accept": true
+    },
+    {
+      "token": "-status",
+      "record": "|-status|p1a: Pikachu|brn",
+      "accept": true
+    },
+    {
+      "token": "switch",
+      "record": "|switch|p1a: Pikachu|Pikachu, L50|100/100",
+      "accept": true
+    },
+    {
+      "token": "teamsize",
+      "record": "|teamsize|p1|6",
+      "accept": true
+    },
+    {
+      "token": "terastallize",
+      "record": "|terastallize|p1a: Pikachu|Electric",
+      "accept": true
+    },
+    {
+      "token": "-terastallize",
+      "record": "|-terastallize|p1a: Pikachu|Electric",
+      "accept": true
+    },
+    {
+      "token": "tier",
+      "record": "|tier|[Gen 9] Random Battle",
+      "accept": true
+    },
+    {
+      "token": "turn",
+      "record": "|turn|1",
+      "accept": true
+    },
+    {
+      "token": "unboost",
+      "record": "|unboost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "-unboost",
+      "record": "|-unboost|p1a: Pikachu|atk|1",
+      "accept": true
+    },
+    {
+      "token": "upkeep",
+      "record": "|upkeep",
+      "accept": true
+    },
+    {
+      "token": "weather",
+      "record": "|weather|SunnyDay",
+      "accept": true
+    },
+    {
+      "token": "-weather",
+      "record": "|-weather|SunnyDay",
+      "accept": true
+    },
+    {
+      "token": "win",
+      "record": "|win|Alice",
+      "accept": true
+    },
+    {
+      "token": "tie",
+      "record": "|tie",
+      "accept": true
+    },
+    {
+      "token": "transform",
+      "record": "|transform|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-transform",
+      "record": "|-transform|p1a: Pikachu|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "setboost",
+      "record": "|setboost|p1a: Pikachu|atk|6",
+      "accept": true
+    },
+    {
+      "token": "-setboost",
+      "record": "|-setboost|p1a: Pikachu|atk|-6|[from] move: Belly Drum",
+      "accept": true
+    },
+    {
+      "token": "sethp",
+      "record": "|sethp|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-sethp",
+      "record": "|-sethp|p1a: Pikachu|50/100",
+      "accept": true
+    },
+    {
+      "token": "-swapsideconditions",
+      "record": "|-swapsideconditions",
+      "accept": false,
+      "reason": "reader-profile/v1/prepared-family-unsupported/court-change"
+    },
+    {
+      "token": "crit",
+      "record": "|crit|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-crit",
+      "record": "|-crit|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "supereffective",
+      "record": "|supereffective|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "-supereffective",
+      "record": "|-supereffective|p2a: Gengar",
+      "accept": true
+    },
+    {
+      "token": "fail",
+      "record": "|fail|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-fail",
+      "record": "|-fail|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "activate",
+      "record": "|activate|p1a: Pikachu|ability: Static",
+      "accept": true
+    },
+    {
+      "token": "-activate",
+      "record": "|-activate|p1a: Pikachu|ability: Static",
+      "accept": true
+    },
+    {
+      "token": "-fieldactivate",
+      "record": "|-fieldactivate|move: Gravity",
+      "accept": true
+    },
+    {
+      "token": "-message",
+      "record": "|-message|battle message",
+      "accept": true
+    },
+    {
+      "token": "prepare",
+      "record": "|prepare|p1a: Pikachu|Dig",
+      "accept": true
+    },
+    {
+      "token": "-prepare",
+      "record": "|-prepare|p1a: Pikachu|Dig",
+      "accept": true
+    },
+    {
+      "token": "mustrecharge",
+      "record": "|mustrecharge|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-mustrecharge",
+      "record": "|-mustrecharge|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "clearboost",
+      "record": "|clearboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "-clearboost",
+      "record": "|-clearboost|p1a: Pikachu",
+      "accept": true
+    },
+    {
+      "token": "c",
+      "record": "|c|Alice|hello",
+      "accept": true
+    },
+    {
+      "token": "chat",
+      "record": "|chat|Alice|hello",
+      "accept": true
+    },
+    {
+      "token": "error",
+      "record": "|error|[Invalid choice]",
+      "accept": true
+    },
+    {
+      "token": "gametype",
+      "record": "|gametype|singles",
+      "accept": true
+    },
+    {
+      "token": "rated",
+      "record": "|rated",
+      "accept": true
+    },
+    {
+      "token": "teampreview",
+      "record": "|teampreview",
+      "accept": true
+    },
+    {
+      "token": "clearpoke",
+      "record": "|clearpoke",
+      "accept": true
+    },
+    {
+      "token": "done",
+      "record": "|done",
+      "accept": true
+    },
+    {
+      "token": "inactive",
+      "record": "|inactive|Alice is inactive",
+      "accept": true
+    },
+    {
+      "token": "inactiveoff",
+      "record": "|inactiveoff|Alice is active",
+      "accept": true
+    },
+    {
+      "token": "t:",
+      "record": "|t:|123",
+      "accept": true
+    },
+    {
+      "token": "message",
+      "record": "|message|Pokémon",
+      "accept": true
+    }
+  ]
+}

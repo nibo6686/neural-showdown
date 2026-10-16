@@ -8,6 +8,17 @@ const os = require('node:os');
 const assert = require('node:assert/strict');
 
 const root = path.resolve(__dirname, '..');
+// Separate inactive inspection: no active engine, generated counts or old attestation checker runs.
+const candidateOption = process.argv.find(arg => arg.startsWith('--candidate-profile='));
+if (candidateOption) {
+  if (candidateOption !== '--candidate-profile=native11') throw new Error('unsupported-candidate-profile');
+  const {loadInactiveTargetInventory} = require('../dist/src/version_profile.js');
+  const candidate = loadInactiveTargetInventory();
+  console.log(JSON.stringify({profile: 'native11', adopted: false, check: 'source-bound-inactive-inventory',
+    runtime: 'UNEXECUTED', static_species: candidate.format_provenance.candidate_population.species.length,
+    static_set_rows: candidate.format_provenance.candidate_population.sets}));
+  process.exit(0);
+}
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json'), 'utf8'));
 const pkgPath = require.resolve('pokemon-showdown/package.json', { paths: [root] });
 const pkgRoot = path.dirname(pkgPath);

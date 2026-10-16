@@ -1,3 +1,4 @@
+from .version_profile import assert_prepared_protocol_policy, NATIVE11_GRAMMAR_CONTEXT, protocol_context as reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Shared Showdown protocol allowlist and cross-runtime raw-record grammar."""
 import json
 import math
@@ -458,7 +459,8 @@ def _effect_id(value):
     return re.sub(r"[^a-z0-9]", "", value.lower())
 
 
-def _classify_effect_record(command, value):
+def _classify_effect_record(command, value, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command in ("-start", "-end"):
         family, allowed_categories = "move_volatile", {"move_volatile"}
     elif command == "-weather":
@@ -471,14 +473,14 @@ def _classify_effect_record(command, value):
         return "represented"
 
     identifier = _effect_id(value)
-    special = next((item for item in _EFFECT_DISCOVERY.get("special_values", [])
+    special = next((item for item in reader_context(reader_rules).inventory["effect_discovery"].get("special_values", [])
                     if command in item.get("commands", []) and item.get("id") == identifier), None)
     if special:
         return special["classification"]
     prefix = re.match(r"^(?:move|ability|item):\s*", value, re.IGNORECASE)
     if prefix:
         identifier = _effect_id(value[prefix.end():])
-    entry = _EFFECT_INVENTORY.get(identifier)
+    entry = reader_context(reader_rules).effects.get(identifier)
     diagnostic = f"simulator-coverage/v1/unclassified-effect-value command={command} family={family} value={value}"
     if entry is None:
         raise ProtocolRecordError("unknown", command, diagnostic + " disposition=unknown",
@@ -517,10 +519,11 @@ def _field(parts, index, command, label="field"):
         _malformed(command, f"{label} is required")
 
 
-def _is_player_ident(value, active_required=False):
+def _is_player_ident(value, active_required=False, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if not isinstance(value, str) or value != value.strip(_JS_TRIM) or "|" in value:
         return False
-    rules = VALIDATION_RULES["player_ident"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["player_ident"]
     separator = rules["separator"]
     prefix, found, name = value.partition(separator)
     if not found or not name or name != name.strip(_JS_TRIM):
@@ -529,39 +532,44 @@ def _is_player_ident(value, active_required=False):
     return side in rules["side_ids"] and slot in rules["slots"] and (not active_required or bool(slot))
 
 
-def _is_side_only_player_ident(value):
-    rules = VALIDATION_RULES["player_ident"]
-    return _is_player_ident(value) and any(value.startswith(side + rules["separator"]) for side in rules["side_ids"])
+def _is_side_only_player_ident(value, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["player_ident"]
+    return _is_player_ident(value, reader_rules=reader_rules) and any(value.startswith(side + rules["separator"]) for side in rules["side_ids"])
 
 
-def _hitcount_target(parts, index, command):
+def _hitcount_target(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, "pokemon identifier")
     value = parts[index]
-    if not _is_player_ident(value):
+    if not _is_player_ident(value, reader_rules=reader_rules):
         _malformed(command, "invalid pokemon identifier")
-    separator = VALIDATION_RULES["player_ident"]["separator"]
+    separator = reader_context(reader_rules).protocol["validation_rules"]["player_ident"]["separator"]
     prefix = value.partition(separator)[0]
     side, slot = prefix[:2], prefix[2:]
     role = "active" if slot == "a" else "side-only" if slot == "" else None
-    if side not in VALIDATION_RULES["player_ident"]["side_ids"] or role not in VALIDATION_RULES["hitcount"]["target_roles"]:
+    if side not in reader_context(reader_rules).protocol["validation_rules"]["player_ident"]["side_ids"] or role not in reader_context(reader_rules).protocol["validation_rules"]["hitcount"]["target_roles"]:
         _malformed(command, "target must be a Gen 9 singles active or post-faint side-only ident")
 
 
-def _hitcount(parts, index, command):
-    _integer(parts, index, command, "hit count")
-    if int(parts[index]) not in VALIDATION_RULES["hitcount"]["count_values"]:
+def _hitcount(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    _integer(parts, index, command, "hit count", reader_rules=reader_rules)
+    if int(parts[index]) not in reader_context(reader_rules).protocol["validation_rules"]["hitcount"]["count_values"]:
         _malformed(command, "hit count is outside the pinned Gen 9 Random Battle domain")
 
 
-def _ident(parts, index, command):
+def _ident(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, "pokemon identifier")
-    if not _is_player_ident(parts[index], active_required=True):
+    if not _is_player_ident(parts[index], active_required=True, reader_rules=reader_rules):
         _malformed(command, "invalid pokemon identifier")
 
 
-def _target(parts, index, command):
+def _target(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, "target")
-    if parts[index] != "-" and not _is_player_ident(parts[index], active_required=True):
+    if parts[index] != "-" and not _is_player_ident(parts[index], active_required=True, reader_rules=reader_rules):
         _malformed(command, "invalid target")
 
 
@@ -571,28 +579,31 @@ def _player(parts, index, command):
         _malformed(command, "invalid player")
 
 
-def _integer(parts, index, command, label, signed=False):
+def _integer(parts, index, command, label, signed=False, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, label)
     pattern = r"(?:0|[1-9][0-9]*|-[1-9][0-9]*)" if signed else r"(?:0|[1-9][0-9]*)"
-    if not re.fullmatch(pattern, parts[index]) or abs(int(parts[index])) > VALIDATION_RULES["integer"]["safe_limit"]:
+    if not re.fullmatch(pattern, parts[index]) or abs(int(parts[index])) > reader_context(reader_rules).protocol["validation_rules"]["integer"]["safe_limit"]:
         _malformed(command, f"{label} must be a safe integer")
 
 
-def _valid_health_condition(value):
-    rules = VALIDATION_RULES["health_condition"]
+def _valid_health_condition(value, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["health_condition"]
     if value == rules["fainted"]:
         return True
     match = re.fullmatch(r"([1-9][0-9]*)/([1-9][0-9]*)(?: ([a-z]+))?", value)
     if not match:
         return False
     numerator, denominator = map(int, match.group(1, 2))
-    limit = VALIDATION_RULES["integer"]["safe_limit"]
+    limit = reader_context(reader_rules).protocol["validation_rules"]["integer"]["safe_limit"]
     return numerator <= denominator and numerator <= limit and denominator <= limit and (match.group(3) is None or match.group(3) in rules["statuses"])
 
 
-def _health_condition(parts, index, command):
+def _health_condition(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, "condition")
-    if not _valid_health_condition(parts[index]):
+    if not _valid_health_condition(parts[index], reader_rules=reader_rules):
         _malformed(command, "invalid health condition")
 
 
@@ -600,7 +611,8 @@ def _tag_kind(tag):
     return tag.split(" ", 1)[0]
 
 
-def _event_tags(parts, start, command, rules, order, singleton_kinds):
+def _event_tags(parts, start, command, rules, order, singleton_kinds, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     tags = parts[start:]
     seen_tags = set()
     seen_kinds = set()
@@ -617,7 +629,7 @@ def _event_tags(parts, start, command, rules, order, singleton_kinds):
             value = tag[len(prefix) + 1:]
             if not value or value != value.strip(_JS_TRIM):
                 continue
-            if kind == "trimmed-nonempty-text" or (kind == "player-ident" and _is_player_ident(value)):
+            if kind == "trimmed-nonempty-text" or (kind == "player-ident" and _is_player_ident(value, reader_rules=reader_rules)):
                 valid = True
                 break
         if not valid:
@@ -635,34 +647,37 @@ def _event_tags(parts, start, command, rules, order, singleton_kinds):
         previous_order = index
 
 
-def _heal_wisher_dependency(parts, command):
+def _heal_wisher_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     tags = parts[4:]
     if not any(_tag_kind(tag) == "[wisher]" for tag in tags):
         return
-    dependency = VALIDATION_RULES["heal_wisher_dependency"]
+    dependency = reader_context(reader_rules).protocol["validation_rules"]["heal_wisher_dependency"]
     if (len(tags) != len(dependency["required_tag_order"])
             or tags[0] != dependency["required_from"]
             or [_tag_kind(tag) for tag in tags] != dependency["required_tag_order"]):
         _malformed(command, "[wisher] requires its exact Wish source form")
 
 
-def _healing_wish_dependency(parts, command):
+def _healing_wish_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     tags = parts[4:]
     # The pinned base-data healing emitter in this name family is Healing Wish.
     # Ordinary heals retain their existing grammar; malformed attempted Healing
     # Wish provenance cannot cross the public publication boundary.
     if not any(tag.startswith("[from] move: Healing") for tag in tags):
         return
-    dependency = VALIDATION_RULES["healing_wish_heal"]
+    dependency = reader_context(reader_rules).protocol["validation_rules"]["healing_wish_heal"]
     if (len(parts) != 5
             or parts[4] != dependency["required_from"]
-            or not _is_player_ident(parts[2], active_required=True)
+            or not _is_player_ident(parts[2], active_required=True, reader_rules=reader_rules)
             or parts[3] != dependency["health"]
             or dependency["required_tag_order"] != ["[from]"]):
         _malformed(command, "Healing Wish requires its exact source form")
 
 
-def _future_sight_dependency(parts, command):
+def _future_sight_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     effect = parts[3] if len(parts) > 3 else ""
     # The generic start/end grammar stays available for its existing raw-only
     # families. Pinned Future Sight emits neither tags nor private slot state.
@@ -671,33 +686,35 @@ def _future_sight_dependency(parts, command):
     if not (re.search(r"future\s*sight", effect, re.IGNORECASE)
             or re.match(r"^\s*move[\s:]+future", effect, re.IGNORECASE)):
         return
-    dependency = VALIDATION_RULES["future_sight"]
+    dependency = reader_context(reader_rules).protocol["validation_rules"]["future_sight"]
     if command not in (dependency["activation_command"], dependency["resolution_command"]):
         return
     if (len(parts) != dependency["payload_fields"] + 3
             or effect != dependency["effect"]
-            or not _is_player_ident(parts[2], active_required=dependency["target_role"] == "active")):
+            or not _is_player_ident(parts[2], active_required=dependency["target_role"] == "active", reader_rules=reader_rules)):
         _malformed(command, "Future Sight requires its exact source form")
 
 
-def _repeat_use_hint_dependency(parts, command):
+def _repeat_use_hint_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     message = parts[2] if len(parts) > 2 else ""
     if not re.match(r"^\s*Some\s+effects\s+can\s+force\s+a\s+Pokemon\s+to\s+use\b", message, re.IGNORECASE):
         return
-    dependency = VALIDATION_RULES["repeat_use_hint"]
+    dependency = reader_context(reader_rules).protocol["validation_rules"]["repeat_use_hint"]
     if len(parts) != dependency["payload_fields"] + 2 or message not in dependency["messages"]:
         _malformed(command, "repeat-use hint requires its exact source form")
 
 
-def _entry_hazard(parts, command):
+def _entry_hazard(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command not in ("-sidestart", "-sideend"):
         return
-    rules = VALIDATION_RULES["entry_hazard"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["entry_hazard"]
     effect_value = parts[3] if len(parts) > 3 else ""
     effect = _effect_id(re.sub(r"^move:\s*", "", effect_value, flags=re.IGNORECASE))
     if effect not in rules["layers"]:
         return
-    if not _is_side_only_player_ident(parts[2]):
+    if not _is_side_only_player_ident(parts[2], reader_rules=reader_rules):
         _malformed(command, "hazard side must be canonical")
     titles = {"spikes": "Spikes", "toxicspikes": "Toxic Spikes", "stealthrock": "Stealth Rock", "stickyweb": "Sticky Web"}
     if command == "-sidestart":
@@ -706,21 +723,22 @@ def _entry_hazard(parts, command):
         return
     if parts[3] != titles[effect]:
         if not (effect == "toxicspikes" and parts[3] == "move: Toxic Spikes" and len(parts) == 5
-                and parts[4].startswith("[of] ") and _is_player_ident(parts[4][5:], active_required=True)):
+                and parts[4].startswith("[of] ") and _is_player_ident(parts[4][5:], active_required=True, reader_rules=reader_rules)):
             _malformed(command, "unsupported entry-hazard end form")
         return
     if len(parts) == 4:
         return
     if (len(parts) != 6 or not parts[4].startswith("[from] move: ") or not parts[5].startswith("[of] ")
-            or parts[4][13:] not in rules["removal_sources"] or not _is_player_ident(parts[5][5:], active_required=True)):
+            or parts[4][13:] not in rules["removal_sources"] or not _is_player_ident(parts[5][5:], active_required=True, reader_rules=reader_rules)):
         _malformed(command, "unsupported entry-hazard removal form")
 
 
 
-def _screen_record(parts, command):
+def _screen_record(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command not in ("sidestart", "-sidestart", "sideend", "-sideend"):
         return
-    rules = VALIDATION_RULES["screen"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["screen"]
     effect_value = parts[3] if len(parts) > 3 else ""
     effect = _effect_id(re.sub(r"^move:\s*", "", effect_value, flags=re.IGNORECASE))
     if effect not in rules["ids"]:
@@ -730,12 +748,13 @@ def _screen_record(parts, command):
     expected = (rules["start_forms"].get(effect) if command == "-sidestart"
                 else rules["end_forms"].get(effect) if command == "-sideend" else None)
     if (not expected or len(parts) != 4 or parts[3] != expected
-            or not _is_side_only_player_ident(parts[2])):
+            or not _is_side_only_player_ident(parts[2], reader_rules=reader_rules)):
         _malformed(command, "unsupported screen source form")
 
 
-def _court_change_record(parts, command):
-    rules = VALIDATION_RULES["court_change"]
+def _court_change_record(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["court_change"]
     if command == "swapsideconditions":
         _malformed(command, "Court Change emits only the pinned dash command")
     if command == rules["command"]:
@@ -748,16 +767,17 @@ def _court_change_record(parts, command):
     if not re.search(r"court\s*change", effect, re.IGNORECASE):
         return False
     if (len(parts) != 4 or effect != rules["activation_effect"]
-            or not _is_player_ident(parts[2], active_required=True)
+            or not _is_player_ident(parts[2], active_required=True, reader_rules=reader_rules)
             or not re.match(r"^p[12]a: ", parts[2])):
         _malformed(command, "Court Change requires an active source and its exact source form")
     return False
 
 
-def _weather_record(parts, command):
+def _weather_record(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command != "-weather":
         return
-    rules = VALIDATION_RULES["weather"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["weather"]
     effect = parts[2] if len(parts) > 2 else ""
     if effect == "none":
         if len(parts) != 3:
@@ -772,14 +792,15 @@ def _weather_record(parts, command):
     if len(parts) == 5 and parts[3].startswith("[from] ability: ") and parts[4].startswith("[of] "):
         ability, source = parts[3][16:], parts[4][5:]
         if (ability in rules["ability_origins"].get(effect, [])
-                and _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source)):
+                and _is_player_ident(source, active_required=True, reader_rules=reader_rules) and re.match(r"^p[12]a: ", source)):
             return
     _malformed(command, "unsupported source grammar")
 
-def _terrain_record(parts, command):
+def _terrain_record(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command not in ("fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
         return
-    rules = VALIDATION_RULES["terrain"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["terrain"]
     effect = parts[2] if len(parts) > 2 else ""
     terrain_id = next((identifier for identifier, name in rules["public_names"].items() if name == effect), None)
     if terrain_id is None:
@@ -798,15 +819,16 @@ def _terrain_record(parts, command):
     if (len(parts) == 5 and parts[3].startswith("[from] ability: ") and parts[4].startswith("[of] ")):
         ability, source = parts[3][16:], parts[4][5:]
         if (ability in rules["ability_origins"][terrain_id]
-                and _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source)):
+                and _is_player_ident(source, active_required=True, reader_rules=reader_rules) and re.match(r"^p[12]a: ", source)):
             return
     _malformed(command, "unsupported terrain source grammar")
 
 
-def _trick_room_record(parts, command):
+def _trick_room_record(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if command not in ("fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
         return
-    rules = VALIDATION_RULES["trick_room"]
+    rules = reader_context(reader_rules).protocol["validation_rules"]["trick_room"]
     effect = parts[2] if len(parts) > 2 else ""
     if _effect_id(re.sub(r"^move:\s*", "", effect, flags=re.IGNORECASE)) != "trickroom":
         return
@@ -818,16 +840,17 @@ def _trick_room_record(parts, command):
         return
     if command == rules["start_command"] and len(parts) == 4 and parts[3].startswith(rules["source_tag"] + " "):
         source = parts[3][len(rules["source_tag"]) + 1:]
-        if _is_player_ident(source, active_required=True) and re.match(r"^p[12]a: ", source):
+        if _is_player_ident(source, active_required=True, reader_rules=reader_rules) and re.match(r"^p[12]a: ", source):
             return
     _malformed(command, "unsupported Trick Room source grammar")
 
 
-def _ability_event(parts, command):
-    rules = VALIDATION_RULES["ability"]
+def _ability_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["ability"]
     if len(parts) < 4:
         _malformed(command)
-    _ident(parts, 2, command)
+    _ident(parts, 2, command, reader_rules=reader_rules)
     _field(parts, 3, command, "ability")
     if parts[3] != parts[3].strip(_JS_TRIM):
         _malformed(command, "invalid ability")
@@ -846,7 +869,7 @@ def _ability_event(parts, command):
     if (len(parts) == 6 and parts[4] == rules["trace_source_tag"]
             and parts[5].startswith(rules["trace_of_tag"])):
         source = parts[5][len(rules["trace_of_tag"]):]
-        if (not _is_player_ident(source, active_required=True)
+        if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules)
                 or parts[2][:2] == source[:2]):
             _malformed(command, "Trace source must be an opposing active ident")
         require_payload("dash_trace_copy")
@@ -854,12 +877,13 @@ def _ability_event(parts, command):
     _malformed(command, "unsupported ability provenance")
 
 
-def _item_event(parts, command):
-    rules = VALIDATION_RULES["item"]
+def _item_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["item"]
     if len(parts) < 4:
         _malformed(command)
     actor = parts[2]
-    if not _is_player_ident(actor, active_required=True) or not re.match(r"^p[12]a: ", actor):
+    if not _is_player_ident(actor, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", actor):
         _malformed(command, "target must be a Gen 9 singles active ident")
     item = parts[3]
     if item != item.strip(_JS_TRIM) or item not in rules["payloads"]:
@@ -885,17 +909,18 @@ def _item_event(parts, command):
         tag = tags[matching["tags"].index("[of] opposing-active")]
         prefix = "[of] "
         source = tag[len(prefix):] if tag.startswith(prefix) else ""
-        if (not _is_player_ident(source, active_required=True) or not re.match(r"^p[12]a: ", source)
+        if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", source)
                 or source[:2] == actor[:2]):
             _malformed(command, "source must be an opposing Gen 9 singles active ident")
 
 
-def _major_status_event(parts, command):
-    rules = VALIDATION_RULES["major_status"]
+def _major_status_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    rules = reader_context(reader_rules).protocol["validation_rules"]["major_status"]
     if len(parts) < 4:
         _malformed(command)
     target = parts[2]
-    if not _is_player_ident(target, active_required=True) or not re.match(r"^p[12]a: ", target):
+    if not _is_player_ident(target, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", target):
         _malformed(command, "target must be a Gen 9 singles active ident")
     status = parts[3]
     if status not in rules["ids"]:
@@ -920,19 +945,20 @@ def _major_status_event(parts, command):
     if "[of] opposing-active" in matching["tags"]:
         tag = tags[matching["tags"].index("[of] opposing-active")]
         source = tag[len("[of] "):] if tag.startswith("[of] ") else ""
-        if (not _is_player_ident(source, active_required=True) or not re.match(r"^p[12]a: ", source)
+        if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", source)
                 or source[:2] == target[:2]):
             _malformed(command, "source must be an opposing Gen 9 singles active ident")
 
 
-def _auto_tie_warning(parts, command):
+def _auto_tie_warning(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     if len(parts) != 3:
         _malformed(command)
     match = re.fullmatch(r"You will auto-tie if the battle doesn't end in ([1-9][0-9]*) (turn|turns) \(on turn 1000\)\.", parts[2])
     if match is None:
         _malformed(command, "unsupported diagnostic")
     turns_left = int(match.group(1))
-    if (turns_left not in VALIDATION_RULES["bigerror"]["turns_left_values"]
+    if (turns_left not in reader_context(reader_rules).protocol["validation_rules"]["bigerror"]["turns_left_values"]
             or (turns_left == 1 and match.group(2) != "turn")
             or (turns_left != 1 and match.group(2) != "turns")):
         _malformed(command, "unsupported diagnostic")
@@ -952,7 +978,8 @@ def _finite_json_tree(value):
     return True
 
 
-def _request(parts, command):
+def _request(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     payload = "|".join(parts[2:])
     if not payload:
         _malformed(command)
@@ -966,13 +993,14 @@ def _request(parts, command):
         rqid = value["rqid"]
         if type(rqid) not in (int, float) or (isinstance(rqid, float) and (not math.isfinite(rqid) or not rqid.is_integer())):
             _malformed(command, "invalid request rqid")
-        if abs(rqid) > VALIDATION_RULES["integer"]["safe_limit"]:
+        if abs(rqid) > reader_context(reader_rules).protocol["validation_rules"]["integer"]["safe_limit"]:
             _malformed(command, "invalid request rqid")
 
 
-def _move_target(parts, index, command):
+def _move_target(parts, index, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     _field(parts, index, command, "target")
-    if not _is_player_ident(parts[index]):
+    if not _is_player_ident(parts[index], reader_rules=reader_rules):
         _malformed(command, "invalid target")
 
 
@@ -996,15 +1024,16 @@ def _move_tag(tag):
     )
 
 
-def _shape(parts, command):
+def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     def at_least(size):
         if len(parts) < size:
             _malformed(command)
 
     def ident(index=2):
-        _ident(parts, index, command)
+        _ident(parts, index, command, reader_rules=reader_rules)
 
-    if _court_change_record(parts, command):
+    if _court_change_record(parts, command, reader_rules=reader_rules):
         return
 
     if command in {
@@ -1020,7 +1049,7 @@ def _shape(parts, command):
     elif command in ("gen", "turn"):
         if len(parts) != 3:
             _malformed(command)
-        _integer(parts, 2, command, "value")
+        _integer(parts, 2, command, "value", reader_rules=reader_rules)
     elif command == "player":
         if len(parts) < 4:
             _malformed(command)
@@ -1028,15 +1057,15 @@ def _shape(parts, command):
     elif command == "teamsize":
         if len(parts) != 4:
             _malformed(command)
-        _player(parts, 2, command); _integer(parts, 3, command, "team size")
+        _player(parts, 2, command); _integer(parts, 3, command, "team size", reader_rules=reader_rules)
     elif command == "request":
-        at_least(3); _request(parts, command)
+        at_least(3); _request(parts, command, reader_rules=reader_rules)
     elif command == "move":
         at_least(4); ident()
         _field(parts, 3, command, "move")
         if len(parts) > 4 and parts[4] != "":
             if parts[4] == "null": _move_null_target(parts, 4, command)
-            else: _move_target(parts, 4, command)
+            else: _move_target(parts, 4, command, reader_rules=reader_rules)
         tags = parts[5:]
         if tags.count("[notarget]") > 1 or ("[notarget]" in tags and tags[-1] != "[notarget]") or any(not _move_tag(tag) for tag in tags):
             _malformed(command, "invalid tag")
@@ -1044,7 +1073,7 @@ def _shape(parts, command):
         ident()
         if not re.match(r"^p[12]a: ", parts[2]):
             _malformed(command, "target must be a Gen 9 singles active ident")
-        if parts[3:] not in VALIDATION_RULES["singlemove"]["forms"]:
+        if tuple(parts[3:]) not in reader_context(reader_rules).protocol["validation_rules"]["singlemove"]["forms"]:
             _malformed(command, "unsupported effect/tag combination")
     elif command == "-singleturn":
         if len(parts) not in (4, 5): _malformed(command)
@@ -1052,7 +1081,7 @@ def _shape(parts, command):
         if len(parts) == 5:
             tag = parts[4]
             effect = parts[3]
-            matching_form = next((form for form in VALIDATION_RULES["singleturn"]["tagged_forms"]
+            matching_form = next((form for form in reader_context(reader_rules).protocol["validation_rules"]["singleturn"]["tagged_forms"]
                 if form["effect"] == effect and (
                     tag == form["tag"] if form["tag_value"] == "none"
                     else tag.startswith(form["tag"] + " ")
@@ -1061,24 +1090,24 @@ def _shape(parts, command):
                 _malformed(command, "unsupported single-turn effect/tag combination")
             if matching_form["tag_value"] == "player-ident":
                 source_ident = tag[len(matching_form["tag"]) + 1:]
-                if not _is_player_ident(source_ident, active_required=matching_form.get("ident_role") == "active"):
+                if not _is_player_ident(source_ident, active_required=matching_form.get("ident_role") == "active", reader_rules=reader_rules):
                     _malformed(command, "invalid single-turn source ident")
-        elif parts[3] not in VALIDATION_RULES["singleturn"]["untagged_effects"]:
+        elif parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["singleturn"]["untagged_effects"]:
             _malformed(command, "unsupported untagged effect")
     elif command == "cant":
         at_least(4); ident(); _field(parts, 3, command, "reason")
         if len(parts) > 4: _field(parts, 4, command, "move")
     elif command == "-hitcount":
         if len(parts) != 4: _malformed(command)
-        _hitcount_target(parts, 2, command); _hitcount(parts, 3, command)
+        _hitcount_target(parts, 2, command, reader_rules=reader_rules); _hitcount(parts, 3, command, reader_rules=reader_rules)
     elif command == "faint":
         if len(parts) != 3: _malformed(command)
         ident()
     elif command in ("switch", "drag"):
         if len(parts) not in (5, 6): _malformed(command)
-        ident(); _field(parts, 3, command, "details"); _health_condition(parts, 4, command)
+        ident(); _field(parts, 3, command, "details"); _health_condition(parts, 4, command, reader_rules=reader_rules)
         if len(parts) == 6:
-            rule = VALIDATION_RULES["switch_drag"]["optional_tag"]
+            rule = reader_context(reader_rules).protocol["validation_rules"]["switch_drag"]["optional_tag"]
             tag_prefix = rule.split(" ", 1)[0] + " "
             source_name = parts[5][len(tag_prefix):]
             if not parts[5].startswith(tag_prefix) or not source_name or source_name != source_name.strip(_JS_TRIM):
@@ -1087,11 +1116,11 @@ def _shape(parts, command):
     elif command == "detailschange":
         if len(parts) not in (4, 5): _malformed(command)
         ident(); _field(parts, 3, command, "details")
-        if len(parts) == 5: _health_condition(parts, 4, command)
+        if len(parts) == 5: _health_condition(parts, 4, command, reader_rules=reader_rules)
     elif command == "replace":
         if len(parts) not in (4, 5): _malformed(command)
         ident(); _field(parts, 3, command, "details")
-        if len(parts) == 5 and not _valid_health_condition(parts[4]):
+        if len(parts) == 5 and not _valid_health_condition(parts[4], reader_rules=reader_rules):
             _malformed(command, "invalid replace condition")
     elif command == "-invertboost":
         if len(parts) != 4 or parts[3] != "[from] move: Topsy-Turvy":
@@ -1100,16 +1129,16 @@ def _shape(parts, command):
     elif command == "-copyboost":
         if len(parts) != 5 or parts[4] != "[from] move: Psych Up":
             _malformed(command, "unsupported copy grammar")
-        ident(); _ident(parts, 3, command)
+        ident(); _ident(parts, 3, command, reader_rules=reader_rules)
     elif command == "-anim":
-        if len(parts) != 5 or [parts[3]] not in VALIDATION_RULES["anim"]["forms"]:
+        if len(parts) != 5 or (parts[3],) not in reader_context(reader_rules).protocol["validation_rules"]["anim"]["forms"]:
             _malformed(command, "unsupported animation grammar")
-        ident(); _ident(parts, 4, command)
+        ident(); _ident(parts, 4, command, reader_rules=reader_rules)
         actor_side, target_side = parts[2].split(": ", 1)[0], parts[4].split(": ", 1)[0]
         if actor_side not in ("p1a", "p2a") or target_side not in ("p1a", "p2a") or actor_side == target_side:
             _malformed(command, "source and target must be opposing Gen 9 singles active identifiers")
     elif command == "-hint":
-        at_least(3); _field(parts, 2, command, "message"); _repeat_use_hint_dependency(parts, command)
+        at_least(3); _field(parts, 2, command, "message"); _repeat_use_hint_dependency(parts, command, reader_rules=reader_rules)
     elif command == "poke":
         at_least(4); _player(parts, 2, command); _field(parts, 3, command, "details")
     elif command in ("formechange", "-formechange"):
@@ -1117,33 +1146,33 @@ def _shape(parts, command):
     elif command == "transform":
         at_least(4); ident(); _field(parts, 3, command, "target")
     elif command == "-transform":
-        at_least(4); ident(); _ident(parts, 3, command)
+        at_least(4); ident(); _ident(parts, 3, command, reader_rules=reader_rules)
     elif command in ("damage", "-damage", "heal", "-heal", "sethp", "-sethp"):
         at_least(4)
-        revival_bench = command == "-heal" and len(parts) == 5 and parts[4] == "[from] move: Revival Blessing" and _is_side_only_player_ident(parts[2])
+        revival_bench = command == "-heal" and len(parts) == 5 and parts[4] == "[from] move: Revival Blessing" and _is_side_only_player_ident(parts[2], reader_rules=reader_rules)
         if not revival_bench: ident()
-        _health_condition(parts, 3, command)
+        _health_condition(parts, 3, command, reader_rules=reader_rules)
         tag_group = command.removeprefix("-")
-        _event_tags(parts, 4, command, VALIDATION_RULES["health_event_tags"][tag_group],
-                    VALIDATION_RULES["health_event_tag_order"][tag_group],
-                    VALIDATION_RULES["event_tag_cardinality"][tag_group])
+        _event_tags(parts, 4, command, reader_context(reader_rules).protocol["validation_rules"]["health_event_tags"][tag_group],
+                    reader_context(reader_rules).protocol["validation_rules"]["health_event_tag_order"][tag_group],
+                    reader_context(reader_rules).protocol["validation_rules"]["event_tag_cardinality"][tag_group], reader_rules=reader_rules)
         if command == "-heal":
-            _heal_wisher_dependency(parts, command)
-            _healing_wish_dependency(parts, command)
+            _heal_wisher_dependency(parts, command, reader_rules=reader_rules)
+            _healing_wish_dependency(parts, command, reader_rules=reader_rules)
     elif command in ("status", "-status", "curestatus", "-curestatus"):
-        _major_status_event(parts, command)
+        _major_status_event(parts, command, reader_rules=reader_rules)
     elif command in ("boost", "-boost", "unboost", "-unboost", "setboost", "-setboost"):
         at_least(5); ident(); _field(parts, 3, command, "stat")
-        if parts[3] not in VALIDATION_RULES["boost_event"]["stats"]:
+        if parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["boost_event"]["stats"]:
             _malformed(command, "invalid stat")
-        _integer(parts, 4, command, "amount", signed=command in ("setboost", "-setboost"))
+        _integer(parts, 4, command, "amount", signed=command in ("setboost", "-setboost"), reader_rules=reader_rules)
         amount = int(parts[4])
-        rules = VALIDATION_RULES["boost_event"]
+        rules = reader_context(reader_rules).protocol["validation_rules"]["boost_event"]
         minimum, maximum = ((rules["set_min"], rules["set_max"]) if command in ("setboost", "-setboost") else (rules["delta_min"], rules["delta_max"]))
         if not minimum <= amount <= maximum:
             _malformed(command, "amount is outside the supported stage range")
         _event_tags(parts, 5, command, rules["tags"], rules["tag_order"],
-                    VALIDATION_RULES["event_tag_cardinality"]["boost"])
+                    reader_context(reader_rules).protocol["validation_rules"]["event_tag_cardinality"]["boost"], reader_rules=reader_rules)
     elif command in ("clearboost", "-clearboost"):
         if len(parts) != 3: _malformed(command)
         ident()
@@ -1152,22 +1181,22 @@ def _shape(parts, command):
         ident()
     elif command in ("clearpositiveboost", "-clearpositiveboost"):
         if len(parts) != 5: _malformed(command)
-        ident(); _ident(parts, 3, command); _field(parts, 4, command, "effect")
+        ident(); _ident(parts, 3, command, reader_rules=reader_rules); _field(parts, 4, command, "effect")
     elif command in ("start", "-start", "end", "-end"):
         at_least(4); ident(); _field(parts, 3, command, "effect")
         if command in ("-start", "-end"):
-            _future_sight_dependency(parts, command)
+            _future_sight_dependency(parts, command, reader_rules=reader_rules)
     elif command in ("weather", "-weather", "fieldstart", "-fieldstart", "fieldend", "-fieldend", "-fieldactivate"):
         at_least(3); _field(parts, 2, command, "effect")
-        _weather_record(parts, command)
-        _terrain_record(parts, command)
-        _trick_room_record(parts, command)
+        _weather_record(parts, command, reader_rules=reader_rules)
+        _terrain_record(parts, command, reader_rules=reader_rules)
+        _trick_room_record(parts, command, reader_rules=reader_rules)
     elif command == "-message":
         at_least(3); _field(parts, 2, command, "message")
     elif command in ("activate", "-activate"):
         at_least(4); ident(); _field(parts, 3, command, "effect")
-        _court_change_record(parts, command)
-        trapped = VALIDATION_RULES["trapped_activation"]
+        _court_change_record(parts, command, reader_rules=reader_rules)
+        trapped = reader_context(reader_rules).protocol["validation_rules"]["trapped_activation"]
         if command == trapped["token"] and parts[3].strip(_JS_TRIM) == trapped["effect"]:
             if parts[3] != trapped["effect"] or len(parts) != trapped["payload_fields"] + 2:
                 _malformed(command, "trapped activation must use the exact source grammar")
@@ -1175,14 +1204,14 @@ def _shape(parts, command):
         at_least(4)
         if not re.match(r"^p[12](?::|$)", parts[2]): _malformed(command)
         _field(parts, 3, command, "condition")
-        _entry_hazard(parts, command)
-        _screen_record(parts, command)
+        _entry_hazard(parts, command, reader_rules=reader_rules)
+        _screen_record(parts, command, reader_rules=reader_rules)
     elif command in ("item", "-item", "enditem", "-enditem"):
-        _item_event(parts, command)
+        _item_event(parts, command, reader_rules=reader_rules)
     elif command in ("ability", "-ability"):
-        _ability_event(parts, command)
+        _ability_event(parts, command, reader_rules=reader_rules)
     elif command == "tier":
-        if len(parts) != VALIDATION_RULES["tier"]["payload_fields"] + 2: _malformed(command)
+        if len(parts) != reader_context(reader_rules).protocol["validation_rules"]["tier"]["payload_fields"] + 2: _malformed(command)
         _field(parts, 2, command, "format label")
     elif command in ("terastallize", "-terastallize"):
         at_least(4); ident(); _field(parts, 3, command, "type")
@@ -1194,7 +1223,7 @@ def _shape(parts, command):
     elif command in ("miss", "-miss"):
         at_least(4); ident(2); ident(3)
     elif command in ("hitcount", "-hitcount"):
-        at_least(4); ident(); _integer(parts, 3, command, "count")
+        at_least(4); ident(); _integer(parts, 3, command, "count", reader_rules=reader_rules)
     elif command in ("crit", "-crit", "supereffective", "-supereffective", "resisted", "-resisted", "immune", "-immune", "mustrecharge", "-mustrecharge"):
         if len(parts) < 3: _malformed(command)
         ident()
@@ -1203,41 +1232,45 @@ def _shape(parts, command):
         if len(parts) > 3: _field(parts, 3, command, "action")
     elif command in ("prepare", "-prepare"):
         at_least(4); ident(); _field(parts, 3, command, "move")
-        if len(parts) > 4: _target(parts, 4, command)
+        if len(parts) > 4: _target(parts, 4, command, reader_rules=reader_rules)
     elif command in ("inactive", "inactiveoff"):
         at_least(3); _field(parts, 2, command, "message")
     elif command == "rated":
         if len(parts) > 3 or (len(parts) == 3 and not parts[2].strip(_JS_TRIM)): _malformed(command)
     elif command == "t:":
         if len(parts) != 3: _malformed(command)
-        _integer(parts, 2, command, "timestamp")
+        _integer(parts, 2, command, "timestamp", reader_rules=reader_rules)
     elif command in ("c", "chat"):
         at_least(4); _field(parts, 2, command, "user"); _field(parts, 3, command, "message")
     elif command in ("error", "gametype", "rule", "message"):
         at_least(3); _field(parts, 2, command, "payload")
     elif command == "bigerror":
-        _auto_tie_warning(parts, command)
+        _auto_tie_warning(parts, command, reader_rules=reader_rules)
     elif len(parts) < 3 or any(not part.strip(_JS_TRIM) for part in parts[2:]):
         _malformed(command)
 
 
-def validate_protocol_record(record):
+def validate_protocol_record(record, *, reader_rules=HISTORICAL10_CONTEXT):
     """Validate one exact public protocol line before routing or publication."""
+    reader_context(reader_rules)
     if not isinstance(record, str) or not record.startswith("|") or "\n" in record or "\r" in record:
         raise ProtocolRecordError("malformed", "", "Malformed raw protocol record")
-    if record == _CONTRACT["framing_only_records"][0]["record"]:
+    if record == reader_context(reader_rules).protocol["framing_only_records"][0]["record"]:
         return
+    assert_prepared_protocol_policy(record, reader_rules)
     parts = record.split("|")
     command = parts[1] if len(parts) > 1 else ""
-    if command in RECOGNIZED_UNSUPPORTED:
-        kind = RECOGNIZED_UNSUPPORTED[command]["kind"]
+    if command in {e["token"]: e for e in reader_context(reader_rules).protocol["recognized_unsupported_commands"]}:
+        kind = {e["token"]: e for e in reader_context(reader_rules).protocol["recognized_unsupported_commands"]}[command]["kind"]
         raise ProtocolRecordError(kind, command, f"unsupported raw protocol event: {command}")
-    if command not in SUPPORTED_COMMANDS:
+    if command not in reader_context(reader_rules).protocol["supported_commands"]:
         raise ProtocolRecordError("unknown", command, f"unsupported raw protocol event: {command or '<empty>'}")
-    _shape(parts, command)
+    _shape(parts, command, reader_rules=reader_rules)
+    if reader_rules is NATIVE11_GRAMMAR_CONTEXT and command in ('-start', '-end', '-weather', '-fieldstart', '-fieldend', '-sidestart', '-sideend'):
+        raise ProtocolRecordError('unsupported', command, 'Native11 candidate effect/lifecycle semantics unproved')
     if command in ("-start", "-end"):
-        _classify_effect_record(command, parts[3])
+        _classify_effect_record(command, parts[3], reader_rules=reader_rules)
     elif command in ("-weather", "-fieldstart", "-fieldend"):
-        _classify_effect_record(command, parts[2])
+        _classify_effect_record(command, parts[2], reader_rules=reader_rules)
     elif command in ("-sidestart", "-sideend"):
-        _classify_effect_record(command, parts[3])
+        _classify_effect_record(command, parts[3], reader_rules=reader_rules)

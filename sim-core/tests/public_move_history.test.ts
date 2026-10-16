@@ -3,7 +3,7 @@ import test from 'node:test';
 import { importReplayPrefix, importReplayPrefixWithMoveHistory } from '../src/replay_import';
 import { reconstructPublicMoveHistory, PublicMoveHistoryError } from '../src/public_move_history';
 
-const ctx = { env_id: 'prompt21', format: 'gen9randombattle', perspective: 'p1' as const };
+const ctx = { env_id: 'prompt21', format: 'gen9randombattle', perspective: 'p1' as const, protocol_profile: 'historical10' as const };
 const history = (records: string[], cursor = records.length) => importReplayPrefixWithMoveHistory(records,cursor,ctx).public_move_history;
 function reject(records: string[], index: number) {
   assert.throws(() => importReplayPrefixWithMoveHistory(records,records.length,ctx), (error: unknown) => {

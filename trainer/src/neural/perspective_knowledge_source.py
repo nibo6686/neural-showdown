@@ -9,6 +9,8 @@ against code already controlling the process. Source presence never certifies
 fact values; fact semantics, original attribution, obligation completeness and
 aggregate completeness stay unverified/not_established. Nothing is published.
 """
+from neural.version_profile import guard_historical_knowledge_source
+
 import copy
 import json
 import re
@@ -86,6 +88,7 @@ class SourceRegistry(_Opaque):
     __slots__ = ()
 
     def __init__(self, token, data):
+        guard_historical_knowledge_source()
         _need(token is _TOKEN, 'capability/registry')
         _REGISTRIES[self] = data
         object.__setattr__(self, 'availability', {
@@ -103,9 +106,11 @@ class SourceRegistryBuilder:
     """Trusted-owner construction. Inputs are deep-copied; the builder is unusable after ``freeze``."""
 
     def __init__(self):
+        guard_historical_knowledge_source()
         self._data = {'origin': None, 'initialization': {}, 'requests': {}, 'ledger': None, 'replay': None}
 
     def _open(self):
+        guard_historical_knowledge_source()
         _need(self._data is not None, 'registry/frozen')
         return self._data
 
@@ -192,6 +197,7 @@ class LegacyContext(_Opaque):
     __slots__ = ()
 
     def __init__(self, token, data):
+        guard_historical_knowledge_source()
         _need(token is _TOKEN, 'capability/legacy')
         _CONTEXTS[self] = data
         object.__setattr__(self, 'availability', {
@@ -207,6 +213,7 @@ def _pair_key(owner, input_observation, successor_observation):
 
 class LegacyContextBuilder:
     def __init__(self, extra_adapters=()):
+        guard_historical_knowledge_source()
         self._data = {'pairs': {}, 'observations': {}, 'kinds': set()}
         ordinary = _OrdinaryBundleAdapter()
         self._adapters = {ordinary.schema_version: ordinary}
@@ -216,6 +223,7 @@ class LegacyContextBuilder:
             self._adapters[adapter.schema_version] = adapter
 
     def _open(self):
+        guard_historical_knowledge_source()
         _need(self._data is not None, 'legacy/frozen')
         return self._data
 
@@ -364,6 +372,7 @@ def check_knowledge_source_binding(audit, registry, legacy, required_profile):
     ``legacy`` may be None to run the source join alone; that is reported as a
     missing capability, never as success of the legacy scope.
     """
+    guard_historical_knowledge_source()
     _need(type(required_profile) is str, 'profile')
     copy = _snapshot(audit, 'structure')  # one immutable view for every later step
     structure_ok = False

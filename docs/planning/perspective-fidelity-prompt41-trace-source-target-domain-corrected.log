@@ -1,0 +1,40 @@
+✖ P41 Trace source generator emitter audience and exact profiles (212.922ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 364.290792
+
+✖ failing tests:
+
+test at sim-core/dist/tests/native11_trace.test.js:56:25
+✖ P41 Trace source generator emitter audience and exact profiles (212.922ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Malformed raw .*ability.*record/. Input:
+  
+  'Error: reader-profile/v1/prepared-family-unsupported/ability-setter'
+  
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/native11_trace.test.js:74:30)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: reader-profile/v1/prepared-family-unsupported/ability-setter
+        at fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/version_profile.js:36:31)
+        at assertPreparedProtocolPolicy (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/version_profile.js:312:9)
+        at validateRawProtocolRecord (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/observable_state.js:1293:56)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/native11_trace.test.js:74:92
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/native11_trace.test.js:74:30)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.start (node:internal/test_runner/test:1262:17),
+    expected: /Malformed raw .*ability.*record/,
+    operator: 'throws',
+    diff: 'simple'
+  }

@@ -1,0 +1,46 @@
+P42_MASKED_ERROR Error: Malformed raw -heal record: exact public Revival Blessing bench heal required.
+P42_MASKED_ERROR Error: Malformed raw -heal record: exact public Revival Blessing bench heal required.
+✖ P42 constructed revival B2 p1 (196.778167ms)
+✖ P42 constructed revival B2 p2 (62.282833ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 367.617959
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_revival_restore.test.js:11:29
+✖ P42 constructed revival B2 p1 (196.778167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /P42-post-prepare/. Input:
+  
+  'Error: settling/v1/simulator-error'
+  
+      at async rollback (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:123:9)
+      at async TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_revival_restore.test.js:30:17)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: settling/v1/simulator-error
+        at SettlingBarrier.fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/settling.js:51:26)
+        at LocalBattleEnv.markError (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1229:23)
+        at LocalBattleEnv.markError (/private/tmp/neural-prompt42-20261013/diagnostic.cjs:3:110)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1004:88,
+    expected: /P42-post-prepare/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at sim-core/dist/tests/owner_identity_revival_restore.test.js:11:29
+✖ P42 constructed revival B2 p2 (62.282833ms)
+  Error: settling/v1/simulator-error
+      at SettlingBarrier.fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/settling.js:51:26)
+      at LocalBattleEnv.markError (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1229:23)
+      at LocalBattleEnv.markError (/private/tmp/neural-prompt42-20261013/diagnostic.cjs:3:110)
+      at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1004:88 {
+    diagnostic: { schema_version: 'settling-failure/v1', code: 'settling/v1/simulator-error', timeout_ms: 5000, max_messages: 100000 }
+  }

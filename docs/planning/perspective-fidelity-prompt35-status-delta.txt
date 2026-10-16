@@ -1,0 +1,68 @@
+--- task-start
++++ task-end
+@@ -4,6 +4,7 @@
+  M docs/contracts/SEEDED_TRANSITION.md
+  M docs/planning/CURRENT-HANDOFF.md
+  M docs/planning/perspective-fidelity-implementation-plan.md
++ M sim-core/scripts/check-simulator-coverage.cjs
+  M sim-core/src/action_codec.ts
+  M sim-core/src/battle_helpers.ts
+  M sim-core/src/belief_fork.ts
+@@ -275,8 +276,45 @@
+ ?? docs/planning/perspective-fidelity-prompt34-test_pre_source_factory_and_metadata_fault.log
+ ?? docs/planning/perspective-fidelity-prompt34-validation-notes.md
+ ?? docs/planning/perspective-fidelity-prompt34-witnesses.json
++?? docs/planning/perspective-fidelity-prompt35-api.md
++?? docs/planning/perspective-fidelity-prompt35-archive-proof.py
+ ?? docs/planning/perspective-fidelity-prompt35-baseline.json
++?? docs/planning/perspective-fidelity-prompt35-build-candidate-ability-field.log
++?? docs/planning/perspective-fidelity-prompt35-build-candidate-explicit-scope.log
++?? docs/planning/perspective-fidelity-prompt35-build.log
++?? docs/planning/perspective-fidelity-prompt35-candidate-checker-no-engine-final.log
++?? docs/planning/perspective-fidelity-prompt35-candidate-checker-with-engine-blocked.log
++?? docs/planning/perspective-fidelity-prompt35-candidate-integrity-python-final.log
++?? docs/planning/perspective-fidelity-prompt35-candidate.diff
++?? docs/planning/perspective-fidelity-prompt35-command-runner.py
++?? docs/planning/perspective-fidelity-prompt35-commands.json
++?? docs/planning/perspective-fidelity-prompt35-generated-output.json
++?? docs/planning/perspective-fidelity-prompt35-historical-lookups-fresh-process-without-engine.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-ability-flags.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-explicit-scope.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-extraction.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-final-dispositions.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-omission-mutation-guards-final.log
++?? docs/planning/perspective-fidelity-prompt35-inactive-inventory-omission-mutation-guards.log
++?? docs/planning/perspective-fidelity-prompt35-inventory-disposition.md
++?? docs/planning/perspective-fidelity-prompt35-inventory-extract.cjs
++?? docs/planning/perspective-fidelity-prompt35-inventory-extraction.json
++?? docs/planning/perspective-fidelity-prompt35-line-endings.json
++?? docs/planning/perspective-fidelity-prompt35-lookup-extract.cjs
++?? docs/planning/perspective-fidelity-prompt35-lookup-extraction.json
++?? docs/planning/perspective-fidelity-prompt35-noengine-checker.cjs
++?? docs/planning/perspective-fidelity-prompt35-old-lookup-extraction.log
++?? docs/planning/perspective-fidelity-prompt35-old-lookup-minimal-types.log
++?? docs/planning/perspective-fidelity-prompt35-preservation.json
++?? docs/planning/perspective-fidelity-prompt35-report.md
++?? docs/planning/perspective-fidelity-prompt35-review.md
++?? docs/planning/perspective-fidelity-prompt35-test_candidate_integrity_and_immutability.log
++?? docs/planning/perspective-fidelity-prompt35-test_historical_fresh_process_and_literals.log
++?? docs/planning/perspective-fidelity-prompt35-verified-tar-member-parity.log
++?? docs/planning/perspective-fidelity-prompt35-witnesses.json
+ ?? docs/refactor/DATA_INGESTION_AND_TRAINING_STRATEGY.md
++?? sim-core/simulator_coverage/lookups/
++?? sim-core/simulator_coverage/pokemon-showdown-0.11.11-gen9randombattle.json
+ ?? sim-core/src/owner_identity_crosswalk.ts
+ ?? sim-core/src/version_profile.ts
+ ?? sim-core/tests/owner_identity_birth.test.ts
+@@ -284,9 +322,11 @@
+ ?? sim-core/tests/owner_identity_source_characterization.test.ts
+ ?? sim-core/tests/snapshot_admission.test.ts
+ ?? sim-core/tests/target_fidelity_eligibility.test.ts
++?? sim-core/tests/target_inventory.test.ts
+ ?? sim-core/tests/version_context.test.ts
+ ?? sim-core/tests/version_profile_dispatch.test.ts
+ ?? trainer/src/neural/version_profile.py
+ ?? trainer/tests/test_target_fidelity_eligibility.py
++?? trainer/tests/test_target_inventory.py
+ ?? trainer/tests/test_version_context.py
+ ?? trainer/tests/test_version_profile_dispatch.py

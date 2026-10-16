@@ -1,0 +1,1199 @@
+[
+  {
+    "id": "birth",
+    "level": "actual-generated-session",
+    "timeline": [
+      "installed-after-start",
+      "player:p1",
+      "unpacked:p1",
+      "player:p2",
+      "unpacked:p2"
+    ],
+    "owners": [
+      {
+        "owner": "p1",
+        "retained_count": 6,
+        "object_order": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "set_references_captured_before_construction": true,
+        "request_emission_order": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        ]
+      },
+      {
+        "owner": "p2",
+        "retained_count": 6,
+        "object_order": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "set_references_captured_before_construction": true,
+        "request_emission_order": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        ]
+      }
+    ],
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Greedent|Greedent, L86, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Hoopa|Hoopa-Unbound, L80|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "authority": "test-only",
+    "log": "perspective-fidelity-prompt26-generated-birth-timing.log"
+  },
+  {
+    "id": "initial-Trace-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "pre_constructor_species": "Alakazam",
+    "pre_constructor_moves": [
+      "Splash"
+    ],
+    "current_species": "Alakazam",
+    "current_move": "splash",
+    "token": "p1:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Alakazam|Alakazam, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Blissey|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Trace-p1",
+    "level": "actual-session-constructed-input",
+    "owner": "p1",
+    "control": "Trace",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Imposter-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "pre_constructor_species": "Ditto",
+    "pre_constructor_moves": [
+      "Transform"
+    ],
+    "current_species": "Blissey",
+    "current_move": "softboiled",
+    "token": "p1:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Ditto|Ditto|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Blissey|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "-transform",
+        "token": "p1:slot:1",
+        "first_internal": 21,
+        "end_internal": 22,
+        "rows": [
+          {
+            "internal": 21,
+            "record": "|-transform|p1a: Ditto|p2a: Blissey|[from] ability: Imposter",
+            "public": 17,
+            "normalized": 15
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Imposter-p1",
+    "level": "actual-session-constructed-input",
+    "owner": "p1",
+    "control": "Imposter",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Schooling-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "pre_constructor_species": "Wishiwashi",
+    "pre_constructor_moves": [
+      "Splash"
+    ],
+    "current_species": "Wishiwashi-School",
+    "current_move": "splash",
+    "token": "p1:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Wishiwashi|Wishiwashi, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Blissey|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Schooling-p1",
+    "level": "actual-session-constructed-input",
+    "owner": "p1",
+    "control": "Schooling",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Crowned-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "pre_constructor_species": "Zacian",
+    "pre_constructor_moves": [
+      "Iron Head"
+    ],
+    "current_species": "Zacian-Crowned",
+    "current_move": "behemothblade",
+    "token": "p1:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Zacian|Zacian-Crowned|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Blissey|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Crowned-p1",
+    "level": "actual-session-constructed-input",
+    "owner": "p1",
+    "control": "Crowned",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Trace-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "pre_constructor_species": "Alakazam",
+    "pre_constructor_moves": [
+      "Splash"
+    ],
+    "current_species": "Alakazam",
+    "current_move": "splash",
+    "token": "p2:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Blissey|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Alakazam|Alakazam, M|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Trace-p2",
+    "level": "actual-session-constructed-input",
+    "owner": "p2",
+    "control": "Trace",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Imposter-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "pre_constructor_species": "Ditto",
+    "pre_constructor_moves": [
+      "Transform"
+    ],
+    "current_species": "Blissey",
+    "current_move": "softboiled",
+    "token": "p2:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Blissey|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Ditto|Ditto|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "-transform",
+        "token": "p2:slot:1",
+        "first_internal": 21,
+        "end_internal": 22,
+        "rows": [
+          {
+            "internal": 21,
+            "record": "|-transform|p2a: Ditto|p1a: Blissey|[from] ability: Imposter",
+            "public": 17,
+            "normalized": 15
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Imposter-p2",
+    "level": "actual-session-constructed-input",
+    "owner": "p2",
+    "control": "Imposter",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Schooling-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "pre_constructor_species": "Wishiwashi",
+    "pre_constructor_moves": [
+      "Splash"
+    ],
+    "current_species": "Wishiwashi-School",
+    "current_move": "splash",
+    "token": "p2:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Blissey|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Wishiwashi|Wishiwashi, M|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Schooling-p2",
+    "level": "actual-session-constructed-input",
+    "owner": "p2",
+    "control": "Schooling",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-Crowned-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "pre_constructor_species": "Zacian",
+    "pre_constructor_moves": [
+      "Iron Head"
+    ],
+    "current_species": "Zacian-Crowned",
+    "current_move": "behemothblade",
+    "token": "p2:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Blissey|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Zacian|Zacian-Crowned|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "initial-integration-Crowned-p2",
+    "level": "actual-session-constructed-input",
+    "owner": "p2",
+    "control": "Crowned",
+    "accepted": true,
+    "rejection": null,
+    "generated_reachability": "not-proved",
+    "log": "perspective-fidelity-prompt26-initial-effects.log"
+  },
+  {
+    "id": "duplicate-order-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "equal_idents": [
+      "p1: Same",
+      "p1: Same"
+    ],
+    "orders": [
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Same|Snorlax, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Target|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p1:slot:2",
+        "first_internal": 24,
+        "end_internal": 27,
+        "rows": [
+          {
+            "internal": 26,
+            "record": "|switch|p1a: Same|Snorlax, F|100/100",
+            "public": 20,
+            "normalized": 17
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 34,
+        "end_internal": 37,
+        "rows": [
+          {
+            "internal": 36,
+            "record": "|switch|p1a: Same|Snorlax, M|100/100",
+            "public": 28,
+            "normalized": 23
+          }
+        ]
+      },
+      {
+        "command": "drag",
+        "token": "p1:slot:2",
+        "first_internal": 47,
+        "end_internal": 50,
+        "rows": [
+          {
+            "internal": 49,
+            "record": "|drag|p1a: Same|Snorlax, F|100/100",
+            "public": 39,
+            "normalized": 32
+          }
+        ]
+      }
+    ],
+    "association_basis": "held unpacked set references, never ident/position",
+    "log": "perspective-fidelity-prompt26-duplicates-switch-drag-reentry.log"
+  },
+  {
+    "id": "duplicate-order-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "equal_idents": [
+      "p2: Same",
+      "p2: Same"
+    ],
+    "orders": [
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Target|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Same|Snorlax, M|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:2",
+        "first_internal": 24,
+        "end_internal": 27,
+        "rows": [
+          {
+            "internal": 26,
+            "record": "|switch|p2a: Same|Snorlax, F|100/100",
+            "public": 20,
+            "normalized": 17
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 34,
+        "end_internal": 37,
+        "rows": [
+          {
+            "internal": 36,
+            "record": "|switch|p2a: Same|Snorlax, M|100/100",
+            "public": 28,
+            "normalized": 23
+          }
+        ]
+      },
+      {
+        "command": "drag",
+        "token": "p2:slot:2",
+        "first_internal": 47,
+        "end_internal": 50,
+        "rows": [
+          {
+            "internal": 49,
+            "record": "|drag|p2a: Same|Snorlax, F|100/100",
+            "public": 39,
+            "normalized": 32
+          }
+        ]
+      }
+    ],
+    "association_basis": "held unpacked set references, never ident/position",
+    "log": "perspective-fidelity-prompt26-duplicates-switch-drag-reentry.log"
+  },
+  {
+    "id": "duplicate-integration",
+    "level": "actual-session-validator-rejection",
+    "rejection": "p1: Same requires exactly one self_team row",
+    "integration": "unproved; validator preserved",
+    "log": "perspective-fidelity-prompt26-duplicates-switch-drag-reentry.log"
+  },
+  {
+    "id": "illusion-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "same_stint_actor": true,
+    "token": "p1:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Mask|Pikachu, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Target|Snorlax, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "replace",
+        "token": "p1:slot:1",
+        "first_internal": 30,
+        "end_internal": 31,
+        "rows": [
+          {
+            "internal": 30,
+            "record": "|replace|p1a: Fox|Zoroark, M",
+            "public": 24,
+            "normalized": 21
+          }
+        ]
+      }
+    ],
+    "appearance_rule": "replace discloses same actor, no new birth",
+    "log": "perspective-fidelity-prompt26-illusion-transform-review-corrected.log"
+  },
+  {
+    "id": "transform-p1",
+    "level": "constructed-native-mechanic",
+    "owner": "p1",
+    "object_continuity": true,
+    "captured_birth_moves": [
+      "Transform"
+    ],
+    "actual_set_moves": [
+      "Transform"
+    ],
+    "actual_set_reference_preserved": true,
+    "reentry_moves": [
+      "transform"
+    ],
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Copy|Ditto|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Target|Blissey, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "-transform",
+        "token": "p1:slot:1",
+        "first_internal": 27,
+        "end_internal": 28,
+        "rows": [
+          {
+            "internal": 27,
+            "record": "|-transform|p1a: Copy|p2a: Target",
+            "public": 23,
+            "normalized": 20
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p1:slot:2",
+        "first_internal": 33,
+        "end_internal": 36,
+        "rows": [
+          {
+            "internal": 35,
+            "record": "|switch|p1a: Bench|Snorlax, M|100/100",
+            "public": 29,
+            "normalized": 24
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 43,
+        "end_internal": 46,
+        "rows": [
+          {
+            "internal": 45,
+            "record": "|switch|p1a: Copy|Ditto|100/100",
+            "public": 37,
+            "normalized": 30
+          }
+        ]
+      }
+    ],
+    "log": "perspective-fidelity-prompt26-illusion-transform-review-corrected.log"
+  },
+  {
+    "id": "illusion-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "same_stint_actor": true,
+    "token": "p2:slot:1",
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Target|Snorlax, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Mask|Pikachu, F|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "replace",
+        "token": "p2:slot:1",
+        "first_internal": 30,
+        "end_internal": 31,
+        "rows": [
+          {
+            "internal": 30,
+            "record": "|replace|p2a: Fox|Zoroark, F",
+            "public": 24,
+            "normalized": 21
+          }
+        ]
+      }
+    ],
+    "appearance_rule": "replace discloses same actor, no new birth",
+    "log": "perspective-fidelity-prompt26-illusion-transform-review-corrected.log"
+  },
+  {
+    "id": "transform-p2",
+    "level": "constructed-native-mechanic",
+    "owner": "p2",
+    "object_continuity": true,
+    "captured_birth_moves": [
+      "Transform"
+    ],
+    "actual_set_moves": [
+      "Transform"
+    ],
+    "actual_set_reference_preserved": true,
+    "reentry_moves": [
+      "transform"
+    ],
+    "events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Target|Blissey, F|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Copy|Ditto|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      },
+      {
+        "command": "-transform",
+        "token": "p2:slot:1",
+        "first_internal": 27,
+        "end_internal": 28,
+        "rows": [
+          {
+            "internal": 27,
+            "record": "|-transform|p2a: Copy|p1a: Target",
+            "public": 23,
+            "normalized": 20
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:2",
+        "first_internal": 33,
+        "end_internal": 36,
+        "rows": [
+          {
+            "internal": 35,
+            "record": "|switch|p2a: Bench|Snorlax, M|100/100",
+            "public": 29,
+            "normalized": 24
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 43,
+        "end_internal": 46,
+        "rows": [
+          {
+            "internal": 45,
+            "record": "|switch|p2a: Copy|Ditto|100/100",
+            "public": 37,
+            "normalized": 30
+          }
+        ]
+      }
+    ],
+    "log": "perspective-fidelity-prompt26-illusion-transform-review-corrected.log"
+  },
+  {
+    "id": "model-negatives",
+    "level": "future-gate-test-model-only",
+    "rejections": [
+      "missing",
+      "duplicate",
+      "misrouted",
+      "removed-held-originals",
+      "foreign-parent",
+      "sibling-parent",
+      "changed-packed",
+      "equal-length-foreign-prefix",
+      "late-event",
+      "copied-birth"
+    ],
+    "production_rejections": "not-implemented",
+    "log": "perspective-fidelity-prompt26-model-negatives.log"
+  },
+  {
+    "id": "restore",
+    "level": "actual-generated-session-plus-uninterrupted-native-control",
+    "committed_step": 1,
+    "all_both_owner_objects_fresh": true,
+    "reconstruction_callbacks": "unobserved: tap installed after fromJSON",
+    "held_originals_same_reference": true,
+    "order": [
+      {
+        "owner": "p1",
+        "slots": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      {
+        "owner": "p2",
+        "slots": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    ],
+    "copied_parent": "existing-ledger-rejection",
+    "same_label_foreign_parent": "existing-ledger-rejection",
+    "bare_snapshot": "usable native state; no originals",
+    "missing": "trusted original-slot\u2194restored-object capability and event replay sidecar",
+    "log": "perspective-fidelity-prompt26-restore-continuity-review-corrected.log"
+  },
+  {
+    "id": "rollback-close",
+    "level": "actual-generated-session-with-test-fault-and-native-terminal-stimulus",
+    "parent_histories_preserved": true,
+    "valid_continuation": true,
+    "terminal_requests": [
+      null,
+      null
+    ],
+    "synchronous_close_revocation": true,
+    "terminal_session_commit": "not-proved; direct native terminal stimulus only",
+    "log": "perspective-fidelity-prompt26-rejection-terminal-cleanup.log"
+  },
+  {
+    "id": "indexed",
+    "level": "actual-generated-initial-commit-plus-synthetic-writers",
+    "committed_initial_events": [
+      {
+        "command": "switch",
+        "token": "p1:slot:1",
+        "first_internal": 15,
+        "end_internal": 18,
+        "rows": [
+          {
+            "internal": 17,
+            "record": "|switch|p1a: Greedent|Greedent, L86, M|100/100",
+            "public": 15,
+            "normalized": 13
+          }
+        ]
+      },
+      {
+        "command": "switch",
+        "token": "p2:slot:1",
+        "first_internal": 18,
+        "end_internal": 21,
+        "rows": [
+          {
+            "internal": 20,
+            "record": "|switch|p2a: Hoopa|Hoopa-Unbound, L80|100/100",
+            "public": 16,
+            "normalized": 14
+          }
+        ]
+      }
+    ],
+    "duplicate_occurrences": [
+      {
+        "internal": 22,
+        "record": "|message|equal",
+        "public": 18,
+        "normalized": 16
+      },
+      {
+        "internal": 23,
+        "record": "|message|equal",
+        "public": 19,
+        "normalized": 17
+      }
+    ],
+    "filtered": [
+      {
+        "internal": 7,
+        "record": "|tier|[Gen 9] Random Battle",
+        "public": 7,
+        "normalized": null
+      },
+      {
+        "internal": 12,
+        "record": "|",
+        "public": 12,
+        "normalized": null
+      },
+      {
+        "internal": 24,
+        "record": "|",
+        "public": 20,
+        "normalized": null
+      },
+      {
+        "internal": 25,
+        "record": "|tier|Gen 9 Random Battle",
+        "public": 21,
+        "normalized": null
+      }
+    ],
+    "timestamp": {
+      "internal": 26,
+      "record": "|t:|123",
+      "public": 22,
+      "normalized": 18
+    },
+    "bare_pipe_framing": "admitted and filtered",
+    "eval_diagnostic": "actual projector rejection; not admissible public evidence",
+    "synthetic_suffix_committed": false,
+    "missing": "no adopted runtime event/source index sidecar",
+    "log": "perspective-fidelity-prompt26-indexed-events-direct-writer.log"
+  }
+]

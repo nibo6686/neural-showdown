@@ -1,0 +1,219 @@
+[
+  {
+    "name": "red-missing-api",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "-e",
+      "const assert=require('node:assert/strict');const {PipelineIntegrationSession:S}=require('./sim-core/dist/src/pipeline_integration');(async()=>{let s;try{s=await S.create({battle_id:'B1-red',format:'gen9randombattle',seed:[1,2,3,4]});assert.equal(typeof s.getNativeBirthHolding,'function','B1 production birth API absent');}finally{await s?.close();}})().catch(e=>{console.error(e.message);process.exitCode=1});"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.345,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.859,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "generated-creation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ generated\\ creation$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.305,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "initial-effects",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ initial\\ effects$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.27,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "enrollment-faults",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ enrollment\\ faults$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.316,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "owner-isolation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ owner\\ isolation$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.299,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "activation-failure",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ activation\\ failure$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.263,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "close-and-restore",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ close\\ and\\ restore$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.309,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "existing-birth-timing",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ generated\\ birth\\ timing$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.251,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "existing-original-lifetime",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^session\\ isolation,\\ successful\\ replacement,\\ rejection,\\ bare\\ restore,\\ synchronous\\ close\\ revocation$",
+      "sim-core/dist/tests/original_owner_provider.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.302,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "existing-delivery-rollback",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^real\\ rejected\\ candidate\\ \\(second\\-owner\\)\\ is\\ atomic;\\ valid\\ continuation\\ preserves\\ parent\\ history$",
+      "sim-core/dist/tests/request_delivery_ledger.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.302,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "existing-wire-check",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "docs/planning/perspective-fidelity-prompt25-wire.cjs",
+      "check"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.301,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-review-tests",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 2,
+    "seconds": 1.841,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-review-tests-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.86,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "enrollment-faults-reviewed",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ enrollment\\ faults$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.405,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "close-and-restore-reviewed",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B1\\ close\\ and\\ restore$",
+      "sim-core/dist/tests/owner_identity_birth.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.336,
+    "timeout_seconds": 180
+  }
+]

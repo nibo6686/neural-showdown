@@ -1,3 +1,4 @@
+from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Bounded field truth from an already grammar/inventory-validated public prefix."""
 
 import math
@@ -15,10 +16,11 @@ def _finite_number(value):
         return False
 
 
-def validate_public_field(observation, label="observation"):
+def validate_public_field(observation, label="observation", *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     weather, terrain, trick_room = None, None, False
     has_writer = False
-    rules = VALIDATION_RULES
+    rules = reader_context(reader_rules).protocol["validation_rules"]
 
     def fail(detail):
         raise ValueError(f"Public field evidence mismatch: {detail}")

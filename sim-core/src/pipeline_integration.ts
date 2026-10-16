@@ -1,3 +1,7 @@
+import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
+import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { assertHistoricalReaderInput } from './version_profile';
+import { NativeBirthEnrollment, NativeObjectAssociation, type NativeBirthHandle, type NativeBirthEvidence, type NativeObjectHandle, type NativeObjectEvidence } from './owner_identity_crosswalk';
 import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
 import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
 import { carryTerminalOwner, withTerminalOwner } from './public_health';
@@ -199,7 +203,8 @@ function freeze<T>(value: T): T {
  * private request payloads (the acting player's request remains in its
  * ObservableBattleState). The format field carries the ruleset label.
  */
-export function projectPipelineProtocolPrefix(records: readonly string[]): string[] {
+export function projectPipelineProtocolPrefix(records: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
+  readerContext(rulesContext);
   const projected: string[] = [];
   for (const [recordIndex, raw] of records.entries()) {
     // Strip only a transport line delimiter; the protocol record itself must
@@ -215,7 +220,7 @@ export function projectPipelineProtocolPrefix(records: readonly string[]): strin
     assertPublicPipelineRecord(line, recordIndex);
     assertNoUnresolvedProtocolAlias(line, recordIndex);
     try {
-      validateRawProtocolRecord(line);
+      validateRawProtocolRecord(line, rulesContext);
     } catch (error) {
       const detail = error instanceof Error ? error.message : 'protocol record validation failed';
       throw new PipelineIntegrationError(
@@ -273,8 +278,9 @@ export function projectPipelineStepResult(
   result: StepResult,
   battleId: string,
   protocolPrefix: string[],
-  observationSchema: ObservableSchemaVersion = OBSERVABLE_STATE_SCHEMA_VERSION,
+  observationSchema: ObservableSchemaVersion = OBSERVABLE_STATE_SCHEMA_VERSION, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): Record<PlayerID, ObservableBattleState> {
+  readerContext(rulesContext);
   for (const [recordIndex, record] of protocolPrefix.entries()) {
     assertNoUnresolvedProtocolAlias(record, recordIndex);
   }
@@ -289,7 +295,7 @@ export function projectPipelineStepResult(
         snapshot_phase: phaseFor(result, player),
         protocol_prefix: protocolPrefix,
         step_result: result,
-      });
+      }, rulesContext);
     }
     return states;
   } catch (error) {
@@ -357,9 +363,14 @@ function snapshotsForBeliefs(snapshot: SeededBattleSnapshot, battleId: string) {
 }
 
 export class PipelineIntegrationSession {
+  private readonly rulesContext: ReaderContext;
+  readonly #runtimeProfile: NativeRuntimeProfile;
+
   readonly battle_id: string;
   readonly format: string;
   readonly #originalCreation: OriginalOwnerCreation;
+  readonly #nativeBirth: NativeBirthEnrollment;
+  readonly #objectAssociation: NativeObjectAssociation;
   readonly #deliveryLedger = new RequestDeliveryLedger();
   #deliveryEnabled = false;
   private readonly seed: number[];
@@ -373,6 +384,8 @@ export class PipelineIntegrationSession {
   private readonly retiredEnvironments = new Set<LocalBattleEnv>();
 
   private constructor(options: PipelineIntegrationOptions) {
+    this.#runtimeProfile = installedNativeProfile();
+    this.rulesContext = this.#runtimeProfile.reader;
     const version = options.observation_schema_version ?? OBSERVABLE_STATE_SCHEMA_VERSION;
     if (!isObservableSchema(version)) throw new Error('Unsupported observation schema');
     this.observationSchema = version;
@@ -385,7 +398,9 @@ export class PipelineIntegrationSession {
     this.format = options.format;
     this.seed = [...options.seed];
     this.settlingOptions = { ...options.settling };
-    this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: SIMULATOR_REVISION });
+    this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: this.rulesContext.profile.revision });
+    this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
+    this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
     this.environment = this.newEnvironment('initial');
     this.snapshot = null;
     this.rawPrefix = [];
@@ -403,15 +418,20 @@ export class PipelineIntegrationSession {
       if (session.#originalCreation.activate()) {
         const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
         session.#deliveryLedger.commit(delivery);
+        session.#nativeBirth.activate();
+        session.#objectAssociation.commitInitial(session.environment, session.currentBoundaryValue, session.snapshot);
         session.#deliveryEnabled = true;
       } else {
         // The accepted unstarted-restore compatibility path has no birth authority.
         session.#deliveryLedger.revoke();
+        session.#nativeBirth.revoke();
       }
       return session;
     } catch (error) {
       session.#deliveryLedger.revoke();
       session.#originalCreation.revoke();
+      session.#nativeBirth.revoke();
+      session.#objectAssociation.revoke();
       await session.environment.close();
       throw error;
     }
@@ -420,6 +440,24 @@ export class PipelineIntegrationSession {
   /** Privileged process-local owner access, outside observation and wire APIs. */
   getOriginalOwnerHolding(owner: PlayerID): OriginalOwnerHandle {
     return this.#originalCreation.holding(owner);
+  }
+
+  getNativeBirthHolding(owner: PlayerID): NativeBirthHandle {
+    this.ensureOpen();
+    return this.#nativeBirth.holding(owner);
+  }
+
+  readNativeBirthHolding(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
+    this.ensureOpen();
+    return this.#nativeBirth.read(handle, owner);
+  }
+
+  getNativeObjectHolding(owner: PlayerID): NativeObjectHandle {
+    this.ensureOpen(); return this.#objectAssociation.holding(owner);
+  }
+
+  readNativeObjectHolding(handle: NativeObjectHandle, owner: PlayerID): NativeObjectEvidence {
+    this.ensureOpen(); return this.#objectAssociation.read(handle, owner);
   }
 
   getRequestDeliveryHandle(owner: PlayerID): RequestDeliveryHandle {
@@ -528,7 +566,9 @@ export class PipelineIntegrationSession {
 
     const candidate = this.newEnvironment(`step-${inputBoundary.step_index}`);
     try {
-      const restored = await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS);
+      const associationTicket = this.#deliveryEnabled ? this.#objectAssociation.prepareRestore(candidate, inputBoundary, inputSnapshot) : undefined;
+      if (associationTicket) this.#objectAssociation.assertRestoreAdmission(candidate, inputSnapshot.simulator_state, associationTicket);
+      const restored = await candidate.resetFromSerialized(inputSnapshot.simulator_state, OPTIONS, associationTicket);
       const restoration = this.#deliveryEnabled ? this.#deliveryLedger.restored(candidate, restored, inputBoundary) : undefined;
       const candidateSnapshot = candidate.captureSeededSnapshot(null);
       if (candidateSnapshot.state_fingerprint !== inputSnapshot.state_fingerprint
@@ -565,7 +605,7 @@ export class PipelineIntegrationSession {
       }
 
       const nextRawPrefix = [...this.rawPrefix, ...transitionResult.metadata.emitted_log_delta];
-      const projectedPrefix = projectPipelineProtocolPrefix(nextRawPrefix);
+      const projectedPrefix = projectPipelineProtocolPrefix(nextRawPrefix, this.rulesContext);
       for (const player of PLAYERS) {
         carryTerminalOwner({
           predecessor: inputBoundary.perspectives[player].observation as unknown as Record<string, unknown>, before: inputBoundary,
@@ -595,7 +635,7 @@ export class PipelineIntegrationSession {
             output_observation_id: nextObservations.p1.observation_id,
             output_snapshot: outputSnapshotRef,
           },
-        }),
+        }, this.rulesContext),
         p2: projectBeliefState({
           observation: nextObservations.p2,
           parent: inputBoundary.perspectives.p2.belief,
@@ -605,10 +645,10 @@ export class PipelineIntegrationSession {
             output_observation_id: nextObservations.p2.observation_id,
             output_snapshot: outputSnapshotRef,
           },
-        }),
+        }, this.rulesContext),
       };
-      serializeBeliefState(nextBeliefs.p1);
-      serializeBeliefState(nextBeliefs.p2);
+      serializeBeliefState(nextBeliefs.p1, this.rulesContext);
+      serializeBeliefState(nextBeliefs.p2, this.rulesContext);
       const nextBoundary = freeze({
         schema_version: PIPELINE_INTEGRATION_SCHEMA_VERSION,
         battle_id: this.battle_id,
@@ -640,13 +680,15 @@ export class PipelineIntegrationSession {
           successor_observation: nextObservations[player],
           successor_belief: nextBeliefs[player],
         } as PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle);
-        validatePipelineEpisodeRecordBundle(bundles[player]!);
+        validatePipelineEpisodeRecordBundle(bundles[player]!, this.rulesContext);
       }
 
       const delivery = this.#deliveryEnabled
         ? this.#deliveryLedger.prepare(candidate, transitionResult.step_result, nextBoundary, inputBoundary, restoration) : undefined;
+      const association = associationTicket ? this.#objectAssociation.prepareCommit(candidate, nextBoundary, transitionResult.output_snapshot, associationTicket) : undefined;
       const previousEnvironment = this.environment;
       if (delivery) this.#deliveryLedger.commit(delivery);
+      if (association) this.#objectAssociation.commit(association);
       this.environment = candidate;
       this.rawPrefix = nextRawPrefix;
       this.snapshot = transitionResult.output_snapshot;
@@ -662,6 +704,7 @@ export class PipelineIntegrationSession {
       }
       return { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
     } catch (error) {
+      this.#objectAssociation.discard(candidate);
       await candidate.close();
       throw error;
     }
@@ -672,6 +715,8 @@ export class PipelineIntegrationSession {
     this.closed = true;
     this.#deliveryLedger.revoke();
     this.#originalCreation.revoke();
+    this.#nativeBirth.revoke();
+    this.#objectAssociation.revoke();
     await this.environment.close();
     for (const retired of this.retiredEnvironments) {
       await retired.close();
@@ -680,14 +725,14 @@ export class PipelineIntegrationSession {
   }
 
   private buildInitialBoundary(result: StepResult, snapshot: SeededBattleSnapshot): PipelineBoundary {
-    const observations = this.projectObservations(result, projectPipelineProtocolPrefix(this.rawPrefix));
+    const observations = this.projectObservations(result, projectPipelineProtocolPrefix(this.rawPrefix, this.rulesContext));
     const snapshotRef = snapshotsForBeliefs(snapshot, this.battle_id);
     const beliefs = {
-      p1: projectBeliefState({ observation: observations.p1, simulator_snapshot: snapshotRef }),
-      p2: projectBeliefState({ observation: observations.p2, simulator_snapshot: snapshotRef }),
+      p1: projectBeliefState({ observation: observations.p1, simulator_snapshot: snapshotRef }, this.rulesContext),
+      p2: projectBeliefState({ observation: observations.p2, simulator_snapshot: snapshotRef }, this.rulesContext),
     };
-    serializeBeliefState(beliefs.p1);
-    serializeBeliefState(beliefs.p2);
+    serializeBeliefState(beliefs.p1, this.rulesContext);
+    serializeBeliefState(beliefs.p2, this.rulesContext);
     return freeze({
       schema_version: PIPELINE_INTEGRATION_SCHEMA_VERSION,
       battle_id: this.battle_id,
@@ -703,7 +748,7 @@ export class PipelineIntegrationSession {
   }
 
   private projectObservations(result: StepResult, protocolPrefix: string[]): Record<PlayerID, ObservableBattleState> {
-    return projectPipelineStepResult(result, this.battle_id, protocolPrefix, this.observationSchema);
+    return projectPipelineStepResult(result, this.battle_id, protocolPrefix, this.observationSchema, this.rulesContext);
   }
 
   private newEnvironment(suffix: string): LocalBattleEnv {
@@ -714,8 +759,13 @@ export class PipelineIntegrationSession {
       { p1: { controller: 'external' }, p2: { controller: 'external' } },
       this.settlingOptions,
       suffix === 'initial' ? this.#originalCreation : undefined,
+      suffix === 'initial' ? this.#nativeBirth : undefined,
+      this.#objectAssociation,
+      this.#runtimeProfile,
     );
   }
+
+  getReaderContext(): ReaderContext { return this.rulesContext; }
 
   private ensureOpen(): void {
     if (this.closed) throw new PipelineIntegrationError('pipeline/v1/closed', 'integration session is closed');
@@ -727,13 +777,17 @@ export async function createPipelineIntegrationSession(options: PipelineIntegrat
 }
 
 /** Ordinary publication validates the whole owned action and transition before terminal alias authority. */
-export function validatePipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle): void {
+export function validatePipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
+  assertReaderInput(bundle, rulesContext);
   if (bundle.schema_version !== PIPELINE_BUNDLE_SCHEMA_VERSION) throw new Error('Linked record schema is invalid');
-  validatePipelineEpisodeRecordBundle(bundle);
+  validatePipelineEpisodeRecordBundle(bundle, rulesContext);
 }
 
 /** Reuse the accepted action/belief/terminal joins for every episode actor kind. */
-export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle): void {
+export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
+  assertReaderInput(bundle, rulesContext);
   const schemas = {
     [PIPELINE_BUNDLE_SCHEMA_VERSION]: PIPELINE_TRANSITION_REFERENCE_SCHEMA_VERSION,
     [PIPELINE_FORCED_SWITCH_BUNDLE_VERSION]: PIPELINE_FORCED_SWITCH_REFERENCE_VERSION,
@@ -746,7 +800,7 @@ export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecord
     || bundle.source_ref !== `sim-core://${bundle.battle_id}` || before.source_kind !== 'sim_core' || after.source_kind !== 'sim_core'
     || bundle.ruleset !== before.view.format || bundle.ruleset !== after.view.format || before.schema_version !== after.schema_version
     || !before.decision_availability.available || bundle.transition.schema_version !== schemas[bundle.schema_version]
-    || bundle.transition.simulator_revision !== SIMULATOR_REVISION || !/^transition-[a-f0-9]{64}$/.test(bundle.transition.transition_id)
+    || bundle.transition.simulator_revision !== readerContext(rulesContext).profile.revision || !/^transition-[a-f0-9]{64}$/.test(bundle.transition.transition_id)
     || !/^[a-f0-9]{64}$/.test(bundle.transition.input_state_fingerprint) || !/^[a-f0-9]{64}$/.test(bundle.transition.output_state_fingerprint)
     || !bundle.transition.parent_branch_id.trim() || !bundle.transition.branch_id.trim()
     || Object.keys(bundle.transition).sort().join('|') !== ['schema_version', 'transition_id', 'parent_branch_id', 'branch_id', 'input_state_fingerprint', 'output_state_fingerprint', 'simulator_revision', 'step_index', 'action_id', ...(oneSided ? ['acting_player', 'waiting_player'] : [])].sort().join('|')) throw new Error('Linked record source/schema/action transition metadata is invalid');
@@ -755,8 +809,8 @@ export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecord
     if (roles.acting_player !== bundle.perspective || roles.waiting_player !== (bundle.perspective === 'p1' ? 'p2' : 'p1')
       || classifyPipelineRequestState(before) !== (bundle.schema_version === PIPELINE_REVIVAL_BUNDLE_VERSION ? 'revival_selection' : 'forced_switch')) throw new Error('Episode actor request/role mismatch');
   }
-  validateObservableBattleState(before);
-  serializeBeliefState(bundle.input_belief);
+  validateObservableBattleState(before, rulesContext);
+  serializeBeliefState(bundle.input_belief, rulesContext);
   const transition = bundle.transition;
   const input = bundle.input_belief.simulator_snapshot, output = bundle.successor_belief.simulator_snapshot;
   const lineage = bundle.successor_belief.transition_lineage;
@@ -785,7 +839,16 @@ export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecord
     before: {step_index: transition.step_index, branch_id: input.branch_id, state_fingerprint: input.state_fingerprint}, transition,
     after: {step_index: transition.step_index + 1, branch_id: output.branch_id, state_fingerprint: output.state_fingerprint}},
     after as unknown as Record<string, unknown>, () => {
-      validateObservableBattleState(after);
-      serializeBeliefState(bundle.successor_belief);
+      validateObservableBattleState(after, rulesContext);
+      serializeBeliefState(bundle.successor_belief, rulesContext);
     });
+}
+
+export function validateHistoricalPipelineLinkedRecordBundle(bundle: PipelineLinkedRecordBundle): void {
+  const rulesContext = HISTORICAL10_CONTEXT;
+  validatePipelineLinkedRecordBundle(bundle, rulesContext);
+}
+export function validateHistoricalPipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle): void {
+  const rulesContext = HISTORICAL10_CONTEXT;
+  validatePipelineEpisodeRecordBundle(bundle, rulesContext);
 }

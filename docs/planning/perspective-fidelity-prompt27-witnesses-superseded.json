@@ -1,0 +1,88 @@
+{
+  "scope": "older test runs; final claims use current witnesses.json",
+  "rows": [
+    {
+      "name": "missing-owner",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "missing-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "duplicate",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "duplicate-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "wrong-owner-equal-bytes",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "foreign-or-late-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "submission",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "submission-mismatch",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "occurrence",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "foreign-or-late-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "environment",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "foreign-or-late-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "late",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "foreign-or-late-enrollment",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "missing-observer",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "not-staged",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "late-observer",
+      "level": "actual-runtime-fault-rejection",
+      "expected": "late-observer",
+      "authority_unavailable_both_owners": true,
+      "log": "perspective-fidelity-prompt27-enrollment-faults.log",
+      "superseded_by": "perspective-fidelity-prompt27-enrollment-faults-reviewed.log"
+    },
+    {
+      "name": "lifetime-restore",
+      "level": "actual-generated-session-and-legacy-restore",
+      "no_restore_observer_calls": true,
+      "historical_holding_survives_retirement": true,
+      "synchronous_close_denial": true,
+      "legacy_birth_unavailable": true,
+      "restored_object_mapping": "unsupported B2",
+      "log": "perspective-fidelity-prompt27-close-and-restore.log",
+      "superseded_by": "perspective-fidelity-prompt27-close-and-restore-reviewed.log"
+    }
+  ]
+}

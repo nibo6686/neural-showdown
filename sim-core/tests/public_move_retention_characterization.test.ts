@@ -12,7 +12,7 @@ const root = path.resolve(__dirname, '../../..');
 const fixtures = path.join(root, 'trainer/tests/fixtures/perspective-replay');
 const ledger = JSON.parse(fs.readFileSync(path.join(fixtures, 'expected-ledger.json'), 'utf8'));
 const evidence: unknown[] = [];
-const ctx = (perspective: PlayerID, format = 'gen9randombattle') => ({ env_id: 'prompt20-é-Ω', format, perspective });
+const ctx = (perspective: PlayerID, format = 'gen9randombattle') => ({ env_id: 'prompt20-é-Ω', format, perspective, protocol_profile: 'historical10' as const });
 function load(fixture: any): string[] {
   const filename = path.join(fixtures, fixture.filename);
   assert.equal(createHash('sha256').update(fs.readFileSync(filename)).digest('hex'), fixture.sha256);

@@ -1,0 +1,31 @@
+✖ P39 equal literal requests commit fresh deliveries through real transitions (570.450125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1343.661166
+
+✖ failing tests:
+
+test at sim-core/tests/native11_request_timing.test.cjs:79:1
+✖ P39 equal literal requests commit fresh deliveries through real transitions (570.450125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'joint_actionable'
+  - 'joint_decision'
+           ^
+  
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/tests/native11_request_timing.test.cjs:89:86)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'joint_actionable',
+    expected: 'joint_decision',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

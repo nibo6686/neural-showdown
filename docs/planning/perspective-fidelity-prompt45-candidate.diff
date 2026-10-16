@@ -1,0 +1,687 @@
+--- a/sim-core/src/owner_identity_crosswalk.ts
++++ b/sim-core/src/owner_identity_crosswalk.ts
+@@ -11,6 +11,7 @@
+   readonly original: OriginalOwnerEvidence;
+   readonly slot_count: number;
+ }
++export type SwitchActorReceiver = (environment: object, battle: Battle, rows: AssociationRows, source?: SeededBattleSnapshot, parent?: PipelineBoundary) => void;
+ const owners = ['p1', 'p2'] as const;
+ function index(owner: PlayerID): number {
+   if (owner !== 'p1' && owner !== 'p2') throw new Error('native-birth/v1/invalid-owner');
+@@ -20,6 +21,11 @@
+ 
+ /** Trusted session controller; native references never leave this private creation enrollment. */
+ export class NativeBirthEnrollment {
++  #actorReceiver: SwitchActorReceiver | null = null;
++  registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
++    if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
++    this.#actorReceiver = receiver;
++  }
+   #phase: 'new' | 'observing' | 'staged' | 'active' | 'invalid' = 'new';
+   #environment: object | null = null;
+   #battle: Battle | null = null;
+@@ -121,6 +127,11 @@
+     })) as AssociationRows;
+   }
+ 
++  transferSwitchActors(environment: object, battle: Battle): void {
++    if (!this.#actorReceiver) fail("missing-actor-receiver");
++    this.#actorReceiver(environment, battle, this.captureBirthObjects(environment, battle));
++  }
++
+   holding(owner: PlayerID): NativeBirthHandle {
+     const slot = index(owner);
+     if (this.#phase !== 'active') fail('unavailable');
+@@ -177,6 +188,11 @@
+ 
+ /** Private session association: actual serializer/reconstructor occurrences, never imported mappings. */
+ export class NativeObjectAssociation {
++  #actorReceiver: SwitchActorReceiver | null = null;
++  registerSwitchActorReceiver(receiver: SwitchActorReceiver): void {
++    if (this.#actorReceiver) throw new Error("switch-events/v1/duplicate-controller-registration");
++    this.#actorReceiver = receiver;
++  }
+   #initialEnvironment: object | null = null;
+   #disabled = false;
+   #closed = false;
+@@ -305,6 +321,11 @@
+     }
+     pending.rows = rows; pending.battle = battle;
+   }
++  transferSwitchActors(environment: object, battle: Battle, ticket: NativeRestoreTicket): void {
++    const pending = this.pending(environment, ticket);
++    if (!this.#actorReceiver || !pending.rows || pending.battle !== battle) associationFail("missing-restored-actor-source");
++    this.#actorReceiver(environment, battle, pending.rows, pending.source.snapshot, pending.parent);
++  }
+   prepareCommit(environment: object, next: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket): object {
+     const pending = this.pending(environment, ticket), entry = this.#serializations.get(snapshot);
+     if (!pending.rows || !entry || entry.environment !== environment || entry.battle !== pending.battle || entry.rows !== pending.rows) associationFail('missing-prepared-association');
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1,3 +1,4 @@
++import { SwitchEventHost } from './owner_identity_events';
+ import { randomBytes } from 'node:crypto';
+ import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
+ import { installedNativeProfile, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
+@@ -763,6 +764,7 @@
+   readonly #originalCreation: OriginalOwnerCreation | undefined;
+   readonly #nativeBirth: NativeBirthEnrollment | undefined;
+   readonly #objectAssociation: NativeObjectAssociation | undefined;
++  readonly #switchEvents: SwitchEventHost | undefined;
+   private readonly randomAgents: Record<PlayerID, RandomBaselineAgent>;
+   private readonly heuristicAgent: HeuristicBaselineAgent;
+   private battleStream: BattleStream | null;
+@@ -787,6 +789,7 @@
+     nativeBirth?: NativeBirthEnrollment,
+     objectAssociation?: NativeObjectAssociation,
+     runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
++    switchEvents?: SwitchEventHost,
+   ) {
+     assertNativeRuntimeProfile(runtimeProfile);
+     this.#runtimeProfile = runtimeProfile;
+@@ -795,6 +798,7 @@
+     this.#nativeBirth = nativeBirth;
+     nativeBirth?.bind(this);
+     this.#objectAssociation = objectAssociation;
++    this.#switchEvents = switchEvents;
+     if (nativeBirth) objectAssociation?.bindInitial(this);
+     this.id = id;
+     this.format = format;
+@@ -858,6 +862,7 @@
+     } catch (error) {
+       this.#originalCreation?.abortStaging();
+       this.#nativeBirth?.abortStaging();
++      this.#switchEvents?.release(this);
+       this.#requestTrace?.invalidate();
+       this.#requestTrace = null;
+       throw error;
+@@ -917,6 +922,7 @@
+       const battle = Battle.fromJSON(snapshot);
+       try { this.#objectAssociation?.acceptRestore(this, snapshot, battle, associationTicket); }
+       catch (error) { battle.destroy(); throw error; }
++      if (associationTicket) this.#switchEvents?.attachRestored(this, battle, this.battleStream!, associationTicket);
+       battle.restart((type, data) => stream.pushMessage(type, Array.isArray(data) ? data.join('\n') : data));
+       stream.battle = battle;
+       battle.sentLogPos = 0;
+@@ -949,6 +955,7 @@
+     } catch (error) {
+       this.#requestTrace?.invalidate();
+       this.#requestTrace = null;
++      this.#switchEvents?.release(this);
+       this.#objectAssociation?.discard(this);
+       throw error;
+     }
+@@ -959,6 +966,7 @@
+     const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
+     if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
+     const serialized = battle.toJSON() as Record<string, unknown>;
++    this.#switchEvents?.plainSerialization(this, battle, serialized);
+     if (!battle.ended) return this.withActiveRequestOverrides(battle, serialized);
+     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
+     const switches: NonNullable<TerminalRequestHistory['submitted_switches']> = {};
+@@ -1015,7 +1023,7 @@
+ 
+   private initializeStreams(): void {
+     const trace = this.#requestTrace = new RequestEmissionTrace();
+-    const nativeBirth = this.#nativeBirth, environment = this;
++    const nativeBirth = this.#nativeBirth, environment = this, switchEvents = this.#switchEvents;
+     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
+     // _write synchronously emits requests then sendUpdates. Count at the source,
+     // before getPlayerStreams asynchronously fans out each message.
+@@ -1025,9 +1033,13 @@
+       }
+       override _writeLine(type: string, message: string): void {
+         super._writeLine(type, message);
+-        if (type === 'start' && nativeBirth) nativeBirth.observe(environment, this.battle!);
++        if (type === 'start' && nativeBirth) {
++          nativeBirth.observe(environment, this.battle!);
++          switchEvents?.attachBirth(environment, this.battle!, this);
++        }
+       }
+       override pushMessage(type: string, data: string): void {
++        switchEvents?.pushed(environment, this, type, data);
+         trace.emitted(type, data);
+         settling.emitted(type, data);
+         super.pushMessage(type, data);
+@@ -1042,6 +1054,7 @@
+       }
+     }({ keepAlive: true });
+     this.streams = getPlayerStreams(this.battleStream);
++    switchEvents?.bindSpectator(this, this.streams.spectator);
+     trace.bind('p1', this.streams.p1);
+     trace.bind('p2', this.streams.p2);
+     const ownerStreams = this.streams;
+@@ -1119,6 +1132,7 @@
+     const raw = this.serializeBattle();
+     const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
+     this.#objectAssociation?.recordSerialization(this, this.battleStream!.battle!, raw, snapshot);
++    this.#switchEvents?.recordSnapshot(this, raw, snapshot);
+     return snapshot;
+   }
+ 
+@@ -1162,6 +1176,7 @@
+     const output = this.captureSeededSnapshot(request.snapshot.branch_id);
+     const built = buildSeededForcedSwitchResult(request, output, result);
+     this.#objectAssociation?.finalizeSerialization(this, output, built.output_snapshot);
++    this.#switchEvents?.finalizeSnapshot(this, output, built.output_snapshot);
+     return built;
+   }
+ 
+@@ -1200,6 +1215,7 @@
+     }
+     const built = buildSeededTransitionResult(request, outputSnapshot, stepResult);
+     this.#objectAssociation?.finalizeSerialization(this, outputSnapshot, built.output_snapshot);
++    this.#switchEvents?.finalizeSnapshot(this, outputSnapshot, built.output_snapshot);
+     return built;
+   }
+ 
+@@ -1207,6 +1223,7 @@
+     this.noteLiveWrite();
+     this.#originalCreation?.abortStaging();
+     this.#nativeBirth?.abortStaging();
++    this.#switchEvents?.release(this);
+     this.#objectAssociation?.release(this);
+     await this.destroyBattle();
+     this.initialized = false;
+@@ -1355,6 +1372,7 @@
+     }
+     for await (const chunk of this.streams.spectator as unknown as AsyncIterable<string>) {
+       if (this.settling.stopped) return;
++      this.#switchEvents?.received(this, this.streams.spectator, chunk);
+       appendPublicSpectatorChunk(chunk, this.logLines, this.getReaderContext());
+       for (const rawLine of chunk.split('\n')) {
+         const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { SwitchEventHost } from './owner_identity_events';
+ import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
+ import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+ import { assertHistoricalReaderInput } from './version_profile';
+@@ -371,6 +372,7 @@
+   readonly #originalCreation: OriginalOwnerCreation;
+   readonly #nativeBirth: NativeBirthEnrollment;
+   readonly #objectAssociation: NativeObjectAssociation;
++  readonly #switchEvents: SwitchEventHost;
+   readonly #deliveryLedger = new RequestDeliveryLedger();
+   #deliveryEnabled = false;
+   private readonly seed: number[];
+@@ -401,6 +403,7 @@
+     this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: this.rulesContext.profile.revision });
+     this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
+     this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
++    this.#switchEvents = new SwitchEventHost(this.#nativeBirth, this.#objectAssociation);
+     this.environment = this.newEnvironment('initial');
+     this.snapshot = null;
+     this.rawPrefix = [];
+@@ -431,6 +434,7 @@
+       session.#deliveryLedger.revoke();
+       session.#originalCreation.revoke();
+       session.#nativeBirth.revoke();
++      session.#switchEvents.revoke();
+       session.#objectAssociation.revoke();
+       await session.environment.close();
+       throw error;
+@@ -706,6 +710,7 @@
+       return { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+     } catch (error) {
+       if (delivery) this.#deliveryLedger.discard(delivery);
++      this.#switchEvents.release(candidate);
+       this.#objectAssociation.discard(candidate);
+       await candidate.close();
+       throw error;
+@@ -718,6 +723,7 @@
+     this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
+     this.#nativeBirth.revoke();
++    this.#switchEvents.revoke();
+     this.#objectAssociation.revoke();
+     await this.environment.close();
+     for (const retired of this.retiredEnvironments) {
+@@ -764,6 +770,7 @@
+       suffix === 'initial' ? this.#nativeBirth : undefined,
+       this.#objectAssociation,
+       this.#runtimeProfile,
++      this.#switchEvents,
+     );
+   }
+ 
+--- /dev/null
++++ b/sim-core/src/owner_identity_events.ts
+@@ -0,0 +1,237 @@
++import { isDeepStrictEqual } from 'node:util';
++import type { Battle } from 'pokemon-showdown';
++import { BattleActions } from 'pokemon-showdown/dist/sim/battle-actions';
++import { NativeBirthEnrollment, NativeObjectAssociation, type NativeRestoreTicket, type SwitchActorReceiver } from './owner_identity_crosswalk';
++import type { SeededBattleSnapshot } from './transition';
++import type { PlayerID } from './types';
++
++const token = (): object => Object.freeze(Object.create(null));
++function fail(reason: string): never { throw new Error('switch-events/v1/' + reason); }
++type Actor = { owner: PlayerID; slot: number; original: object; lease: object };
++type Writer = { token: object; actor: Readonly<Omit<Actor, 'lease'>>; rows: Row[]; valid: boolean };
++type Row = { token: object; version: number; writer?: Writer; alive: boolean };
++type Frame = { token: object; bytes: string[]; rows: Array<{ token: object; version: number }>; publicRows: number[]; received: boolean };
++type Lineage = { rows: Row[]; expected: string[] };
++function copyRows(rows: Row[]): Row[] {
++  const writers = new Map<Writer, Writer>();
++  return rows.map(row => {
++    let writer: Writer | undefined;
++    if (row.writer) {
++      writer = writers.get(row.writer);
++      if (!writer) {
++        writer = { token: row.writer.token, actor: row.writer.actor, rows: [],
++          valid: row.writer.valid && row.writer.rows.every(leaf => leaf.alive) };
++        writers.set(row.writer, writer);
++      }
++    }
++    const copy = { ...row, ...(writer ? { writer } : {}) };
++    writer?.rows.push(copy); return copy;
++  });
++}
++
++type World = {
++  battle: any; stream: object; spectator?: object; load: () => void; actors: Map<object, Actor>;
++  leases: Record<PlayerID, object>; rows: Row[]; log: string[]; proxy: string[];
++  writers: Writer[]; frames: Frame[]; fifo: Frame[]; valid: boolean; active: boolean;
++  detach: Array<() => void>; sending?: Frame;
++};
++
++/** Session-private tentative infrastructure. No committed event capability or wire projection. */
++export class SwitchEventHost {
++  #worlds = new Map<object, World>();
++  #spectators = new Map<object, object>();
++  #snapshots = new WeakMap<object, Lineage>();
++  #raw = new WeakMap<object, Lineage>();
++  #closed = false;
++  readonly #birth: NativeBirthEnrollment;
++  readonly #association: NativeObjectAssociation;
++  constructor(birth: NativeBirthEnrollment, association: NativeObjectAssociation) {
++    this.#birth = birth; this.#association = association;
++    const receive: SwitchActorReceiver = (env, battle, rows, source) => {
++      const world = this.world(env);
++      if (world.battle !== battle || world.actors.size) fail('foreign-or-duplicate-actor-source');
++      const actors = new Map<object, Actor>();
++      for (const owner of ['p1', 'p2'] as const) {
++        rows[owner].objects.forEach((actor, i) => {
++          if (!actor || actors.has(actor) || actor.side !== battle[owner]) fail('invalid-actor-source');
++          actors.set(actor, { owner, slot: i + 1, original: rows[owner].original, lease: world.leases[owner] });
++        });
++      }
++      if (source) {
++        const lineage = this.#snapshots.get(source);
++        if (!lineage || !isDeepStrictEqual(lineage.expected, battle.log)) fail('missing-held-log-lineage');
++        // The B2 controller validates exact snapshot/parent/ticket before this callback.
++        world.rows = copyRows(lineage.rows);
++      }
++      world.actors = actors;
++    };
++    birth.registerSwitchActorReceiver(receive); association.registerSwitchActorReceiver(receive);
++  }
++  private world(env: object): World {
++    const world = this.#worlds.get(env);
++    if (this.#closed || !world?.active) fail('unavailable-world');
++    return world!;
++  }
++  attachBirth(env: object, battle: Battle, stream: object): void {
++    this.attach(env, battle, stream, () => this.#birth.transferSwitchActors(env, battle));
++  }
++  attachRestored(env: object, battle: Battle, stream: object, ticket: NativeRestoreTicket): void {
++    this.attach(env, battle, stream, () => this.#association.transferSwitchActors(env, battle, ticket));
++    try { this.world(env).load(); } catch (error) { this.release(env); throw error; }
++  }
++  private attach(env: object, battle: Battle, stream: object, load: () => void): void {
++    if (this.#closed || this.#worlds.has(env)) fail('duplicate-world');
++    const native = battle as any, log = native.log as string[];
++    const world: World = { battle: native, stream, load, actors: new Map(), leases: { p1: token(), p2: token() },
++      rows: log.map(() => ({ token: token(), version: 0, alive: true })), log, proxy: log,
++      writers: [], frames: [], fifo: [], active: true, valid: true, detach: [] };
++    this.#worlds.set(env, world); world.spectator = this.#spectators.get(env);
++    let writing: Writer | undefined;
++    const removed = (rows: Row[]) => { for (const row of rows) { row.alive = false; if (row.writer) row.writer.valid = false; } };
++    const fresh = (): Row => {
++      const row: Row = { token: token(), version: 0, alive: true, ...(writing ? { writer: writing } : {}) };
++      writing?.rows.push(row); return row;
++    };
++    const index = (key: PropertyKey): number | null => typeof key === 'string' && /^(0|[1-9][0-9]*)$/.test(key) ? Number(key) : null;
++    const proxy = new Proxy(log, {
++      get(target, key, receiver) {
++        if (key === 'push') return (...values: string[]) => { world.rows.push(...values.map(fresh)); return target.push(...values); };
++        if (key === 'splice') return (...args: any[]) => {
++          const n = target.length, start = Number(args[0]) || 0;
++          const at = start < 0 ? Math.max(n + Math.trunc(start), 0) : Math.min(Math.trunc(start), n);
++          const count = args.length === 1 ? n - at : Math.min(Math.max(Math.trunc(Number(args[1])) || 0, 0), n - at);
++          const values = args.slice(2); removed(world.rows.splice(at, count, ...values.map(fresh)));
++          return target.splice(at, count, ...values);
++        };
++        if (['sort', 'reverse', 'copyWithin', 'fill', 'shift', 'unshift', 'pop'].includes(String(key))) {
++          return (...args: any[]) => { world.valid = false; return (Array.prototype as any)[key].apply(receiver, args); };
++        }
++        return Reflect.get(target, key, receiver);
++      },
++      set(target, key, value) {
++        if (key === 'length') {
++          const length = Number(value);
++          if (!Number.isInteger(length) || length < 0 || length > target.length) world.valid = false;
++          if (length < target.length) removed(world.rows.splice(length));
++        } else {
++          const at = index(key);
++          if (at === null || at > target.length) world.valid = false;
++          else if (at === target.length) world.rows.push(fresh());
++          else { const row = world.rows[at]; row.version++; if (row.writer) row.writer.valid = false; }
++        }
++        return Reflect.set(target, key, value);
++      },
++      deleteProperty(target, key) {
++        const at = index(key);
++        if (at === null || !world.rows[at]) world.valid = false;
++        else { const row = world.rows[at]; removed([row]); row.version++; }
++        return Reflect.deleteProperty(target, key);
++      },
++      defineProperty(target, key, descriptor) { world.valid = false; return Reflect.defineProperty(target, key, descriptor); },
++    });
++    world.proxy = proxy; native.log = proxy;
++    world.detach.push(() => { if (native.log === proxy) native.log = log; });
++    const wrap = (object: any, key: string, make: (original: any) => any) => {
++      const descriptor = Object.getOwnPropertyDescriptor(object, key), original = object[key];
++      object[key] = make(original);
++      world.detach.push(() => { if (descriptor) Object.defineProperty(object, key, descriptor); else delete object[key]; });
++    };
++    let actorFrame: { actor: object; supported: boolean; used: boolean } | undefined;
++    const canonicalProducer = !Object.hasOwn(native.actions, 'switchIn')
++      && native.actions.switchIn === BattleActions.prototype.switchIn;
++    wrap(native.actions, 'switchIn', original => (...args: any[]) => {
++      if (!world.actors.size) world.load();
++      const previous = actorFrame;
++      actorFrame = { actor: args[0], supported: canonicalProducer && native.gameType === 'singles' && native.activePerHalf === 1
++        && native.sides.length === 2 && native.sides.every((side: any) => side?.active.length === 1)
++        && args[1] === 0 && !args[2] && !args[3], used: false };
++      try { return original.apply(native.actions, args); } finally { actorFrame = previous; }
++    });
++    wrap(native, 'add', original => (...args: any[]) => {
++      if (!writing && actorFrame?.supported && !actorFrame.used && args.length === 3 && args[0] === 'switch'
++        && args[1] === actorFrame.actor && args[2] === (actorFrame.actor as any).getFullDetails) {
++        const actor = world.actors.get(actorFrame.actor);
++        if (!actor) fail('unregistered-direct-switch-actor');
++        actorFrame.used = true;
++        const writer: Writer = { token: token(), actor: Object.freeze({ owner: actor.owner, slot: actor.slot, original: actor.original }), rows: [], valid: true };
++        world.writers.push(writer); writing = writer;
++        try { return original.apply(native, args); } finally { writing = undefined; }
++      }
++      return original.apply(native, args);
++    });
++    let updating = false;
++    wrap(native, 'sendUpdates', original => (...args: any[]) => {
++      const previous = updating; updating = true;
++      try { return original.apply(native, args); } finally { updating = previous; }
++    });
++    const wrapSend = () => {
++      wrap(native, 'send', original => (type: string, data: string | string[]) => {
++        if (type !== 'update' || !updating) { if (type === 'update') world.valid = false; return original.call(native, type, data); }
++        if (native.log !== proxy || !Array.isArray(data) || !isDeepStrictEqual(data, log.slice(native.sentLogPos))) world.valid = false;
++        const bytes = Array.isArray(data) ? [...data] : data.split('\n');
++        const rows = world.rows.slice(native.sentLogPos).map(row => ({ token: row.token, version: row.version }));
++        const publicRows: number[] = [];
++        for (let i = 0; i < bytes.length; i++) {
++          if (/^\|split\|p[1234]$/.test(bytes[i])) { if (i + 2 >= bytes.length) world.valid = false; else if (bytes[i + 2]) publicRows.push(i + 2); i += 2; }
++          else if (bytes[i]) publicRows.push(i);
++        }
++        const frame: Frame = { token: token(), bytes, rows, publicRows, received: false };
++        world.frames.push(frame); world.sending = frame;
++        try { return original.call(native, type, data); } finally { world.sending = undefined; }
++      });
++    };
++    wrapSend();
++    wrap(native, 'restart', original => (...args: any[]) => { const result = original.apply(native, args); wrapSend(); return result; });
++  }
++  bindSpectator(env: object, stream: object): void {
++    this.#spectators.set(env, stream); const world = this.#worlds.get(env); if (world) world.spectator = stream;
++  }
++  pushed(env: object, stream: object, type: string, data: string): void {
++    if (type !== 'update') return;
++    if (!this.#worlds.has(env)) return;
++    const world = this.world(env), frame = world.sending;
++    if (world.stream !== stream || !frame || frame.received || data !== frame.bytes.join('\n')) { world.valid = false; return; }
++    frame.received = true; world.fifo.push(frame);
++  }
++  received(env: object, stream: object, chunk: string): void {
++    const world = this.world(env), frame = world.fifo.shift();
++    if (world.spectator !== stream || !frame || chunk !== frame.publicRows.map(i => frame.bytes[i]).join('\n')) { world.valid = false; }
++  }
++  plainSerialization(env: object, battle: Battle, raw: Record<string, unknown>): void {
++    const world = this.world(env);
++    if (world.battle !== battle || (battle as any).log !== world.proxy || raw.log !== world.proxy) world.valid = false;
++    raw.log = [...(raw.log as string[])];
++    this.#raw.set(raw.log as object, { rows: copyRows(world.rows), expected: [...raw.log as string[]] });
++  }
++  recordSnapshot(env: object, raw: object, snapshot: SeededBattleSnapshot): void {
++    const world = this.world(env), lineage = this.#raw.get((raw as any).log);
++    if (!lineage || !isDeepStrictEqual(lineage.expected, snapshot.simulator_state.log)) fail('snapshot-lineage-mismatch');
++    if (!world.valid) fail('unavailable-log-proof');
++    this.#snapshots.set(snapshot, lineage);
++  }
++  finalizeSnapshot(env: object, source: SeededBattleSnapshot, target: SeededBattleSnapshot): void {
++    this.world(env); const lineage = this.#snapshots.get(source);
++    if (!lineage || !isDeepStrictEqual(source.simulator_state, target.simulator_state)) fail('builder-lineage-mismatch');
++    this.#snapshots.set(target, lineage);
++  }
++  /** Internal diagnostics only; tokens are tentative and have no commit/read capability. */
++  inspect(env: object) {
++    const world = this.world(env);
++    return { valid: world.valid && world.battle.log === world.proxy, pending: world.fifo.length,
++      leases: { ...world.leases }, rows: world.rows.map(r => ({ token: r.token, version: r.version, alive: r.alive })),
++      writers: world.writers.map(w => ({ token: w.token, owner: w.actor.owner, slot: w.actor.slot,
++        valid: w.valid && w.rows.every(r => r.alive), rows: w.rows.map(r => r.token) })),
++      sends: world.frames.map(f => ({ token: f.token, bytes: [...f.bytes], rows: f.rows.map(r => ({ ...r })), publicRows: [...f.publicRows], pushed: f.received })) };
++  }
++  checkActor(env: object, lease: object, owner: PlayerID, actor: object): number {
++    const world = this.world(env), row = world.actors.get(actor);
++    if (!world.valid || !row || row.owner !== owner || row.lease !== lease) fail('foreign-or-revoked-actor-lease');
++    return row!.slot;
++  }
++  release(env: object): void {
++    const world = this.#worlds.get(env);
++    if (world) { world.active = false; for (const detach of world.detach.reverse()) detach(); world.actors.clear(); world.fifo = []; this.#worlds.delete(env); }
++    this.#spectators.delete(env);
++  }
++  revoke(): void { for (const env of this.#worlds.keys()) this.release(env); this.#snapshots = new WeakMap(); this.#raw = new WeakMap(); this.#closed = true; }
++}
+--- /dev/null
++++ b/sim-core/tests/owner_identity_events.test.ts
+@@ -0,0 +1,196 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { types } from 'node:util';
++import { Battle } from 'pokemon-showdown';
++import { SwitchEventHost } from '../src/owner_identity_events';
++import { NativeObjectAssociation } from '../src/owner_identity_crosswalk';
++import { LocalBattleEnv } from '../src/env_manager';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++import type { PlayerID } from '../src/types';
++const owners = ['p1', 'p2'] as const;
++const options = { battle_id: 'P45', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
++const env = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
++const native = (s: PipelineIntegrationSession): Battle => (env(s) as any).battleStream.battle;
++function switches(s: PipelineIntegrationSession) {
++  return Object.fromEntries(owners.map(owner => {
++    const request = env(s).getRequest(owner)!;
++    const at = request.legal_actions.available_indices.find(i => request.legal_actions.actions[i]?.choice === 'switch 2');
++    assert.notEqual(at, undefined);
++    return [owner, canonicalActionFromLegalAction(request, at!)];
++  })) as Record<PlayerID, ReturnType<typeof canonicalActionFromLegalAction>>;
++}
++function taps() {
++  const birth = SwitchEventHost.prototype.attachBirth, restored = SwitchEventHost.prototype.attachRestored;
++  let host: SwitchEventHost;
++  const worlds: object[] = [];
++  SwitchEventHost.prototype.attachBirth = function(...args) { host = this; worlds.push(args[0]); return birth.apply(this, args); };
++  SwitchEventHost.prototype.attachRestored = function(...args) { host = this; worlds.push(args[0]); return restored.apply(this, args); };
++  return { host: () => host!, worlds, restore: () => { SwitchEventHost.prototype.attachBirth = birth; SwitchEventHost.prototype.attachRestored = restored; } };
++}
++const witness = (name: string, data: object) => console.log('P45_WITNESS ' + JSON.stringify({ name, ...data }));
++
++test('P45 generated creation restore and plain parity', async () => {
++  const tap = taps(); let s: PipelineIntegrationSession | undefined, control: Battle | undefined;
++  try {
++    s = await PipelineIntegrationSession.create(options);
++    const host = tap.host(), birthEnv = env(s), birthBattle = native(s), first = host.inspect(birthEnv);
++    assert.equal(first.valid, true); assert.equal(first.pending, 0);
++    assert.deepEqual(first.writers.map(w => [w.owner, w.slot]).sort(), [['p1', 1], ['p2', 1]]);
++    assert.ok(first.writers.every(w => w.rows.length === 3 && w.valid));
++    const originalObjects = owners.flatMap(owner => [...birthBattle[owner]!.pokemon]);
++    const originals = owners.map(owner => s!.readOriginalOwnerHolding(s!.getOriginalOwnerHolding(owner), owner));
++    for (const owner of owners) for (let i = 0; i < 6; i++) {
++      assert.equal(host.checkActor(birthEnv, first.leases[owner], owner, birthBattle[owner]!.pokemon[i]), i + 1);
++    }
++    control = new Battle({ formatid: options.format, seed: '1,2,3,4' });
++    for (const [i, owner] of owners.entries()) control.setPlayer(owner, { name: owner === 'p1' ? 'Agent-1' : 'Agent-2', team: originals[i].packed_team });
++    assert.deepEqual(birthBattle.log, control.log);
++    const raw = birthEnv.serializeBattle();
++    assert.equal(types.isProxy(raw.log), false); assert.notEqual(raw.log, birthBattle.log);
++    assert.deepEqual(raw.log, control.log); assert.deepEqual(raw, structuredClone(raw));
++    assert.equal((raw as any).sides[0].pokemon[0].set, birthBattle.p1!.pokemon[0].set);
++    assert.equal(JSON.stringify(raw), JSON.stringify(birthBattle.toJSON()));
++    // Lower-level post-send stimulus: a held snapshot must not inherit later leaf invalidation.
++    const leaf = first.rows.findIndex(r => r.token === first.writers[0].rows[1]);
++    birthBattle.log[leaf] += '|post-send-mutation';
++    assert.equal(host.inspect(birthEnv).writers[0].valid, false);
++    for (const expectedSlot of [2, 1]) {
++      const previous = env(s), old = host.inspect(previous);
++      await s.step(switches(s));
++      const next = host.inspect(env(s));
++      assert.equal(next.valid, true); assert.equal(next.pending, 0);
++      assert.deepEqual(next.writers.map(w => [w.owner, w.slot]).sort(), [['p1', expectedSlot], ['p2', expectedSlot]]);
++      assert.ok(next.writers.every(w => w.valid));
++      assert.deepEqual(next.sends[0].rows.slice(0, old.rows.length).map(r => r.token), old.rows.map(r => r.token));
++      assert.notEqual(next.sends[0].token, old.sends[0].token);
++      if (expectedSlot === 2) assert.equal(next.sends[0].rows[leaf].version, first.rows[leaf].version,
++        'held lineage retains the serialization-time version, not later live mutations');
++      assert.throws(() => host.inspect(previous), /unavailable-world/);
++      for (const owner of owners) {
++        assert.ok(!originalObjects.includes(native(s)[owner]!.pokemon[0]));
++        assert.equal(host.checkActor(env(s), next.leases[owner], owner, native(s)[owner]!.pokemon[0]), expectedSlot);
++      }
++      assert.notEqual(next.leases.p1, old.leases.p1);
++      const state = env(s).serializeBattle();
++      assert.equal(types.isProxy(state.log), false); assert.deepEqual(state, structuredClone(state));
++      assert.equal(JSON.stringify(state), JSON.stringify(native(s).toJSON()));
++      const output = JSON.stringify({ boundary: s.boundary, snapshot: (s as any).snapshot, state });
++      for (const forbidden of ['switchEvents', 'actorLease', 'publicRows', 'writerToken']) assert.ok(!output.includes(forbidden));
++    }
++    await s.close(); assert.throws(() => host.inspect(env(s!)), /unavailable-world/);
++    witness('generated-restoration', { generated_both_owners: true, literal_slots: [1, 2, 1], historical_row_tokens_preserved: true,
++      historical_reemission_new_writers: 0, plain_clone_and_native_json_parity: true, native_set_reference_parity: true, no_output_sidecar: true });
++  } finally { tap.restore(); control?.destroy(); await s?.close(); }
++});
++
++test('P45 constructed mutations split sends and equal text', async () => {
++  const tap = taps(); let s: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create(options);
++    const host = tap.host(), e = env(s), b = native(s), initial = host.inspect(e);
++    b.add('switch', b.p1!.pokemon[0], b.p1!.pokemon[0].getFullDetails);
++    assert.equal(host.inspect(e).writers.length, initial.writers.length, 'arbitrary add cannot mint writer');
++    b.add('equal'); b.add('equal');
++    const before = host.inspect(e), end = before.rows.length;
++    assert.notEqual(before.rows[end - 1].token, before.rows[end - 2].token);
++    b.addMove('move', 'p1a: A', 'Tackle', 'p2a: B');
++    const move = host.inspect(e).rows.at(-1)!;
++    b.retargetLastMove(b.p2!.pokemon[0]);
++    assert.equal(host.inspect(e).rows.at(-1)!.token, move.token);
++    assert.equal(host.inspect(e).rows.at(-1)!.version, 1);
++    b.log.splice(end, 1);
++    assert.deepEqual(host.inspect(e).rows.slice(0, end).map(r => r.token), before.rows.map(r => r.token));
++    b.log.push('temporary'); delete b.log[b.log.length - 1]; b.log.length--;
++    b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
++    const sent = host.inspect(e); assert.equal(sent.valid, true); assert.equal(sent.pending, 0);
++    assert.ok(sent.sends.at(-1)!.pushed);
++    b.add('equal'); b.sendUpdates(); await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve));
++    const again = host.inspect(e); assert.notEqual(again.sends.at(-1)!.token, sent.sends.at(-1)!.token);
++    const writerCount = again.writers.length;
++    const gameType = b.gameType;
++    try {
++      (b as any).gameType = 'doubles'; // Synthetic shape gate, not generated doubles reachability.
++      b.actions.switchIn(b.p1!.pokemon[1], 0);
++    } finally { (b as any).gameType = gameType; }
++    b.actions.switchIn(b.p2!.pokemon[1], 0, b.dex.moves.get('uturn'));
++    b.actions.switchIn(b.p1!.pokemon[1], 0, null, true);
++    assert.equal(host.inspect(e).writers.length, writerCount, 'shape/tagged/drag paths remain unbound');
++    const writerRow = initial.rows.findIndex(r => r.token === initial.writers[0].rows[1]);
++    b.log[writerRow] += '|changed';
++    assert.equal(host.inspect(e).writers[0].valid, false);
++    b.log.splice(writerRow, 1); assert.equal(host.inspect(e).writers[0].valid, false);
++    (b as any).log = [...b.log]; assert.equal(host.inspect(e).valid, false);
++    assert.throws(() => e.captureSeededSnapshot(), /unavailable-log-proof/);
++    witness('constructed-mutation', { genuine_creation_then_lower_level_stimulus: true, arbitrary_add_unbound: true,
++      equal_strings_distinct_rows_and_sends: true, split_one_writer_three_rows: true, surviving_tokens_and_versions: true,
++      synthetic_shape_gate_and_native_tagged_drag_unbound: true, switch_rewrite_removal_and_array_replacement_deny: true });
++  } finally { tap.restore(); await s?.close(); }
++});
++
++test('P45 copied foreign owner and closed lease rejection', async () => {
++  const tap = taps(); let a: PipelineIntegrationSession | undefined, b: PipelineIntegrationSession | undefined;
++  try {
++    a = await PipelineIntegrationSession.create(options); const ah = tap.host(), ae = env(a), ar = ah.inspect(ae);
++    b = await PipelineIntegrationSession.create({ ...options, battle_id: 'P45-sibling' }); const bh = tap.host(), be = env(b), br = bh.inspect(be);
++    for (const owner of owners) {
++      const other = owner === 'p1' ? 'p2' : 'p1';
++      assert.throws(() => ah.checkActor(ae, { ...ar.leases[owner] }, owner, native(a!)[owner]!.pokemon[0]), /foreign-or-revoked/);
++      assert.throws(() => ah.checkActor(ae, ar.leases[other], owner, native(a!)[owner]!.pokemon[0]), /foreign-or-revoked/);
++      assert.throws(() => ah.checkActor(ae, ar.leases[owner], other, native(a!)[owner]!.pokemon[0]), /foreign-or-revoked/);
++      assert.throws(() => ah.checkActor(ae, br.leases[owner], owner, native(a!)[owner]!.pokemon[0]), /foreign-or-revoked/);
++      assert.throws(() => ah.checkActor(ae, ar.leases[owner], owner, native(b!)[owner]!.pokemon[0]), /foreign-or-revoked/);
++    }
++    assert.throws(() => bh.inspect(ae), /unavailable-world/);
++    const actor = native(a).p1!.pokemon[0]; await a.close();
++    assert.throws(() => ah.checkActor(ae, ar.leases.p1, 'p1', actor), /unavailable-world/);
++    witness('lease-faults', { both_direction_owner_isolation: true, copied_foreign_and_foreign_actor_reject: true, closed_lease_revoked: true });
++  } finally { tap.restore(); await a?.close(); await b?.close(); }
++});
++
++test('P45 actual postcapture rollback and fresh retry', async () => {
++  const tap = taps(), prepare = NativeObjectAssociation.prototype.prepareCommit, close = LocalBattleEnv.prototype.close;
++  let s: PipelineIntegrationSession | undefined, captured: object | undefined, rejectedBeforeCleanup = false;
++  try {
++    s = await PipelineIntegrationSession.create(options); const host = tap.host(), committedEnv = env(s), before = host.inspect(committedEnv);
++    const boundary = s.boundary, holdings = owners.map(owner => s!.getNativeObjectHolding(owner));
++    NativeObjectAssociation.prototype.prepareCommit = function(e, next, snapshot, ticket) {
++      const result = prepare.call(this, e, next, snapshot, ticket); captured = e;
++      assert.deepEqual(host.inspect(e).writers.map(w => w.slot), [2, 2]);
++      throw new Error('P45-after-capture-before-commit');
++    };
++    LocalBattleEnv.prototype.close = async function() {
++      if (this === captured) { assert.throws(() => host.inspect(this), /unavailable-world/); rejectedBeforeCleanup = true; }
++      return close.call(this);
++    };
++    await assert.rejects(s.step(switches(s)), /P45-after-capture-before-commit/);
++    assert.equal(rejectedBeforeCleanup, true); assert.equal(s.boundary, boundary); assert.equal(env(s), committedEnv);
++    assert.deepEqual(host.inspect(committedEnv), before);
++    for (const [i, owner] of owners.entries()) assert.equal(s.getNativeObjectHolding(owner), holdings[i]);
++    NativeObjectAssociation.prototype.prepareCommit = prepare;
++    await s.step(switches(s));
++    assert.equal(host.inspect(env(s)).valid, true); assert.notEqual(env(s), captured);
++    witness('rollback', { actual_postcapture_fault: true, revocation_before_awaited_cleanup: true,
++      committed_B2_and_tentative_history_unchanged: true, fresh_retry_chain: true });
++  } finally { NativeObjectAssociation.prototype.prepareCommit = prepare; LocalBattleEnv.prototype.close = close; tap.restore(); await s?.close(); }
++});
++
++
++test('P45 overridden producer remains unbound', async () => {
++  const tap = taps(), attach = SwitchEventHost.prototype.attachBirth;
++  let s: PipelineIntegrationSession | undefined;
++  SwitchEventHost.prototype.attachBirth = function(e, b, stream) {
++    const canonical = b.actions.switchIn;
++    // Lower-level own override stimulus; no claim about generated mod reachability.
++    b.actions.switchIn = function(...args) { return canonical.apply(this, args); };
++    return attach.call(this, e, b, stream);
++  };
++  try {
++    s = await PipelineIntegrationSession.create(options);
++    assert.equal(native(s).gameType, 'singles');
++    assert.equal(tap.host().inspect(env(s)).writers.length, 0);
++    assert.ok(s.getNativeBirthHolding('p1'));
++    witness('override', { actual_session_with_synthetic_own_producer_override: true, no_tentative_switch_writer: true,
++      generated_mod_reachability: 'not-certified' });
++  } finally { SwitchEventHost.prototype.attachBirth = attach; tap.restore(); await s?.close(); }
++});

@@ -1,0 +1,38 @@
+✖ P50 source transfer and settled contradiction rollback retry (136.101083ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 240.853333
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owned_request_health.test.js:165:25
+✖ P50 source transfer and settled contradiction rollback retry (136.101083ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /foreign-transfer/. Input:
+  
+  'Error: settling/v1/simulator-error'
+  
+      at async TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owned_request_health.test.js:170:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: settling/v1/simulator-error
+        at SettlingBarrier.fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/settling.js:51:26)
+        at battleStream.keepAlive.pushError (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:980:26)
+        at battleStream.keepAlive._write (/private/tmp/neural-showdown-native11-prompt38/sim-core/node_modules/pokemon-showdown/dist/sim/battle-stream.js:56:14)
+        at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:964:65
+        at RequestEmissionTrace.atProducer (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/request_emission_trace.js:46:17)
+        at battleStream.keepAlive._write (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:964:23)
+        at battleStream.keepAlive.write (/private/tmp/neural-showdown-native11-prompt38/sim-core/node_modules/pokemon-showdown/dist/lib/streams.js:687:17)
+        at ObjectReadWriteStream.write [as _write] (/private/tmp/neural-showdown-native11-prompt38/sim-core/node_modules/pokemon-showdown/dist/sim/battle-stream.js:397:21)
+        at ObjectReadWriteStream.write (/private/tmp/neural-showdown-native11-prompt38/sim-core/node_modules/pokemon-showdown/dist/lib/streams.js:687:17)
+        at LocalBattleEnv.resetWithOptions (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:768:43),
+    expected: /foreign-transfer/,
+    operator: 'rejects',
+    diff: 'simple'
+  }

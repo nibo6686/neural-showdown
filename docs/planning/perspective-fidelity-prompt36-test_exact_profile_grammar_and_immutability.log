@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/nbolger/Desktop/neural-showdown
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 1 item
+
+trainer/tests/test_target_protocol_grammar.py::test_exact_profile_grammar_and_immutability P36_WITNESS {"name": "python-exact-grammar", "negative_forms": 11, "blocked_forms": 7, "target_runtime": "UNEXECUTED"}
+PASSED
+
+============================== 1 passed in 0.40s ===============================

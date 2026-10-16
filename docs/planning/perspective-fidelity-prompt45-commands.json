@@ -1,0 +1,231 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 2,
+    "seconds": 4.646,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-type-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.853,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-generated-creation-restore-and-plain-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 generated creation restore and plain parity$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.465,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-constructed-mutations-split-sends-and-equal-text",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 constructed mutations split sends and equal text$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.351,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-copied-foreign-owner-and-closed-lease-rejection",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 copied foreign owner and closed lease rejection$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.317,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-actual-postcapture-rollback-and-fresh-retry",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 actual postcapture rollback and fresh retry$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.316,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "B2-owner-privacy",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B2 owner privacy$",
+      "sim-core/dist/tests/owner_identity_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.419,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "B2-close-and-legacy",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^B2 close and legacy$",
+      "sim-core/dist/tests/owner_identity_restore.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.529,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-review-corrections",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 2.273,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-generated-creation-restore-and-plain-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 generated creation restore and plain parity$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.835,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-constructed-mutations-split-sends-and-equal-text",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 constructed mutations split sends and equal text$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.335,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-actual-postcapture-rollback-and-fresh-retry",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 actual postcapture rollback and fresh retry$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.343,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "changed-module-final-typecheck",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt45-evidence/compile-changed.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 2,
+    "seconds": 0.929,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "changed-module-type-root-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt45-evidence/compile-changed.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.886,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-generated-creation-restore-and-plain-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 generated creation restore and plain parity$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.44,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-constructed-mutations-split-sends-and-equal-text",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 constructed mutations split sends and equal text$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.292,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P45-overridden-producer-remains-unbound",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P45 overridden producer remains unbound$",
+      "sim-core/dist/tests/owner_identity_events.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.319,
+    "timeout_seconds": 180
+  }
+]

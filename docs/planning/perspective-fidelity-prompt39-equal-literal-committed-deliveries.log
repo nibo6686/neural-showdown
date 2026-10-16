@@ -1,0 +1,26 @@
+✖ P39 equal literal requests commit fresh deliveries through real transitions (131.191083ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 269.303417
+
+✖ failing tests:
+
+test at sim-core/tests/native11_request_timing.test.cjs:79:1
+✖ P39 equal literal requests commit fresh deliveries through real transitions (131.191083ms)
+  Error: pipeline/v1/observable-projection-failed: Public health evidence mismatch: p1: Same requires exactly one self_team row
+      at projectPipelineStepResult (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:191:15)
+      at PipelineIntegrationSession.projectObservations (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:628:16)
+      at PipelineIntegrationSession.buildInitialBoundary (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:606:35)
+      at PipelineIntegrationSession.create (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:298:52)
+      at async create (/private/tmp/neural-showdown-native11-prompt38/sim-core/tests/native11_request_timing.test.cjs:16:140)
+      at async TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/tests/native11_request_timing.test.cjs:81:8)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    code: 'pipeline/v1/observable-projection-failed',
+    diagnostic: { schema_version: 'pipeline-diagnostic/v1', code: 'pipeline/v1/observable-projection-failed', detail: 'Public health evidence mismatch: p1: Same requires exactly one self_team row' }
+  }

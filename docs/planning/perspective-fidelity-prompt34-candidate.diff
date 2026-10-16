@@ -1,0 +1,542 @@
+--- before/sim-core/src/perspective_knowledge_source.ts
++++ after/sim-core/src/perspective_knowledge_source.ts
+@@ -1,3 +1,4 @@
++import { guardHistoricalKnowledgeSource } from './version_profile';
+ /**
+  * PK-02B-Source: non-publishing source and legacy verification seam.
+  *
+@@ -72,6 +73,7 @@
+ export class SourceRegistry {
+   readonly availability: RegistryAvailability;
+   constructor(token: symbol, data: RegistryData) {
++    guardHistoricalKnowledgeSource();
+     if (token !== REGISTRY_TOKEN) fail('capability/registry');
+     registries.set(this, data);
+     this.availability = deepFreeze({
+@@ -96,11 +98,13 @@
+  * becomes unusable after `freeze`. There is no audit-scanning factory.
+  */
+ export class SourceRegistryBuilder {
++  constructor() { guardHistoricalKnowledgeSource(); }
+   #data: RegistryData | null = { origin: null, initialization: new Map(), requests: new Map(), ledger: null, replay: null };
+ 
+   #open(): RegistryData { need(this.#data, 'registry/frozen'); return this.#data; }
+ 
+   setOrigin(origin: Record<string, unknown>): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); need(data.origin === null, 'registry/duplicate');
+     const copy = snapshot(origin, 'registry/origin') as Row;
+     need(Object.keys(copy).sort().join() === 'battle_key,engine,format,rule_version' && typeof copy.battle_key === 'string' && copy.battle_key.length > 0, 'registry/origin');
+@@ -110,6 +114,7 @@
+ 
+   /** Test-owned initialization witness: never evidence that a production provider exists. */
+   addInitializationWitness(owner: string, team: readonly Row[]): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); need(OWNERS.includes(owner) && !data.initialization.has(owner), 'registry/initialization');
+     const copy = snapshot(team as Row[], 'registry/initialization');
+     need(Array.isArray(copy) && copy.length >= 1 && copy.length <= 6 && copy.every((set, i) => set !== null && typeof set === 'object' && set.slot === i + 1), 'registry/initialization');
+@@ -117,6 +122,7 @@
+   }
+ 
+   addRequestDelivery(owner: string, sequence: number, cursor: number, json: string): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); const key = `${owner}:${sequence}`;
+     need(OWNERS.includes(owner) && Number.isInteger(sequence) && sequence >= 0 && Number.isInteger(cursor) && cursor >= 0 && typeof json === 'string' && !data.requests.has(key), 'registry/request');
+     snapshot({ raw_request: { json } }, 'registry/request'); // exact text must obey the raw-request limits
+@@ -124,17 +130,20 @@
+   }
+ 
+   setPublicLedger(records: readonly string[]): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); need(data.ledger === null, 'registry/duplicate');
+     data.ledger = deepFreeze(checkedRecords(records, 'registry/ledger'));
+   }
+ 
+   /** Explicit owner-selected local replay source evidence; no external loading. */
+   setReplaySource(records: readonly string[]): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); need(data.replay === null, 'registry/duplicate');
+     data.replay = deepFreeze(checkedRecords(records, 'registry/replay'));
+   }
+ 
+   freeze(): SourceRegistry {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open();
+     for (const owner of OWNERS) {
+       const cursors = [...data.requests].filter(([key]) => key.startsWith(owner + ':')).map(([key, v]) => [Number(key.slice(3)), v.cursor]).sort((a, b) => a[0] - b[0]);
+@@ -232,6 +241,7 @@
+ export class LegacyContext {
+   readonly availability: LegacyAvailability;
+   constructor(token: symbol, data: ContextData) {
++    guardHistoricalKnowledgeSource();
+     if (token !== LEGACY_TOKEN) fail('capability/legacy');
+     contexts.set(this, data);
+     this.availability = deepFreeze({
+@@ -249,6 +259,7 @@
+   readonly #adapters = new Map<string, LegacyEnvelopeAdapter>([[ordinaryBundleAdapter.schema_version, ordinaryBundleAdapter]]);
+ 
+   constructor(extraAdapters: readonly LegacyEnvelopeAdapter[] = []) {
++    guardHistoricalKnowledgeSource();
+     for (const adapter of extraAdapters) {
+       need(adapter && typeof adapter.schema_version === 'string' && typeof adapter.verify === 'function' && !this.#adapters.has(adapter.schema_version), 'legacy/adapter');
+       this.#adapters.set(adapter.schema_version, adapter);
+@@ -258,6 +269,7 @@
+ 
+   /** Verifies a supplied envelope with its adapter; unsupported kinds fail explicitly. */
+   addEnvelope(envelope: unknown): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open();
+     const kind = envelope !== null && typeof envelope === 'object' ? (envelope as Row).schema_version : undefined;
+     const adapter = typeof kind === 'string' ? this.#adapters.get(kind) : undefined;
+@@ -276,6 +288,7 @@
+     input: { observation: unknown; belief: unknown };
+     successor: { observation: unknown; belief: unknown };
+   }): void {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open();
+     let copy: Row;
+     try { copy = structuredClone(evidence) as Row; } catch { return fail('legacy/validator-rejected'); }
+@@ -323,6 +336,7 @@
+   }
+ 
+   freeze(): LegacyContext {
++    guardHistoricalKnowledgeSource();
+     const data = this.#open(); this.#data = null;
+     return new LegacyContext(LEGACY_TOKEN, data);
+   }
+@@ -432,6 +446,7 @@
+ export function checkKnowledgeSourceBinding(
+   audit: unknown, registry: SourceRegistry, legacy: LegacyContext | null, requiredProfile: string,
+ ): KnowledgeSourceDiagnostic {
++  guardHistoricalKnowledgeSource();
+   need(typeof requiredProfile === 'string', 'profile');
+   const copy = snapshot(audit, 'structure') as Row; // one immutable view for every later step
+   try { checkKnowledgeStructure(copy, requiredProfile); }
+--- before/sim-core/src/version_profile.ts
++++ after/sim-core/src/version_profile.ts
+@@ -155,3 +155,37 @@
+   }
+   return nativeData;
+ }
++
++
++/** Local reviewed capture policy only; caller data/digests never create positive eligibility. */
++export function positiveFidelityScope(profile: string, ruleset: string): boolean {
++  if (profile === 'historical10') return ruleset === 'gen9randombattle';
++  if (profile === 'native11') return false;
++  return fail('unknown-fidelity-profile');
++}
++export function assertPositiveFidelityClaim(profile: string, ruleset: string, claimed: boolean): void {
++  if (claimed && !positiveFidelityScope(profile, ruleset)) throw new Error('fidelity-policy/v1/positive-unaccepted');
++}
++export function historicalKnowledgeSourceScope(packageVersion: string): boolean {
++  if (packageVersion === '0.11.10') return true;
++  if (packageVersion === '0.11.11') return false;
++  return fail('unknown-source-runtime');
++}
++/** Fail-only entry gate. Decoder selection and held B1/B2 data cannot select this runtime. */
++export function guardHistoricalKnowledgeSource(): void {
++  if (!historicalKnowledgeSourceScope(installedNativeProfile().package_version)) throw new Error('k-source-policy/v1/historical-origin-quarantined');
++}
++
++
++/** Existing finite result metadata rules; called only after target evidence validation. */
++export function assertTargetEpisodeStatus(status: unknown, stop: unknown, terminal: boolean): void {
++  const codes: Readonly<Record<string, string>> = Object.freeze({terminal: 'completed',
++    ...Object.fromEntries(['transition-budget','attempt-budget','rejection-limit','action-exhausted','cancelled','unsupported-format',
++      'unsupported-boundary','unsupported-revival-blessing','unsupported-protocol'].map(code => [code, 'truncated'])),
++    ...Object.fromEntries(['invalid-options','execution-failed','settling-failed','cleanup-failed','evidence-invalid'].map(code => [code, 'failed']))});
++  if (!record(stop) || typeof stop.code !== 'string' || typeof stop.reason !== 'string'
++    || !stop.code.startsWith('episode/v1/') || codes[stop.code.slice('episode/v1/'.length)] !== status
++    || !['completed','truncated','failed'].includes(String(status))
++    || (status === 'completed') !== (stop.code === 'episode/v1/terminal')
++    || status === 'completed' && !terminal || status === 'truncated' && terminal) throw new Error('fidelity-policy/v1/episode-status');
++}
+--- before/sim-core/src/pipeline_episode.ts
++++ after/sim-core/src/pipeline_episode.ts
+@@ -1,3 +1,4 @@
++import { positiveFidelityScope, assertPositiveFidelityClaim, assertTargetEpisodeStatus } from './version_profile';
+ import { installedNativeProfile } from './version_profile';
+ import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+ import { assertHistoricalReaderInput } from './version_profile';
+@@ -77,25 +78,29 @@
+   const fields = ['schema_version','run_id','battle_id','ruleset','policy_id','limits','status','stop','counts','initial_boundary','final_boundary','transition_ids','records','evidence_envelope','faithful_complete_episode'];
+   if (result.schema_version !== PIPELINE_EPISODE_VERSION || typeof result.faithful_complete_episode !== 'boolean'
+     || Object.keys(result).sort().join('|') !== fields.sort().join('|')) throw new Error('episode-faithful-schema');
++  assertPositiveFidelityClaim(rulesContext.profile.id, result.ruleset, result.faithful_complete_episode);
+   const envelope = result.evidence_envelope;
+   const eligible = result.ruleset === 'gen9randombattle' && result.status === 'completed'
+     && result.stop.code === 'episode/v1/terminal' && envelope?.schema_version === 'pipeline-episode-evidence/v2'
+     && envelope.closure?.complete_capture === true;
+-  if (!eligible) {
++  if (!eligible && rulesContext.profile.id === 'historical10') {
+     if (result.faithful_complete_episode) throw new Error('episode-faithful-ineligible');
+     return false;
+   }
++  if (!envelope) throw new Error('episode-faithful-evidence');
+   validatePipelineEpisodeEvidence(envelope, result.records as unknown as Record<PlayerID, EpisodeEvidenceRecord[]>, {
+     run_id: result.run_id, battle_id: result.battle_id, ruleset: result.ruleset, policy_id: result.policy_id,
+     limits: result.limits, origin_kind: envelope.origin.kind, initial_boundary: result.initial_boundary,
+   } as EpisodeEvidenceExpectation, undefined, rulesContext);
++  if (rulesContext.profile.id !== 'historical10') assertTargetEpisodeStatus(result.status, result.stop, envelope.closure?.terminal !== null && envelope.closure?.terminal !== undefined);
+   const keys = ['max_transitions', 'max_attempts', 'max_rejections_per_boundary'];
+   if (!result.limits || Object.keys(result.limits).sort().join('|') !== keys.sort().join('|')
+     || Object.values(result.limits).some(v => !Number.isSafeInteger(v) || v <= 0)) throw new Error('episode-faithful-limits');
+   const counts = result.counts;
+   if (Object.keys(counts).sort().join('|') !== ['attempts','committed_transitions','rejected_candidates','rejections_at_final_boundary'].sort().join('|')
+     || Object.values(counts).some(v => !Number.isSafeInteger(v) || v < 0)
+-    || counts.committed_transitions !== envelope.commits.length || counts.attempts !== counts.committed_transitions + counts.rejected_candidates
++    || counts.committed_transitions !== envelope.commits.length || (counts.attempts < counts.committed_transitions + counts.rejected_candidates
++      || counts.attempts > counts.committed_transitions + counts.rejected_candidates + (rulesContext.profile.id === 'historical10' ? 0 : 1))
+     || counts.rejections_at_final_boundary > counts.rejected_candidates || counts.attempts > result.limits.max_attempts
+     || counts.committed_transitions > result.limits.max_transitions || counts.rejections_at_final_boundary > result.limits.max_rejections_per_boundary
+     || JSON.stringify(result.transition_ids) !== JSON.stringify(envelope.commits.map(c => c.transition.transition_id))) throw new Error('episode-faithful-counts');
+@@ -107,7 +112,7 @@
+       || summary.perspectives[p].winner !== final.perspectives[p].view.winner
+       || !/^belief-[a-f0-9]{64}$/.test(summary.perspectives[p].belief_id))) throw new Error('episode-faithful-final-boundary');
+   for (const p of PLAYERS) for (const record of result.records[p]) validatePipelineEpisodeRecordBundle(record, rulesContext);
+-  return true;
++  return eligible && positiveFidelityScope(rulesContext.profile.id, result.ruleset);
+ }
+ 
+ const DEFAULT_LIMITS: EpisodeLimits = { max_transitions: 256, max_attempts: 512, max_rejections_per_boundary: 3 };
+@@ -319,7 +324,7 @@
+           ...(previous.evidence_failure_stage === undefined ? {} : {evidence_failure_stage: previous.evidence_failure_stage}) };
+       }
+     }
+-    result.faithful_complete_episode = faithfulCandidate && result.status === 'completed' && result.stop.code === 'episode/v1/terminal';
++    result.faithful_complete_episode = positiveFidelityScope(rulesContext.profile.id, format) && faithfulCandidate && result.status === 'completed' && result.stop.code === 'episode/v1/terminal';
+   }
+   return result;
+ }
+--- before/trainer/src/neural/pipeline_record.py
++++ after/trainer/src/neural/pipeline_record.py
+@@ -10,7 +10,7 @@
+ 
+ from __future__ import annotations
+ 
+-from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
++from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT, assert_positive_fidelity_claim
+ 
+ from neural.version_profile import assert_historical_reader_input, select_reader_profile
+ 
+@@ -743,7 +743,7 @@
+         raise PipelineRecordError("episode result schema or faithful-complete flag is invalid")
+     envelope = _object(result.get("evidence_envelope"), "episode evidence envelope")
+     evidence = validate_pipeline_episode_evidence(envelope, _records=result.get("records"), reader_rules=reader_rules)
+-    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence)
++    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence, reader_rules=reader_rules)
+     records = _object(result.get("records"), "episode actor records")
+     _exact_keys(records, {"p1", "p2"}, "episode actor records")
+     data_rows: list[Dict[str, Any]] = []
+@@ -784,7 +784,7 @@
+ 
+ 
+ def _validate_pipeline_episode_result_metadata(
+-    result: Mapping[str, Any], envelope: Mapping[str, Any], evidence: Mapping[str, Any],
++    result: Mapping[str, Any], envelope: Mapping[str, Any], evidence: Mapping[str, Any], *, reader_rules=HISTORICAL10_CONTEXT,
+ ) -> list[str]:
+     """Validate compact and full-result metadata against the same envelope contract."""
+ 
+@@ -854,6 +854,7 @@
+     )
+     if (status == "completed" or (status == "truncated" and not attempted_guard_stop)) and counts["attempts"] != accounted:
+         raise PipelineRecordError("episode counter contains an unaccounted attempt at a clean stop")
++    assert_positive_fidelity_claim(reader_context(reader_rules).profile.id, result["ruleset"], result["faithful_complete_episode"])
+     if result["faithful_complete_episode"] and not (
+         result["ruleset"] == "gen9randombattle" and status == "completed"
+         and stop["code"] == "episode/v1/terminal" and envelope.get("schema_version") == EPISODE_EVIDENCE_SCHEMA
+@@ -973,7 +974,7 @@
+     _exact_keys(result, _EPISODE_RESULT_METADATA_KEYS, "episode publication sweep result metadata")
+     envelope = _object(sweep.get("evidence_envelope"), "episode publication sweep evidence")
+     evidence = validate_pipeline_episode_evidence(envelope, _records=sweep.get("records"), _compact=True, reader_rules=reader_rules)
+-    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence)
++    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence, reader_rules=reader_rules)
+     if not evidence["complete_capture"]:
+         raise PipelineRecordError("episode publication sweep requires a validated original-to-terminal chain")
+     context = _validated_episode_publication_context(envelope)
+--- before/trainer/src/neural/version_profile.py
++++ after/trainer/src/neural/version_profile.py
+@@ -120,3 +120,36 @@
+ 
+ def assert_reader_input(value, context=HISTORICAL10_CONTEXT):
+     select_reader_profile(value, reader_context(context).profile.id)
++
++
++def positive_fidelity_scope(profile, ruleset):
++    if profile == 'historical10': return ruleset == 'gen9randombattle'
++    if profile == 'native11': return False
++    _fail('unknown-fidelity-profile')
++
++def assert_positive_fidelity_claim(profile, ruleset, claimed):
++    if claimed and not positive_fidelity_scope(profile, ruleset):
++        raise ReaderProfileError('fidelity-policy/v1/positive-unaccepted')
++
++def historical_knowledge_source_scope(package_version):
++    if package_version == '0.11.10': return True
++    if package_version == '0.11.11': return False
++    _fail('unknown-source-runtime')
++
++def guard_historical_knowledge_source():
++    """Fail-only local metadata quarantine, never a Python native authority descriptor/bridge."""
++    core = _root / 'sim-core'
++    pkg = json.loads((core / 'node_modules/pokemon-showdown/package.json').read_text(encoding='utf-8'))
++    declaration = json.loads((core / 'package.json').read_text(encoding='utf-8'))
++    lock = json.loads((core / 'package-lock.json').read_text(encoding='utf-8'))
++    installed = json.loads((core / 'node_modules/.package-lock.json').read_text(encoding='utf-8'))
++    version = pkg.get('version')
++    expected = {'0.11.10': 'sha512-FAeLao+7jWwgiMAmO4F6IqICtsOAAiPIHEkKOtHTGbl4dy088rkrcEYqSk+Uasic0oUJkoY8pi77odwX6+OgTg==',
++                '0.11.11': 'sha512-FdW7gt3TkG4AdXmpMTPYX2kx42VEfY8tQApjW9wEHOGzwH6Kn97wD0o5uIzAc4xpO1W+Tim70Ti9+FNkMNCA2w=='}
++    a, b = lock['packages'].get('node_modules/pokemon-showdown', {}), installed['packages'].get('node_modules/pokemon-showdown', {})
++    if (version not in expected or declaration['dependencies'].get('pokemon-showdown') != version
++            or lock['packages']['']['dependencies'].get('pokemon-showdown') != version
++            or any(row.get('version') != version or row.get('integrity') != expected[version] for row in (a,b))):
++        _fail('source-runtime-mismatch')
++    if not historical_knowledge_source_scope(version):
++        raise ReaderProfileError('k-source-policy/v1/historical-origin-quarantined')
+--- before/trainer/src/neural/perspective_knowledge_source.py
++++ after/trainer/src/neural/perspective_knowledge_source.py
+@@ -9,6 +9,8 @@
+ fact values; fact semantics, original attribution, obligation completeness and
+ aggregate completeness stay unverified/not_established. Nothing is published.
+ """
++from neural.version_profile import guard_historical_knowledge_source
++
+ import copy
+ import json
+ import re
+@@ -86,6 +88,7 @@
+     __slots__ = ()
+ 
+     def __init__(self, token, data):
++        guard_historical_knowledge_source()
+         _need(token is _TOKEN, 'capability/registry')
+         _REGISTRIES[self] = data
+         object.__setattr__(self, 'availability', {
+@@ -103,9 +106,11 @@
+     """Trusted-owner construction. Inputs are deep-copied; the builder is unusable after ``freeze``."""
+ 
+     def __init__(self):
++        guard_historical_knowledge_source()
+         self._data = {'origin': None, 'initialization': {}, 'requests': {}, 'ledger': None, 'replay': None}
+ 
+     def _open(self):
++        guard_historical_knowledge_source()
+         _need(self._data is not None, 'registry/frozen')
+         return self._data
+ 
+@@ -192,6 +197,7 @@
+     __slots__ = ()
+ 
+     def __init__(self, token, data):
++        guard_historical_knowledge_source()
+         _need(token is _TOKEN, 'capability/legacy')
+         _CONTEXTS[self] = data
+         object.__setattr__(self, 'availability', {
+@@ -207,6 +213,7 @@
+ 
+ class LegacyContextBuilder:
+     def __init__(self, extra_adapters=()):
++        guard_historical_knowledge_source()
+         self._data = {'pairs': {}, 'observations': {}, 'kinds': set()}
+         ordinary = _OrdinaryBundleAdapter()
+         self._adapters = {ordinary.schema_version: ordinary}
+@@ -216,6 +223,7 @@
+             self._adapters[adapter.schema_version] = adapter
+ 
+     def _open(self):
++        guard_historical_knowledge_source()
+         _need(self._data is not None, 'legacy/frozen')
+         return self._data
+ 
+@@ -364,6 +372,7 @@
+     ``legacy`` may be None to run the source join alone; that is reported as a
+     missing capability, never as success of the legacy scope.
+     """
++    guard_historical_knowledge_source()
+     _need(type(required_profile) is str, 'profile')
+     copy = _snapshot(audit, 'structure')  # one immutable view for every later step
+     structure_ok = False
+--- /dev/null
++++ sim-core/tests/target_fidelity_eligibility.test.ts
+@@ -0,0 +1,90 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import {readFileSync,writeFileSync} from 'node:fs';
++import path from 'node:path';
++import {Teams} from 'pokemon-showdown';
++import {positiveFidelityScope,assertPositiveFidelityClaim,assertTargetEpisodeStatus,historicalKnowledgeSourceScope,installedNativeProfile} from '../src/version_profile';
++import {runPipelineEpisode,validatePipelineEpisodeFaithfulClaim} from '../src/pipeline_episode';
++import {SourceRegistryBuilder,LegacyContextBuilder,checkKnowledgeSourceBinding} from '../src/perspective_knowledge_source';
++const root=path.resolve(__dirname,'../../..');
++const load=(f:string)=>JSON.parse(readFileSync(path.join(root,f),'utf8'));
++const emit=(name:string,data:object)=>console.log('P34_WITNESS '+JSON.stringify({name,...data}));
++const saved=load('docs/planning/perspective-fidelity-prompt31-reader-fixtures.json');
++const origin={battle_key:'fixture-Éclair-😀',format:'gen9randombattle',engine:'pokemon-showdown@0.11.10',rule_version:'pk-rules/v1'};
++const replay=['|start','|switch|p1a: Éclair|Pikachu, L80|100/100','|switch|p2a: Beta|Gengar, L80|100/100','|-enditem|p1a: Éclair|Oran Berry|[eat]',
++'|move|p2a: Beta|Tackle|p1a: Éclair','|replace|p2a: Beta|Zoroark, L80|100/100','|win|Éclair'];
++
++test('P34 PRE eligibility and historical readers',()=>{
++ assert.equal(positiveFidelityScope('historical10','gen9randombattle'),true);assert.equal(positiveFidelityScope('historical10','unknown'),false);
++ assert.equal(positiveFidelityScope('native11','gen9randombattle'),false);
++ assert.throws(()=>assertPositiveFidelityClaim('native11','gen9randombattle',true),/positive-unaccepted/);
++ assertPositiveFidelityClaim('native11','gen9randombattle',false);
++ assert.throws(()=>positiveFidelityScope('caller-certificate','gen9randombattle'),/unknown-fidelity/);
++ assertTargetEpisodeStatus('completed',{code:'episode/v1/terminal',reason:'local-control'},true);
++ assert.throws(()=>assertTargetEpisodeStatus('unknown',{code:'episode/v1/terminal',reason:'local-control'},true),/episode-status/);
++ assert.throws(()=>assertTargetEpisodeStatus('truncated',{code:'episode/v1/cancelled',reason:'local-control'},true),/episode-status/);
++ assert.equal(historicalKnowledgeSourceScope('0.11.11'),false);assert.equal(historicalKnowledgeSourceScope('0.11.10'),true);
++ const before=JSON.stringify(saved.result);assert.equal(validatePipelineEpisodeFaithfulClaim(saved.result),true);
++ const conservative=structuredClone(saved.result);conservative.faithful_complete_episode=false;
++ assert.equal(validatePipelineEpisodeFaithfulClaim(conservative),true,'old helper reports eligible capture, independent of asserted flag');
++ assert.equal(JSON.stringify(saved.result),before);
++ const bad=load('docs/planning/perspective-fidelity-prompt31-resealed-negatives.json').target;
++ const mixed=structuredClone(saved.result);mixed.records.p1[0]=bad;
++ assert.throws(()=>validatePipelineEpisodeFaithfulClaim(mixed),/conflicting-revisions/);
++ emit('pre-eligibility',{finite_target_policy_only:true,old_true_and_conservative_flag_meaning:true,saved_ids_unchanged:true,target_callers:'UNEXECUTED'});
++});
++
++test('P34 PRE bounded historical producer',async()=>{
++ const generate=Teams.generate;let calls=0;
++ Teams.generate=function(){return Teams.import(calls++===0?'Snorlax\nLevel: 100\nAbility: Immunity\n- Body Slam':'Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash')!;};
++ try {
++  const result=await runPipelineEpisode({battle_id:'P34-bounded',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:'observable-battle-state/v2',limits:{max_transitions:1,max_attempts:2,max_rejections_per_boundary:1}});
++  assert.equal(result.status,'completed',JSON.stringify(result.stop));assert.equal(result.faithful_complete_episode,true);
++  assert.equal(result.counts.committed_transitions,1);assert.equal(validatePipelineEpisodeFaithfulClaim(result),true);
++  emit('old-producer',{actual_native_episode:true,constructed_terminal_team_stimulus:true,generated_format_reachability:false,one_transition:true,historical_flag:true});
++ }finally{Teams.generate=generate;}
++});
++
++test('P34 PRE source entry and origin negatives',()=>{
++ const audit=load('docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json'), before=JSON.stringify(audit);
++ const b=new SourceRegistryBuilder();b.setOrigin(origin);b.setReplaySource(replay);const registry=b.freeze();
++ const checked=checkKnowledgeSourceBinding(audit,registry,null,audit.required_profile);
++ assert.equal(checked.source_verification.replay_source,true);assert.equal(checked.fact_semantics,'unverified');assert.equal(checked.published,false);
++ assert.equal(JSON.stringify(audit),before);
++ assert.throws(()=>checkKnowledgeSourceBinding(audit,{} as any,null,audit.required_profile),/capability\/registry/);
++ const target=new SourceRegistryBuilder();assert.throws(()=>target.setOrigin({...origin,engine:'pokemon-showdown@0.11.11'}),/registry\/origin/);
++ target.setOrigin(origin);assert.equal(target.freeze().availability.origin,true,'old trusted-owner source remains supported');
++ assert.ok(new LegacyContextBuilder().freeze());
++ emit('old-source',{actual_saved_factory_and_checker:true,old_origin_unchanged:true,target_label_rejected:true,no_native_content_provenance_claim:true});
++});
++
++const live=String(installedNativeProfile().package_version)==='0.11.11';
++test('P34 LIVE target completion and source quarantine',{skip:!live},async()=>{
++ const generate=Teams.generate;let calls=0;
++ Teams.generate=function(){return Teams.import(calls++===0?'Snorlax\nLevel: 100\nAbility: Immunity\n- Body Slam':'Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash')!;};
++ try {
++  const result=await runPipelineEpisode({battle_id:'P34-live',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:'observable-battle-state/v2',limits:{max_transitions:1,max_attempts:2,max_rejections_per_boundary:1}});
++  assert.equal(result.status,'completed');assert.equal(result.faithful_complete_episode,false);
++  const malformed=structuredClone(result);(malformed as any).status='unknown';
++  assert.throws(()=>validatePipelineEpisodeFaithfulClaim(malformed,installedNativeProfile().reader),/episode-status/);
++  const mismatch=structuredClone(result);mismatch.status='truncated';mismatch.stop={code:'episode/v1/cancelled',reason:'LIVE mismatch'};
++  assert.throws(()=>validatePipelineEpisodeFaithfulClaim(mismatch,installedNativeProfile().reader),/episode-status/);
++  // Flag has no separate hash; all nested target identities come from the actual producer.
++  const claim=structuredClone(result);claim.faithful_complete_episode=true;
++  assert.throws(()=>validatePipelineEpisodeFaithfulClaim(claim,installedNativeProfile().reader),/positive-unaccepted/);
++  writeFileSync(path.join(root,'docs/planning/perspective-fidelity-prompt34-live-target-result.json'),JSON.stringify(result));
++  const beliefs:any[]=[],records:any={p1:[],p2:[]},seen=new Set<string>();
++  for(const owner of ['p1','p2'] as const)for(const b of result.records[owner]) {
++    for(const belief of [b.input_belief,b.successor_belief])if(!seen.has(belief.belief_id)){
++      seen.add(belief.belief_id);const fields:any=structuredClone(belief),arrays:any={};delete fields.belief_id;delete fields.source_protocol_prefix;
++      for(const key of ['observation_history','simulator_snapshot_history','transition_history','candidates','evidence','contradictions','unresolved']){arrays[key]={mode:'full',items:fields[key]};delete fields[key];}
++      beliefs.push({belief_id:belief.belief_id,base_belief_id:null,fields,arrays});
++    }
++    records[owner].push({transition_id:b.transition.transition_id,action:b.action,input_belief_id:b.input_belief.belief_id,successor_belief_id:b.successor_belief.belief_id});
++  }
++  const {records:_records,evidence_envelope,...metadata}=result;
++  writeFileSync(path.join(root,'docs/planning/perspective-fidelity-prompt34-live-target-sweep.json'),JSON.stringify({schema_version:'pipeline-episode-publication-sweep/v1',result:metadata,evidence_envelope,records,beliefs}));
++  assert.throws(()=>new SourceRegistryBuilder(),/historical-origin-quarantined/);
++  assert.throws(()=>new LegacyContextBuilder(),/historical-origin-quarantined/);
++ }finally{Teams.generate=generate;}
++});
+--- /dev/null
++++ trainer/tests/test_target_fidelity_eligibility.py
+@@ -0,0 +1,87 @@
++"""Prompt34 local eligibility/source quarantine PRE and deferred real-target LIVE controls."""
++import copy
++import json
++import os
++import subprocess
++import sys
++from pathlib import Path
++import pytest
++from neural import version_profile as profiles
++from neural import pipeline_record as reader
++from neural import perspective_knowledge_source as source
++from neural.version_profile import positive_fidelity_scope, assert_positive_fidelity_claim, historical_knowledge_source_scope
++ROOT=Path(__file__).resolve().parents[2]
++def load(p): return json.loads((ROOT/p).read_text())
++def literal(v): return json.dumps(v,ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\n'
++def emit(n,**data): print('P34_WITNESS '+json.dumps(dict(name=n,**data),sort_keys=True))
++def cli(value,*args):
++    env=dict(os.environ)
++    for k in list(env):
++        if k in ('PYTHONUTF8','PYTHONIOENCODING') or k.startswith(('REPORT_','PROMPT')):env.pop(k)
++    env['PYTHONPATH']=str(ROOT/'trainer/src')
++    return subprocess.run([sys.executable,'-m','neural.pipeline_record',*args],input=json.dumps(value),text=True,capture_output=True,cwd=ROOT,env=env,timeout=20)
++
++def test_pre_policy_and_old_publication():
++    assert positive_fidelity_scope('historical10','gen9randombattle')
++    assert not positive_fidelity_scope('native11','gen9randombattle')
++    assert_positive_fidelity_claim('native11','gen9randombattle',False)
++    with pytest.raises(ValueError,match='positive-unaccepted'):assert_positive_fidelity_claim('native11','gen9randombattle',True)
++    with pytest.raises(ValueError,match='unknown-fidelity'):positive_fidelity_scope('caller-certificate','gen9randombattle')
++    assert not historical_knowledge_source_scope('0.11.11')
++    fixtures=load('docs/planning/perspective-fidelity-prompt31-reader-fixtures.json');golden=load('docs/planning/perspective-fidelity-prompt31-old-publication-goldens.json')
++    for name,fn in [('result',reader.validate_historical_pipeline_episode_result),('sweep',reader.validate_historical_pipeline_episode_publication_sweep)]:
++        before=literal(fixtures[name]);assert literal(fn(fixtures[name]))==golden[name]['api_literal'];assert literal(fixtures[name])==before
++    conservative=copy.deepcopy(fixtures['result']);conservative['faithful_complete_episode']=False
++    assert literal(reader.validate_pipeline_episode_result(conservative))==golden['result']['api_literal']
++    invalid=copy.deepcopy(conservative);invalid['status']='truncated'
++    with pytest.raises(ValueError):reader.validate_pipeline_episode_result(invalid)
++    bad=cli(invalid);assert bad.returncode==2 and bad.stdout==''
++    published=cli(fixtures['sweep']);assert published.returncode==0 and published.stdout==golden['sweep']['cli_literal']
++    emit('python-policy-publication',finite_target_policy_only=True,old_true_false_and_outputs=True,false_does_not_waive_validation=True,invalid_exit=2,invalid_stdout='',target_callers='UNEXECUTED')
++
++def test_pre_source_factory_and_metadata_fault(monkeypatch):
++    origin=dict(battle_key='fixture-Éclair-😀',format='gen9randombattle',engine='pokemon-showdown@0.11.10',rule_version='pk-rules/v1')
++    replay=['|start','|switch|p1a: Éclair|Pikachu, L80|100/100','|switch|p2a: Beta|Gengar, L80|100/100','|-enditem|p1a: Éclair|Oran Berry|[eat]',
++            '|move|p2a: Beta|Tackle|p1a: Éclair','|replace|p2a: Beta|Zoroark, L80|100/100','|win|Éclair']
++    audit=load('docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json');before=literal(audit)
++    b=source.SourceRegistryBuilder();b.set_origin(origin);b.set_replay_source(replay);registry=b.freeze()
++    checked=source.check_knowledge_source_binding(audit,registry,None,audit['required_profile']);assert checked['source_verification']['replay_source'] and not checked['published']
++    assert literal(audit)==before
++    with pytest.raises(ValueError,match='capability/registry'):source.check_knowledge_source_binding(audit,{},None,audit['required_profile'])
++    wrong=source.SourceRegistryBuilder()
++    with pytest.raises(ValueError,match='registry/origin'):wrong.set_origin(dict(origin,engine='pokemon-showdown@0.11.11'))
++    with pytest.raises(ValueError,match='registry/origin'):wrong.set_origin(dict(origin,accepted_digest='forged'))
++    assert source.LegacyContextBuilder().freeze().availability['pairs']==0
++    count=len(source._REGISTRIES);read=Path.read_text
++    def mismatched(path,*args,**kwargs):
++        text=read(path,*args,**kwargs)
++        if path==ROOT/'sim-core/node_modules/pokemon-showdown/package.json':
++            payload=json.loads(text);payload['version']='0.11.11';return json.dumps(payload)
++        return text
++    monkeypatch.setattr(Path,'read_text',mismatched)
++    with pytest.raises(ValueError,match='source-runtime-mismatch'):source.SourceRegistryBuilder()
++    with pytest.raises(ValueError,match='source-runtime-mismatch'):source.SourceRegistry(source._TOKEN,{})
++    with pytest.raises(ValueError,match='source-runtime-mismatch'):source.LegacyContext(source._TOKEN,{})
++    assert len(source._REGISTRIES)==count
++    emit('python-source',actual_old_factory=True,old_origin_ids_unchanged=True,metadata_fault_model=True,reject_before_registry_mutation=True,content_origin_authenticated=False)
++
++LIVE=str(load('sim-core/node_modules/pokemon-showdown/package.json')['version'])=='0.11.11'
++@pytest.mark.skipif(not LIVE,reason='UNEXECUTED: actual installed native11/context assets required')
++def test_live_target_claim_source_and_atomic_cli():
++    # Activation writes this artifact from the actual target producer; no old record relabeling.
++    payload=load('docs/planning/perspective-fidelity-prompt34-live-target-result.json')
++    context=getattr(profiles,'NATIVE11_CONTEXT',None)
++    assert context is not None and context.profile.id=='native11', 'actual adopted target reader context required'
++    assert payload['status']=='completed' and payload['faithful_complete_episode'] is False
++    reader.validate_pipeline_episode_result(payload,reader_rules=context)
++    claim=copy.deepcopy(payload);claim['faithful_complete_episode']=True
++    with pytest.raises(ValueError,match='positive-unaccepted'):reader.validate_pipeline_episode_result(claim,reader_rules=context)
++    sweep=load('docs/planning/perspective-fidelity-prompt34-live-target-sweep.json')
++    reader.validate_pipeline_episode_publication_sweep(sweep,reader_rules=context)
++    ineligible=copy.deepcopy(sweep);ineligible['result']['faithful_complete_episode']=True
++    with pytest.raises(ValueError,match='positive-unaccepted'):reader.validate_pipeline_episode_publication_sweep(ineligible,reader_rules=context)
++    no_rows=cli(ineligible,'--reader-profile=native11');assert no_rows.returncode==2 and no_rows.stdout=='' and 'positive-unaccepted' in no_rows.stderr
++    rejected=cli(claim,'--reader-profile=native11');assert rejected.returncode==2 and rejected.stdout=='' and 'positive-unaccepted' in rejected.stderr
++    with pytest.raises(ValueError,match='historical-origin-quarantined'):source.SourceRegistryBuilder()
++    with pytest.raises(ValueError,match='historical-origin-quarantined'):source.LegacyContextBuilder()
++    with pytest.raises(ValueError,match='historical-origin-quarantined'):source.SourceRegistry(source._TOKEN,{})

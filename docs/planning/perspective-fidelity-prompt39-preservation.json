@@ -1,0 +1,25 @@
+{
+  "candidate_baseline_count": 262,
+  "candidate_changed": {
+    "sim-core/src/pipeline_integration.ts": {
+      "before": "d0092a9a947f84a92d9d2b09308fe8a7eb1d2c5d9ccac1b59c82ef26a40754d5",
+      "after": "e8638e4a200745e98eb421c507034dd820d1e7c3f20c75aea5162522f9dd1988"
+    },
+    "sim-core/src/request_delivery_ledger.ts": {
+      "before": "3ebea16700700a3017e3c2fe5ff2f5d0556caac07c5f450fff23480177f02070",
+      "after": "f0a2545bcdc3d3eb42c1d2f5d9f0195f1c12d0227d03dd840d0f0464297b878b"
+    }
+  },
+  "candidate_missing": [],
+  "new_candidate_inputs": {
+    "sim-core/tests/native11_request_timing.test.cjs": "3584dcdc7772a5e92f0b02c4993c30188a98d455b72e23bb48706ecf014de3b2",
+    "sim-core/tests/native11_rpc_counters.cjs": "5df8e9b3e45253f3e31ae3491aeefa946f4b6dc48e854da9a58548ab841e4bc8",
+    "trainer/tests/prompt39_rpc_control.py": "e85fd41c5ee8146af99677c16b58e230e441811b70160a7e8b6d345232d36425"
+  },
+  "original_source_files": 962,
+  "original_source_drift": [],
+  "original_dependency_files": 3253,
+  "original_dependency_drift": [],
+  "candidate_dependency_and_quarantine_inputs_unchanged": true,
+  "original_dependency_added": []
+}

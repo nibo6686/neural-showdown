@@ -1,0 +1,41 @@
+{
+  "original_snapshot_files": 962,
+  "original_source_drift": [],
+  "original_dependency_files": 3253,
+  "original_dependency_drift": [],
+  "original_dependency_added": [],
+  "candidate_changed": {
+    "sim-core/package-lock.json": {
+      "before": "4897b92e6a6c82db2b8fe5cedb69c9b15386a0bff4d8d2a30b7a2c6d1d9a33c5",
+      "after": "04eebf417864707d3a3322d6371e811fda3d2fff3c95995d44a4aaf579724c88"
+    },
+    "sim-core/package.json": {
+      "before": "1a81e29560c44c3997437e4f2cf22e2312e71e32448f600394dd5c0d1413f3f4",
+      "after": "914ef9d28ca6179dbc95bc0027228b5d4e913b98e58f7e76c27f93fd1ed8de72"
+    },
+    "sim-core/src/transition.ts": {
+      "before": "7e604e40508fad26c6482034b0a29239e90f691240e8a51f59364f9e654f82f5",
+      "after": "bb4b9b401b28409fbeba8e69f897942acc2232a9995ccf1d1943f195e87fba22"
+    },
+    "sim-core/src/version_profile.ts": {
+      "before": "84d60df17c866fd976504cdd953cca8039777e38fe4fdbe6e97d179f4d556af3",
+      "after": "3d70216a7ecc4724129c69e76643bbfabe6af02e7397eae5862b13890f454c90"
+    },
+    "trainer/src/neural/pipeline_record.py": {
+      "before": "13758ca3fe282802699572be4eac6d1e24e094d8ed7863623398210769c61c44",
+      "after": "60d38e47f5195618256fad3ce47a0d78ca83c7033721091f5dd80d8c6f5f062e"
+    },
+    "trainer/src/neural/version_profile.py": {
+      "before": "feca66e7f531724670ce56f07f934ccab3c5f6b8edd179600f74f0f11ed351ba",
+      "after": "d2a1bb683afe9af3b4350ecf463285489a554313237a2715de99ab8edc1e680e"
+    }
+  },
+  "candidate_missing_inputs": [],
+  "new_candidate_inputs": {
+    "sim-core/simulator_coverage/lookups/pokemon-showdown-0.11.11.json": "66355d0182570b82fea5bdccfb45977386e22b0cdc9e278f9eaab2c151f5fe9b",
+    "sim-core/tests/native11_activation.test.ts": "674c848dac4ae97b0c8b8500e9c98a02c6ba479ac6c3698437af4646e8a4a5e2",
+    "sim-core/tests/native11_snapshot_handles.test.ts": "2c89e72a261ce566acbbfb70f5043de5fca039d8e64c4ff9d85bc33e27c58cfb",
+    "sim-core/scripts/native11_cure_publication.cjs": "5047f378f7ae46d4ab1ebab093ada2ab3ae9c8caddb1927b9e501834bfcab60f"
+  },
+  "rollback": "original checkout retained with original 0.11.10 engine; no cross-version sessions/snapshots"
+}

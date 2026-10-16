@@ -1,0 +1,235 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 2,
+    "seconds": 1.905,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.757,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "generated-birth-timing",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ generated\\ birth\\ timing$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.341,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "initial-effects",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ initial\\ effects$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.3,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "duplicates-switch-drag-reentry",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ duplicates\\ switch\\ drag\\ reentry$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.241,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "illusion-transform",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ Illusion\\ Transform$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.235,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "indexed-events",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ indexed\\ events$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.283,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "model-negatives",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ model\\ negatives$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.123,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "restore-continuity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ restore\\ continuity$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.285,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "rejection-terminal-cleanup",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ rejection\\ terminal\\ cleanup$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.344,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-indexed-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.853,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "indexed-events-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26 indexed events$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.343,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-direct-writer-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.852,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "indexed-events-direct-writer",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26 indexed events$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.291,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-review-corrections",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.86,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "illusion-transform-review-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ Illusion\\ Transform$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.291,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "restore-continuity-review-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P26\\ restore\\ continuity$",
+      "sim-core/dist/tests/owner_identity_source_characterization.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.292,
+    "timeout_seconds": 180
+  }
+]

@@ -1,0 +1,466 @@
+--- before/sim-core/src/prepared_protocol_contract.ts
++++ candidate/sim-core/src/prepared_protocol_contract.ts
+@@ -41,19 +41,25 @@
+  const common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence'];
+  keys(value,common.concat(profile==='native11'?['admission_scope','semantic_dispositions']:['base_lookup_profile','publication','authority','changed_forms']),'container');
+  if(value.profile!==profile||value.adopted!==false||value.schema_version!==(profile==='native11'?'inactive-native-protocol/v1':'importer-replay-compatibility/v1'))fail('profile-identity');
+- if(!equal(value.provenance,provenance))fail('provenance');
++ const selectedProvenance=profile==='native11'?{...provenance,source:"Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector",runtime:"Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved"}:provenance;
++ if(!equal(value.provenance,selectedProvenance))fail('provenance');
+  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
+  if(profile==='native11'){
+-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent'])||!equal(value.semantic_dispositions,semantic))fail('closure-claims');
++  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source'])||!equal(value.semantic_dispositions,{...semantic,trace:'finite-source-qualified-current-copy; prior field is provenance only'}))fail('closure-claims');
+  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
+  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
+  keys(p,Object.keys(base),'protocol');
+- if(!equal(p.source_basis,['Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
++ if(!equal(p.source_basis,[profile==='native11'?"Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved":'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
+  if(!equal(p.simulator,{...base.simulator,version:profile==='native11'?'0.11.11':'0.11.10'}))fail('simulator');
+  const rules=JSON.parse(JSON.stringify(base.validation_rules));
+  const form={tags:['[from] ability: Natural Cure','[silent]']};
+  if(profile==='native11')rules.major_status.cure_forms=rules.major_status.cure_forms.map((x:any)=>equal(x.tags,['[from] ability: Natural Cure'])?form:x);
+  else rules.major_status.cure_forms.push(form);
++ if(profile==='native11'){
++  rules.ability.dash_templates=['reveal','boost','trace-copy-prior-Trace'];
++  rules.ability.payload_domains.dash_trace_copy=rules.ability.payload_domains.dash_trace_copy.filter((a:string)=>a!=='Steely Spirit').concat('Gale Wings').sort();
++  rules.ability.source_evidence.dash_trace_copy='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification';
++ }
+  if(!equal(p.validation_rules,rules))fail('rule-template');
+  if(!equal(p.framing_only_records,[{...base.framing_only_records[0],evidence:framing}]))fail('framing');
+  if(!equal(p.disposition_rules,Object.fromEntries(Object.keys(base.disposition_rules).map(k=>[k,scope]))))fail('disposition-claims');
+@@ -91,10 +97,11 @@
+  }
+  for(const control of p.valid_record_controls){
+   if(control.reconstruction_scope!==scope)fail('control-scope');
+-  const evidence=profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
++  const evidence=profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
+   if(control.evidence!==evidence)fail('control-evidence');
+  }
+  const records=p.valid_record_controls.map((x:any)=>x.record);
++ if(profile==='native11'&&!records.includes("|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"))fail('trace-controls');
+  if(!records.includes(nativeNC)||(profile==='replay-compat-v1'&&!records.includes(oldNC)))fail('natural-cure-controls');
+  for(const kind of ['malformed','unknown','unproved_semantic_family'])if(!p.rejection_fixtures.some((x:any)=>x.kind===kind))fail('negative-coverage');
+ }
+--- before/sim-core/src/version_profile.ts
++++ candidate/sim-core/src/version_profile.ts
+@@ -157,7 +157,7 @@
+ /** Fixed local replay decoder, not a native profile or portable publication contract. */
+ export const REPLAY_COMPAT = Object.freeze({id: 'replay-compat-v1', revision: 'importer-replay-compatibility/v1', adopted: false} as const);
+ export interface ProtocolRulesContext { readonly protocol: ProtocolContract; }
+-const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4');
++const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316');
+ const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
+ export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
+ export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
+@@ -217,7 +217,7 @@
+     : command === '-damage' && p.includes('[partiallytrapped]') ? 'partial-trap'
+     : ['-item', 'item'].includes(command) && p.includes('[from] ability: Magician') ? 'magician'
+     : command === '-activate' && ['ability: Mummy', 'ability: Lingering Aroma'].includes(p[3]) ? 'ability-setter'
+-    : command === '-ability' && p.length > 5 && p[4] !== '[from] ability: Trace' ? 'ability-setter' : null;
++    : command === '-ability' && p.length > 5 && !p.includes('[from] ability: Trace') ? 'ability-setter' : null;
+   if (family) fail('prepared-family-unsupported/' + family);
+ }
+ export function replayReaderContext(profile: unknown): ReaderContext {
+@@ -232,7 +232,7 @@
+ /** Asset inspection seam: trusted hashes remain code-owned even for an alternate path. */
+ export function loadPreparedProtocolAsset(profile: 'native11' | 'replay-compat-v1', assetPath?: string): any {
+   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
+-  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4'), profile);
++  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316'), profile);
+   if (profile === 'replay-compat-v1') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'), profile);
+   return fail('unknown-grammar-profile');
+ }
+--- before/sim-core/src/public_ability.ts
++++ candidate/sim-core/src/public_ability.ts
+@@ -40,10 +40,12 @@
+       if (row.invalidated === 'form') {row.base = null; row.copied = false;}
+     } else if (['-ability', 'ability'].includes(parts[1])) {
+       const domains = readerContext(rulesContext).protocol.validation_rules.ability.payload_domains;
++      const priorTrace = readerContext(rulesContext).protocol.validation_rules.ability.dash_templates.includes('trace-copy-prior-Trace');
++      const fromIndex = priorTrace ? 5 : 4;
+       const template = parts[1] === 'ability' && parts.length === 4 ? 'bare_reveal'
+         : parts[1] === '-ability' && parts.length === 4 ? 'dash_reveal'
+         : parts[1] === '-ability' && parts.length === 5 && parts[4] === 'boost' ? 'dash_boost'
+-        : parts[1] === '-ability' && parts.length === 6 && parts[4] === '[from] ability: Trace' ? 'dash_trace_copy' : null;
++        : parts[1] === '-ability' && parts.length === (priorTrace ? 7 : 6) && (!priorTrace || parts[4] === 'Trace') && parts[fromIndex] === '[from] ability: Trace' ? 'dash_trace_copy' : null;
+       if (!template || !domains[template].includes(parts[3])) continue;
+ 
+       const row = facts[target] ||= {ability: null, base: null, state: 'unknown', copied: false, cleared: false, invalidated: null, baseWriter: null};
+@@ -51,7 +53,7 @@
+       if (!changed && !row.base && !row.copied && row.invalidated !== 'transform'
+         && (row.invalidated !== 'form' || row.baseWriter === toID(parts[3]))) row.base = toID(parts[3]);
+       row.ability = toID(parts[3]); row.state = changed ? 'changed' : 'known'; row.cleared = false;
+-      row.copied ||= parts[4] === '[from] ability: Trace';
++      row.copied ||= template === 'dash_trace_copy';
+     }
+   }
+   return facts;
+--- before/sim-core/src/observable_state.ts
++++ candidate/sim-core/src/observable_state.ts
+@@ -825,10 +825,12 @@
+     requirePayload('dash_boost');
+     return;
+   }
+-  if (parts.length === 6 && parts[4] === rule.trace_source_tag
+-      && parts[5].startsWith(rule.trace_of_tag)) {
++  const priorTrace = rule.dash_templates.includes('trace-copy-prior-Trace');
++  const fromIndex = priorTrace ? 5 : 4;
++  if (parts.length === (priorTrace ? 7 : 6) && (!priorTrace || parts[4] === 'Trace')
++      && parts[fromIndex] === rule.trace_source_tag && parts[fromIndex + 1].startsWith(rule.trace_of_tag)) {
+     const actor = parts[2];
+-    const source = parts[5].slice(rule.trace_of_tag.length);
++    const source = parts[fromIndex + 1].slice(rule.trace_of_tag.length);
+     if (!isCanonicalPlayerIdent(source, true, rulesContext) || actor.slice(0, 2) === source.slice(0, 2)) {
+       throw new ObservableStateError(`Malformed raw ${command} record: Trace source must be an opposing active ident.`);
+     }
+--- before/trainer/src/neural/public_ability.py
++++ candidate/trainer/src/neural/public_ability.py
+@@ -90,17 +90,19 @@
+             row["base_writer"] = _REPLACEMENT_BASE_WRITERS.get(_id(parts[3].split(",")[0])) if command == "detailschange" else None
+             if row["invalidated"] == "form": row.update(base=None, copied=False)
+         elif command in ("-ability", "ability"):
++            prior_trace = 'trace-copy-prior-Trace' in reader_context(reader_rules).protocol['validation_rules']['ability']['dash_templates']
++            from_index = 5 if prior_trace else 4
+             template = ("bare_reveal" if command == "ability" and len(parts) == 4
+                         else "dash_reveal" if command == "-ability" and len(parts) == 4
+                         else "dash_boost" if command == "-ability" and len(parts) == 5 and parts[4] == "boost"
+-                        else "dash_trace_copy" if command == "-ability" and len(parts) == 6 and parts[4] == "[from] ability: Trace" else None)
++                        else "dash_trace_copy" if command == "-ability" and len(parts) == (7 if prior_trace else 6) and (not prior_trace or parts[4] == 'Trace') and parts[from_index] == '[from] ability: Trace' else None)
+             if template is None or parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["ability"]["payload_domains"][template]: continue
+             row = facts.setdefault(target, dict(ability=None, base=None, state="unknown", copied=False, cleared=False, invalidated=None, base_writer=None))
+             changed = any(tag.startswith("[from]") for tag in parts[4:])
+             if (not changed and not row["base"] and not row["copied"] and row["invalidated"] != "transform"
+                     and (row["invalidated"] != "form" or row["base_writer"] == _id(parts[3]))): row["base"] = _id(parts[3])
+             row.update(ability=_id(parts[3]), state="changed" if changed else "known", cleared=False)
+-            row["copied"] |= len(parts) > 4 and parts[4] == "[from] ability: Trace"
++            row["copied"] |= template == 'dash_trace_copy'
+     return facts
+ 
+ 
+--- before/trainer/src/neural/protocol_contract.py
++++ candidate/trainer/src/neural/protocol_contract.py
+@@ -866,9 +866,11 @@
+     if len(parts) == 5 and parts[4] == "boost":
+         require_payload("dash_boost")
+         return
+-    if (len(parts) == 6 and parts[4] == rules["trace_source_tag"]
+-            and parts[5].startswith(rules["trace_of_tag"])):
+-        source = parts[5][len(rules["trace_of_tag"]):]
++    prior_trace = 'trace-copy-prior-Trace' in rules['dash_templates']
++    from_index = 5 if prior_trace else 4
++    if (len(parts) == (7 if prior_trace else 6) and (not prior_trace or parts[4] == 'Trace')
++            and parts[from_index] == rules['trace_source_tag'] and parts[from_index + 1].startswith(rules['trace_of_tag'])):
++        source = parts[from_index + 1][len(rules['trace_of_tag']):]
+         if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules)
+                 or parts[2][:2] == source[:2]):
+             _malformed(command, "Trace source must be an opposing active ident")
+--- before/trainer/src/neural/version_profile.py
++++ candidate/trainer/src/neural/version_profile.py
+@@ -194,7 +194,7 @@
+ class ProtocolRulesContext(NamedTuple):
+     protocol: Mapping
+ 
+-_TARGET_PROTOCOL_SHA256 = '91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4'
++_TARGET_PROTOCOL_SHA256 = '3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316'
+ _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
+ def load_prepared_protocol_asset(profile, path=None):
+     if profile == 'native11': name, pin = 'protocol_contract_0_11_11.json', _TARGET_PROTOCOL_SHA256
+@@ -288,7 +288,7 @@
+               'chilly-reception' if command == '-prepare' and effect == 'Chilly Reception' else
+               'partial-trap' if command == '-damage' and '[partiallytrapped]' in p else
+               'magician' if command in ('-item', 'item') and '[from] ability: Magician' in p else
+-              'ability-setter' if command == '-activate' and effect in ('ability: Mummy', 'ability: Lingering Aroma') or command == '-ability' and len(p) > 5 and p[4] != '[from] ability: Trace' else None)
++              'ability-setter' if command == '-activate' and effect in ('ability: Mummy', 'ability: Lingering Aroma') or command == '-ability' and len(p) > 5 and '[from] ability: Trace' not in p else None)
+     if family: _fail('prepared-family-unsupported/' + family)
+ 
+ # Candidate-only fixed runtime reader. No source authority or positive fidelity scope.
+--- before/trainer/src/neural/prepared_protocol_contract.py
++++ candidate/trainer/src/neural/prepared_protocol_contract.py
+@@ -43,17 +43,22 @@
+     common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence']
+     _keys(value,common+(['admission_scope','semantic_dispositions'] if profile=='native11' else ['base_lookup_profile','publication','authority','changed_forms']),'container')
+     if value['profile']!=profile or value['adopted'] is not False or value['schema_version']!=('inactive-native-protocol/v1' if profile=='native11' else 'importer-replay-compatibility/v1'):_fail('profile-identity')
+-    if not _same_json(value['provenance'],PROVENANCE):_fail('provenance')
++    selected_provenance={**PROVENANCE,'source':'Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector','runtime':'Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved'} if profile=='native11' else PROVENANCE
++    if not _same_json(value['provenance'],selected_provenance):_fail('provenance')
+     if not _same_json(value['inherited_raw_shape_evidence'],{'contract_sha256':PROVENANCE['historical_contract_sha256'],'scope':'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}):_fail('inherited-evidence')
+     if profile=='native11':
+-        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent']) or not _same_json(value['semantic_dispositions'],SEMANTIC):_fail('closure-claims')
++        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'trace':'finite-source-qualified-current-copy; prior field is provenance only'}):_fail('closure-claims')
+     elif value['base_lookup_profile']!='historical10' or value['publication']!='unsupported-without-persisted-profile-contract' or value['authority'] is not False or not _same_json(value['changed_forms'],['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']):_fail('closure-claims')
+     base=_thaw(HISTORICAL10_CONTEXT.protocol);p=value['protocol'];_keys(p,base,'protocol')
+-    if p['source_basis']!=['Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
++    if p['source_basis']!=['Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved' if profile=='native11' else 'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
+     if not _same_json(p['simulator'],{**base['simulator'],'version':'0.11.11' if profile=='native11' else '0.11.10'}):_fail('simulator')
+     rules=copy.deepcopy(base['validation_rules']);form={'tags':['[from] ability: Natural Cure','[silent]']}
+     if profile=='native11':rules['major_status']['cure_forms']=[form if x['tags']==['[from] ability: Natural Cure'] else x for x in rules['major_status']['cure_forms']]
+     else:rules['major_status']['cure_forms'].append(form)
++    if profile=='native11':
++        rules['ability']['dash_templates']=['reveal','boost','trace-copy-prior-Trace']
++        rules['ability']['payload_domains']['dash_trace_copy']=sorted([a for a in rules['ability']['payload_domains']['dash_trace_copy'] if a!='Steely Spirit']+['Gale Wings'])
++        rules['ability']['source_evidence']['dash_trace_copy']='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification'
+     if not _same_json(p['validation_rules'],rules):_fail('rule-template')
+     if not _same_json(p['framing_only_records'],[{**base['framing_only_records'][0],'evidence':FRAMING}]):_fail('framing')
+     if not _same_json(p['disposition_rules'],{k:SCOPE for k in base['disposition_rules']}):_fail('disposition-claims')
+@@ -94,9 +99,10 @@
+         if not control or f['record']!=control['record'] or f['token']!=control['token']:_fail('fixture-reference')
+     for c in p['valid_record_controls']:
+         if c['reconstruction_scope']!=SCOPE:_fail('control-scope')
+-        evidence='Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
++        evidence='Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
+         if c['evidence']!=evidence:_fail('control-evidence')
+     records=[x['record'] for x in p['valid_record_controls']]
++    if profile=='native11' and '|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' not in records:_fail('trace-controls')
+     if NATIVE_NC not in records or profile=='replay-compat-v1' and OLD_NC not in records:_fail('natural-cure-controls')
+     for kind in ('malformed','unknown','unproved_semantic_family'):
+         if not any(x['kind']==kind for x in p['rejection_fixtures']):_fail('negative-coverage')
+--- before/trainer/src/neural/protocol_contract_0_11_11.json
++++ candidate/trainer/src/neural/protocol_contract_0_11_11.json
+@@ -4,15 +4,16 @@
+   "adopted": false,
+   "admission_scope": [
+     "Inherited historical raw-shape baseline, not semantic acceptance",
+-    "Natural Cure exact ordered source-tag then silent"
++    "Natural Cure exact ordered source-tag then silent",
++    "Trace exact prior-Trace positional field and opposing active source"
+   ],
+   "provenance": {
+     "historical_contract_sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+     "old_abilities_sha256": "7975eb69496fb38ec8c9f2d7288dedea14e78ec81579f6e2b58ad1c9716d3ce6",
+     "target_abilities_sha256": "175067b1e827ca11ae4728169215c9bdd27ac4cb3e35d2e83eaaaee7e9e8c842",
+     "target_revision": "739a5e1fee432ad80ff7136d70cca993be358b59",
+-    "source": "Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public",
+-    "runtime": "UNEXECUTED"
++    "source": "Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector",
++    "runtime": "Prompt41 finite target Trace emitter/audience executed; broader runtime closure unproved"
+   },
+   "protocol": {
+     "schema_version": "showdown-protocol-contract/v2",
+@@ -24,7 +25,7 @@
+       "game_type": "singles"
+     },
+     "source_basis": [
+-      "Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED"
++      "Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved"
+     ],
+     "supported_commands": [
+       "ability",
+@@ -1534,7 +1535,7 @@
+       },
+       {
+         "token": "message",
+-        "record": "|message|Pokémon",
++        "record": "|message|Pok\u00e9mon",
+         "inventory_classification": "raw-only",
+         "grammar_summary": "PRE grammar only; no native runtime, semantic closure or publication acceptance",
+         "evidence": "Prompt37 fixed selected grammar control",
+@@ -2067,7 +2068,7 @@
+         "dash_templates": [
+           "reveal",
+           "boost",
+-          "trace-copy"
++          "trace-copy-prior-Trace"
+         ],
+         "bare_templates": [
+           "reveal"
+@@ -2181,6 +2182,7 @@
+             "Frisk",
+             "Full Metal Body",
+             "Fur Coat",
++            "Gale Wings",
+             "Galvanize",
+             "Good as Gold",
+             "Gooey",
+@@ -2279,7 +2281,6 @@
+             "Stakeout",
+             "Stamina",
+             "Static",
+-            "Steely Spirit",
+             "Sticky Hold",
+             "Storm Drain",
+             "Strong Jaw",
+@@ -2345,7 +2346,7 @@
+         "source_evidence": {
+           "dash_reveal": "data/random-battles/gen9/sets.json candidate abilities plus generated permanent form defaults intersect literal data/abilities.ts -ability emitters",
+           "dash_boost": "data/random-battles/gen9/sets.json generated callbacks plus permanent form defaults reaching sim/battle.ts Battle#boost, enumerated by emitted effect.name rather than holder ability name",
+-          "dash_trace_copy": "data/random-battles/gen9/sets.json candidate abilities filtered by Abilities.trace.onUpdate notrace guard",
++          "dash_trace_copy": "Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification",
+           "bare_reveal": "B02 compatibility spelling restricted to the same finite public reveal domain"
+         }
+       },
+@@ -3255,8 +3256,14 @@
+       },
+       {
+         "token": "message",
+-        "record": "|message|Pokémon",
+-        "evidence": "Prompt37 bounded fixed-grammar fixture check; no target engine execution",
++        "record": "|message|Pok\u00e9mon",
++        "evidence": "Prompt37 bounded fixed-grammar fixture check; no target engine execution",
++        "reconstruction_scope": "PRE grammar only; no native runtime, semantic closure or publication acceptance"
++      },
++      {
++        "token": "-ability",
++        "record": "|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey",
++        "evidence": "Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance",
+         "reconstruction_scope": "PRE grammar only; no native runtime, semantic closure or publication acceptance"
+       }
+     ],
+@@ -3278,7 +3285,8 @@
+     "magician": "unsupported-actor-source-attribution",
+     "psychic_terrain_hint": "raw-only-presentation-no-typed-consequence",
+     "effect_lifecycle": "unsupported-target-closure-unproved",
+-    "admin_nonselected": "unsupported-existing-stop"
++    "admin_nonselected": "unsupported-existing-stop",
++    "trace": "finite-source-qualified-current-copy; prior field is provenance only"
+   },
+   "inherited_raw_shape_evidence": {
+     "contract_sha256": "4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213",
+--- before/sim-core/tests/owner_identity_birth.test.ts
++++ candidate/sim-core/tests/owner_identity_birth.test.ts
+@@ -48,14 +48,14 @@
+   } finally { await session?.close(); }
+ }));
+ 
+-test('B1 initial effects', async () => {
+-  const controls = [
++const initialEffectControls = [
+     ['Trace', 'Alakazam\nAbility: Trace\n- Splash', 'Alakazam', 'naturalcure', 'splash'],
+     ['Imposter', 'Ditto\nAbility: Imposter\n- Transform', 'Blissey', 'naturalcure', 'softboiled'],
+     ['Schooling', 'Wishiwashi\nAbility: Schooling\nLevel: 100\n- Splash', 'Wishiwashi-School', 'schooling', 'splash'],
+     ['Crowned', 'Zacian @ Rusted Sword\nAbility: Intrepid Sword\n- Iron Head', 'Zacian-Crowned', 'intrepidsword', 'behemothblade'],
+   ];
+-  for (const owner of owners) for (const [label, text, species, ability, move] of controls) {
++for (const owner of owners) for (const [label, text, species, ability, move] of initialEffectControls) {
++  test('B1 initial effects ' + label + ' ' + owner, async () => {
+     await observe(async rows => {
+       const generate = Teams.generate; let calls = 0, session: PipelineIntegrationSession | undefined;
+       const raw = Teams.import(text)!;
+@@ -72,8 +72,8 @@
+           current_species: species, move, same_set_reference: true, generated_reachability: 'not-certified' });
+       } finally { Teams.generate = generate; await session?.close(); }
+     });
+-  }
+-});
++  });
++}
+ 
+ test('B1 enrollment faults', async () => {
+   const enroll = NativeBirthEnrollment.prototype.enroll, observer = NativeBirthEnrollment.prototype.observe;
+--- /dev/null
++++ candidate/sim-core/tests/native11_trace.test.ts
+@@ -0,0 +1,114 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import {Battle, Teams, Dex} from 'pokemon-showdown';
++import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
++import {readFileSync} from 'node:fs';
++import path from 'node:path';
++import {createHash} from 'node:crypto';
++import {spawnSync} from 'node:child_process';
++import {NATIVE11_CONTEXT, HISTORICAL10_CONTEXT, REPLAY_COMPAT_CONTEXT, positiveFidelityScope, loadPreparedProtocolAsset} from '../src/version_profile';
++import {validatePreparedProtocolAsset} from '../src/prepared_protocol_contract';
++import {validateRawProtocolRecord} from '../src/observable_state';
++import {validateObservableBattleState} from '../src/belief_state';
++import {publicRevealedAbilities} from '../src/public_ability';
++import {PipelineIntegrationSession, validatePipelineLinkedRecordBundle, classifyPipelineBoundary} from '../src/pipeline_integration';
++import {canonicalActionFromLegalAction} from '../src/canonical_action';
++const root=path.resolve(__dirname,'../../..');
++const emit=(name:string,data:object)=>console.log('P41_WITNESS '+JSON.stringify({name,...data}));
++const record='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey';
++const old=record.replace('|Trace|[from]','|[from]');
++const malformed=[record.replace('|Trace|','|Static|'),old,record.replace('|Trace|','|Trace|Trace|'),record.replace('[of] p2a: Blissey','[of] p1a: Gardevoir'),record.replace('p1a: Gardevoir','p1: Gardevoir'),record+'|extra'];
++const siblings=[record.replace('[from] ability: Trace','[from] move: Skill Swap'),record.replace('[from] ability: Trace','[from] move: Role Play'), '|-activate|p2a: Blissey|ability: Mummy|p1a: Gardevoir|[ability] Trace'];
++const canonical=(x:any):string=>x===null||typeof x!=='object'?JSON.stringify(x):Array.isArray(x)?'['+x.map(canonical).join(',')+']':'{'+Object.keys(x).sort().map(k=>JSON.stringify(k)+':'+canonical(x[k])).join(',')+'}';
++const digest=(x:any)=>createHash('sha256').update(canonical(x)).digest('hex');
++function reseal(bundle:any):void {
++ const o=bundle.successor_observation,prior=o.observation_id;
++ o.protocol_prefix_hash=digest(o.protocol_prefix);
++ o.observation_id='obs-'+digest(Object.fromEntries(Object.entries(o).filter(([k])=>!['observation_id','protocol_prefix'].includes(k))));
++ const b=bundle.successor_belief;
++ const ref={schema_version:o.schema_version,observation_id:o.observation_id,source_kind:o.source_kind,event_cursor:o.event_cursor,protocol_prefix_hash:o.protocol_prefix_hash,snapshot_phase:o.snapshot_phase};
++ for(const r of [b.observation,...b.observation_history])if(r.observation_id===prior)Object.assign(r,ref);
++ for(const t of b.transition_history)if(t.output_observation_id===prior)t.output_observation_id=o.observation_id;
++ b.transition_lineage.output_observation_id=o.observation_id;
++ b.belief_id='belief-'+digest(Object.fromEntries(Object.entries(b).filter(([k])=>k!=='belief_id')));
++}
++function python(bundle:any,expected?:RegExp):void {
++ const bytes=JSON.stringify(bundle);
++ const p=spawnSync(process.env.PYTHON!,['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:bytes,encoding:'utf8',timeout:30000});
++ assert.equal(p.status,expected?2:0,p.stderr||String(p.error));
++ if(expected){assert.equal(p.stdout,'');assert.match(p.stderr,expected);}else assert.ok(JSON.parse(p.stdout));
++ assert.equal(JSON.stringify(bundle),bytes);
++}
++test('P41 Trace source generator emitter audience and exact profiles',()=>{
++ const pkg=path.join(root,'sim-core/node_modules/pokemon-showdown');
++ const sets=JSON.parse(readFileSync(path.join(pkg,'data/random-battles/gen9/sets.json'),'utf8'));
++ assert.deepEqual(sets.gardevoir.sets.map((s:any)=>s.abilities),[['Trace']]);
++ const sourceDomain=[...new Set<string>(Object.values(sets).flatMap((s:any)=>s.sets.flatMap((x:any)=>x.abilities)))].filter(a=>!Dex.abilities.get(a).flags.notrace&&Dex.abilities.get(a).id!=='noability').sort();
++ assert.deepEqual([...NATIVE11_CONTEXT.protocol.validation_rules.ability.payload_domains.dash_trace_copy].sort(),sourceDomain);
++ const gen:any=Teams.getGenerator('gen9randombattle','1,2,3,4');
++ const gardevoir=gen.randomSet('Gardevoir',{},true),blissey=gen.randomSet('Blissey',{},true);
++ assert.equal(gardevoir.ability,'Trace');assert.equal(blissey.ability,'Natural Cure');
++ const native=new Battle({formatid:'gen9randombattle',seed:'1,2,3,4',p1:{name:'P1',team:[gardevoir]},p2:{name:'P2',team:[blissey]}});
++ try {
++  assert.ok(native.log.includes(record));const channels=extractChannelMessages(native.log.join('\n'),[0,1,2]);
++  for(const audience of [0,1,2] as const)assert.ok(channels[audience].includes(record));
++  validateRawProtocolRecord(record,NATIVE11_CONTEXT);
++  for(const row of malformed)assert.throws(()=>validateRawProtocolRecord(row,NATIVE11_CONTEXT),/Malformed raw .*ability.*record/);
++  for(const row of siblings)assert.throws(()=>validateRawProtocolRecord(row,NATIVE11_CONTEXT),/prepared-family-unsupported\/ability-setter/);
++  for(const context of [HISTORICAL10_CONTEXT,REPLAY_COMPAT_CONTEXT]){validateRawProtocolRecord(old,context);assert.throws(()=>validateRawProtocolRecord(record,context));}
++  const facts=publicRevealedAbilities([record],NATIVE11_CONTEXT)['p1: Gardevoir'];
++  assert.equal(facts.ability,'naturalcure');assert.equal(facts.copied,true);assert.equal(facts.base,null);
++  const asset=JSON.parse(JSON.stringify(loadPreparedProtocolAsset('native11')));asset.protocol.validation_rules.ability.dash_templates=['reveal','boost','trace-copy'];
++  assert.throws(()=>validatePreparedProtocolAsset(asset,'native11'),/rule-template/);
++  assert.equal(positiveFidelityScope('native11','gen9randombattle'),false);
++  emit('source-emitter',{record,audiences:[0,1,2],source_qualified_domain:sourceDomain.length,generator:'actual randomSet on target gen9randombattle generator; constrained species, not full random-team reachability',prior_is_not_base:true});
++ }finally{native.destroy();}
++});
++
++test('P41 Trace owned v1 v2 publication and coherent negatives',async()=>{
++ const generate=Teams.generate;
++ try {
++  for(const version of ['v1','v2']) {
++   let calls=0,session:PipelineIntegrationSession|undefined;
++   Teams.generate=function(){return Teams.import(calls++===0?'Gardevoir\nAbility: Trace\n- Splash':'Blissey\nAbility: Natural Cure\n- Splash')!;};
++   try {
++    session=await PipelineIntegrationSession.create({battle_id:'P41-'+version,format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:('observable-battle-state/'+version) as any});
++    const initial=session.boundary;
++    for(const owner of ['p1','p2'] as const)validateObservableBattleState(initial.perspectives[owner].observation,NATIVE11_CONTEXT);
++    assert.equal(classifyPipelineBoundary({p1:initial.perspectives.p1.observation,p2:initial.perspectives.p2.observation}),'joint_actionable');
++    const owned=initial.perspectives.p1.observation.view.self_team[0];assert.equal(owned.ability,'naturalcure');assert.equal(owned.base_ability,'trace');
++    const actions=Object.fromEntries((['p1','p2'] as const).map(owner=>{const req=initial.perspectives[owner].observation.request!;return [owner,canonicalActionFromLegalAction(req,req.legal_actions.available_indices[0])];})) as any;
++    const step=await session.step(actions);
++    for(const owner of ['p1','p2'] as const){const bundle=step.record_bundles[owner]!;validatePipelineLinkedRecordBundle(bundle,NATIVE11_CONTEXT);python(bundle);}
++    // Shared fully linked candidates; reseal identities so rule/semantic checks, not hashes, reject them.
++    const base=step.record_bundles.p1!;
++    const changes:Array<[string,(b:any)=>void,RegExp]>=malformed.map((line,i)=>['grammar-'+i,(b:any)=>{const o=b.successor_observation;o.protocol_prefix=o.protocol_prefix.map((x:string)=>x===record?line:x);},/Malformed raw .*ability.*record/]);
++    changes.push(['setter-sibling',(b:any)=>{b.successor_observation.protocol_prefix=b.successor_observation.protocol_prefix.map((x:string)=>x===record?siblings[0]:x);},/prepared-family-unsupported\/ability-setter/],
++      ['false-copy',(b:any)=>{b.successor_observation.view.self_team[0].ability='static';},/ability.*(mismatch|disagrees|contradict)|Ability.*(mismatch|disagrees|contradict)/],
++      ['false-base',(b:any)=>{b.successor_observation.view.self_team[0].base_ability='naturalcure';},/ability.*(mismatch|disagrees|contradict)|Ability.*(mismatch|disagrees|contradict)/]);
++    // Grammar representatives on v1, typed copy/base on v2; no fixture Cartesian product.
++    for(const [name,change,error] of changes.filter(([name])=>version==='v1'?!name.startsWith('false-'):name.startsWith('false-'))) {
++     const candidate=structuredClone(base);change(candidate);reseal(candidate);const before=JSON.stringify(candidate);
++     assert.throws(()=>validatePipelineLinkedRecordBundle(candidate,NATIVE11_CONTEXT),error);python(candidate,error);assert.equal(JSON.stringify(candidate),before);
++     emit(name,{schema:version,ts_rejection:true,python_exit:2,stdout_bytes:0,coherently_rehashed:true});
++    }
++    emit('owned-publication',{schema:version,owners:['p1','p2'],public_current:'naturalcure',owned_base:'trace',target_positive_fidelity:false,scope:'constructed native session, no episode completeness claim'});
++   }finally{await session?.close();}
++  }
++ }finally{Teams.generate=generate;}
++});
++
++test('P41 Trace reviewed provenance rejects stale control evidence',()=>{
++ const asset=JSON.parse(JSON.stringify(loadPreparedProtocolAsset('native11')));
++ assert.match(asset.protocol.source_basis[0],/Prompt41 source-qualified target Trace/);
++ const control=asset.protocol.valid_record_controls.find((c:any)=>c.record===record)!;
++ assert.match(control.evidence,/Prompt41 source-qualified target Trace/);
++ const stale=structuredClone(asset);stale.protocol.valid_record_controls.find((c:any)=>c.record===record)!.evidence='Prompt37 bounded fixed-grammar fixture check; no target engine execution';
++ assert.throws(()=>validatePreparedProtocolAsset(stale,'native11'),/control-evidence/);
++ const missing=structuredClone(asset);missing.protocol.valid_record_controls=missing.protocol.valid_record_controls.filter((c:any)=>c.record!==record);
++ assert.throws(()=>validatePreparedProtocolAsset(missing,'native11'),/trace-controls/);
++ const script=`import json,sys,copy\nfrom neural.prepared_protocol_contract import validate_prepared_protocol_asset\na=json.load(sys.stdin)\nvalidate_prepared_protocol_asset(a,'native11')\nfor kind in ('stale','missing'):\n b=copy.deepcopy(a)\n c=next(x for x in b['protocol']['valid_record_controls'] if '|Trace|[from] ability: Trace|' in x['record'])\n if kind=='stale': c['evidence']='Prompt37 bounded fixed-grammar fixture check; no target engine execution'\n else: b['protocol']['valid_record_controls'].remove(c)\n try: validate_prepared_protocol_asset(b,'native11')\n except ValueError as e: assert ('control-evidence' if kind=='stale' else 'trace-controls') in str(e),str(e)\n else: raise AssertionError(kind+' accepted')\nprint('P41 Python provenance positive and stale/missing controls PASS')`;
++ const p=spawnSync(process.env.PYTHON!,['-c',script],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:JSON.stringify(asset),encoding:'utf8',timeout:30000});
++ assert.equal(p.status,0,p.stderr||String(p.error));console.log(p.stdout.trim());
++ emit('reviewed-provenance',{ts:true,python:true,stale_and_missing_reject:true,target_positive_fidelity:false});
++});

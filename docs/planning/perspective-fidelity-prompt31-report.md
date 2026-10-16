@@ -1,0 +1,21 @@
+# Prompt31 lean historical reader candidate
+
+Implemented only the amended historical API/dispatch boundary. Branch `codex/perspective-fidelity-handoff`, HEAD `297ce570972007832da61032915a7fddf67d9a1d` unchanged. Existing 0.11.10 engine/singleton rules remain active; native11 is explicitly unadopted.
+
+[Candidate diff](perspective-fidelity-prompt31-candidate.diff) is relative to this task's preserved accepted local source, including uncommitted B1/B2 work. New fixed TS/Python descriptors/selectors and additive wrappers delegate to existing old validators. Narrow guards are in the four authorized reader modules. No extractor/helper context, env/server, package/lock, schema, identity, snapshot or authority change occurred.
+
+[API](perspective-fidelity-prompt31-api.md) defines historical bundle, evidence, faithful-claim/result and Python publication-sweep wrappers. Python CLI accepts explicit historical selection; its default and existing programmatic main() remain old-reader behavior. Separate auto selection needs explicit unanimous recognized revisions. Contrary target/unknown/conflicting metadata rejects before old semantics; decoder selection is never source authority or a fallback to old rules from native11.
+
+Recognition follows schema-defined actor transition, belief lineage/history/simulator-only provenance, envelope commits/closure predecessors and compact sweep field/encoded-array paths. It does not scan arbitrary keys or raw request JSON. The existing64 predecessor limit and cyclic-chain rejection bound inspection.
+
+[Pre-edit matrix](perspective-fidelity-prompt31-matrix.md) and [commands/results](perspective-fidelity-prompt31-commands.json) record three exact TS and three exact Python checks, all passing. Saved old bundle IDs remain literal; bundle/evidence/result/sweep API outputs and four distinct default CLI branches match [pre-edit publication literals](perspective-fidelity-prompt31-old-publication-goldens.json). Explicit historical empty/unversioned input is supported; auto ambiguity and target/unknown/conflict controls reject. Invalid CLI publication exits2, empty stdout. Interleaved unsupported/wrapper calls preserve old behavior. Existing canonical helpers reseal attack identities.
+
+Fixtures use saved Prompt25 wire and bounded historical artifact inputs. Terminal/result/sweep forms are clearly constructed reader controls over saved native inputs, not newly executed episodes or target evidence. No generated battle, broad suite or persistent server ran. Node24.21.0 and accepted `.venv-simulator/bin/python`3.9.6 were explicit; absolute trainer/src PYTHONPATH and child encoding/report overrides applied as recorded.
+
+The initial build passed. A test-only terminal fixture omitted terminal phase; corrected. Pre-edit reader then rejected the sweep fixture missing contradictions/unresolved arrays; corrected without changing validators. Two necessary test-only rebuilds followed; only affected fixture case and previously unrun checks ran. Initial failures are recorded in the command ledger; no production execution failure or timeout occurred. Passing unaffected dispatch controls were reused.
+
+[Preservation](perspective-fidelity-prompt31-preservation.json): 1,281 protected inputs unchanged; only four authorized existing reader files changed. Two new production modules and two tests added. Generated output is three changed reader JS files and two new JS files, separately inventoried. Unrelated local status, historical artifacts, locks and accepted source-authority/controller work remain unchanged.
+
+Independent review is documented separately in [review disposition](perspective-fidelity-prompt31-review.md).
+
+Mandatory later preactivation dependencies remain: full immutable rule/semantic/inventory context through recursive readers and TS/Python helpers; actual installed-profile ownership through manager/session/env/player/extractor/server; target revision, contract/grammar/inventory activation and target eligibility. Lean wrapper passes do not prove historical/target coexistence after installation. No target activation, B3/B4, fidelity promotion, source adoption, attestation, staging, commit or publication occurred. Stop for lead acceptance.

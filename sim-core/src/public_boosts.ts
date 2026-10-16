@@ -1,10 +1,12 @@
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 // Public-prefix-only evidence. Null is unknown; zero requires a public baseline.
 import { isCanonicalPlayerIdent } from './protocol_contract';
 
 export const PUBLIC_BOOST_KEYS = ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'] as const;
 export type PublicBoosts = Record<(typeof PUBLIC_BOOST_KEYS)[number], number | null>;
 const filled = (value: number | null): PublicBoosts => Object.fromEntries(PUBLIC_BOOST_KEYS.map(k => [k, value])) as PublicBoosts;
-export function publicBoostEvidence(prefix: readonly string[]): Map<string, PublicBoosts> {
+export function publicBoostEvidence(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): Map<string, PublicBoosts> {
+  readerContext(rulesContext);
   const roster = new Map<string, PublicBoosts>();
   const active: Record<string, { key: string; stages: PublicBoosts; prior?: PublicBoosts }> = {};
   const key = (ident: string) => ident.replace(/^(p[12])[a-f]:/, '$1:');
@@ -22,20 +24,20 @@ export function publicBoostEvidence(prefix: readonly string[]): Map<string, Publ
     // Validate even when the recipient cannot be routed to a player. Unresolved
     // roster identity is valid; missing or malformed protocol identity is not.
     if (cmd === '-copyboost' && (p.length !== 5 || p[4] !== '[from] move: Psych Up'
-      || ![p[2], p[3]].every(id => isCanonicalPlayerIdent(id, true)))) {
+      || ![p[2], p[3]].every(id => isCanonicalPlayerIdent(id, true, rulesContext)))) {
       throw new Error('Unsupported or malformed public boost copy evidence');
     }
     if (cmd === '-invertboost' && (p.length !== 4 || p[3] !== '[from] move: Topsy-Turvy'
-      || !isCanonicalPlayerIdent(p[2], true))) {
+      || !isCanonicalPlayerIdent(p[2], true, rulesContext))) {
       throw new Error('Unsupported or malformed public stage inversion evidence');
     }
-    if (actorCommands.has(cmd) && !isCanonicalPlayerIdent(p[2], true)) {
+    if (actorCommands.has(cmd) && !isCanonicalPlayerIdent(p[2], true, rulesContext)) {
       throw new Error('Malformed public boost player identifier');
     }
-    if (cmd === '-transform' && !isCanonicalPlayerIdent(p[3], true)) {
+    if (cmd === '-transform' && !isCanonicalPlayerIdent(p[3], true, rulesContext)) {
       throw new Error('Malformed public boost transform target identifier');
     }
-    if (cmd === '-clearpositiveboost' && !isCanonicalPlayerIdent(p[3], true)) {
+    if (cmd === '-clearpositiveboost' && !isCanonicalPlayerIdent(p[3], true, rulesContext)) {
       throw new Error('Malformed public boost source identifier');
     }
     const id = p[2] || ''; const player = side(id);
@@ -88,6 +90,7 @@ export function publicBoostEvidence(prefix: readonly string[]): Map<string, Publ
   }
   return roster;
 }
-export function opponentPublicBoosts(prefix: readonly string[], ident: string): PublicBoosts {
-  return { ...(publicBoostEvidence(prefix).get(ident.replace(/^(p[12])[a-f]:/, '$1:')) || filled(null)) };
+export function opponentPublicBoosts(prefix: readonly string[], ident: string, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): PublicBoosts {
+  readerContext(rulesContext);
+  return { ...(publicBoostEvidence(prefix, rulesContext).get(ident.replace(/^(p[12])[a-f]:/, '$1:')) || filled(null)) };
 }

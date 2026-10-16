@@ -1,0 +1,20 @@
+P48_WITNESS {"name":"missing","actual_session_rejection":true,"expected":"missing-enrollment"}
+P48_WITNESS {"name":"duplicate","actual_session_rejection":true,"expected":"duplicate-or-late-enrollment"}
+P48_WITNESS {"name":"environment","actual_session_rejection":true,"expected":"foreign-knowledge-enrollment"}
+P48_WITNESS {"name":"occurrence-copy","actual_session_rejection":true,"expected":"foreign-knowledge-enrollment"}
+P48_WITNESS {"name":"rows-copy","actual_session_rejection":true,"expected":"foreign-knowledge-enrollment"}
+P48_WITNESS {"name":"wrong-owner","actual_session_rejection":true,"expected":"foreign-knowledge-enrollment"}
+P48_WITNESS {"name":"missing-item","actual_session_rejection":true,"expected":"native-original\\/missing-required-field"}
+P48_WITNESS {"name":"undefined-ability","actual_session_rejection":true,"expected":"native-original\\/missing-required-field"}
+P48_WITNESS {"name":"unsupported","actual_session_rejection":true,"expected":"native-original\\/unsupported-field"}
+P48_WITNESS {"name":"role","actual_session_rejection":true,"expected":"native-original\\/generator-metadata"}
+P48_WITNESS {"name":"structure","coherent_negative_classes":6,"raw_false_original_structural_only":true,"no_import_or_authority_mint":true,"runtime_constructor_checks":"lower-level-unowned-profile-and-recipient","ordinary_action_authority_unchanged":true}
+✔ P48 source attacks and projection nonauthority (263.2975ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 368.877541

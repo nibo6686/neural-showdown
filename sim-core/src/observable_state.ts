@@ -1,3 +1,4 @@
+import { assertPreparedProtocolPolicy, NATIVE11_GRAMMAR_CONTEXT, helperContext, protocolContext, assertPublicationReaderContext, type ProtocolRulesContext, readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { assertPublicItemsMatchEvidence, projectPublicItems } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
 import { assertPublicFieldMatchesEvidence } from './public_field';
@@ -333,7 +334,8 @@ function sha256(value: unknown): string {
   return createHash('sha256').update(canonicalize(value), 'utf8').digest('hex');
 }
 
-function normalizeProtocolPrefix(prefix: readonly string[]): string[] {
+function normalizeProtocolPrefix(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
+  helperContext(rulesContext);
   if (!Array.isArray(prefix)) throw new ObservableStateError('protocol_prefix must be an array of raw records.');
   return prefix.map((record, index) => {
     if (typeof record !== 'string') {
@@ -350,7 +352,7 @@ function normalizeProtocolPrefix(prefix: readonly string[]): string[] {
     if (normalized.includes('\n') || normalized.includes('\r')) {
       throw new ObservableStateError(`Protocol record ${index} contains an embedded protocol record separator.`);
     }
-    validateRawProtocolRecord(normalized);
+    validateRawProtocolRecord(normalized, rulesContext);
     return normalized;
   });
 }
@@ -361,45 +363,50 @@ function requireRawField(parts: string[], index: number, command: string, label 
   }
 }
 
-function requireRawPlayerIdent(parts: string[], index: number, command: string): void {
+function requireRawPlayerIdent(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawField(parts, index, command, 'pokemon identifier');
-  if (!isCanonicalPlayerIdent(parts[index], true)) {
+  if (!isCanonicalPlayerIdent(parts[index], true, rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid pokemon identifier.`);
   }
 }
 
-function requireRawPlayerReference(parts: string[], index: number, command: string): void {
+function requireRawPlayerReference(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawField(parts, index, command, 'pokemon identifier');
-  if (!isCanonicalPlayerIdent(parts[index])) {
+  if (!isCanonicalPlayerIdent(parts[index], undefined, rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid pokemon identifier.`);
   }
 }
 
-function requireRawHitCountTarget(parts: string[], index: number, command: string): void {
-  requireRawPlayerReference(parts, index, command);
+function requireRawHitCountTarget(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  requireRawPlayerReference(parts, index, command, rulesContext);
   const value = parts[index];
-  const separator = PROTOCOL_CONTRACT.validation_rules.player_ident.separator;
+  const separator = protocolContext(rulesContext).protocol.validation_rules.player_ident.separator;
   const prefix = value.slice(0, value.indexOf(separator));
   const side = prefix.slice(0, 2);
   const slot = prefix.slice(2);
-  const rules = PROTOCOL_CONTRACT.validation_rules.hitcount;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.hitcount;
   const role = slot === 'a' ? 'active' : slot === '' ? 'side-only' : undefined;
-  if (!PROTOCOL_CONTRACT.validation_rules.player_ident.side_ids.includes(side)
+  if (!protocolContext(rulesContext).protocol.validation_rules.player_ident.side_ids.includes(side)
     || !role || !rules.target_roles.includes(role)) {
     throw new ObservableStateError(`Malformed raw ${command} record: target must be a Gen 9 singles active or post-faint side-only ident.`);
   }
 }
 
-function requireRawHitCount(parts: string[], index: number, command: string): void {
+function requireRawHitCount(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawInteger(parts, index, command, 'hit count');
-  if (!PROTOCOL_CONTRACT.validation_rules.hitcount.count_values.includes(Number(parts[index]))) {
+  if (!protocolContext(rulesContext).protocol.validation_rules.hitcount.count_values.includes(Number(parts[index]))) {
     throw new ObservableStateError(`Malformed raw ${command} record: hit count is outside the pinned Gen 9 Random Battle domain.`);
   }
 }
 
-function requireRawSinglesAnimRoles(parts: string[], command: string): void {
-  requireRawPlayerIdent(parts, 2, command);
-  requireRawPlayerIdent(parts, 4, command);
+function requireRawSinglesAnimRoles(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  requireRawPlayerIdent(parts, 2, command, rulesContext);
+  requireRawPlayerIdent(parts, 4, command, rulesContext);
   const actorSide = parts[2].slice(0, 3);
   const targetSide = parts[4].slice(0, 3);
   if (!/^p[12]a$/.test(actorSide) || !/^p[12]a$/.test(targetSide) || actorSide === targetSide) {
@@ -407,18 +414,20 @@ function requireRawSinglesAnimRoles(parts: string[], command: string): void {
   }
 }
 
-function requireRawTarget(parts: string[], index: number, command: string): void {
+function requireRawTarget(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawField(parts, index, command, 'target');
-  if (parts[index] !== '-' && !isCanonicalPlayerIdent(parts[index], true)) {
+  if (parts[index] !== '-' && !isCanonicalPlayerIdent(parts[index], true, rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid target.`);
   }
 }
 
-function requireRawMoveTarget(parts: string[], index: number): void {
+function requireRawMoveTarget(parts: string[], index: number, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawField(parts, index, 'move', 'target');
   // Pokemon.toString() emits an active-position ident for active Pokemon and
   // a side ident for non-active Pokemon, including side-target move records.
-  if (!isCanonicalPlayerIdent(parts[index])) {
+  if (!isCanonicalPlayerIdent(parts[index], undefined, rulesContext)) {
     throw new ObservableStateError('Malformed raw move record: invalid target.');
   }
 }
@@ -478,8 +487,9 @@ function requireRawInteger(parts: string[], index: number, command: string, labe
   }
 }
 
-function isRawHealthCondition(value: string): boolean {
-  const rules = PROTOCOL_CONTRACT.validation_rules.health_condition;
+function isRawHealthCondition(value: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): boolean {
+  protocolContext(rulesContext);
+  const rules = protocolContext(rulesContext).protocol.validation_rules.health_condition;
   if (value === rules.fainted) return true;
   const match = /^([1-9][0-9]*)\/([1-9][0-9]*)(?: ([a-z]+))?$/.exec(value);
   if (!match) return false;
@@ -489,9 +499,10 @@ function isRawHealthCondition(value: string): boolean {
   return match[3] === undefined || rules.statuses.includes(match[3]);
 }
 
-function requireRawHealthCondition(parts: string[], index: number, command: string): void {
+function requireRawHealthCondition(parts: string[], index: number, command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   requireRawField(parts, index, command, 'condition');
-  if (!isRawHealthCondition(parts[index])) throw new ObservableStateError(`Malformed raw ${command} record: invalid health condition.`);
+  if (!isRawHealthCondition(parts[index], rulesContext)) throw new ObservableStateError(`Malformed raw ${command} record: invalid health condition.`);
 }
 
 function rawTagKind(tag: string): string {
@@ -505,8 +516,9 @@ function requireRawEventTags(
   command: string,
   rules: readonly string[],
   order: readonly string[],
-  singletonKinds: readonly string[],
+  singletonKinds: readonly string[], rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT
 ): void {
+  protocolContext(rulesContext);
   const tags = parts.slice(start);
   const seenTags = new Set<string>();
   const seenKinds = new Set<string>();
@@ -520,7 +532,7 @@ function requireRawEventTags(
       const value = tag.startsWith(prefix) ? tag.slice(prefix.length) : '';
       if (!value) return false;
       if (rule.slice(space + 1) === 'trimmed-nonempty-text') return value === value.trim();
-      if (rule.slice(space + 1) === 'player-ident') return isCanonicalPlayerIdent(value);
+      if (rule.slice(space + 1) === 'player-ident') return isCanonicalPlayerIdent(value, undefined, rulesContext);
       return false;
     });
     if (!accepted) throw new ObservableStateError(`Malformed raw ${command} record: invalid tag.`);
@@ -539,10 +551,11 @@ function requireRawEventTags(
   }
 }
 
-function requireRawHealWisherDependency(parts: string[], command: string): void {
+function requireRawHealWisherDependency(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   const tags = parts.slice(4);
   if (!tags.some((tag) => rawTagKind(tag) === '[wisher]')) return;
-  const dependency = PROTOCOL_CONTRACT.validation_rules.heal_wisher_dependency;
+  const dependency = protocolContext(rulesContext).protocol.validation_rules.heal_wisher_dependency;
   if (tags.length !== dependency.required_tag_order.length
     || tags[0] !== dependency.required_from
     || tags.map(rawTagKind).some((kind, index) => kind !== dependency.required_tag_order[index])) {
@@ -550,23 +563,25 @@ function requireRawHealWisherDependency(parts: string[], command: string): void 
   }
 }
 
-function requireRawHealingWishDependency(parts: string[], command: string): void {
+function requireRawHealingWishDependency(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   const tags = parts.slice(4);
   // The pinned base-data healing emitter in this name family is Healing Wish.
   // Keep ordinary heal provenance generic, but fail closed on a malformed
   // attempted Healing Wish form rather than publishing an invented move.
   if (!tags.some((tag) => tag.startsWith('[from] move: Healing'))) return;
-  const dependency = PROTOCOL_CONTRACT.validation_rules.healing_wish_heal;
+  const dependency = protocolContext(rulesContext).protocol.validation_rules.healing_wish_heal;
   if (parts.length !== 5
     || parts[4] !== dependency.required_from
-    || !isCanonicalPlayerIdent(parts[2], true)
+    || !isCanonicalPlayerIdent(parts[2], true, rulesContext)
     || parts[3] !== dependency.health
     || dependency.required_tag_order.length !== 1) {
     throw new ObservableStateError(`Malformed raw ${command} record: Healing Wish requires its exact source form.`);
   }
 }
 
-function requireRawFutureSightDependency(parts: string[], command: string): void {
+function requireRawFutureSightDependency(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   const effect = parts[3] || '';
   // Keep general -start/-end grammar intact. Only the pinned Future Sight
   // name family is constrained here, because its source emits no tags or
@@ -575,32 +590,34 @@ function requireRawFutureSightDependency(parts: string[], command: string): void
   // Otherwise a leading space or extra separator could evade the exact check
   // and fall through to the generic raw start/end grammar.
   if (!/(?:future\s*sight)|(?:^\s*move[\s:]+future)/i.test(effect)) return;
-  const dependency = PROTOCOL_CONTRACT.validation_rules.future_sight;
+  const dependency = protocolContext(rulesContext).protocol.validation_rules.future_sight;
   if (command !== dependency.activation_command && command !== dependency.resolution_command) return;
   if (parts.length !== dependency.payload_fields + 3
     || effect !== dependency.effect
-    || !isCanonicalPlayerIdent(parts[2], dependency.target_role === 'active')) {
+    || !isCanonicalPlayerIdent(parts[2], dependency.target_role === 'active', rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: Future Sight requires its exact source form.`);
   }
 }
 
-function requireRawRepeatUseHint(parts: string[], command: string): void {
+function requireRawRepeatUseHint(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   const message = parts[2] ?? '';
   // Other reviewed public diagnostics remain raw-only. A source-family
   // spelling attempt cannot fall back to that generic diagnostic grammar.
   if (!/^\s*Some\s+effects\s+can\s+force\s+a\s+Pokemon\s+to\s+use\b/i.test(message)) return;
-  const rule = PROTOCOL_CONTRACT.validation_rules.repeat_use_hint;
+  const rule = protocolContext(rulesContext).protocol.validation_rules.repeat_use_hint;
   if (parts.length !== rule.payload_fields + 2 || !rule.messages.includes(message)) {
     throw new ObservableStateError(`Malformed raw ${command} record: repeat-use hint requires its exact source form.`);
   }
 }
 
-function requireRawEntryHazard(parts: string[], command: string): void {
+function requireRawEntryHazard(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (!['-sidestart', '-sideend'].includes(command)) return;
-  const rules = PROTOCOL_CONTRACT.validation_rules.entry_hazard;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.entry_hazard;
   const effect = (parts[3] || '').replace(/^move:\s*/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
   if (!Object.hasOwn(rules.layers, effect)) return;
-  if (!isCanonicalSideOnlyPlayerIdent(parts[2])) {
+  if (!isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: hazard side must be canonical.`);
   }
   const titles: Record<string, string> = {
@@ -618,7 +635,7 @@ function requireRawEntryHazard(parts: string[], command: string): void {
     if (!(effect === 'toxicspikes' && parts[3] === 'move: Toxic Spikes')) {
       throw new ObservableStateError(`Malformed raw ${command} record: unsupported entry-hazard end form.`);
     }
-    if (parts.length !== 5 || !parts[4].startsWith('[of] ') || !isCanonicalPlayerIdent(parts[4].slice(5), true)) {
+    if (parts.length !== 5 || !parts[4].startsWith('[of] ') || !isCanonicalPlayerIdent(parts[4].slice(5), true, rulesContext)) {
       throw new ObservableStateError(`Malformed raw ${command} record: malformed Toxic Spikes absorption.`);
     }
     return;
@@ -626,15 +643,16 @@ function requireRawEntryHazard(parts: string[], command: string): void {
   if (parts.length === 4) return; // Tidy Up removes every active hazard without provenance tags.
   if (parts.length !== 6 || !parts[4].startsWith('[from] move: ') || !parts[5].startsWith('[of] ')
     || !rules.removal_sources.includes(parts[4].slice('[from] move: '.length))
-    || !isCanonicalPlayerIdent(parts[5].slice(5), true)) {
+    || !isCanonicalPlayerIdent(parts[5].slice(5), true, rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: unsupported entry-hazard removal form.`);
   }
 }
 
 
-function requireRawScreen(parts: string[], command: string): void {
+function requireRawScreen(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (!['sidestart', '-sidestart', 'sideend', '-sideend'].includes(command)) return;
-  const rules = PROTOCOL_CONTRACT.validation_rules.screen;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.screen;
   const effect = (parts[3] || '').replace(/^move:\s*/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
   const excluded = rules.excluded_forms.map(value => value.toLowerCase().replace(/[^a-z0-9]+/g, ''));
   if (!rules.ids.includes(effect)) {
@@ -643,13 +661,14 @@ function requireRawScreen(parts: string[], command: string): void {
   }
   const expected = command === '-sidestart' ? rules.start_forms[effect]
     : command === '-sideend' ? rules.end_forms[effect] : undefined;
-  if (!expected || parts.length !== 4 || parts[3] !== expected || !isCanonicalSideOnlyPlayerIdent(parts[2])) {
+  if (!expected || parts.length !== 4 || parts[3] !== expected || !isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext)) {
     throw new ObservableStateError(`Malformed raw ${command} record: unsupported screen source form.`);
   }
 }
 
-function requireRawCourtChange(parts: string[], command: string): void {
-  const rules = PROTOCOL_CONTRACT.validation_rules.court_change;
+function requireRawCourtChange(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  const rules = protocolContext(rulesContext).protocol.validation_rules.court_change;
   if (command === 'swapsideconditions') {
     throw new ObservableStateError('Malformed raw swapsideconditions record: Court Change emits only the pinned dash command.');
   }
@@ -664,14 +683,15 @@ function requireRawCourtChange(parts: string[], command: string): void {
   // A spacing/reseparator attempt must not fall through to generic activation
   // grammar just because it is not the exact source spelling.
   if (!/court\s*change/i.test(effect)) return;
-  if (parts.length !== 4 || effect !== rules.activation_effect || !isCanonicalPlayerIdent(parts[2], true) || !/^p[12]a: /.test(parts[2])) {
+  if (parts.length !== 4 || effect !== rules.activation_effect || !isCanonicalPlayerIdent(parts[2], true, rulesContext) || !/^p[12]a: /.test(parts[2])) {
     throw new ObservableStateError('Malformed raw -activate record: Court Change requires an active source and its exact source form.');
   }
 }
 
-function requireRawWeather(parts: string[], command: string): void {
+function requireRawWeather(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (command !== '-weather') return;
-  const rules = PROTOCOL_CONTRACT.validation_rules.weather;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.weather;
   const effect = parts[2] || '';
   // `none` is only emitted by Conditions.<weather>.onFieldEnd. A replacement
   // calls the new condition's FieldStart directly, so it must not manufacture
@@ -689,14 +709,15 @@ function requireRawWeather(parts: string[], command: string): void {
     const ability = parts[3].slice('[from] ability: '.length);
     const source = parts[4].slice('[of] '.length);
     if (rules.ability_origins[effect]?.includes(ability)
-      && isCanonicalPlayerIdent(source, true) && /^p[12]a: /.test(source)) return;
+      && isCanonicalPlayerIdent(source, true, rulesContext) && /^p[12]a: /.test(source)) return;
   }
   throw new ObservableStateError('Malformed raw -weather record: unsupported source grammar.');
 }
 
-function requireRawTerrain(parts: string[], command: string): void {
+function requireRawTerrain(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (!['fieldstart', '-fieldstart', 'fieldend', '-fieldend', '-fieldactivate'].includes(command)) return;
-  const rules = PROTOCOL_CONTRACT.validation_rules.terrain;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.terrain;
   const effect = parts[2] || '';
   const terrain = rules.ids.find((id) => rules.public_names[id] === effect);
   if (!terrain) {
@@ -716,14 +737,15 @@ function requireRawTerrain(parts: string[], command: string): void {
     const ability = parts[3].slice('[from] ability: '.length);
     const source = parts[4].slice('[of] '.length);
     if (rules.ability_origins[terrain]?.includes(ability)
-      && isCanonicalPlayerIdent(source, true) && /^p[12]a: /.test(source)) return;
+      && isCanonicalPlayerIdent(source, true, rulesContext) && /^p[12]a: /.test(source)) return;
   }
   throw new ObservableStateError('Malformed raw -fieldstart record: unsupported terrain source grammar.');
 }
 
-function requireRawTrickRoom(parts: string[], command: string): void {
+function requireRawTrickRoom(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (!['fieldstart', '-fieldstart', 'fieldend', '-fieldend', '-fieldactivate'].includes(command)) return;
-  const rules = PROTOCOL_CONTRACT.validation_rules.trick_room;
+  const rules = protocolContext(rulesContext).protocol.validation_rules.trick_room;
   if ((parts[2] || '').replace(/^move:\s*/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '') !== 'trickroom') return;
   if ((parts[2] || '') !== rules.effect) {
     throw new ObservableStateError(`Malformed raw ${command} record: unsupported Trick Room effect spelling.`);
@@ -734,14 +756,15 @@ function requireRawTrickRoom(parts: string[], command: string): void {
   }
   if (command === rules.start_command && parts.length === 4 && parts[3].startsWith(`${rules.source_tag} `)) {
     const source = parts[3].slice(rules.source_tag.length + 1);
-    if (isCanonicalPlayerIdent(source, true) && /^p[12]a: /.test(source)) return;
+    if (isCanonicalPlayerIdent(source, true, rulesContext) && /^p[12]a: /.test(source)) return;
   }
   throw new ObservableStateError(`Malformed raw ${command} record: unsupported Trick Room source grammar.`);
 }
 
-function requireRawAutoTieWarning(parts: string[], command: string): void {
+function requireRawAutoTieWarning(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
-  const rule = PROTOCOL_CONTRACT.validation_rules.bigerror;
+  const rule = protocolContext(rulesContext).protocol.validation_rules.bigerror;
   const match = /^You will auto-tie if the battle doesn't end in ([1-9][0-9]*) (turn|turns) \(on turn 1000\)\.$/.exec(parts[2]);
   if (!match) throw new ObservableStateError(`Malformed raw ${command} record: unsupported diagnostic.`);
   const turnsLeft = Number(match[1]);
@@ -777,10 +800,11 @@ function parseRawRequestPayload(parts: string[]): Record<string, unknown> {
   return request;
 }
 
-function requireRawAbilityEvent(parts: string[], command: string): void {
-  const rule = PROTOCOL_CONTRACT.validation_rules.ability;
+function requireRawAbilityEvent(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  const rule = protocolContext(rulesContext).protocol.validation_rules.ability;
   if (parts.length < 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
-  requireRawPlayerIdent(parts, 2, command);
+  requireRawPlayerIdent(parts, 2, command, rulesContext);
   requireRawField(parts, 3, command, 'ability');
   if (parts[3] !== parts[3].trim()) {
     throw new ObservableStateError(`Malformed raw ${command} record: invalid ability.`);
@@ -805,7 +829,7 @@ function requireRawAbilityEvent(parts: string[], command: string): void {
       && parts[5].startsWith(rule.trace_of_tag)) {
     const actor = parts[2];
     const source = parts[5].slice(rule.trace_of_tag.length);
-    if (!isCanonicalPlayerIdent(source, true) || actor.slice(0, 2) === source.slice(0, 2)) {
+    if (!isCanonicalPlayerIdent(source, true, rulesContext) || actor.slice(0, 2) === source.slice(0, 2)) {
       throw new ObservableStateError(`Malformed raw ${command} record: Trace source must be an opposing active ident.`);
     }
     requirePayload('dash_trace_copy');
@@ -820,8 +844,9 @@ function requireRawAbilityEvent(parts: string[], command: string): void {
  * accept an arbitrary provenance suffix: both would turn a fabricated item
  * disclosure into typed public state.
  */
-function requireRawItemEvent(parts: string[], command: string): void {
-  const rule = PROTOCOL_CONTRACT.validation_rules.item as {
+function requireRawItemEvent(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  const rule = protocolContext(rulesContext).protocol.validation_rules.item as {
     payloads: string[];
     active_target: string;
     dash_item_forms: Array<{tags: string[]; payloads?: string[]}>;
@@ -831,7 +856,7 @@ function requireRawItemEvent(parts: string[], command: string): void {
   };
   if (parts.length < 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
   const actor = parts[2];
-  if (!isCanonicalPlayerIdent(actor, true) || !/^p[12]a: /.test(actor)) {
+  if (!isCanonicalPlayerIdent(actor, true, rulesContext) || !/^p[12]a: /.test(actor)) {
     throw new ObservableStateError(`Malformed raw ${command} record: target must be a Gen 9 singles active ident.`);
   }
   const item = parts[3];
@@ -854,7 +879,7 @@ function requireRawItemEvent(parts: string[], command: string): void {
     const source = tags[ofIndex];
     const prefix = '[of] ';
     const ident = source.startsWith(prefix) ? source.slice(prefix.length) : '';
-    if (!isCanonicalPlayerIdent(ident, true) || !/^p[12]a: /.test(ident) || ident.slice(0, 2) === actor.slice(0, 2)) {
+    if (!isCanonicalPlayerIdent(ident, true, rulesContext) || !/^p[12]a: /.test(ident) || ident.slice(0, 2) === actor.slice(0, 2)) {
       throw new ObservableStateError(`Malformed raw ${command} record: source must be an opposing Gen 9 singles active ident.`);
     }
   }
@@ -865,11 +890,12 @@ function requireRawItemEvent(parts: string[], command: string): void {
  * grammar is closed before the extractor can alter a typed status field.
  * Pinned Gen 9 sources use only dashed command tokens; bare aliases stop.
  */
-function requireRawMajorStatusEvent(parts: string[], command: string): void {
-  const rule = PROTOCOL_CONTRACT.validation_rules.major_status;
+function requireRawMajorStatusEvent(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
+  const rule = protocolContext(rulesContext).protocol.validation_rules.major_status;
   if (parts.length < 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
   const target = parts[2];
-  if (!isCanonicalPlayerIdent(target, true) || !/^p[12]a: /.test(target)) {
+  if (!isCanonicalPlayerIdent(target, true, rulesContext) || !/^p[12]a: /.test(target)) {
     throw new ObservableStateError(`Malformed raw ${command} record: target must be a Gen 9 singles active ident.`);
   }
   const status = parts[3];
@@ -891,19 +917,20 @@ function requireRawMajorStatusEvent(parts: string[], command: string): void {
   if (ofIndex >= 0) {
     const tag = tags[ofIndex];
     const source = tag.startsWith('[of] ') ? tag.slice('[of] '.length) : '';
-    if (!isCanonicalPlayerIdent(source, true) || !/^p[12]a: /.test(source) || source.slice(0, 2) === target.slice(0, 2)) {
+    if (!isCanonicalPlayerIdent(source, true, rulesContext) || !/^p[12]a: /.test(source) || source.slice(0, 2) === target.slice(0, 2)) {
       throw new ObservableStateError(`Malformed raw ${command} record: source must be an opposing Gen 9 singles active ident.`);
     }
   }
 }
 
-function validateRawRecordShape(parts: string[], command: string): void {
+function validateRawRecordShape(parts: string[], command: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   const requireAtLeast = (length: number): void => {
     if (parts.length < length) throw new ObservableStateError(`Malformed raw ${command} record.`);
   };
-  const requireIdent = (index = 2): void => requireRawPlayerIdent(parts, index, command);
-  requireRawCourtChange(parts, command);
-  if (command === PROTOCOL_CONTRACT.validation_rules.court_change.command) return;
+  const requireIdent = (index = 2): void => requireRawPlayerIdent(parts, index, command, rulesContext);
+  requireRawCourtChange(parts, command, rulesContext);
+  if (command === protocolContext(rulesContext).protocol.validation_rules.court_change.command) return;
   const noPayload = new Set([
     'clearallboost', '-clearallboost',
     'teampreview', 'clearpoke', 'done', 'upkeep', 'start', 'end', '-nothing',
@@ -948,7 +975,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       // fields: [notarget] is metadata and is never a target identifier.
       if (parts.length > 4 && parts[4] !== '') {
         if (parts[4] === 'null') requireRawMoveNullTarget(parts, 4);
-        else requireRawMoveTarget(parts, 4);
+        else requireRawMoveTarget(parts, 4, rulesContext);
       }
       requireRawMoveTags(parts);
       return;
@@ -957,7 +984,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (!/^p[12]a: /.test(parts[2])) {
         throw new ObservableStateError(`Malformed raw ${command} record: target must be a Gen 9 singles active ident.`);
       }
-      if (!PROTOCOL_CONTRACT.validation_rules.singlemove.forms.some((form) =>
+      if (!protocolContext(rulesContext).protocol.validation_rules.singlemove.forms.some((form) =>
         parts.length === form.length + 3 && form.every((field, index) => parts[index + 3] === field))) {
         throw new ObservableStateError(`Malformed raw ${command} record: unsupported effect/tag combination.`);
       }
@@ -966,7 +993,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'effect');
-      const rules = PROTOCOL_CONTRACT.validation_rules.singleturn;
+      const rules = protocolContext(rulesContext).protocol.validation_rules.singleturn;
       if (parts.length === 5) {
         const effect = parts[3];
         const tag = parts[4];
@@ -975,7 +1002,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
         if (!matchingForm) throw new ObservableStateError(`Malformed raw ${command} record: unsupported effect/tag combination.`);
         if (matchingForm.tag_value === 'player-ident') {
           const sourceIdent = tag.slice(matchingForm.tag.length + 1);
-          if (!isCanonicalPlayerIdent(sourceIdent, matchingForm.ident_role === 'active')) {
+          if (!isCanonicalPlayerIdent(sourceIdent, matchingForm.ident_role === 'active', rulesContext)) {
             throw new ObservableStateError(`Malformed raw ${command} record: invalid single-turn source ident.`);
           }
         }
@@ -993,8 +1020,8 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
       // BattleActions emits after faintMessages; a final multi-hit KO has lost
       // its active slot and is consequently rendered as `p1: Name`.
-      requireRawHitCountTarget(parts, 2, command);
-      requireRawHitCount(parts, 3, command);
+      requireRawHitCountTarget(parts, 2, command, rulesContext);
+      requireRawHitCount(parts, 3, command, rulesContext);
       return;
     case 'faint':
       if (parts.length !== 3) throw new ObservableStateError(`Malformed raw ${command} record.`);
@@ -1005,9 +1032,9 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 5 && parts.length !== 6) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'details');
-      requireRawHealthCondition(parts, 4, command);
+      requireRawHealthCondition(parts, 4, command, rulesContext);
       if (parts.length === 6) {
-        const rule = PROTOCOL_CONTRACT.validation_rules.switch_drag.optional_tag;
+        const rule = protocolContext(rulesContext).protocol.validation_rules.switch_drag.optional_tag;
         const tagPrefix = `${rule.slice(0, rule.indexOf(' '))} `;
         const sourceName = parts[5].slice(tagPrefix.length);
         if (!parts[5].startsWith(tagPrefix) || !sourceName || sourceName !== sourceName.trim()) {
@@ -1020,7 +1047,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'details');
-      if (parts.length === 5) requireRawHealthCondition(parts, 4, command);
+      if (parts.length === 5) requireRawHealthCondition(parts, 4, command, rulesContext);
       return;
     case 'replace':
       // Illusion.onEnd emits ident + details only. Legacy HP-bearing records
@@ -1028,7 +1055,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError('Malformed raw replace record.');
       requireIdent();
       requireRawField(parts, 3, command, 'details');
-      if (parts.length === 5 && !isRawHealthCondition(parts[4])) {
+      if (parts.length === 5 && !isRawHealthCondition(parts[4], rulesContext)) {
         throw new ObservableStateError('Malformed raw replace condition.');
       }
       return;
@@ -1043,23 +1070,23 @@ function validateRawRecordShape(parts: string[], command: string): void {
         throw new ObservableStateError(`Unsupported raw ${command} record.`);
       }
       requireIdent();
-      requireRawPlayerIdent(parts, 3, command);
+      requireRawPlayerIdent(parts, 3, command, rulesContext);
       return;
     case '-anim':
       // These source-emitted public records carry no typed mechanics. Keep
       // their exact bounded label grammar separate from move-record grammar.
       if (parts.length !== 5
-        || !PROTOCOL_CONTRACT.validation_rules.anim.forms.some(([label]) => parts[3] === label)) {
+        || !protocolContext(rulesContext).protocol.validation_rules.anim.forms.some(([label]) => parts[3] === label)) {
         throw new ObservableStateError(`Malformed raw ${command} record: unsupported animation grammar.`);
       }
-      requireRawSinglesAnimRoles(parts, command);
+      requireRawSinglesAnimRoles(parts, command, rulesContext);
       return;
     case '-hint':
       // Public diagnostics remain raw-only. The repeat-use source family has a
       // finite generated payload domain and must be exact.
       requireAtLeast(3);
       requireRawField(parts, 2, command, 'message');
-      requireRawRepeatUseHint(parts, command);
+      requireRawRepeatUseHint(parts, command, rulesContext);
       return;
     case 'poke':
       requireAtLeast(4);
@@ -1080,7 +1107,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case '-transform':
       requireAtLeast(4);
       requireIdent();
-      requireRawPlayerIdent(parts, 3, command);
+      requireRawPlayerIdent(parts, 3, command, rulesContext);
       return;
     case 'damage':
     case '-damage':
@@ -1091,30 +1118,30 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(4);
       // Revival publicly heals a benched Pokémon using p1:/p2:, not an active position.
       const revivalBlessingBench = command === '-heal' && parts.length === 5
-        && parts[4] === '[from] move: Revival Blessing' && isCanonicalSideOnlyPlayerIdent(parts[2]);
+        && parts[4] === '[from] move: Revival Blessing' && isCanonicalSideOnlyPlayerIdent(parts[2], rulesContext);
       if (!revivalBlessingBench) requireIdent();
-      requireRawHealthCondition(parts, 3, command);
+      requireRawHealthCondition(parts, 3, command, rulesContext);
       const tagGroup = command.replace(/^-/, '') as 'damage' | 'heal' | 'sethp';
       requireRawEventTags(
         parts,
         4,
         command,
-        PROTOCOL_CONTRACT.validation_rules.health_event_tags[tagGroup],
-        PROTOCOL_CONTRACT.validation_rules.health_event_tag_order[tagGroup],
-        PROTOCOL_CONTRACT.validation_rules.event_tag_cardinality[tagGroup],
+        protocolContext(rulesContext).protocol.validation_rules.health_event_tags[tagGroup],
+        protocolContext(rulesContext).protocol.validation_rules.health_event_tag_order[tagGroup],
+        protocolContext(rulesContext).protocol.validation_rules.event_tag_cardinality[tagGroup], rulesContext
       );
       if (command === '-heal') {
-        requireRawHealWisherDependency(parts, command);
-        requireRawHealingWishDependency(parts, command);
+        requireRawHealWisherDependency(parts, command, rulesContext);
+        requireRawHealingWishDependency(parts, command, rulesContext);
       }
       return;
     case 'status':
     case '-status':
-      requireRawMajorStatusEvent(parts, command);
+      requireRawMajorStatusEvent(parts, command, rulesContext);
       return;
     case 'curestatus':
     case '-curestatus':
-      requireRawMajorStatusEvent(parts, command);
+      requireRawMajorStatusEvent(parts, command, rulesContext);
       return;
     case 'boost':
     case '-boost':
@@ -1125,12 +1152,12 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(5);
       requireIdent();
       requireRawField(parts, 3, command, 'stat');
-      if (!PROTOCOL_CONTRACT.validation_rules.boost_event.stats.includes(parts[3])) {
+      if (!protocolContext(rulesContext).protocol.validation_rules.boost_event.stats.includes(parts[3])) {
         throw new ObservableStateError(`Malformed raw ${command} record: invalid stat.`);
       }
       requireRawInteger(parts, 4, command, 'amount', command === 'setboost' || command === '-setboost');
       {
-        const rules = PROTOCOL_CONTRACT.validation_rules.boost_event;
+        const rules = protocolContext(rulesContext).protocol.validation_rules.boost_event;
         const amount = Number(parts[4]);
         const [minimum, maximum] = command === 'setboost' || command === '-setboost'
           ? [rules.set_min, rules.set_max]
@@ -1141,9 +1168,9 @@ function validateRawRecordShape(parts: string[], command: string): void {
         parts,
         5,
         command,
-        PROTOCOL_CONTRACT.validation_rules.boost_event.tags,
-        PROTOCOL_CONTRACT.validation_rules.boost_event.tag_order,
-        PROTOCOL_CONTRACT.validation_rules.event_tag_cardinality.boost,
+        protocolContext(rulesContext).protocol.validation_rules.boost_event.tags,
+        protocolContext(rulesContext).protocol.validation_rules.boost_event.tag_order,
+        protocolContext(rulesContext).protocol.validation_rules.event_tag_cardinality.boost, rulesContext
       );
       return;
     case 'clearboost':
@@ -1162,7 +1189,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case '-clearpositiveboost':
       if (parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
-      requireRawPlayerIdent(parts, 3, command);
+      requireRawPlayerIdent(parts, 3, command, rulesContext);
       requireRawField(parts, 4, command, 'effect');
       return;
     case 'start':
@@ -1172,7 +1199,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'effect');
-      if (command === '-start' || command === '-end') requireRawFutureSightDependency(parts, command);
+      if (command === '-start' || command === '-end') requireRawFutureSightDependency(parts, command, rulesContext);
       return;
     case 'weather':
     case '-weather':
@@ -1183,9 +1210,9 @@ function validateRawRecordShape(parts: string[], command: string): void {
     case '-fieldactivate':
       requireAtLeast(3);
       requireRawField(parts, 2, command, 'effect');
-      requireRawWeather(parts, command);
-      requireRawTerrain(parts, command);
-      requireRawTrickRoom(parts, command);
+      requireRawWeather(parts, command, rulesContext);
+      requireRawTerrain(parts, command, rulesContext);
+      requireRawTrickRoom(parts, command, rulesContext);
       return;
     case 'message':
     case '-message':
@@ -1197,12 +1224,12 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'effect');
-      const trapped = PROTOCOL_CONTRACT.validation_rules.trapped_activation;
+      const trapped = protocolContext(rulesContext).protocol.validation_rules.trapped_activation;
       if (command === trapped.token && parts[3].trim() === trapped.effect
         && (parts[3] !== trapped.effect || parts.length !== trapped.payload_fields + 2)) {
         throw new ObservableStateError(`Malformed raw ${command} record: trapped activation must use the exact source grammar.`);
       }
-      requireRawCourtChange(parts, command);
+      requireRawCourtChange(parts, command, rulesContext);
       return;
     case 'sidestart':
     case '-sidestart':
@@ -1211,21 +1238,21 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(4);
       if (!/^p[12](?::|$)/.test(parts[2])) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireRawField(parts, 3, command, 'condition');
-      requireRawEntryHazard(parts, command);
-      requireRawScreen(parts, command);
+      requireRawEntryHazard(parts, command, rulesContext);
+      requireRawScreen(parts, command, rulesContext);
       return;
     case 'ability':
     case '-ability':
-      requireRawAbilityEvent(parts, command);
+      requireRawAbilityEvent(parts, command, rulesContext);
       return;
     case 'item':
     case '-item':
     case 'enditem':
     case '-enditem':
-      requireRawItemEvent(parts, command);
+      requireRawItemEvent(parts, command, rulesContext);
       return;
     case 'tier':
-      if (parts.length !== PROTOCOL_CONTRACT.validation_rules.tier.payload_fields + 2) {
+      if (parts.length !== protocolContext(rulesContext).protocol.validation_rules.tier.payload_fields + 2) {
         throw new ObservableStateError(`Malformed raw ${command} record.`);
       }
       requireRawField(parts, 2, command, 'format label');
@@ -1282,7 +1309,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'move');
-      if (parts.length > 4) requireRawTarget(parts, 4, command);
+      if (parts.length > 4) requireRawTarget(parts, 4, command, rulesContext);
       return;
     case 'inactive':
       requireAtLeast(3);
@@ -1314,7 +1341,7 @@ function validateRawRecordShape(parts: string[], command: string): void {
       requireRawField(parts, 2, command, 'payload');
       return;
     case 'bigerror':
-      requireRawAutoTieWarning(parts, command);
+      requireRawAutoTieWarning(parts, command, rulesContext);
       return;
     default:
       if (parts.length < 3 || parts.slice(2).some((field) => !field.trim())) {
@@ -1323,11 +1350,12 @@ function validateRawRecordShape(parts: string[], command: string): void {
   }
 }
 
-function sanitizeProtocolPrefix(prefix: readonly string[]): string[] {
+function sanitizeProtocolPrefix(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
+  readerContext(rulesContext);
   const sanitized: string[] = [];
   for (const record of prefix) {
     const parts = record.split('|');
-    if (record === PROTOCOL_CONTRACT.framing_only_records[0].record || parts[1] === 'tier') continue;
+    if (record === readerContext(rulesContext).protocol.framing_only_records[0].record || parts[1] === 'tier') continue;
     if (parts[1] !== 'request') {
       sanitized.push(record);
       continue;
@@ -1435,22 +1463,25 @@ type RawEvidence = {
 };
 
 /** Validate one supported record before any event-specific state routing. */
-export function validateRawProtocolRecord(record: string): void {
+export function validateRawProtocolRecord(record: string, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): void {
+  protocolContext(rulesContext);
   if (!record.startsWith('|') || record.includes('\n') || record.includes('\r')) throw new ObservableStateError('Malformed raw protocol record.');
-  if (record === PROTOCOL_CONTRACT.framing_only_records[0].record) return;
+  if (record === protocolContext(rulesContext).protocol.framing_only_records[0].record) return;
+  assertPreparedProtocolPolicy(record, rulesContext);
   const parts = record.split('|');
   const command = parts[1];
-  if (!command || (!SUPPORTED_RAW_COMMANDS.has(command) && !RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command))) {
+  if (!command || (!new Set(protocolContext(rulesContext).protocol.supported_commands).has(command) && !new Map(protocolContext(rulesContext).protocol.recognized_unsupported_commands.map(entry => [entry.token, entry])).has(command))) {
     throw new ObservableStateError(`Unsupported raw protocol event: ${command || '<empty>'}.`);
   }
-  if (RECOGNIZED_UNSUPPORTED_RAW_COMMANDS.has(command)) {
+  if (new Map(protocolContext(rulesContext).protocol.recognized_unsupported_commands.map(entry => [entry.token, entry])).has(command)) {
     throw new ObservableStateError(`Unsupported raw protocol event: ${command}.`);
   }
-  validateRawRecordShape(parts, command);
+  validateRawRecordShape(parts, command, rulesContext);
   const effectField = ['-start', '-end'].includes(command) ? 3
     : ['-weather', '-fieldstart', '-fieldend'].includes(command) ? 2
       : ['-sidestart', '-sideend'].includes(command) ? 3 : -1;
-  if (effectField >= 0) classifyEffectRecord(command, parts[effectField] || '');
+  if (effectField >= 0 && rulesContext === NATIVE11_GRAMMAR_CONTEXT) throw new ObservableStateError('Native11 candidate effect/lifecycle semantics unproved.');
+  if (effectField >= 0) classifyEffectRecord(command, parts[effectField] || '', helperContext(rulesContext));
 }
 
 function parseIntegerRecord(parts: string[], label: string): number {
@@ -1460,10 +1491,11 @@ function parseIntegerRecord(parts: string[], label: string): number {
   return Number(parts[2]);
 }
 
-function parseRawEvidence(prefix: readonly string[], perspective: PlayerID): RawEvidence {
+function parseRawEvidence(prefix: readonly string[], perspective: PlayerID, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): RawEvidence {
+  helperContext(rulesContext);
   const evidence: RawEvidence = { names: {}, team_size: {} };
   for (const record of prefix) {
-    validateRawProtocolRecord(record);
+    validateRawProtocolRecord(record, rulesContext);
     const parts = record.split('|');
     const command = parts[1];
     if (command === 'gen') {
@@ -1549,9 +1581,10 @@ function validateRawEvidence(
   prefix: readonly string[],
   view: BattleView,
   request: ChoiceRequestView | null,
-  perspective: PlayerID,
+  perspective: PlayerID, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): void {
-  const evidence = parseRawEvidence(prefix, perspective);
+  helperContext(rulesContext);
+  const evidence = parseRawEvidence(prefix, perspective, rulesContext);
   if (evidence.gen !== undefined && view.gen !== evidence.gen) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with view.gen.');
   }
@@ -1582,9 +1615,10 @@ export function validateObservableProtocolPrefix(
   prefix: readonly string[],
   perspective: PlayerID,
   view?: Pick<ObservableBattleView, 'gen' | 'turn' | 'names' | 'team_size' | 'winner' | 'terminated'>,
-  request?: Pick<ObservableChoiceRequestView, 'rqid'> | null,
+  request?: Pick<ObservableChoiceRequestView, 'rqid'> | null, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): void {
-  const normalized = normalizeProtocolPrefix(prefix);
+  helperContext(rulesContext);
+  const normalized = normalizeProtocolPrefix(prefix, rulesContext);
   if (normalized.some((record, index) => record !== prefix[index])) {
     throw new ObservableStateError('Observable protocol prefix must already be normalized.');
   }
@@ -1597,7 +1631,7 @@ export function validateObservableProtocolPrefix(
       throw new ObservableStateError('Observable request prefix record is not sanitized.');
     }
   }
-  const evidence = parseRawEvidence(normalized, perspective);
+  const evidence = parseRawEvidence(normalized, perspective, rulesContext);
   if (!view) return;
   if (evidence.gen !== undefined && view.gen !== evidence.gen) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with view.gen.');
@@ -1631,12 +1665,13 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
-export function projectObservableBattleState(input: ObservableStateInput): ObservableBattleState {
+export function projectObservableBattleState(input: ObservableStateInput, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): ObservableBattleState {
+  assertPublicationReaderContext(rulesContext);
   const phase = assertInput(input);
-  const rawProtocolPrefix = normalizeProtocolPrefix(input.protocol_prefix);
-  validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective);
-  const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix);
-  assertPublicFieldMatchesEvidence(protocolPrefix, input.view.field);
+  const rawProtocolPrefix = normalizeProtocolPrefix(input.protocol_prefix, rulesContext);
+  validateRawEvidence(rawProtocolPrefix, input.view, input.request, input.perspective, rulesContext);
+  const protocolPrefix = sanitizeProtocolPrefix(rawProtocolPrefix, rulesContext);
+  assertPublicFieldMatchesEvidence(protocolPrefix, input.view.field, rulesContext);
   const view = cloneView(input.view);
   const publicItems = projectPublicItems(protocolPrefix);
   for (const pokemon of view.opponent_team) {
@@ -1645,12 +1680,12 @@ export function projectObservableBattleState(input: ObservableStateInput): Obser
     else delete pokemon.item;
   }
   copyTerminalOwner(input.view as unknown as Record<string, unknown>, view as unknown as Record<string, unknown>);
-  assertTypedStateMatchesPublicPrefix(protocolPrefix, input.perspective, view, (target) => boundOwnedTarget(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, target));
+  assertTypedStateMatchesPublicPrefix(protocolPrefix, input.perspective, view, (target) => boundOwnedTarget(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, target), rulesContext);
   assertPublicHealthMatchesEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
   assertPublicItemsMatchEvidence(protocolPrefix, input.perspective, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null);
-  assertPublicAbilityMatchesEvidence(protocolPrefix, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, input.perspective);
+  assertPublicAbilityMatchesEvidence(protocolPrefix, view as unknown as Record<string, unknown>, input.request as unknown as Record<string, unknown> | null, input.perspective, rulesContext);
   if (input.schema_version === PUBLIC_STAGES_SCHEMA_VERSION) {
-    for (const pokemon of view.opponent_team) pokemon.public_boosts = opponentPublicBoosts(protocolPrefix, pokemon.ident);
+    for (const pokemon of view.opponent_team) pokemon.public_boosts = opponentPublicBoosts(protocolPrefix, pokemon.ident, rulesContext);
   }
   const request = input.request ? cloneRequest(input.request) : null;
   const decision_availability = decisionAvailability(input.view, input.request);
@@ -1675,7 +1710,8 @@ export function projectObservableBattleState(input: ObservableStateInput): Obser
   });
 }
 
-export function projectStepResult(input: ObservableStepResultInput): ObservableBattleState {
+export function projectStepResult(input: ObservableStepResultInput, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): ObservableBattleState {
+  assertPublicationReaderContext(rulesContext);
   const view = input.step_result.views[input.perspective];
   if (!view) throw new ObservableStateError(`StepResult has no view for ${input.perspective}.`);
   const request = input.step_result.requests[input.perspective] ?? null;
@@ -1691,14 +1727,18 @@ export function projectStepResult(input: ObservableStepResultInput): ObservableB
     ...input,
     view,
     request,
-  });
+  }, rulesContext);
 }
 
 export class ObservableStateProjector {
+  constructor(rulesContext: ReaderContext = HISTORICAL10_CONTEXT) { this.rulesContext = readerContext(rulesContext); }
+
+  private readonly rulesContext: ReaderContext;
+
   private readonly lastByObservationKey = new Map<string, { cursor: number; hash: string; prefix: string[] }>();
 
   project(input: ObservableStateInput): ObservableBattleState {
-    const state = projectObservableBattleState(input);
+    const state = projectObservableBattleState(input, this.rulesContext);
     const key = `${state.battle_id}:${state.perspective}`;
     const previous = this.lastByObservationKey.get(key);
     if (previous && state.event_cursor < previous.cursor) {

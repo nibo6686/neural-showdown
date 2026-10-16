@@ -1,0 +1,180 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 3.387,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-TS-readers",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P31 historical TS readers$",
+      "sim-core/dist/tests/version_profile_dispatch.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.99,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-fixture-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 1.937,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-TS-readers-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P31 historical TS readers$",
+      "sim-core/dist/tests/version_profile_dispatch.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.307,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "recognized-revision-dispatch-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P31 recognized revision dispatch$",
+      "sim-core/dist/tests/version_profile_dispatch.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.114,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "coherent-rejection-before-old-rules-corrected",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P31 coherent rejection before old rules$",
+      "sim-core/dist/tests/version_profile_dispatch.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.201,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "pre-edit-output-control",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-c",
+      "import importlib.util,json,pathlib\nroot=pathlib.Path('/Users/nbolger/Desktop/neural-showdown'); docs=root/'docs/planning'\nspec=importlib.util.spec_from_file_location('p31_old_reader','/private/tmp/neural-prompt31-20261012/baseline/trainer/src/neural/pipeline_record.py');old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)\nf=json.loads((docs/'perspective-fidelity-prompt31-reader-fixtures.json').read_text());out={}\nfor name,fn in [('bundle',old.validate_pipeline_bundle),('envelope',old.validate_pipeline_episode_evidence),('result',old.validate_pipeline_episode_result),('sweep',old.validate_pipeline_episode_publication_sweep)]:\n value=fn(f[name]); cli={'schema_version':'pipeline-episode-evidence-validation/v1','evidence_id':value['evidence_id'],'committed_transitions':len(value['transition_ids'])} if name=='envelope' else value\n literal=lambda v:json.dumps(v,ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\\n'\n out[name]={'api_literal':literal(value),'cli_literal':literal(cli)}\n(docs/'perspective-fidelity-prompt31-old-publication-goldens.json').write_text(json.dumps(out,indent=2)+'\\n');print('Four pre-edit reader outputs frozen; no native execution')"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 1,
+    "seconds": 0.768,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "build-sweep-fixture",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown/sim-core",
+    "exit": 0,
+    "seconds": 2.47,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "historical-TS-readers-sweep-fixed",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P31 historical TS readers$",
+      "sim-core/dist/tests/version_profile_dispatch.test.js"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.398,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "pre-edit-output-control",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-c",
+      "import importlib.util,json,pathlib\nroot=pathlib.Path('/Users/nbolger/Desktop/neural-showdown'); docs=root/'docs/planning'\nspec=importlib.util.spec_from_file_location('p31_old_reader','/private/tmp/neural-prompt31-20261012/baseline/trainer/src/neural/pipeline_record.py');old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)\nf=json.loads((docs/'perspective-fidelity-prompt31-reader-fixtures.json').read_text());out={}\nfor name,fn in [('bundle',old.validate_pipeline_bundle),('envelope',old.validate_pipeline_episode_evidence),('result',old.validate_pipeline_episode_result),('sweep',old.validate_pipeline_episode_publication_sweep)]:\n value=fn(f[name]); cli={'schema_version':'pipeline-episode-evidence-validation/v1','evidence_id':value['evidence_id'],'committed_transitions':len(value['transition_ids'])} if name=='envelope' else value\n literal=lambda v:json.dumps(v,ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\\n'\n out[name]={'api_literal':literal(value),'cli_literal':literal(cli)}\n(docs/'perspective-fidelity-prompt31-old-publication-goldens.json').write_text(json.dumps(out,indent=2)+'\\n');print('Four pre-edit reader outputs frozen; no native execution')"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.204,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_historical_paths_and_literals",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "trainer/tests/test_version_profile_dispatch.py::test_historical_paths_and_literals"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 2.78,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_revision_structure_negatives",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "trainer/tests/test_version_profile_dispatch.py::test_revision_structure_negatives"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 0.446,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "test_cli_dispatch_branches",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "trainer/tests/test_version_profile_dispatch.py::test_cli_dispatch_branches"
+    ],
+    "cwd": "/Users/nbolger/Desktop/neural-showdown",
+    "exit": 0,
+    "seconds": 1.057,
+    "timeout_seconds": 180
+  }
+]

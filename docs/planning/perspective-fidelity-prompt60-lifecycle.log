@@ -1,0 +1,19 @@
+✖ P60 forced Revival wait and terminal availability (232.890125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 343.498959
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owned_request_details.test.js:181:25
+✖ P60 forced Revival wait and terminal availability (232.890125ms)
+  TypeError: Cannot read properties of undefined (reading 'side')
+      at validate (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/tests/owned_request_details.test.js:49:33)
+      at TestContext.<anonymous> (/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core/dist/tests/owned_request_details.test.js:188:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

@@ -1,0 +1,52 @@
+B1_WITNESS {"name":"generated","level":"actual-generated-session","owners":[{"owner":"p1","slots":6},{"owner":"p2","slots":6}],"before_construction":true,"original_reference_binding":true,"separate_occurrences":true}
+B1_WITNESS {"name":"missing-owner","level":"actual-runtime-fault-rejection","expected":"missing-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"duplicate","level":"actual-runtime-fault-rejection","expected":"duplicate-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"wrong-owner-equal-bytes","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"submission","level":"actual-runtime-fault-rejection","expected":"submission-mismatch","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"occurrence","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"environment","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"side-reference","level":"actual-runtime-fault-rejection","expected":"constructor-association-mismatch","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"pokemon-reference","level":"actual-runtime-fault-rejection","expected":"constructor-association-mismatch","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"late","level":"actual-runtime-fault-rejection","expected":"foreign-or-late-enrollment","authority_unavailable_both_owners":true,"revoked_before_cleanup":true}
+B1_WITNESS {"name":"isolation","level":"actual-generated-session","cross_owner_rejects":2,"forged_or_foreign_rejects":10,"private_controller_not_enumerable":true,"no_birth_fields_in_existing_outputs":true}
+B1_WITNESS {"name":"activation-failure","level":"actual-session-fault-after-enrollment","revoked_before_async_cleanup":true}
+B1_WITNESS {"name":"lifetime-restore","level":"actual-target-generated-session-and-rejected-authority-free-restore","no_restore_observer_calls":true,"rejected_candidate_preserves_exact_handles_and_rows":true,"historical_holding_survives_retirement":true,"synchronous_close_denial":true,"target_authority_free_admission_rejected":true,"restored_object_mapping":"separate B2 authority; no new birth"}
+✔ B1 generated creation (236.411792ms)
+✖ B1 initial effects (5.937708ms)
+✖ B1 enrollment faults (59.377167ms)
+✔ B1 owner isolation (19.156709ms)
+✔ B1 activation failure (8.137834ms)
+✔ B1 close and restore (44.572042ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 529.209292
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_birth.test.js:63:25
+✖ B1 initial effects (5.937708ms)
+  Error: settling/v1/simulator-error
+      at SettlingBarrier.fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/settling.js:51:26)
+      at LocalBattleEnv.markError (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1229:23)
+      at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1004:88 {
+    diagnostic: { schema_version: 'settling-failure/v1', code: 'settling/v1/simulator-error', timeout_ms: 5000, max_messages: 100000 }
+  }
+
+test at sim-core/dist/tests/owner_identity_birth.test.js:98:25
+✖ B1 enrollment faults (59.377167ms)
+  AssertionError [ERR_ASSERTION]: exact B1 semantic rejection: missing-observer
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_birth.test.js:163:30)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

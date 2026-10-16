@@ -1,0 +1,35 @@
+P42_WITNESS {"name":"selection-post-prepare-rollback","revoked_before_cleanup":true,"both_exact_holdings_and_deliveries_retained":true,"fresh_retry":"executed by caller"}
+P42_WITNESS {"name":"revival-p2","level":"actual-constructed-creation-through-native-revival-held-restore","healer":"Rabsca","waiting":"p1","selected_original_slot":1,"selected_party_slot":2,"orders":{"p2":[2,1,3],"p1":[1,2]},"returning_orders":{"p2":[1,2,3],"p1":[1,2]},"heal":"|-heal|p2: First|50/100|[from] move: Revival Blessing","actor_only_publication":true,"silent_status_faint_clear":true,"ordinary_continuation":true}
+P42 Python finite heal positives/malformed/quarantine PASS
+P42_WITNESS {"name":"finite-heal-grammar","public":"50/100","transport":"floor(maxHP/2)/maxHP","malformed":6,"unrelated_quarantines":4,"python":true}
+✖ P42 constructed revival B2 p1 (382.407958ms)
+✔ P42 constructed revival B2 p2 (269.26825ms)
+✔ P42 finite Revival grammar and unrelated quarantine (57.0525ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 868.0715
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_revival_restore.test.js:15:29
+✖ P42 constructed revival B2 p1 (382.407958ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Public health evidence mismatch.*private HP/i. Input:
+  
+  'pipeline-record validation failed: successor belief protocol prefix does not match successor observation\n'
+  
+      at publish (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/helpers/owner_selection_restore.js:61:26)
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owner_identity_revival_restore.test.js:60:55)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'pipeline-record validation failed: successor belief protocol prefix does not match successor observation\n',
+    expected: /Public health evidence mismatch.*private HP/i,
+    operator: 'match',
+    diff: 'simple'
+  }

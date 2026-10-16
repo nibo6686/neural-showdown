@@ -1,0 +1,23 @@
+P42_MASKED_ERROR Error: reader-profile/v1/prepared-family-unsupported/heal-failure
+P42_MASKED_ERROR Error: reader-profile/v1/prepared-family-unsupported/heal-failure
+✖ P42 constructed revival B2 p2 (193.164291ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 295.006417
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_revival_restore.test.js:11:29
+✖ P42 constructed revival B2 p2 (193.164291ms)
+  Error: settling/v1/simulator-error
+      at SettlingBarrier.fail (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/settling.js:51:26)
+      at LocalBattleEnv.markError (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1229:23)
+      at LocalBattleEnv.markError (/private/tmp/neural-prompt42-20261013/diagnostic.cjs:3:110)
+      at /private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/env_manager.js:1004:88 {
+    diagnostic: { schema_version: 'settling-failure/v1', code: 'settling/v1/simulator-error', timeout_ms: 5000, max_messages: 100000 }
+  }

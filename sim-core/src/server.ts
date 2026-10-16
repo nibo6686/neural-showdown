@@ -1,3 +1,4 @@
+import { installedNativeProfile } from './version_profile';
 import readline from 'node:readline';
 import { performance } from 'node:perf_hooks';
 import { estimateDamage, type DamageEstimateRequest } from './damage_calc';
@@ -84,7 +85,7 @@ type RPCRequest =
       requests: SingleRPCRequest[];
     };
 
-const manager = new EnvironmentManager();
+const manager = new EnvironmentManager(installedNativeProfile());
 const traceRpcSetting = String(process.env.SIM_CORE_TRACE_RPC || '').toLowerCase();
 const traceRpc = traceRpcSetting !== '' && !['0', 'false', 'off'].includes(traceRpcSetting);
 const configuredSlowTraceMs = Number(process.env.SIM_CORE_TRACE_SLOW_MS || 5000);

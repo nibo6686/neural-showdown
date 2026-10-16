@@ -1,0 +1,686 @@
+--- a/sim-core/src/owner_identity_events.ts
++++ b/sim-core/src/owner_identity_events.ts
+@@ -1,3 +1,4 @@
++import type { PipelineBoundary } from './pipeline_integration';
+ import { isDeepStrictEqual } from 'node:util';
+ import type { Battle } from 'pokemon-showdown';
+ import { BattleActions } from 'pokemon-showdown/dist/sim/battle-actions';
+@@ -11,6 +12,19 @@
+ type Writer = { token: object; actor: Readonly<Omit<Actor, 'lease'>>; rows: Row[]; valid: boolean };
+ type Row = { token: object; version: number; writer?: Writer; alive: boolean };
+ type Frame = { token: object; bytes: string[]; rows: Array<{ token: object; version: number }>; publicRows: number[]; received: boolean };
++export type SwitchEventHandle = Readonly<object>;
++export interface CommittedSwitchEvent {
++  readonly owner: PlayerID; readonly original_slot: number; readonly event_index: number;
++  readonly public_index: number; readonly prefix_index: number; readonly branch_id: string; readonly step_index: number;
++}
++export interface SwitchEventHistory {
++  readonly owner: PlayerID; readonly events: readonly CommittedSwitchEvent[];
++  readonly branch_id: string; readonly step_index: number;
++}
++type EventState = { parent: PipelineBoundary; snapshot: SeededBattleSnapshot;
++  histories: Record<PlayerID, SwitchEventHistory>; handles: Record<PlayerID, SwitchEventHandle>;
++  bindings: Map<object, { version: number; publicIndex: number; prefixIndex: number }> };
++type Preparation = { environment: object; parent: PipelineBoundary | null; state: EventState };
+ type Lineage = { rows: Row[]; expected: string[] };
+ function copyRows(rows: Row[]): Row[] {
+   const writers = new Map<Writer, Writer>();
+@@ -33,6 +47,7 @@
+   battle: any; stream: object; spectator?: object; load: () => void; actors: Map<object, Actor>;
+   leases: Record<PlayerID, object>; rows: Row[]; log: string[]; proxy: string[];
+   writers: Writer[]; frames: Frame[]; fifo: Frame[]; valid: boolean; active: boolean;
++  public: Array<{ token: object; version: number; byte: string }>; source?: SeededBattleSnapshot; parent?: PipelineBoundary;
+   detach: Array<() => void>; sending?: Frame;
+ };
+ 
+@@ -43,11 +58,14 @@
+   #snapshots = new WeakMap<object, Lineage>();
+   #raw = new WeakMap<object, Lineage>();
+   #closed = false;
++  #current: EventState | null = null;
++  #prepared = new Map<object, Preparation>();
++  #ready: Preparation | null = null;
+   readonly #birth: NativeBirthEnrollment;
+   readonly #association: NativeObjectAssociation;
+   constructor(birth: NativeBirthEnrollment, association: NativeObjectAssociation) {
+     this.#birth = birth; this.#association = association;
+-    const receive: SwitchActorReceiver = (env, battle, rows, source) => {
++    const receive: SwitchActorReceiver = (env, battle, rows, source, parent) => {
+       const world = this.world(env);
+       if (world.battle !== battle || world.actors.size) fail('foreign-or-duplicate-actor-source');
+       const actors = new Map<object, Actor>();
+@@ -61,7 +79,7 @@
+         const lineage = this.#snapshots.get(source);
+         if (!lineage || !isDeepStrictEqual(lineage.expected, battle.log)) fail('missing-held-log-lineage');
+         // The B2 controller validates exact snapshot/parent/ticket before this callback.
+-        world.rows = copyRows(lineage.rows);
++        world.rows = copyRows(lineage.rows); world.source = source; world.parent = parent;
+       }
+       world.actors = actors;
+     };
+@@ -84,7 +102,7 @@
+     const native = battle as any, log = native.log as string[];
+     const world: World = { battle: native, stream, load, actors: new Map(), leases: { p1: token(), p2: token() },
+       rows: log.map(() => ({ token: token(), version: 0, alive: true })), log, proxy: log,
+-      writers: [], frames: [], fifo: [], active: true, valid: true, detach: [] };
++      writers: [], frames: [], fifo: [], public: [], active: true, valid: true, detach: [] };
+     this.#worlds.set(env, world); world.spectator = this.#spectators.get(env);
+     let writing: Writer | undefined;
+     const removed = (rows: Row[]) => { for (const row of rows) { row.alive = false; if (row.writer) row.writer.valid = false; } };
+@@ -195,7 +213,8 @@
+   }
+   received(env: object, stream: object, chunk: string): void {
+     const world = this.world(env), frame = world.fifo.shift();
+-    if (world.spectator !== stream || !frame || chunk !== frame.publicRows.map(i => frame.bytes[i]).join('\n')) { world.valid = false; }
++    if (world.spectator !== stream || !frame || chunk !== frame.publicRows.map(i => frame.bytes[i]).join('\n')) { world.valid = false; return; }
++    world.public.push(...frame.publicRows.map(i => ({ ...frame.rows[i], byte: frame.bytes[i] })));
+   }
+   plainSerialization(env: object, battle: Battle, raw: Record<string, unknown>): void {
+     const world = this.world(env);
+@@ -213,6 +232,78 @@
+     this.world(env); const lineage = this.#snapshots.get(source);
+     if (!lineage || !isDeepStrictEqual(source.simulator_state, target.simulator_state)) fail('builder-lineage-mismatch');
+     this.#snapshots.set(target, lineage);
++  }
++  private validateWriters(world: World): void {
++    const writers = new Set([...world.writers, ...world.rows.flatMap(row => row.writer ? [row.writer] : [])]);
++    for (const writer of writers) {
++      if (!writer.valid || writer.rows.length !== 3 || writer.rows.some(row => !row.alive)) fail('invalid-switch-writer');
++      const [marker, secret, shared] = writer.rows, at = world.rows.indexOf(marker);
++      if (at < 0 || world.rows[at + 1] !== secret || world.rows[at + 2] !== shared) fail('split-lineage-shape');
++    }
++  }
++  prepare(env: object, boundary: PipelineBoundary, snapshot: SeededBattleSnapshot,
++    projection: { prefix: string[]; positions: Array<number | null> }, parent: PipelineBoundary | null): object {
++    const world = this.world(env), prior = this.#current, lineage = this.#snapshots.get(snapshot);
++    if (!world.valid || world.battle.log !== world.proxy || world.fifo.length || world.frames.some(frame => !frame.received)) fail('incomplete-routed-proof');
++    this.validateWriters(world);
++    if (parent !== (prior?.parent ?? null) || (parent ? world.parent !== parent || world.source !== prior!.snapshot : !!world.source)) fail('foreign-event-parent');
++    if (!lineage || !isDeepStrictEqual(lineage.expected, snapshot.simulator_state.log)) fail('foreign-event-snapshot');
++    if (projection.positions.length !== world.public.length) fail('public-position-count');
++    for (const owner of ['p1', 'p2'] as const) {
++      const obs = boundary.perspectives[owner].observation;
++      if (obs.event_cursor !== projection.prefix.length || !isDeepStrictEqual(obs.protocol_prefix, projection.prefix)) fail('future-or-mismatched-cutoff');
++    }
++    const publicByToken = new Map<object, { position: number; prefix: number | null; version: number }>();
++    let cursor = 0;
++    world.public.forEach((row, i) => {
++      if (publicByToken.has(row.token)) fail('duplicate-public-occurrence');
++      const at = projection.positions[i];
++      if (at !== null && (at !== cursor++ || projection.prefix[at] !== row.byte.replace(/^\|t:\|[0-9]+$/, '|t:|0'))) fail('invalid-positional-projection');
++      publicByToken.set(row.token, { position: i, prefix: at, version: row.version });
++    });
++    if (cursor !== projection.prefix.length) fail('projection-cutoff');
++    const bindings = new Map(prior?.bindings), events = { p1: [...(prior?.histories.p1.events ?? [])], p2: [...(prior?.histories.p2.events ?? [])] };
++    // Every prior source occurrence must reappear at its exact accepted positions/version.
++    for (const [row, binding] of prior?.bindings ?? []) {
++      const routed = publicByToken.get(row);
++      if (!routed || routed.position !== binding.publicIndex || routed.prefix !== binding.prefixIndex || routed.version !== binding.version) fail('historical-event-continuity');
++    }
++    for (const writer of world.writers) {
++      const [marker, secret, shared] = writer.rows;
++      const routed = publicByToken.get(shared.token);
++      if (!routed || publicByToken.has(secret.token) || publicByToken.has(marker.token)
++        || routed.prefix === null || routed.prefix >= projection.prefix.length || routed.version !== shared.version) fail('missing-switch-public-binding');
++      if (bindings.has(shared.token)) fail('reused-switch-writer');
++      bindings.set(shared.token, { version: shared.version, publicIndex: routed.position, prefixIndex: routed.prefix });
++      const owner = writer.actor.owner;
++      events[owner].push(Object.freeze({ owner, original_slot: writer.actor.slot, event_index: events[owner].length,
++        public_index: routed.position, prefix_index: routed.prefix, branch_id: boundary.branch_id, step_index: boundary.step_index }));
++    }
++    // Direct switch rows lacking a qualified writer do not gain partial authority.
++    for (const row of world.public) if (row.byte.startsWith('|switch|') && !bindings.has(row.token)) fail('unbound-switch-source');
++    const histories = Object.fromEntries((['p1', 'p2'] as const).map(owner => [owner, Object.freeze({ owner,
++      events: Object.freeze(events[owner]), branch_id: boundary.branch_id, step_index: boundary.step_index })])) as Record<PlayerID, SwitchEventHistory>;
++    const prepared = token(); this.#prepared.set(prepared, { environment: env, parent,
++      state: { parent: boundary, snapshot, histories, handles: { p1: token(), p2: token() }, bindings } }); return prepared;
++  }
++  preflight(prepared: object): void {
++    const entry = this.#prepared.get(prepared);
++    if (this.#closed || !entry || entry.parent !== (this.#current?.parent ?? null)) fail('foreign-or-stale-event-preparation');
++    const world = this.world(entry.environment);
++    this.validateWriters(world);
++    if (!world.valid || world.fifo.length || world.battle.log !== world.proxy
++      || !isDeepStrictEqual(world.log, entry.state.snapshot.simulator_state.log)) fail('changed-prepared-world');
++    this.#ready = entry;
++  }
++  /** Session-only synchronous assignment; all checks/allocation precede this call. */
++  installReady(): void { this.#current = this.#ready!.state; this.#ready = null; this.#prepared.clear(); }
++  holding(owner: PlayerID): SwitchEventHandle {
++    if (this.#closed || !this.#current || !['p1', 'p2'].includes(owner)) fail('unavailable-event-history');
++    return this.#current.handles[owner];
++  }
++  read(handle: SwitchEventHandle, owner: PlayerID): SwitchEventHistory {
++    if (handle !== this.holding(owner)) fail('foreign-copied-or-stale-event-holding');
++    return this.#current!.histories[owner];
+   }
+   /** Internal diagnostics only; tokens are tentative and have no commit/read capability. */
+   inspect(env: object) {
+@@ -229,9 +320,11 @@
+     return row!.slot;
+   }
+   release(env: object): void {
++    if (this.#ready?.environment === env) this.#ready = null;
++    for (const [key, entry] of this.#prepared) if (entry.environment === env) this.#prepared.delete(key);
+     const world = this.#worlds.get(env);
+     if (world) { world.active = false; for (const detach of world.detach.reverse()) detach(); world.actors.clear(); world.fifo = []; this.#worlds.delete(env); }
+     this.#spectators.delete(env);
+   }
+-  revoke(): void { for (const env of this.#worlds.keys()) this.release(env); this.#snapshots = new WeakMap(); this.#raw = new WeakMap(); this.#closed = true; }
++  revoke(): void { this.#ready = null; this.#prepared.clear(); this.#current = null; for (const env of this.#worlds.keys()) this.release(env); this.#snapshots = new WeakMap(); this.#raw = new WeakMap(); this.#closed = true; }
+ }
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,4 +1,4 @@
+-import { SwitchEventHost } from './owner_identity_events';
++import { SwitchEventHost, type SwitchEventHandle, type SwitchEventHistory } from './owner_identity_events';
+ import { installedNativeProfile, type NativeRuntimeProfile } from './version_profile';
+ import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+ import { assertHistoricalReaderInput } from './version_profile';
+@@ -205,8 +205,12 @@
+  * ObservableBattleState). The format field carries the ruleset label.
+  */
+ export function projectPipelineProtocolPrefix(records: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string[] {
++  return projectProtocolPositions(records, rulesContext).prefix;
++}
++function projectProtocolPositions(records: readonly string[], rulesContext: ReaderContext) {
+   readerContext(rulesContext);
+   const projected: string[] = [];
++  const positions: Array<number | null> = [];
+   for (const [recordIndex, raw] of records.entries()) {
+     // Strip only a transport line delimiter; the protocol record itself must
+     // reach validation byte-for-byte so malformed fields cannot be repaired.
+@@ -230,12 +234,14 @@
+         { record_index: recordIndex, record_command: line.slice(1).split('|', 1)[0] },
+       );
+     }
++    positions.push(null);
+     if (line === '|') continue;
+     if (line.startsWith('|request|')) continue;
+     if (line.startsWith('|tier|')) continue;
++    positions[recordIndex] = projected.length;
+     projected.push(line.replace(/^\|t:\|[0-9]+$/, '|t:|0'));
+   }
+-  return projected;
++  return { prefix: projected, positions };
+ }
+ 
+ /** Classify only this perspective's request; never inspect the opponent's request. */
+@@ -416,18 +422,26 @@
+     try {
+       const initial = await session.environment.resetWithOptions(OPTIONS);
+       session.rawPrefix = [...initial.log_delta];
+-      session.snapshot = session.environment.captureSeededSnapshot(null);
+-      session.currentBoundaryValue = session.buildInitialBoundary(initial, session.snapshot);
++      const snapshot = session.environment.captureSeededSnapshot(null);
++      const boundary = session.buildInitialBoundary(initial, snapshot);
++      // Original enrollment remains tentative inside the unpublished session.
+       if (session.#originalCreation.activate()) {
+-        const delivery = session.#deliveryLedger.prepare(session.environment, initial, session.currentBoundaryValue, null);
+-        session.#deliveryLedger.commit(delivery);
+-        session.#nativeBirth.activate();
+-        session.#objectAssociation.commitInitial(session.environment, session.currentBoundaryValue, session.snapshot);
+-        session.#deliveryEnabled = true;
++        session.#nativeBirth.prepareActivation();
++        const delivery = session.#deliveryLedger.prepare(session.environment, initial, boundary, null);
++        const association = session.#objectAssociation.prepareInitial(session.environment, boundary, snapshot);
++        const events = session.#switchEvents.prepare(session.environment, boundary, snapshot, projectProtocolPositions(session.rawPrefix, session.rulesContext), null);
++        session.#deliveryLedger.preflight(delivery);
++        session.#objectAssociation.preflight(association);
++        session.#switchEvents.preflight(events);
++        // No validation/allocation/await/user callback from here to publication.
++        session.#nativeBirth.installActivation();
++        session.#deliveryLedger.installReady();
++        session.#objectAssociation.installReady();
++        session.#switchEvents.installReady();
++        session.snapshot = snapshot; session.currentBoundaryValue = boundary; session.#deliveryEnabled = true;
+       } else {
+-        // The accepted unstarted-restore compatibility path has no birth authority.
+-        session.#deliveryLedger.revoke();
+-        session.#nativeBirth.revoke();
++        session.#deliveryLedger.revoke(); session.#nativeBirth.revoke(); session.#switchEvents.revoke();
++        session.snapshot = snapshot; session.currentBoundaryValue = boundary;
+       }
+       return session;
+     } catch (error) {
+@@ -454,6 +468,11 @@
+   readNativeBirthHolding(handle: NativeBirthHandle, owner: PlayerID): NativeBirthEvidence {
+     this.ensureOpen();
+     return this.#nativeBirth.read(handle, owner);
++  }
++
++  getSwitchEventHolding(owner: PlayerID): SwitchEventHandle { this.ensureOpen(); return this.#switchEvents.holding(owner); }
++  readSwitchEventHolding(handle: SwitchEventHandle, owner: PlayerID): SwitchEventHistory {
++    this.ensureOpen(); return this.#switchEvents.read(handle, owner);
+   }
+ 
+   getNativeObjectHolding(owner: PlayerID): NativeObjectHandle {
+@@ -691,23 +710,27 @@
+       delivery = this.#deliveryEnabled
+         ? this.#deliveryLedger.prepare(candidate, transitionResult.step_result, nextBoundary, inputBoundary, restoration) : undefined;
+       const association = associationTicket ? this.#objectAssociation.prepareCommit(candidate, nextBoundary, transitionResult.output_snapshot, associationTicket) : undefined;
++      const events = this.#deliveryEnabled ? this.#switchEvents.prepare(candidate, nextBoundary, transitionResult.output_snapshot,
++        projectProtocolPositions(nextRawPrefix, this.rulesContext), inputBoundary) : undefined;
++      if (delivery) this.#deliveryLedger.preflight(delivery);
++      if (association) this.#objectAssociation.preflight(association);
++      if (events) this.#switchEvents.preflight(events);
+       const previousEnvironment = this.environment;
+-      if (delivery) this.#deliveryLedger.commit(delivery);
+-      if (association) this.#objectAssociation.commit(association);
+-      this.environment = candidate;
+-      this.rawPrefix = nextRawPrefix;
+-      this.snapshot = transitionResult.output_snapshot;
+-      this.currentBoundaryValue = nextBoundary;
+-      // Publication is complete. A disposal error must not report a rejected
+-      // candidate after changing committed lineage; retain it for close() retry.
++      const result = { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
++      // Retirement allocation also precedes the irreversible assignment section.
+       this.retiredEnvironments.add(previousEnvironment);
++      if (delivery) this.#deliveryLedger.installReady();
++      if (association) this.#objectAssociation.installReady();
++      if (events) this.#switchEvents.installReady();
++      this.environment = candidate; this.rawPrefix = nextRawPrefix;
++      this.snapshot = transitionResult.output_snapshot; this.currentBoundaryValue = nextBoundary;
+       try {
+         await previousEnvironment.close();
+         this.retiredEnvironments.delete(previousEnvironment);
+       } catch {
+         // Retried explicitly when the session is closed.
+       }
+-      return { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
++      return result;
+     } catch (error) {
+       if (delivery) this.#deliveryLedger.discard(delivery);
+       this.#switchEvents.release(candidate);
+--- a/sim-core/src/request_delivery_ledger.ts
++++ b/sim-core/src/request_delivery_ledger.ts
+@@ -47,6 +47,8 @@
+   #restores = new WeakMap<object, { environment: LocalBattleEnv; parent: PipelineBoundary; traces: Record<PlayerID, readonly RequestEmissionReceipt[]> }>();
+   #prepared = new WeakMap<object, { parent: PipelineBoundary | null; boundary: PipelineBoundary; histories: Record<PlayerID, RequestDeliveryHistory>; raws: Record<PlayerID, unknown> }>();
+ 
++  #ready: { token: object; state: NonNullable<ReturnType<RequestDeliveryLedger["preparedState"]>> } | null = null;
++  private preparedState(token: object) { return this.#prepared.get(token); }
+   #open(): void { if (!this.#valid) fail('revoked'); }
+   #owner(owner: PlayerID): void { if (!PLAYERS.includes(owner)) fail('invalid-owner'); }
+   #traces(environment: LocalBattleEnv): Record<PlayerID, readonly RequestEmissionReceipt[]> {
+@@ -117,14 +119,19 @@
+     }
+     const prepared = token(); this.#prepared.set(prepared, { parent, boundary, histories, raws }); return prepared;
+   }
+-  discard(prepared: object): void { this.#prepared.delete(prepared); }
+-  commit(prepared: object): void {
+-    this.#open();
+-    const state = this.#prepared.get(prepared);
++  discard(prepared: object): void { this.#prepared.delete(prepared); if (this.#ready?.token === prepared) this.#ready = null; }
++  preflight(prepared: object): void {
++    this.#open(); const state = this.#prepared.get(prepared);
+     if (!state || state.parent !== this.#parent) fail('foreign-or-stale-preparation');
+-    this.#prepared.delete(prepared);
+-    this.#parent = state.boundary; this.#histories = state.histories; this.#raw = state.raws;
++    this.#ready = { token: prepared, state };
+   }
++  /** Session-only, immediately after preflight; assignment-only installation. */
++  installReady(): void {
++    const ready = this.#ready!;
++    this.#parent = ready.state.boundary; this.#histories = ready.state.histories; this.#raw = ready.state.raws;
++    this.#prepared.delete(ready.token); this.#ready = null;
++  }
++  commit(prepared: object): void { this.preflight(prepared); this.installReady(); }
+   handle(owner: PlayerID): RequestDeliveryHandle { this.#open(); this.#owner(owner); return this.#handles[owner]; }
+   read(handle: RequestDeliveryHandle, owner: PlayerID, expected?: RequestDeliveryBoundary): RequestDeliveryHistory {
+     this.#open(); this.#owner(owner);
+@@ -134,7 +141,7 @@
+     return history;
+   }
+   revoke(): void {
+-    this.#valid = false; this.#handles = { p1: token(), p2: token() };
++    this.#ready = null; this.#valid = false; this.#handles = { p1: token(), p2: token() };
+     this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
+     this.#histories = { p1: { boundaries: [], deliveries: [] }, p2: { boundaries: [], deliveries: [] } };
+   }
+--- a/sim-core/src/owner_identity_crosswalk.ts
++++ b/sim-core/src/owner_identity_crosswalk.ts
+@@ -102,7 +102,8 @@
+     if (this.#rows[0] && this.#rows[1]) this.#phase = 'staged';
+   }
+ 
+-  activate(): void {
++  #activation: NativeBirthHandle[] | null = null;
++  prepareActivation(): void {
+     if (this.#phase !== 'staged' || !this.#battle || this.#submission) this.reject('not-staged');
+     for (const owner of owners) {
+       const row = this.#rows[index(owner)]!, side = this.#battle[owner];
+@@ -112,9 +113,13 @@
+         || side.pokemon.some(pokemon => !row.sets.includes(pokemon.set))
+         || new Set(side.pokemon.map(pokemon => pokemon.set)).size !== row.sets.length) this.reject('constructor-association-mismatch');
+     }
+-    this.#handles = owners.map(() => Object.freeze(Object.create(null)));
++    this.#activation = owners.map(() => Object.freeze(Object.create(null)));
++  }
++  installActivation(): void {
++    this.#handles = this.#activation!; this.#activation = null;
+     this.#phase = 'active'; this.#environment = null; this.#battle = null;
+   }
++  activate(): void { this.prepareActivation(); this.installActivation(); }
+   /** Trusted B2 producer transfer, not a consumer lookup or serialized certificate. */
+   captureBirthObjects(environment: object, battle: Battle): AssociationRows {
+     if (!['staged', 'active'].includes(this.#phase) || environment !== this.#birthEnvironment || battle !== this.#birthBattle) fail('foreign-birth-object-source');
+@@ -149,7 +154,7 @@
+   abortStaging(): void { if (this.#phase !== 'active') this.revoke(); }
+   private detach(): void { this.#detach?.(); this.#detach = null; }
+   revoke(): void {
+-    this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
++    this.#activation = null; this.detach(); this.#phase = 'invalid'; this.#environment = null; this.#battle = null;
+     this.#submission = null; this.#rows = []; this.#handles = [];
+     this.#birthEnvironment = null; this.#birthBattle = null;
+   }
+@@ -198,9 +203,11 @@
+   #closed = false;
+   #serializations = new WeakMap<object, Serialization>();
+   #pending = new Map<object, PendingAssociation>();
+-  #prepared = new Map<object, { environment: object; pending: PendingAssociation; next: PipelineBoundary; entry: Serialization }>();
++  #prepared = new Map<object, { environment: object; pending?: PendingAssociation; next: PipelineBoundary; entry: Serialization }>();
+   #current: { environment: object; battle: Battle; parent: PipelineBoundary; entry: Serialization;
+     rows: AssociationRows; handles: NativeObjectHandle[]; evidence: NativeObjectEvidence[] } | null = null;
++  #ready: { token: object; state: NonNullable<NativeObjectAssociation["stateType"]>; environment: object } | null = null;
++  private get stateType() { return this.#current; }
+   readonly #birth: NativeBirthEnrollment;
+   constructor(birth: NativeBirthEnrollment) { this.#birth = birth; }
+   bindInitial(environment: object): void {
+@@ -254,18 +261,22 @@
+     if (!refsUnchanged(entry.refs, entry.snapshot.simulator_state)) associationFail('snapshot-reference-mismatch');
+     if (!isDeepStrictEqual(entry.snapshot, entry.expected)) associationFail('snapshot-content-mismatch');
+   }
+-  commitInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): void {
++  prepareInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): object {
+     this.ensure(); const entry = this.#serializations.get(snapshot);
+     if (this.#current || environment !== this.#initialEnvironment || !entry || entry.environment !== environment) associationFail('missing-initial-serialization');
+     this.checkSnapshot(entry);
+-    for (const owner of owners) if (this.#birth.read(this.#birth.holding(owner), owner).original !== entry.rows[owner].original) associationFail('original-holder-mismatch');
+-    this.install(environment, parent, entry);
+-  }
+-  private install(environment: object, parent: PipelineBoundary, entry: Serialization): void {
++    const rows = this.#birth.captureBirthObjects(environment, entry.battle);
++    for (const owner of owners) if (rows[owner].original !== entry.rows[owner].original) associationFail('original-holder-mismatch');
++    const token = Object.freeze(Object.create(null)); this.#prepared.set(token, { environment, next: parent, entry }); return token;
++  }
++  commitInitial(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): void {
++    const token = this.prepareInitial(environment, parent, snapshot); this.preflight(token); this.installReady();
++  }
++  private buildState(environment: object, parent: PipelineBoundary, entry: Serialization) {
+     const evidence = owners.map(owner => Object.freeze({ owner, original: entry.rows[owner].original,
+       original_slots: Object.freeze([...entry.order[owner]]), observation_id: parent.perspectives[owner].observation.observation_id,
+       branch_id: parent.branch_id, step_index: parent.step_index }));
+-    this.#current = { environment, battle: entry.battle, parent, entry, rows: entry.rows,
++    return { environment, battle: entry.battle, parent, entry, rows: entry.rows,
+       handles: owners.map(() => Object.freeze(Object.create(null))), evidence };
+   }
+   prepareRestore(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): NativeRestoreTicket {
+@@ -332,13 +343,21 @@
+     this.checkSnapshot(entry);
+     const token = Object.freeze(Object.create(null)); this.#prepared.set(token, { environment, pending, next, entry }); return token;
+   }
+-  commit(token: object): void {
++  preflight(token: object): void {
+     this.ensure(); const prepared = this.#prepared.get(token);
+-    if (!prepared || this.#pending.get(prepared.environment) !== prepared.pending || prepared.pending.parent !== this.#current?.parent) associationFail('foreign-or-stale-preparation');
+-    this.install(prepared.environment, prepared.next, prepared.entry);
+-    this.discard(prepared.environment);
+-  }
++    if (!prepared || (prepared.pending ? this.#pending.get(prepared.environment) !== prepared.pending
++      || prepared.pending.parent !== this.#current?.parent : !!this.#current)) associationFail('foreign-or-stale-preparation');
++    this.checkSnapshot(prepared.entry);
++    this.#ready = { token, environment: prepared.environment, state: this.buildState(prepared.environment, prepared.next, prepared.entry) };
++  }
++  /** Assignment-only session installation; no validation, allocation or callbacks. */
++  installReady(): void {
++    const ready = this.#ready!; this.#current = ready.state;
++    this.#pending.delete(ready.environment); this.#prepared.delete(ready.token); this.#ready = null;
++  }
++  commit(token: object): void { this.preflight(token); this.installReady(); }
+   discard(environment: object): void {
++    if (this.#ready?.environment === environment) this.#ready = null;
+     this.#pending.delete(environment);
+     for (const [token, prepared] of this.#prepared) if (prepared.environment === environment) this.#prepared.delete(token);
+   }
+@@ -355,7 +374,7 @@
+     return this.#current.evidence[slot];
+   }
+   revoke(): void {
+-    this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
++    this.#ready = null; this.#closed = true; this.#current = null; this.#pending.clear(); this.#prepared.clear(); this.#serializations = new WeakMap();
+   }
+ }
+ 
+--- a/sim-core/src/env_manager.ts
++++ b/sim-core/src/env_manager.ts
+@@ -1372,8 +1372,8 @@
+     }
+     for await (const chunk of this.streams.spectator as unknown as AsyncIterable<string>) {
+       if (this.settling.stopped) return;
++      appendPublicSpectatorChunk(chunk, this.logLines, this.getReaderContext());
+       this.#switchEvents?.received(this, this.streams.spectator, chunk);
+-      appendPublicSpectatorChunk(chunk, this.logLines, this.getReaderContext());
+       for (const rawLine of chunk.split('\n')) {
+         const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+         if (!line) continue;
+--- /dev/null
++++ b/sim-core/tests/owner_identity_event_commit.test.ts
+@@ -0,0 +1,217 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { Battle } from 'pokemon-showdown';
++import { SwitchEventHost, type CommittedSwitchEvent, type SwitchEventHistory } from '../src/owner_identity_events';
++import { RequestDeliveryLedger } from '../src/request_delivery_ledger';
++import { NativeObjectAssociation } from '../src/owner_identity_crosswalk';
++import { LocalBattleEnv } from '../src/env_manager';
++import { PipelineIntegrationSession, projectPipelineProtocolPrefix } from '../src/pipeline_integration';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++import type { PlayerID } from '../src/types';
++const owners = ['p1', 'p2'] as const;
++const options = { battle_id: 'P46', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
++const env = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
++const native = (s: PipelineIntegrationSession): Battle => (env(s) as any).battleStream.battle;
++const history = (s: PipelineIntegrationSession, owner: PlayerID): SwitchEventHistory => s.readSwitchEventHolding(s.getSwitchEventHolding(owner), owner);
++const actions = (s: PipelineIntegrationSession) => Object.fromEntries(owners.map(owner => {
++  const r = env(s).getRequest(owner)!;
++  const i = r.legal_actions.available_indices.find(at => r.legal_actions.actions[at]?.choice === 'switch 2');
++  assert.notEqual(i, undefined); return [owner, canonicalActionFromLegalAction(r, i!)];
++})) as Record<PlayerID, ReturnType<typeof canonicalActionFromLegalAction>>;
++const witness = (name: string, data: object) => console.log('P46_WITNESS ' + JSON.stringify({ name, ...data }));
++function tapHost() {
++  const attach = SwitchEventHost.prototype.attachBirth; let host: SwitchEventHost;
++  SwitchEventHost.prototype.attachBirth = function(...args) { host = this; return attach.apply(this, args); };
++  return { host: () => host!, restore: () => { SwitchEventHost.prototype.attachBirth = attach; } };
++}
++// Independent uninterrupted native oracle: decode split triples physically, then the finite framing policy.
++function oracle(log: string[]) {
++  const publicRecords: string[] = [];
++  for (let i = 0; i < log.length; i++) {
++    if (/^\|split\|p[12]$/.test(log[i])) { if (log[i + 2]) publicRecords.push(log[i + 2]); i += 2; }
++    else if (log[i]) publicRecords.push(log[i]);
++  }
++  const prefix: string[] = [], indices: Array<{ publicIndex: number; prefixIndex: number; owner: PlayerID }> = [];
++  publicRecords.forEach((line, i) => {
++    if (line === '|' || line.startsWith('|tier|')) return;
++    for (const owner of owners) if (line.startsWith('|switch|' + owner + 'a:')) indices.push({ publicIndex: i, prefixIndex: prefix.length, owner });
++    prefix.push(line.startsWith('|t:|') ? '|t:|0' : line);
++  });
++  return { prefix, indices };
++}
++
++test('P46 committed generated indices histories and privacy', async () => {
++  let s: PipelineIntegrationSession | undefined, control: Battle | undefined, sibling: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create(options);
++    control = new Battle({ formatid: options.format, seed: '1,2,3,4' });
++    for (const owner of owners) control.setPlayer(owner, { name: owner === 'p1' ? 'Agent-1' : 'Agent-2',
++      team: s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner).packed_team });
++    const controlObjects = { p1: control.p1!.pokemon.slice(), p2: control.p2!.pokemon.slice() };
++    const old = owners.map(owner => history(s!, owner)), oldHandles = owners.map(owner => s!.getSwitchEventHolding(owner));
++    const states: unknown[] = [];
++    for (const count of [1, 2, 3]) {
++      if (count > 1) { await s.step(actions(s)); control.choose('p1', 'switch 2'); control.choose('p2', 'switch 2'); }
++      const expected = oracle(control.log);
++      assert.deepEqual(s.boundary.perspectives.p1.observation.protocol_prefix, expected.prefix);
++      for (const owner of owners) {
++        const events: readonly CommittedSwitchEvent[] = history(s, owner).events;
++        const indices = expected.indices.filter(i => i.owner === owner);
++        assert.deepEqual(events.map(e => e.original_slot), [1, 2, 1].slice(0, count));
++        assert.deepEqual(events.map(e => [e.public_index, e.prefix_index]), indices.map(i => [i.publicIndex, i.prefixIndex]));
++        const literal = owner === 'p1' ? [[15, 13], [20, 17], [28, 23]] : [[16, 14], [21, 18], [27, 22]];
++        assert.deepEqual(events.map(e => [e.public_index, e.prefix_index]), literal.slice(0, count));
++        assert.deepEqual(events.map(e => e.event_index), Array.from({ length: count }, (_, i) => i));
++        assert.equal(controlObjects[owner].indexOf(control[owner]!.active[0]!) + 1, [1, 2, 1][count - 1]);
++        assert.ok(Object.isFrozen(events) && events.every(Object.isFrozen));
++        assert.equal(events.at(-1)!.step_index, s.boundary.step_index);
++        if (count === 3) {
++          assert.equal(expected.prefix[events[0].prefix_index], expected.prefix[events[2].prefix_index]);
++          assert.notEqual(events[0].prefix_index, events[2].prefix_index);
++        }
++      }
++      states.push(owners.map(owner => history(s!, owner).events));
++    }
++    for (const [i, owner] of owners.entries()) {
++      assert.equal(old[i].events.length, 1);
++      assert.throws(() => s!.readSwitchEventHolding(oldHandles[i], owner), /stale-event-holding/);
++      assert.throws(() => s!.readSwitchEventHolding({ ...s!.getSwitchEventHolding(owner) }, owner), /copied-or-stale/);
++      assert.throws(() => s!.readSwitchEventHolding(s!.getSwitchEventHolding(owner), owner === 'p1' ? 'p2' : 'p1'), /copied-or-stale/);
++    }
++    sibling = await PipelineIntegrationSession.create({ ...options, battle_id: 'P46-other' });
++    assert.throws(() => s!.readSwitchEventHolding(sibling!.getSwitchEventHolding('p1'), 'p1'), /copied-or-stale/);
++    const output = JSON.stringify({ boundary: s.boundary, snapshot: (s as any).snapshot, diagnostic: env(s).diagnostics() });
++    for (const forbidden of ['original_slot', 'prefix_index', 'SwitchEvent', 'leases', 'writer']) assert.ok(!output.includes(forbidden));
++    const h = s.getSwitchEventHolding('p1'); await s.close(); assert.throws(() => s!.readSwitchEventHolding(h, 'p1'), /closed/);
++    witness('indices', { actual_generated_creation_and_two_held_reentries: true, owner_histories: states,
++      uninterrupted_native_oracle: true, retained_frozen_evidence: true, old_handles_stale: true, wire_sidecar_absent: true });
++  } finally { control?.destroy(); await s?.close(); await sibling?.close(); }
++});
++
++test('P46 positional filter splice and receipt faults', async () => {
++  const tap = tapHost(), prepare = SwitchEventHost.prototype.prepare, received = SwitchEventHost.prototype.received, attachRestored = SwitchEventHost.prototype.attachRestored;
++  let s: PipelineIntegrationSession | undefined;
++  try {
++    s = await PipelineIntegrationSession.create(options);
++    const host = tap.host(), b = native(s), e = env(s);
++    const fixture = ['|', '|tier|[Gen 9] Random Battle', '|t:|123', '|turn|1'];
++    assert.deepEqual(projectPipelineProtocolPrefix(fixture, s.getReaderContext()), ['|t:|0', '|turn|1']);
++    b.addMove('move', 'p1a: A', 'Tackle', 'p2a: B'); b.retargetLastMove(b.p2!.pokemon[0]);
++    b.log.splice(b.log.length - 1, 1);
++    const held = history(s, 'p1'), handle = s.getSwitchEventHolding('p1'), boundary = s.boundary;
++    for (const fault of ['missing', 'duplicate', 'foreign-stream', 'parent', 'snapshot', 'future', 'writer', 'historical-marker', 'historical-secret', 'late-marker']) {
++      let candidate: object | undefined, once = false;
++      SwitchEventHost.prototype.received = function(world, stream, chunk) {
++        candidate = world;
++        if (!once) {
++          once = true;
++          if (fault === 'missing') return;
++          if (fault === 'foreign-stream') return received.call(this, world, {}, chunk);
++          received.call(this, world, stream, chunk);
++          if (fault === 'duplicate') received.call(this, world, stream, chunk);
++          return;
++        }
++        return received.call(this, world, stream, chunk);
++      };
++      SwitchEventHost.prototype.prepare = function(world, next, snapshot, positions, parent) {
++        if (fault === 'parent') parent = { ...parent! };
++        if (fault === 'snapshot') snapshot = { ...snapshot };
++        if (fault === 'future') positions = { ...positions, prefix: positions.prefix.slice(0, -1) };
++        if (fault.startsWith('historical-')) {
++          const oldBattle: Battle = (world as any).battleStream.battle;
++          const marker = oldBattle.log.findIndex(line => line === '|split|p1');
++          assert.ok(marker >= 0);
++          if (fault === 'historical-marker') oldBattle.log[marker] += '|bad';
++          else oldBattle.log.splice(marker + 1, 1);
++        }
++        if (fault === 'writer') {
++          const nativeBattle: Battle = (world as any).battleStream.battle;
++          const proof = this.inspect(world), row = proof.rows.findIndex(r => r.token === proof.writers[0].rows[1]);
++          nativeBattle.log[row] += '|bad';
++        }
++        const token = prepare.call(this, world, next, snapshot, positions, parent);
++        if (fault === 'late-marker') {
++          const late: Battle = (world as any).battleStream.battle;
++          const marker = late.log.findIndex(line => line === '|split|p1'); late.log[marker] += '|late';
++        }
++        return token;
++      };
++      const rejection = ['missing', 'duplicate', 'foreign-stream'].includes(fault) ? /switch-events\/v1\/unavailable-log-proof/
++        : fault === 'parent' ? /switch-events\/v1\/foreign-event-parent/ : fault === 'snapshot' ? /switch-events\/v1\/foreign-event-snapshot/
++        : fault === 'future' ? /switch-events\/v1\/future-or-mismatched-cutoff/ : /switch-events\/v1\/invalid-switch-writer/;
++      await assert.rejects(s.step(actions(s)), rejection);
++      witness(fault, { expected: rejection.source });
++      assert.equal(s.boundary, boundary); assert.equal(s.getSwitchEventHolding('p1'), handle); assert.equal(history(s, 'p1'), held);
++      assert.throws(() => host.inspect(candidate!), /unavailable-world/);
++      SwitchEventHost.prototype.received = received; SwitchEventHost.prototype.prepare = prepare;
++    }
++    let moveStimuli = 0;
++    SwitchEventHost.prototype.attachRestored = function(world, b, stream, ticket) {
++      attachRestored.call(this, world, b, stream, ticket);
++      const send = b.sendUpdates, host = this;
++      b.sendUpdates = function() {
++        const lastMove = b.lastMoveLine;
++        b.addMove('move', 'p1a: A', 'Tackle', 'p2a: B');
++        const row = host.inspect(world).rows.at(-1)!;
++        b.retargetLastMove(b.p2!.pokemon[0]);
++        assert.equal(host.inspect(world).rows.at(-1)!.token, row.token);
++        assert.equal(host.inspect(world).rows.at(-1)!.version, row.version + 1);
++        b.log.splice(b.log.length - 1, 1); b.lastMoveLine = lastMove;
++        moveStimuli++; b.sendUpdates = send; return send.call(b);
++      };
++    };
++    await s.step(actions(s)); assert.equal(history(s, 'p1').events.length, 2); assert.equal(moveStimuli, 1);
++    witness('faults', { actual_session_policy_rejections: 10, supported_move_version_splice_stimulus_before_committed_send: true,
++      framing_tier_time_fixture: true, exact_prior_handles_and_retry: true });
++  } finally { SwitchEventHost.prototype.received = received; SwitchEventHost.prototype.prepare = prepare; SwitchEventHost.prototype.attachRestored = attachRestored; tap.restore(); await s?.close(); }
++});
++
++test('P46 creation successor final barrier rollback and retry', async () => {
++  const tap = tapHost(), preflight = SwitchEventHost.prototype.preflight, close = LocalBattleEnv.prototype.close;
++  const di = RequestDeliveryLedger.prototype.installReady, bi = NativeObjectAssociation.prototype.installReady, ei = SwitchEventHost.prototype.installReady;
++  const dp = RequestDeliveryLedger.prototype.preflight, bp = NativeObjectAssociation.prototype.preflight;
++  let deliveryToken: object, associationToken: object, eventToken: object, deliveryController: RequestDeliveryLedger, associationController: NativeObjectAssociation;
++  RequestDeliveryLedger.prototype.preflight = function(token) { dp.call(this, token); deliveryToken = token; deliveryController = this; };
++  NativeObjectAssociation.prototype.preflight = function(token) { bp.call(this, token); associationToken = token; associationController = this; };
++  let s: PipelineIntegrationSession | undefined, mode = 'creation', installs = 0, cleanup = 0;
++  RequestDeliveryLedger.prototype.installReady = function() { installs++; return di.call(this); };
++  NativeObjectAssociation.prototype.installReady = function() { installs++; return bi.call(this); };
++  SwitchEventHost.prototype.installReady = function() { installs++; return ei.call(this); };
++  SwitchEventHost.prototype.preflight = function(token) { preflight.call(this, token); eventToken = token; throw new Error('P46-all-prepared-' + mode); };
++  LocalBattleEnv.prototype.close = async function() { cleanup++; assert.throws(() => tap.host().inspect(this), /unavailable-world/);
++    assert.throws(() => tap.host().preflight(eventToken), /foreign-or-stale/);
++    assert.throws(() => deliveryController.preflight(deliveryToken), /revoked/);
++    assert.throws(() => associationController.preflight(associationToken), /unavailable/); return close.call(this); };
++  try {
++    await assert.rejects(PipelineIntegrationSession.create(options), /P46-all-prepared-creation/); assert.equal(installs, 0); assert.equal(cleanup, 1);
++    SwitchEventHost.prototype.preflight = preflight; LocalBattleEnv.prototype.close = close;
++    s = await PipelineIntegrationSession.create(options); assert.equal(installs, 3);
++    const boundary = s.boundary, currentEnv = env(s);
++    const before = owners.map(owner => ({ eventHandle: s!.getSwitchEventHolding(owner), event: history(s!, owner),
++      deliveryHandle: s!.getRequestDeliveryHandle(owner), delivery: s!.readRequestDeliveryHistory(s!.getRequestDeliveryHandle(owner), owner),
++      nativeHandle: s!.getNativeObjectHolding(owner), native: s!.readNativeObjectHolding(s!.getNativeObjectHolding(owner), owner) }));
++    mode = 'successor'; installs = 0;
++    SwitchEventHost.prototype.preflight = function(token) { preflight.call(this, token); eventToken = token; throw new Error('P46-all-prepared-successor'); };
++    LocalBattleEnv.prototype.close = async function() { assert.throws(() => tap.host().inspect(this), /unavailable-world/);
++      assert.throws(() => tap.host().preflight(eventToken), /foreign-or-stale/);
++      assert.throws(() => deliveryController.preflight(deliveryToken), /foreign-or-stale/);
++      assert.throws(() => associationController.preflight(associationToken), /foreign-or-stale/); return close.call(this); };
++    await assert.rejects(s.step(actions(s)), /P46-all-prepared-successor/); assert.equal(installs, 0); assert.equal(s.boundary, boundary); assert.equal(env(s), currentEnv);
++    for (const [i, owner] of owners.entries()) {
++      assert.equal(s.getSwitchEventHolding(owner), before[i].eventHandle); assert.equal(history(s, owner), before[i].event);
++      assert.equal(s.getRequestDeliveryHandle(owner), before[i].deliveryHandle);
++      assert.equal(s.readRequestDeliveryHistory(before[i].deliveryHandle, owner), before[i].delivery);
++      assert.equal(s.getNativeObjectHolding(owner), before[i].nativeHandle); assert.equal(s.readNativeObjectHolding(before[i].nativeHandle, owner), before[i].native);
++    }
++    SwitchEventHost.prototype.preflight = preflight; LocalBattleEnv.prototype.close = close;
++    await s.step(actions(s)); assert.equal(installs, 3); assert.equal(history(s, 'p1').events.length, 2);
++    // Accepted disposal failure: publication stands and retirement retries during close.
++    let failed = false;
++    LocalBattleEnv.prototype.close = async function() { if (this === env(s!) && !failed) return close.call(this); if (!failed) { failed = true; throw new Error('P46-disposal'); } return close.call(this); };
++    await s.step(actions(s)); assert.equal(failed, true); assert.equal(history(s, 'p1').events.length, 3);
++    witness('atomicity', { actual_final_preflight_creation_and_successor_faults: true, zero_partial_component_installs: true, all_preparation_tokens_revoked_before_cleanup: true,
++      all_committed_references_unchanged: true, fresh_retry_three_installs: true, postpublication_disposal_retained: true });
++  } finally { SwitchEventHost.prototype.preflight = preflight; LocalBattleEnv.prototype.close = close;
++    RequestDeliveryLedger.prototype.preflight = dp; NativeObjectAssociation.prototype.preflight = bp;
++    RequestDeliveryLedger.prototype.installReady = di; NativeObjectAssociation.prototype.installReady = bi; SwitchEventHost.prototype.installReady = ei; tap.restore(); await s?.close(); }
++});

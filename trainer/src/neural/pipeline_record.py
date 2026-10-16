@@ -10,6 +10,10 @@ DATA-001 rows.
 
 from __future__ import annotations
 
+from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT, assert_positive_fidelity_claim
+
+from neural.version_profile import assert_historical_reader_input, select_reader_profile
+
 import hashlib
 import json
 import math
@@ -167,7 +171,8 @@ def _safe_request_rqid(value: Any) -> bool:
             and value.is_integer() and abs(value) <= 9007199254740991)
 
 
-def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
+def _prefix(observation: Mapping[str, Any], label: str, *, reader_rules=HISTORICAL10_CONTEXT) -> Sequence[str]:
+    reader_context(reader_rules)
     prefix = observation.get("protocol_prefix")
     if not isinstance(prefix, list) or any(not isinstance(line, str) or not line or line.strip() != line for line in prefix):
         raise PipelineRecordError(f"{label} protocol prefix is malformed")
@@ -177,7 +182,7 @@ def _prefix(observation: Mapping[str, Any], label: str) -> Sequence[str]:
     has_retained_rqid = False
     for record_index, line in enumerate(prefix):
         try:
-            validate_protocol_record(line)
+            validate_protocol_record(line, reader_rules=reader_rules)
         except ProtocolRecordError as exc:
             if exc.kind == "unresolved_alias":
                 detail = f'{label} protocol prefix has unresolved alias "{exc.command}" at record {record_index}'
@@ -313,7 +318,8 @@ def _episode_boundary_kind(perspectives: Mapping[str, Mapping[str, Any]]) -> str
     return "waiting" if "waiting" in states.values() else "requestless"
 
 
-def _validate_episode_observation(observation: Any, player: str, battle_id: str, label: str, predecessor=None) -> Mapping[str, Any]:
+def _validate_episode_observation(observation: Any, player: str, battle_id: str, label: str, predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT) -> Mapping[str, Any]:
+    reader_context(reader_rules)
     observation = _object(observation, label)
     _exact_keys(observation, _EPISODE_OBSERVATION_KEYS, label)
     if (observation.get("schema_version") != "observable-battle-state/v2"
@@ -328,9 +334,9 @@ def _validate_episode_observation(observation: Any, player: str, battle_id: str,
     if (not isinstance(observation.get("event_cursor"), int) or isinstance(observation.get("event_cursor"), bool)
             or observation["event_cursor"] != len(observation.get("protocol_prefix", []))):
         raise PipelineRecordError(f"{label} cursor does not equal its public prefix length")
-    _prefix(observation, label)
+    _prefix(observation, label, reader_rules=reader_rules)
     try:
-        validate_public_typed_state(observation, label, predecessor)
+        validate_public_typed_state(observation, label, predecessor, reader_rules=reader_rules)
     except ValueError as exc:
         raise PipelineRecordError(str(exc)) from exc
     view = _object(observation.get("view"), f"{label} view")
@@ -383,7 +389,7 @@ def _validate_episode_observation(observation: Any, player: str, battle_id: str,
         if not all(isinstance(legal.get(key), list) for key in ("mask", "actions", "available_indices")):
             raise PipelineRecordError(f"{label} legal actions are malformed")
     try:
-        validate_public_boosts(observation)
+        validate_public_boosts(observation, reader_rules=reader_rules)
     except (ValueError, KeyError, TypeError, IndexError) as exc:
         raise PipelineRecordError(f"{label} public v2 view is invalid: {exc}") from exc
     return observation
@@ -396,7 +402,8 @@ class _ActionBoundPredecessor(dict):
         self.terminal_action = action
 
 
-def _validate_episode_boundary(value: Any, battle_id: str, label: str, predecessor=None, actions=None) -> Mapping[str, Any]:
+def _validate_episode_boundary(value: Any, battle_id: str, label: str, predecessor=None, actions=None, *, reader_rules=HISTORICAL10_CONTEXT) -> Mapping[str, Any]:
+    reader_context(reader_rules)
     boundary = _object(value, label)
     _exact_keys(boundary, _EPISODE_BOUNDARY_KEYS, label)
     if (isinstance(boundary.get("step_index"), bool) or not isinstance(boundary.get("step_index"), int)
@@ -419,7 +426,7 @@ def _validate_episode_boundary(value: Any, battle_id: str, label: str, predecess
     observations = {
         player: _validate_episode_observation(perspectives[player], player, battle_id, f"{label} {player}",
             _ActionBoundPredecessor(predecessor["perspectives"][player], actions[player]) if actions and player in actions
-            else predecessor["perspectives"][player] if predecessor else None)
+            else predecessor["perspectives"][player] if predecessor else None, reader_rules=reader_rules)
         for player in ("p1", "p2")
     }
     if observations["p1"]["protocol_prefix"] != observations["p2"]["protocol_prefix"]:
@@ -494,8 +501,10 @@ def _expected_episode_actors(boundary: Mapping[str, Any]) -> list[str]:
     raise PipelineRecordError("episode commit does not begin at a supported actor boundary")
 
 
-def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int = 0, *, _records=None, _compact=False) -> Dict[str, Any]:
+def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int = 0, *, _records=None, _compact=False, reader_rules=HISTORICAL10_CONTEXT) -> Dict[str, Any]:
     """Validate the two-perspective committed-boundary chain without producing DATA rows."""
+    reader_context(reader_rules)
+    assert_reader_input({"schema_version": "pipeline-episode/v1", "evidence_envelope": envelope, "records": _records}, reader_rules)
     if _depth > 64:
         raise PipelineRecordError("episode predecessor chain is too deep")
     envelope = _object(envelope, "episode evidence")
@@ -520,13 +529,13 @@ def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int 
     validated_prior = None
     predecessor_value = (envelope.get("closure") or {}).get("predecessor") if not legacy else None
     if predecessor_value is not None:
-        validated_prior = validate_pipeline_episode_evidence(_object(predecessor_value, "episode predecessor"), _depth + 1)
+        validated_prior = validate_pipeline_episode_evidence(_object(predecessor_value, "episode predecessor"), _depth + 1, reader_rules=reader_rules)
         if (origin.get("kind") != "continuation_segment" or predecessor_value.get("battle_id") != envelope.get("battle_id")
                 or predecessor_value.get("ruleset") != envelope.get("ruleset") or predecessor_value.get("source_ref") != envelope.get("source_ref")
                 or validated_prior["final_boundary"] != origin.get("boundary")):
             raise PipelineRecordError("episode predecessor does not join the current segment origin")
     origin_boundary = _validate_episode_boundary(origin.get("boundary"), envelope["battle_id"], "episode origin boundary",
-        validated_prior["owner_predecessor_boundary"] if validated_prior else None)
+        validated_prior["owner_predecessor_boundary"] if validated_prior else None, reader_rules=reader_rules)
     partial = {key: value for key, value in envelope.items() if key != "evidence_id"}
     if envelope.get("evidence_id") != f"episode-evidence-{ts_digest(partial)}":
         raise PipelineRecordError("episode evidence content identity mismatch")
@@ -569,7 +578,7 @@ def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int 
                 or not re.fullmatch(r"[0-9a-f]{64}", transition["input_state_fingerprint"])
                 or not isinstance(transition.get("output_state_fingerprint"), str)
                 or not re.fullmatch(r"[0-9a-f]{64}", transition["output_state_fingerprint"])
-                or transition.get("simulator_revision") != SIMULATOR_REVISION
+                or transition.get("simulator_revision") != reader_context(reader_rules).profile.revision
                 or isinstance(transition.get("step_index"), bool) or not isinstance(transition.get("step_index"), int)):
             raise PipelineRecordError(f"episode commit {index} transition is malformed")
         actors = commit.get("actors")
@@ -617,7 +626,7 @@ def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int 
                 except (TypeError, ValueError) as exc: raise PipelineRecordError(f"canonical action validation failed: {exc}") from exc
                 actions[player] = action
         owner_predecessor_boundary = previous
-        next_boundary = _validate_episode_boundary(commit.get("boundary"), envelope["battle_id"], f"episode commit {index} boundary", previous, actions)
+        next_boundary = _validate_episode_boundary(commit.get("boundary"), envelope["battle_id"], f"episode commit {index} boundary", previous, actions, reader_rules=reader_rules)
         if transition["transition_id"] in transitions:
             raise PipelineRecordError("episode contains a duplicate committed transition")
         transitions.add(transition["transition_id"])
@@ -674,7 +683,7 @@ def validate_pipeline_episode_evidence(envelope: Mapping[str, Any], _depth: int 
             origin_coverage = "segment_only"
         else:
             predecessor = _object(predecessor_value, "episode predecessor")
-            prior = validated_prior if validated_prior is not None else validate_pipeline_episode_evidence(predecessor, _depth + 1)
+            prior = validated_prior if validated_prior is not None else validate_pipeline_episode_evidence(predecessor, _depth + 1, reader_rules=reader_rules)
             if (predecessor.get("battle_id") != envelope.get("battle_id")
                     or predecessor.get("ruleset") != envelope.get("ruleset")
                     or predecessor.get("source_ref") != envelope.get("source_ref")
@@ -719,8 +728,10 @@ def _validate_episode_summary(summary_value: Any, boundary: Mapping[str, Any], l
             raise PipelineRecordError(f"{label} {player} summary does not match its evidence observation")
 
 
-def validate_pipeline_episode_result(result_value: Mapping[str, Any]) -> list[Dict[str, Any]]:
+def validate_pipeline_episode_result(result_value: Mapping[str, Any], *, reader_rules=HISTORICAL10_CONTEXT) -> list[Dict[str, Any]]:
     """Validate all commits and actor records before returning any DATA-001 rows."""
+    reader_context(reader_rules)
+    assert_reader_input(result_value, reader_rules)
     result = _object(result_value, "pipeline episode result")
     expected_keys = {
         "schema_version", "run_id", "battle_id", "ruleset", "policy_id", "limits", "status", "stop",
@@ -731,8 +742,8 @@ def validate_pipeline_episode_result(result_value: Mapping[str, Any]) -> list[Di
     if result.get("schema_version") != "pipeline-episode/v1" or type(result.get("faithful_complete_episode")) is not bool:
         raise PipelineRecordError("episode result schema or faithful-complete flag is invalid")
     envelope = _object(result.get("evidence_envelope"), "episode evidence envelope")
-    evidence = validate_pipeline_episode_evidence(envelope, _records=result.get("records"))
-    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence)
+    evidence = validate_pipeline_episode_evidence(envelope, _records=result.get("records"), reader_rules=reader_rules)
+    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence, reader_rules=reader_rules)
     records = _object(result.get("records"), "episode actor records")
     _exact_keys(records, {"p1", "p2"}, "episode actor records")
     data_rows: list[Dict[str, Any]] = []
@@ -744,7 +755,7 @@ def validate_pipeline_episode_result(result_value: Mapping[str, Any]) -> list[Di
             bundle = _object(bundle_value, f"episode {player} actor record")
             if bundle.get("perspective") != player:
                 raise PipelineRecordError("episode actor record is assigned to the wrong player")
-            data_rows.append(validate_pipeline_bundle(bundle))
+            data_rows.append(validate_pipeline_bundle(bundle, reader_rules=reader_rules))
             rows_by_player[player].append(bundle)
     for player in ("p1", "p2"):
         actual_ids = [row["transition"]["transition_id"] for row in rows_by_player[player]]
@@ -773,7 +784,7 @@ def validate_pipeline_episode_result(result_value: Mapping[str, Any]) -> list[Di
 
 
 def _validate_pipeline_episode_result_metadata(
-    result: Mapping[str, Any], envelope: Mapping[str, Any], evidence: Mapping[str, Any],
+    result: Mapping[str, Any], envelope: Mapping[str, Any], evidence: Mapping[str, Any], *, reader_rules=HISTORICAL10_CONTEXT,
 ) -> list[str]:
     """Validate compact and full-result metadata against the same envelope contract."""
 
@@ -843,6 +854,7 @@ def _validate_pipeline_episode_result_metadata(
     )
     if (status == "completed" or (status == "truncated" and not attempted_guard_stop)) and counts["attempts"] != accounted:
         raise PipelineRecordError("episode counter contains an unaccounted attempt at a clean stop")
+    assert_positive_fidelity_claim(reader_context(reader_rules).profile.id, result["ruleset"], result["faithful_complete_episode"])
     if result["faithful_complete_episode"] and not (
         result["ruleset"] == "gen9randombattle" and status == "completed"
         and stop["code"] == "episode/v1/terminal" and envelope.get("schema_version") == EPISODE_EVIDENCE_SCHEMA
@@ -948,8 +960,10 @@ def _validate_record_prefix_with_digest(
         raise DatasetLineageError("protocol prefix hash does not match observation boundary")
 
 
-def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any]) -> list[Dict[str, Any]]:
+def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any], *, reader_rules=HISTORICAL10_CONTEXT) -> list[Dict[str, Any]]:
     """Validate every segment actor row against one validated envelope, then return rows atomically."""
+    reader_context(reader_rules)
+    assert_reader_input(sweep_value, reader_rules)
 
     sweep = _object(sweep_value, "pipeline episode publication sweep")
     _reject_sweep_private_payload(sweep, "pipeline episode publication sweep")
@@ -959,8 +973,8 @@ def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any]) 
     result = _object(sweep.get("result"), "episode publication sweep result metadata")
     _exact_keys(result, _EPISODE_RESULT_METADATA_KEYS, "episode publication sweep result metadata")
     envelope = _object(sweep.get("evidence_envelope"), "episode publication sweep evidence")
-    evidence = validate_pipeline_episode_evidence(envelope, _records=sweep.get("records"), _compact=True)
-    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence)
+    evidence = validate_pipeline_episode_evidence(envelope, _records=sweep.get("records"), _compact=True, reader_rules=reader_rules)
+    transition_ids = _validate_pipeline_episode_result_metadata(result, envelope, evidence, reader_rules=reader_rules)
     if not evidence["complete_capture"]:
         raise PipelineRecordError("episode publication sweep requires a validated original-to-terminal chain")
     context = _validated_episode_publication_context(envelope)
@@ -1083,7 +1097,7 @@ def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any]) 
                 "successor_observation": after["perspectives"][player],
                 "successor_belief": context["beliefs_by_id"][successor_belief_id],
             }
-            data_rows.append(_validate_pipeline_bundle(bundle, trusted_context=context))
+            data_rows.append(_validate_pipeline_bundle(bundle, trusted_context=context, reader_rules=reader_rules))
 
     if used_beliefs != set(context["beliefs_by_id"]):
         raise PipelineRecordError("episode publication sweep contains an unused belief")
@@ -1093,13 +1107,16 @@ def validate_pipeline_episode_publication_sweep(sweep_value: Mapping[str, Any]) 
     return data_rows
 
 
-def validate_pipeline_bundle(bundle: Mapping[str, Any]) -> Dict[str, Any]:
+def validate_pipeline_bundle(bundle: Mapping[str, Any], *, reader_rules=HISTORICAL10_CONTEXT) -> Dict[str, Any]:
     """Validate exact per-perspective joins and create a DATA-001 record."""
-    return _validate_pipeline_bundle(bundle)
+    reader_context(reader_rules)
+    return _validate_pipeline_bundle(bundle, reader_rules=reader_rules)
 
 
-def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Optional[Mapping[str, Any]] = None, *, reader_rules=HISTORICAL10_CONTEXT) -> Dict[str, Any]:
     """Validate exact per-perspective joins and create a DATA-001 record."""
+    reader_context(reader_rules)
+    assert_reader_input(bundle, reader_rules)
 
     _object(bundle, "pipeline bundle")
     _reject_private_payload(bundle, "pipeline bundle")
@@ -1193,8 +1210,8 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
     if input_observation['schema_version'] != successor_observation['schema_version']:
         raise PipelineRecordError('Mixed observation schemas require independent regeneration')
     if trusted_context is None:
-        input_prefix = _prefix(input_observation, "input observation")
-        successor_prefix = _prefix(successor_observation, "successor observation")
+        input_prefix = _prefix(input_observation, "input observation", reader_rules=reader_rules)
+        successor_prefix = _prefix(successor_observation, "successor observation", reader_rules=reader_rules)
     else:
         for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
             observation_id = observation["observation_id"]
@@ -1244,7 +1261,7 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
     action_id = _identifier(action.get("action_id"), "action", "canonical action ID")
     if transition.get("action_id") != action_id:
         raise PipelineRecordError("transition action does not match canonical action")
-    if transition.get("simulator_revision") != SIMULATOR_REVISION:
+    if transition.get("simulator_revision") != reader_context(reader_rules).profile.revision:
         raise PipelineRecordError("simulator revision is unsupported")
     if isinstance(transition.get("step_index"), bool) or not isinstance(transition.get("step_index"), int) or transition["step_index"] < 0:
         raise PipelineRecordError("transition step index is invalid")
@@ -1295,12 +1312,12 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
     if trusted_context is None:
         for label, observation in (("input observation", input_observation), ("successor observation", successor_observation)):
             try:
-                validate_public_typed_state(observation, label, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None)
+                validate_public_typed_state(observation, label, predecessor=_ActionBoundPredecessor(input_observation, action) if observation is successor_observation else None, reader_rules=reader_rules)
             except ValueError as exc:
                 raise PipelineRecordError(str(exc)) from exc
             if observation['schema_version'] == 'observable-battle-state/v2':
                 try:
-                    validate_public_boosts(observation)
+                    validate_public_boosts(observation, reader_rules=reader_rules)
                 except (ValueError, KeyError, TypeError, IndexError) as exc:
                     raise PipelineRecordError('Invalid public-stage evidence: ' + str(exc)) from exc
             elif any('public_boosts' in p for p in observation.get('view', {}).get('opponent_team', [])):
@@ -1315,7 +1332,7 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
         source_kind="sim_core",
         source_ref=source_ref,
         ruleset=ruleset,
-        parser_version=SIMULATOR_REVISION,
+        parser_version=reader_context(reader_rules).profile.revision,
         perspective=perspective,
         observation_cursor=len(input_prefix),
         feature_cursor=0,
@@ -1352,24 +1369,52 @@ def _validate_pipeline_bundle(bundle: Mapping[str, Any], trusted_context: Option
     return record
 
 
-def main() -> int:
+def validate_historical_pipeline_bundle(bundle):
+    reader_rules = HISTORICAL10_CONTEXT
+    return validate_pipeline_bundle(bundle, reader_rules=reader_rules)
+
+def validate_historical_pipeline_episode_evidence(envelope, **kwargs):
+    reader_rules = HISTORICAL10_CONTEXT
+    return validate_pipeline_episode_evidence(envelope, **kwargs, reader_rules=reader_rules)
+
+def validate_historical_pipeline_episode_result(result):
+    reader_rules = HISTORICAL10_CONTEXT
+    return validate_pipeline_episode_result(result, reader_rules=reader_rules)
+
+def validate_historical_pipeline_episode_publication_sweep(sweep):
+    reader_rules = HISTORICAL10_CONTEXT
+    return validate_pipeline_episode_publication_sweep(sweep, reader_rules=reader_rules)
+
+
+def main(argv=None, *, reader_rules=HISTORICAL10_CONTEXT) -> int:
     """Validate one actor bundle, evidence envelope, full result, or bulk sweep."""
+    reader_context(reader_rules)
 
     try:
+        args = [] if argv is None else argv
+        selection = "historical10"
+        if args:
+            if len(args) == 1 and args[0].startswith("--reader-profile="):
+                selection = args[0].split("=", 1)[1]
+            elif len(args) == 2 and args[0] == "--reader-profile":
+                selection = args[1]
+            else:
+                raise PipelineRecordError("reader-profile/v1/invalid-cli-option")
         bundle = load_json(sys.stdin)
+        select_reader_profile(bundle, selection)
         if isinstance(bundle, Mapping) and bundle.get("schema_version") in {EPISODE_EVIDENCE_SCHEMA, LEGACY_EPISODE_EVIDENCE_SCHEMA}:
-            evidence = validate_pipeline_episode_evidence(bundle)
+            evidence = validate_pipeline_episode_evidence(bundle, reader_rules=reader_rules)
             output: Any = {
                 "schema_version": "pipeline-episode-evidence-validation/v1",
                 "evidence_id": evidence["evidence_id"],
                 "committed_transitions": len(evidence["transition_ids"]),
             }
         elif isinstance(bundle, Mapping) and bundle.get("schema_version") == "pipeline-episode/v1":
-            output = validate_pipeline_episode_result(bundle)
+            output = validate_pipeline_episode_result(bundle, reader_rules=reader_rules)
         elif isinstance(bundle, Mapping) and bundle.get("schema_version") == EPISODE_PUBLICATION_SWEEP_SCHEMA:
-            output = validate_pipeline_episode_publication_sweep(bundle)
+            output = validate_pipeline_episode_publication_sweep(bundle, reader_rules=reader_rules)
         else:
-            output = validate_pipeline_bundle(bundle)
+            output = validate_pipeline_bundle(bundle, reader_rules=reader_rules)
         write_text(sys.stdout, json.dumps(output, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
         return 0
     except (json.JSONDecodeError, DatasetLineageError, PipelineRecordError, TypeError, ValueError) as exc:
@@ -1385,4 +1430,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

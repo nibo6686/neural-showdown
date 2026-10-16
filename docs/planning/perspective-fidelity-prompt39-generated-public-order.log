@@ -1,0 +1,26 @@
+✖ P39 generated public order restore early return and equal native occurrence (179.594458ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 292.686208
+
+✖ failing tests:
+
+test at sim-core/tests/native11_request_timing.test.cjs:23:1
+✖ P39 generated public order restore early return and equal native occurrence (179.594458ms)
+  AssertionError [ERR_ASSERTION]: owner public FIFO before addressed request
+      at Object.assert (/private/tmp/neural-showdown-native11-prompt38/sim-core/tests/native11_request_timing.test.cjs:20:1256)
+      at TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/tests/native11_request_timing.test.cjs:30:450)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,45 @@
+node:assert:152
+  throw new AssertionError(obj);
+  ^
+
+AssertionError [ERR_ASSERTION]: canonical alias projection must not overwrite hiddenpower
++ actual - expected
+
+  {
+    accuracy: 100,
+    basePower: 60,
+    category: 'Special',
+    exists: true,
++   type: 'Water'
+-   type: 'Normal'
+  }
+
+    at Object.<anonymous> (/private/tmp/neural-prompt38-20261012/extract.cjs:14:24)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    exists: true,
+    type: 'Water',
+    category: 'Special',
+    basePower: 60,
+    accuracy: 100
+  },
+  expected: {
+    exists: true,
+    type: 'Normal',
+    category: 'Special',
+    basePower: 60,
+    accuracy: 100
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0

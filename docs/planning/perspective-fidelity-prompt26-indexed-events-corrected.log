@@ -1,0 +1,28 @@
+✖ P26 indexed events (154.82775ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 264.734625
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owner_identity_source_characterization.test.js:361:25
+✖ P26 indexed events (154.82775ms)
+  Error: pipeline/v1/unsupported-observable-protocol: Unsupported raw protocol event: <empty>.
+      at projectPipelineProtocolPrefix (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/pipeline_integration.js:103:19)
+      at Battle.<anonymous> (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/owner_identity_source_characterization.test.js:99:92)
+      at battleStream.keepAlive._write (/Users/nbolger/Desktop/neural-showdown/sim-core/node_modules/pokemon-showdown/dist/sim/battle-stream.js:76:19)
+      at /Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/env_manager.js:905:65
+      at RequestEmissionTrace.atProducer (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/request_emission_trace.js:42:17)
+      at battleStream.keepAlive._write (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/env_manager.js:905:23)
+      at battleStream.keepAlive.write (/Users/nbolger/Desktop/neural-showdown/sim-core/node_modules/pokemon-showdown/dist/lib/streams.js:752:17)
+      at /Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/owner_identity_source_characterization.test.js:369:22
+      at async taps (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/owner_identity_source_characterization.test.js:147:16)
+      at async Test.run (node:internal/test_runner/test:1409:7) {
+    code: 'pipeline/v1/unsupported-observable-protocol',
+    diagnostic: { schema_version: 'pipeline-diagnostic/v1', code: 'pipeline/v1/unsupported-observable-protocol', detail: 'Unsupported raw protocol event: <empty>.', record_index: 0, record_command: '' }
+  }

@@ -1,0 +1,8 @@
+src/owner_identity_events.ts(46,22): error TS18048: 'lineage' is possibly 'undefined'.
+src/owner_identity_events.ts(134,50): error TS2322: Type 'Actor | undefined' is not assignable to type 'Actor'.
+  Type 'undefined' is not assignable to type 'Actor'.
+src/owner_identity_events.ts(188,35): error TS2345: Argument of type 'Lineage | undefined' is not assignable to parameter of type 'Lineage'.
+  Type 'undefined' is not assignable to type 'Lineage'.
+src/owner_identity_events.ts(193,33): error TS2345: Argument of type 'Lineage | undefined' is not assignable to parameter of type 'Lineage'.
+  Type 'undefined' is not assignable to type 'Lineage'.
+tests/owner_identity_events.test.ts(18,66): error TS2531: Object is possibly 'null'.

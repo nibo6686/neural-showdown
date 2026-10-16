@@ -1,0 +1,131 @@
+[
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 2,
+    "seconds": 4.506,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-build.log"
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 2,
+    "seconds": 2.091,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-build-attempt1.log"
+  },
+  {
+    "name": "build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate/sim-core",
+    "exit": 0,
+    "seconds": 2.137,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-build-attempt2.log"
+  },
+  {
+    "name": "P57-actual-runner-gives-both-owners-immutable-incomplete-inputs-and-uses-a-changed-owned-ability-to-order-actions",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P57 actual runner gives both owners immutable incomplete inputs and uses a changed owned ability to order actions$",
+      "sim-core/dist/tests/pipeline_owned_decision_input.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 1.419,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-P57-actual-runner-gives-both-owners-immutable-incomplete-inputs-and-uses-a-changed-owned-ability-to-order-actions.log"
+  },
+  {
+    "name": "P57-forced-and-Revival-decisions-call-only-the-acting-owner;-waiting-and-terminal-owners-receive-no-callback",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P57 forced and Revival decisions call only the acting owner; waiting and terminal owners receive no callback$",
+      "sim-core/dist/tests/pipeline_owned_decision_input.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.54,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-P57-forced-and-Revival-decisions-call-only-the-acting-owner;-waiting-and-terminal-owners-receive-no-callback.log"
+  },
+  {
+    "name": "P57-order-authority-rejects-copied,-foreign,-stale,-wrong-owner,-and-unsupported-orders",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders$",
+      "sim-core/dist/tests/pipeline_owned_decision_input.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.38,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-P57-order-authority-rejects-copied,-foreign,-stale,-wrong-owner,-and-unsupported-orders.log"
+  },
+  {
+    "name": "P57-callback-exceptions-promises-invalid-permutations-reentrancy-and-close-fail-before-transitions",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P57 callback exceptions promises invalid permutations reentrancy and close fail before transitions$",
+      "sim-core/dist/tests/pipeline_owned_decision_input.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.275,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-P57-callback-exceptions-promises-invalid-permutations-reentrancy-and-close-fail-before-transitions.log"
+  },
+  {
+    "name": "P57-rejected-candidate-reissues-owner-frames-from-the-unchanged-committed-boundary",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P57 rejected candidate reissues owner frames from the unchanged committed boundary$",
+      "sim-core/dist/tests/pipeline_owned_decision_input.test.js"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.333,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-P57-rejected-candidate-reissues-owner-frames-from-the-unchanged-committed-boundary.log"
+  },
+  {
+    "name": "default-parity",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt57/default-parity.cjs"
+    ],
+    "cwd": "/Users/nbolger/Documents/Codex/2026-09-24/files-mentioned-by-the-user-neural/native11-recovery-2026-10-14/candidate",
+    "exit": 0,
+    "seconds": 0.935,
+    "timeout_seconds": 180,
+    "log": "perspective-fidelity-prompt57-default-parity.log"
+  }
+]

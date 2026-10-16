@@ -1,0 +1,52 @@
+{
+  "head": "297ce570972007832da61032915a7fddf67d9a1d",
+  "branch": "codex/perspective-fidelity-handoff",
+  "protected_count": 614,
+  "unchanged_count": 610,
+  "allowed_changed": {
+    "sim-core/src/env_manager.ts": {
+      "before": "4e656a3db6aa1d18c84529bd7c623ab5a6287aa939cf9defed1c0d961bc2346c",
+      "after": "8de02d615284859e008a350e048a7f2acfe6d10804eb57711ef3f0559f30c2a7"
+    },
+    "sim-core/src/pipeline_integration.ts": {
+      "before": "64c1cb503806dbfcf923867d190b06a152a0a2d3e22a6e76ef21179194cc2f4f",
+      "after": "eef21491c6481ad31145932fb76c9f9487d16453eb2d3ce5001d7f585ff0334f"
+    },
+    "sim-core/src/owner_identity_crosswalk.ts": {
+      "before": "c08453d1c6585c8c99c8a621db242d5d89a2f9631a063662ccb8e72fd8420e36",
+      "after": "d002a7c70356846870dbcf711ef6379d032b9c6f134ace1860c86a79354eb996"
+    }
+  },
+  "concurrent_nonworker_change": {
+    "docs/planning/perspective-fidelity-implementation-plan.md": {
+      "before": "d21f1c5f655e15046b79d44603dfaf893b859a81d6212d6ac746fa61f2bd6726",
+      "after": "74623e6212aa1d0868db9457d579aa70df336c01a3b4f68a5525cce1b19a794b"
+    }
+  },
+  "concurrent_status_added": [
+    "?? docs/planning/perspective-fidelity-five-replay-diagnostic-disposition.md",
+    "?? docs/planning/perspective-fidelity-five-replay-inputs.json"
+  ],
+  "new_test": {
+    "sim-core/tests/owner_identity_restore.test.ts": "c915d196a55335ee81cf6ca5686226b4b3bf5dc6ad532d62d076ebce97c66354"
+  },
+  "generated_changed": {
+    "sim-core/dist/src/env_manager.js": {
+      "before": "835adb8110295705cbe3cbc96297f8f9e034696706f5c454c23bc07bdcc68d7f",
+      "after": "203e335fd52ced21654beaf9f3025532128b73bd0769b7a785988dd895741252"
+    },
+    "sim-core/dist/src/owner_identity_crosswalk.js": {
+      "before": "15e865e526a63b056600c1dca6bb18b3244b85a56ac5767d3206659c0f205c63",
+      "after": "827a0d16d83568b7f846e27dc4244ff2680a9e4ae081fe62090abb109a654b3e"
+    },
+    "sim-core/dist/src/pipeline_integration.js": {
+      "before": "ea838a5224cf794903f26a8ebe1a3e9d09bf328f19320b02d5b7ebb04a2c301b",
+      "after": "1489e845fa4d81737f736878bd56e81975c77fd1e786ad4ff1e238604fee0156"
+    }
+  },
+  "generated_new": {
+    "sim-core/dist/tests/owner_identity_restore.test.js": "1e4ac11015d217c72e316fea973c1e23a0d17ef44f1419ef8f6bcf395fa1fd4a"
+  },
+  "baseline_unrelated_status_retained": true,
+  "line_endings": "Raw task-baseline hashes used; no normalization or revision of historical hashes. Accepted Windows/macOS EOL evidence reused."
+}

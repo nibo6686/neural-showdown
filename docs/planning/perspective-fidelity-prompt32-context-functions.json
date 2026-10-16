@@ -1,0 +1,682 @@
+{
+  "ts": [
+    {
+      "file": "sim-core/src/protocol_contract.ts",
+      "function": "isCanonicalPlayerIdent"
+    },
+    {
+      "file": "sim-core/src/protocol_contract.ts",
+      "function": "isCanonicalSideOnlyPlayerIdent"
+    },
+    {
+      "file": "sim-core/src/effect_inventory.ts",
+      "function": "classifyEffectRecord"
+    },
+    {
+      "file": "sim-core/src/typed_state_lifecycle.ts",
+      "function": "typedStateLifecycleEntry"
+    },
+    {
+      "file": "sim-core/src/typed_state_lifecycle.ts",
+      "function": "projectPublicTypedState"
+    },
+    {
+      "file": "sim-core/src/typed_state_lifecycle.ts",
+      "function": "assertTypedStateMatchesPublicPrefix"
+    },
+    {
+      "file": "sim-core/src/public_ability.ts",
+      "function": "publicRevealedAbilities"
+    },
+    {
+      "file": "sim-core/src/public_ability.ts",
+      "function": "publicTraceAbilities"
+    },
+    {
+      "file": "sim-core/src/public_ability.ts",
+      "function": "abilityEffectiveness"
+    },
+    {
+      "file": "sim-core/src/public_ability.ts",
+      "function": "assertPublicAbilityMatchesEvidence"
+    },
+    {
+      "file": "sim-core/src/public_field.ts",
+      "function": "assertPublicFieldMatchesEvidence"
+    },
+    {
+      "file": "sim-core/src/public_boosts.ts",
+      "function": "publicBoostEvidence"
+    },
+    {
+      "file": "sim-core/src/public_boosts.ts",
+      "function": "opponentPublicBoosts"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "normalizeProtocolPrefix"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawPlayerIdent"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawPlayerReference"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawHitCountTarget"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawHitCount"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawSinglesAnimRoles"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawTarget"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawMoveTarget"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "isRawHealthCondition"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawHealthCondition"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawEventTags"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawHealWisherDependency"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawHealingWishDependency"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawFutureSightDependency"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawRepeatUseHint"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawEntryHazard"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawScreen"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawCourtChange"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawWeather"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawTerrain"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawTrickRoom"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawAutoTieWarning"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawAbilityEvent"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawItemEvent"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "requireRawMajorStatusEvent"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "validateRawRecordShape"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "sanitizeProtocolPrefix"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "validateRawProtocolRecord"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "parseRawEvidence"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "validateRawEvidence"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "validateObservableProtocolPrefix"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "projectObservableBattleState"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "projectStepResult"
+    },
+    {
+      "file": "sim-core/src/observable_state.ts",
+      "function": "ObservableStateProjector.project"
+    },
+    {
+      "file": "sim-core/src/belief_state.ts",
+      "function": "assertObservation"
+    },
+    {
+      "file": "sim-core/src/belief_state.ts",
+      "function": "validateObservableBattleState"
+    },
+    {
+      "file": "sim-core/src/belief_state.ts",
+      "function": "assertParent"
+    },
+    {
+      "file": "sim-core/src/belief_state.ts",
+      "function": "projectBeliefState"
+    },
+    {
+      "file": "sim-core/src/belief_state.ts",
+      "function": "serializeBeliefState"
+    },
+    {
+      "file": "sim-core/src/battle_helpers.ts",
+      "function": "moveTypeMultiplier"
+    },
+    {
+      "file": "sim-core/src/battle_helpers.ts",
+      "function": "resolveTypes"
+    },
+    {
+      "file": "sim-core/src/action_codec.ts",
+      "function": "normalizeMove"
+    },
+    {
+      "file": "sim-core/src/action_codec.ts",
+      "function": "buildLegalActionSet"
+    },
+    {
+      "file": "sim-core/src/action_codec.ts",
+      "function": "normalizeRequest"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "isOwnerPrivateHealingWishHeal"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "createPokemonView"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.defensiveTypes"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.consumeChunk"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.consumePublicHealingWishRecord"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.getView"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.consumeLine"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleRequest"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.selfFromRequest"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handlePreview"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleSwitch"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.clearSwitchState"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleDetailsChange"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleReplace"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleFormeChange"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleInvertBoosts"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleCopyBoosts"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleTransform"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleMove"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleFaint"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleHp"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleStatus"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleBoost"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleClearBoosts"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleVolatile"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleWeather"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handlePseudoWeather"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleSideCondition"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleSwapSideConditions"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleItem"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleAbility"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleEndAbility"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.handleTerastallize"
+    },
+    {
+      "file": "sim-core/src/state_extractor.ts",
+      "function": "PlayerStateExtractor.findOrCreatePokemon"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "projectPipelineProtocolPrefix"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "projectPipelineStepResult"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.step"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.stepForcedSwitch"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.stepSelection"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.stepRevival"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.executeTransition"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.buildInitialBoundary"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "PipelineIntegrationSession.projectObservations"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "validatePipelineLinkedRecordBundle"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "validatePipelineEpisodeRecordBundle"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "validateHistoricalPipelineLinkedRecordBundle"
+    },
+    {
+      "file": "sim-core/src/pipeline_integration.ts",
+      "function": "validateHistoricalPipelineEpisodeRecordBundle"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "createPipelineEpisodeEvidence"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "validateBoundary"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "validateEpisodeClosure"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "validatePipelineEpisodeEvidence"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "validatePipelineEpisodePredecessor"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode_evidence.ts",
+      "function": "validateHistoricalPipelineEpisodeEvidence"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode.ts",
+      "function": "validatePipelineEpisodeFaithfulClaim"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode.ts",
+      "function": "runPipelineEpisode"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode.ts",
+      "function": "continuePipelineEpisode"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode.ts",
+      "function": "executeEpisode"
+    },
+    {
+      "file": "sim-core/src/pipeline_episode.ts",
+      "function": "validateHistoricalPipelineEpisodeFaithfulClaim"
+    }
+  ],
+  "python": [
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_classify_effect_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_is_player_ident"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_is_side_only_player_ident"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_hitcount_target"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_hitcount"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_ident"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_target"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_integer"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_valid_health_condition"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_health_condition"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_event_tags"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_heal_wisher_dependency"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_healing_wish_dependency"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_future_sight_dependency"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_repeat_use_hint_dependency"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_entry_hazard"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_screen_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_court_change_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_weather_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_terrain_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_trick_room_record"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_ability_event"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_item_event"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_major_status_event"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_auto_tie_warning"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_request"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_move_target"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "_shape"
+    },
+    {
+      "file": "trainer/src/neural/protocol_contract.py",
+      "function": "validate_protocol_record"
+    },
+    {
+      "file": "trainer/src/neural/typed_state.py",
+      "function": "project_public_typed_state"
+    },
+    {
+      "file": "trainer/src/neural/typed_state.py",
+      "function": "validate_public_typed_state"
+    },
+    {
+      "file": "trainer/src/neural/public_ability.py",
+      "function": "public_revealed_abilities"
+    },
+    {
+      "file": "trainer/src/neural/public_ability.py",
+      "function": "public_trace_abilities"
+    },
+    {
+      "file": "trainer/src/neural/public_ability.py",
+      "function": "validate_public_ability"
+    },
+    {
+      "file": "trainer/src/neural/public_field.py",
+      "function": "validate_public_field"
+    },
+    {
+      "file": "trainer/src/neural/public_boosts.py",
+      "function": "validate_copy_boost_record"
+    },
+    {
+      "file": "trainer/src/neural/public_boosts.py",
+      "function": "validate_invert_boost_record"
+    },
+    {
+      "file": "trainer/src/neural/public_boosts.py",
+      "function": "public_boost_evidence"
+    },
+    {
+      "file": "trainer/src/neural/public_boosts.py",
+      "function": "validate_public_boosts"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "_prefix"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "_validate_episode_observation"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "_validate_episode_boundary"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_pipeline_episode_evidence"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_pipeline_episode_result"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_pipeline_episode_publication_sweep"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_pipeline_bundle"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "_validate_pipeline_bundle"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_historical_pipeline_bundle"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_historical_pipeline_episode_evidence"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_historical_pipeline_episode_result"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "validate_historical_pipeline_episode_publication_sweep"
+    },
+    {
+      "file": "trainer/src/neural/pipeline_record.py",
+      "function": "main"
+    }
+  ],
+  "manual_runtime_seams": [
+    "server manager initialization",
+    "EnvironmentManager constructor/create/fork",
+    "LocalBattleEnv constructor/reset/terminal history/player streams/spectator",
+    "ManagedPlayer constructor verifies env/tracker context",
+    "PipelineIntegrationSession constructor/newEnvironment",
+    "runPipelineEpisode/continuePipelineEpisode acquire owned session context"
+  ]
+}

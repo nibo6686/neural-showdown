@@ -1,3 +1,4 @@
+import { protocolContext as readerContext, HISTORICAL10_CONTEXT, type ProtocolRulesContext } from './version_profile';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -526,9 +527,10 @@ export const RECOGNIZED_UNSUPPORTED_RAW_COMMANDS = new Map(
 );
 
 /** Checks the source-emitted Pokemon.toString() spelling without repairing it. */
-export function isCanonicalPlayerIdent(value: unknown, activeRequired = false): value is string {
+export function isCanonicalPlayerIdent(value: unknown, activeRequired = false, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): value is string {
+  readerContext(rulesContext);
   if (typeof value !== 'string' || value !== value.trim() || value.includes('|')) return false;
-  const rule = PROTOCOL_CONTRACT.validation_rules.player_ident;
+  const rule = readerContext(rulesContext).protocol.validation_rules.player_ident;
   const separatorIndex = value.indexOf(rule.separator);
   if (separatorIndex < 0) return false;
   const prefix = value.slice(0, separatorIndex);
@@ -539,8 +541,9 @@ export function isCanonicalPlayerIdent(value: unknown, activeRequired = false): 
     && (!activeRequired || slot !== '') && name !== '' && name === name.trim();
 }
 
-export function isCanonicalSideOnlyPlayerIdent(value: unknown): value is string {
-  const rule = PROTOCOL_CONTRACT.validation_rules.player_ident;
-  return isCanonicalPlayerIdent(value)
+export function isCanonicalSideOnlyPlayerIdent(value: unknown, rulesContext: ProtocolRulesContext = HISTORICAL10_CONTEXT): value is string {
+  readerContext(rulesContext);
+  const rule = readerContext(rulesContext).protocol.validation_rules.player_ident;
+  return isCanonicalPlayerIdent(value, undefined, rulesContext)
     && rule.side_ids.some((side) => value.startsWith(side + rule.separator));
 }

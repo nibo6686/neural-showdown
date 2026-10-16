@@ -1,3 +1,4 @@
+import { helperContext as readerContext, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { validateRawProtocolRecord } from './observable_state';
 import type { ReplayImportResult } from './replay_import';
 import type { PlayerID } from './types';
@@ -59,7 +60,8 @@ function freezeTree<T>(value: T): T {
 }
 
 /** Internal history only: source admission is the replay adapter's responsibility. */
-export function reconstructPublicMoveHistory(source: HistorySource): PublicMoveHistory {
+export function reconstructPublicMoveHistory(source: HistorySource, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): PublicMoveHistory {
+  readerContext(rulesContext);
   if (!source || !Number.isSafeInteger(source.source_cursor) || source.source_cursor < 0
     || !Array.isArray(source.source_rows) || source.source_rows.length !== source.source_cursor
     || !Array.isArray(source.source_to_routed) || source.source_to_routed.length !== source.source_cursor
@@ -98,12 +100,12 @@ export function reconstructPublicMoveHistory(source: HistorySource): PublicMoveH
             || !record.slice(4) || record.slice(4).trim() !== record.slice(4) || record.slice(4).includes('|'))) {
           throw new Error('Record does not match admitted metadata classification.');
         }
-        if (row.kind === 'framing' || row.kind === 'tier') validateRawProtocolRecord(record);
+        if (row.kind === 'framing' || row.kind === 'tier') validateRawProtocolRecord(record, rulesContext);
         continue;
       }
       if (row.routed_index !== routed || source.routed_to_source[routed] !== index) throw new Error('Malformed inverse mapping.');
       routed++;
-      validateRawProtocolRecord(record);
+      validateRawProtocolRecord(record, rulesContext);
       const parts = record.split('|');
       const command = parts[1];
       if (command === 'start') started = true;

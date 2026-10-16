@@ -1,0 +1,199 @@
+[
+  {
+    "log": "perspective-fidelity-prompt28-generated-reordered-continuity-handoff.log",
+    "witness": {
+      "name": "reordered",
+      "level": "actual-generated-session-plus-generated-input-uninterrupted-native-control",
+      "expected_orders": [
+        [
+          2,
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        [
+          2,
+          1,
+          3,
+          4,
+          5,
+          6
+        ]
+      ],
+      "both_owner_orders_match": true,
+      "requests_match": true,
+      "originals_same_reference": true,
+      "no_name_or_position_inference": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-reference-continuity-review.log",
+    "witness": {
+      "name": "references",
+      "level": "actual-session-serializer-reconstructor-wiring",
+      "restored_occurrences": 2,
+      "all_objects_fresh": true,
+      "sets_disjoint_from_prior_live_refs": true,
+      "final_input_set_refs_exact": true,
+      "held_originals_same": true,
+      "birth_occurrences": 1
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "missing-parent",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-missing-parent",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "copied-parent",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-missing-parent",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "foreign-parent",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-missing-parent",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "same-label-sibling-parent",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-missing-parent",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "copied-snapshot",
+      "level": "actual-session-rejection",
+      "expected": "foreign-serialization-occurrence",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "set-copy",
+      "level": "actual-session-rejection",
+      "expected": "snapshot-reference-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "permutation",
+      "level": "actual-session-rejection",
+      "expected": "snapshot-content-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "snapshot-owner",
+      "level": "actual-session-rejection",
+      "expected": "snapshot-content-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "missing-ticket",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-stale-restore-ticket",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "copied-ticket",
+      "level": "actual-session-rejection",
+      "expected": "foreign-or-stale-restore-ticket",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "wrong-native-owner",
+      "level": "actual-session-rejection",
+      "expected": "reconstructed-object-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "final-input-set-copy",
+      "level": "actual-session-rejection",
+      "expected": "reconstruction-input-occurrence-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-parent-and-snapshot-faults-review.log",
+    "witness": {
+      "name": "final-input-row-copy",
+      "level": "actual-session-rejection",
+      "expected": "reconstruction-input-occurrence-mismatch",
+      "committed_associations_unchanged": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-rollback-handoff.log",
+    "witness": {
+      "name": "rollback",
+      "level": "actual-session-post-prepare-failure",
+      "old_handles_and_rows_unchanged": true,
+      "candidate_revoked_before_cleanup": true,
+      "valid_fresh_retry": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-owner-privacy-handoff.log",
+    "witness": {
+      "name": "privacy",
+      "level": "actual-generated-session",
+      "wrong_owner_rejections": 2,
+      "forged_foreign_rejections": 10,
+      "no_new_association_fields_in_legacy_outputs": true
+    }
+  },
+  {
+    "log": "perspective-fidelity-prompt28-close-and-legacy-handoff.log",
+    "witness": {
+      "name": "close-legacy",
+      "level": "actual-runtime-init-failure-close-and-legacy-restore",
+      "init_revoked_before_cleanup": true,
+      "synchronous_close_denial": true,
+      "authority_free_legacy_usable": true
+    }
+  }
+]

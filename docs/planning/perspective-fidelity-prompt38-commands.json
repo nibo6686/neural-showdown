@@ -1,0 +1,322 @@
+[
+  {
+    "name": "target-lookup-integrity-extraction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt38-20261012/extract.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 1.02,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "candidate-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 2,
+    "seconds": 2.927,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "corrected-canary-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.801,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-installed-provenance-configuration-and-historical-isolation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 installed provenance configuration and historical isolation$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.672,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-genuine-generated-joint-held-restore-canary",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 genuine generated joint held restore canary$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.369,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P33-LIVE-target-raw-and-belief-guards-before-effects",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P33 LIVE target raw and belief guards before effects$",
+      "sim-core/dist/tests/snapshot_admission.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.151,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P33-LIVE-held-admission-precedes-probes-and-abandonment",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P33 LIVE held admission precedes probes and abandonment$",
+      "sim-core/dist/tests/snapshot_admission.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.377,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P34-LIVE-target-completion-and-source-quarantine",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P34 LIVE target completion and source quarantine$",
+      "sim-core/dist/tests/target_fidelity_eligibility.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.327,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "python-live-claim-source",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-m",
+      "pytest",
+      "-s",
+      "-vv",
+      "trainer/tests/test_target_fidelity_eligibility.py::test_live_target_claim_source_and_atomic_cli"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "runner_exit": 1,
+    "seconds": null,
+    "pytest_reported_seconds": 0.65,
+    "timeout_seconds": 180,
+    "note": "Test passed; post-completion log filename failure. Visible transcript recovered, no rerun."
+  },
+  {
+    "name": "P38-native-Natural-Cure-emitter-audience-and-quarantine",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 native Natural Cure emitter audience and quarantine$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.312,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "live-fixture-correction-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.914,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-native-Natural-Cure-emitter-audience-and-quarantine",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 native Natural Cure emitter audience and quarantine$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.366,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-LIVE-managed-handle-lifecycle",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 LIVE managed handle lifecycle$",
+      "sim-core/dist/tests/native11_snapshot_handles.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.351,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "native-cure-session-publication",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 native Natural Cure session publication$",
+      "sim-core/scripts/native11_cure_publication.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.58,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "python-candidate-import-provenance",
+    "args": [
+      "/Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python",
+      "-c",
+      "import sys,neural.version_profile as p,neural.pipeline_record as r;from pathlib import Path;root=Path(\"/private/tmp/neural-showdown-native11-prompt38\");assert str(p.__file__).startswith(str(root));assert str(r.__file__).startswith(str(root));print(\"Python\",sys.version.split()[0],\"profile\",p.NATIVE11_CONTEXT.profile.id,\"profile_path\",p.__file__,\"reader_path\",r.__file__)"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.073,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "target-alias-source-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt38-20261012/extract.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.276,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "target-alias-correction-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.885,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "corrected-alias-oracle-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.908,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-installed-provenance-configuration-and-historical-isolation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 installed provenance configuration and historical isolation$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.298,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "target-alias-projection-correction",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt38-20261012/extract.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 1,
+    "seconds": 0.295,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "target-canonical-name-projection",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "/private/tmp/neural-prompt38-20261012/extract.cjs"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.287,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "final-lookup-projection-build",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38/sim-core",
+    "exit": 0,
+    "seconds": 1.919,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P38-installed-provenance-configuration-and-historical-isolation",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P38 installed provenance configuration and historical isolation$",
+      "sim-core/dist/tests/native11_activation.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 2.542,
+    "timeout_seconds": 180
+  },
+  {
+    "name": "P36-importer-context-semantic-and-publication-boundaries",
+    "args": [
+      "/Users/nbolger/.nvm/versions/node/v24.21.0/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=^P36 importer context semantic and publication boundaries$",
+      "sim-core/dist/tests/replay_compatibility_profile.test.js"
+    ],
+    "cwd": "/private/tmp/neural-showdown-native11-prompt38",
+    "exit": 0,
+    "seconds": 0.298,
+    "timeout_seconds": 180
+  }
+]

@@ -1,3 +1,4 @@
+from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Owned ability effectiveness from public Gas witnesses and addressed-request exemptions."""
 import json
 from pathlib import Path
@@ -64,8 +65,9 @@ def _local_suppression(prefix):
     return suppressed
 
 
-def public_revealed_abilities(prefix):
+def public_revealed_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
     """Supported public reveal names; the opposing Trace [of] stays raw."""
+    reader_context(reader_rules)
     facts, active = {}, {}
     def clear(target):
         row = facts.get(target)
@@ -92,7 +94,7 @@ def public_revealed_abilities(prefix):
                         else "dash_reveal" if command == "-ability" and len(parts) == 4
                         else "dash_boost" if command == "-ability" and len(parts) == 5 and parts[4] == "boost"
                         else "dash_trace_copy" if command == "-ability" and len(parts) == 6 and parts[4] == "[from] ability: Trace" else None)
-            if template is None or parts[3] not in VALIDATION_RULES["ability"]["payload_domains"][template]: continue
+            if template is None or parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["ability"]["payload_domains"][template]: continue
             row = facts.setdefault(target, dict(ability=None, base=None, state="unknown", copied=False, cleared=False, invalidated=None, base_writer=None))
             changed = any(tag.startswith("[from]") for tag in parts[4:])
             if (not changed and not row["base"] and not row["copied"] and row["invalidated"] != "transform"
@@ -102,8 +104,9 @@ def public_revealed_abilities(prefix):
     return facts
 
 
-def public_trace_abilities(prefix):
-    return {target: row for target, row in public_revealed_abilities(prefix).items() if row["copied"]}
+def public_trace_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
+    return {target: row for target, row in public_revealed_abilities(prefix, reader_rules=reader_rules).items() if row["copied"]}
 
 
 def preserves_owned_ability_for_form(species, ability, base):
@@ -136,13 +139,14 @@ def owned_ability_after_suffix(owner, suffix):
     return dict(ability=ability, base_ability=base, ability_state="known" if ability else "unknown")
 
 
-def validate_public_ability(observation, predecessor=None):
+def validate_public_ability(observation, predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT):
+    reader_context(reader_rules)
     view = observation.get("view", {})
     request = observation.get("request")
     owners = request.get("side", []) if isinstance(request, dict) else []
     prior_owners = (predecessor.get("request") or {}).get("side", []) if terminal_owner(predecessor, observation) else []
     perspective = observation.get("perspective")
-    for target, fact in public_revealed_abilities(observation["protocol_prefix"]).items():
+    for target, fact in public_revealed_abilities(observation["protocol_prefix"], reader_rules=reader_rules).items():
         if perspective not in ("p1", "p2"):
             raise ValueError("Public ability evidence mismatch: reveal requires a perspective")
         if not target.startswith(perspective + ": "):
@@ -201,9 +205,9 @@ def validate_public_ability(observation, predecessor=None):
         if "ability_suppressed" not in row:
             raise ValueError("Public ability evidence mismatch: known owned ability requires suppression field")
         ability_id = _id(ability)
-        if not row.get("active") or row.get("fainted") or row.get("transformed") and ability_id in _NOTRANSFORM:
+        if not row.get("active") or row.get("fainted") or row.get("transformed") and ability_id in reader_context(reader_rules).inventory["public_ability_effectiveness"]["notransform"]:
             effectiveness = "suppressed"
-        elif ability_id in _CANTSUPPRESS:
+        elif ability_id in reader_context(reader_rules).inventory["public_ability_effectiveness"]["cantsuppress"]:
             effectiveness = "active"
         elif target in local:
             effectiveness = "suppressed"

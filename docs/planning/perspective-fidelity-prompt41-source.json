@@ -1,0 +1,69 @@
+{
+  "version": "0.11.11",
+  "revision": "739a5e1fee432ad80ff7136d70cca993be358b59",
+  "source_artifact_comparisons": {
+    "data/abilities.ts": "175067b1e827ca11ae4728169215c9bdd27ac4cb3e35d2e83eaaaee7e9e8c842",
+    "sim/pokemon.ts": "96170cb4f8c0f5f9562bbcc24704ca63e91c929f5ab946ad7b2472fd66c2065c",
+    "sim/battle.ts": "e3913db4a69c976c749c3633966f4c76e156248915f5859eb7563ec4df554834",
+    "data/random-battles/gen9/teams.ts": "b5679261e60a33218094ba0f51eb6ed3161896cb0ebae10acfa6f8ec3bc824ce",
+    "data/random-battles/gen9/sets.json": "928084c1d79130581a738a1dd37cc4e8641354b23b4af6332426ce15157b6a30"
+  },
+  "record": "|-ability|actor|new ability|Trace|[from] ability: Trace|[of] opposing active actor",
+  "trace_domain": {
+    "count": 186,
+    "added": "Gale Wings",
+    "removed": "Steely Spirit",
+    "scope": "candidate abilities, not exhaustive runtime copy reachability"
+  },
+  "source_chain": {
+    "Trace": "data/abilities.ts:5110-5143",
+    "setAbility": "sim/pokemon.ts:1915-1950",
+    "generator_candidate": "data/random-battles/gen9/sets.json:2000-2013",
+    "generator_selection": "data/random-battles/gen9/teams.ts:1087-1099,1471-1520,1751-1758,1849-1857"
+  },
+  "new_test": {
+    "sim-core/tests/native11_trace.test.ts": "5d35999ca2ce654e76c82f4db1f23974c06ff2b849befa391947721bc8773e59"
+  },
+  "changed_inputs": {
+    "sim-core/src/prepared_protocol_contract.ts": {
+      "before": "536ec150a2a2a6c6abd5ed58aa9f14197cc0dbaa75d6394c1a4e2ac22f28abcf",
+      "after": "68c3e97beb6f5e113362baaa3890a2906c942855f6f3091bc1339c1bd2b482be"
+    },
+    "sim-core/src/version_profile.ts": {
+      "before": "3d70216a7ecc4724129c69e76643bbfabe6af02e7397eae5862b13890f454c90",
+      "after": "eb2d3f237a4f968a27adaf2014f42a8322a2505aca7c73eb57b93a26f62470c6"
+    },
+    "sim-core/src/public_ability.ts": {
+      "before": "b2d09ecb5ed76444ea90604b9980d66b33b53a2a759b3ee8fd8a82561079b828",
+      "after": "1c27734d2f858dcc005221d0f2476c4995135c6db9f7c9c8065194ecc1e05c1b"
+    },
+    "sim-core/src/observable_state.ts": {
+      "before": "0c359ea186dc6654da246a6ee9de9d30ba1a42ba881089d0086b2f44e82ae036",
+      "after": "a941900126a791a684478f9f562584b3b1733f0656bc9abb9c2efca6ae700124"
+    },
+    "trainer/src/neural/public_ability.py": {
+      "before": "63d4751f582401d0b7cbaddbe5249c3a73425396037367f3b49b1c5e10e51e5b",
+      "after": "304d7aed74c5e3827201a4e01a02841f240ef3f006263c812f4be1941d8364c4"
+    },
+    "trainer/src/neural/protocol_contract.py": {
+      "before": "a1206a2db491625265aa800a08a868f2febe0df1d47e82729f83db83f0992964",
+      "after": "95bb8a0ed27584c5976c8715de5d61d4aee399a06238f4164841ddfed5e600b1"
+    },
+    "trainer/src/neural/version_profile.py": {
+      "before": "d2a1bb683afe9af3b4350ecf463285489a554313237a2715de99ab8edc1e680e",
+      "after": "f124d682950561b4d23dc50683c8226d6595d5f62dcf1f205e5c2b9ea569d8a9"
+    },
+    "trainer/src/neural/prepared_protocol_contract.py": {
+      "before": "495035fc843793b7aee9a37a86934e28732f638353925f9b48eea8832f8dd7b4",
+      "after": "8ebf6a54bcdd20ff1d8a32de0117a0cd5915403e202646bb6f95f78740a9727d"
+    },
+    "trainer/src/neural/protocol_contract_0_11_11.json": {
+      "before": "91be5ffc7b9c74e2b0722df58672985a2dc4b2581b7e2d3a04ebd7c2a30b92c4",
+      "after": "3289760cadf1605f118bd034612433dbd29155dd13cd9252feb7ac4c94d70316"
+    },
+    "sim-core/tests/owner_identity_birth.test.ts": {
+      "before": "099ec54887b2c9e25c9123012999c646f8fddfd13974bcc1dbefc9d4454a54b5",
+      "after": "af7a465f222b0cdf0d8c3ec83885184de3acab7548729aa5cff31cc954b02b1c"
+    }
+  }
+}

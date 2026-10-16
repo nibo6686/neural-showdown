@@ -1,0 +1,988 @@
+--- a/sim-core/src/pipeline_episode.ts
++++ b/sim-core/src/pipeline_episode.ts
+@@ -4,6 +4,7 @@
+ import { assertHistoricalReaderInput } from './version_profile';
+ import { createHash } from 'node:crypto';
+ import { canonicalActionFromLegalAction, type CanonicalAction } from './canonical_action';
++import { type OwnedActionOrderRegistrations, type OwnedDecisionOrder } from './owned_decision_input';
+ import {
+   createPipelineEpisodeEvidence, validatePipelineEpisodeEvidence,
+   validatePipelineEpisodePredecessor,
+@@ -32,6 +33,10 @@
+   policy_id?: string;
+   /** Synchronous permutation of this player's current legal indices. No opponent input. */
+   action_order?: (observation: ObservableBattleState) => readonly number[];
++  /** Experimental owner-addressed ordering; registrations carry the original recipient identity. */
++  owned_action_order?: OwnedActionOrderRegistrations;
++  /** Explicitly acknowledges that owned decision inputs can be incomplete. */
++  accept_incomplete?: true;
+ }
+ export interface EpisodeContinuationOptions extends EpisodeExecutionOptions {
+   /** Fully validated previous evidence ending exactly at the session boundary. */
+@@ -120,10 +125,45 @@
+   const supplied = options.limits ?? {};
+   if (Object.keys(supplied).some((k) => !Object.hasOwn(DEFAULT_LIMITS, k))) throw new Error('invalid-options');
+   const limits = { ...DEFAULT_LIMITS, ...supplied };
++  const owned = options.owned_action_order;
++  if (owned !== undefined) {
++    const validRecord = !!owned && typeof owned === 'object' && !Array.isArray(owned)
++      && [Object.prototype, null].includes(Object.getPrototypeOf(owned))
++      && Object.keys(owned).sort().join(',') === 'p1,p2';
++    if (!validRecord || options.action_order !== undefined || options.accept_incomplete !== true
++      || !/^.+\/v[1-9][0-9]*$/.test(options.policy_id ?? '')) throw new Error('invalid-options');
++    const recipients = new Set<object>();
++    for (const owner of PLAYERS) {
++      const descriptor = Object.getOwnPropertyDescriptor(owned, owner);
++      if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new Error('invalid-options');
++      const registration = descriptor.value as unknown;
++      if (!registration || typeof registration !== 'object' || Array.isArray(registration)
++        || ![Object.prototype, null].includes(Object.getPrototypeOf(registration))) throw new Error('invalid-options');
++      const fields = Object.getOwnPropertyDescriptors(registration);
++      if (Object.keys(fields).sort().join(',') !== 'callback,recipient'
++        || !Object.hasOwn(fields.callback, 'value') || !Object.hasOwn(fields.recipient, 'value')
++        || typeof fields.callback.value !== 'function' || !fields.recipient.value
++        || typeof fields.recipient.value !== 'object' || Array.isArray(fields.recipient.value)
++        || recipients.has(fields.recipient.value as object)) throw new Error('invalid-options');
++      recipients.add(fields.recipient.value as object);
++    }
++  } else if (options.accept_incomplete !== undefined) throw new Error('invalid-options');
+   if (Object.values(limits).some((v) => !Number.isSafeInteger(v) || v <= 0)
+     || (options.action_order && !options.policy_id?.trim())
+     || (options.policy_id !== undefined && !options.policy_id.trim())) throw new Error('invalid-options');
+   return limits;
++}
++function ownedRegistrationsFor(options: EpisodeExecutionOptions): OwnedActionOrderRegistrations | undefined {
++  const source = options.owned_action_order;
++  if (!source) return undefined;
++  const registrations = {} as Record<PlayerID, { recipient: object; callback: (input: any) => readonly number[] }>;
++  for (const owner of PLAYERS) {
++    const descriptor = Object.getOwnPropertyDescriptor(source, owner)!;
++    const registration = descriptor.value as object;
++    const fields = Object.getOwnPropertyDescriptors(registration);
++    registrations[owner] = Object.freeze({ recipient: fields.recipient.value, callback: fields.callback.value });
++  }
++  return Object.freeze(registrations);
+ }
+ function terminal(boundary: PipelineBoundary): boolean {
+   const [p1, p2] = PLAYERS.map((p) => boundary.perspectives[p].observation.view);
+@@ -147,17 +187,32 @@
+   }
+   return null;
+ }
+-function actionTuples(boundary: PipelineBoundary, actors: PlayerID[], options: EpisodeExecutionOptions): Partial<Record<PlayerID, CanonicalAction>>[] {
+-  let tuples: Partial<Record<PlayerID, CanonicalAction>>[] = [{}];
++interface EpisodeActionCandidate {
++  actions: Partial<Record<PlayerID, CanonicalAction>>;
++  owned_orders: OwnedDecisionOrder[];
++}
++function actionTuples(
++  boundary: PipelineBoundary, actors: PlayerID[], options: EpisodeExecutionOptions, session: PipelineIntegrationSession,
++): EpisodeActionCandidate[] {
++  let tuples: EpisodeActionCandidate[] = [{ actions: {}, owned_orders: [] }];
+   for (const player of actors) {
+     const observation = boundary.perspectives[player].observation;
+     const request = observation.request!;
+     const legal = [...request.legal_actions.available_indices].sort((a, b) => a - b);
+-    const ordered = options.action_order ? [...options.action_order(observation)] : legal;
++    const ownedRegistration = options.owned_action_order?.[player];
++    const ownedOrder = ownedRegistration
++      ? session.withOwnedDecisionInput(ownedRegistration.recipient, input => {
++        if (input.knowledge.projection.owner !== player) throw new Error('owned-decision-input/v1/wrong-owner');
++        return ownedRegistration.callback(input);
++      }) : undefined;
++    const ordered = ownedOrder ? [...ownedOrder.indices] : options.action_order ? [...options.action_order(observation)] : legal;
+     if (ordered.length !== legal.length || new Set(ordered).size !== legal.length
+       || ordered.some((i) => !legal.includes(i))) throw new Error('invalid-policy-order');
+     const actions = ordered.map((i) => canonicalActionFromLegalAction(request, i));
+-    tuples = tuples.flatMap((tuple) => actions.map((action) => ({ ...tuple, [player]: action })));
++    tuples = tuples.flatMap((tuple) => actions.map((action) => ({
++      actions: { ...tuple.actions, [player]: action },
++      owned_orders: ownedOrder ? [...tuple.owned_orders, ownedOrder] : tuple.owned_orders,
++    })));
+   }
+   return tuples;
+ }
+@@ -221,6 +276,8 @@
+     }
+     try { result.limits = limitsFor(options); } catch { return result; }
+     if (format !== 'gen9randombattle') { stop('unsupported-format', 'Only gen9randombattle is supported.'); return result; }
++    const ownedRegistrations = ownedRegistrationsFor(options);
++    const selectionOptions = ownedRegistrations ? { ...options, owned_action_order: ownedRegistrations } : options;
+     session = await create();
+     let boundary = session.boundary;
+     result.initial_boundary = result.final_boundary = summarizeEpisodeBoundary(boundary);
+@@ -234,11 +291,14 @@
+       const actors = actingPlayers(boundary);
+       if (!actors) { stop('unsupported-boundary', 'No supported transition exists for the committed request states.'); break; }
+       session.assertSupportedSelectionRequests();
+-      const actions = actionTuples(boundary, actors, options).find((a) => !attempted.has(tupleKey(a)));
+-      if (!actions) { stop('action-exhausted', 'Every request-derived action combination at this boundary was rejected.'); break; }
++      const candidate = actionTuples(boundary, actors, selectionOptions, session)
++        .find((entry) => !attempted.has(tupleKey(entry.actions)));
++      if (!candidate) { stop('action-exhausted', 'Every request-derived action combination at this boundary was rejected.'); break; }
++      const actions = candidate.actions;
+       attempted.add(tupleKey(actions));
+       result.counts.attempts++;
+       try {
++        if (candidate.owned_orders.length) session.assertOwnedDecisionBatch(candidate.owned_orders);
+         const committed = actors.length === 2
+           ? await session.step(actions as Record<PlayerID, CanonicalAction>)
+           : actions[actors[0]]!.kind === 'revive'
+--- a/sim-core/src/pipeline_integration.ts
++++ b/sim-core/src/pipeline_integration.ts
+@@ -1,3 +1,4 @@
++import { isDeepStrictEqual } from 'node:util';
+ import { OwnedRequestHealthHost } from './owned_request_health';
+ import { NativeOwnerKnowledgeController, type OwnerKnowledgeHandle, type OwnerKnowledgeRead } from './native_owner_knowledge';
+ import { SwitchEventHost, type SwitchEventHandle, type SwitchEventHistory } from './owner_identity_events';
+@@ -8,7 +9,8 @@
+ import { RequestDeliveryLedger, type RequestDeliveryHandle, type RequestDeliveryHistory, type RequestDeliveryBoundary } from './request_delivery_ledger';
+ import { OriginalOwnerCreation, type OriginalOwnerHandle, type OriginalOwnerEvidence } from './original_owner_provider';
+ import { carryTerminalOwner, withTerminalOwner } from './public_health';
+-import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction } from './canonical_action';
++import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction, type CanonicalActionRequestContext } from './canonical_action';
++import { OwnedDecisionInputController, assertCanonicalContextEqual, sanitizeOwnedDecisionInputError, type OwnedActionOrderCallback, type OwnedDecisionFrame, type OwnedDecisionOrder } from './owned_decision_input';
+ import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
+ import { LocalBattleEnv } from './env_manager';
+ import type { SettlingOptions } from './settling';
+@@ -139,6 +141,18 @@
+   seed: readonly number[];
+ }
+ 
++function canonicalActionContext(request: Pick<ChoiceRequestView, 'player' | 'rqid' | 'force_switch' | 'legal_actions' | 'side'>): CanonicalActionRequestContext {
++  return freeze(structuredClone({
++    player: request.player,
++    rqid: request.rqid,
++    force_switch: request.force_switch,
++    legal_actions: request.legal_actions,
++    side: request.side,
++  }));
++}
++
++function ownedDecisionError(code: string): Error { return new Error(`owned-decision-input/v1/${code}`); }
++
+ export interface PipelineDiagnostic {
+   schema_version: 'pipeline-diagnostic/v1';
+   code: string;
+@@ -386,6 +400,11 @@
+   readonly #requestHealth: OwnedRequestHealthHost | undefined;
+   readonly #ownerKnowledge: NativeOwnerKnowledgeController | undefined;
+   readonly #deliveryLedger = new RequestDeliveryLedger();
++  readonly #ownedDecisionInputs = new OwnedDecisionInputController();
++  readonly #ownedDecisionOccurrence = Object.freeze(Object.create(null)) as object;
++  #ownedDecisionBatch: ReadonlyMap<PlayerID, OwnedDecisionFrame> | null = null;
++  #selectionActive = false;
++  #selectionPoisoned = false;
+   #deliveryEnabled = false;
+   private readonly seed: number[];
+   private environment: LocalBattleEnv;
+@@ -523,6 +542,163 @@
+     return this.#originalCreation.read(handle, owner, packed);
+   }
+ 
++  /** Runs one synchronous, owner-addressed callback and returns its opaque order. */
++  withOwnedDecisionInput(recipient: object, callback: OwnedActionOrderCallback): OwnedDecisionOrder {
++    if (this.#selectionActive) {
++      this.#selectionPoisoned = true;
++      this.#ownedDecisionInputs.invalidate();
++      this.#ownedDecisionBatch = null;
++      throw ownedDecisionError('reentrant-call');
++    }
++    this.ensureOpen();
++    this.#selectionActive = true;
++    this.#selectionPoisoned = false;
++    try {
++      const boundary = this.boundary;
++      const knowledgeController = this.#ownerKnowledge;
++      if (!knowledgeController) throw ownedDecisionError('unsupported-frame');
++      const handle = knowledgeController.handle(recipient);
++      const knowledge = knowledgeController.read(handle, recipient);
++      const owner = knowledge.projection.owner as PlayerID;
++      if (!PLAYERS.includes(owner)) throw ownedDecisionError('unsupported-frame');
++      const observation = boundary.perspectives[owner].observation;
++      const request = observation.request;
++      if (!request) throw ownedDecisionError('unsupported-frame');
++      const context = canonicalActionContext(request);
++      const legalIndices = Object.freeze([...request.legal_actions.available_indices].sort((a, b) => a - b));
++      const ledgerHandle = this.#deliveryLedger.handle(owner);
++      const history = this.#deliveryLedger.read(ledgerHandle, owner);
++      const deliveryBoundary = history.boundaries.at(-1);
++      const currentDelivery = deliveryBoundary?.current;
++      const selectedReceipt = deliveryBoundary?.selected;
++      if (!deliveryBoundary || !currentDelivery || !selectedReceipt) throw ownedDecisionError('unsupported-frame');
++      const frame: OwnedDecisionFrame = Object.freeze({
++        owner, recipient, knowledge_handle: handle, knowledge, observation,
++        environment: this.environment, boundary, session_occurrence: deliveryBoundary.session_occurrence,
++        delivery_boundary: deliveryBoundary, current_delivery: currentDelivery, selected_receipt: selectedReceipt,
++        action_context: context, legal_indices: legalIndices,
++      });
++      const validate = () => this.recheckOwnedDecisionFrame(frame, ledgerHandle);
++      return this.#ownedDecisionInputs.issue(frame, callback, validate);
++    } catch (error) {
++      this.#ownedDecisionInputs.invalidate();
++      this.#ownedDecisionBatch = null;
++      const safeError = sanitizeOwnedDecisionInputError(error);
++      if (safeError) throw safeError;
++      throw ownedDecisionError('unsupported-frame');
++    } finally {
++      this.#selectionActive = false;
++    }
++  }
++
++  /** Rechecks authentic orders together; step() consumes this authorization synchronously. */
++  assertOwnedDecisionBatch(orders: readonly OwnedDecisionOrder[]): void {
++    if (this.#selectionActive) {
++      this.#selectionPoisoned = true;
++      throw ownedDecisionError('reentrant-call');
++    }
++    this.ensureOpen();
++    this.#ownedDecisionBatch = null;
++    try {
++      const boundary = this.boundary;
++      const actors = this.ownedDecisionActors(boundary);
++      const frames = this.#ownedDecisionInputs.assertBatch(orders, actors, frame => {
++        const handle = this.#deliveryLedger.handle(frame.owner);
++        this.recheckOwnedDecisionFrame(frame, handle);
++      });
++      this.#ownedDecisionBatch = new Map(frames);
++    } catch (error) {
++      const safeError = sanitizeOwnedDecisionInputError(error);
++      if (safeError) throw safeError;
++      throw ownedDecisionError('stale-or-unsupported-frame');
++    }
++  }
++
++  private ownedDecisionActors(boundary: PipelineBoundary): PlayerID[] {
++    if (boundary.kind === 'joint_actionable') return [...PLAYERS];
++    if (boundary.kind === 'one_sided_forced_switch' || boundary.kind === 'one_sided_revival') {
++      const expected = boundary.kind === 'one_sided_revival' ? 'revival_selection' : 'forced_switch';
++      const actor = PLAYERS.find(owner => classifyPipelineRequestState(boundary.perspectives[owner].observation) === expected);
++      if (actor && classifyPipelineRequestState(boundary.perspectives[actor === 'p1' ? 'p2' : 'p1'].observation) === 'waiting') return [actor];
++    }
++    throw ownedDecisionError('unsupported-frame');
++  }
++
++  private recheckOwnedDecisionFrame(frame: OwnedDecisionFrame, ledgerHandle: RequestDeliveryHandle): void {
++    const fail = () => { throw ownedDecisionError(this.closed ? 'revoked' : 'stale-or-unsupported-frame'); };
++    if (this.closed || this.#selectionPoisoned || this.currentBoundaryValue !== frame.boundary
++      || this.environment !== frame.environment || frame.session_occurrence !== (frame.delivery_boundary as RequestDeliveryBoundary).session_occurrence
++      || frame.observation !== this.currentBoundaryValue?.perspectives[frame.owner].observation) fail();
++    const knowledgeController = this.#ownerKnowledge;
++    if (!knowledgeController) throw ownedDecisionError('stale-or-unsupported-frame');
++    let handle!: OwnerKnowledgeHandle;
++    let read!: OwnerKnowledgeRead;
++    try {
++      handle = knowledgeController.handle(frame.recipient);
++      read = knowledgeController.read(handle, frame.recipient);
++    } catch { fail(); }
++    if (handle !== frame.knowledge_handle || read !== frame.knowledge
++      || read.projection.owner !== frame.owner
++      || read.binding.observation_id !== frame.observation.observation_id
++      || read.binding.prefix_cursor !== frame.observation.event_cursor
++      || read.projection.boundary !== frame.boundary.step_index) fail();
++    const row = frame.delivery_boundary;
++    let history: RequestDeliveryHistory;
++    try { history = this.#deliveryLedger.read(ledgerHandle, frame.owner, row); } catch { fail(); }
++    const current = row.current;
++    const selected = row.selected;
++    if (!current || !selected) throw ownedDecisionError('stale-or-unsupported-frame');
++    if (history!.boundaries.at(-1) !== row || row.session_occurrence !== frame.session_occurrence
++      || row.observation_id !== frame.observation.observation_id || row.branch_id !== frame.boundary.branch_id
++      || row.step_index !== frame.boundary.step_index || row.boundary_cursor !== frame.observation.event_cursor
++      || !isDeepStrictEqual(row.prefix, frame.observation.protocol_prefix)
++      || current !== frame.current_delivery || selected !== frame.selected_receipt
++      || current.source !== selected || !row.trace.includes(selected)
++      || !history!.deliveries.includes(current) || current.session_occurrence !== row.session_occurrence) fail();
++    const descriptor = read.projection.request;
++    const requestState = classifyPipelineRequestState(frame.observation);
++    const descriptorOk = descriptor?.schema === 'owned-active-options/v1'
++      && read.binding.request_adaptation === 'owned_health/v1'
++      && read.binding.request_descriptor === 'owned-active-options/v1'
++      && descriptor.sequence === current.sequence && descriptor.cursor === row.boundary_cursor
++      && ((descriptor.state === 'ordinary_pp' && read.binding.request_state === 'move' && requestState === 'actionable')
++        || (descriptor.state === 'forced_switch' && read.binding.request_state === 'forced_switch' && requestState === 'forced_switch')
++        || (descriptor.state === 'revival_selection' && read.binding.request_state === 'revival_selection' && requestState === 'revival_selection'));
++    const observationRequest = frame.observation.request;
++    if (!descriptorOk || !observationRequest || observationRequest.player !== frame.owner
++      || observationRequest.wait || observationRequest.team_preview || !frame.legal_indices.length
++      || !isDeepStrictEqual(frame.legal_indices, [...observationRequest.legal_actions.available_indices].sort((a, b) => a - b))) fail();
++    let fresh: ChoiceRequestView | null = null;
++    try { fresh = this.environment.getRequest(frame.owner); } catch { fail(); }
++    if (!fresh || fresh.player !== frame.owner || fresh.wait || fresh.team_preview) {
++      throw ownedDecisionError('stale-or-unsupported-frame');
++    }
++    try { assertCanonicalContextEqual(frame.action_context, canonicalActionContext(fresh)); } catch { fail(); }
++  }
++
++  private consumeOwnedDecisionBatch(actions: Partial<Record<PlayerID, CanonicalAction>> | undefined, actors: readonly PlayerID[]): void {
++    const batch = this.#ownedDecisionBatch;
++    this.#ownedDecisionBatch = null;
++    if (!batch) return;
++    if (!actions || Object.keys(actions).sort().join(',') !== [...actors].sort().join(',')
++      || batch.size !== actors.length || actors.some(owner => !batch.has(owner))) throw ownedDecisionError('invalid-batch');
++    try {
++      for (const owner of actors) {
++        const frame = batch.get(owner)!;
++        const handle = this.#deliveryLedger.handle(owner);
++        this.recheckOwnedDecisionFrame(frame, handle);
++        const action = actions[owner];
++        if (!action || !frame.legal_indices.includes(action.index)) throw ownedDecisionError('invalid-batch');
++      }
++      this.#ownedDecisionInputs.invalidate();
++    } catch (error) {
++      this.#ownedDecisionInputs.invalidate();
++      const safeError = sanitizeOwnedDecisionInputError(error);
++      if (safeError) throw safeError;
++      throw ownedDecisionError('stale-or-unsupported-frame');
++    }
++  }
++
+   get boundary(): PipelineBoundary {
+     this.ensureOpen();
+     if (!this.currentBoundaryValue) throw new PipelineIntegrationError('pipeline/v1/not-initialized', 'initial boundary is missing');
+@@ -545,17 +721,21 @@
+   }
+ 
+   async step(actions?: Record<PlayerID, CanonicalAction>): Promise<PipelineStepResult> {
++    this.rejectReentrantSelection();
+     this.ensureOpen();
+     assertPipelineTransitionSupported(this.boundary.kind);
++    this.consumeOwnedDecisionBatch(actions, PLAYERS);
+     return this.executeTransition(actions) as Promise<PipelineStepResult>;
+   }
+ 
+   async stepForcedSwitch(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
++    this.rejectReentrantSelection();
+     if (action.kind !== 'switch') throw new Error('Forced switch requires a switch action.');
+     return this.stepSelection(action);
+   }
+ 
+   private async stepSelection(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
++    this.rejectReentrantSelection();
+     this.ensureOpen();
+     const acting_player = action.player;
+     if (acting_player !== 'p1' && acting_player !== 'p2') throw new PipelineIntegrationError('pipeline/v1/invalid-forced-switch-role', 'invalid acting player');
+@@ -569,12 +749,20 @@
+     if (!live) throw new PipelineIntegrationError('pipeline/v1/request-boundary-changed', 'forced-switch actor has no pending request');
+     if (revival) assertRevivalSelection(live);
+     else assertOrdinaryForcedSwitch(live);
++    this.consumeOwnedDecisionBatch({ [acting_player]: action }, [acting_player]);
+     return this.executeTransition({ [acting_player]: action }, { acting_player, waiting_player }) as Promise<PipelineForcedSwitchStepResult>;
+   }
+ 
+   async stepRevival(action: CanonicalAction): Promise<PipelineForcedSwitchStepResult> {
++    this.rejectReentrantSelection();
+     if (action.kind !== 'revive') throw new Error('Revival selection requires a revive action.');
+     return this.stepSelection(action);
++  }
++
++  private rejectReentrantSelection(): void {
++    if (!this.#selectionActive) return;
++    this.#selectionPoisoned = true;
++    throw ownedDecisionError('reentrant-call');
+   }
+ 
+   private async executeTransition(
+@@ -749,6 +937,7 @@
+       const result = { ...roles, boundary: nextBoundary, transition_id: transitionResult.metadata.transition_id, record_bundles: bundles } as PipelineStepResult | PipelineForcedSwitchStepResult;
+       // Retirement allocation also precedes the irreversible assignment section.
+       this.retiredEnvironments.add(previousEnvironment);
++      this.#ownedDecisionInputs.invalidate(); this.#ownedDecisionBatch = null;
+       if (delivery) this.#deliveryLedger.installReady();
+       if (association) this.#objectAssociation.installReady();
+       if (events) this.#switchEvents.installReady();
+@@ -776,6 +965,7 @@
+   async close(): Promise<void> {
+     if (this.closed) return;
+     this.closed = true;
++    this.#ownedDecisionInputs.revoke(); this.#ownedDecisionBatch = null;
+     this.#requestHealth?.revoke(); this.#ownerKnowledge?.revoke();
+     this.#deliveryLedger.revoke();
+     this.#originalCreation.revoke();
+--- /dev/null
++++ b/sim-core/src/owned_decision_input.ts
+@@ -0,0 +1,175 @@
++import { isDeepStrictEqual, types as utilTypes } from 'node:util';
++import type { CanonicalActionRequestContext } from './canonical_action';
++import type { ObservableBattleState } from './observable_state';
++import type { OwnerKnowledgeHandle, OwnerKnowledgeRead } from './native_owner_knowledge';
++import type { PlayerID } from './types';
++import type { PipelineBoundary } from './pipeline_integration';
++import type { CommittedRequestDelivery, RequestDeliveryBoundary } from './request_delivery_ledger';
++import type { RequestEmissionReceipt } from './request_emission_trace';
++
++export interface OwnedDecisionInput {
++  readonly observation: ObservableBattleState;
++  readonly knowledge: OwnerKnowledgeRead;
++  readonly action_context: CanonicalActionRequestContext;
++  readonly legal_indices: readonly number[];
++  readonly completeness: 'incomplete';
++}
++
++export interface OwnedDecisionOrder {
++  readonly indices: readonly number[];
++}
++
++export type OwnedActionOrderCallback = (input: OwnedDecisionInput) => readonly number[];
++export interface OwnedActionOrderRegistration {
++  readonly recipient: object;
++  readonly callback: OwnedActionOrderCallback;
++}
++export type OwnedActionOrderRegistrations = Readonly<Record<PlayerID, OwnedActionOrderRegistration>>;
++
++export interface OwnedDecisionFrame {
++  readonly owner: PlayerID;
++  readonly recipient: object;
++  readonly knowledge_handle: OwnerKnowledgeHandle;
++  readonly knowledge: OwnerKnowledgeRead;
++  readonly observation: ObservableBattleState;
++  readonly environment: object;
++  readonly boundary: PipelineBoundary;
++  readonly session_occurrence: object;
++  readonly delivery_boundary: RequestDeliveryBoundary;
++  readonly current_delivery: CommittedRequestDelivery;
++  readonly selected_receipt: RequestEmissionReceipt;
++  readonly action_context: CanonicalActionRequestContext;
++  readonly legal_indices: readonly number[];
++}
++
++type PrivateFrame = OwnedDecisionFrame & { order: OwnedDecisionOrder; input: OwnedDecisionInput };
++const fixed = (code: string): Error => new Error(`owned-decision-input/v1/${code}`);
++const SAFE_ERRORS = new Set([
++  'owned-decision-input/v1/revoked',
++  'owned-decision-input/v1/invalid-order',
++  'owned-decision-input/v1/callback-failed',
++  'owned-decision-input/v1/synchronous-callback-required',
++  'owned-decision-input/v1/foreign-or-stale-order',
++  'owned-decision-input/v1/invalid-batch',
++  'owned-decision-input/v1/stale-or-unsupported-frame',
++  'owned-decision-input/v1/stale-action-context',
++  'owned-decision-input/v1/unsupported-frame',
++  'owned-decision-input/v1/reentrant-call',
++]);
++
++export function sanitizeOwnedDecisionInputError(error: unknown): Error | undefined {
++  try {
++    if (!(error instanceof Error)) return undefined;
++    const message = error.message;
++    if (typeof message !== 'string' || !SAFE_ERRORS.has(message)) return undefined;
++    return fixed(message.slice('owned-decision-input/v1/'.length));
++  } catch {
++    return undefined;
++  }
++}
++
++function deepFreeze<T>(value: T): T {
++  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
++    for (const child of Object.values(value as Record<string, unknown>)) deepFreeze(child);
++    Object.freeze(value);
++  }
++  return value;
++}
++
++function permutation(value: unknown, legal: readonly number[]): readonly number[] {
++  try {
++    if (!Array.isArray(value) || value.length !== legal.length) throw fixed('invalid-order');
++    const result: number[] = [];
++    for (let i = 0; i < value.length; i++) {
++      if (!Object.hasOwn(value, i)) throw fixed('invalid-order');
++      const index: unknown = value[i];
++      if (typeof index !== 'number' || !Number.isSafeInteger(index) || !legal.includes(index) || result.includes(index)) {
++        throw fixed('invalid-order');
++      }
++      result.push(index);
++    }
++    if (result.length !== legal.length) throw fixed('invalid-order');
++    return Object.freeze(result);
++  } catch (error) {
++    throw fixed('invalid-order');
++  }
++}
++
++/** Session-local issuer. The private frame table is keyed only by held order identity. */
++export class OwnedDecisionInputController {
++  readonly #frames = new WeakMap<object, PrivateFrame>();
++  readonly #pending = new Map<PlayerID, PrivateFrame>();
++  #closed = false;
++
++  issue(frame: OwnedDecisionFrame, callback: OwnedActionOrderCallback, validate: () => void): OwnedDecisionOrder {
++    try {
++      if (this.#closed) throw fixed('revoked');
++      validate();
++      if (this.#pending.has(frame.owner)) this.#pending.clear();
++      const input = deepFreeze({
++        observation: frame.observation,
++        knowledge: frame.knowledge,
++        action_context: frame.action_context,
++        legal_indices: Object.freeze([...frame.legal_indices]),
++        completeness: 'incomplete' as const,
++      });
++      let returned: unknown;
++      try { returned = callback(input); } catch { throw fixed('callback-failed'); }
++      if (utilTypes.isPromise(returned)) {
++        try { void Promise.prototype.then.call(returned as Promise<unknown>, undefined, () => undefined); } catch { /* fixed denial below */ }
++        throw fixed('synchronous-callback-required');
++      }
++      if (!Array.isArray(returned)) throw fixed('synchronous-callback-required');
++      const indices = permutation(returned, frame.legal_indices);
++      validate();
++      const order: OwnedDecisionOrder = Object.freeze({ indices });
++      const privateFrame: PrivateFrame = Object.freeze({ ...frame, order, input });
++      this.#frames.set(order as object, privateFrame);
++      this.#pending.set(frame.owner, privateFrame);
++      return order;
++    } catch (error) {
++      this.#pending.clear();
++      const safeError = sanitizeOwnedDecisionInputError(error);
++      if (safeError) throw safeError;
++      throw fixed('stale-or-unsupported-frame');
++    }
++  }
++
++  assertBatch(
++    orders: readonly OwnedDecisionOrder[],
++    expectedOwners: readonly PlayerID[],
++    validate: (frame: OwnedDecisionFrame) => void,
++  ): ReadonlyMap<PlayerID, OwnedDecisionFrame> {
++    if (this.#closed) throw fixed('revoked');
++    try {
++      if (!Array.isArray(orders) || orders.length !== expectedOwners.length
++        || new Set(expectedOwners).size !== expectedOwners.length) throw fixed('invalid-batch');
++      const frames = new Map<PlayerID, OwnedDecisionFrame>();
++      for (const order of orders) {
++        const frame = order && typeof order === 'object' ? this.#frames.get(order as object) : undefined;
++        if (!frame || frames.has(frame.owner) || this.#pending.get(frame.owner) !== frame) throw fixed('foreign-or-stale-order');
++        validate(frame);
++        if (!isDeepStrictEqual(order.indices, frame.order.indices)) throw fixed('foreign-or-stale-order');
++        frames.set(frame.owner, frame);
++      }
++      if (expectedOwners.some(owner => !frames.has(owner)) || this.#pending.size !== frames.size) throw fixed('invalid-batch');
++      this.#pending.clear();
++      return frames;
++    } catch (error) {
++      this.#pending.clear();
++      const safeError = sanitizeOwnedDecisionInputError(error);
++      if (safeError) throw safeError;
++      throw fixed('stale-or-unsupported-frame');
++    }
++  }
++
++  invalidate(): void { this.#pending.clear(); }
++  revoke(): void { this.#closed = true; this.#pending.clear(); }
++}
++
++export function assertCanonicalContextEqual(
++  expected: CanonicalActionRequestContext,
++  actual: CanonicalActionRequestContext,
++): void {
++  if (!isDeepStrictEqual(expected, actual)) throw fixed('stale-action-context');
++}
+--- /dev/null
++++ b/sim-core/tests/pipeline_owned_decision_input.test.ts
+@@ -0,0 +1,406 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { runInNewContext } from 'node:vm';
++import { Teams } from 'pokemon-showdown';
++import { canonicalActionFromLegalAction } from '../src/canonical_action';
++import { LocalBattleEnv } from '../src/env_manager';
++import { NativeBirthEnrollment } from '../src/owner_identity_crosswalk';
++import { continuePipelineEpisode, runPipelineEpisode } from '../src/pipeline_episode';
++import { createPipelineIntegrationSession, type PipelineIntegrationSession } from '../src/pipeline_integration';
++import type { OwnedActionOrderRegistrations, OwnedDecisionInput, OwnedDecisionOrder } from '../src/owned_decision_input';
++import type { PlayerID } from '../src/types';
++
++const SEED = [101, 202, 303, 404] as const;
++const BASIC_TEAMS = [
++  'Alpha (Magikarp)\nAbility: Swift Swim\n- Splash\n- Tackle\n\nBeta (Magikarp)\nAbility: Swift Swim\n- Splash',
++  'Gamma (Magikarp)\nAbility: Swift Swim\n- Splash\n- Tackle\n\nDelta (Magikarp)\nAbility: Swift Swim\n- Splash',
++] as const;
++type Recipients = Record<PlayerID, object>;
++
++function recipients(): Recipients { return { p1: {}, p2: {} }; }
++
++function registrations(
++  registered: Recipients,
++  onInput: (owner: PlayerID, input: OwnedDecisionInput) => readonly number[],
++): OwnedActionOrderRegistrations {
++  return Object.freeze({
++    p1: Object.freeze({ recipient: registered.p1, callback: (input: OwnedDecisionInput) => onInput('p1', input) }),
++    p2: Object.freeze({ recipient: registered.p2, callback: (input: OwnedDecisionInput) => onInput('p2', input) }),
++  });
++}
++
++async function withTeams<T>(teams: readonly [string, string], run: () => Promise<T>): Promise<T> {
++  const original = Teams.generate;
++  let generated = 0;
++  try {
++    Teams.generate = function () {
++      const team = teams[generated++];
++      assert.ok(team, 'only the two registered teams are generated');
++      return Teams.import(team)!;
++    };
++    return await run();
++  } finally { Teams.generate = original; }
++}
++
++async function sessionWithTeams(teams: readonly [string, string], id: string, registered = recipients()): Promise<PipelineIntegrationSession> {
++  return withTeams(teams, () => createPipelineIntegrationSession({
++    battle_id: id, format: 'gen9randombattle', seed: [...SEED], knowledge_recipients: registered,
++  }));
++}
++
++function assertIncompleteOwnerInput(input: OwnedDecisionInput, owner: PlayerID): void {
++  assert.equal(input.completeness, 'incomplete');
++  assert.equal(input.knowledge.projection.owner, owner);
++  assert.equal(input.observation.perspective, owner);
++  assert.ok(Object.isFrozen(input));
++  assert.ok(Object.isFrozen(input.observation));
++  assert.ok(Object.isFrozen(input.knowledge));
++  assert.ok(Object.isFrozen(input.knowledge.projection.current));
++  assert.ok(Object.isFrozen(input.action_context.legal_actions));
++  assert.ok(Object.isFrozen(input.legal_indices));
++  assert.deepEqual(input.legal_indices, input.action_context.legal_actions.available_indices);
++  assert.equal('session' in input, false);
++  assert.equal('environment' in input, false);
++  assert.equal('recipient' in input, false);
++}
++
++function action(session: PipelineIntegrationSession, owner: PlayerID, choice: string) {
++  const request = session.boundary.perspectives[owner].observation.request!;
++  const legal = request.legal_actions.actions.find(candidate => candidate?.choice === choice);
++  assert.ok(legal, `${choice} is legal for ${owner}`);
++  return canonicalActionFromLegalAction(request, legal.index);
++}
++
++test('P57 actual runner gives both owners immutable incomplete inputs and uses a changed owned ability to order actions', async () => {
++  const registered = recipients();
++  const calls: PlayerID[] = [];
++  let startingAbility: unknown;
++  let currentAbility: unknown;
++  const result = await withTeams([
++    'Gardevoir\nAbility: Trace\n- Splash\n- Tackle',
++    'Blissey\nAbility: Natural Cure\n- Splash',
++  ], () => runPipelineEpisode({
++    battle_id: 'p57-owned-ability-order', format: 'gen9randombattle', seed: [...SEED],
++    limits: { max_transitions: 1 }, policy_id: 'p57-owned-ability/v1', accept_incomplete: true,
++    knowledge_recipients: registered,
++    owned_action_order: registrations(registered, (owner, input) => {
++      calls.push(owner);
++      assertIncompleteOwnerInput(input, owner);
++      const subject = `${owner}:roster:1`;
++      const originalFact = input.knowledge.projection.starting.find((fact: any) => fact.subject === subject && fact.property === 'ability');
++      const currentFact = input.knowledge.projection.current.find((fact: any) => fact.subject === subject && fact.property === 'ability');
++      if (owner === 'p1') {
++        startingAbility = originalFact?.value?.data;
++        currentAbility = currentFact?.value?.data;
++        assert.equal(startingAbility, 'Trace');
++        assert.equal(currentAbility, 'naturalcure');
++        assert.ok(input.legal_indices.length > 1);
++      }
++      const indices = [...input.legal_indices];
++      if (owner === 'p1' && currentAbility === 'naturalcure') {
++        const tackle = input.action_context.legal_actions.actions.find(candidate => candidate?.choice === 'move 2');
++        assert.ok(tackle);
++        return [tackle.index, ...indices.filter(index => index !== tackle.index)];
++      }
++      return indices;
++    }),
++  }));
++  assert.equal(result.counts.committed_transitions, 1);
++  assert.deepEqual(calls, ['p1', 'p2']);
++  assert.notEqual(currentAbility, startingAbility);
++  const tackle = result.records.p1[0].input_observation.request!.legal_actions.actions.find(candidate => candidate?.choice === 'move 2');
++  assert.ok(tackle);
++  assert.equal(result.records.p1[0].action.index, tackle.index);
++  const output = JSON.stringify(result);
++  assert.doesNotMatch(output, /perspective-knowledge-consumer|owned-active-options|p57-private-sentinel/);
++});
++
++test('P57 forced and Revival decisions call only the acting owner; waiting and terminal owners receive no callback', async () => {
++  const forcedRecipients = recipients();
++  const forcedTeams = [
++    'First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer (Pawmot)\nAbility: Iron Fist\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash',
++    'Watcher (Giratina)\nAbility: Pressure\n- Splash\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash',
++  ] as const;
++  const forced = await sessionWithTeams(forcedTeams, 'p57-forced-owner', forcedRecipients);
++  try {
++    await forced.step({ p1: action(forced, 'p1', 'move 2'), p2: action(forced, 'p2', 'move 1') });
++    assert.equal(forced.boundary.kind, 'one_sided_forced_switch');
++    const actor = (['p1', 'p2'] as const).find(owner => forced.boundary.perspectives[owner].observation.request?.force_switch)!;
++    const waiting = actor === 'p1' ? 'p2' : 'p1';
++    let called: PlayerID[] = [];
++    const before = forced.boundary;
++    assert.throws(() => forced.withOwnedDecisionInput(forcedRecipients[waiting], () => {
++      called.push(waiting);
++      return [];
++    }), /owned-decision-input\/v1/);
++    assert.equal(called.length, 0);
++    const forcedResult = await continuePipelineEpisode(forced, {
++      limits: { max_transitions: 1 }, policy_id: 'p57-forced/v1', accept_incomplete: true,
++      owned_action_order: registrations(forcedRecipients, (owner, input) => {
++        called.push(owner); assertIncompleteOwnerInput(input, owner); return input.legal_indices;
++      }),
++    });
++    assert.equal(forcedResult.counts.committed_transitions, 1);
++    assert.deepEqual(called, [actor]);
++    assert.equal(forcedResult.initial_boundary?.step_index, before.step_index);
++  } finally { await forced.close(); }
++
++  const revivalRecipients = recipients();
++  const revival = await sessionWithTeams(forcedTeams, 'p57-revival-owner', revivalRecipients);
++  try {
++    await revival.step({ p1: action(revival, 'p1', 'move 2'), p2: action(revival, 'p2', 'move 1') });
++    assert.equal(revival.boundary.kind, 'one_sided_forced_switch');
++    await revival.stepForcedSwitch(action(revival, 'p1', 'switch 2'));
++    await revival.step({ p1: action(revival, 'p1', 'move 1'), p2: action(revival, 'p2', 'move 1') });
++    assert.equal(revival.boundary.kind, 'one_sided_revival');
++    const called: PlayerID[] = [];
++    const revivalResult = await continuePipelineEpisode(revival, {
++      limits: { max_transitions: 1 }, policy_id: 'p57-revival/v1', accept_incomplete: true,
++      owned_action_order: registrations(revivalRecipients, (owner, input) => {
++        called.push(owner); assertIncompleteOwnerInput(input, owner); return [...input.legal_indices].reverse();
++      }),
++    });
++    assert.equal(revivalResult.counts.committed_transitions, 1);
++    assert.deepEqual(called, ['p1']);
++  } finally { await revival.close(); }
++
++  const registered = recipients();
++  const terminal = await sessionWithTeams([
++    'Attacker (Mewtwo)\nAbility: Pressure\n- Psystrike',
++    'Target (Magikarp)\nLevel: 1\nAbility: Swift Swim\n- Splash',
++  ], 'p57-terminal-owner', registered);
++  try {
++    await terminal.step({ p1: action(terminal, 'p1', 'move 1'), p2: action(terminal, 'p2', 'move 1') });
++    assert.equal(terminal.boundary.kind, 'terminal');
++    const called: PlayerID[] = [];
++    const result = await continuePipelineEpisode(terminal, {
++      policy_id: 'p57-terminal/v1', accept_incomplete: true,
++      owned_action_order: registrations(registered, (owner, input) => {
++        called.push(owner); return input.legal_indices;
++      }),
++    });
++    assert.equal(result.counts.attempts, 0);
++    assert.deepEqual(called, []);
++  } finally { await terminal.close(); }
++});
++
++test('P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders', async () => {
++  const registered = recipients();
++  const session = await sessionWithTeams(BASIC_TEAMS, 'p57-order-authority', registered);
++  const foreignRecipients = recipients();
++  const foreign = await sessionWithTeams(BASIC_TEAMS, 'p57-order-foreign', foreignRecipients);
++  const copiedRecipients = recipients();
++  const copiedSession = await sessionWithTeams(BASIC_TEAMS, 'p57-order-copy', copiedRecipients);
++  try {
++    type Contexts = Record<PlayerID, OwnedDecisionInput['action_context']>;
++    const contexts = (): Contexts => ({} as Contexts);
++    const makeOrders = (target: PipelineIntegrationSession, authority: Recipients, captured: Contexts) => [
++      target.withOwnedDecisionInput(authority.p1, input => { captured.p1 = input.action_context; return input.legal_indices; }),
++      target.withOwnedDecisionInput(authority.p2, input => { captured.p2 = input.action_context; return input.legal_indices; }),
++    ] as const;
++    const ownContext = contexts();
++    const foreignContext = contexts();
++    const [ownP1, ownP2] = makeOrders(session, registered, ownContext);
++    const [foreignP1, foreignP2] = makeOrders(foreign, foreignRecipients, foreignContext);
++    for (const owner of ['p1', 'p2'] as const) {
++      assert.deepEqual(ownContext[owner], foreignContext[owner]);
++      assert.notStrictEqual(ownContext[owner], foreignContext[owner]);
++      const ownDelivery = session.readRequestDeliveryHistory(session.getRequestDeliveryHandle(owner), owner).boundaries.at(-1)!.current!;
++      const foreignDelivery = foreign.readRequestDeliveryHistory(foreign.getRequestDeliveryHandle(owner), owner).boundaries.at(-1)!.current!;
++      assert.notStrictEqual(ownDelivery.delivery_reference, foreignDelivery.delivery_reference);
++      assert.notStrictEqual(ownDelivery.source.producer_occurrence, foreignDelivery.source.producer_occurrence);
++    }
++    session.assertOwnedDecisionBatch([ownP1, ownP2]);
++    assert.throws(() => session.assertOwnedDecisionBatch([foreignP1, foreignP2]), /owned-decision-input\/v1/);
++
++    const [copiedP1, copiedP2] = makeOrders(copiedSession, copiedRecipients, contexts());
++    const copied = Object.freeze({ indices: [...copiedP1.indices] }) as OwnedDecisionOrder;
++    assert.throws(() => copiedSession.assertOwnedDecisionBatch([copied, copiedP2]), /owned-decision-input\/v1/);
++
++    const originalJson = {} as Record<PlayerID, string>;
++    const originalDelivery = {} as Record<PlayerID, object>;
++    const originalProducer = {} as Record<PlayerID, object>;
++    for (const owner of ['p1', 'p2'] as const) {
++      const delivery = session.readRequestDeliveryHistory(session.getRequestDeliveryHandle(owner), owner).boundaries.at(-1)!.current!;
++      originalJson[owner] = delivery.source.request_json;
++      originalDelivery[owner] = delivery.delivery_reference;
++      originalProducer[owner] = delivery.source.producer_occurrence;
++    }
++    const [oldP1, oldP2] = makeOrders(session, registered, contexts());
++    for (let turn = 0; turn < 2; turn++) {
++      await session.step({ p1: action(session, 'p1', 'switch 2'), p2: action(session, 'p2', 'switch 2') });
++    }
++    for (const owner of ['p1', 'p2'] as const) {
++      const delivery = session.readRequestDeliveryHistory(session.getRequestDeliveryHandle(owner), owner).boundaries.at(-1)!.current!;
++      assert.equal(delivery.source.request_json, originalJson[owner]);
++      assert.notStrictEqual(delivery.delivery_reference, originalDelivery[owner]);
++      assert.notStrictEqual(delivery.source.producer_occurrence, originalProducer[owner]);
++    }
++    assert.throws(() => session.assertOwnedDecisionBatch([oldP1, oldP2]), /owned-decision-input\/v1/);
++
++    const swapped = recipients();
++    let wrongOwnerCallback = 0;
++    const result = await withTeams(BASIC_TEAMS, () => runPipelineEpisode({
++      battle_id: 'p57-order-wrong-owner', format: 'gen9randombattle', seed: [...SEED],
++      limits: { max_transitions: 1 }, policy_id: 'p57-wrong-owner/v1', accept_incomplete: true,
++      knowledge_recipients: swapped,
++      owned_action_order: Object.freeze({
++        p1: Object.freeze({ recipient: swapped.p2, callback: (input: OwnedDecisionInput) => { wrongOwnerCallback++; return input.legal_indices; } }),
++        p2: Object.freeze({ recipient: swapped.p1, callback: (input: OwnedDecisionInput) => { wrongOwnerCallback++; return input.legal_indices; } }),
++      }),
++    }));
++    assert.equal(result.counts.attempts, 0);
++    assert.equal(result.counts.committed_transitions, 0);
++    assert.equal(wrongOwnerCallback, 0);
++
++    const differentRecipients = recipients();
++    const callerSession = await sessionWithTeams(BASIC_TEAMS, 'p57-new-recipient-continuation', differentRecipients);
++    try {
++      const alien = recipients();
++      let alienCallback = 0;
++      const continuation = await continuePipelineEpisode(callerSession, {
++        policy_id: 'p57-new-recipient/v1', accept_incomplete: true,
++        owned_action_order: registrations(alien, (_owner, input) => { alienCallback++; return input.legal_indices; }),
++      });
++      assert.equal(continuation.counts.attempts, 0);
++      assert.equal(continuation.counts.committed_transitions, 0);
++      assert.equal(alienCallback, 0);
++    } finally { await callerSession.close(); }
++
++    const unsupportedRecipients = recipients();
++    const transfer = NativeBirthEnrollment.prototype.transferRequestHealthActors;
++    let unsupported: PipelineIntegrationSession;
++    try {
++      NativeBirthEnrollment.prototype.transferRequestHealthActors = function (enrollment, battle) {
++        transfer.call(this, enrollment, battle);
++        battle.p1!.active[0].addVolatile('mustrecharge');
++      };
++      unsupported = await sessionWithTeams(BASIC_TEAMS, 'p57-unsupported-owner', unsupportedRecipients);
++    } finally { NativeBirthEnrollment.prototype.transferRequestHealthActors = transfer; }
++    try {
++      const held = unsupported.readOwnerKnowledge(unsupported.getOwnerKnowledgeHandle(unsupportedRecipients.p1), unsupportedRecipients.p1);
++      assert.equal(held.projection.request?.state, 'unsupported');
++      let unsupportedCallback = 0;
++      assert.throws(() => unsupported.withOwnedDecisionInput(unsupportedRecipients.p1, () => {
++        unsupportedCallback++; return [];
++      }), error => error instanceof Error && error.message === 'owned-decision-input/v1/stale-or-unsupported-frame');
++      assert.equal(unsupportedCallback, 0);
++    } finally { await unsupported.close(); }
++  } finally { await copiedSession.close(); await foreign.close(); await session.close(); }
++});
++
++test('P57 callback exceptions promises invalid permutations reentrancy and close fail before transitions', async () => {
++  const originalGenerate = Teams.generate;
++  let generatedTeams = 0;
++  let optionCallbackCalls = 0;
++  Teams.generate = function () { generatedTeams++; return Teams.import(BASIC_TEAMS[0])!; };
++  try {
++    const invalidVariants: Array<{ label: string; override: Record<string, unknown> }> = [
++      { label: 'missing incomplete-input acknowledgement', override: { accept_incomplete: undefined } },
++      { label: 'false incomplete-input acknowledgement', override: { accept_incomplete: false } },
++      { label: 'unversioned policy', override: { policy_id: 'p57-unversioned' } },
++      { label: 'legacy ordering coexistence', override: { action_order: () => [0] } },
++    ];
++    for (const variant of invalidVariants) {
++      const registered = recipients();
++      const result = await runPipelineEpisode({
++        battle_id: `p57-options-${variant.label}`, format: 'gen9randombattle', seed: [...SEED],
++        limits: { max_transitions: 1 }, policy_id: 'p57-options/v1', accept_incomplete: true,
++        knowledge_recipients: registered,
++        owned_action_order: registrations(registered, (_owner, input) => { optionCallbackCalls++; return input.legal_indices; }),
++        ...variant.override,
++      } as any);
++      assert.equal(result.stop.code, 'episode/v1/invalid-options', variant.label);
++      assert.equal(result.counts.attempts, 0, variant.label);
++      assert.equal(result.counts.committed_transitions, 0, variant.label);
++      assert.equal(optionCallbackCalls, 0, variant.label);
++      assert.equal(generatedTeams, 0, variant.label);
++    }
++  } finally { Teams.generate = originalGenerate; }
++
++  const registered = recipients();
++  const session = await sessionWithTeams(BASIC_TEAMS, 'p57-callback-errors', registered);
++  const boundary = session.boundary;
++  try {
++    const firstOwnerOrder = session.withOwnedDecisionInput(registered.p1, input => input.legal_indices);
++    assert.throws(() => session.withOwnedDecisionInput(registered.p2, () => { throw new Error('second-owner failure'); }),
++      error => error instanceof Error && error.message === 'owned-decision-input/v1/callback-failed');
++    const freshSecondOwnerOrder = session.withOwnedDecisionInput(registered.p2, input => input.legal_indices);
++    assert.throws(() => session.assertOwnedDecisionBatch([firstOwnerOrder, freshSecondOwnerOrder]),
++      /owned-decision-input\/v1\/(foreign-or-stale-order|invalid-batch)/);
++
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, () => { throw new Error('private callback payload'); }),
++      error => error instanceof Error && error.message === 'owned-decision-input/v1/callback-failed');
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, (() => Promise.resolve([0])) as any),
++      /owned-decision-input\/v1\/synchronous-callback-required/);
++    const foreignRejection = runInNewContext('Promise.reject(new Error("private foreign payload"))') as Promise<unknown>;
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, (() => foreignRejection) as any),
++      /owned-decision-input\/v1\/synchronous-callback-required/);
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, () => []), /owned-decision-input\/v1\/invalid-order/);
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, input => new Proxy([...input.legal_indices], {
++      get(target, property, receiver) {
++        if (property === '0') throw new Error('owned-decision-input/v1/private callback payload');
++        return Reflect.get(target, property, receiver);
++      },
++    })), error => error instanceof Error && error.message === 'owned-decision-input/v1/invalid-order');
++    const pendingP1 = session.withOwnedDecisionInput(registered.p1, input => input.legal_indices);
++    const pendingP2 = session.withOwnedDecisionInput(registered.p2, input => input.legal_indices);
++    const malformedBatch = new Proxy([pendingP1, pendingP2], {
++      get(target, property, receiver) {
++        if (property === Symbol.iterator) throw new Error('owned-decision-input/v1/private batch payload');
++        return Reflect.get(target, property, receiver);
++      },
++    });
++    assert.throws(() => session.assertOwnedDecisionBatch(malformedBatch),
++      error => error instanceof Error && error.message === 'owned-decision-input/v1/stale-or-unsupported-frame');
++    let reentrant: Promise<unknown> | undefined;
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, input => {
++      reentrant = session.step(); void reentrant.catch(() => undefined);
++      return input.legal_indices;
++    }), /owned-decision-input\/v1\/stale-or-unsupported-frame/);
++    await assert.rejects(reentrant!, /owned-decision-input\/v1\/reentrant-call/);
++    assert.equal(session.boundary, boundary);
++    let closeResult: Promise<void> | undefined;
++    assert.throws(() => session.withOwnedDecisionInput(registered.p1, input => {
++      closeResult = session.close(); void closeResult.catch(() => undefined);
++      return input.legal_indices;
++    }), /owned-decision-input\/v1\/revoked/);
++    await closeResult;
++  } finally { await session.close(); }
++});
++
++test('P57 rejected candidate reissues owner frames from the unchanged committed boundary', async () => {
++  const registered = recipients();
++  const inputs: Record<PlayerID, OwnedDecisionInput[]> = { p1: [], p2: [] };
++  const original = LocalBattleEnv.prototype.diagnostics;
++  let rejected = false;
++  try {
++    LocalBattleEnv.prototype.diagnostics = function () {
++      const base = original.call(this) as Record<string, unknown>;
++      if (!rejected && this.id.includes('pipeline-step-0')) {
++        rejected = true;
++        const players = base.players as Record<PlayerID, Record<string, unknown>>;
++        return { ...base, players: { ...players, p1: { ...players.p1, last_choice_error: { message: 'P57 scoped candidate rejection' } } } };
++      }
++      return base;
++    };
++    const result = await withTeams(BASIC_TEAMS, () => runPipelineEpisode({
++      battle_id: 'p57-rejection-retry', format: 'gen9randombattle', seed: [...SEED],
++      limits: { max_transitions: 1, max_attempts: 3, max_rejections_per_boundary: 2 },
++      policy_id: 'p57-retry/v1', accept_incomplete: true, knowledge_recipients: registered,
++      owned_action_order: registrations(registered, (owner, input) => {
++        inputs[owner].push(input);
++        return [...input.legal_indices].reverse();
++      }),
++    }));
++    assert.equal(rejected, true);
++    assert.equal(result.counts.rejected_candidates, 1);
++    assert.equal(result.counts.committed_transitions, 1);
++    for (const owner of ['p1', 'p2'] as const) {
++      assert.equal(inputs[owner].length, 2);
++      assert.notEqual(inputs[owner][0], inputs[owner][1]);
++      assert.equal(inputs[owner][0].observation, inputs[owner][1].observation);
++      assert.deepEqual(inputs[owner][0].knowledge, inputs[owner][1].knowledge);
++    }
++  } finally { LocalBattleEnv.prototype.diagnostics = original; }
++});

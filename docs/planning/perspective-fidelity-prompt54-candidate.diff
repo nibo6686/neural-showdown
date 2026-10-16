@@ -1,0 +1,1360 @@
+--- a/sim-core/src/owned_request_health.ts
++++ b/sim-core/src/owned_request_health.ts
+@@ -16,7 +16,8 @@
+ let decoding = false;
+ function need(value: unknown, reason: string): asserts value { if (!value) throw new Error('request-health/v1/' + reason); }
+ const token = (): object => Object.freeze(Object.create(null));
+-type Row = { actor: any; data: any; condition: string; hp: number; maxhp: number; status: string; fainted: boolean };
++type Identifiers = { itemPresent: boolean; item: unknown; abilityPresent: boolean; ability: unknown; nativeItem: unknown; nativeAbility: unknown };
++type Row = { identifiers?: Identifiers; actor: any; data: any; condition: string; hp: number; maxhp: number; status: string; fainted: boolean };
+ type NativeMoveSlot = { reference: any; id: string; pp: number; maxpp: number; virtual: unknown };
+ type MoveSource = { actor: any; data?: any; array?: any[]; slots?: readonly NativeMoveSlot[]; moves?: any[];
+   rows?: readonly { reference: any; id: string; label: string; pp: number; maxpp: number }[];
+@@ -104,7 +105,8 @@
+         this.replace(world, actor, 'getSwitchRequestData', (...args: any[]) => {
+           const data = writer.apply(actor, args);
+           if (args[0] !== true) this.#rowData.set(data, { actor, data, condition: data.condition,
+-            hp: actor.hp, maxhp: actor.maxhp, status: actor.status, fainted: actor.fainted });
++            hp: actor.hp, maxhp: actor.maxhp, status: actor.status, fainted: actor.fainted, identifiers: {
++              itemPresent: Object.hasOwn(data, 'item'), item: data.item, abilityPresent: Object.hasOwn(data, 'ability'), ability: data.ability, nativeItem: actor.item, nativeAbility: actor.ability } });
+           return data;
+         });
+       }
+@@ -248,6 +250,21 @@
+     if (world.rows) need(capture.rows.length === world.rows[capture.owner].objects.length
+       && new Set(capture.rows.map(row => row.actor)).size === capture.rows.length
+       && capture.rows.every(row => world.rows![capture.owner].objects.includes(row.actor)), 'unbound-or-duplicate-subject');
++    for (const row of capture.rows) {
++      const ids = row.identifiers; if (!ids) continue; // Overlay clones have no admitted identifier writer lineage.
++      for (const property of ['item','ability'] as const) {
++        const present = property === 'item' ? ids.itemPresent : ids.abilityPresent;
++        const value = ids[property], native = property === 'item' ? ids.nativeItem : ids.nativeAbility;
++        need(Object.hasOwn(row.data, property) === present && row.data[property] === value, 'altered-identifier-row');
++        if (present) {
++          need(typeof value === 'string' && (value === '' || /^[a-z0-9]+$/.test(value)), 'identifier-grammar');
++          const catalog = property === 'item' ? world.battle.dex.items : world.battle.dex.abilities;
++          need(value === '' || catalog.get(value as string).exists === true && catalog.get(value as string).id === value, 'unknown-identifier');
++          need(value === native, 'contradictory-identifier');
++        }
++        if (settled) need(row.actor[property] === native, 'stale-identifier');
++      }
++    }
+     if (settled) need(capture.rows.every(row => row.actor.hp === row.hp && row.actor.maxhp === row.maxhp
+       && row.actor.status === row.status && row.actor.fainted === row.fainted), 'stale-settled-value');
+   }
+@@ -318,6 +335,20 @@
+             freshness: 'current', precision: unknown || value === null ? 'not_applicable' : 'exact', observed_at: unknown ? null : row.boundary_cursor }));
+         }
+       }
++      for (const [i, actor] of world.rows[owner].objects.entries()) {
++        const writer = usable ? capture!.rows.find(row => row.actor === actor) : undefined;
++        for (const property of ['item','ability'] as const) {
++          const ids = writer?.identifiers;
++          const present = ids && (property === 'item' ? ids.itemPresent : ids.abilityPresent);
++          const value = present ? ids![property] : undefined;
++          const unknown = !present || property === 'ability' && value === '';
++          out.push(Object.freeze({ owner, subject: owner + ':roster:' + (i + 1), family: property === 'item' ? 'K18' : 'K19', property, effect_key: null,
++            state: unknown ? 'unknown' : value === '' ? 'known_absent' : 'known',
++            value: unknown || value === '' ? null : Object.freeze({ type: 'text', data: value }),
++            reason: unknown ? states[owner] === 'terminal' || states[owner] === 'requestless' || usable && !present ? 'not_emitted' : 'unsupported_writer' : 'none',
++            freshness: 'current', precision: unknown || value === '' ? 'not_applicable' : 'exact', observed_at: unknown ? null : row.boundary_cursor }));
++        }
++      }
+       facts[owner] = Object.freeze(out);
+       descriptors[owner] = this.descriptor(usable ? capture! : undefined, world, owner, states[owner], row);
+     }
+--- a/sim-core/src/native_owner_knowledge.ts
++++ b/sim-core/src/native_owner_knowledge.ts
+@@ -1,6 +1,6 @@
+ import { OwnedRequestHealthHost } from './owned_request_health';
+ import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+-import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection } from './perspective_knowledge';
++import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
+ import { assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
+ import type { PipelineBoundary } from './pipeline_integration';
+ import type { PlayerID } from './types';
+@@ -63,7 +63,7 @@
+     return this.#frame;
+   }
+   prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null, healthHost?: OwnedRequestHealthHost, healthToken?: object): object {
+-    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerActiveOptionsContext() : nativeOwnerProjectionContext()).profile;
++    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerIdentifiersContext() : nativeOwnerProjectionContext()).profile;
+     if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
+     health?.host.assertPreparedBinding(health.token, environment, boundary, source.rows);
+     const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex) });
+@@ -73,17 +73,17 @@
+       if (obs.perspective !== owner || obs.battle_id !== source.rows[0].labels.battle_id
+         || obs.event_cursor !== obs.protocol_prefix.length || boundary.battle_id !== obs.battle_id) fail('boundary');
+       const count = source.rows[owners.indexOf(owner)].raw_team.length;
+-      const current = profile.rules.filter((r: any) => r.context === 'current' && r.family !== 'K05').flatMap((rule: any) => {
++      const current = profile.rules.filter((r: any) => r.context === 'current' && !(health ? ['K05','K18','K19'] : ['K05']).includes(r.family)).flatMap((rule: any) => {
+         const subjects = rule.subject === 'side' ? [owner + ':side'] : Array.from({ length: count }, (_, i) => owner + ':roster:' + (i + 1));
+         return subjects.map(subject => freeze({ owner, subject, family: rule.family, property: rule.property, effect_key: null,
+           state: 'unknown', value: null, reason: 'unimplemented_family', freshness: 'current', precision: 'not_applicable', observed_at: null }));
+       });
+       const adapted = health?.host.readPrepared(health.token, owner);
+       if (adapted) current.push(...adapted.facts);
+-      const projection: Record<string, any> = { kind: 'projection', id: '', schema: health ? 'perspective-knowledge-consumer/native11-options-v1' : 'perspective-knowledge-consumer/v1', owner,
++      const projection: Record<string, any> = { kind: 'projection', id: '', schema: health ? 'perspective-knowledge-consumer/native11-identifiers-v1' : 'perspective-knowledge-consumer/v1', owner,
+         policy: profile.policy, boundary: boundary.step_index, required_profile: profile.id, result: 'incomplete',
+         starting: starting[owner], starting_crosswalk: [], current, request: adapted?.descriptor ?? null };
+-      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerActiveOptionsProjection : checkNativeOwnerProjection)(projection);
++      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerIdentifiersProjection : checkNativeOwnerProjection)(projection);
+       reads[owner] = freeze({ projection, binding: { observation_id: obs.observation_id,
+         prefix_cursor: obs.event_cursor, ...(adapted ? { request_adaptation: 'owned_health/v1' as const, request_descriptor: 'owned-active-options/v1' as const, request_state: adapted.state } : { request_adaptation: 'not_adopted' as const }) } });
+     }
+@@ -97,7 +97,7 @@
+     entry.health?.host.assertPreparedBinding(entry.health.token, entry.environment, entry.state.parent, source.rows);
+     entry.health?.host.preflight(entry.health.token);
+     for (const owner of owners) {
+-      (entry.health ? checkNativeOwnerActiveOptionsProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
++      (entry.health ? checkNativeOwnerIdentifiersProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
+       if (this.#current && entry.state.starting[owner] !== this.#current.starting[owner]) fail('starting-lineage');
+     }
+     this.#ready = entry;
+--- a/sim-core/src/perspective_knowledge.ts
++++ b/sim-core/src/perspective_knowledge.ts
+@@ -532,7 +532,7 @@
+ export function checkNativeOwnerProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerProjectionContext(), false); }
+ export function checkNativeOwnerHealthProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerHealthProjectionContext(), true); }
+ export function checkNativeOwnerActiveOptionsProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerActiveOptionsContext(), true, true); }
+-function checkOwnerProjection(input: unknown, context: Readonly<{ schema: Row; profile: Row }>, health: boolean, options = false): void {
++function checkOwnerProjection(input: unknown, context: Readonly<{ schema: Row; profile: Row }>, health: boolean, options = false, identifiers = false): void {
+   canonicalKnowledgeJson(input);
+   const value = input as Row;
+   shape(value, context.schema, context.schema.$defs);
+@@ -558,7 +558,7 @@
+       const properties = { [rule.family]: [rule.property] };
+       factShape(fact, old, properties, false);
+       requireStructure(fact.effect_key === null && fact.freshness === (section === 'starting' ? 'immutable' : 'current'), 'native projection lifecycle');
+-      requireStructure(section === 'starting' ? fact.observed_at === 0 : health && fact.family === 'K05' && fact.state !== 'unknown' ? Number.isSafeInteger(fact.observed_at) && fact.observed_at >= 0 : fact.observed_at === null, 'native projection cursor');
++      requireStructure(section === 'starting' ? fact.observed_at === 0 : health && (fact.family === 'K05' || identifiers && ['K18','K19'].includes(fact.family)) && fact.state !== 'unknown' ? Number.isSafeInteger(fact.observed_at) && fact.observed_at >= 0 : fact.observed_at === null, 'native projection cursor');
+       requireStructure(fact.precision === (fact.state === 'known' ? 'exact' : 'not_applicable'), 'native projection precision');
+     }
+   }
+@@ -577,6 +577,13 @@
+     }
+   }
+ 
++  if (identifiers) {
++    for (const fact of value.current.filter((f: Row) => ['K18','K19'].includes(f.family))) {
++      if (fact.state === 'known') requireStructure(fact.value.type === 'text' && /^[a-z0-9]+$/.test(fact.value.data), 'native identifier literal');
++      if (fact.family === 'K19') requireStructure(fact.state !== 'known_absent', 'native ability absence unsupported');
++    }
++  }
++
+   if (options) {
+     const request = value.request;
+     requireStructure((['terminal','requestless'].includes(request.state)) === (request.sequence === null), 'native option sequence');
+@@ -623,3 +630,21 @@
+   function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+   nativeOptionsContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeOptionsContext!;
+ }
++
++/** Fixed private decoder; validation alone grants no writer/delivery authority. */
++export function checkNativeOwnerIdentifiersProjection(input: unknown): void { checkOwnerProjection(input, nativeOwnerIdentifiersContext(), true, true, true); }
++let nativeIdentifiersContext: Readonly<{ schema: Row; profile: Row }> | undefined;
++export function nativeOwnerIdentifiersContext(): Readonly<{ schema: Row; profile: Row }> {
++  if (nativeIdentifiersContext) return nativeIdentifiersContext;
++  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
++    'docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1');
++  const data: Row = {};
++  for (const [name, expected] of Object.entries({"schema.json": "16ea0bc95124776ac0b6b44dd50ce8656e3378a278d446ce631ecfbd206742e7", "profile.json": "9ffbae284efa10ad62b38a43ae096d741f5210573210e70738d382feafb81c03"})) {
++    const bytes = readFileSync(path.join(folder, name));
++    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native identifier contract content');
++    data[name] = parseKnowledgeJson(bytes);
++  }
++  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native identifier profile identity');
++  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
++  nativeIdentifiersContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeIdentifiersContext!;
++}
+--- /dev/null
++++ b/sim-core/tests/owned_request_identifiers.test.ts
+@@ -0,0 +1,68 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import {Teams} from 'pokemon-showdown';
++import {PipelineIntegrationSession} from '../src/pipeline_integration';
++import {OwnedRequestHealthHost} from '../src/owned_request_health';
++import {NativeOwnerKnowledgeController} from '../src/native_owner_knowledge';
++import {LocalBattleEnv} from '../src/env_manager';
++import {checkNativeOwnerIdentifiersProjection,knowledgeIdentity} from '../src/perspective_knowledge';
++import {choice,joint,native,env} from './helpers/owner_selection_restore';
++const owners=['p1','p2'] as const;
++const recipients=()=>({p1:{},p2:{}});
++const read=(s:PipelineIntegrationSession,r:object)=>s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(r),r);
++const emit=(name:string,data:object)=>console.log('P54_WITNESS '+JSON.stringify({name,...data}));
++const basic=['Alpha (Magikarp) @ Leftovers\nAbility: Swift Swim\n- Splash\n\nBeta (Magikarp)\nAbility: Swift Swim\n- Splash','Gamma (Magikarp)\nAbility: Swift Swim\n- Splash\n\nDelta (Magikarp) @ Leftovers\nAbility: Swift Swim\n- Splash'];
++async function create(r:ReturnType<typeof recipients>,teams?:string[]){const generate=Teams.generate;let count=0;if(teams)Teams.generate=()=>Teams.import(teams[count++])!;try{return await PipelineIntegrationSession.create({battle_id:'P54',format:'gen9randombattle',seed:[1,2,3,4],knowledge_recipients:r});}finally{Teams.generate=generate;}}
++const fact=(pair:any,p:string,slot:number,property:string,section='current')=>pair.projection[section].find((f:any)=>f.subject===p+':roster:'+slot&&f.property===property);
++function check(s:PipelineIntegrationSession,r:ReturnType<typeof recipients>){for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);assert.equal(pair.projection.result,'incomplete');const request=env(s).getRequest(p)!.raw as any;
++ for(let slot=1;slot<=pair.projection.starting.find((f:any)=>f.property==='roster_size').value.data;slot++){
++  const actor=native(s)[p]!.pokemon.find(a=>a.set===native(s)[p]!.team[slot-1])!;const row=request.side.pokemon[native(s)[p]!.pokemon.indexOf(actor)];
++  for(const property of ['item','ability']){const f=fact(pair,p,slot,property);assert.equal(f.state,row[property]===''?(property==='item'?'known_absent':'unknown'):'known');if(row[property])assert.equal(f.value.data,row[property]);else assert.equal(f.value,null);if(f.state!=='unknown')assert.equal(f.observed_at,pair.binding.prefix_cursor);assert.equal(row[property],actor[property as 'item'|'ability']);}
++  assert.equal(fact(pair,p,slot,'hp').value.data,actor.hp);
++ }
++ assert.equal(pair.projection.request.state,'ordinary_pp');assert.equal(pair.projection.current.find((f:any)=>f.property==='current_moves').state,'unknown');assert.throws(()=>s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(r[p]),r[p==='p1'?'p2':'p1']),/copied-or-stale/);
++}}
++test('P54 generated both owner identifiers held continuity and privacy',async()=>{const r=recipients(),s=await create(r);try{
++ check(s,r);const first=owners.map(p=>read(s,r[p])),bytes=JSON.stringify(first),actors=owners.map(p=>native(s)[p]!.active[0]);await joint(s,'p1','switch 2','switch 2');check(s,r);await joint(s,'p1','switch 2','switch 2');check(s,r);
++ for(const [i,p] of owners.entries()){assert.equal(read(s,r[p]).projection.starting,first[i].projection.starting);assert.notEqual(native(s)[p]!.active[0],actors[i]);}assert.equal(JSON.stringify(first),bytes);
++ const ordinary=JSON.stringify({boundary:s.boundary,snapshot:(s as any).snapshot,diagnostics:env(s).diagnostics()});assert.ok(!ordinary.includes('native-owner-identifiers'));assert.ok(!ordinary.includes('native11-identifiers-v1'));
++ const malformed:any=structuredClone(read(s,r.p1).projection);fact({projection:malformed},'p1',1,'ability').state='known_absent';fact({projection:malformed},'p1',1,'ability').value=null;fact({projection:malformed},'p1',1,'ability').precision='not_applicable';malformed.id=knowledgeIdentity(malformed);assert.throws(()=>checkNativeOwnerIdentifiersProjection(malformed));assert.throws(()=>s.readOwnerKnowledge(malformed,r.p1),/copied-or-stale/);
++ emit('generated',{both_owners:true,actual_writer_delivery_consumer:true,fresh_B2_actors:true,starting_and_suffix_immutable:true,privacy:true,health_PP_preserved:true});
++}finally{await s.close();}});
++test('P54 constructed Trace consumption empty item and equal delivery',async()=>{let r=recipients(),s=await create(r,['Gardevoir\nAbility: Trace\n- Splash','Blissey\nAbility: Natural Cure\n- Splash']);try{
++ check(s,r);const pair=read(s,r.p1);assert.equal(fact(pair,'p1',1,'ability','starting').value.data,'Trace');assert.equal(fact(pair,'p1',1,'ability').value.data,'naturalcure');assert.equal(fact(pair,'p1',1,'item','starting').state,'known_absent');assert.equal(fact(pair,'p1',1,'item').state,'known_absent');await joint(s,'p1','move 1');check(s,r);assert.equal(read(s,r.p1).projection.starting,pair.projection.starting);
++ emit('Trace',{actual_constructed_native_initial_copy:true,original_Trace_current_naturalcure:true,base_effectiveness_suppression_not_adopted:true});
++}finally{await s.close();}
++ r=recipients();s=await create(r,['First (Magikarp) @ Focus Sash\nLevel: 1\nAbility: Swift Swim\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash','Mewtwo\nAbility: Pressure\n- Psystrike']);try{
++ check(s,r);const before=read(s,r.p1),bytes=JSON.stringify(before);await joint(s,'p1','move 1');check(s,r);assert.equal(native(s).p1!.active[0].hp,1);assert.equal(fact(read(s,r.p1),'p1',1,'item').state,'known_absent');assert.equal(fact(before,'p1',1,'item','starting').value.data,'Focus Sash');assert.equal(read(s,r.p1).projection.starting,before.projection.starting);assert.equal(JSON.stringify(before),bytes);assert.ok(s.boundary.perspectives.p1.observation.protocol_prefix.some((line:string)=>line.includes('|-enditem|')&&line.includes('Focus Sash')));
++ emit('consumption',{actual_constructed_Focus_Sash_turn:true,current_absence_no_cause_fact:true,immutable_original_item:true});
++}finally{await s.close();}
++ r=recipients();s=await create(r,basic);try{const first=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle('p1'),'p1').boundaries.at(-1)!.current!,pair=read(s,r.p1),literal=JSON.stringify(env(s).getRequest('p1')!.raw);await joint(s,'p1','switch 2','switch 2');await joint(s,'p1','switch 2','switch 2');check(s,r);const last=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle('p1'),'p1').boundaries.at(-1)!.current!;assert.equal(JSON.stringify(env(s).getRequest('p1')!.raw),literal);assert.notEqual(last.delivery_reference,first.delivery_reference);assert.notEqual(last.source.producer_occurrence,first.source.producer_occurrence);assert.equal(read(s,r.p1).projection.starting,pair.projection.starting);emit('equal',{actual_held_same_byte_fresh_delivery:true,namespace_distinct:true});}finally{await s.close();}});
++test('P54 identifier source faults omissions and rollback',async()=>{
++ const received=OwnedRequestHealthHost.prototype.received;
++ OwnedRequestHealthHost.prototype.received=function(environment,emission,receipt){if(receipt.owner!=='p1')received.call(this,environment,emission,receipt);};
++ try{const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);for(const property of ['item','ability']){const f=fact(pair,'p1',1,property);assert.equal(f.state,'unknown');assert.equal(f.reason,'unsupported_writer');}assert.equal(pair.projection.request.state,'unsupported');checkNativeOwnerIdentifiersProjection(pair.projection);}finally{await s.close();}}finally{OwnedRequestHealthHost.prototype.received=received;}
++ const original=(OwnedRequestHealthHost.prototype as any).checkCapture;
++ for(const fault of ['copy','foreign','value','unknown','label','missing','empty-ability']){let injected=false;
++  (OwnedRequestHealthHost.prototype as any).checkCapture=function(c:any,w:any,settled:boolean){if(!injected&&c.owner==='p1'){injected=true;const row=c.rows[0],ids=row.identifiers;
++   if(fault==='copy')c.request.side.pokemon[0]={...row.data};if(fault==='foreign')row.actor=w.battle.p2.active[0];if(fault==='value')row.data.item='choicescarf';
++   if(fault==='unknown'){ids.item=row.data.item='fakeitem';ids.nativeItem=row.actor.item='fakeitem';}
++   if(fault==='label'){ids.ability=row.data.ability='Swift Swim';ids.nativeAbility=row.actor.ability='Swift Swim';}
++   if(fault==='missing'){delete row.data.item;delete row.data.ability;ids.itemPresent=false;ids.abilityPresent=false;ids.item=undefined;ids.ability=undefined;}
++   if(fault==='empty-ability'){ids.ability=row.data.ability='';ids.nativeAbility=row.actor.ability='';}
++  }return original.call(this,c,w,settled);};
++  try{if(fault==='missing'||fault==='empty-ability'){const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);assert.equal(fact(pair,'p1',1,'ability').state,'unknown');assert.equal(fact(pair,'p1',1,'ability').reason,fault==='missing'?'not_emitted':'unsupported_writer');if(fault==='missing'){assert.equal(fact(pair,'p1',1,'item').state,'unknown');assert.equal(fact(pair,'p1',1,'item').value,null);}checkNativeOwnerIdentifiersProjection(pair.projection);}finally{await s.close();}}
++   else await assert.rejects(create(recipients(),basic),fault==='copy'||fault==='foreign'?/altered-writer-row/:fault==='value'?/altered-identifier-row/:fault==='unknown'?/unknown-identifier/:/identifier-grammar/);
++  }finally{(OwnedRequestHealthHost.prototype as any).checkCapture=original;}
++ }
++ // Omission/empty stimuli above are lower-level captured-row controls, not native gen9 emitter reachability.
++ const r=recipients(),s=await create(r,basic),before=s.boundary,pair=read(s,r.p1),handle=s.getOwnerKnowledgeHandle(r.p1),history=s.readRequestDeliveryHistory(s.getRequestDeliveryHandle('p1'),'p1'),prepare=OwnedRequestHealthHost.prototype.prepare,close=LocalBattleEnv.prototype.close,barrier=NativeOwnerKnowledgeController.prototype.preflight;let host:OwnedRequestHealthHost,key:object,cleanup=false;
++ try{for(const property of ['item','ability'] as const){cleanup=false;OwnedRequestHealthHost.prototype.prepare=function(...a){host=this;key=prepare.apply(this,a);const actor=(a[0] as any).battleStream.battle.p1.active[0];actor[property]=property==='item'?'choicescarf':'pressure';return key;};LocalBattleEnv.prototype.close=function(){if(this.id.includes('step-')){assert.throws(()=>host!.readPrepared(key!,'p1'),/foreign-preparation/);cleanup=true;}return close.call(this);};await assert.rejects(joint(s,'p1','switch 2','switch 2'),/stale-identifier/);assert.ok(cleanup);assert.equal(s.boundary,before);assert.equal(read(s,r.p1),pair);assert.equal(s.getOwnerKnowledgeHandle(r.p1),handle);assert.equal(s.readRequestDeliveryHistory(s.getRequestDeliveryHandle('p1'),'p1'),history);}
++  OwnedRequestHealthHost.prototype.prepare=prepare;LocalBattleEnv.prototype.close=close;NativeOwnerKnowledgeController.prototype.preflight=function(k){barrier.call(this,k);throw new Error('P54-final-barrier');};await assert.rejects(joint(s,'p1','switch 2','switch 2'),/P54-final-barrier/);assert.equal(read(s,r.p1),pair);NativeOwnerKnowledgeController.prototype.preflight=barrier;await joint(s,'p1','switch 2','switch 2');check(s,r);assert.equal(read(s,r.p1).projection.starting,pair.projection.starting);const final=s.getOwnerKnowledgeHandle(r.p1);await s.close();assert.throws(()=>s.readOwnerKnowledge(final,r.p1),/closed/);emit('faults',{actual_copy_foreign_altered_denials:true,lower_level_missing_empty_and_invalid_controls:true,item_and_ability_post_preparation_stale_reject:true,committed_pair_history_retained:true,revoked_before_cleanup:true,fresh_retry:true});
++ }finally{OwnedRequestHealthHost.prototype.prepare=prepare;LocalBattleEnv.prototype.close=close;NativeOwnerKnowledgeController.prototype.preflight=barrier;await s.close();}
++});
++test('P54 constructed waiting forced Revival and terminal lifetime',async()=>{let r=recipients(),s=await create(r,['First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer (Pawmot)\nAbility: Iron Fist\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash','Watcher (Giratina)\nAbility: Pressure\n- Splash\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash']);
++ const available=()=>{for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property)))assert.notEqual(f.state,'unknown');}};
++ try{await joint(s,'p1','move 2');available();assert.equal(read(s,r.p2).projection.request.state,'waiting');await s.stepForcedSwitch(choice(s,'p1','switch 2'));await joint(s,'p1','move 1');available();assert.equal(read(s,r.p1).projection.request.state,'revival_selection');await s.stepRevival(choice(s,'p1','switch 2'));check(s,r);emit('wait',{actual_constructed_forced_Revival_wait_owned_rows:true});}finally{await s.close();}
++ r=recipients();s=await create(r,['Mewtwo\nAbility: Pressure\n- Psystrike','Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash']);try{await joint(s,'p1','move 1');for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property))){assert.equal(f.state,'unknown');assert.equal(f.value,null);assert.equal(f.reason,'not_emitted');}}emit('terminal',{no_stale_identifier_carry_forward:true});}finally{await s.close();}
++});
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/README.md
+@@ -0,0 +1,3 @@
++# Private native11 owned identifier profile
++
++Additive TS-private decoder: exact emitted current item/ability IDs, owned health and ordinary request options. Does not issue source authority. Empty item is known absence; empty/omitted ability is blocking unknown. No base/effective/suppressed ability or item cause/history. Other current adapters remain unknown; result incomplete. Earlier assets remain unchanged.
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/schema.json
+@@ -0,0 +1,883 @@
++{
++  "type": "object",
++  "properties": {
++    "kind": {
++      "const": "projection"
++    },
++    "id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "schema": {
++      "const": "perspective-knowledge-consumer/native11-identifiers-v1"
++    },
++    "owner": {
++      "enum": [
++        "p1",
++        "p2"
++      ]
++    },
++    "policy": {
++      "const": "native-owner-identifiers/v1"
++    },
++    "boundary": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 2147483647
++    },
++    "required_profile": {
++      "const": "sha256:4f3d5be132a384f9af4acb642411c6340f060bb91ec8d4bdf1f58fa114592189"
++    },
++    "result": {
++      "const": "incomplete"
++    },
++    "starting": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "starting_crosswalk": {
++      "type": "array",
++      "maxItems": 0
++    },
++    "current": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "request": {
++      "type": "object",
++      "properties": {
++        "schema": {
++          "const": "owned-active-options/v1"
++        },
++        "subject": {
++          "anyOf": [
++            {
++              "type": "string",
++              "pattern": "^p[12]:roster:[1-6]$"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "sequence": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "cursor": {
++          "type": "integer",
++          "minimum": 0,
++          "maximum": 2147483647
++        },
++        "state": {
++          "enum": [
++            "ordinary_pp",
++            "unsupported",
++            "waiting",
++            "forced_switch",
++            "revival_selection",
++            "terminal",
++            "requestless"
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "not_emitted",
++            "unsupported_writer"
++          ]
++        },
++        "options": {
++          "anyOf": [
++            {
++              "type": "array",
++              "minItems": 1,
++              "maxItems": 4,
++              "items": {
++                "type": "object",
++                "properties": {
++                  "option_index": {
++                    "type": "integer",
++                    "minimum": 1,
++                    "maximum": 4
++                  },
++                  "request_move_id": {
++                    "type": "string",
++                    "minLength": 1,
++                    "maxLength": 256
++                  },
++                  "request_move_label": {
++                    "type": "string",
++                    "minLength": 1,
++                    "maxLength": 256
++                  },
++                  "pp": {
++                    "type": "object",
++                    "properties": {
++                      "state": {
++                        "const": "known"
++                      },
++                      "value": {
++                        "type": "integer",
++                        "minimum": 0,
++                        "maximum": 2147483647
++                      },
++                      "precision": {
++                        "const": "exact"
++                      },
++                      "reason": {
++                        "const": "none"
++                      }
++                    },
++                    "required": [
++                      "state",
++                      "value",
++                      "precision",
++                      "reason"
++                    ],
++                    "additionalProperties": false
++                  },
++                  "max_pp": {
++                    "type": "object",
++                    "properties": {
++                      "state": {
++                        "const": "known"
++                      },
++                      "value": {
++                        "type": "integer",
++                        "minimum": 0,
++                        "maximum": 2147483647
++                      },
++                      "precision": {
++                        "const": "exact"
++                      },
++                      "reason": {
++                        "const": "none"
++                      }
++                    },
++                    "required": [
++                      "state",
++                      "value",
++                      "precision",
++                      "reason"
++                    ],
++                    "additionalProperties": false
++                  }
++                },
++                "required": [
++                  "option_index",
++                  "request_move_id",
++                  "request_move_label",
++                  "pp",
++                  "max_pp"
++                ],
++                "additionalProperties": false
++              }
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "schema",
++        "subject",
++        "sequence",
++        "cursor",
++        "state",
++        "reason",
++        "options"
++      ],
++      "additionalProperties": false
++    }
++  },
++  "required": [
++    "kind",
++    "id",
++    "schema",
++    "owner",
++    "policy",
++    "boundary",
++    "required_profile",
++    "result",
++    "starting",
++    "starting_crosswalk",
++    "current",
++    "request"
++  ],
++  "additionalProperties": false,
++  "$defs": {
++    "safe_fact": {
++      "type": "object",
++      "properties": {
++        "owner": {
++          "enum": [
++            "p1",
++            "p2"
++          ]
++        },
++        "subject": {
++          "type": "string",
++          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++        },
++        "family": {
++          "enum": [
++            "K01",
++            "K02",
++            "K03",
++            "K04",
++            "K05",
++            "K06",
++            "K07",
++            "K08",
++            "K09",
++            "K10",
++            "K11",
++            "K12",
++            "K13",
++            "K14",
++            "K15",
++            "K16",
++            "K17",
++            "K18",
++            "K19",
++            "K20"
++          ]
++        },
++        "property": {
++          "enum": [
++            "roster_species",
++            "roster_order",
++            "party_position",
++            "active_slot",
++            "roster_size",
++            "starting_moves",
++            "current_moves",
++            "move_execution",
++            "move_incarnation",
++            "submitted_nature",
++            "submitted_evs",
++            "submitted_ivs",
++            "submitted_happiness",
++            "calculated_stats",
++            "hp_max",
++            "level",
++            "gender",
++            "shiny",
++            "ball",
++            "details",
++            "starting_tera",
++            "hp",
++            "fainted",
++            "status",
++            "status_observed_since",
++            "status_elapsed",
++            "status_remaining",
++            "pp",
++            "max_pp",
++            "disabled",
++            "maybe_disabled",
++            "trapped",
++            "maybe_trapped",
++            "lock",
++            "boosts",
++            "persistent_effect",
++            "single_turn_effect",
++            "single_move_effect",
++            "side_condition",
++            "side_condition_layers",
++            "weather",
++            "weather_effective",
++            "terrain",
++            "pseudo_weather",
++            "field_remaining",
++            "pending_intent",
++            "pending_effect",
++            "pending_power",
++            "form",
++            "types",
++            "tera",
++            "transformed",
++            "appearance",
++            "identity_reveal",
++            "item",
++            "item_held",
++            "item_effective",
++            "ability",
++            "ability_effective",
++            "boundary_kind",
++            "request_presence"
++          ]
++        },
++        "effect_key": {
++          "anyOf": [
++            {
++              "type": "string",
++              "maxLength": 256
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "state": {
++          "enum": [
++            "known",
++            "known_absent",
++            "unknown",
++            "inapplicable"
++          ]
++        },
++        "value": {
++          "anyOf": [
++            {
++              "$ref": "#/$defs/value"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "hidden_opponent",
++            "never_revealed",
++            "ambiguous_carrier",
++            "private_request_unavailable",
++            "not_emitted",
++            "hidden_timer",
++            "missing_original_authority",
++            "unimplemented_family",
++            "unsupported_writer",
++            "proved_rule_inapplicable",
++            "not_yet_verified"
++          ]
++        },
++        "freshness": {
++          "enum": [
++            "immutable",
++            "current",
++            "last_known"
++          ]
++        },
++        "precision": {
++          "enum": [
++            "exact",
++            "public_bucket",
++            "interval",
++            "not_applicable"
++          ]
++        },
++        "observed_at": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "owner",
++        "subject",
++        "family",
++        "property",
++        "effect_key",
++        "state",
++        "value",
++        "reason",
++        "freshness",
++        "precision",
++        "observed_at"
++      ],
++      "additionalProperties": false
++    },
++    "value": {
++      "anyOf": [
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "text"
++            },
++            "data": {
++              "type": "string",
++              "maxLength": 256
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "integer"
++            },
++            "data": {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "boolean"
++            },
++            "data": {
++              "type": "boolean"
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "texts"
++            },
++            "data": {
++              "type": "array",
++              "items": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "maxItems": 6
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "six_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "hp": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "hp",
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "five_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "stages"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "accuracy": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "evasion": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe",
++                "accuracy",
++                "evasion"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "interval"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "min": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "max": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "min",
++                "max"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "field_timer"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "target_kind": {
++                  "enum": [
++                    "weather",
++                    "terrain",
++                    "pseudo_weather"
++                  ]
++                },
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "remaining": {
++                  "type": "object",
++                  "properties": {
++                    "min": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    "max": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    }
++                  },
++                  "required": [
++                    "min",
++                    "max"
++                  ],
++                  "additionalProperties": false
++                }
++              },
++              "required": [
++                "target_kind",
++                "name",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "power"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "basis": {
++                  "enum": [
++                    "base_move",
++                    "effective_move"
++                  ]
++                },
++                "amount": {
++                  "type": "integer",
++                  "minimum": 1,
++                  "maximum": 65535
++                }
++              },
++              "required": [
++                "basis",
++                "amount"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "effect"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "source_subject": {
++                  "anyOf": [
++                    {
++                      "type": "string",
++                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "observed_since": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "elapsed": {
++                  "anyOf": [
++                    {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "remaining": {
++                  "anyOf": [
++                    {
++                      "type": "object",
++                      "properties": {
++                        "type": {
++                          "const": "interval"
++                        },
++                        "data": {
++                          "type": "object",
++                          "properties": {
++                            "min": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            },
++                            "max": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            }
++                          },
++                          "required": [
++                            "min",
++                            "max"
++                          ],
++                          "additionalProperties": false
++                        }
++                      },
++                      "required": [
++                        "type",
++                        "data"
++                      ],
++                      "additionalProperties": false
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                }
++              },
++              "required": [
++                "name",
++                "source_subject",
++                "observed_since",
++                "elapsed",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        }
++      ]
++    }
++  }
++}
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1/profile.json
+@@ -0,0 +1,224 @@
++{
++  "kind": "profile",
++  "name": "native-owner-identifiers/v1",
++  "policy": "native-owner-identifiers/v1",
++  "provider": "native-owner-identifiers-provider/v1",
++  "engine": "pokemon-showdown@0.11.11",
++  "format": "gen9randombattle",
++  "result": "incomplete",
++  "request_adaptation": "owned_health/v1",
++  "rules": [
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_order",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K02",
++      "property": "starting_moves",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K02",
++      "property": "current_moves",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "hp",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "fainted",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "status",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    }
++  ],
++  "generator_metadata": {
++    "role": "nonempty_text",
++    "speciesId": "pinned_species_id_inert"
++  },
++  "request_descriptor": "owned-active-options/v1",
++  "request_options_coverage": "emitted_active_rows_only",
++  "current_possession": "not_adopted",
++  "current_identifiers": "emitted_owned_item_ability_only",
++  "id": "sha256:4f3d5be132a384f9af4acb642411c6340f060bb91ec8d4bdf1f58fa114592189"
++}

@@ -1,3 +1,4 @@
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { PlayerID, PokemonView } from './types';
@@ -44,8 +45,9 @@ function loadLifecycleContract(): LifecycleContract {
 export const PUBLIC_TYPED_STATE_LIFECYCLE = loadLifecycleContract();
 const lifecycleEntries = new Map(PUBLIC_TYPED_STATE_LIFECYCLE.entries.map((entry) => [`${entry.family}:${entry.id}`, entry]));
 
-export function typedStateLifecycleEntry(family: LifecycleEntry['family'], id: string): LifecycleEntry | undefined {
-  return lifecycleEntries.get(`${family}:${id}`);
+export function typedStateLifecycleEntry(family: LifecycleEntry['family'], id: string, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): LifecycleEntry | undefined {
+  readerContext(rulesContext);
+  return readerContext(rulesContext).lifecycle[`${family}:${id}`];
 }
 
 export interface ProjectedPublicTypedState {
@@ -67,7 +69,8 @@ export function publicTeamIdent(value: string): string {
 }
 
 /** Replay the exact normalized public prefix into the typed subset approved by the lifecycle atlas. */
-export function projectPublicTypedState(prefix: readonly string[]): ProjectedPublicTypedState {
+export function projectPublicTypedState(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): ProjectedPublicTypedState {
+  readerContext(rulesContext);
   const volatiles = new Map<string, Set<string>>();
   const active: Partial<Record<PlayerID, string>> = {};
   const sides: Record<PlayerID, Record<string, number>> = { p1: {}, p2: {} };
@@ -115,7 +118,7 @@ export function projectPublicTypedState(prefix: readonly string[]): ProjectedPub
       continue;
     }
     if (command === '-start' || command === '-end') {
-      const entry = typedStateLifecycleEntry('move_volatile', effectId(parts[3] || ''));
+      const entry = typedStateLifecycleEntry('move_volatile', effectId(parts[3] || ''), rulesContext);
       if (!entry || entry.disposition === 'raw-only') continue;
       if (entry.disposition !== 'evidence-derived-typed') {
         throw new Error(`Typed lifecycle evidence mismatch: unsupported-fail-closed volatile ${entry.id}.`);
@@ -138,7 +141,7 @@ export function projectPublicTypedState(prefix: readonly string[]): ProjectedPub
       const sideToken = (parts[2] || '').split(':', 1)[0];
       if (sideToken !== 'p1' && sideToken !== 'p2') continue;
       const id = effectId((parts[3] || '').replace(/^move:\s*/i, ''));
-      const entry = typedStateLifecycleEntry('side_condition', id);
+      const entry = typedStateLifecycleEntry('side_condition', id, rulesContext);
       if (!entry || entry.disposition === 'raw-only') continue;
       if (entry.disposition !== 'evidence-derived-typed') {
         throw new Error(`Typed lifecycle evidence mismatch: unsupported-fail-closed side condition ${entry.id}.`);
@@ -161,7 +164,7 @@ export function projectPublicTypedState(prefix: readonly string[]): ProjectedPub
       continue;
     }
     if (command === '-swapsideconditions') {
-      for (const id of PUBLIC_TYPED_STATE_LIFECYCLE.court_change_ids) {
+      for (const id of readerContext(rulesContext).inventory.public_typed_state_lifecycle.court_change_ids) {
         const p1 = sides.p1[id];
         const p2 = sides.p2[id];
         if (p1 === undefined) delete sides.p2[id]; else sides.p2[id] = p1;
@@ -180,12 +183,13 @@ export function assertTypedStateMatchesPublicPrefix(
   perspective: PlayerID,
   view: Partial<{ self_team: readonly Pick<PokemonView, 'ident' | 'volatiles'>[]; opponent_team: readonly Pick<PokemonView, 'ident' | 'volatiles'>[];
     field: { side_conditions: { self: Record<string, number>; opponent: Record<string, number> } } }>,
-  bindOwned: (target: string) => string = (target) => target,
+  bindOwned: (target: string) => string = (target) => target, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): void {
+  readerContext(rulesContext);
   for (const team of [view.self_team, view.opponent_team]) {
     if (team !== undefined && !Array.isArray(team)) throw new Error('Typed lifecycle evidence mismatch: roster containers must be arrays.');
   }
-  const projected = projectPublicTypedState(prefix);
+  const projected = projectPublicTypedState(prefix, rulesContext);
   const boundVolatiles: Record<string, string[]> = {};
   for (const [target, values] of Object.entries(projected.volatiles_by_ident)) {
     const bound = target.slice(0, 2) === perspective ? bindOwned(target) : target;
@@ -216,7 +220,7 @@ export function assertTypedStateMatchesPublicPrefix(
     const rows = [
       ...(view.self_team || []).map((pokemon) => ({ team: 'self_team', pokemon })),
       ...(view.opponent_team || []).map((pokemon) => ({ team: 'opponent_team', pokemon })),
-    ].filter(({ pokemon }) => isCanonicalPlayerIdent(publicTeamIdent(pokemon.ident))
+    ].filter(({ pokemon }) => isCanonicalPlayerIdent(publicTeamIdent(pokemon.ident), undefined, rulesContext)
       && publicTeamIdent(pokemon.ident) === ident);
     if (rows.length !== 1 || rows[0].team !== expectedTeam || !rows[0].pokemon.volatiles) {
       throw new Error(`Typed lifecycle evidence mismatch: nonempty volatile state for ${ident} requires exactly one canonical ${expectedTeam} roster row.`);

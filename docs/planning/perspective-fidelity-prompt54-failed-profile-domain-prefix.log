@@ -1,0 +1,23 @@
+✖ P54 generated both owner identifiers held continuity and privacy (173.809583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 335.01175
+
+✖ failing tests:
+
+test at sim-core/dist/tests/owned_request_identifiers.test.js:55:25
+✖ P54 generated both owner identifiers held continuity and privacy (173.809583ms)
+  Error: native identifier profile identity
+      at requireStructure (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/perspective_knowledge.js:42:15)
+      at nativeOwnerIdentifiersContext (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/perspective_knowledge.js:867:5)
+      at NativeOwnerKnowledgeController.prepare (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/native_owner_knowledge.js:66:231)
+      at PipelineIntegrationSession.create (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/src/pipeline_integration.js:322:60)
+      at async create (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owned_request_identifiers.test.js:22:12)
+      at async TestContext.<anonymous> (/private/tmp/neural-showdown-native11-prompt38/sim-core/dist/tests/owned_request_identifiers.test.js:56:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

@@ -1,0 +1,11 @@
+# Prompt59 independent authority/semantics review
+
+Reviewer: Reuniclus, gpt-5.6-sol/high; one bounded read-only pass. Scope: new original-value helper, narrow controller/validator changes, new fixed assets and exact test bodies; relevant pinned packing/stat/default source only. No test/build/import/battle execution, edits or downstream delegation.
+
+**Material finding:** the initial controller computed new `interpretations` unconditionally, even for the legacy no-health/private profile path. This could introduce loadout validation failures into a path still emitting the old schema. Recommendation: compute/cache only in the health/loadout branch, with optional state and guarded projection inclusion.
+
+**Author disposition: corrected.** The controller now constructs the explicit `{p1,p2}` interpretation record only under `health`, retains it by reference in later states, and includes it only in the new profile. The explicit record also resolves the first build's TypeScript conversion failure. Earlier decoder functions/assets stay unchanged. Default non-opt-in literal parity passes; no separate runtime no-health-controller stimulus was added, so that guard correction itself has static-review/source evidence.
+
+Reviewer otherwise found no material authority leak or source/default semantics issue: held source/recipient handles stay unchanged; decoder grants no authority; literal/default separation, partial EV/IV blocking unknowns, unresolved random gender/details, data-only spreadModify/statModify receiver and Shedinja maxHP follow pinned sources. Both new asset pins matched the reviewed bytes.
+
+After review, the generated case exposed one additional author error: guarding on `dex.currentMod === 'gen9'` despite Showdown's `dexes[gen9] = dexes.base` alias. Source `sim/dex.ts:719–720` established the correction: exact identity with `simulator.Dex.forFormat('gen9randombattle')` plus generation9. Final build and all four exact cases/default parity passed after correction. The reviewer did not rereview the final compiler/Dex corrections; there was no recursive review loop. This is bounded independent review plus explicit author disposition, not lead acceptance or FAC-08 final review.

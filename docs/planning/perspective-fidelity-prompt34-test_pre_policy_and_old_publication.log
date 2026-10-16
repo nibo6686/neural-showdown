@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/nbolger/Desktop/neural-showdown/.venv-simulator/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/nbolger/Desktop/neural-showdown
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 1 item
+
+trainer/tests/test_target_fidelity_eligibility.py::test_pre_policy_and_old_publication P34_WITNESS {"false_does_not_waive_validation": true, "finite_target_policy_only": true, "invalid_exit": 2, "invalid_stdout": "", "name": "python-policy-publication", "old_true_false_and_outputs": true, "target_callers": "UNEXECUTED"}
+PASSED
+
+============================== 1 passed in 0.72s ===============================

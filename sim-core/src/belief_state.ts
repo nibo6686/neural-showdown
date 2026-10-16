@@ -1,3 +1,4 @@
+import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { assertPublicItemsMatchEvidence } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
 import { assertPublicFieldMatchesEvidence } from './public_field';
@@ -390,7 +391,8 @@ function observationReference(observation: ObservableBattleState): BeliefObserva
   };
 }
 
-function assertObservation(observation: ObservableBattleState): void {
+function assertObservation(observation: ObservableBattleState, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
   if (!isRecord(observation) || !isObservableSchema(observation.schema_version)) {
     throw new BeliefStateError('Unsupported observable schema for BeliefState.');
   }
@@ -417,20 +419,20 @@ function assertObservation(observation: ObservableBattleState): void {
     throw new BeliefStateError('Observation request perspective or rqid is invalid.');
   }
   assertSanitizedProtocolPrefix(observation.protocol_prefix, 'Observation protocol prefix');
-  validateObservableProtocolPrefix(observation.protocol_prefix, observation.perspective, observation.view, observation.request);
-  assertTypedStateMatchesPublicPrefix(observation.protocol_prefix, observation.perspective, observation.view, (target) => boundOwnedTarget(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, target));
+  validateObservableProtocolPrefix(observation.protocol_prefix, observation.perspective, observation.view, observation.request, rulesContext);
+  assertTypedStateMatchesPublicPrefix(observation.protocol_prefix, observation.perspective, observation.view, (target) => boundOwnedTarget(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, target), rulesContext);
   assertPublicHealthMatchesEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
   assertPublicItemsMatchEvidence(observation.protocol_prefix, observation.perspective, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null);
   if (observation.schema_version === PUBLIC_STAGES_SCHEMA_VERSION && isRecord(observation.view)
     && Array.isArray(observation.view.opponent_team) && Array.isArray(observation.protocol_prefix)) {
     for (const pokemon of observation.view.opponent_team) {
       if (!isRecord(pokemon) || typeof pokemon.ident !== 'string'
-        || canonicalize(pokemon.public_boosts) !== canonicalize(opponentPublicBoosts(observation.protocol_prefix, pokemon.ident))) {
+        || canonicalize(pokemon.public_boosts) !== canonicalize(opponentPublicBoosts(observation.protocol_prefix, pokemon.ident, rulesContext))) {
         throw new BeliefStateError('Public opponent stages disagree with exact prefix.');
       }
     }
   }
-  assertPublicAbilityMatchesEvidence(observation.protocol_prefix, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, observation.perspective);
+  assertPublicAbilityMatchesEvidence(observation.protocol_prefix, observation.view as unknown as Record<string, unknown>, observation.request as unknown as Record<string, unknown> | null, observation.perspective, rulesContext);
   assertDigest(observation.protocol_prefix_hash, 'Observation protocol_prefix_hash');
   if (sha256(observation.protocol_prefix) !== observation.protocol_prefix_hash) {
     throw new BeliefStateError('Observation protocol prefix hash is invalid.');
@@ -474,7 +476,7 @@ function assertObservation(observation: ObservableBattleState): void {
   exactKeys(view.field.side_conditions, ['self', 'opponent'], 'Observation side conditions');
   assertNumberRecord(view.field.side_conditions.self, 'Observation self side conditions');
   assertNumberRecord(view.field.side_conditions.opponent, 'Observation opponent side conditions');
-  assertPublicFieldMatchesEvidence(observation.protocol_prefix, view.field);
+  assertPublicFieldMatchesEvidence(observation.protocol_prefix, view.field, rulesContext);
   if (!Array.isArray(view.self_team) || !Array.isArray(view.opponent_team)) {
     throw new BeliefStateError('Observation teams must be arrays.');
   }
@@ -532,9 +534,10 @@ function assertObservation(observation: ObservableBattleState): void {
 }
 
 /** Validate a serialized observable state at an evidence boundary. */
-export function validateObservableBattleState(value: unknown): asserts value is ObservableBattleState {
+export function validateObservableBattleState(value: unknown, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): asserts value is ObservableBattleState {
+  readerContext(rulesContext);
   if (!isRecord(value)) throw new BeliefStateError('Observable state must be an object.');
-  assertObservation(value as unknown as ObservableBattleState);
+  assertObservation(value as unknown as ObservableBattleState, rulesContext);
 }
 
 function candidateKey(candidate: BeliefCandidateInput): string {
@@ -898,7 +901,8 @@ function assertParentEvidence(entry: unknown, parent: BeliefState): BeliefEviden
   return { ...normalized, evidence_id: expectedId };
 }
 
-function assertParent(parent: BeliefState): void {
+function assertParent(parent: BeliefState, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
   if (!isRecord(parent) || parent.schema_version !== BELIEF_STATE_SCHEMA_VERSION) {
     throw new BeliefStateError('Unsupported parent belief schema.');
   }
@@ -927,7 +931,7 @@ function assertParent(parent: BeliefState): void {
   }
   assertDigest(parent.observation.protocol_prefix_hash, 'Parent observation protocol_prefix_hash');
   assertSanitizedProtocolPrefix(parent.source_protocol_prefix, 'Parent source protocol prefix');
-  validateObservableProtocolPrefix(parent.source_protocol_prefix, parent.perspective);
+  validateObservableProtocolPrefix(parent.source_protocol_prefix, parent.perspective, undefined, undefined, rulesContext);
   if (parent.observation.event_cursor !== parent.source_protocol_prefix.length
     || sha256(parent.source_protocol_prefix) !== parent.observation.protocol_prefix_hash) {
     throw new BeliefStateError('Parent belief observation prefix is invalid.');
@@ -1165,18 +1169,19 @@ function sortBeliefData(
   };
 }
 
-export function projectBeliefState(input: BeliefStateInput): BeliefState {
+export function projectBeliefState(input: BeliefStateInput, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): BeliefState {
+  readerContext(rulesContext);
   if (input.schema_version !== undefined && input.schema_version !== BELIEF_STATE_SCHEMA_VERSION) {
     throw new BeliefStateError('Unsupported belief schema.');
   }
-  assertObservation(input.observation);
+  assertObservation(input.observation, rulesContext);
   const parent = input.parent ?? null;
   const informationRegime = input.information_regime ?? parent?.information_regime ?? 'player';
   if (informationRegime !== 'player' && informationRegime !== 'simulator_research') {
     throw new BeliefStateError('Unsupported belief information_regime.');
   }
   if (parent) {
-    assertParent(parent);
+    assertParent(parent, rulesContext);
     if (parent.observation.schema_version !== input.observation.schema_version) throw new BeliefStateError('Cross-version belief continuation requires independent regeneration.');
     if (input.information_regime !== undefined && input.information_regime !== parent.information_regime) {
       throw new BeliefStateError('Child belief information_regime must match parent belief.');
@@ -1285,8 +1290,9 @@ export function projectBeliefState(input: BeliefStateInput): BeliefState {
   return deepFreeze({ ...payload, belief_id: `belief-${sha256(payload)}` });
 }
 
-export function serializeBeliefState(state: BeliefState): string {
-  assertParent(state);
+export function serializeBeliefState(state: BeliefState, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): string {
+  readerContext(rulesContext);
+  assertParent(state, rulesContext);
   const { belief_id: _beliefId, ...payload } = state;
   if (`belief-${sha256(payload)}` !== state.belief_id) throw new BeliefStateError('BeliefState identity is invalid.');
   return canonicalize(state);

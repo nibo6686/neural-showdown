@@ -1,4 +1,5 @@
-import { Dex, toID } from 'pokemon-showdown';
+import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
+import { historicalToID as toID } from './version_profile';
 import {PROTOCOL_CONTRACT} from './protocol_contract';
 import type { PokemonView } from './types';
 import { terminalOwnedRequests, terminalOwnedAbilitySuffix } from './public_health';
@@ -11,7 +12,8 @@ function replacementBaseWriter(species: string): string | null {
 }
 
 /** Replay supported public reveals; Trace [of] remains raw source identity. */
-export function publicRevealedAbilities(prefix: readonly string[]) {
+export function publicRevealedAbilities(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT) {
+  readerContext(rulesContext);
   const facts: Record<string, {ability: string | null; base: string | null; state: 'known' | 'changed' | 'unknown'; copied: boolean; cleared: boolean; invalidated: 'transform' | 'form' | null; baseWriter: string | null}> = {};
   const active: Record<string, string> = {};
   const clear = (target: string) => {
@@ -37,7 +39,7 @@ export function publicRevealedAbilities(prefix: readonly string[]) {
       row.baseWriter = parts[1] === 'detailschange' ? replacementBaseWriter(parts[3]) : null;
       if (row.invalidated === 'form') {row.base = null; row.copied = false;}
     } else if (['-ability', 'ability'].includes(parts[1])) {
-      const domains = PROTOCOL_CONTRACT.validation_rules.ability.payload_domains;
+      const domains = readerContext(rulesContext).protocol.validation_rules.ability.payload_domains;
       const template = parts[1] === 'ability' && parts.length === 4 ? 'bare_reveal'
         : parts[1] === '-ability' && parts.length === 4 ? 'dash_reveal'
         : parts[1] === '-ability' && parts.length === 5 && parts[4] === 'boost' ? 'dash_boost'
@@ -55,8 +57,9 @@ export function publicRevealedAbilities(prefix: readonly string[]) {
   return facts;
 }
 
-export function publicTraceAbilities(prefix: readonly string[]) {
-  return Object.fromEntries(Object.entries(publicRevealedAbilities(prefix)).filter(([, row]) => row.copied));
+export function publicTraceAbilities(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT) {
+  readerContext(rulesContext);
+  return Object.fromEntries(Object.entries(publicRevealedAbilities(prefix, rulesContext)).filter(([, row]) => row.copied));
 }
 
 /** Pinned permanent branches that preserve an already addressed owner ability pair. */
@@ -118,9 +121,11 @@ export function publicGasSources(prefix: readonly string[]): Set<string> {
 
 /** Names remain facts when effectiveness is suppressed or cannot be established. */
 export function abilityEffectiveness(pokemon: Pick<PokemonView, 'active' | 'fainted' | 'ability' | 'transformed' | 'ability_suppressed'>,
-  gasPresent: boolean, item: string | null, itemKnown: boolean): 'active' | 'suppressed' | 'unknown' {
+  gasPresent: boolean, item: string | null, itemKnown: boolean, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): 'active' | 'suppressed' | 'unknown' {
+  readerContext(rulesContext);
   if (!pokemon.ability) return 'unknown';
-  const ability = Dex.abilities.get(pokemon.ability);
+  const flags = readerContext(rulesContext).inventory.public_ability_effectiveness;
+  const ability = {flags: {notransform: flags.notransform.includes(toID(pokemon.ability)), cantsuppress: flags.cantsuppress.includes(toID(pokemon.ability))}};
   if (!pokemon.active || pokemon.fainted || pokemon.transformed && ability.flags.notransform) return 'suppressed';
   if (ability.flags.cantsuppress) return 'active';
   if (pokemon.ability_suppressed) return 'suppressed';
@@ -145,12 +150,13 @@ export function publicLocalAbilitySuppression(prefix: readonly string[]): Set<st
   return suppressed;
 }
 
-export function assertPublicAbilityMatchesEvidence(prefix: readonly string[], view: Record<string, unknown>, request: Record<string, unknown> | null, perspective = String(view.player || '')): void {
+export function assertPublicAbilityMatchesEvidence(prefix: readonly string[], view: Record<string, unknown>, request: Record<string, unknown> | null, perspective = String(view.player || ''), rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  readerContext(rulesContext);
   const gasPresent = publicGasSources(prefix).size > 0;
   const locallySuppressed = publicLocalAbilitySuppression(prefix);
   const owners = request && Array.isArray(request.side) ? request.side as Record<string, unknown>[] : [];
   const terminalOwners = terminalOwnedRequests(view) || [];
-  for (const [target, fact] of Object.entries(publicRevealedAbilities(prefix))) {
+  for (const [target, fact] of Object.entries(publicRevealedAbilities(prefix, rulesContext))) {
     if (!['p1', 'p2'].includes(perspective)) throw new Error('Public ability evidence mismatch: reveal requires a perspective.');
     // Opponent ability names/states are excluded by both public schemas.
     if (!target.startsWith(`${perspective}: `)) {
@@ -205,7 +211,7 @@ export function assertPublicAbilityMatchesEvidence(prefix: readonly string[], vi
     if (owner && row.item !== (owner.item || null)) throw new Error('Public ability evidence mismatch: owned item exemption disagrees with addressed request.');
     if (owner?.ability && row.ability !== ability) throw new Error('Public ability evidence mismatch: owned ability name disagrees with addressed request.');
     const effectiveness = abilityEffectiveness({...row, ability, ability_suppressed: locallySuppressed.has(target)}, gasPresent,
-      owner ? String(owner.item || '') || null : row.item, true);
+      owner ? String(owner.item || '') || null : row.item, true, rulesContext);
     const suppressed = row.active && effectiveness === 'suppressed';
     if (effectiveness !== 'unknown' && (row.ability_suppressed !== suppressed
       || suppressed && row.ability_state !== 'suppressed' || !suppressed && row.ability_state === 'suppressed')) {

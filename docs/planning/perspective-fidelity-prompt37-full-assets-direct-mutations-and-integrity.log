@@ -1,0 +1,10 @@
+P37_WITNESS {"name":"full-validation","mutations":[{"name":"extra-container","invariant":"container-keys"},{"name":"numeric-adoption","invariant":"profile-identity"},{"name":"executed-provenance","invariant":"provenance"},{"name":"closure-promotion","invariant":"closure-claims"},{"name":"wrong-simulator","invariant":"simulator"},{"name":"extra-nested-rule","invariant":"rule-template"},{"name":"wrong-nested-type","invariant":"rule-template"},{"name":"wrong-native-NC-order","invariant":"rule-template"},{"name":"duplicate-token","invariant":"token-partition"},{"name":"unknown-supported-token","invariant":"token-partition"},{"name":"unsupported-kind","invariant":"unsupported-classification"},{"name":"missing-fixture","invariant":"protocol-structure"},{"name":"fixture-extra-key","invariant":"protocol-structure"},{"name":"fixture-promotion","invariant":"fixture-acceptance-claim"},{"name":"broken-reference","invariant":"fixture-reference"},{"name":"bad-control-scope","invariant":"control-scope"},{"name":"coherent-invalid-positive","invariant":"positive-rejected"},{"name":"accepted-negative","invariant":"negative-accepted"},{"name":"wrong-negative-reason","invariant":"negative-reason"},{"name":"negative-extra-key","invariant":"protocol-structure"},{"name":"replay-authority","invariant":"closure-claims"},{"name":"replay-wrong-version","invariant":"simulator"},{"name":"replay-extra-NC-tag","invariant":"rule-template"},{"name":"false-source-closure","invariant":"source-claims"},{"name":"claimed-emitter","invariant":"fixture-evidence"},{"name":"unsupported-evidence","invariant":"unsupported-evidence"},{"name":"control-evidence","invariant":"control-evidence"}],"fixture_counts":[101,108],"native_runtime":"UNEXECUTED"}
+✔ P37 full assets direct mutations and integrity (90.815917ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.178708

@@ -1,0 +1,2479 @@
+--- a/sim-core/src/native_owner_knowledge.ts
++++ b/sim-core/src/native_owner_knowledge.ts
+@@ -1,6 +1,7 @@
++import { interpretOriginalValues } from './original_owner_values';
+ import { OwnedRequestHealthHost } from './owned_request_health';
+ import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
+-import { checkNativeOwnerProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
++import { checkNativeOwnerProjection, nativeOwnerLoadoutContext, checkNativeOwnerLoadoutProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
+ import { assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
+ import type { PipelineBoundary } from './pipeline_integration';
+ import type { PlayerID } from './types';
+@@ -17,7 +18,7 @@
+   if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value;
+ }
+ type Frame = { environment: object; occurrence: object; rows: readonly OriginalOwnerEvidence[] };
+-type State = { parent: PipelineBoundary; source: Frame; starting: Record<PlayerID, readonly Record<string, any>[]>;
++type State = { parent: PipelineBoundary; source: Frame; starting: Record<PlayerID, readonly Record<string, any>[]>; interpretations?: Record<PlayerID, readonly Record<string, any>[]>;
+   reads: Record<PlayerID, OwnerKnowledgeRead>; handles: Record<PlayerID, OwnerKnowledgeHandle> };
+ type Preparation = { environment: object; parent: PipelineBoundary | null; state: State; health?: { host: OwnedRequestHealthHost; token: object } };
+ 
+@@ -63,10 +64,13 @@
+     return this.#frame;
+   }
+   prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null, healthHost?: OwnedRequestHealthHost, healthToken?: object): object {
+-    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerIdentifiersContext() : nativeOwnerProjectionContext()).profile;
++    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerLoadoutContext() : nativeOwnerProjectionContext()).profile;
+     if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
+     health?.host.assertPreparedBinding(health.token, environment, boundary, source.rows);
+-    const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex) });
++    const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex, !!health), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex, !!health) });
++    const interpret = (owner: PlayerID, index: number) => Object.freeze(source.rows[index].raw_team.map((set: any, slot) =>
++      freeze({ subject: owner + ':roster:' + (slot + 1), ...interpretOriginalValues(set, this.#dex, require(this.#runtime.entry)).interpretation })));
++    const interpretations = prior?.interpretations ?? (health ? Object.freeze({ p1: interpret('p1', 0), p2: interpret('p2', 1) }) : undefined);
+     const reads = {} as Record<PlayerID, OwnerKnowledgeRead>;
+     for (const owner of owners) {
+       const obs = boundary.perspectives[owner].observation;
+@@ -80,15 +84,15 @@
+       });
+       const adapted = health?.host.readPrepared(health.token, owner);
+       if (adapted) current.push(...adapted.facts);
+-      const projection: Record<string, any> = { kind: 'projection', id: '', schema: health ? 'perspective-knowledge-consumer/native11-identifiers-v1' : 'perspective-knowledge-consumer/v1', owner,
++      const projection: Record<string, any> = { kind: 'projection', id: '', schema: health ? 'perspective-knowledge-consumer/native11-loadout-v1' : 'perspective-knowledge-consumer/v1', owner,
+         policy: profile.policy, boundary: boundary.step_index, required_profile: profile.id, result: 'incomplete',
+-        starting: starting[owner], starting_crosswalk: [], current, request: adapted?.descriptor ?? null };
+-      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerIdentifiersProjection : checkNativeOwnerProjection)(projection);
++        starting: starting[owner], ...(health ? { original_interpretation: interpretations![owner] } : {}), starting_crosswalk: [], current, request: adapted?.descriptor ?? null };
++      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerLoadoutProjection : checkNativeOwnerProjection)(projection);
+       reads[owner] = freeze({ projection, binding: { observation_id: obs.observation_id,
+         prefix_cursor: obs.event_cursor, ...(adapted ? { request_adaptation: 'owned_health/v1' as const, request_descriptor: 'owned-active-options/v1' as const, request_state: adapted.state } : { request_adaptation: 'not_adopted' as const }) } });
+     }
+     const prepared = token();
+-    this.#prepared.set(prepared, { environment, parent, health, state: { parent: boundary, source, starting, reads,
++    this.#prepared.set(prepared, { environment, parent, health, state: { parent: boundary, source, starting, interpretations, reads,
+       handles: { p1: token(), p2: token() } } }); return prepared;
+   }
+   preflight(prepared: object): void {
+@@ -97,7 +101,7 @@
+     entry.health?.host.assertPreparedBinding(entry.health.token, entry.environment, entry.state.parent, source.rows);
+     entry.health?.host.preflight(entry.health.token);
+     for (const owner of owners) {
+-      (entry.health ? checkNativeOwnerIdentifiersProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
++      (entry.health ? checkNativeOwnerLoadoutProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
+       if (this.#current && entry.state.starting[owner] !== this.#current.starting[owner]) fail('starting-lineage');
+     }
+     this.#ready = entry;
+@@ -124,12 +128,12 @@
+ function need(condition: unknown, code: string): asserts condition { if (!condition) throw new Error(code); }
+ 
+ /** Finite value interpreter only. Its output has no enrollment/consumer authority. */
+-function nativeOwnerStartingFacts(evidence: OriginalOwnerEvidence, runtime: NativeRuntimeProfile, dex: any): readonly Record<string, any>[] {
++function nativeOwnerStartingFacts(evidence: OriginalOwnerEvidence, runtime: NativeRuntimeProfile, dex: any, loadout = false): readonly Record<string, any>[] {
+   assertNativeRuntimeProfile(runtime);
+   need(runtime.package_version === '0.11.11', 'native-original/runtime');
+   const owner = evidence.owner;
+   need(owners.includes(owner) && evidence.raw_team.length >= 1 && evidence.raw_team.length <= 6, 'native-original/roster');
+-  const rules = nativeOwnerProjectionContext().profile.rules;
++  const rules = (loadout ? nativeOwnerLoadoutContext() : nativeOwnerProjectionContext()).profile.rules;
+   const facts: Record<string, any>[] = [];
+   const fact = (subject: string, property: string, value: any, tag: string) => {
+     const rule = rules.find((r: Record<string, any>) => r.context === 'starting' && r.property === property);
+@@ -159,6 +163,13 @@
+     fact(subject, 'roster_order', i + 1, 'integer'); fact(subject, 'roster_species', set.species, 'text');
+     fact(subject, 'ability', set.ability, 'text'); fact(subject, 'item', set.item === '' ? null : set.item, 'text');
+     fact(subject, 'starting_moves', [...set.moves], 'texts');
++    if (loadout) for (const original of interpretOriginalValues(set, dex, require(runtime.entry)).facts) {
++      const rule = rules.find((r: Record<string, any>) => r.context === 'starting' && r.property === original.property);
++      need(rule, 'native-original/property');
++      facts.push(freeze({ owner, subject, family: rule.family, property: original.property, effect_key: null,
++        state: original.state, value: original.value === null ? null : { type: original.tag, data: original.value }, reason: original.reason,
++        freshness: 'immutable', precision: original.state === 'known' ? 'exact' : 'not_applicable', observed_at: 0 }));
++    }
+   }
+   return Object.freeze(facts);
+ }
+--- a/sim-core/src/perspective_knowledge.ts
++++ b/sim-core/src/perspective_knowledge.ts
+@@ -1,4 +1,5 @@
+ /** Opt-in knowledge wire structure checks; no source truth or publication. */
++import { interpretOriginalValues, ORIGINAL_FIELDS, ORIGINAL_STATS } from './original_owner_values';
+ import { createHash } from 'node:crypto';
+ import { readFileSync } from 'node:fs';
+ import path from 'node:path';
+@@ -648,3 +649,56 @@
+   function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+   nativeIdentifiersContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeIdentifiersContext!;
+ }
++
++/** Additive fixed private decoder. This issues no authenticated source/consumer capability. */
++let nativeLoadoutContext: Readonly<{ schema: Row; profile: Row }> | undefined;
++export function nativeOwnerLoadoutContext(): Readonly<{ schema: Row; profile: Row }> {
++  if (nativeLoadoutContext) return nativeLoadoutContext;
++  const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
++    'docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1');
++  const data: Row = {};
++  for (const [name, expected] of Object.entries({"schema.json": "6298d6dd776bc1667b74555dae60480b4d5affb917ce4f8c16c5fa474edb49f7", "profile.json": "9478d997c9a58d17c6e1ba934e52a7bc0b31f7ae7cf7ce49142593a6e570f800"})) {
++    const bytes = readFileSync(path.join(folder, name));
++    requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native loadout contract content');
++    data[name] = parseKnowledgeJson(bytes);
++  }
++  requireStructure(data['profile.json'].id === knowledgeIdentity(data['profile.json']), 'native loadout profile identity');
++  function freeze(value: any): any { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
++  nativeLoadoutContext = freeze({ schema: data['schema.json'], profile: data['profile.json'] }); return nativeLoadoutContext!;
++}
++export function checkNativeOwnerLoadoutProjection(input: unknown): void {
++  checkOwnerProjection(input, nativeOwnerLoadoutContext(), true, true, true);
++  const value = input as Row;
++  const simulator = require('pokemon-showdown'), dex = simulator.Dex.forFormat('gen9randombattle');
++  const size = value.starting.find((f: Row) => f.property === 'roster_size').value.data;
++  requireStructure(value.original_interpretation.length === size, 'native original interpretation coverage');
++  value.original_interpretation.forEach((row: Row, i: number) => {
++    const subject = value.owner + ':roster:' + (i + 1);
++    requireStructure(row.subject === subject, 'native original interpretation order');
++    const species = value.starting.find((f: Row) => f.subject === subject && f.property === 'roster_species').value.data;
++    const raw: Row = { species, moves: ['Splash'] };
++    for (const field of ORIGINAL_FIELDS) {
++      if (row.presence[field] === 'omitted') requireStructure(row.submission[field] === null, 'native original absent submission');
++      else if (row.presence[field] === 'undefined') { requireStructure(row.submission[field] === null, 'native original undefined submission'); raw[field] = undefined; }
++      else {
++        requireStructure(row.submission[field] !== null, 'native original present submission'); raw[field] = row.submission[field];
++        if (field === 'evs' || field === 'ivs') {
++          raw[field] = {};
++          for (const stat of ORIGINAL_STATS) {
++            const mode = row.components[field][stat], number = row.submission[field][stat];
++            requireStructure((mode === 'present') === (number !== null), 'native original component presence');
++            if (mode !== 'omitted') raw[field][stat] = mode === 'undefined' ? undefined : number;
++          }
++        }
++      }
++    }
++    const expected = interpretOriginalValues(raw, dex, simulator);
++    requireStructure(equal(row.normalized, expected.interpretation.normalized) && equal(row.presence, expected.interpretation.presence)
++      && equal(row.components, expected.interpretation.components), 'native original rule interpretation');
++    for (const fact of expected.facts) {
++      const actual = value.starting.find((f: Row) => f.subject === subject && f.property === fact.property);
++      requireStructure(actual.state === fact.state && actual.reason === fact.reason
++        && equal(actual.value, fact.value === null ? null : { type: fact.tag, data: fact.value }), 'native original fact interpretation');
++    }
++  });
++}
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/README.md
+@@ -0,0 +1,3 @@
++# Private native11 immutable original loadout
++
++Additive incomplete decoder/profile. Earlier current health, identifier and ordinary PP meanings remain unchanged. Original submission presence and literal components are separate from pinned packing/default/rule interpretation. Partial submitted EV/IV tuples remain blocking unknown while their actual components and normalized vectors are retained. Omitted gender is submission absence; random resolution and dependent full details remain unresolved. No current stat/details adapter, completeness or source authority is granted by decoding.
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/profile.json
+@@ -0,0 +1,475 @@
++{
++  "kind": "profile",
++  "name": "native-owner-loadout/v1",
++  "policy": "native-owner-loadout/v1",
++  "provider": "native-owner-loadout-provider/v1",
++  "engine": "pokemon-showdown@0.11.11",
++  "format": "gen9randombattle",
++  "result": "incomplete",
++  "request_adaptation": "owned_health/v1",
++  "rules": [
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_order",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "starting",
++      "family": "K02",
++      "property": "starting_moves",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reason": "none"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_size",
++      "subject": "side",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K01",
++      "property": "roster_species",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K19",
++      "property": "ability",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K18",
++      "property": "item",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K02",
++      "property": "current_moves",
++      "subject": "roster",
++      "states": [
++        "unknown"
++      ],
++      "reason": "unimplemented_family"
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "hp",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "fainted",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "current",
++      "family": "K05",
++      "property": "status",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "not_emitted",
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "submitted_nature",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "submitted_evs",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "submitted_ivs",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "submitted_happiness",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "calculated_stats",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K03",
++      "property": "hp_max",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "level",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "gender",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "shiny",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "ball",
++      "subject": "roster",
++      "states": [
++        "known",
++        "known_absent"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "details",
++      "subject": "roster",
++      "states": [
++        "known",
++        "unknown"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    },
++    {
++      "context": "starting",
++      "family": "K04",
++      "property": "starting_tera",
++      "subject": "roster",
++      "states": [
++        "known"
++      ],
++      "reasons": {
++        "known": [
++          "none"
++        ],
++        "known_absent": [
++          "none"
++        ],
++        "unknown": [
++          "unsupported_writer"
++        ]
++      }
++    }
++  ],
++  "generator_metadata": {
++    "role": "nonempty_text",
++    "speciesId": "pinned_species_id_inert"
++  },
++  "request_descriptor": "owned-active-options/v1",
++  "request_options_coverage": "emitted_active_rows_only",
++  "current_possession": "not_adopted",
++  "current_identifiers": "emitted_owned_item_ability_only",
++  "original_interpretation": "submitted-presence-and-pinned-defaults/v1",
++  "id": "sha256:2e62db89c4c750234c431699dd8cbfea4bba2c4d434d08d2bf46c91d93342f4e"
++}
+--- /dev/null
++++ b/docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1/schema.json
+@@ -0,0 +1,1599 @@
++{
++  "type": "object",
++  "properties": {
++    "kind": {
++      "const": "projection"
++    },
++    "id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "schema": {
++      "const": "perspective-knowledge-consumer/native11-loadout-v1"
++    },
++    "owner": {
++      "enum": [
++        "p1",
++        "p2"
++      ]
++    },
++    "policy": {
++      "const": "native-owner-loadout/v1"
++    },
++    "boundary": {
++      "type": "integer",
++      "minimum": 0,
++      "maximum": 2147483647
++    },
++    "required_profile": {
++      "const": "sha256:2e62db89c4c750234c431699dd8cbfea4bba2c4d434d08d2bf46c91d93342f4e"
++    },
++    "result": {
++      "const": "incomplete"
++    },
++    "starting": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "starting_crosswalk": {
++      "type": "array",
++      "maxItems": 0
++    },
++    "current": {
++      "type": "array",
++      "items": {
++        "$ref": "#/$defs/safe_fact"
++      },
++      "maxItems": 4096
++    },
++    "request": {
++      "type": "object",
++      "properties": {
++        "schema": {
++          "const": "owned-active-options/v1"
++        },
++        "subject": {
++          "anyOf": [
++            {
++              "type": "string",
++              "pattern": "^p[12]:roster:[1-6]$"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "sequence": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "cursor": {
++          "type": "integer",
++          "minimum": 0,
++          "maximum": 2147483647
++        },
++        "state": {
++          "enum": [
++            "ordinary_pp",
++            "unsupported",
++            "waiting",
++            "forced_switch",
++            "revival_selection",
++            "terminal",
++            "requestless"
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "not_emitted",
++            "unsupported_writer"
++          ]
++        },
++        "options": {
++          "anyOf": [
++            {
++              "type": "array",
++              "minItems": 1,
++              "maxItems": 4,
++              "items": {
++                "type": "object",
++                "properties": {
++                  "option_index": {
++                    "type": "integer",
++                    "minimum": 1,
++                    "maximum": 4
++                  },
++                  "request_move_id": {
++                    "type": "string",
++                    "minLength": 1,
++                    "maxLength": 256
++                  },
++                  "request_move_label": {
++                    "type": "string",
++                    "minLength": 1,
++                    "maxLength": 256
++                  },
++                  "pp": {
++                    "type": "object",
++                    "properties": {
++                      "state": {
++                        "const": "known"
++                      },
++                      "value": {
++                        "type": "integer",
++                        "minimum": 0,
++                        "maximum": 2147483647
++                      },
++                      "precision": {
++                        "const": "exact"
++                      },
++                      "reason": {
++                        "const": "none"
++                      }
++                    },
++                    "required": [
++                      "state",
++                      "value",
++                      "precision",
++                      "reason"
++                    ],
++                    "additionalProperties": false
++                  },
++                  "max_pp": {
++                    "type": "object",
++                    "properties": {
++                      "state": {
++                        "const": "known"
++                      },
++                      "value": {
++                        "type": "integer",
++                        "minimum": 0,
++                        "maximum": 2147483647
++                      },
++                      "precision": {
++                        "const": "exact"
++                      },
++                      "reason": {
++                        "const": "none"
++                      }
++                    },
++                    "required": [
++                      "state",
++                      "value",
++                      "precision",
++                      "reason"
++                    ],
++                    "additionalProperties": false
++                  }
++                },
++                "required": [
++                  "option_index",
++                  "request_move_id",
++                  "request_move_label",
++                  "pp",
++                  "max_pp"
++                ],
++                "additionalProperties": false
++              }
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "schema",
++        "subject",
++        "sequence",
++        "cursor",
++        "state",
++        "reason",
++        "options"
++      ],
++      "additionalProperties": false
++    },
++    "original_interpretation": {
++      "type": "array",
++      "minItems": 1,
++      "maxItems": 6,
++      "items": {
++        "type": "object",
++        "properties": {
++          "subject": {
++            "type": "string",
++            "pattern": "^p[12]:roster:[1-6]$"
++          },
++          "presence": {
++            "type": "object",
++            "properties": {
++              "nature": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "evs": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "ivs": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "happiness": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "level": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "gender": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "shiny": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "pokeball": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              },
++              "teraType": {
++                "enum": [
++                  "present",
++                  "undefined",
++                  "omitted"
++                ]
++              }
++            },
++            "required": [
++              "nature",
++              "evs",
++              "ivs",
++              "happiness",
++              "level",
++              "gender",
++              "shiny",
++              "pokeball",
++              "teraType"
++            ],
++            "additionalProperties": false
++          },
++          "components": {
++            "type": "object",
++            "properties": {
++              "evs": {
++                "type": "object",
++                "properties": {
++                  "hp": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "atk": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "def": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spa": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spd": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spe": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  }
++                },
++                "required": [
++                  "hp",
++                  "atk",
++                  "def",
++                  "spa",
++                  "spd",
++                  "spe"
++                ],
++                "additionalProperties": false
++              },
++              "ivs": {
++                "type": "object",
++                "properties": {
++                  "hp": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "atk": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "def": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spa": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spd": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  },
++                  "spe": {
++                    "enum": [
++                      "present",
++                      "undefined",
++                      "omitted"
++                    ]
++                  }
++                },
++                "required": [
++                  "hp",
++                  "atk",
++                  "def",
++                  "spa",
++                  "spd",
++                  "spe"
++                ],
++                "additionalProperties": false
++              }
++            },
++            "required": [
++              "evs",
++              "ivs"
++            ],
++            "additionalProperties": false
++          },
++          "submission": {
++            "type": "object",
++            "properties": {
++              "nature": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "evs": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "hp": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "atk": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "def": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spa": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spd": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spe": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      }
++                    },
++                    "required": [
++                      "hp",
++                      "atk",
++                      "def",
++                      "spa",
++                      "spd",
++                      "spe"
++                    ],
++                    "additionalProperties": false
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "ivs": {
++                "anyOf": [
++                  {
++                    "type": "object",
++                    "properties": {
++                      "hp": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "atk": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "def": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spa": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spd": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "spe": {
++                        "anyOf": [
++                          {
++                            "type": "integer",
++                            "minimum": 0,
++                            "maximum": 2147483647
++                          },
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      }
++                    },
++                    "required": [
++                      "hp",
++                      "atk",
++                      "def",
++                      "spa",
++                      "spd",
++                      "spe"
++                    ],
++                    "additionalProperties": false
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "happiness": {
++                "anyOf": [
++                  {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "level": {
++                "anyOf": [
++                  {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "gender": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "shiny": {
++                "anyOf": [
++                  {
++                    "type": "boolean"
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "pokeball": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "teraType": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              }
++            },
++            "required": [
++              "nature",
++              "evs",
++              "ivs",
++              "happiness",
++              "level",
++              "gender",
++              "shiny",
++              "pokeball",
++              "teraType"
++            ],
++            "additionalProperties": false
++          },
++          "normalized": {
++            "type": "object",
++            "properties": {
++              "nature": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "evs": {
++                "type": "object",
++                "properties": {
++                  "hp": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "atk": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "def": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spa": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spd": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spe": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  }
++                },
++                "required": [
++                  "hp",
++                  "atk",
++                  "def",
++                  "spa",
++                  "spd",
++                  "spe"
++                ],
++                "additionalProperties": false
++              },
++              "ivs": {
++                "type": "object",
++                "properties": {
++                  "hp": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "atk": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "def": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spa": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spd": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spe": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  }
++                },
++                "required": [
++                  "hp",
++                  "atk",
++                  "def",
++                  "spa",
++                  "spd",
++                  "spe"
++                ],
++                "additionalProperties": false
++              },
++              "happiness": {
++                "type": "integer",
++                "minimum": 0,
++                "maximum": 2147483647
++              },
++              "level": {
++                "type": "integer",
++                "minimum": 0,
++                "maximum": 2147483647
++              },
++              "gender": {
++                "enum": [
++                  "M",
++                  "F",
++                  "N",
++                  null
++                ]
++              },
++              "gender_resolution": {
++                "enum": [
++                  "submitted",
++                  "species_fixed",
++                  "unresolved"
++                ]
++              },
++              "shiny": {
++                "type": "boolean"
++              },
++              "ball": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "starting_tera": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "calculated_stats": {
++                "type": "object",
++                "properties": {
++                  "atk": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "def": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spa": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spd": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  },
++                  "spe": {
++                    "type": "integer",
++                    "minimum": 0,
++                    "maximum": 2147483647
++                  }
++                },
++                "required": [
++                  "atk",
++                  "def",
++                  "spa",
++                  "spd",
++                  "spe"
++                ],
++                "additionalProperties": false
++              },
++              "hp_max": {
++                "type": "integer",
++                "minimum": 0,
++                "maximum": 2147483647
++              },
++              "details": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "maxLength": 256
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              }
++            },
++            "required": [
++              "nature",
++              "evs",
++              "ivs",
++              "happiness",
++              "level",
++              "gender",
++              "gender_resolution",
++              "shiny",
++              "ball",
++              "starting_tera",
++              "calculated_stats",
++              "hp_max",
++              "details"
++            ],
++            "additionalProperties": false
++          }
++        },
++        "required": [
++          "subject",
++          "presence",
++          "components",
++          "submission",
++          "normalized"
++        ],
++        "additionalProperties": false
++      }
++    }
++  },
++  "required": [
++    "kind",
++    "id",
++    "schema",
++    "owner",
++    "policy",
++    "boundary",
++    "required_profile",
++    "result",
++    "starting",
++    "starting_crosswalk",
++    "current",
++    "request",
++    "original_interpretation"
++  ],
++  "additionalProperties": false,
++  "$defs": {
++    "safe_fact": {
++      "type": "object",
++      "properties": {
++        "owner": {
++          "enum": [
++            "p1",
++            "p2"
++          ]
++        },
++        "subject": {
++          "type": "string",
++          "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++        },
++        "family": {
++          "enum": [
++            "K01",
++            "K02",
++            "K03",
++            "K04",
++            "K05",
++            "K06",
++            "K07",
++            "K08",
++            "K09",
++            "K10",
++            "K11",
++            "K12",
++            "K13",
++            "K14",
++            "K15",
++            "K16",
++            "K17",
++            "K18",
++            "K19",
++            "K20"
++          ]
++        },
++        "property": {
++          "enum": [
++            "roster_species",
++            "roster_order",
++            "party_position",
++            "active_slot",
++            "roster_size",
++            "starting_moves",
++            "current_moves",
++            "move_execution",
++            "move_incarnation",
++            "submitted_nature",
++            "submitted_evs",
++            "submitted_ivs",
++            "submitted_happiness",
++            "calculated_stats",
++            "hp_max",
++            "level",
++            "gender",
++            "shiny",
++            "ball",
++            "details",
++            "starting_tera",
++            "hp",
++            "fainted",
++            "status",
++            "status_observed_since",
++            "status_elapsed",
++            "status_remaining",
++            "pp",
++            "max_pp",
++            "disabled",
++            "maybe_disabled",
++            "trapped",
++            "maybe_trapped",
++            "lock",
++            "boosts",
++            "persistent_effect",
++            "single_turn_effect",
++            "single_move_effect",
++            "side_condition",
++            "side_condition_layers",
++            "weather",
++            "weather_effective",
++            "terrain",
++            "pseudo_weather",
++            "field_remaining",
++            "pending_intent",
++            "pending_effect",
++            "pending_power",
++            "form",
++            "types",
++            "tera",
++            "transformed",
++            "appearance",
++            "identity_reveal",
++            "item",
++            "item_held",
++            "item_effective",
++            "ability",
++            "ability_effective",
++            "boundary_kind",
++            "request_presence"
++          ]
++        },
++        "effect_key": {
++          "anyOf": [
++            {
++              "type": "string",
++              "maxLength": 256
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "state": {
++          "enum": [
++            "known",
++            "known_absent",
++            "unknown",
++            "inapplicable"
++          ]
++        },
++        "value": {
++          "anyOf": [
++            {
++              "$ref": "#/$defs/value"
++            },
++            {
++              "type": "null"
++            }
++          ]
++        },
++        "reason": {
++          "enum": [
++            "none",
++            "hidden_opponent",
++            "never_revealed",
++            "ambiguous_carrier",
++            "private_request_unavailable",
++            "not_emitted",
++            "hidden_timer",
++            "missing_original_authority",
++            "unimplemented_family",
++            "unsupported_writer",
++            "proved_rule_inapplicable",
++            "not_yet_verified"
++          ]
++        },
++        "freshness": {
++          "enum": [
++            "immutable",
++            "current",
++            "last_known"
++          ]
++        },
++        "precision": {
++          "enum": [
++            "exact",
++            "public_bucket",
++            "interval",
++            "not_applicable"
++          ]
++        },
++        "observed_at": {
++          "anyOf": [
++            {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            },
++            {
++              "type": "null"
++            }
++          ]
++        }
++      },
++      "required": [
++        "owner",
++        "subject",
++        "family",
++        "property",
++        "effect_key",
++        "state",
++        "value",
++        "reason",
++        "freshness",
++        "precision",
++        "observed_at"
++      ],
++      "additionalProperties": false
++    },
++    "value": {
++      "anyOf": [
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "text"
++            },
++            "data": {
++              "type": "string",
++              "maxLength": 256
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "integer"
++            },
++            "data": {
++              "type": "integer",
++              "minimum": 0,
++              "maximum": 2147483647
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "boolean"
++            },
++            "data": {
++              "type": "boolean"
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "texts"
++            },
++            "data": {
++              "type": "array",
++              "items": {
++                "type": "string",
++                "maxLength": 256
++              },
++              "maxItems": 6
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "six_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "hp": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "hp",
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "five_stats"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "stages"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "atk": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "def": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spa": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spd": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "spe": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "accuracy": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                },
++                "evasion": {
++                  "type": "integer",
++                  "minimum": -6,
++                  "maximum": 6
++                }
++              },
++              "required": [
++                "atk",
++                "def",
++                "spa",
++                "spd",
++                "spe",
++                "accuracy",
++                "evasion"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "interval"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "min": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "max": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                }
++              },
++              "required": [
++                "min",
++                "max"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "field_timer"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "target_kind": {
++                  "enum": [
++                    "weather",
++                    "terrain",
++                    "pseudo_weather"
++                  ]
++                },
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "remaining": {
++                  "type": "object",
++                  "properties": {
++                    "min": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    "max": {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    }
++                  },
++                  "required": [
++                    "min",
++                    "max"
++                  ],
++                  "additionalProperties": false
++                }
++              },
++              "required": [
++                "target_kind",
++                "name",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "power"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "basis": {
++                  "enum": [
++                    "base_move",
++                    "effective_move"
++                  ]
++                },
++                "amount": {
++                  "type": "integer",
++                  "minimum": 1,
++                  "maximum": 65535
++                }
++              },
++              "required": [
++                "basis",
++                "amount"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        },
++        {
++          "type": "object",
++          "properties": {
++            "type": {
++              "const": "effect"
++            },
++            "data": {
++              "type": "object",
++              "properties": {
++                "name": {
++                  "type": "string",
++                  "maxLength": 256
++                },
++                "source_subject": {
++                  "anyOf": [
++                    {
++                      "type": "string",
++                      "pattern": "^p[12]:(side|roster:[1-6]|appearance:[1-9][0-9]*|roster:[1-6]:move:[1-4]:incarnation:[0-9]+)$"
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "observed_since": {
++                  "type": "integer",
++                  "minimum": 0,
++                  "maximum": 2147483647
++                },
++                "elapsed": {
++                  "anyOf": [
++                    {
++                      "type": "integer",
++                      "minimum": 0,
++                      "maximum": 2147483647
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                },
++                "remaining": {
++                  "anyOf": [
++                    {
++                      "type": "object",
++                      "properties": {
++                        "type": {
++                          "const": "interval"
++                        },
++                        "data": {
++                          "type": "object",
++                          "properties": {
++                            "min": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            },
++                            "max": {
++                              "type": "integer",
++                              "minimum": 0,
++                              "maximum": 2147483647
++                            }
++                          },
++                          "required": [
++                            "min",
++                            "max"
++                          ],
++                          "additionalProperties": false
++                        }
++                      },
++                      "required": [
++                        "type",
++                        "data"
++                      ],
++                      "additionalProperties": false
++                    },
++                    {
++                      "type": "null"
++                    }
++                  ]
++                }
++              },
++              "required": [
++                "name",
++                "source_subject",
++                "observed_since",
++                "elapsed",
++                "remaining"
++              ],
++              "additionalProperties": false
++            }
++          },
++          "required": [
++            "type",
++            "data"
++          ],
++          "additionalProperties": false
++        }
++      ]
++    }
++  }
++}
+--- /dev/null
++++ b/sim-core/src/original_owner_values.ts
+@@ -0,0 +1,69 @@
++/** Pure original-value interpretation, never a source/recipient authority factory. */
++export const ORIGINAL_FIELDS = ['nature','evs','ivs','happiness','level','gender','shiny','pokeball','teraType'] as const;
++export const ORIGINAL_STATS = ['hp','atk','def','spa','spd','spe'] as const;
++const own = (value: any, key: string) => Object.hasOwn(value, key);
++function need(value: unknown, code: string): asserts value { if (!value) throw new Error('native-original-values/v1/' + code); }
++const presence = (value: any, key: string) => !own(value, key) ? 'omitted' : value[key] === undefined ? 'undefined' : 'present';
++const integer = (value: any) => Number.isSafeInteger(value) && value >= 0 && value <= 2147483647;
++export interface OriginalInterpretation { presence: Record<string, string>; components: Record<string, Record<string, string>>; submission: Record<string, any>; normalized: Record<string, any> }
++export interface OriginalValue { property: string; state: 'known' | 'known_absent' | 'unknown'; value: any; tag: string; reason: 'none' | 'unsupported_writer' }
++export function interpretOriginalValues(raw: Record<string, any>, dex: any, simulator: any): { facts: OriginalValue[]; interpretation: OriginalInterpretation } {
++  need(dex.gen === 9 && dex === simulator.Dex.forFormat('gen9randombattle'), 'rules');
++  const submitted: Record<string, any> = {}, fields: Record<string, string> = {}, components: Record<string, Record<string, string>> = {};
++  for (const field of ORIGINAL_FIELDS) {
++    fields[field] = presence(raw, field); const value = raw[field];
++    if (field === 'evs' || field === 'ivs') {
++      components[field] = {};
++      need(value === undefined || value && typeof value === 'object' && !Array.isArray(value)
++        && Object.keys(value).every(key => (ORIGINAL_STATS as readonly string[]).includes(key)), 'submitted-stats');
++      submitted[field] = value === undefined ? null : {};
++      for (const stat of ORIGINAL_STATS) {
++        components[field][stat] = value === undefined ? 'omitted' : presence(value, stat);
++        const v = value?.[stat]; need(v === undefined || integer(v), 'submitted-component');
++        if (submitted[field]) submitted[field][stat] = v === undefined ? null : v;
++      }
++    } else {
++      need(value === undefined || (['happiness','level'].includes(field) ? integer(value)
++        : field === 'shiny' ? typeof value === 'boolean' : typeof value === 'string'), 'submitted-field');
++      submitted[field] = value === undefined ? null : value;
++    }
++  }
++  need(raw.gender === undefined || ['M','F','N',''].includes(raw.gender), 'gender');
++  need(!raw.nature || dex.natures.get(raw.nature).exists, 'nature');
++  need(!raw.teraType || dex.types.get(raw.teraType).exists, 'tera');
++  // The actual pack/unpack rules normalize only a detached copy of held input.
++  const set = simulator.Teams.unpack(simulator.Teams.pack([structuredClone(raw)]))?.[0];
++  need(set, 'packing');
++  const species = dex.species.get(set.species); need(species.exists, 'species');
++  const clamp = (n: number, low: number, high: number) => simulator.Utils.clampIntRange(n, low, high);
++  set.level = clamp(set.level || 100, 1, 9999);
++  set.evs ||= {}; set.ivs ||= {};
++  for (const stat of ORIGINAL_STATS) { set.evs[stat] = clamp(set.evs[stat] || 0, 0, 255); set.ivs[stat] = clamp(set.ivs[stat] ?? 31, 0, 31); }
++  const gender = ['M','F','N'].includes(set.gender) ? set.gender : species.gender || null;
++  const normalized: Record<string, any> = { nature: set.nature || null, evs: set.evs, ivs: set.ivs,
++    happiness: typeof set.happiness === 'number' ? clamp(set.happiness, 0, 255) : 255,
++    level: set.level, gender, gender_resolution: gender === null ? 'unresolved' : ['M','F','N'].includes(set.gender) ? 'submitted' : 'species_fixed',
++    shiny: !!set.shiny, ball: simulator.toID(set.pokeball) || 'pokeball', starting_tera: set.teraType || species.types[0] };
++  // Borrow the pinned public rule functions on a data-only receiver: no Battle,
++  // Pokemon, event dispatch, seed, native mutable stat or request is consulted.
++  const ruleTable = dex.formats.getRuleTable(dex.formats.get('gen9randombattle'));
++  const receiver = { dex, ruleTable, trunc: dex.trunc, statModify: simulator.Battle.prototype.statModify };
++  const stats = simulator.Battle.prototype.spreadModify.call(receiver, species.baseStats, set);
++  if (species.maxHP) stats.hp = species.maxHP;
++  normalized.calculated_stats = Object.fromEntries(ORIGINAL_STATS.filter(stat => stat !== 'hp').map(stat => [stat, stats[stat]]));
++  normalized.hp_max = stats.hp;
++  normalized.details = gender === null ? null : simulator.Pokemon.prototype.getUpdatedDetails.call({ species, level: set.level, gender: gender === 'N' ? '' : gender, set: { shiny: normalized.shiny } });
++  const facts: OriginalValue[] = [];
++  function fact(property: string, value: any, tag: string, state: OriginalValue['state'] = value === null ? 'known_absent' : 'known') {
++    facts.push({ property, state, value, tag, reason: state === 'unknown' ? 'unsupported_writer' : 'none' });
++  }
++  for (const [field, property, tag] of [['nature','submitted_nature','text'],['happiness','submitted_happiness','integer'],['gender','gender','text'],['shiny','shiny','boolean'],['pokeball','ball','text']]) fact(property, submitted[field], tag);
++  for (const [field, property] of [['evs','submitted_evs'],['ivs','submitted_ivs']]) {
++    const partial = submitted[field] !== null && ORIGINAL_STATS.some(stat => components[field][stat] !== 'present');
++    fact(property, partial ? null : submitted[field], 'six_stats', partial ? 'unknown' : submitted[field] === null ? 'known_absent' : 'known');
++  }
++  fact('level', normalized.level, 'integer'); fact('starting_tera', normalized.starting_tera, 'text');
++  fact('details', normalized.details, 'text', gender === null ? 'unknown' : 'known');
++  fact('calculated_stats', normalized.calculated_stats, 'five_stats'); fact('hp_max', normalized.hp_max, 'integer');
++  return { facts, interpretation: { presence: fields, components, submission: submitted, normalized } };
++}
+--- /dev/null
++++ b/sim-core/tests/original_owner_loadout.test.ts
+@@ -0,0 +1,159 @@
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import * as simulator from 'pokemon-showdown';
++import { PipelineIntegrationSession } from '../src/pipeline_integration';
++import { continuePipelineEpisode } from '../src/pipeline_episode';
++import { OriginalOwnerCreation } from '../src/original_owner_provider';
++import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
++import { interpretOriginalValues } from '../src/original_owner_values';
++import { checkNativeOwnerLoadoutProjection, checkNativeOwnerIdentifiersProjection, knowledgeIdentity } from '../src/perspective_knowledge';
++import { joint, native } from './helpers/owner_selection_restore';
++const owners = ['p1','p2'] as const;
++const dex = simulator.Dex.forFormat('gen9randombattle');
++const recipients = () => ({ p1: {}, p2: {} });
++const read = (s: PipelineIntegrationSession, r: object) => s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(r), r);
++const fact = (pair: any, property: string, slot = 1, section = 'starting') => pair.projection[section].find((f: any) => f.subject === pair.projection.owner + ':roster:' + slot && f.property === property);
++const basic = (species = 'Magikarp', ability = 'Swift Swim') => ({ species, ability, item: '', moves: ['Splash'], gender: 'M' });
++async function create(r: ReturnType<typeof recipients>, teams?: any[][]) {
++  const generate = simulator.Teams.generate; let count = 0;
++  try {
++    if (teams) simulator.Teams.generate = () => structuredClone(teams[count++]);
++    return await PipelineIntegrationSession.create({ battle_id: 'P59', format: 'gen9randombattle', seed: [1,2,3,4], knowledge_recipients: r });
++  } finally { simulator.Teams.generate = generate; }
++}
++const witness = (name: string, data: object) => console.log('P59_WITNESS ' + JSON.stringify({ name, ...data }));
++// Independent test arithmetic and nature table, not the production rule helper.
++function oracle(set: any) {
++  const species = dex.species.get(set.species), level = Math.min(9999, Math.max(1, set.level || 100));
++  const table: Record<string, [string,string]> = { Modest: ['spa','atk'], Adamant: ['atk','spa'], Timid: ['spe','atk'], Brave: ['atk','spe'], Quiet: ['spa','spe'], Jolly: ['spe','spa'] };
++  const nature = table[set.nature];
++  const value: any = {};
++  for (const key of ['hp','atk','def','spa','spd','spe']) {
++    const iv = Math.min(31, set.ivs?.[key] ?? 31), ev = Math.min(255, set.evs?.[key] ?? 0);
++    const subtotal = Math.floor((2 * (species.baseStats as any)[key] + iv + Math.floor(ev / 4)) * level / 100);
++    value[key] = key === 'hp' ? species.maxHP || subtotal + level + 10 : Math.floor((subtotal + 5) * (nature?.[0] === key ? 1.1 : nature?.[1] === key ? 0.9 : 1));
++  }
++  return value;
++}
++function assertGenerated(s: PipelineIntegrationSession, r: ReturnType<typeof recipients>, starting?: any[]) {
++  for (const [i, owner] of owners.entries()) {
++    const pair = read(s, r[owner]); checkNativeOwnerLoadoutProjection(pair.projection);
++    assert.equal(pair.projection.result, 'incomplete');
++    const source = s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner);
++    source.raw_team.forEach((raw: any, n) => {
++      const values = oracle(raw), stats = { ...values }; delete stats.hp;
++      assert.deepEqual(fact(pair, 'calculated_stats', n + 1).value.data, stats);
++      assert.equal(fact(pair, 'hp_max', n + 1).value.data, values.hp);
++      for (const key of ['submitted_nature','submitted_happiness','gender','shiny','ball']) {
++        const rawKey = ({submitted_nature:'nature', submitted_happiness:'happiness',ball:'pokeball'} as any)[key] || key;
++        assert.equal(fact(pair, key, n + 1).state, raw[rawKey] === undefined ? 'known_absent' : 'known');
++      }
++      assert.ok(Object.isFrozen(fact(pair, 'calculated_stats', n + 1).value.data));
++    });
++    assert.ok(pair.projection.starting.every((f: any) => f.owner === owner && f.subject.startsWith(owner + ':')));
++    assert.equal(fact(pair, 'current_moves', 1, 'current').reason, 'unimplemented_family');
++    assert.ok(fact(pair, 'hp', 1, 'current')); assert.ok(fact(pair, 'item', 1, 'current')); assert.ok(fact(pair, 'ability', 1, 'current'));
++    assert.equal(pair.projection.request.schema, 'owned-active-options/v1');
++    if (starting) assert.equal(pair.projection.starting, starting[i]);
++    assert.throws(() => s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(r[owner]), r[owner === 'p1' ? 'p2' : 'p1']), /copied-or-stale/);
++  }
++}
++
++test('P59 generated both owners restore reorder and real decision caller', async () => {
++  const r = recipients(), s = await create(r);
++  try {
++    assertGenerated(s, r); const pairs = owners.map(p => read(s, r[p])), bytes = JSON.stringify(pairs), actors = owners.map(p => native(s)[p]!.active[0]);
++    const original = pairs.map(p => p.projection.starting), interpretations = pairs.map(p => p.projection.original_interpretation);
++    await joint(s, 'p1', 'switch 2', 'switch 2'); await joint(s, 'p1', 'switch 2', 'switch 2');
++    assertGenerated(s, r, original);
++    for (const [i, p] of owners.entries()) { assert.notEqual(native(s)[p]!.active[0], actors[i]); assert.equal(read(s, r[p]).projection.original_interpretation, interpretations[i]); }
++    const calls: string[] = [];
++    const result = await continuePipelineEpisode(s, { limits: { max_transitions: 1 }, policy_id: 'p59-original/v1', accept_incomplete: true,
++      owned_action_order: Object.fromEntries(owners.map(owner => [owner, { recipient: r[owner], callback: (input: any) => {
++        calls.push(owner); assert.equal(input.knowledge.projection.starting, original[owners.indexOf(owner)]);
++        checkNativeOwnerLoadoutProjection(input.knowledge.projection); assert.equal(input.completeness, 'incomplete');
++        const selected = input.action_context.legal_actions.actions.find((a: any) => a?.choice === 'switch 2'); assert.ok(selected);
++        return [selected.index, ...input.legal_indices.filter((index: number) => index !== selected.index)];
++      }}])) as any });
++    assert.deepEqual(calls, ['p1','p2']); assert.equal(result.counts.committed_transitions, 1); assert.equal(result.faithful_complete_episode, false);
++    assert.equal(JSON.stringify(pairs), bytes); assert.doesNotMatch(JSON.stringify(result), /original_interpretation|native11-loadout|native-owner-loadout/);
++    witness('generated', { genuine_generation: true, independent_arithmetic: true, fresh_B2_objects: true, original_and_interpretation_references_retained: true, actual_episode_callback: true, both_owner_privacy: true });
++  } finally { await s.close(); }
++});
++
++test('P59 literal submitted default partial and rule exception oracle', async () => {
++  const stats = { hp: 252, atk: 0, def: 0, spa: 252, spd: 0, spe: 4 }, ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
++  const raw = { ...basic('Pikachu','Static'), nature: 'Modest', evs: stats, ivs, happiness: 0, level: 50, gender: 'F', shiny: true, pokeball: 'Ultra Ball', teraType: 'Flying' };
++  const r = recipients(), s = await create(r, [[raw], [basic()]]);
++  try {
++    const pair = read(s, r.p1); checkNativeOwnerLoadoutProjection(pair.projection);
++    assert.deepEqual(fact(pair,'calculated_stats').value.data, { atk: 67, def: 60, spa: 112, spd: 70, spe: 111 }); assert.equal(fact(pair,'hp_max').value.data,142);
++    for (const [property, expected] of Object.entries({submitted_nature:'Modest',submitted_happiness:0,level:50,gender:'F',shiny:true,ball:'Ultra Ball',details:'Pikachu, L50, F, shiny',starting_tera:'Flying'})) assert.deepEqual(fact(pair, property).value.data, expected);
++    assert.deepEqual(fact(pair,'submitted_evs').value.data, stats); assert.deepEqual(fact(pair,'submitted_ivs').value.data, ivs);
++    assert.equal(pair.projection.original_interpretation[0].normalized.ball,'ultraball');
++    for (const [property, mutate, error] of [
++      ['normalized stat', (copy: any) => copy.original_interpretation[0].normalized.hp_max++, /rule interpretation/],
++      ['fact stat', (copy: any) => fact({projection:copy},'calculated_stats').value.data.atk++, /fact interpretation/],
++      ['submission absence', (copy: any) => copy.original_interpretation[0].presence.nature='omitted', /absent submission/],
++      ['complete claim', (copy: any) => copy.result='strong_complete', /const/],
++    ] as const) { const copy: any = structuredClone(pair.projection); mutate(copy); copy.id=knowledgeIdentity(copy); assert.throws(() => checkNativeOwnerLoadoutProjection(copy), error, property); }
++    assert.throws(() => checkNativeOwnerIdentifiersProjection(pair.projection));
++    assert.throws(() => s.readOwnerKnowledge(structuredClone(pair) as any, r.p1), /copied-or-stale/);
++  } finally { await s.close(); }
++  const absent: any = { ...basic('Pikachu','Static'), level:50 }; delete absent.gender;
++  const originalBytes = JSON.stringify(absent), missing = interpretOriginalValues(absent,dex,simulator);
++  const get = (result: ReturnType<typeof interpretOriginalValues>, property: string) => result.facts.find(f=>f.property===property)!;
++  for (const property of ['submitted_nature','submitted_evs','submitted_ivs','submitted_happiness','gender','shiny','ball']) assert.equal(get(missing, property).state,'known_absent');
++  assert.equal(get(missing,'details').state,'unknown'); assert.equal(missing.interpretation.normalized.gender_resolution,'unresolved');
++  assert.equal(missing.interpretation.normalized.nature,null); assert.equal(missing.interpretation.normalized.happiness,255); assert.equal(missing.interpretation.normalized.ball,'pokeball'); assert.equal(get(missing,'starting_tera').value,'Electric');
++  assert.deepEqual(get(missing,'calculated_stats').value,{atk:75,def:60,spa:70,spd:70,spe:110}); assert.equal(get(missing,'hp_max').value,110); assert.equal(JSON.stringify(absent),originalBytes);
++  const partial = interpretOriginalValues({...absent,nature:undefined,happiness:undefined,evs:{hp:4,atk:252},ivs:{atk:0,spe:0}},dex,simulator);
++  assert.equal(partial.interpretation.presence.nature,'undefined'); assert.equal(partial.interpretation.presence.happiness,'undefined');
++  assert.equal(get(partial,'submitted_evs').state,'unknown'); assert.equal(get(partial,'submitted_ivs').state,'unknown');
++  assert.deepEqual(get(partial,'calculated_stats').value,{atk:91,def:60,spa:70,spd:70,spe:95});assert.equal(get(partial,'hp_max').value,111);
++  assert.equal(partial.interpretation.submission.evs.atk,252); assert.equal(partial.interpretation.submission.evs.def,null); assert.equal(partial.interpretation.components.ivs.atk,'present'); assert.equal(partial.interpretation.components.ivs.hp,'omitted');
++  const one = interpretOriginalValues({...basic('Shedinja','Wonder Guard'),nature:'Adamant',level:50},dex,simulator);
++  assert.equal(get(one,'hp_max').value,1);assert.deepEqual(get(one,'calculated_stats').value,{atk:121,def:65,spa:45,spd:50,spe:60});
++  const clamped = interpretOriginalValues({...absent,level:10000,happiness:300,evs:{...stats,hp:400},ivs:{...ivs,atk:40}},dex,simulator);
++  assert.equal(clamped.interpretation.submission.evs.hp,400); assert.equal(clamped.interpretation.normalized.evs.hp,255); assert.equal(clamped.interpretation.normalized.ivs.atk,31); assert.equal(clamped.interpretation.normalized.happiness,255); assert.equal(clamped.interpretation.normalized.level,9999);
++  const fixed = interpretOriginalValues({...basic('Blissey','Natural Cure'),gender:undefined},dex,simulator);assert.equal(get(fixed,'gender').state,'known_absent');assert.equal(fixed.interpretation.normalized.gender_resolution,'species_fixed');assert.equal(get(fixed,'details').value,'Blissey, F');
++  witness('literal', { actual_constructed_consumer: true, literal_modest_zero_partial_oneHP_oracles: true, lower_level_defaults_presence_clamps_fixed_gender: true, random_gender_not_resolved: true, coherent_rehashed_negatives: true });
++});
++
++test('P59 constructed Trace and Schooling retain originals through restoration', async () => {
++  for (const effect of ['Trace','Schooling']) {
++    const r = recipients(), own = effect==='Trace' ? basic('Gardevoir','Trace') : basic('Wishiwashi','Schooling');
++    const s = await create(r, [[own], [basic('Blissey','Natural Cure')]]);
++    try {
++      const pair=read(s,r.p1), starting=pair.projection.starting, interpretations=pair.projection.original_interpretation, bytes=JSON.stringify(pair), actor=native(s).p1!.active[0];
++      if(effect==='Trace') {assert.equal(fact(pair,'ability').value.data,'Trace'); assert.equal(fact(pair,'ability',1,'current').value.data,'naturalcure');}
++      else { assert.equal(actor.species.name,'Wishiwashi-School'); assert.equal(fact(pair,'calculated_stats').value.data.atk,76); assert.equal(actor.baseStoredStats.atk,316); assert.equal(fact(pair,'details').value.data,'Wishiwashi, M'); }
++      await joint(s,'p1','move 1');
++      assert.notEqual(native(s).p1!.active[0],actor); assert.equal(read(s,r.p1).projection.starting,starting); assert.equal(read(s,r.p1).projection.original_interpretation,interpretations); assert.equal(JSON.stringify(pair),bytes);
++      s.withOwnedDecisionInput(r.p1,input=>{assert.equal(input.knowledge.projection.starting,starting);checkNativeOwnerLoadoutProjection(input.knowledge.projection);return input.legal_indices;});
++    } finally {await s.close();}
++  }
++  witness('initial-effects',{constructed_not_generated_reachability:true,Trace_current_identifier:true,Schooling_changed_current_stats:true,held_fresh_objects_same_originals:true});
++});
++
++test('P59 source authority and final preparation failure preserve fresh retry', async () => {
++  const register=OriginalOwnerCreation.prototype.registerKnowledgeReceiver;
++  for (const fault of ['missing','foreign']) {
++    OriginalOwnerCreation.prototype.registerKnowledgeReceiver=function(receiver){return register.call(this, (environment,occurrence,rows)=>{ if(fault==='foreign')receiver(environment,{},rows); });};
++    try {await assert.rejects(create(recipients(),[[basic()],[basic()]]),fault==='missing'?/missing-enrollment/:/foreign-knowledge-enrollment/);}
++    finally {OriginalOwnerCreation.prototype.registerKnowledgeReceiver=register;}
++  }
++  const r=recipients(),s=await create(r,[[basic(),{...basic(),name:'Reserve'}],[basic(),{...basic(),name:'OtherReserve'}]]);
++  const preflight=NativeOwnerKnowledgeController.prototype.preflight;
++  try {
++    const pair=read(s,r.p1),handle=s.getOwnerKnowledgeHandle(r.p1),boundary=s.boundary,bytes=JSON.stringify(pair);
++    assert.throws(()=>s.readOwnerKnowledge(structuredClone(pair) as any,r.p1),/copied-or-stale/);
++    assert.throws(()=>s.readOwnerKnowledge(handle,r.p2),/copied-or-stale/);
++    NativeOwnerKnowledgeController.prototype.preflight=function(token){preflight.call(this,token);throw new Error('P59-final-barrier');};
++    await assert.rejects(joint(s,'p1','switch 2','switch 2'),/P59-final-barrier/);
++    assert.equal(s.boundary,boundary);assert.equal(read(s,r.p1),pair);assert.equal(s.getOwnerKnowledgeHandle(r.p1),handle);assert.equal(JSON.stringify(pair),bytes);
++    NativeOwnerKnowledgeController.prototype.preflight=preflight;await joint(s,'p1','switch 2','switch 2');assert.equal(read(s,r.p1).projection.starting,pair.projection.starting);
++    const last=s.getOwnerKnowledgeHandle(r.p1);await s.close();assert.throws(()=>s.readOwnerKnowledge(last,r.p1),/closed/);
++    witness('authority',{actual_missing_foreign_enrollment_rejections:true,post_preparation_failure:true,committed_pair_retained:true,fresh_retry:true,close_revokes:true});
++  } finally {NativeOwnerKnowledgeController.prototype.preflight=preflight;await s.close();}
++});

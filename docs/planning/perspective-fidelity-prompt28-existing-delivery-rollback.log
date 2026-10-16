@@ -1,0 +1,21 @@
+✖ real rejected candidate (second-owner) is atomic; valid continuation preserves parent history (165.956667ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 250.531375
+
+✖ failing tests:
+
+test at sim-core/dist/tests/request_delivery_ledger.test.js:210:29
+✖ real rejected candidate (second-owner) is atomic; valid continuation preserves parent history (165.956667ms)
+  Error: native-association/v1/missing-prepared-association
+      at associationFail (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/owner_identity_crosswalk.js:179:42)
+      at NativeObjectAssociation.prepareCommit (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/owner_identity_crosswalk.js:339:13)
+      at PipelineIntegrationSession.executeTransition (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/pipeline_integration.js:548:77)
+      at async TestContext.<anonymous> (/Users/nbolger/Desktop/neural-showdown/sim-core/dist/tests/request_delivery_ledger.test.js:246:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
