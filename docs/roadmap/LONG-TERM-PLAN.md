@@ -1,8 +1,9 @@
 # Neural Showdown — Long-Term Implementation Plan
 
-2026-10-16, revision 2. Revision 2 adds input-log replay reproduction, an
-early evaluation harness and an ML/belief track, based on an external review
-and a check of the local replay corpus. Supersedes the "next step" sections of
+2026-10-16, revision 3. Revision 2 added input-log replay reproduction, an
+early evaluation harness and an ML/belief track. Revision 3 records the replay
+probe result (re-pin the engine to the server commit) and the P0.2 baseline,
+which reorders Phase 0. Supersedes the "next step" sections of
 the `docs/planning/perspective-fidelity-*` prompts; their requirements and
 accepted evidence still stand.
 
@@ -21,8 +22,9 @@ this plan. The owner approves phase changes and the **DECIDE** points.
    `docs/contracts/fixtures/perspective-knowledge-v1/property-contexts.json`,
    for both owners, from origin through terminal.
 2. **Both data sources.** Self-play and the downloaded public replays.
-3. **One main line on Showdown 0.11.11** for self-play and live use. Replay
-   reproduction may need additional engine versions (§Phase 0.4).
+3. **One engine for everything: Showdown server commit `b8f23c99`** (re-pinned
+   from npm 0.11.11 in P0.4) for self-play, replays and live use. There's no
+   multi-version support; future corpus refreshes re-pin.
 4. **Lean process** (§1).
 
 **Replay facts (measured 2026-10-16).** Public gen9randombattle replays include
@@ -30,11 +32,14 @@ an `inputlog`: `>version <server git commit>`, the battle seed, per-player team
 seeds and every choice. That was true of all 15,001 replays in the old April
 2026 corpus. Teams are regenerated from the seeds, so a replay reproduces only
 on simulator code whose team generator and mechanics match its server commit.
-One April replay diverges on npm 0.11.11 at the first switch. **The old corpus
-is not used.** We download a fresh ~30k corpus and keep only replays that
-reproduce exactly on the main-line engine (Phase 0.4). npm 0.11.11 was built
-from upstream `739a5e1fee432ad80ff7136d70cca993be358b59`, while the live server
-runs later master commits.
+**The old corpus is not used.** We tested a probe of 198 current replays
+(2026-10-16), all on server commit
+`b8f23c99629132611ba59e99480cb148ea8c5d3d`. **198/198 reproduce exactly on that
+commit** (about 52 ms each); only **132/198 do on npm 0.11.11**, which was built
+from the older upstream commit `739a5e1f`. The causes are drifted random-battle
+levels for about 13 species, set/move changes and protocol text. Both
+packages report version "0.11.11", so pins must name the commit. The ~30k
+corpus is downloaded after the re-pin, and only exact reproductions are kept.
 
 ---
 
@@ -94,7 +99,7 @@ positive test and one negative (unknown/omitted/foreign) test, and
 `legitimately_unknown` is allowed only where the profile permits it. The
 initial content comes from the Prompt58 table, adjusted for Prompts 59–60.
 
-**Capability: the benchmark** (Phase 0.5). It reports win rate with confidence
+**Capability: the benchmark** (Phase 0.7). It reports win rate with confidence
 intervals against fixed opponents on paired teams. Every model or
 search change reports its numbers here.
 
@@ -103,74 +108,82 @@ progress on strength. Both are tracked; neither substitutes for the other.
 
 ---
 
-## Phase 0 — Consolidate, measure, de-risk (≈6 slices)
+## Phase 0 — Consolidate, measure, de-risk (≈9 slices)
 
-**0.1 Adopt 0.11.11 as main line.** Create branch `main-native11` from
-`codex/machine-handoff-2026-10-16`. Overlay the restored candidate
-(`C:\dev\neural-native11`): 30 files differ and 46 are new (`sim-core/src`
-15+6, `sim-core/tests` 2+18, `trainer/src` 8, `docs/contracts` 3+18, package
-files). Keep the repo's newer `docs/planning/`. No repo files need removing (all
-repo files in the candidate's directories are in the candidate). Brief:
-`docs/roadmap/briefs/P0.1.md`.
-*Done when:* 0.11.11 is pinned, `npm ci` and the build succeed, the P57 canary
-passes from the repo root, and `C:\dev\neural-native11` is retired.
+**0.1 Adopt the native11 candidate — done** (`35b9342`). It copied 75 manifest
+files and replaced the restrictive `AGENTS.md` with a lean one.
 
-**0.2 Windows full-suite baseline.** Run the whole `sim-core` suite (per file,
-with timeouts) and `trainer/tests` with
-`D:\Anaconda\envs\neuralgpu\python.exe`. Record green, red and hang counts per
-file, and classify each red as a Windows/path issue, a known historical
-failure, or a real defect. Fix only the Windows/path issues.
+**0.2 Windows full-suite baseline — done** (`76ea89e`,
+`docs/roadmap/baseline.md`). Node had 455 passing and 572 failing tests;
+Python had 891 passing and 63 failing. W fixes are applied. The classes are
+595 S (stale), 12 R, 23 E, 2 T and 27 ?. The two dominant stale causes are
+(a) about 363 tests using an old raw-snapshot restore helper that lacks
+native11's occurrence-bound restore authority, and (b) about 65 fixed-seed
+generator witnesses recorded under 0.11.10. Both are fixed **once, after the
+re-pin** (0.5), because (b) changes again with the engine.
 
 **0.3 Fast suite and coverage registry.** Add `npm run test:fast` (under 3
-minutes) and the §2 registry and its test.
+minutes), curated from tests that are green in the baseline and covering
+knowledge, identity, delivery and legality. Also add the §2 registry and its
+test.
 
-**0.4 Fresh replay corpus that reproduces on the main-line engine.** Reproduced
-replays become exact native episodes, with private requests, legal sets and
-true choices for both players, and they need no special replay knowledge path.
+**0.4 Re-pin the engine to `b8f23c99`.** The brief is
+`docs/roadmap/briefs/P0.4.md`. The engine is built from the commit by
+`tools/engine/build_engine.ps1`, packed into an LFS-tracked
+`vendor/pokemon-showdown-b8f23c99.tgz`, and installed as a `file:` dependency.
+`version_profile.{ts,py}` pins the commit plus integrity, and the
+engine-derived assets are regenerated by script. `tools/replay_repro` moves into
+the repo; it must show 198/198 on the probe set. The profile id stays
+`native11`. No baseline-green test may turn red except the listed fixed-seed
+witnesses.
 
-- **Probe:** download about 200 current gen9randombattle replays with
-  `trainer/src/neural/replay_fetch.py`, keeping `inputlog`. Write
-  `tools/replay_repro.ts`, which feeds the input log (minus `>version`/`>chat`)
-  to the main-line `BattleStream` and compares the spectator-filtered output to
-  the public log line by line (the public log is the exact-match oracle; a
-  scratch prototype exists). Report the full-match rate per `>version` commit
-  and the first divergence class for each failure (team generation, RNG,
-  mechanics, protocol formatting).
-- **If current server commits reproduce on 0.11.11:** keep 0.11.11.
-- **If not:** **DECIDE** whether to re-pin the main line to the server's
-  current commit, built from `smogon/pokemon-showdown` at that hash instead of
-  the npm release. This is a single engine bump that re-validates the
-  `version_profile.ts` pins and native hooks; it is not multi-version support.
-  It is cheapest now, before Phase 1 adds more native hooks.
-- **Then:** download about 30k replays in a short window (so they share one or
-  two commits), keep only exact reproductions on the main-line engine, and drop
-  the rest.
-- *Done when:* the reproduction rate is known and a reproduced corpus exists
-  with rating, outcome, length and commit recorded per battle.
+**0.5 Test migration on the final engine.** This brings the suite back to
+green-or-explained:
 
-Later replay refreshes repeat this. If the server's engine has moved, either
-re-pin or accept a smaller reproducible slice. The system never supports old
-engines retroactively.
+- migrate the shared raw-snapshot restore helpers to native11
+  occurrence-bound restore (about 363 tests);
+- regenerate the fixed-seed witnesses on `b8f23c99`;
+- update the P48/P50/P59 tests to the current profiles (the decoders stay
+  fixed);
+- fix the Wish/Healing Wish tuple-vs-list comparison (R);
+- resolve the 27 `?` items;
+- fix the `request_emission_trace` timeout.
 
-**0.5 Evaluation harness (benchmark).** Build `tools/bench` with:
+Tests that only assert 0.11.10-historical reader behavior can be kept as a
+historical suite or deleted, with a reason for each file. Expect this to take
+two or three slices, split by helper family. *Done when:* every red test is
+fixed, deleted with a reason, or listed as `E`.
 
-- fixed seeds and paired teams (each matchup is played twice with sides
-  swapped);
-- opponents: `baselines/random.ts`, a damage-greedy agent, `baselines/heuristic.ts`,
-  and the best historical checkpoint as a control;
-- reported win rate with a 95% CI, battle length, illegal-choice count and
-  wall time.
-
-N=1,000 paired games gives roughly ±3 points. The harness runs on 0.11.11 and
-needs no K work.
-*Done when:* a reproducible baseline table is committed to
+**0.6 Fresh replay corpus.** Download about 30k gen9randombattle replays in
+as short a window as possible (rate-limited `replay_fetch.py`, about 1 replay
+per second, so roughly 9 hours; run it in the background). Reproduce each one
+with `tools/replay_repro` and keep only exact matches on the pinned commit.
+Record rating, outcome, length, ending and commit per battle. If the server
+moves to a new commit partway through, keep the `b8f23c99` portion and decide
+later whether to re-pin.
+*Done when:* the reproduced corpus and its stats are in
 `docs/roadmap/benchmarks.md`.
 
-**0.6 Throughput profile.** Measure battles per second and decisions per second
-for (i) the full evidence/capture path and (ii) a lean training path (protocol,
-requests and legal actions only), plus memory per battle. This sets how much
-self-play or RL is feasible on one machine, and whether a lean path is needed
-(it must share semantics with the audited path).
+**0.7 Evaluation harness (benchmark).** Build `tools/bench` with:
+
+- fixed seeds and paired teams (each matchup played twice with sides swapped);
+- opponents: `baselines/random.ts`, a damage-greedy agent,
+  `baselines/heuristic.ts`, and the best historical checkpoint as a control;
+- win rate with a 95% CI, battle length, illegal-choice count and wall time.
+
+N=1,000 paired games gives roughly ±3 points. It needs no K work.
+*Done when:* a reproducible baseline table is in `docs/roadmap/benchmarks.md`.
+
+**0.8 Throughput profile.** Measure battles per second and decisions per second
+for (i) the full evidence/capture path, (ii) a lean path (protocol, requests and
+legal actions only), and (iii) input-log replay reproduction (about 52 ms per
+battle today), plus memory per battle. This sets how much self-play or RL is
+feasible on one machine, and whether a lean path is needed (it must share
+semantics with the audited path).
+
+Ordering: 0.3 → 0.4 → 0.5 come first. 0.6 can start as soon as 0.4 lands,
+since the download runs in the background. 0.7 and 0.8 can run alongside 0.5.
+W1 starts after 0.5.
 
 ---
 
@@ -238,7 +251,7 @@ invariance test. The full W9 replaces it later.
 
 **B1. Data.**
 
-- Self-play on 0.11.11 with exact legal actions, sharded with lineage and
+- Self-play on the pinned engine with exact legal actions, sharded with lineage and
   split by battle.
 - Reproduced replays (0.4/W8) carry exact requests and legal sets for
   both players. Record rating, outcome, length, engine commit and
@@ -289,8 +302,8 @@ allow it. Latency and UX are **DECIDE** at that point.
 
 | When | Decision |
 |---|---|
-| Now | Permission to download the probe replays (and later about 30k) for 0.4 |
-| After 0.4 | Keep 0.11.11, or re-pin to the server's current commit |
+| 0.6 | Go-ahead for the ~30k replay download (probe already done) |
+| Corpus refresh | Re-pin to the server's newer commit, or keep the existing reproducible slice |
 | After W1 | Unblock copied/Transform incarnations in W7 or keep them blocked |
 | End of Phase 1 | Sign off any `blocked` rows |
 | B3 | Model size and compute budget (one local GPU assumed: torch 2.5.1+cu121 in `neuralgpu`) |
@@ -321,7 +334,7 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
 
 > **Slice W1.1 — owned move possession, incarnation continuity, PP freshness.**
 > Repo: `C:\Users\cloud\Downloads\neural\final`, branch `main-native11`
-> (after Phase 0.1–0.3). Read `docs/roadmap/LONG-TERM-PLAN.md` §1–2, then
+> (after Phase 0.5). Read `docs/roadmap/LONG-TERM-PLAN.md` §1–2, then
 > `docs/planning/perspective-fidelity-prompt61-design.md` and its lead review.
 >
 > **Goal.** Make the P57 owner-addressed decision callback receive each owner's
