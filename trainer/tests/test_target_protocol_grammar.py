@@ -35,7 +35,7 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
             validate_protocol_record(control['record'],reader_rules=NATIVE11_GRAMMAR_CONTEXT if profile=='native11' else REPLAY_COMPAT_CONTEXT)
         with pytest.raises(TypeError):asset['adopted']=True
         # Coherent JSON rewrite/digest cannot replace the locally reviewed code pin.
-        ordinary=json.loads((ROOT/'trainer/src/neural'/('protocol_contract_0_11_11.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json')).read_text())
+        ordinary=json.loads((ROOT/'trainer/src/neural'/('protocol_contract_0_11_11.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json')).read_text(encoding='utf-8'))
         del ordinary['protocol']['validation_rules']['major_status'];p=tmp_path/(profile+'.json');p.write_text(json.dumps(ordinary));assert len(hashlib.sha256(p.read_bytes()).hexdigest())==64
         with pytest.raises(ValueError,match='version-asset-integrity'):load_prepared_protocol_asset(profile,p)
         with pytest.raises(ValueError,match='missing-version-asset'):load_prepared_protocol_asset(profile,tmp_path/'missing')
@@ -57,8 +57,8 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
 
 def test_historical_publication_and_replay_rejection():
     from neural import pipeline_record as r
-    fixtures=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json').read_text())
-    goldens=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt31-old-publication-goldens.json').read_text())
+    fixtures=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json').read_text(encoding='utf-8'))
+    goldens=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt31-old-publication-goldens.json').read_text(encoding='utf-8'))
     for name,fn in [('result',r.validate_historical_pipeline_episode_result),('sweep',r.validate_historical_pipeline_episode_publication_sweep)]:
         output=json.dumps(fn(fixtures[name]),ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\n'
         assert output==goldens[name]['api_literal']

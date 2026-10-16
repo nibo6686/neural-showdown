@@ -10,6 +10,7 @@ import {assertPublicItemsMatchEvidence, projectPublicItems, projectPublicItemDis
 import {assertPublicItemTamperMatrix, assertTerminalIdentityTamperMatrix, rehash, python, itemIdentityMatrixCounts} from './public_consequence_test_helpers';
 import {writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
+import path from 'node:path';
 import {fingerprintSimulatorState} from '../src/transition';
 import {validatePipelineLinkedRecordBundle} from '../src/pipeline_integration';
 import type {PlayerID} from '../src/types';
@@ -868,7 +869,7 @@ test('carrier-specific history preserves established teammate evidence across an
   assert.deepEqual(projectPublicOwnedItemHistory(ambiguous, 'p1', (target) => target, owners), {});
   const parity = spawnSync(process.env.PYTHON || 'python3', ['-c',
     'import json,sys; from neural.public_item import project_public_owned_item_history; data=json.load(sys.stdin); print(json.dumps([project_public_owned_item_history({"perspective":"p1","protocol_prefix":prefix,"request":{"side":data["owners"]},"view":{}}) for prefix in data["prefixes"]]))'],
-    {input: JSON.stringify({prefixes: [prefix, ambiguous], owners}), encoding: 'utf8', timeout: 30_000});
+    {input: JSON.stringify({prefixes: [prefix, ambiguous], owners}), encoding: 'utf8', timeout: 30_000, env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
   assert.equal(parity.status, 0, parity.stderr);
   assert.deepEqual(JSON.parse(parity.stdout), [{'p1: Real': {last_item: 'sitrusberry', item_state: 'consumed'}}, {}]);
 });

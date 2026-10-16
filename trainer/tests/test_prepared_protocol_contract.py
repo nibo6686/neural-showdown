@@ -11,7 +11,7 @@ from neural.protocol_contract import validate_protocol_contract
 ROOT=Path(__file__).resolve().parents[2]
 def asset(profile):
     name='protocol_contract_0_11_11.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json'
-    return json.loads((ROOT/'trainer/src/neural'/name).read_text())
+    return json.loads((ROOT/'trainer/src/neural'/name).read_text(encoding='utf-8'))
 def mutate(v,c):
     p=v['protocol'];op=c['op']
     if op=='set':
@@ -35,7 +35,7 @@ def test_full_assets_mutations_and_integrity(tmp_path):
         with pytest.raises(TypeError):out['adopted']=True
         with pytest.raises(ValueError,match='unsupported-context'):protocol_context(out)
         assert load_prepared_protocol_asset(profile)==out
-    cases=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt37-mutations.json').read_text())
+    cases=json.loads((ROOT/'docs/planning/perspective-fidelity-prompt37-mutations.json').read_text(encoding='utf-8'))
     for c in cases:
         v=asset(c['profile']);mutate(v,c);assert len(hashlib.sha256(json.dumps(v).encode()).hexdigest())==64
         with pytest.raises(ValueError,match='prepared-protocol-contract/v1/'+c['expected']):validate_prepared_protocol_asset(v,c['profile'])

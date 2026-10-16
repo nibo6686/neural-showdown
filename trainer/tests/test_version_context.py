@@ -10,7 +10,7 @@ from neural import typed_state, public_boosts
 from neural.version_profile import HISTORICAL10_CONTEXT as C, reader_context, NATIVE11
 ROOT = Path(__file__).resolve().parents[2]
 DOC = ROOT / 'docs/planning'
-def load(s): return json.loads((DOC / ('perspective-fidelity-prompt31-' + s + '.json')).read_text())
+def load(s): return json.loads((DOC / ('perspective-fidelity-prompt31-' + s + '.json')).read_text(encoding='utf-8'))
 def literal(v): return json.dumps(v, ensure_ascii=True, sort_keys=True, separators=(',', ':')) + '\n'
 def emit(name, **kwargs): print('P32_WITNESS ' + json.dumps(dict(name=name, **kwargs), sort_keys=True))
 

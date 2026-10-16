@@ -14,7 +14,7 @@ from neural.version_profile import select_reader_profile, recognized_reader_revi
 ROOT = Path(__file__).resolve().parents[2]
 DOC = ROOT / 'docs/planning'
 def load(name):
-    return json.loads((DOC / ('perspective-fidelity-prompt31-' + name + '.json')).read_text())
+    return json.loads((DOC / ('perspective-fidelity-prompt31-' + name + '.json')).read_text(encoding='utf-8'))
 def literal(value):
     return json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':')) + '\n'
 def witness(name, **kwargs):
@@ -29,7 +29,7 @@ def test_historical_paths_and_literals():
         assert literal(actual) == expected[name]['api_literal']
         assert literal(value) == before
     assert reader.validate_historical_pipeline_episode_evidence(f['continuation'])['complete_capture'] is False
-    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text())
+    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text(encoding='utf-8'))
     assert select_reader_profile(empty, 'historical10') is HISTORICAL10
     assert reader.validate_historical_pipeline_episode_result(empty) == []
     with pytest.raises(ValueError, match='ambiguous-revision'): select_reader_profile(empty)
@@ -67,7 +67,7 @@ def test_cli_dispatch_branches():
     for name in ('bundle', 'envelope', 'result', 'sweep'):
         result = cli(f[name]); assert result.returncode == 0, result.stderr
         assert result.stdout == goldens[name]['cli_literal']
-    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text())
+    empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text(encoding='utf-8'))
     result = cli(empty, '--reader-profile', 'historical10'); assert result.returncode == 0 and result.stdout == '[]\n', result.stderr
     failures = [(empty, ('--reader-profile=auto',), 'ambiguous-revision'),
                 (f['bundle'], ('--reader-profile=native11',), 'native11-unadopted'),

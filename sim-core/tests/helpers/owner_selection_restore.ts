@@ -25,7 +25,8 @@ export async function constructed(owner:Owner,healer='Pawmot'){
  try{return await PipelineIntegrationSession.create({battle_id:'P42-'+owner+'-'+healer,format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:'observable-battle-state/v2'});}finally{Teams.generate=generate;}
 }
 export function publish(bundle:any,error?:RegExp){const bytes=JSON.stringify(bundle);if(!error)validatePipelineEpisodeRecordBundle(bundle,NATIVE11_CONTEXT);else assert.throws(()=>validatePipelineEpisodeRecordBundle(bundle,NATIVE11_CONTEXT),error);
- const r=spawnSync(process.env.PYTHON!,['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:path.resolve(__dirname,'../../../..'),env:process.env,input:bytes,encoding:'utf8',timeout:30000});assert.equal(r.status,error?2:0,r.stderr||String(r.error));if(error){assert.equal(r.stdout,'');assert.match(r.stderr,error);}else assert.ok(JSON.parse(r.stdout));assert.equal(JSON.stringify(bundle),bytes);}
+ const root=path.resolve(__dirname,'../../../..');
+ const r=spawnSync(process.env.PYTHON || (process.platform==='win32'?'D:/Anaconda/envs/neuralgpu/python.exe':'python3'),['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:bytes,encoding:'utf8',timeout:30000});assert.equal(r.status,error?2:0,r.stderr||String(r.error));if(error){assert.equal(r.stdout,'');assert.match(r.stderr,error);}else assert.ok(JSON.parse(r.stdout));assert.equal(JSON.stringify(bundle),bytes);}
 export async function checked(s:PipelineIntegrationSession,run:()=>Promise<any>,expected:Record<Owner,number[]>){
  const prior=s.boundary,old=owners.flatMap(p=>native(s)[p]!.pokemon),oldsets=old.map(p=>p.set),held=owners.map(p=>s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(p),p));
  const handles=owners.map(p=>s.getNativeObjectHolding(p)),deliveries=owners.map(p=>s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p));

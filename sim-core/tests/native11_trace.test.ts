@@ -34,7 +34,7 @@ function reseal(bundle:any):void {
 }
 function python(bundle:any,expected?:RegExp):void {
  const bytes=JSON.stringify(bundle);
- const p=spawnSync(process.env.PYTHON!,['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:bytes,encoding:'utf8',timeout:30000});
+ const p=spawnSync(process.env.PYTHON || (process.platform==='win32'?'D:/Anaconda/envs/neuralgpu/python.exe':'python3'),['-m','neural.pipeline_record','--reader-profile=native11'],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:bytes,encoding:'utf8',timeout:30000});
  assert.equal(p.status,expected?2:0,p.stderr||String(p.error));
  if(expected){assert.equal(p.stdout,'');assert.match(p.stderr,expected);}else assert.ok(JSON.parse(p.stdout));
  assert.equal(JSON.stringify(bundle),bytes);
@@ -107,8 +107,8 @@ test('P41 Trace reviewed provenance rejects stale control evidence',()=>{
  assert.throws(()=>validatePreparedProtocolAsset(stale,'native11'),/control-evidence/);
  const missing=structuredClone(asset);missing.protocol.valid_record_controls=missing.protocol.valid_record_controls.filter((c:any)=>c.record!==record);
  assert.throws(()=>validatePreparedProtocolAsset(missing,'native11'),/trace-controls/);
- const script=`import json,sys,copy\nfrom neural.prepared_protocol_contract import validate_prepared_protocol_asset\na=json.load(sys.stdin)\nvalidate_prepared_protocol_asset(a,'native11')\nfor kind in ('stale','missing'):\n b=copy.deepcopy(a)\n c=next(x for x in b['protocol']['valid_record_controls'] if '|Trace|[from] ability: Trace|' in x['record'])\n if kind=='stale': c['evidence']='Prompt37 bounded fixed-grammar fixture check; no target engine execution'\n else: b['protocol']['valid_record_controls'].remove(c)\n try: validate_prepared_protocol_asset(b,'native11')\n except ValueError as e: assert ('control-evidence' if kind=='stale' else 'trace-controls') in str(e),str(e)\n else: raise AssertionError(kind+' accepted')\nprint('P41 Python provenance positive and stale/missing controls PASS')`;
- const p=spawnSync(process.env.PYTHON!,['-c',script],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:JSON.stringify(asset),encoding:'utf8',timeout:30000});
+ const script=`import json,sys,copy\nfrom neural.prepared_protocol_contract import validate_prepared_protocol_asset\na=json.loads(sys.stdin.buffer.read().decode('utf-8'))\nvalidate_prepared_protocol_asset(a,'native11')\nfor kind in ('stale','missing'):\n b=copy.deepcopy(a)\n c=next(x for x in b['protocol']['valid_record_controls'] if '|Trace|[from] ability: Trace|' in x['record'])\n if kind=='stale': c['evidence']='Prompt37 bounded fixed-grammar fixture check; no target engine execution'\n else: b['protocol']['valid_record_controls'].remove(c)\n try: validate_prepared_protocol_asset(b,'native11')\n except ValueError as e: assert ('control-evidence' if kind=='stale' else 'trace-controls') in str(e),str(e)\n else: raise AssertionError(kind+' accepted')\nprint('P41 Python provenance positive and stale/missing controls PASS')`;
+ const p=spawnSync(process.env.PYTHON || (process.platform==='win32'?'D:/Anaconda/envs/neuralgpu/python.exe':'python3'),['-c',script],{cwd:root,env:{...process.env,PYTHONPATH:path.join(root,'trainer/src')},input:JSON.stringify(asset),encoding:'utf8',timeout:30000});
  assert.equal(p.status,0,p.stderr||String(p.error));console.log(p.stdout.trim());
  emit('reviewed-provenance',{ts:true,python:true,stale_and_missing_reject:true,target_positive_fidelity:false});
 });

@@ -22,8 +22,8 @@ def guarded(self,*a,**kw):
     return original(self,*a,**kw)
 Path.read_bytes=guarded
 lookup=historical_lookup_data();assert lookup['species']['pikachu']['types']==('Electric',)
-f=json.loads(Path('docs/planning/perspective-fidelity-prompt31-reader-fixtures.json').read_text())
-g=json.loads(Path('docs/planning/perspective-fidelity-prompt31-old-publication-goldens.json').read_text())
+f=json.loads(Path('docs/planning/perspective-fidelity-prompt31-reader-fixtures.json').read_text(encoding='utf-8'))
+g=json.loads(Path('docs/planning/perspective-fidelity-prompt31-old-publication-goldens.json').read_text(encoding='utf-8'))
 for name,fn in [('result',r.validate_historical_pipeline_episode_result),('sweep',r.validate_historical_pipeline_episode_publication_sweep)]:
     out=json.dumps(fn(f[name]),ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\\n';assert out==g[name]['api_literal']
 print(json.dumps({'historical_outputs_preserved':True,'installed_lookup_access':False}))
@@ -36,7 +36,7 @@ def test_candidate_integrity_and_immutability(tmp_path):
     candidate=load_inactive_target_inventory();assert candidate['adopted'] is False
     assert len(candidate['format_provenance']['candidate_population']['species'])==509
     with pytest.raises(TypeError):historical_lookup_data()['species']['pikachu']['types'][0]='Fire'
-    old=json.loads((ROOT/'sim-core/simulator_coverage/pokemon-showdown-0.11.11-gen9randombattle.json').read_text())
+    old=json.loads((ROOT/'sim-core/simulator_coverage/pokemon-showdown-0.11.11-gen9randombattle.json').read_text(encoding='utf-8'))
     old['effect_discovery']['computed_add_volatile_calls']=[]
     path=tmp_path/'rehashable-omission.json';path.write_text(json.dumps(old))
     with pytest.raises(ValueError,match='version-asset-integrity'):load_inactive_target_inventory(path)

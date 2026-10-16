@@ -5,6 +5,7 @@ import {extractChannelMessages} from 'pokemon-showdown/dist/sim/battle';
 import {validateRawProtocolRecord} from '../src/observable_state';
 import {NATIVE11_CONTEXT,HISTORICAL10_CONTEXT,REPLAY_COMPAT_CONTEXT} from '../src/version_profile';
 import {spawnSync} from 'node:child_process';
+import path from 'node:path';
 import {constructed,checked,choice,joint,emit,holding,other,parentFault,publish,rollback,reseal,native} from './helpers/owner_selection_restore';
 for(const [actor,healer] of [['p1','Pawmot'],['p2','Rabsca']] as const)test('P42 constructed revival B2 '+actor,async()=>{
  const s=await constructed(actor,healer);
@@ -72,5 +73,5 @@ for kind in ('malformed','siblings'):
   except ValueError as e: assert ('Malformed raw -heal record' if kind=='malformed' else 'prepared-family-unsupported/heal-failure') in str(e),str(e)
   else:raise AssertionError('negative accepted')
 print('P42 Python finite heal positives/malformed/quarantine PASS')`;
- const py=spawnSync(process.env.PYTHON!,['-c',script],{env:process.env,input:JSON.stringify({positive:[publicHeal,secretHeal],malformed,siblings}),encoding:'utf8',timeout:30000});assert.equal(py.status,0,py.stderr);console.log(py.stdout.trim());emit('finite-heal-grammar',{public:'50/100',transport:'floor(maxHP/2)/maxHP',malformed:malformed.length,unrelated_quarantines:siblings.length,python:true});
+ const py=spawnSync(process.env.PYTHON || (process.platform==='win32'?'D:/Anaconda/envs/neuralgpu/python.exe':'python3'),['-c',script],{env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')},input:JSON.stringify({positive:[publicHeal,secretHeal],malformed,siblings}),encoding:'utf8',timeout:30000});assert.equal(py.status,0,py.stderr);console.log(py.stdout.trim());emit('finite-heal-grammar',{public:'50/100',transport:'floor(maxHP/2)/maxHP',malformed:malformed.length,unrelated_quarantines:siblings.length,python:true});
 });

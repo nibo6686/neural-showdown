@@ -11,7 +11,7 @@ from neural import pipeline_record as reader
 from neural import perspective_knowledge_source as source
 from neural.version_profile import positive_fidelity_scope, assert_positive_fidelity_claim, historical_knowledge_source_scope
 ROOT=Path(__file__).resolve().parents[2]
-def load(p): return json.loads((ROOT/p).read_text())
+def load(p): return json.loads((ROOT/p).read_text(encoding='utf-8'))
 def literal(v): return json.dumps(v,ensure_ascii=True,sort_keys=True,separators=(',',':'))+'\n'
 def emit(n,**data): print('P34_WITNESS '+json.dumps(dict(name=n,**data),sort_keys=True))
 def cli(value,*args):

@@ -6,10 +6,14 @@ const {activeRequestOverrideDiagnostics:diagnostics}=require('../dist/src/env_ma
 const {canonicalActionFromLegalAction}=require('../dist/src/canonical_action');
 const versions=require('../dist/src/version_profile');
 const emit=(name,data)=>console.log('P51_WITNESS '+JSON.stringify({name,...data}));
+function historicalVersions(){
+ assert.ok(process.env.NEURAL_HISTORICAL_SIM_CORE,'NEURAL_HISTORICAL_SIM_CORE must name an installed 0.11.10 sim-core checkout for historical controls');
+ return require(path.resolve(process.env.NEURAL_HISTORICAL_SIM_CORE,'dist/src/version_profile'));
+}
 function validator(historical=false){
  const filename=path.resolve(__dirname,'../dist/src/env_manager.js'),m=new Module(filename,module);
  m.filename=filename;m.paths=Module._nodeModulePaths(path.dirname(filename));
- if(historical){const load=m.require.bind(m);m.require=name=>name==='./version_profile'?require('/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/version_profile'):load(name);}
+ if(historical){const load=m.require.bind(m);m.require=name=>name==='./version_profile'?historicalVersions():load(name);}
  m._compile(fs.readFileSync(filename,'utf8')+'\nexports.exactValidatorTestOnly=validateActiveRequestOverride;',filename);
  return m.exports.exactValidatorTestOnly;
 }
@@ -27,7 +31,7 @@ test('P51 exact target marker and historical strict validator controls',()=>{
  assert.throws(()=>check(trap(),{...side,active:[{...side.active[0],trapped:false}]},'p1',runtime),/not trapped/);
  assert.throws(()=>check(disabled(),{...side,active:[{...side.active[0],getMoves:()=>[{id:'splash',disabled:false}]}]},'p1',runtime),/not disabled/);
  assert.throws(()=>check(trap(),side,'p1',{...runtime}),/unowned-runtime-profile/);
- const oldVersions=require('/Users/nbolger/Desktop/neural-showdown/sim-core/dist/src/version_profile'),old=oldVersions.installedNativeProfile(),oldCheck=validator(true);
+ const oldVersions=historicalVersions(),old=oldVersions.installedNativeProfile(),oldCheck=validator(true);
  assert.equal(old.package_version,'0.11.10');assert.throws(()=>oldCheck(trap(),side,'p1',old),/keys that differ/);oldCheck(noMarker,side,'p1',old);
  emit('finite-validator',{level:'lower-level-validator-with-model-side-not-native-authority',target_true_and_real_edit:true,disabled_and_trap_truth_checks:true,literal_input_unchanged:true,update_only_noop_rejected:true,owned_historical_runtime:old.package_version,historical_marker_rejected:true,copied_runtime_rejected:true});
 });

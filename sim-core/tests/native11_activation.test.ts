@@ -15,10 +15,10 @@ test('P38 installed provenance configuration and historical isolation',()=>{
  const p=installedNativeProfile();assert.equal(p.package_version,'0.11.11');assert.equal(p.reader,NATIVE11_CONTEXT);
  assert.throws(()=>assertNativeRuntimeProfile({...p}),/unowned-runtime-profile/);
  const fs=require('node:fs'),read=fs.readFileSync;
- fs.readFileSync=function(file:any,...args:any[]){const bytes=read.call(this,file,...args);if(String(file)===p.package_root+'/package.json'){const row=JSON.parse(String(bytes));row.version='0.11.10';return JSON.stringify(row);}return bytes;};
+ fs.readFileSync=function(file:any,...args:any[]){const bytes=read.call(this,file,...args);if(String(file)===path.join(p.package_root,'package.json')){const row=JSON.parse(String(bytes));row.version='0.11.10';return JSON.stringify(row);}return bytes;};
  try{assert.throws(()=>installedNativeProfile(),/installed-runtime-mismatch/);}finally{fs.readFileSync=read;}
 
- assert.ok(p.entry.startsWith(root+'/sim-core/node_modules/pokemon-showdown/'));
+ assert.ok(p.entry.startsWith(path.join(root,'sim-core/node_modules/pokemon-showdown')+path.sep));
  const format=Dex.formats.get('gen9randombattle');assert.equal(format.mod,'gen9');assert.equal(format.team,'random');assert.equal(format.gameType,'singles');
  const inventory=loadInactiveTargetInventory();const sets=JSON.parse(readFileSync(path.join(p.package_root,'data/random-battles/gen9/sets.json'),'utf8'));
  assert.equal(Object.keys(sets).length,509);assert.equal(Object.values(sets).reduce((n:number,x:any)=>n+x.sets.length,0),879);
