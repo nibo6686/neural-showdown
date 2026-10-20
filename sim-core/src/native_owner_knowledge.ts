@@ -2,7 +2,7 @@ import { interpretOriginalValues } from './original_owner_values';
 import { OwnedRequestHealthHost } from './owned_request_health';
 import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
 import { checkNativeOwnerProjection, nativeOwnerDetailsContext, checkNativeOwnerDetailsProjection, nativeOwnerLoadoutContext, checkNativeOwnerLoadoutProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
-import { assertNativeRuntimeProfile, type NativeRuntimeProfile } from './version_profile';
+import { assertNativeRuntimeProfile, NATIVE_ENGINE_COMMIT, NATIVE_ENGINE_INTEGRITY, type NativeRuntimeProfile } from './version_profile';
 import type { PipelineBoundary } from './pipeline_integration';
 import type { PlayerID } from './types';
 
@@ -36,7 +36,7 @@ export class NativeOwnerKnowledgeController {
   constructor(creation: OriginalOwnerCreation, runtime: NativeRuntimeProfile, recipients: Readonly<Record<PlayerID, object>>) {
     assertNativeRuntimeProfile(runtime);
     const profile = nativeOwnerProjectionContext().profile;
-    if (runtime.package_version !== '0.11.11' || profile.engine !== 'pokemon-showdown@' + runtime.package_version) fail('runtime-profile');
+    if (runtime.package_version !== '0.11.11' || runtime.engine_commit !== NATIVE_ENGINE_COMMIT || profile.engine !== 'pokemon-showdown@' + runtime.package_version + '+b8f23c99' || profile.engine_commit !== runtime.engine_commit || profile.engine_integrity !== NATIVE_ENGINE_INTEGRITY) fail('runtime-profile');
     if (!recipients || ![Object.prototype, null].includes(Object.getPrototypeOf(recipients))
       || Object.keys(recipients).sort().join(',') !== 'p1,p2'
       || owners.some(owner => !Object.hasOwn(Object.getOwnPropertyDescriptor(recipients, owner) ?? {}, 'value'))
@@ -130,7 +130,7 @@ function need(condition: unknown, code: string): asserts condition { if (!condit
 /** Finite value interpreter only. Its output has no enrollment/consumer authority. */
 function nativeOwnerStartingFacts(evidence: OriginalOwnerEvidence, runtime: NativeRuntimeProfile, dex: any, loadout = false): readonly Record<string, any>[] {
   assertNativeRuntimeProfile(runtime);
-  need(runtime.package_version === '0.11.11', 'native-original/runtime');
+  need(runtime.engine_commit === NATIVE_ENGINE_COMMIT, 'native-original/runtime');
   const owner = evidence.owner;
   need(owners.includes(owner) && evidence.raw_team.length >= 1 && evidence.raw_team.length <= 6, 'native-original/roster');
   const rules = (loadout ? nativeOwnerLoadoutContext() : nativeOwnerProjectionContext()).profile.rules;

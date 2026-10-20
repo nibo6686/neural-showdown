@@ -9,7 +9,7 @@ import {validatePreparedProtocolAsset} from '../src/prepared_protocol_contract';
 import {loadPreparedProtocolAsset,protocolContext,helperContext,NATIVE11_GRAMMAR_CONTEXT,REPLAY_COMPAT_CONTEXT} from '../src/version_profile';
 import {validateProtocolContract} from '../src/protocol_contract';
 const root=path.resolve(__dirname,'../../..');
-const file=(p:string)=>path.join(root,'trainer/src/neural',p==='native11'?'protocol_contract_0_11_11.json':'protocol_contract_replay_compat_v1.json');
+const file=(p:string)=>path.join(root,'trainer/src/neural',p==='native11'?'protocol_contract_b8f23c99.json':'protocol_contract_replay_compat_v1.json');
 const read=(p:string)=>JSON.parse(fs.readFileSync(file(p),'utf8'));
 const emit=(name:string,data:object)=>console.log('P37_WITNESS '+JSON.stringify({name,...data}));
 function mutate(v:any,c:any){

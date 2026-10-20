@@ -420,6 +420,7 @@ export class NativeObjectAssociation {
 /** Policy decisions only: supplied strings never enroll a native world or authorize reconstruction. */
 export function snapshotRestorePolicy(packageVersion: string): 'legacy' | 'held-b2-required' {
   if (packageVersion === '0.11.10') return 'legacy';
+  // Restrictive policy only; installedNativeProfile separately pins commit b8f23c99.
   if (packageVersion === '0.11.11') return 'held-b2-required';
   throw new Error('snapshot-admission/v1/unsupported-runtime');
 }

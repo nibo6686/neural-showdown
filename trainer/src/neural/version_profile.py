@@ -3,7 +3,8 @@ from collections.abc import Mapping
 from typing import NamedTuple
 
 HISTORICAL10_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.10"
-NATIVE11_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.11"
+# native11 now names pinned commit b8f23c99.
+NATIVE11_REVISION = "sim-core@0.1.0+pokemon-showdown@0.11.11+b8f23c99"
 class ReaderProfile(NamedTuple):
     id: str
     revision: str
@@ -140,23 +141,46 @@ def historical_knowledge_source_scope(package_version):
     if package_version == '0.11.11': return False
     _fail('unknown-source-runtime')
 
-def guard_historical_knowledge_source():
-    """Fail-only local metadata quarantine, never a Python native authority descriptor/bridge."""
+NATIVE_ENGINE_COMMIT = 'b8f23c99629132611ba59e99480cb148ea8c5d3d'
+NATIVE_ENGINE_INTEGRITY = 'sha512-ihktUZgY1oy6U7TyCDmHg4lUlPeMb2jcedhqOnc/R0GIAeMgMFTlIDzmVsZ1xjBJ4ddaa/OM8dpfNsqo1dNe3Q=='
+_NATIVE_ENGINE_MANIFEST_SHA256 = '806f1bf4edc35c7901902bfbc864ab1bebe6d1254b761808833a7a32b1e37ec6'
+_NATIVE_ENGINE_DEPENDENCY = 'file:../vendor/pokemon-showdown-b8f23c99.tgz'
+
+
+def installed_native_profile():
+    """Verify local package bytes; this grants no producer authority."""
+    import base64
     core = _root / 'sim-core'
-    pkg = json.loads((core / 'node_modules/pokemon-showdown/package.json').read_text(encoding='utf-8'))
+    package = core / 'node_modules/pokemon-showdown'
+    pkg = json.loads((package / 'package.json').read_text(encoding='utf-8'))
     declaration = json.loads((core / 'package.json').read_text(encoding='utf-8'))
     lock = json.loads((core / 'package-lock.json').read_text(encoding='utf-8'))
     installed = json.loads((core / 'node_modules/.package-lock.json').read_text(encoding='utf-8'))
-    version = pkg.get('version')
-    expected = {'0.11.10': 'sha512-FAeLao+7jWwgiMAmO4F6IqICtsOAAiPIHEkKOtHTGbl4dy088rkrcEYqSk+Uasic0oUJkoY8pi77odwX6+OgTg==',
-                '0.11.11': 'sha512-FdW7gt3TkG4AdXmpMTPYX2kx42VEfY8tQApjW9wEHOGzwH6Kn97wD0o5uIzAc4xpO1W+Tim70Ti9+FNkMNCA2w=='}
     a, b = lock['packages'].get('node_modules/pokemon-showdown', {}), installed['packages'].get('node_modules/pokemon-showdown', {})
-    if (version not in expected or declaration['dependencies'].get('pokemon-showdown') != version
-            or lock['packages']['']['dependencies'].get('pokemon-showdown') != version
-            or any(row.get('version') != version or row.get('integrity') != expected[version] for row in (a,b))):
-        _fail('source-runtime-mismatch')
-    if not historical_knowledge_source_scope(version):
-        raise ReaderProfileError('k-source-policy/v1/historical-origin-quarantined')
+    if (pkg.get('version') != '0.11.11' or pkg.get('engine_commit') != NATIVE_ENGINE_COMMIT
+            or declaration['dependencies'].get('pokemon-showdown') != _NATIVE_ENGINE_DEPENDENCY
+            or lock['packages']['']['dependencies'].get('pokemon-showdown') != _NATIVE_ENGINE_DEPENDENCY
+            or any(row.get('version') != '0.11.11' or row.get('integrity') != NATIVE_ENGINE_INTEGRITY
+                   or row.get('resolved') != _NATIVE_ENGINE_DEPENDENCY for row in (a,b))):
+        _fail('installed-runtime-mismatch')
+    manifest = _pinned_asset(package / 'engine-files.json', _NATIVE_ENGINE_MANIFEST_SHA256)
+    if manifest['engine_commit'] != NATIVE_ENGINE_COMMIT: _fail('installed-runtime-mismatch')
+    entries = list(package.rglob('*'))
+    if any(file.is_symlink() for file in entries): _fail('installed-runtime-content')
+    actual = {file.relative_to(package).as_posix() for file in entries if file.is_file()}
+    if actual != set(manifest['files']) | {'engine-files.json'}: _fail('installed-runtime-content')
+    for name, expected in manifest['files'].items():
+        if hashlib.sha256((package / name).read_bytes()).hexdigest() != expected: _fail('installed-runtime-content')
+    tarball = (_root / 'vendor/pokemon-showdown-b8f23c99.tgz').read_bytes()
+    if 'sha512-' + base64.b64encode(hashlib.sha512(tarball).digest()).decode('ascii') != NATIVE_ENGINE_INTEGRITY:
+        _fail('installed-runtime-integrity')
+    return _freeze({'package_version': '0.11.11', 'engine_commit': NATIVE_ENGINE_COMMIT, 'integrity': NATIVE_ENGINE_INTEGRITY})
+
+
+def guard_historical_knowledge_source():
+    """Fail-only quarantine, never a native authority descriptor/bridge."""
+    installed_native_profile()
+    raise ReaderProfileError('k-source-policy/v1/historical-origin-quarantined')
 
 
 import hashlib
@@ -194,17 +218,17 @@ def load_inactive_target_inventory(path=None):
 class ProtocolRulesContext(NamedTuple):
     protocol: Mapping
 
-_TARGET_PROTOCOL_SHA256 = 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'
+_TARGET_PROTOCOL_SHA256 = '2887335713b48a46d361c3ed2dbf49193723fbbd2ccce8c43f965edc325ecbf0'
 _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
 def load_prepared_protocol_asset(profile, path=None):
-    if profile == 'native11': name, pin = 'protocol_contract_0_11_11.json', _TARGET_PROTOCOL_SHA256
+    if profile == 'native11': name, pin = 'protocol_contract_b8f23c99.json', _TARGET_PROTOCOL_SHA256
     elif profile == 'replay-compat-v1': name, pin = 'protocol_contract_replay_compat_v1.json', _REPLAY_PROTOCOL_SHA256
     else: _fail('unknown-grammar-profile')
     from .prepared_protocol_contract import validate_prepared_protocol_asset
     asset = _pinned_asset(Path(path) if path is not None else _root / 'trainer/src/neural' / name, pin)
     return _freeze(validate_prepared_protocol_asset(_thaw_prepared(asset), profile))
 
-_target_protocol_asset = _pinned_asset(_root / 'trainer/src/neural/protocol_contract_0_11_11.json', _TARGET_PROTOCOL_SHA256)
+_target_protocol_asset = _pinned_asset(_root / 'trainer/src/neural/protocol_contract_b8f23c99.json', _TARGET_PROTOCOL_SHA256)
 _replay_protocol_asset = _pinned_asset(_root / 'trainer/src/neural/protocol_contract_replay_compat_v1.json', _REPLAY_PROTOCOL_SHA256)
 NATIVE11_GRAMMAR_CONTEXT = ProtocolRulesContext(_target_protocol_asset['protocol'])
 REPLAY_COMPAT = ReaderProfile('replay-compat-v1', 'importer-replay-compatibility/v1', False)

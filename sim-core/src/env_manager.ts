@@ -2,7 +2,7 @@ import { OwnedRequestHealthHost } from './owned_request_health';
 import { SwitchEventHost } from './owner_identity_events';
 import { randomBytes } from 'node:crypto';
 import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
-import { installedNativeProfile, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
+import { installedNativeProfile, NATIVE_ENGINE_COMMIT, assertNativeRuntimeProfile, readerContext, HISTORICAL10_CONTEXT, type ReaderContext, type NativeRuntimeProfile } from './version_profile';
 import { NativeBirthEnrollment, NativeObjectAssociation, type NativeRestoreTicket } from './owner_identity_crosswalk';
 import { RequestEmissionTrace, type RequestTraceHandle, type RequestEmissionReceipt } from './request_emission_trace';
 import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
@@ -425,7 +425,7 @@ function validateActiveRequestOverride(live: Record<string, unknown>, regenerate
   const base = regeneratedSide?.activeRequest;
   if (!base || typeof base !== 'object') overrideInvalid(path, 'has no regenerated request to edit');
   const regenerated = base as unknown as Record<string, unknown>;
-  const nativeMarker = runtime.package_version === '0.11.11' && has(live, 'update') && !has(regenerated, 'update');
+  const nativeMarker = runtime.engine_commit === NATIVE_ENGINE_COMMIT && has(live, 'update') && !has(regenerated, 'update');
   if (nativeMarker && live.update !== true) overrideInvalid(`${path}.update`, 'must be the literal native update:true marker');
   const liveKeys = Object.keys(live).filter(key => !nativeMarker || key !== 'update');
   if (liveKeys.sort().join() !== Object.keys(regenerated).sort().join()) overrideInvalid(path, 'has keys that differ from the regenerated request');

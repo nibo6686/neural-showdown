@@ -1,6 +1,7 @@
 /** Fixed decoder selection only; no engine or source authority. */
 export const HISTORICAL10_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.10' as const;
-export const NATIVE11_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.11' as const;
+// native11 now names pinned commit b8f23c99; the npm version alone is ambiguous.
+export const NATIVE11_REVISION = 'sim-core@0.1.0+pokemon-showdown@0.11.11+b8f23c99' as const;
 export const HISTORICAL10 = Object.freeze({ id: 'historical10', revision: HISTORICAL10_REVISION, adopted: true });
 export const NATIVE11 = Object.freeze({ id: 'native11', revision: NATIVE11_REVISION, adopted: false });
 export type ReaderSelection = 'historical10' | 'native11' | 'auto';
@@ -108,10 +109,15 @@ export function assertReaderInput(value: unknown, context: ReaderContext = HISTO
 export interface NativeRuntimeProfile {
   readonly reader: ReaderContext;
   readonly package_version: '0.11.11';
+  readonly engine_commit: typeof NATIVE_ENGINE_COMMIT;
   readonly package_root: string;
   readonly entry: string;
   readonly integrity: string;
 }
+export const NATIVE_ENGINE_COMMIT = 'b8f23c99629132611ba59e99480cb148ea8c5d3d' as const;
+export const NATIVE_ENGINE_INTEGRITY = 'sha512-ihktUZgY1oy6U7TyCDmHg4lUlPeMb2jcedhqOnc/R0GIAeMgMFTlIDzmVsZ1xjBJ4ddaa/OM8dpfNsqo1dNe3Q==';
+const NATIVE_ENGINE_MANIFEST_SHA256 = '806f1bf4edc35c7901902bfbc864ab1bebe6d1254b761808833a7a32b1e37ec6';
+const NATIVE_ENGINE_DEPENDENCY = 'file:../vendor/pokemon-showdown-b8f23c99.tgz';
 const ownedRuntimes = new WeakSet<object>();
 /** Internal producer initialization: checked real installed path, declarations and both lock entries. */
 export function installedNativeProfile(): NativeRuntimeProfile {
@@ -123,13 +129,32 @@ export function installedNativeProfile(): NativeRuntimeProfile {
   const lock = JSON.parse(fs.readFileSync(path.join(root, 'sim-core/package-lock.json'), 'utf8'));
   const installedLock = JSON.parse(fs.readFileSync(path.join(root, 'sim-core/node_modules/.package-lock.json'), 'utf8'));
   const locked = lock.packages['node_modules/pokemon-showdown'], installed = installedLock.packages['node_modules/pokemon-showdown'];
-  const expectedIntegrity = 'sha512-FdW7gt3TkG4AdXmpMTPYX2kx42VEfY8tQApjW9wEHOGzwH6Kn97wD0o5uIzAc4xpO1W+Tim70Ti9+FNkMNCA2w==';
-  if (pkg.version !== '0.11.11' || declaration.dependencies['pokemon-showdown'] !== '0.11.11'
-    || lock.packages[''].dependencies['pokemon-showdown'] !== '0.11.11' || locked?.version !== pkg.version
+  const expectedIntegrity = NATIVE_ENGINE_INTEGRITY;
+  if (pkg.version !== '0.11.11' || pkg.engine_commit !== NATIVE_ENGINE_COMMIT || declaration.dependencies['pokemon-showdown'] !== NATIVE_ENGINE_DEPENDENCY
+    || lock.packages[''].dependencies['pokemon-showdown'] !== NATIVE_ENGINE_DEPENDENCY || locked?.version !== pkg.version
+    || locked?.resolved !== NATIVE_ENGINE_DEPENDENCY || installed?.resolved !== NATIVE_ENGINE_DEPENDENCY
     || installed?.version !== pkg.version || locked.integrity !== expectedIntegrity || installed.integrity !== expectedIntegrity
     || entry !== fs.realpathSync(path.join(packageRoot, pkg.main))
     || packageRoot !== fs.realpathSync(path.join(root, 'sim-core/node_modules/pokemon-showdown'))) fail('installed-runtime-mismatch');
-  const runtime = Object.freeze({ reader: readerContext(NATIVE11_CONTEXT), package_version: '0.11.11' as const,
+  // Locks describe the install intent. Check every installed byte and the exact file set too.
+  const manifest = pinnedAsset(path.join(packageRoot, 'engine-files.json'), NATIVE_ENGINE_MANIFEST_SHA256);
+  if (manifest.engine_commit !== NATIVE_ENGINE_COMMIT) fail('installed-runtime-mismatch');
+  const files: string[] = [];
+  const walk = (dir: string): void => {
+    for (const name of fs.readdirSync(path.join(packageRoot, dir))) {
+      const relative = dir ? dir + '/' + name : name;
+      const stat = fs.lstatSync(path.join(packageRoot, relative));
+      if (stat.isSymbolicLink()) fail('installed-runtime-content');
+      if (stat.isDirectory()) walk(relative); else files.push(relative);
+    }
+  };
+  walk('');
+  if (JSON.stringify(files.filter(name => name !== 'engine-files.json').sort()) !== JSON.stringify(Object.keys(manifest.files).sort())) fail('installed-runtime-content');
+  for (const [name, expected] of Object.entries(manifest.files)) {
+    if (createHash('sha256').update(fs.readFileSync(path.join(packageRoot, name))).digest('hex') !== expected) fail('installed-runtime-content');
+  }
+  if ('sha512-' + createHash('sha512').update(fs.readFileSync(path.join(root, 'vendor/pokemon-showdown-b8f23c99.tgz'))).digest('base64') !== expectedIntegrity) fail('installed-runtime-integrity');
+  const runtime = Object.freeze({ engine_commit: NATIVE_ENGINE_COMMIT, reader: readerContext(NATIVE11_CONTEXT), package_version: '0.11.11' as const,
     package_root: packageRoot, entry, integrity: expectedIntegrity });
   ownedRuntimes.add(runtime); return runtime;
 }
@@ -157,7 +182,7 @@ function pinnedAsset(assetPath: string, expected: string): any {
 /** Fixed local replay decoder, not a native profile or portable publication contract. */
 export const REPLAY_COMPAT = Object.freeze({id: 'replay-compat-v1', revision: 'importer-replay-compatibility/v1', adopted: false} as const);
 export interface ProtocolRulesContext { readonly protocol: ProtocolContract; }
-const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834');
+const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '2887335713b48a46d361c3ed2dbf49193723fbbd2ccce8c43f965edc325ecbf0');
 const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
 export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
 export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
@@ -233,7 +258,7 @@ export function assertPublicationReaderContext(context: unknown): void {
 /** Asset inspection seam: trusted hashes remain code-owned even for an alternate path. */
 export function loadPreparedProtocolAsset(profile: 'native11' | 'replay-compat-v1', assetPath?: string): any {
   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
-  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_0_11_11.json'), 'f2fb0bb8e4910c2c1dfcacd5436c6306c9cacf685a5f5956e1b38e892226b834'), profile);
+  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '2887335713b48a46d361c3ed2dbf49193723fbbd2ccce8c43f965edc325ecbf0'), profile);
   if (profile === 'replay-compat-v1') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'), profile);
   return fail('unknown-grammar-profile');
 }
@@ -257,13 +282,13 @@ export function loadInactiveTargetInventory(assetPath = path.join(root, 'sim-cor
 }
 let nativeData: any;
 let targetData: any;
-const TARGET_LOOKUP_SHA256 = '66355d0182570b82fea5bdccfb45977386e22b0cdc9e278f9eaab2c151f5fe9b';
+const TARGET_LOOKUP_SHA256 = 'a5ab25417c4c7de524caec386ed8cb54eb2f023708cc4b0405358dac4b5880d9';
 /** Compatibility API name; immutable historical tables, independent of installed native engine. */
 export function runtimeData(context: ReaderContext = HISTORICAL10_CONTEXT): any {
   helperContext(context);
   if (context === NATIVE11_CONTEXT) {
   if (!targetData) {
-    const {species, moves, types, aliases} = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/lookups/pokemon-showdown-0.11.11.json'), TARGET_LOOKUP_SHA256).data;
+    const {species, moves, types, aliases} = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/lookups/pokemon-showdown-b8f23c99.json'), TARGET_LOOKUP_SHA256).data;
     const toID = historicalToID;
     const missingSpecies = Object.freeze({exists: false, types: Object.freeze([])}), missingMove = Object.freeze({exists: false});
     const id = (value: any) => { const key = toID(value); return toID(aliases[key] || key); };

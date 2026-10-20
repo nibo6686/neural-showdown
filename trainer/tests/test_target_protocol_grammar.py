@@ -35,7 +35,7 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
             validate_protocol_record(control['record'],reader_rules=NATIVE11_GRAMMAR_CONTEXT if profile=='native11' else REPLAY_COMPAT_CONTEXT)
         with pytest.raises(TypeError):asset['adopted']=True
         # Coherent JSON rewrite/digest cannot replace the locally reviewed code pin.
-        ordinary=json.loads((ROOT/'trainer/src/neural'/('protocol_contract_0_11_11.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json')).read_text(encoding='utf-8'))
+        ordinary=json.loads((ROOT/'trainer/src/neural'/('protocol_contract_b8f23c99.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json')).read_text(encoding='utf-8'))
         del ordinary['protocol']['validation_rules']['major_status'];p=tmp_path/(profile+'.json');p.write_text(json.dumps(ordinary));assert len(hashlib.sha256(p.read_bytes()).hexdigest())==64
         with pytest.raises(ValueError,match='version-asset-integrity'):load_prepared_protocol_asset(profile,p)
         with pytest.raises(ValueError,match='missing-version-asset'):load_prepared_protocol_asset(profile,tmp_path/'missing')

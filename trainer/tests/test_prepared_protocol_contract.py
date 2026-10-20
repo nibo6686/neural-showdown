@@ -10,7 +10,7 @@ from neural.version_profile import load_prepared_protocol_asset,protocol_context
 from neural.protocol_contract import validate_protocol_contract
 ROOT=Path(__file__).resolve().parents[2]
 def asset(profile):
-    name='protocol_contract_0_11_11.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json'
+    name='protocol_contract_b8f23c99.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json'
     return json.loads((ROOT/'trainer/src/neural'/name).read_text(encoding='utf-8'))
 def mutate(v,c):
     p=v['protocol'];op=c['op']

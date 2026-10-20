@@ -916,3 +916,16 @@ The first complete Python walk encountered prepared/profile files after their fi
 | Python / trainer/tests/test_version_context.py | trainer/tests/test_version_context.py::test_cli_compact_and_negative | S | Old native11-unadopted label now unknown-revision for mismatched historical/target reader input. | Repin error expectations to adopted dispatch semantics; retain mismatch rejection. |
 | Python / trainer/tests/test_version_profile_dispatch.py | trainer/tests/test_version_profile_dispatch.py::test_cli_dispatch_branches | S | Old native11-unadopted label now unknown-revision for mismatched historical/target reader input. | Repin error expectations to adopted dispatch semantics; retain mismatch rejection. |
 | Python / trainer/tests/test_version_profile_dispatch.py | trainer/tests/test_version_profile_dispatch.py::test_revision_structure_negatives | S | Old native11-unadopted label now unknown-revision for mismatched historical/target reader input. | Repin error expectations to adopted dispatch semantics; retain mismatch rejection. |
+
+
+## After re-pin — P0.4
+
+2026-10-19; installed commit `b8f23c99629132611ba59e99480cb148ea8c5d3d`, profile `native11`. The explicit TypeScript build passed. The complete suites used the P0.2 per-file commands and 300 s limits (pipeline episode: 900 s), two workers per runtime, with both Python encoding overrides unset. The known memory-heavy request-emission timeout ran alone after the other files to avoid host paging failures; earlier resource-interrupted runs are superseded. Python LIVE target-fidelity consumed the Node producer's temporary outputs.
+
+| Runtime | Files | Passed | Failed / errors | Skipped | Uncompleted | Timed-out files |
+|---|---:|---:|---:|---:|---:|---:|
+| Node | 97 | 467 | 571 | 0 | 2 | 1 |
+| Python | 102 | 894 | 63 | 22 | 0 | 0 |
+| Total | 199 | 1361 | 634 | 22 | 2 | 1 |
+
+Every failed test and failed subtest was compared by name with P0.2: no previously green test turned red, and no fixed-seed exception is required. Node adds two P0.3 registry tests and nine P0.4 engine/replay tests. The previously failing `env_manager.test.js` test `canonical submissions reject stale actions before raw choice forwarding` now passes; all other pre-existing per-file outcome counts match. Python adds three engine-pin tests; its 46 setup errors, nine failed subtests and 5,480 passing subtests are unchanged. Passing subtests are excluded from Passed. The request-emission timeout remains 13 passed, three failed and two uncompleted at 300.23 s. Existing stale/regression items remain P0.5 work.

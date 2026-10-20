@@ -41,7 +41,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  const common=['schema_version','profile','adopted','provenance','protocol','inherited_raw_shape_evidence'];
  keys(value,common.concat(profile==='native11'?['admission_scope','semantic_dispositions']:['base_lookup_profile','publication','authority','changed_forms']),'container');
  if(value.profile!==profile||value.adopted!==false||value.schema_version!==(profile==='native11'?'inactive-native-protocol/v1':'importer-replay-compatibility/v1'))fail('profile-identity');
- const selectedProvenance=profile==='native11'?{...provenance,source:"Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868\u20132875; ordinary add routes shared/public; Prompt41 Trace onUpdate to Pokemon.setAbility and gen9 randomSet selector; Prompt42 moves/side/battle Revival selection and split public heal writer",runtime:"Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved"}:provenance;
+ const selectedProvenance=profile==='native11'?{...provenance,target_revision:'b8f23c99629132611ba59e99480cb148ea8c5d3d',target_abilities_sha256:'52298a24ba0fa5b33750455042ce1b8d66a14d95250368f15cbdd96b356b6796',engine_integrity:'sha512-ihktUZgY1oy6U7TyCDmHg4lUlPeMb2jcedhqOnc/R0GIAeMgMFTlIDzmVsZ1xjBJ4ddaa/OM8dpfNsqo1dNe3Q==',source:"P0.4 pinned compiled abilities and gen9 set inputs; inherited finite Natural Cure, Trace and Revival grammar",runtime:"Prompt41 Trace and Prompt42 finite Revival native integration checks; broader runtime closure unproved"}:provenance;
  if(!equal(value.provenance,selectedProvenance))fail('provenance');
  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
  if(profile==='native11'){
@@ -50,7 +50,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
  keys(p,Object.keys(base),'protocol');
  if(!equal(p.source_basis,[profile==='native11'?"Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal":'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']))fail('source-claims');
- if(!equal(p.simulator,{...base.simulator,version:profile==='native11'?'0.11.11':'0.11.10'}))fail('simulator');
+ if(!equal(p.simulator,{...base.simulator,version:profile==='native11'?'0.11.11':'0.11.10',...(profile==='native11'?{engine_commit:'b8f23c99629132611ba59e99480cb148ea8c5d3d'}:{})}))fail('simulator');
  const rules=JSON.parse(JSON.stringify(base.validation_rules));
  const form={tags:['[from] ability: Natural Cure','[silent]']};
  if(profile==='native11')rules.major_status.cure_forms=rules.major_status.cure_forms.map((x:any)=>equal(x.tags,['[from] ability: Natural Cure'])?form:x);

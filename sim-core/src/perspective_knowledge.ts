@@ -511,8 +511,8 @@ export function serializeKnowledgeWire(value: unknown): Buffer {
 
 
 const nativeOwnerPins = Object.freeze({
-  'schema.json': '83cd892961cd22d210cff8c30cd55aefb25950e255f74d96a90592d75b2a1f94',
-  'profile.json': '38445244e1eb54e4e9c11340c394b3d598c69a7a81e715964d5571512252808e',
+  'schema.json': 'b2b64fd268682d4429301b196c25ba438d3b72a95c2126ceba45344a7f4a05b7',
+  'profile.json': 'e27d492980bad928cff3f888d661fe81d9d2c161a6b3cd1a36bd5a4b85d490a2',
 });
 let nativeOwnerContext: Readonly<{ schema: Row; profile: Row }> | undefined;
 /** Fixed decoder data only; loading/validating it grants no native source capability. */
@@ -607,7 +607,7 @@ export function nativeOwnerHealthProjectionContext(): Readonly<{ schema: Row; pr
   const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
     'docs/contracts/fixtures/perspective-knowledge-native11-owner-health-v1');
   const data: Row = {};
-  for (const [name, expected] of Object.entries({"schema.json": "a00d78954638a852129656404ed2e3242acd17e1e44b83d5cc81e6642f7d6c17", "profile.json": "41a56762bfcbdc21e9ccd3854a7753377e5b56f373f36315214df47eb004b99e"})) {
+  for (const [name, expected] of Object.entries({"schema.json": "0be2ac8142fd8404dcd4f0ede002cbaaa171ea99861e28a13496969dd01bf090", "profile.json": "48537c3be21a9fd5ea0ef0a1e28e95e9f9587bb0ad156e551d307fb4609a0ec8"})) {
     const bytes = readFileSync(path.join(folder, name));
     requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native health contract content');
     data[name] = parseKnowledgeJson(bytes);
@@ -623,7 +623,7 @@ export function nativeOwnerActiveOptionsContext(): Readonly<{ schema: Row; profi
   const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
     'docs/contracts/fixtures/perspective-knowledge-native11-owner-active-options-v1');
   const data: Row = {};
-  for (const [name, expected] of Object.entries({"schema.json": "23e9740090a94f915b574a802148a1d48a2bedc28e9b17a3f01ee13c9e100596", "profile.json": "c712ff7a34d04c42edaedd250a0d756754cd1e6d18a85e413301844793c635b9"})) {
+  for (const [name, expected] of Object.entries({"schema.json": "1d03c4adbd2806dd59303030687b58e2f9013bbaa1ab64a04124c85863b31f63", "profile.json": "f713c3425585b087f219d1088d54f9dd5412b9a89718ef08b8fa24568eb392ee"})) {
     const bytes = readFileSync(path.join(folder, name));
     requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native active-options contract content');
     data[name] = parseKnowledgeJson(bytes);
@@ -641,7 +641,7 @@ export function nativeOwnerIdentifiersContext(): Readonly<{ schema: Row; profile
   const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
     'docs/contracts/fixtures/perspective-knowledge-native11-owner-identifiers-v1');
   const data: Row = {};
-  for (const [name, expected] of Object.entries({"schema.json": "16ea0bc95124776ac0b6b44dd50ce8656e3378a278d446ce631ecfbd206742e7", "profile.json": "9ffbae284efa10ad62b38a43ae096d741f5210573210e70738d382feafb81c03"})) {
+  for (const [name, expected] of Object.entries({"schema.json": "e69f3d1a7a5f36a8e363cc0050b104e29d2b4c90426ba1a58024b63dbb9af32a", "profile.json": "a20b942b6af298953727c528d2b2f359a5f5391353cd6497ed0e64a524bc4da0"})) {
     const bytes = readFileSync(path.join(folder, name));
     requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native identifier contract content');
     data[name] = parseKnowledgeJson(bytes);
@@ -658,7 +658,7 @@ export function nativeOwnerLoadoutContext(): Readonly<{ schema: Row; profile: Ro
   const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..',
     'docs/contracts/fixtures/perspective-knowledge-native11-owner-loadout-v1');
   const data: Row = {};
-  for (const [name, expected] of Object.entries({"schema.json": "6298d6dd776bc1667b74555dae60480b4d5affb917ce4f8c16c5fa474edb49f7", "profile.json": "9478d997c9a58d17c6e1ba934e52a7bc0b31f7ae7cf7ce49142593a6e570f800"})) {
+  for (const [name, expected] of Object.entries({"schema.json": "23237636a8a7b83c3e9d46a1f05da9f9443856a76550e1c31fd875cfc3b1e943", "profile.json": "82614759a5787560fc33517c31e7d4b9051208f78d949c6fe11d1c1aa5d6d6d1"})) {
     const bytes = readFileSync(path.join(folder, name));
     requireStructure(createHash('sha256').update(bytes).digest('hex') === expected, 'native loadout contract content');
     data[name] = parseKnowledgeJson(bytes);
@@ -712,7 +712,7 @@ export function nativeOwnerDetailsContext(): Readonly<{ schema: Row; profile: Ro
   if (nativeDetailsContext) return nativeDetailsContext;
   const folder = path.resolve(__dirname, __dirname.endsWith(path.join('dist', 'src')) ? '../../..' : '../..', 'docs/contracts/fixtures/perspective-knowledge-native11-owner-details-v1');
   const data: Row = {};
-  for (const [name, expected] of Object.entries({"schema.json": "a898550be069a4db85021bffbfd7ab018da0f89be7e83607610fc14b602e1254", "profile.json": "fd32ed99b3b6b25df1ab415aa933b3ccd22f0aa62987b33bc73dfcdf751cf8a4"})) {
+  for (const [name, expected] of Object.entries({"schema.json": "26102a71bc7938ab0035a236935370dda132a8d060d0ac08b2e46332f4b1328e", "profile.json": "25b1fd5d2a2b3534bf8180bbb13832a65a0f773f52b9c4ff720fbe76c5d0d9a5"})) {
     const bytes = readFileSync(path.join(folder,name));
     requireStructure(createHash('sha256').update(bytes).digest('hex') === expected,'native details contract content'); data[name] = parseKnowledgeJson(bytes);
   }
