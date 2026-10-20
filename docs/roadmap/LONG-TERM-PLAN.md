@@ -146,7 +146,13 @@ the repo; it must show 198/198 on the probe set. The profile id stays
 `native11`. No baseline-green test may turn red except the listed fixed-seed
 witnesses.
 
-**0.5 Test migration on the final engine.** This brings the suite back to
+**0.5 Test migration on the final engine.** **0.5a** (brief `P0.5a.md`) adds a
+*simulation-only* env mode: raw restore is allowed but there's no identity or
+knowledge authority, and authoritative consumers reject it. The mechanics
+tests move onto it with assertions unchanged. The same mode later serves
+search and rollouts (B4). **0.5b** covers the authority-dependent tests
+(item identity, request knowledge, pipeline, restore), which move onto real
+sessions. Then: This brings the suite back to
 green-or-explained:
 
 - migrate the shared raw-snapshot restore helpers to native11
