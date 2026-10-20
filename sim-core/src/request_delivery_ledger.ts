@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
-import type { LocalBattleEnv } from './env_manager';
+import { assertAuthoritativeEnvironment, type LocalBattleEnv } from './env_manager';
 import type { PipelineBoundary } from './pipeline_integration';
 import type { RequestEmissionReceipt } from './request_emission_trace';
 import { PLAYERS, type PlayerID, type StepResult } from './types';
@@ -70,6 +70,7 @@ export class RequestDeliveryLedger {
 
   /** Capture restoration before actions, while the held parent is still live. */
   restored(environment: LocalBattleEnv, result: StepResult, parent: PipelineBoundary): object {
+    assertAuthoritativeEnvironment(environment);
     this.#open();
     if (parent !== this.#parent) fail('foreign-parent');
     const traces = this.#traces(environment);
@@ -83,6 +84,7 @@ export class RequestDeliveryLedger {
 
   /** Both-owner preparation is detached; only this ledger can commit its token. */
   prepare(environment: LocalBattleEnv, result: StepResult, boundary: PipelineBoundary, parent: PipelineBoundary | null, restoration?: object): object {
+    assertAuthoritativeEnvironment(environment);
     this.#open();
     if (parent !== this.#parent || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0)) fail('foreign-parent');
     const restore = restoration && this.#restores.get(restoration);

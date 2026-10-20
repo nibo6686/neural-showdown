@@ -1,3 +1,4 @@
+import { simulationEnv } from './helpers/simulation_env';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -43,7 +44,7 @@ function choices(actor: PlayerID, own: string, other = 'move 1') {
 }
 async function harness(actor: PlayerID, species = 'Charizard', tera = 'Fire', targetTera = 'Ghost') {
   const battle = fixture(actor, species, tera, targetTera);
-  const env = new LocalBattleEnv('transform-types', CONFIG.format, SEED);
+  const env = simulationEnv({id: 'transform-types', format: CONFIG.format, seed: SEED});
   let result = await env.resetFromSerialized(structuredClone(battle.toJSON()), OPTIONS);
   const prefix = [...result.log_delta];
   const frames: { observation: ReturnType<typeof projectPipelineStepResult>; json: string }[] = [];
@@ -64,9 +65,9 @@ async function harness(actor: PlayerID, species = 'Charizard', tera = 'Fire', ta
       result = await env.stepWithOptions({ [actor]: `switch ${slot}` }, OPTIONS); prefix.push(...result.log_delta); return remember();
     },
     async restore() {
-      const restored = new LocalBattleEnv('soak-restore', CONFIG.format, SEED);
+      const restored = simulationEnv({id: 'soak-restore', format: CONFIG.format, seed: SEED});
       try {
-        const step = await restored.resetFromSerialized(env.captureSeededSnapshot(null).simulator_state, OPTIONS);
+        const step = await restored.resetFromSerialized(env.serializeBattle(), OPTIONS);
         assert.deepEqual(projectPipelineStepResult(step, CONFIG.battle_id, projectPipelineProtocolPrefix(prefix)), frames.at(-1)!.observation);
         for (const f of frames) assert.equal(JSON.stringify(f.observation), f.json);
       } finally { await restored.close(); }

@@ -12,7 +12,8 @@ import { carryTerminalOwner, withTerminalOwner } from './public_health';
 import { canonicalActionFromLegalAction, serializeCanonicalAction, type CanonicalAction, type CanonicalActionRequestContext } from './canonical_action';
 import { OwnedDecisionInputController, assertCanonicalContextEqual, sanitizeOwnedDecisionInputError, type OwnedActionOrderCallback, type OwnedDecisionFrame, type OwnedDecisionOrder } from './owned_decision_input';
 import { projectBeliefState, serializeBeliefState, validateObservableBattleState, type BeliefState } from './belief_state';
-import { LocalBattleEnv } from './env_manager';
+import { LocalBattleEnv, assertAuthoritativeEnvironment } from './env_manager';
+import { rejectSimulationOnlyPayload } from './simulation_authority';
 import type { SettlingOptions } from './settling';
 import {
   OBSERVABLE_STATE_SCHEMA_VERSION, isObservableSchema, type ObservableSchemaVersion,
@@ -448,7 +449,9 @@ export class PipelineIntegrationSession {
   static async create(options: PipelineIntegrationOptions): Promise<PipelineIntegrationSession> {
     const session = new PipelineIntegrationSession(options);
     try {
+      assertAuthoritativeEnvironment(session.environment);
       const initial = await session.environment.resetWithOptions(OPTIONS);
+      rejectSimulationOnlyPayload(initial);
       session.rawPrefix = [...initial.log_delta];
       const snapshot = session.environment.captureSeededSnapshot(null);
       const boundary = session.buildInitialBoundary(initial, snapshot);
@@ -493,6 +496,7 @@ export class PipelineIntegrationSession {
 
   /** Privileged process-local owner access, outside observation and wire APIs. */
   getOriginalOwnerHolding(owner: PlayerID): OriginalOwnerHandle {
+    assertAuthoritativeEnvironment(this.environment);
     return this.#originalCreation.holding(owner);
   }
 
@@ -539,6 +543,7 @@ export class PipelineIntegrationSession {
   }
 
   readOriginalOwnerHolding(handle: OriginalOwnerHandle, owner: PlayerID, packed?: string): OriginalOwnerEvidence {
+    assertAuthoritativeEnvironment(this.environment);
     return this.#originalCreation.read(handle, owner, packed);
   }
 
@@ -1024,6 +1029,7 @@ export class PipelineIntegrationSession {
   getReaderContext(): ReaderContext { return this.rulesContext; }
 
   private ensureOpen(): void {
+    assertAuthoritativeEnvironment(this.environment);
     if (this.closed) throw new PipelineIntegrationError('pipeline/v1/closed', 'integration session is closed');
   }
 }
@@ -1042,6 +1048,7 @@ export function validatePipelineLinkedRecordBundle(bundle: PipelineLinkedRecordB
 
 /** Reuse the accepted action/belief/terminal joins for every episode actor kind. */
 export function validatePipelineEpisodeRecordBundle(bundle: PipelineLinkedRecordBundle | PipelineForcedSwitchRecordBundle, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
+  rejectSimulationOnlyPayload(bundle);
   readerContext(rulesContext);
   assertReaderInput(bundle, rulesContext);
   const schemas = {

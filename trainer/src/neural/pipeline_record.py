@@ -126,6 +126,8 @@ def _object(value: Any, label: str) -> Mapping[str, Any]:
 
 
 def _reject_private_payload(value: Any, label: str) -> None:
+    if isinstance(value, Mapping) and value.get('authority') == 'simulation-only':
+        raise PipelineRecordError('simulation-only/v1/no-authority')
     if isinstance(value, Mapping):
         forbidden = sorted(_FORBIDDEN_KEYS.intersection(value))
         if forbidden:
@@ -268,6 +270,8 @@ def _request_for_action(observation: Mapping[str, Any], perspective: str) -> Map
 
 
 def _reject_episode_private_payload(value: Any, label: str) -> None:
+    if isinstance(value, Mapping) and value.get('authority') == 'simulation-only':
+        raise PipelineRecordError('simulation-only/v1/no-authority')
     if isinstance(value, Mapping):
         forbidden = sorted(_EPISODE_FORBIDDEN_KEYS.intersection(value))
         if forbidden:

@@ -1,3 +1,4 @@
+import { simulationEnv } from './helpers/simulation_env';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -519,8 +520,8 @@ for (const actor of ['p1', 'p2'] as const) {
 
   test(`Illusion ${actor} can depart unrevealed without contaminating its impersonated teammate`, async () => {
     const battle = illusionBattle(actor);
-    const env = new LocalBattleEnv('unrevealed', 'gen9randombattle', SEED);
-    const restored = new LocalBattleEnv('unrevealed-replay', 'gen9randombattle', SEED);
+    const env = simulationEnv({id: 'unrevealed', format: 'gen9randombattle', seed: SEED});
+    const restored = simulationEnv({id: 'unrevealed-replay', format: 'gen9randombattle', seed: SEED});
     try {
       const initial = await env.resetFromSerialized(battle.toJSON(), OPTIONS);
       const prefix = [...initial.log_delta];

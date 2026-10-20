@@ -170,6 +170,7 @@ export interface StepResultOptions {
 }
 
 export interface StepResult {
+  authority?: 'simulation-only';
   env_id: string;
   terminated: boolean;
   winner: Winner;

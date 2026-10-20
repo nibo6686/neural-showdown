@@ -1,4 +1,5 @@
 import { OwnedRequestHealthHost } from './owned_request_health';
+import { SimulationOnlyAuthorityError } from './simulation_authority';
 import { SwitchEventHost } from './owner_identity_events';
 import { randomBytes } from 'node:crypto';
 import { snapshotRestorePolicy, assertBeliefForkPolicy } from './owner_identity_crosswalk';
@@ -754,9 +755,29 @@ function offsetSeed(seed: [number, number, number, number], delta: number): [num
   ];
 }
 
+const simulationEnvironments = new WeakSet<object>();
+
+/** Process-local mode identity cannot be removed or supplied through constructor options. */
+export function assertAuthoritativeEnvironment(environment: object): void {
+  if (simulationEnvironments.has(environment)) throw new SimulationOnlyAuthorityError();
+}
+
+export interface SimulationOnlyOptions {
+  id: string;
+  format: string;
+  seed?: number[];
+  controllers?: Partial<Record<PlayerID, ControllerSpec>>;
+  settling?: SettlingOptions;
+}
+
 export class LocalBattleEnv {
+  static createSimulationOnly(options: SimulationOnlyOptions): LocalBattleEnv {
+    const environment = new LocalBattleEnv(options.id, options.format, options.seed, options.controllers, options.settling);
+    simulationEnvironments.add(environment);
+    return environment;
+  }
   #liveWorldOccurrence: object = Object.freeze(Object.create(null));
-  getLiveWorldOccurrence(): object { return this.#liveWorldOccurrence; }
+  getLiveWorldOccurrence(): object { assertAuthoritativeEnvironment(this); return this.#liveWorldOccurrence; }
   noteLiveWrite(): void { this.#liveWorldOccurrence = Object.freeze(Object.create(null)); }
   readonly #runtimeProfile: NativeRuntimeProfile;
   getReaderContext(): ReaderContext { return this.#runtimeProfile.reader; }
@@ -879,12 +900,13 @@ export class LocalBattleEnv {
 
   /** Privileged pre-submission diagnostics; never an authorizing handle. */
   inspectStagedOriginalOwner(owner: PlayerID): OriginalOwnerEvidence {
+    assertAuthoritativeEnvironment(this);
     if (!this.#originalCreation) throw new Error('original-owner/v1/no-creation');
     return this.#originalCreation.diagnostic(this, owner);
   }
 
   async resetFromSerialized(serialized: Record<string, unknown>, options?: StepResultOptions, associationTicket?: NativeRestoreTicket): Promise<StepResult> {
-    if (snapshotRestorePolicy(this.#runtimeProfile.package_version) === 'held-b2-required') {
+    if (!simulationEnvironments.has(this) && snapshotRestorePolicy(this.#runtimeProfile.package_version) === 'held-b2-required') {
       if (!this.#objectAssociation) throw new Error('snapshot-admission/v1/raw-restore-unsupported');
       this.#objectAssociation.assertRestoreAdmission(this, serialized, associationTicket);
     }
@@ -944,7 +966,8 @@ export class LocalBattleEnv {
           if (battle.ended || (!side.activeRequest.wait && side.isChoiceDone())) {
             this.players?.[side.id as PlayerID].markRestoredRequestConsumed();
           }
-          this.#requestTrace!.atProducer('restore_reemit', () => side.emitRequest(side.activeRequest!));
+          if (this.#requestTrace) this.#requestTrace.atProducer('restore_reemit', () => side.emitRequest(side.activeRequest!));
+          else side.emitRequest(side.activeRequest!);
         }
       }
       // Terminal battles emit no new private requests. Restore only the
@@ -1032,14 +1055,16 @@ export class LocalBattleEnv {
   }
 
   private initializeStreams(): void {
-    const trace = this.#requestTrace = new RequestEmissionTrace((emission, receipt) => this.#requestHealth?.received(this, emission, receipt));
+    const trace = this.#requestTrace = simulationEnvironments.has(this) ? null
+      : new RequestEmissionTrace((emission, receipt) => this.#requestHealth?.received(this, emission, receipt));
     const nativeBirth = this.#nativeBirth, environment = this, switchEvents = this.#switchEvents, requestHealth = this.#requestHealth;
     const settling = this.settling = new SettlingBarrier(this.settlingOptions);
     // _write synchronously emits requests then sendUpdates. Count at the source,
     // before getPlayerStreams asynchronously fans out each message.
     this.battleStream = new class extends BattleStream {
       override _write(chunk: string): void {
-        trace.atProducer('native_emission', () => super._write(chunk));
+        if (trace) trace.atProducer('native_emission', () => super._write(chunk));
+        else super._write(chunk);
       }
       override _writeLine(type: string, message: string): void {
         super._writeLine(type, message);
@@ -1050,8 +1075,10 @@ export class LocalBattleEnv {
       }
       override pushMessage(type: string, data: string): void {
         switchEvents?.pushed(environment, this, type, data);
-        const emission = trace.emitted(type, data);
-        requestHealth?.sent(environment, emission);
+        if (trace) {
+          const emission = trace.emitted(type, data);
+          requestHealth?.sent(environment, emission);
+        }
         settling.emitted(type, data);
         super.pushMessage(type, data);
       }
@@ -1066,8 +1093,8 @@ export class LocalBattleEnv {
     }({ keepAlive: true });
     this.streams = getPlayerStreams(this.battleStream);
     switchEvents?.bindSpectator(this, this.streams.spectator);
-    trace.bind('p1', this.streams.p1);
-    trace.bind('p2', this.streams.p2);
+    trace?.bind('p1', this.streams.p1);
+    trace?.bind('p2', this.streams.p2);
     const ownerStreams = this.streams;
     this.players = {
       p1: new ManagedPlayer({
@@ -1075,7 +1102,7 @@ export class LocalBattleEnv {
         env: this,
         player: 'p1',
         stream: this.streams.p1 as unknown as PlayerStream,
-        receiveRequestRecord: (record) => trace.received('p1', ownerStreams.p1, record),
+        receiveRequestRecord: (record) => { trace?.received('p1', ownerStreams.p1, record); },
         controller: this.controllers.p1.controller,
         tracker: new PlayerStateExtractor(this.id, this.format, 'p1', this.getReaderContext()),
         randomAgent: this.randomAgents.p1,
@@ -1087,7 +1114,7 @@ export class LocalBattleEnv {
         env: this,
         player: 'p2',
         stream: this.streams.p2 as unknown as PlayerStream,
-        receiveRequestRecord: (record) => trace.received('p2', ownerStreams.p2, record),
+        receiveRequestRecord: (record) => { trace?.received('p2', ownerStreams.p2, record); },
         controller: this.controllers.p2.controller,
         tracker: new PlayerStateExtractor(this.id, this.format, 'p2', this.getReaderContext()),
         randomAgent: this.randomAgents.p2,
@@ -1139,6 +1166,7 @@ export class LocalBattleEnv {
   }
 
   captureSeededSnapshot(parentBranchId: string | null = null): SeededBattleSnapshot {
+    assertAuthoritativeEnvironment(this);
     this.ensureReady();
     const raw = this.serializeBattle();
     const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
@@ -1160,6 +1188,7 @@ export class LocalBattleEnv {
 
   /** Execute only on a disposable pipeline candidate; publication/rollback is session-owned. */
   async stepSeededForcedSwitch(request: SeededForcedSwitchRequest, options?: StepResultOptions): Promise<SeededForcedSwitchResult> {
+    assertAuthoritativeEnvironment(this);
     this.ensureReady();
     validateSeededForcedSwitchRequest(request);
     const current = this.captureSeededSnapshot(null);
@@ -1194,6 +1223,7 @@ export class LocalBattleEnv {
   }
 
   async stepSeededTransition(request: SeededTransitionRequest, options?: StepResultOptions): Promise<SeededTransitionResult> {
+    assertAuthoritativeEnvironment(this);
     this.ensureReady();
     validateSeededTransitionRequest(request);
     const currentSnapshot = this.captureSeededSnapshot(null);
@@ -1254,11 +1284,13 @@ export class LocalBattleEnv {
 
   /** Privileged owner-only diagnostics; no current request or publication authority. */
   getRequestEmissionTraceHandle(owner: PlayerID): RequestTraceHandle {
+    assertAuthoritativeEnvironment(this);
     if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
     return this.#requestTrace.handle(owner);
   }
 
   inspectRequestEmissionTrace(handle: RequestTraceHandle, owner: PlayerID): readonly RequestEmissionReceipt[] {
+    assertAuthoritativeEnvironment(this);
     if (!this.#requestTrace) throw new Error('request-trace/v1/unavailable');
     return this.#requestTrace.inspect(handle, owner);
   }
@@ -1443,6 +1475,7 @@ export class LocalBattleEnv {
     this.logCursor = this.logLines.length;
 
     return {
+      ...(simulationEnvironments.has(this) ? { authority: 'simulation-only' as const } : {}),
       env_id: this.id,
       terminated: this.isTerminated(),
       winner,

@@ -1,3 +1,4 @@
+import { assertAuthoritativeEnvironment } from './env_manager';
 import { declaredRequestValues, DECLARED_PROPERTIES, DECLARED_STATS } from './owned_request_values';
 import { Battle, Side, Pokemon } from 'pokemon-showdown';
 import { isDeepStrictEqual } from 'node:util';
@@ -212,6 +213,7 @@ export class OwnedRequestHealthHost {
   }
   /** Only the final admitted synchronous native decode. Probe callers never use this seam. */
   decode(environment: object, ticket: object, operation: () => Battle): Battle {
+    assertAuthoritativeEnvironment(environment);
     this.open(); const restore = this.#restores.get(environment);
     need(restore?.ticket === ticket && !decoding, 'foreign-or-nested-decode');
     const descriptor = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests');
@@ -328,6 +330,7 @@ export class OwnedRequestHealthHost {
     this.#sideData.set(result.side, Object.freeze(rows)); return result;
   }
   prepare(environment: object, boundary: PipelineBoundary, ledger: RequestDeliveryLedger, delivery: object): object {
+    assertAuthoritativeEnvironment(environment);
     this.open(); const world = this.#worlds.get(environment); need(world?.rows, 'missing-enrollment');
     const facts = {} as Record<PlayerID, readonly any[]>, states = {} as Record<PlayerID, string>, captures: Prepared['captures'] = {};
     const transfers = {} as Record<PlayerID, object>, descriptors = {} as Record<PlayerID, OwnedActiveOptions>;

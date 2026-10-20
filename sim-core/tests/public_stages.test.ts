@@ -1,3 +1,4 @@
+import { simulationEnv } from './helpers/simulation_env';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -44,7 +45,7 @@ function choices(actor: PlayerID, own: string, other = 'move 1') {
 }
 async function harness(actor: PlayerID, scenario = 'mixed') {
   const battle = fixture(actor, scenario);
-  const env = new LocalBattleEnv('transform-boosts', CONFIG.format, SEED);
+  const env = simulationEnv({id: 'transform-boosts', format: CONFIG.format, seed: SEED});
   let result = await env.resetFromSerialized(structuredClone(battle.toJSON()), OPTIONS);
   const prefix = [...result.log_delta];
   const frames: { observation: ReturnType<typeof projectPipelineStepResult>; json: string }[] = [];
@@ -66,9 +67,9 @@ async function harness(actor: PlayerID, scenario = 'mixed') {
       result = await env.stepWithOptions({ [actor]: `switch ${slot}` }, OPTIONS); prefix.push(...result.log_delta); return remember();
     },
     async restore() {
-      const restored = new LocalBattleEnv('soak-restore', CONFIG.format, SEED);
+      const restored = simulationEnv({id: 'soak-restore', format: CONFIG.format, seed: SEED});
       try {
-        const step = await restored.resetFromSerialized(env.captureSeededSnapshot(null).simulator_state, OPTIONS);
+        const step = await restored.resetFromSerialized(env.serializeBattle(), OPTIONS);
         assert.deepEqual(projectPipelineStepResult(step, CONFIG.battle_id, projectPipelineProtocolPrefix(prefix), PUBLIC_STAGES_SCHEMA_VERSION), frames.at(-1)!.observation);
         for (const f of frames) assert.equal(JSON.stringify(f.observation), f.json);
       } finally { await restored.close(); }
@@ -493,8 +494,8 @@ test('v2 observation identities retain typed projections for bare boost-family r
 for (const actor of ['p1', 'p2'] as const) {
   test(`v2 public stages ${actor} reconcile Illusion reveal without changing teammate or earlier prefixes`, async () => {
     const battle = illusionBattle(actor, true);
-    const env = new LocalBattleEnv('public-illusion', CONFIG.format, SEED);
-    const restored = new LocalBattleEnv('public-illusion-restore', CONFIG.format, SEED);
+    const env = simulationEnv({id: 'public-illusion', format: CONFIG.format, seed: SEED});
+    const restored = simulationEnv({id: 'public-illusion-restore', format: CONFIG.format, seed: SEED});
     const other = actor === 'p1' ? 'p2' : 'p1';
     try {
       let result = await env.resetFromSerialized(battle.toJSON(), OPTIONS);

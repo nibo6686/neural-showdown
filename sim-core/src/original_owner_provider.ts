@@ -1,3 +1,4 @@
+import { assertAuthoritativeEnvironment } from './env_manager';
 import type { PlayerID } from './types';
 
 const SUBMITTED_FIELDS = ['name', 'species', 'item', 'ability', 'moves', 'nature', 'evs', 'gender',
@@ -70,6 +71,7 @@ export class OriginalOwnerCreation {
 
   constructor(labels: OriginalOwnerEvidence['labels']) { this.#labels = freeze(detach(labels)); }
   bind(environment: object): void {
+    assertAuthoritativeEnvironment(environment);
     if (this.#phase !== 'new' || this.#environment) fail('duplicate-enrollment');
     this.#environment = environment;
   }

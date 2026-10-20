@@ -1,3 +1,4 @@
+import { assertAuthoritativeEnvironment } from './env_manager';
 import { interpretOriginalValues } from './original_owner_values';
 import { OwnedRequestHealthHost } from './owned_request_health';
 import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
@@ -64,6 +65,7 @@ export class NativeOwnerKnowledgeController {
     return this.#frame;
   }
   prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null, healthHost?: OwnedRequestHealthHost, healthToken?: object): object {
+    assertAuthoritativeEnvironment(environment);
     const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerDetailsContext() : nativeOwnerProjectionContext()).profile;
     if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
     health?.host.assertPreparedBinding(health.token, environment, boundary, source.rows);

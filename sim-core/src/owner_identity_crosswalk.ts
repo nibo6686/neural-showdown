@@ -1,3 +1,4 @@
+import { assertAuthoritativeEnvironment } from './env_manager';
 import { isDeepStrictEqual } from 'node:util';
 import type { SeededBattleSnapshot } from './transition';
 import type { PipelineBoundary } from './pipeline_integration';
@@ -56,6 +57,7 @@ export class NativeBirthEnrollment {
   constructor(originals: OriginalOwnerCreation) { this.#originals = originals; }
 
   bind(environment: object): void {
+    assertAuthoritativeEnvironment(environment);
     if (this.#phase !== 'new' || this.#environment) this.reject('duplicate-environment');
     this.#environment = environment; this.#birthEnvironment = environment;
   }
@@ -247,6 +249,7 @@ export class NativeObjectAssociation {
   readonly #birth: NativeBirthEnrollment;
   constructor(birth: NativeBirthEnrollment) { this.#birth = birth; }
   bindInitial(environment: object): void {
+    assertAuthoritativeEnvironment(environment);
     if (this.#initialEnvironment || this.#closed) associationFail('duplicate-initial-environment');
     this.#initialEnvironment = environment;
   }
@@ -316,6 +319,7 @@ export class NativeObjectAssociation {
       handles: owners.map(() => Object.freeze(Object.create(null))), evidence };
   }
   prepareRestore(environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot): NativeRestoreTicket {
+    assertAuthoritativeEnvironment(environment);
     this.ensure(); const current = this.#current;
     if (!current || parent !== current.parent) associationFail('foreign-or-missing-parent');
     if (snapshot !== current.entry.snapshot) associationFail('foreign-serialization-occurrence');
@@ -332,6 +336,7 @@ export class NativeObjectAssociation {
   }
   /** Read-only admission of the already held pending B2 chain, before any clone or native probe. */
   assertRestoreAdmission(environment: object, serialized: Record<string, unknown>, ticket?: NativeRestoreTicket): void {
+    assertAuthoritativeEnvironment(environment);
     const pending = this.pending(environment, ticket);
     this.checkSnapshot(pending.source);
     if (pending.source !== this.#current?.entry || serialized !== pending.source.snapshot.simulator_state

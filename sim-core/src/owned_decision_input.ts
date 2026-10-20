@@ -1,3 +1,5 @@
+import { assertAuthoritativeEnvironment } from './env_manager';
+import { SimulationOnlyAuthorityError } from './simulation_authority';
 import { isDeepStrictEqual, types as utilTypes } from 'node:util';
 import type { CanonicalActionRequestContext } from './canonical_action';
 import type { ObservableBattleState } from './observable_state';
@@ -103,6 +105,7 @@ export class OwnedDecisionInputController {
 
   issue(frame: OwnedDecisionFrame, callback: OwnedActionOrderCallback, validate: () => void): OwnedDecisionOrder {
     try {
+      assertAuthoritativeEnvironment(frame.environment);
       if (this.#closed) throw fixed('revoked');
       validate();
       if (this.#pending.has(frame.owner)) this.#pending.clear();
@@ -129,6 +132,7 @@ export class OwnedDecisionInputController {
       return order;
     } catch (error) {
       this.#pending.clear();
+      if (error instanceof SimulationOnlyAuthorityError) throw error;
       const safeError = sanitizeOwnedDecisionInputError(error);
       if (safeError) throw safeError;
       throw fixed('stale-or-unsupported-frame');

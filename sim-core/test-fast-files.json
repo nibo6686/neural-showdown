@@ -1,5 +1,5 @@
 {
-  "_comment": "The 27 fully green P0.2 baseline files plus the coverage test. P0.5 extends this explicit list as files become green.",
+  "_comment": "Curated baseline-green files, the coverage registry and simulation-only authority guards. P0.5 extends this explicit list as files become green.",
   "files": [
     "dist/tests/action_codec.test.js",
     "dist/tests/belief_state.test.js",
@@ -28,6 +28,7 @@
     "dist/tests/typed_state_lifecycle.test.js",
     "tests/native11_request_timing.test.cjs",
     "tests/native11_rpc_counters.cjs",
-    "dist/tests/knowledge_coverage.test.js"
+    "dist/tests/knowledge_coverage.test.js",
+    "dist/tests/simulation_only.test.js"
   ]
 }
