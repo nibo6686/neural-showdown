@@ -74,9 +74,15 @@ corpus is downloaded after the re-pin, and only exact reproductions are kept.
 evidence during ordinary development, mandatory second reviewers and
 process-group ceremony. Use timeouts where tests can hang.
 
-**Testing.** Codex runs the focused tests plus `npm run test:fast` before each
-report. The full suite runs at the end of each workstream or when shared
-infrastructure changes.
+**Testing.** Codex runs the focused tests plus `tools/test_fast.ps1` before each
+report, and does not run full suites unless a brief asks. Claude runs the full
+Node/Python comparison against `docs/roadmap/baseline.md` during review, when
+a slice touches shared infrastructure or ends a workstream.
+
+**Cost.** Codex works each slice itself in one session: no sub-agent
+delegation, project-lead or model-routing skills (see `AGENTS.md`). P0.4 hit
+usage limits three times largely because of those, plus full-suite runs inside
+Codex.
 
 **Review.** Claude reviews each slice's diff and report for semantics,
 privacy/causality, test adequacy and scope creep. Verdicts are accept,
@@ -127,7 +133,10 @@ minutes), curated from tests that are green in the baseline and covering
 knowledge, identity, delivery and legality. Also add the §2 registry and its
 test.
 
-**0.4 Re-pin the engine to `b8f23c99`.** The brief is
+**0.4 Re-pin the engine to `b8f23c99` — done** (`6fd0672`). 198/198 replays
+reproduce, and no baseline-green test went red. The engine is a 5.1 MB
+LFS-vendored tarball whose integrity and per-file hashes are verified at
+runtime. Originally planned as: the brief is
 `docs/roadmap/briefs/P0.4.md`. The engine is built from the commit by
 `tools/engine/build_engine.ps1`, packed into an LFS-tracked
 `vendor/pokemon-showdown-b8f23c99.tgz`, and installed as a `file:` dependency.

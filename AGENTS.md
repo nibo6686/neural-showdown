@@ -10,10 +10,16 @@ starting.
   omitted ≠ false ≠ zero. No future or suffix information at a decision
   cursor, no foreign-owner private data, canonical legal actions only, and
   never weaken a validator to make a test pass.
-- Run the slice's focused tests and `npm run test:fast` (once it exists)
-  before reporting. Give potentially hanging commands a timeout. The full
-  suite is fine at the end of a workstream or when shared infrastructure
-  changes.
+- Do the slice yourself in this session. Don't delegate to sub-agents, act
+  as a project lead or coordinator, or apply model-routing or
+  automatic-delegation skills (`model-routing-advisor`, `project-lead`, and
+  similar), even if they say they apply to every task. Use the session's
+  default model.
+- Run the slice's focused tests and `tools/test_fast.ps1` before reporting.
+  Give potentially hanging commands a timeout. **Don't run the full Node or
+  Python suite** unless the brief explicitly asks; Claude runs full-suite
+  comparisons during review. Read failing-test output selectively (the failing
+  test's lines), not whole logs.
 - Build with `node node_modules/typescript/bin/tsc -p tsconfig.json` in
   `sim-core`. Python is `D:\Anaconda\envs\neuralgpu\python.exe`. Keep
   `PYTHONUTF8` and `PYTHONIOENCODING` unset. Keep `core.autocrlf=false`.
