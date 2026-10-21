@@ -163,7 +163,12 @@ extract cleanly, because shared engine-method diffs marked nearly every effect
 closes the `|request|`/`|rated|`/item grammar gaps that hit nearly every
 replay, adds a public-state differential check against the simulator, and
 moves the settling cause to `Error.cause`. Target: at least 190/198 clean.
-**0.5c** covers the
+**0.5b2 — done** (`86460c3`): 190/198 probe replays
+extract cleanly, with 0 mismatches across 797,186 public-state checks against
+the simulator. **0.5b3** (brief `P0.5b3.md`) covers the Slow Start lifecycle
+(the last residual), a shared `NEURAL_TEST_OUTPUT_DIR` for the Node→Python
+test-output handoff, and the `request_emission_trace` hang. **0.5c** covers
+the
 authority-dependent tests (item identity, request knowledge, pipeline,
 restore), moved onto real sessions after 0.5b re-baselines which are still
 red. Then: This brings the suite back to
