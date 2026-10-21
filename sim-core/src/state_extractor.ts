@@ -477,6 +477,7 @@ export class PlayerStateExtractor {
           ...(pokemon?.stats || {}),
         },
         boosts: previous?.boosts ? { ...previous.boosts } : {},
+        ...(previous?.ability_effects === undefined ? {} : {ability_effects: [...previous.ability_effects]}),
         volatiles: previous?.volatiles ? [...previous.volatiles] : [],
         possible_roles: previous?.possible_roles ? [...previous.possible_roles] : [],
         possible_moves: previous?.possible_moves ? [...previous.possible_moves] : [],
@@ -626,6 +627,7 @@ export class PlayerStateExtractor {
       pokemon.ability_state = 'unknown';
     }
     pokemon.ability_suppressed = false;
+    if (pokemon.ability_effects !== undefined) pokemon.ability_effects = [];
     // Pinned Pokemon.clearVolatile retains only Eternamax's Dynamax. Do not
     // erase permanent status, item/reveal evidence, or other nonvolatile fields.
     pokemon.volatiles = pokemon.volatiles.filter((effect) =>
@@ -990,6 +992,12 @@ export class PlayerStateExtractor {
     const team = parsedIdent.player === this.player ? this.view.self_team : this.view.opponent_team;
     const pokemon = this.findOrCreatePokemon(team, ident, '');
 
+    if (readerContext(this.rulesContext).effects[effect]?.category === 'ability_state') {
+      pokemon.ability_effects = parts[1] === '-end'
+        ? (pokemon.ability_effects || []).filter(id => id !== effect)
+        : upsertUnique(pokemon.ability_effects || [], effect);
+      return;
+    }
     if (effect === 'typechange' || effect === 'typeadd') {
       if (parts[1] === '-end') {
         if (effect === 'typechange') this.publicTypeChanges.delete(pokemon);

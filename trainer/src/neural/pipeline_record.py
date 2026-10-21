@@ -367,6 +367,8 @@ def _validate_episode_observation(observation: Any, player: str, battle_id: str,
                 "active", "fainted", "hp_text", "hp_ratio", "status", "status_source", "status_started_turn",
                 "status_turns_public", "gender", "level", "types", "terastallized", "volatiles",
             }
+            if 'ability_effects' in pokemon:
+                base.add('ability_effects')
             self_only = {
                 "item", "last_item", "item_state", "item_suppressed", "ability", "base_ability",
                 "ability_state", "ability_suppressed", "moves", "revealed_moves", "tera_type", "stats", "boosts",

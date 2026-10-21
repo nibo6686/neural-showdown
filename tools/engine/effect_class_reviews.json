@@ -384,5 +384,17 @@
       "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
       "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
     }
+  ],
+  "ability_state_reviews": [
+    {
+      "id": "slowstart",
+      "before_sha256": "10f4f127483e7bf7b72492f6e09039c5bdc8122887ed594cd6a2d35906f59e83",
+      "after_sha256": "69786e76c7e366e8ae827c10624b3c92835a7b299959a414fe024cbd557844d5",
+      "family": "ability_state",
+      "semantics": "Announced presence only; onStart begins, onResidual expiry and onEnd silent clear. Switch-out clears without onEnd emission (beingCalledBack guard). Hidden counter and duration remain unknown.",
+      "tests": [
+        "sim-core/tests/slow_start.test.ts"
+      ]
+    }
   ]
 }

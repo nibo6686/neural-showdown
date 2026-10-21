@@ -490,6 +490,8 @@ def _classify_effect_record(command, value, *, reader_rules=HISTORICAL10_CONTEXT
         raise ProtocolRecordError("unknown", command, diagnostic + " disposition=unknown",
                                   code="simulator-coverage/v1/unclassified-effect-value", family=family,
                                   value=value, disposition="unknown")
+    if entry.get('category') == 'ability_state' and command in ('-start', '-end'):
+        family, allowed_categories = 'ability_state', {'ability_state'}
     lifecycle = reader_context(reader_rules).lifecycle.get((family, identifier))
     if lifecycle and lifecycle['disposition'] in ('source-proven-unreachable', 'unsupported-fail-closed'):
         raise ProtocolRecordError('unsupported_stop', command, diagnostic + f" disposition={lifecycle['disposition']}",
@@ -1038,6 +1040,10 @@ def _move_tag(tag):
 
 
 def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
+    if (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and command in ('-start', '-end') and len(parts)>3 and _effect_id(re.sub(r'^(?:move|ability|item):\s*', '', parts[3], flags=re.IGNORECASE))=='slowstart':
+        valid = (len(parts)==4 and parts[3]=='ability: Slow Start') if command=='-start' else (parts[3]=='Slow Start' and (len(parts)==4 or len(parts)==5 and parts[4]=='[silent]'))
+        if not valid:
+            raise ProtocolRecordError('malformed', command, 'Malformed Slow Start record.')
     reader_context(reader_rules)
     def at_least(size):
         if len(parts) < size:

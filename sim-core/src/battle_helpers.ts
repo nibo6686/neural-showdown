@@ -137,6 +137,7 @@ export function clonePokemon(pokemon: PokemonView): PokemonView {
     types: [...pokemon.types],
     stats: { ...pokemon.stats },
     boosts: { ...pokemon.boosts },
+    ...(pokemon.ability_effects === undefined ? {} : {ability_effects: [...pokemon.ability_effects]}),
     volatiles: [...pokemon.volatiles],
     possible_roles: [...pokemon.possible_roles],
     possible_moves: [...pokemon.possible_moves],

@@ -175,12 +175,12 @@ function generate({source, historical, check=false}) {
   const historicalRows=[...old.condition_inventory,...old.effect_discovery.additional_entries];
   for(const entry of comparison) {
     const solelyShared=entry.differences.every(d=>d.shared_lifecycle_diff);
-    if(entry.status==='changed' && entry.id!=='slowstart' && (solelyShared || reviews.semantic_ids.includes(entry.id)) && entry.differences.every(matches)) {
+    if(entry.status==='changed' && (solelyShared || reviews.semantic_ids.includes(entry.id)) && entry.differences.every(matches)) {
       entry.adoption='reviewed-class';
       for(const row of all.filter(r=>r.id===entry.id))Object.assign(row,{classification:historicalRows.find(r=>r.id===entry.id).classification,review_status:'class-reviewed'});
       for(const row of special.filter(r=>r.id===entry.id))row.classification=old.effect_discovery.special_values.find(r=>r.id===entry.id).classification;
       for(const row of value.public_typed_state_lifecycle.entries.filter(r=>r.id===entry.id))row.disposition=old.public_typed_state_lifecycle.entries.find(r=>r.id===entry.id&&r.family===row.family).disposition;
-    } else if(entry.status!=='unchanged')entry.blocked_reason='Unreviewed source delta or out-of-scope Slow Start drift';
+    } else if(entry.status!=='unchanged')entry.blocked_reason='Unreviewed source delta';
   }
   // Newly inventoried values expose public hints/results, never their private
   // binding source, turn counter or Supreme Overlord multiplier.
@@ -195,6 +195,16 @@ function generate({source, historical, check=false}) {
     if(existing)Object.assign(existing,lifecycle);else value.public_typed_state_lifecycle.entries.push(lifecycle);
     entry.adoption='reviewed-new-raw-only';delete entry.blocked_reason;
   }
+  for(const review of reviews.ability_state_reviews || []) {
+    const entry=comparison.find(e=>e.id===review.id);
+    if(!entry || entry.before_sha256!==review.before_sha256 || entry.after_sha256!==review.after_sha256)throw new Error('Ability state review source mismatch');
+    const row=all.find(r=>r.id===review.id);
+    Object.assign(row,{category:'ability_state',classification:'represented',review_status:'per-ID-semantic-reviewed'});
+    value.public_typed_state_lifecycle.entries=value.public_typed_state_lifecycle.entries.filter(e=>e.id!==review.id);
+    value.public_typed_state_lifecycle.entries.push({id:review.id,family:'ability_state',disposition:'evidence-derived-typed',mode:'presence',semantics:review.semantics,tests:review.tests});
+    entry.category='ability_state';entry.adoption='per-ID-semantic-reviewed';delete entry.blocked_reason;
+  }
+  value.ability_state_reviews=reviews.ability_state_reviews;
   value.class_review=reviews.class_review;
   // Matrices remain historical evidence; explicitly annotate their per-ID adoption
   // rather than silently presenting their old provenance as native proof.

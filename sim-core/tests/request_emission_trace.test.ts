@@ -158,7 +158,7 @@ test('actual restore receipt delayed beyond later native emission keeps producer
       atProducer.call(this,origin,emit);
       if(origin==='restore_reemit' && ++restoreCalls===2) ready();
     };
-    restoring=env.resetFromSerialized(snapshot,OPTIONS);await produced;
+    restoring=env.resetFromSerialized(snapshot,OPTIONS);await Promise.race([produced, restoring]);
     assert.throws(()=>rows(env,'p1'),/unreceived-emission/);
     await (env as any).battleStream.write('>eval p1.emitRequest(p1.activeRequest); p2.emitRequest(p2.activeRequest);');
     assert.throws(()=>rows(env,'p2'),/unreceived-emission/);

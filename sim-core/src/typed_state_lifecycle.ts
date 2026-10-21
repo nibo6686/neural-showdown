@@ -12,7 +12,7 @@ export type TypedStateDisposition =
 
 interface LifecycleEntry {
   id: string;
-  family: 'move_volatile' | 'side_condition';
+  family: 'ability_state' | 'move_volatile' | 'side_condition';
   disposition: TypedStateDisposition;
   mode: string;
   cap?: number;
@@ -51,6 +51,7 @@ export function typedStateLifecycleEntry(family: LifecycleEntry['family'], id: s
 }
 
 export interface ProjectedPublicTypedState {
+  ability_effects_by_ident: Record<string, string[]>;
   volatiles_by_ident: Record<string, string[]>;
   side_conditions_by_player: Record<PlayerID, Record<string, number>>;
 }
@@ -71,6 +72,7 @@ export function publicTeamIdent(value: string): string {
 /** Replay the exact normalized public prefix into the typed subset approved by the lifecycle atlas. */
 export function projectPublicTypedState(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT): ProjectedPublicTypedState {
   readerContext(rulesContext);
+  const abilities = new Map<string, string[]>();
   const volatiles = new Map<string, Set<string>>();
   const active: Partial<Record<PlayerID, string>> = {};
   const sides: Record<PlayerID, Record<string, number>> = { p1: {}, p2: {} };
@@ -79,7 +81,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
     if (!state) { state = new Set<string>(); volatiles.set(ident, state); }
     return state;
   };
-  const clear = (ident: string | undefined) => { if (ident) getVolatiles(ident).clear(); };
+  const clear = (ident: string | undefined) => { if (ident) { getVolatiles(ident).clear(); if (abilities.has(ident)) abilities.set(ident, []); } };
 
   for (const line of prefix) {
     if (!line.startsWith('|')) continue;
@@ -91,6 +93,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
       const donor = active[incoming.player];
       const donorHadSubstitute = !!donor && getVolatiles(donor).has('substitute');
       clear(donor);
+      abilities.delete(incoming.ident);
       const next = getVolatiles(incoming.ident);
       next.clear();
       const shedTail = command === 'switch' && parts.length === 6 && parts[5] === '[from] Shed Tail';
@@ -106,6 +109,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
         const state = getVolatiles(prior);
         volatiles.set(next.ident, new Set(state));
         volatiles.delete(prior);
+        if (abilities.has(prior)) { abilities.set(next.ident, abilities.get(prior)!); abilities.delete(prior); }
       }
       active[next.player] = next.ident;
       continue;
@@ -118,6 +122,14 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
       continue;
     }
     if (command === '-start' || command === '-end') {
+      const abilityId=effectId((parts[3] || '').replace(/^ability:\s*/i, ''));
+      const abilityEntry=typedStateLifecycleEntry('ability_state', abilityId, rulesContext);
+      if (abilityEntry?.disposition === 'evidence-derived-typed') {
+        const target=activeIdent(parts[2] || '');
+        if (!target || active[target.player] !== target.ident) throw new Error('Ability state targets nonactive Pokemon');
+        abilities.set(target.ident, command === '-start' ? [abilityId] : []);
+        continue;
+      }
       const entry = typedStateLifecycleEntry('move_volatile', effectId(parts[3] || ''), rulesContext);
       if (!entry || entry.disposition === 'raw-only') continue;
       if (entry.disposition !== 'evidence-derived-typed') {
@@ -173,6 +185,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
     }
   }
   return {
+    ability_effects_by_ident: Object.fromEntries(abilities),
     volatiles_by_ident: Object.fromEntries([...volatiles].map(([ident, values]) => [ident, [...values].sort()])),
     side_conditions_by_player: sides,
   };
@@ -181,7 +194,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
 export function assertTypedStateMatchesPublicPrefix(
   prefix: readonly string[],
   perspective: PlayerID,
-  view: Partial<{ self_team: readonly Pick<PokemonView, 'ident' | 'volatiles'>[]; opponent_team: readonly Pick<PokemonView, 'ident' | 'volatiles'>[];
+  view: Partial<{ self_team: readonly Pick<PokemonView, 'ident' | 'volatiles' | 'ability_effects'>[]; opponent_team: readonly Pick<PokemonView, 'ident' | 'volatiles' | 'ability_effects'>[];
     field: { side_conditions: { self: Record<string, number>; opponent: Record<string, number> } } }>,
   bindOwned: (target: string) => string = (target) => target, rulesContext: ReaderContext = HISTORICAL10_CONTEXT
 ): void {
@@ -190,13 +203,15 @@ export function assertTypedStateMatchesPublicPrefix(
     if (team !== undefined && !Array.isArray(team)) throw new Error('Typed lifecycle evidence mismatch: roster containers must be arrays.');
   }
   const projected = projectPublicTypedState(prefix, rulesContext);
+  projected.ability_effects_by_ident=Object.fromEntries(Object.entries(projected.ability_effects_by_ident).map(([target,values])=>[
+    target.slice(0,2)===perspective ? bindOwned(target) : target, values]));
   const boundVolatiles: Record<string, string[]> = {};
   for (const [target, values] of Object.entries(projected.volatiles_by_ident)) {
     const bound = target.slice(0, 2) === perspective ? bindOwned(target) : target;
     if (values.length || !boundVolatiles[bound]) boundVolatiles[bound] = values;
   }
   projected.volatiles_by_ident = boundVolatiles;
-  const hasDerivedState = Object.values(projected.volatiles_by_ident).some((values) => values.length > 0)
+  const hasDerivedState = Object.keys(projected.ability_effects_by_ident).length > 0 || Object.values(projected.volatiles_by_ident).some((values) => values.length > 0)
     || Object.values(projected.side_conditions_by_player).some((values) => Object.keys(values).length > 0);
   if (hasDerivedState && perspective !== 'p1' && perspective !== 'p2') {
     throw new Error('Typed lifecycle evidence mismatch: derived typed state requires a valid perspective.');
@@ -207,11 +222,17 @@ export function assertTypedStateMatchesPublicPrefix(
   for (const [label, team] of [['self', view.self_team], ['opponent', view.opponent_team]] as const) {
     if (!team) continue;
     for (const pokemon of team) {
+      const abilityExpected=projected.ability_effects_by_ident[publicTeamIdent(pokemon.ident)];
+      if (JSON.stringify(pokemon.ability_effects)!==JSON.stringify(abilityExpected)) throw new Error('Ability state disagrees with retained public prefix');
       const expected = projected.volatiles_by_ident[publicTeamIdent(pokemon.ident)] || [];
       if (pokemon.volatiles !== undefined && JSON.stringify([...pokemon.volatiles].sort()) !== JSON.stringify(expected)) {
         throw new Error(`Typed lifecycle evidence mismatch: ${label} ${pokemon.ident} volatile map disagrees with retained public prefix.`);
       }
     }
+  }
+  for (const ident of Object.keys(projected.ability_effects_by_ident)) {
+    const team=ident.slice(0,2)===perspective ? view.self_team : view.opponent_team;
+    if (team?.filter(p=>publicTeamIdent(p.ident)===ident).length!==1) throw new Error('Ability state requires one canonical roster row');
   }
   for (const [ident, values] of Object.entries(projected.volatiles_by_ident)) {
     if (!values.length) continue;

@@ -37,6 +37,7 @@ def _public_team_ident(value: str) -> str:
 def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
     """Replay normalized public events into only source-backed typed state."""
     reader_context(reader_rules)
+    abilities = {}
     volatiles = {}
     active = {}
     sides = {"p1": {}, "p2": {}}
@@ -47,6 +48,8 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
     def clear(ident):
         if ident:
             get_volatiles(ident).clear()
+            if ident in abilities:
+                abilities[ident] = []
 
     def active_ident(value):
         match = re.fullmatch(r"(p[12])a: (.+)", value)
@@ -65,6 +68,7 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
             donor = active.get(player)
             donor_had_substitute = bool(donor and "substitute" in get_volatiles(donor))
             clear(donor)
+            abilities.pop(ident, None)
             next_state = get_volatiles(ident)
             next_state.clear()
             shed_tail = command == "switch" and len(parts) == 6 and parts[5] == "[from] Shed Tail"
@@ -81,6 +85,8 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
             if prior and prior != ident:
                 volatiles[ident] = set(get_volatiles(prior))
                 volatiles.pop(prior, None)
+                if prior in abilities:
+                    abilities[ident] = abilities.pop(prior)
             active[player] = ident
             continue
         if command == "faint":
@@ -92,6 +98,14 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
             continue
         if command in ("-start", "-end"):
             value = parts[3] if len(parts) > 3 else ""
+            ability_id = _effect_id(re.sub(r'^ability:\s*', '', value, flags=re.IGNORECASE))
+            ability_entry = reader_context(reader_rules).lifecycle.get(('ability_state', ability_id))
+            if ability_entry and ability_entry['disposition']=='evidence-derived-typed':
+                ident = active_ident(parts[2] if len(parts)>2 else '')
+                if not ident or active.get(ident[:2]) != ident:
+                    raise ValueError('Ability state targets nonactive Pokemon')
+                abilities[ident] = [ability_id] if command=='-start' else []
+                continue
             entry = reader_context(reader_rules).lifecycle.get(("move_volatile", _effect_id(value)))
             if not entry or entry["disposition"] == "raw-only":
                 continue
@@ -153,6 +167,7 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
                     sides["p1"][effect] = p2
 
     return {
+        "ability_effects_by_ident": abilities,
         "volatiles_by_ident": {ident: sorted(values) for ident, values in volatiles.items()},
         "side_conditions_by_player": sides,
     }
@@ -189,7 +204,7 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
                 validate_public_ability(observation, predecessor, reader_rules=reader_rules)
         projected = project_public_typed_state(prefix, reader_rules=reader_rules)
         has_typed_view = any(key in view for key in ("self_team", "opponent_team", "field"))
-        has_derived_state = (any(projected["volatiles_by_ident"].values())
+        has_derived_state = (bool(projected["ability_effects_by_ident"]) or any(projected["volatiles_by_ident"].values())
                              or any(projected["side_conditions_by_player"].values()))
         if not has_typed_view:
             if has_derived_state:
@@ -201,6 +216,7 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
             return
         if has_derived_state and perspective not in ("p1", "p2"):
             raise ValueError("Typed lifecycle evidence mismatch: derived typed state requires a valid perspective")
+        projected['ability_effects_by_ident'] = {(bound_owned_target(observation, target, predecessor) if target[:2]==perspective else target):values for target,values in projected['ability_effects_by_ident'].items()}
         bound_volatiles = {}
         for target, values in projected["volatiles_by_ident"].items():
             bound = bound_owned_target(observation, target, predecessor) if target[:2] == perspective else target
@@ -218,6 +234,9 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
             if not isinstance(view[team_name], list):
                 raise ValueError(f"Typed lifecycle evidence mismatch: {team_name} must be an array")
             for pokemon in view[team_name]:
+                expected_ability = projected['ability_effects_by_ident'].get(_public_team_ident(pokemon.get('ident', '')))
+                if pokemon.get('ability_effects') != expected_ability or ('ability_effects' in pokemon and expected_ability is None):
+                    raise ValueError('Ability state disagrees with retained public prefix')
                 if "volatiles" not in pokemon:
                     continue
                 ident = pokemon.get("ident", "")
@@ -225,6 +244,10 @@ def validate_public_typed_state(observation, label="observation", predecessor=No
                 expected = projected["volatiles_by_ident"].get(_public_team_ident(ident), [])
                 if "volatiles" in pokemon and (not isinstance(actual, list) or sorted(actual) != expected):
                     raise ValueError(f"{team_name} {ident} volatile map disagrees with retained public prefix")
+        for ident in projected['ability_effects_by_ident']:
+            team = view.get('self_team' if ident[:2]==perspective else 'opponent_team', [])
+            if sum(_public_team_ident(p.get('ident', ''))==ident for p in team)!=1:
+                raise ValueError('Ability state requires one canonical roster row')
         for ident, values in projected["volatiles_by_ident"].items():
             if not values:
                 continue

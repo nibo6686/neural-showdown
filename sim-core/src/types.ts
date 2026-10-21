@@ -124,6 +124,7 @@ export interface PokemonView {
   terastallized: boolean;
   stats: Record<string, number>;
   boosts: Record<string, number>;
+  ability_effects?: string[];
   volatiles: string[];
   possible_roles: string[];
   possible_moves: string[];

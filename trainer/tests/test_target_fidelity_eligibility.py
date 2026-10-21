@@ -68,15 +68,18 @@ def test_pre_source_factory_and_metadata_fault(monkeypatch):
 LIVE=str(load('sim-core/node_modules/pokemon-showdown/package.json')['version'])=='0.11.11'
 @pytest.mark.skipif(not LIVE,reason='UNEXECUTED: actual installed native11/context assets required')
 def test_live_target_claim_source_and_atomic_cli():
-    # Activation writes this artifact from the actual target producer; no old record relabeling.
-    payload=load('docs/planning/perspective-fidelity-prompt34-live-target-result.json')
+    directory=os.environ.get('NEURAL_TEST_OUTPUT_DIR')
+    names=['perspective-fidelity-prompt34-live-target-result.json', 'perspective-fidelity-prompt34-live-target-sweep.json']
+    if not directory or not all((Path(directory)/name).is_file() for name in names):
+        pytest.skip('run the Node producer with NEURAL_TEST_OUTPUT_DIR set')
+    payload=json.loads((Path(directory)/names[0]).read_text(encoding='utf-8'))
     context=getattr(profiles,'NATIVE11_CONTEXT',None)
     assert context is not None and context.profile.id=='native11', 'actual adopted target reader context required'
     assert payload['status']=='completed' and payload['faithful_complete_episode'] is False
     reader.validate_pipeline_episode_result(payload,reader_rules=context)
     claim=copy.deepcopy(payload);claim['faithful_complete_episode']=True
     with pytest.raises(ValueError,match='positive-unaccepted'):reader.validate_pipeline_episode_result(claim,reader_rules=context)
-    sweep=load('docs/planning/perspective-fidelity-prompt34-live-target-sweep.json')
+    sweep=json.loads((Path(directory)/names[1]).read_text(encoding='utf-8'))
     reader.validate_pipeline_episode_publication_sweep(sweep,reader_rules=context)
     ineligible=copy.deepcopy(sweep);ineligible['result']['faithful_complete_episode']=True
     with pytest.raises(ValueError,match='positive-unaccepted'):reader.validate_pipeline_episode_publication_sweep(ineligible,reader_rules=context)

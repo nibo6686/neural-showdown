@@ -43,6 +43,7 @@ export function compareReplayPublicState(battle: Battle, view: BattleView, prefi
       // Switch/reset evidence establishes zero even when the sparse view omits it.
       compare('boost',`${side.id}:${key}`,truth.boosts[key],row.boosts[key]??0);
     }
+    if (row.ability_effects !== undefined) compare('ability-state',`${side.id}:slowstart`,truth.ability==='slowstart' && !!truth.abilityState.counter,row.ability_effects.includes('slowstart'));
     for(const entry of lifecycle.filter((e:any)=>e.family==='move_volatile'))compare('volatile',`${side.id}:${entry.id}`,!!truth.volatiles[entry.id],row.volatiles.includes(entry.id));
   }
   return {checks,mismatches};

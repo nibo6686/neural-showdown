@@ -23,7 +23,7 @@ type CoverageManifest = {
 };
 
 export type EffectDisposition = 'represented' | 'raw-only';
-export type EffectFamily = 'move_volatile' | 'weather' | 'field' | 'side_condition';
+export type EffectFamily = 'ability_state' | 'move_volatile' | 'weather' | 'field' | 'side_condition';
 
 export class EffectInventoryError extends Error {
   readonly code = 'simulator-coverage/v1/unclassified-effect-value';
@@ -95,6 +95,9 @@ export function classifyEffectRecord(command: string, rawValue: string, rulesCon
   const identifier = toEffectID(sourcePrefix ? rawValue.slice(sourcePrefix[0].length) : rawValue);
   const item = readerContext(rulesContext).effects[identifier];
   if (!item) throw new EffectInventoryError(command, rule.family, rawValue);
+  if (item.category === 'ability_state' && (command === '-start' || command === '-end')) {
+    rule.family = 'ability_state'; rule.categories = ['ability_state'];
+  }
   const lifecycle = readerContext(rulesContext).lifecycle[`${rule.family}:${identifier}`];
   if (lifecycle?.disposition === 'raw-only') return 'raw-only';
   if (lifecycle?.disposition === 'source-proven-unreachable' || lifecycle?.disposition === 'unsupported-fail-closed') {

@@ -3,6 +3,8 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $runs = @()
+$shared = Join-Path ([System.IO.Path]::GetTempPath()) ('neural-fast-' + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $shared | Out-Null
 function Start-Gate($name, $executable, $arguments, $directory) {
     $info = [System.Diagnostics.ProcessStartInfo]::new($executable)
     $info.WorkingDirectory = $directory
@@ -10,6 +12,7 @@ function Start-Gate($name, $executable, $arguments, $directory) {
     $info.CreateNoWindow = $true
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
+    $info.Environment['NEURAL_TEST_OUTPUT_DIR'] = $shared
     $info.Environment.Remove('PYTHONUTF8') | Out-Null
     $info.Environment.Remove('PYTHONIOENCODING') | Out-Null
     foreach ($argument in $arguments) { $info.ArgumentList.Add($argument) }
@@ -17,7 +20,13 @@ function Start-Gate($name, $executable, $arguments, $directory) {
     return [pscustomobject]@{ Name = $name; Process = $process; Output = $process.StandardOutput.ReadToEndAsync(); Error = $process.StandardError.ReadToEndAsync() }
 }
 try {
-    # Both runtimes share one wall-clock budget; Node also runs its files in parallel.
+    & node (Join-Path $repo 'sim-core/node_modules/typescript/bin/tsc') -p (Join-Path $repo 'sim-core/tsconfig.json')
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+    $producer = Start-Gate 'Node producer' 'node' @('--test', '--test-timeout=25000', '--test-name-pattern=P34 LIVE', 'dist/tests/target_fidelity_eligibility.test.js') (Join-Path $repo 'sim-core')
+    $runs += $producer
+    if (-not $producer.Process.WaitForExit([Math]::Max(0,175000-[int]$watch.ElapsedMilliseconds))) { throw 'Node producer timed out' }
+    if ($producer.Process.ExitCode -ne 0) { Write-Output $producer.Output.GetAwaiter().GetResult(); Write-Output $producer.Error.GetAwaiter().GetResult(); exit 1 }
+    # Producer files are complete before the Python consumer starts.
     $runs += Start-Gate 'Node' $env:ComSpec @('/d', '/c', 'npm run test:fast') (Join-Path $repo 'sim-core')
     $runs += Start-Gate 'Python' (Get-Process -Id $PID).Path @('-NoProfile', '-File', (Join-Path $PSScriptRoot 'test_fast_py.ps1')) $repo
     $failed = $false
@@ -42,4 +51,8 @@ try {
         if (-not $run.Process.HasExited) { $run.Process.Kill($true); $run.Process.WaitForExit() }
         $run.Process.Dispose()
     }
+    $resolved = [System.IO.Path]::GetFullPath($shared)
+    $tempRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath())
+    if (-not $resolved.StartsWith($tempRoot, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected shared output path' }
+    Remove-Item -LiteralPath $resolved -Recurse -Force
 }

@@ -52,3 +52,8 @@ lifecycles and internal rule pseudo-weather remain outside typed projection;
 they are not treated as absent. Truth never enters the extractor. The summary
 lists excluded unclean replays and mismatches by fact/effect ID. A mismatch or
 zero completed comparisons exits nonzero. No additional replay download is needed.
+
+For Node/Python full runs, create a temporary directory and set `NEURAL_TEST_OUTPUT_DIR`
+for both runtimes. Run the Node target-fidelity LIVE producer before its Python
+consumer; remove the directory in a `finally` block. Without this variable the
+Python LIVE handoff test skips. `tools/test_fast.ps1` manages this automatically.

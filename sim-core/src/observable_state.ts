@@ -80,6 +80,7 @@ export interface ObservablePokemonView {
   terastallized: boolean;
   stats?: Record<string, number>;
   boosts?: Record<string, number>;
+  ability_effects?: string[];
   volatiles: string[];
 }
 
@@ -228,6 +229,7 @@ function clonePokemon(pokemon: PokemonView, visibility: 'self' | 'opponent'): Ob
     level: pokemon.level,
     types: [...pokemon.types],
     terastallized: pokemon.terastallized,
+    ...(pokemon.ability_effects === undefined ? {} : {ability_effects: [...pokemon.ability_effects]}),
     volatiles: [...pokemon.volatiles],
   };
   if (visibility === 'self') {
@@ -932,6 +934,12 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
     if (parts.length < length) throw new ObservableStateError(`Malformed raw ${command} record.`);
   };
   const requireIdent = (index = 2): void => requireRawPlayerIdent(parts, index, command, rulesContext);
+  if ((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && (command === '-start' || command === '-end') && (parts[3] || '').replace(/^(?:move|ability|item):\s*/i, '').toLowerCase().replace(/[^a-z0-9]/g, '') === 'slowstart') {
+    requireIdent();
+    const valid=command === '-start' ? parts.length===4 && parts[3]==='ability: Slow Start'
+      : parts[3]==='Slow Start' && (parts.length===4 || parts.length===5 && parts[4]==='[silent]');
+    if (!valid) throw new ObservableStateError(`Malformed raw ${command} Slow Start record.`);
+  }
   requireRawCourtChange(parts, command, rulesContext);
   if (command === protocolContext(rulesContext).protocol.validation_rules.court_change.command) return;
   const noPayload = new Set([
