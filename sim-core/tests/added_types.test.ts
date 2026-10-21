@@ -194,7 +194,7 @@ for (const actor of ['p1', 'p2'] as const) {
         for (const p of ['p1', 'p2'] as const) {
           const bundle = results[0].record_bundles[p]; const view = bundle.successor_observation.view;
           assert.deepEqual((p === actor ? view.self_team : view.opponent_team).find(p => p.active)!.types, expected);
-          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(bundle), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
           assert.equal(python.status, 0, python.stderr);

@@ -667,7 +667,7 @@ def _heal_wisher_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEXT
     dependency = reader_context(reader_rules).protocol["validation_rules"]["heal_wisher_dependency"]
     if (len(tags) != len(dependency["required_tag_order"])
             or tags[0] != dependency["required_from"]
-            or [_tag_kind(tag) for tag in tags] != dependency["required_tag_order"]):
+            or tuple(_tag_kind(tag) for tag in tags) != tuple(dependency["required_tag_order"])):
         _malformed(command, "[wisher] requires its exact Wish source form")
 
 
@@ -684,7 +684,7 @@ def _healing_wish_dependency(parts, command, *, reader_rules=HISTORICAL10_CONTEX
             or parts[4] != dependency["required_from"]
             or not _is_player_ident(parts[2], active_required=True, reader_rules=reader_rules)
             or parts[3] != dependency["health"]
-            or dependency["required_tag_order"] != ["[from]"]):
+            or tuple(dependency["required_tag_order"]) != ("[from]",)):
         _malformed(command, "Healing Wish requires its exact source form")
 
 

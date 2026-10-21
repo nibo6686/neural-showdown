@@ -317,7 +317,7 @@ def assert_prepared_protocol_policy(record, context):
     if family: _fail('prepared-family-unsupported/' + family)
 
 # Candidate-only fixed runtime reader. No source authority or positive fidelity scope.
-_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', '7371774e90ace5801ded7476e999fe6d51f09e38aeac7b9a3a2adf00a370c8e3')
+_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', 'db561809c0c2a137e7e3fe62179b08509fa0f5bcfa05eaed353e93bc1cf0ed77')
 NATIVE11_CONTEXT = ReaderContext(NATIVE11, _target_protocol_asset['protocol'], _target_inventory,
     _freeze({e['id']: e for e in (*_target_inventory['condition_inventory'], *_target_inventory['effect_discovery']['additional_entries'])}),
     _freeze({(e['family'],e['id']): e for e in _target_inventory['public_typed_state_lifecycle']['entries']}))

@@ -10,6 +10,7 @@ import {continuePipelineEpisode, summarizeEpisodeBoundary, type PipelineEpisodeR
 import {createPipelineEpisodeEvidence, validatePipelineEpisodeEvidence} from '../src/pipeline_episode_evidence';
 import {validatePipelineLinkedRecordBundle, type PipelineBoundary, type PipelineIntegrationSession, type PipelineLinkedRecordBundle} from '../src/pipeline_integration';
 import {type SeededTransitionMetadata, type SeededSnapshotRef} from '../src/transition';
+import {HISTORICAL10_CONTEXT} from '../src/version_profile';
 import {PLAYERS} from '../src/types';
 
 const witnessPath = path.resolve(__dirname, '../../../artifacts/validation/ce08a-adversarial-recovery-2026-10-09/predecessor.json');
@@ -81,7 +82,7 @@ export function reseal(result: PipelineEpisodeResult, f: ReturnType<typeof fixtu
 
 export function session(f: ReturnType<typeof fixture>, phase: 'selection'|'candidate'|'after-commit', error: Error, cleanupError = false) {
   let current = f.initial, calls = 0, closed = 0;
-  const owned = {battle_id: witness.battle_id, format: witness.ruleset, get boundary() {return current;},
+  const owned = {getReaderContext: () => HISTORICAL10_CONTEXT, battle_id: witness.battle_id, format: witness.ruleset, get boundary() {return current;},
     assertSupportedSelectionRequests() {if (phase === 'selection') throw error;},
     async step(actions: any) {
       if (phase === 'after-commit' && calls++ === 0) {

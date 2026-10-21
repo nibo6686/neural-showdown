@@ -1,3 +1,4 @@
+import {NATIVE11_CONTEXT} from '../src/version_profile';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {spawnSync} from 'node:child_process';
@@ -42,7 +43,7 @@ test('C22 partial terminal authority replays only independently supplied ability
 });
 
 test('C22 direct invalidation requires current and base authority in canonical observations', () => {
-  const generated = Teams.generate('gen9randombattle', {seed: [9,2,3,4]})[4];
+  const generated = Teams.generate('gen9randombattle', {seed: [38, 2, 3, 4]})[1];
   const pythonCases: Array<{observation: any; reject: boolean}> = [];
   for (const actor of PLAYERS) {
     const battle = battleFor(actor, [generated], team('Pikachu\nAbility: Static\n- Splash'));
@@ -109,7 +110,7 @@ test('C22 direct invalidation requires current and base authority in canonical o
       }
     } finally {battle.destroy();}
   }
-  const result = spawnSync(process.env.PYTHON || 'python3', ['-c', `import json,sys\nfrom neural.pipeline_record import _validate_episode_observation\nfrom neural.ts_identity import verify_observation\nfor case in json.load(sys.stdin):\n o=case['observation']; verify_observation(o,'canonical direct')\n try: _validate_episode_observation(o,o['perspective'],o['battle_id'],'direct authority')\n except ValueError as exc:\n  assert case['reject'] and 'Public ability evidence mismatch' in str(exc), str(exc)\n else: assert not case['reject'], 'false authority accepted'\n`], {
+  const result = spawnSync(process.env.PYTHON || 'python3', ['-c', `import json,sys\nfrom neural.pipeline_record import _validate_episode_observation\nfrom neural.ts_identity import verify_observation\nfor case in json.load(sys.stdin.buffer):\n o=case['observation']; verify_observation(o,'canonical direct')\n try: _validate_episode_observation(o,o['perspective'],o['battle_id'],'direct authority')\n except ValueError as exc:\n  assert case['reject'] and 'Public ability evidence mismatch' in str(exc), str(exc)\n else: assert not case['reject'], 'false authority accepted'\n`], {
     input: JSON.stringify(pythonCases), encoding: 'utf8', timeout: 30_000,
     env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')},
   });
@@ -175,19 +176,19 @@ function opponent(actor: PlayerID): PlayerID {
 }
 
 test('generated Trace emits exact public copy evidence for both actors', () => {
-  const generated = Teams.generate('gen9randombattle', { seed: [2, 2, 3, 4] })[2];
+  const generated = Teams.generate('gen9randombattle', { seed: [236, 2, 3, 4]})[2];
   assert.equal(generated.species, 'Gardevoir');
   assert.equal(generated.ability, 'Trace');
   for (const actor of PLAYERS) {
     const battle = battleFor(actor, [generated], team('Pikachu\nAbility: Static\n- Splash\n'));
     try {
       const target = opponent(actor);
-      const record = `|-ability|${actor}a: Gardevoir|Static|[from] ability: Trace|[of] ${target}a: Pikachu`;
+      const record = `|-ability|${actor}a: Gardevoir|Static|Trace|[from] ability: Trace|[of] ${target}a: Pikachu`;
       assert.ok(battle.log.includes(record), record);
-      assert.doesNotThrow(() => validateRawProtocolRecord(record));
-      assert.deepEqual(projectPipelineProtocolPrefix([record]), [record]);
+      assert.doesNotThrow(() => validateRawProtocolRecord(record,NATIVE11_CONTEXT));
+      assert.deepEqual(projectPipelineProtocolPrefix([record],NATIVE11_CONTEXT), [record]);
       for (const perspective of PLAYERS) {
-        const extractor = new PlayerStateExtractor(`trace-${actor}-${perspective}`, 'gen9randombattle', perspective);
+        const extractor = new PlayerStateExtractor(`trace-${actor}-${perspective}`, 'gen9randombattle', perspective,NATIVE11_CONTEXT);
         extractor.consumeChunk(battle.log.join('\n'));
         const viewed = (perspective === actor ? extractor.getView().self_team : extractor.getView().opponent_team)
           .find((pokemon) => pokemon.name === 'Gardevoir');
@@ -202,11 +203,11 @@ test('generated Trace emits exact public copy evidence for both actors', () => {
 });
 
 test('generated Trace faint restores owned base instead of cached copied request ability', () => {
-  const generated = Teams.generate('gen9randombattle', {seed: [2, 2, 3, 4]})[2];
+  const generated = Teams.generate('gen9randombattle', {seed: [236, 2, 3, 4]})[2];
   for (const actor of PLAYERS) {
     const battle = battleFor(actor, [generated], team('Pikachu\nLevel: 100\nEVs: 252 HP / 252 Atk\nAbility: Static\n- Explosion'));
     try {
-      const extractor = new PlayerStateExtractor(`trace-terminal-faint-${actor}`, 'gen9randombattle', actor);
+      const extractor = new PlayerStateExtractor(`trace-terminal-faint-${actor}`, 'gen9randombattle', actor,NATIVE11_CONTEXT);
       extractor.consumeChunk(battle.log.join('\n'));
       extractor.consumeChunk(`|request|${JSON.stringify(battle[actor].activeRequest)}`);
       assert.equal(extractor.getView().self_team[0].ability, 'static');
@@ -222,8 +223,8 @@ test('generated Trace faint restores owned base instead of cached copied request
 });
 
 for (const [seed, ability, suffix] of [
-  [[16, 2, 3, 4], 'Air Lock', ''],
-  [[2, 2, 3, 4], 'Intimidate', '|boost'],
+  [[101, 2, 3, 4], 'Air Lock', ''],
+  [[5, 2, 3, 4], 'Intimidate', '|boost'],
 ] as const) {
   test(`generated public ${ability} template emits for both actors`, () => {
     const generated = Teams.generate('gen9randombattle', { seed: [...seed] }).find((set) => set.ability === ability);
@@ -305,8 +306,8 @@ test('constructed replacement and suppression source forms remain rejected for b
     try {
       replacement.makeChoices('move 1', 'move 1');
       const end = `|-endability|${target}a: Snorlax|Immunity|[from] move: Worry Seed`;
-      const change = `|-ability|${target}a: Snorlax|Insomnia|[from] move: Worry Seed`;
-      assert.ok(replacement.log.includes(end), end);
+      const change = `|-ability|${target}a: Snorlax|Insomnia|Immunity|[from] move: Worry Seed`;
+      assert.equal(replacement.log.includes(end), false); // b8f23c99 emits one replacement record with prior ability.
       assert.ok(replacement.log.includes(change), change);
       assert.throws(() => validateRawProtocolRecord(end));
       assert.throws(() => validateRawProtocolRecord(change));
@@ -397,7 +398,7 @@ test('C22 plain and boost reveal requestless names survive last writer and clean
 });
 
 test('C22 generated Imposter public transform never reveals hidden target ability', () => {
-  const generated = Teams.generate('gen9randombattle', {seed: [9,2,3,4]})[4];
+  const generated = Teams.generate('gen9randombattle', {seed: [38, 2, 3, 4]})[1];
   assert.equal(generated.ability, 'Imposter');
   for (const actor of PLAYERS) {
     const battle = battleFor(actor, [generated], team('Pikachu\nAbility: Static\n- Splash'));
@@ -414,7 +415,7 @@ test('C22 generated Imposter public transform never reveals hidden target abilit
 });
 
 test('C22 generated Ogerpon replacement emits finite public template', () => {
-  const generated = Teams.generate('gen9randombattle', {seed: [109,2,3,4]}).find((set) => set.ability === 'Defiant')!;
+  const generated = Teams.generate('gen9randombattle', {seed: [4,2,3,4]}).find((set) => set.ability === 'Defiant')!;
   for (const actor of PLAYERS) {
     const battle = battleFor(actor, [generated], team('Pikachu\nLevel: 1\nAbility: Static\n- Splash'));
     const restored = Battle.fromJSON(structuredClone(battle.toJSON()));
@@ -446,8 +447,8 @@ test('C22 owned form branch classifier preserves eligible pairs and invalidates 
 
 
 test('C22 generated Trace respects operative Terapagos permanent default notrace guard', () => {
-  const gardevoir = Teams.generate('gen9randombattle', {seed: [2,2,3,4]})[2];
-  const terapagos = Teams.generate('gen9randombattle', {seed: [135,2,3,4]})[4];
+  const gardevoir = Teams.generate('gen9randombattle', {seed: [236, 2, 3, 4]})[2];
+  const terapagos = Teams.generate('gen9randombattle', {seed: [28,2,3,4]})[5];
   for (const actor of PLAYERS) {
     const lead = Teams.generate('gen9randombattle', {seed: [2,2,3,4]})[0];
     const battle = battleFor(actor, [lead, gardevoir], [terapagos]);
@@ -456,9 +457,9 @@ test('C22 generated Trace respects operative Terapagos permanent default notrace
       const choices = actor === 'p1' ? ['move 1', 'move 1 terastallize'] : ['move 1 terastallize', 'move 1'];
       battle.makeChoices(...choices);
       battle.makeChoices(...(actor === 'p1' ? ['switch 2', 'move 1'] : ['move 1', 'switch 2']));
-      const record = `|-ability|${actor}a: Gardevoir|Teraform Zero|[from] ability: Trace|[of] ${opponent(actor)}a: Terapagos`;
+      const record = `|-ability|${actor}a: Gardevoir|Teraform Zero|Trace|[from] ability: Trace|[of] ${opponent(actor)}a: Terapagos`;
       assert.equal(battle.log.includes(record), false);
-      assert.throws(() => validateRawProtocolRecord(record), /outside the dash_trace_copy source-proven domain/);
+      assert.throws(() => validateRawProtocolRecord(record,NATIVE11_CONTEXT), /outside the dash_trace_copy source-proven domain/);
       assert.equal(battle[actor].active[0].ability, 'trace');
       assert.equal(battle[opponent(actor)].active[0].ability, 'teraformzero');
       assert.equal(battle[opponent(actor)].active[0].getAbility().flags.notrace, 1);

@@ -132,7 +132,7 @@ async function stageWitness(actor: PlayerID, name: string, own: GeneratedTeam, f
         assert.deepEqual(stages(successor.view.self_team.find(pokemon => pokemon.active)!.boosts || {}), stages(ownPokemon.boosts));
         assert.deepEqual(successor.view.opponent_team.find(pokemon => pokemon.active)!.public_boosts, stages(foePokemon.boosts));
         assert.ok(successor.view.opponent_team.every(pokemon => pokemon.boosts === undefined && pokemon.stats === undefined));
-        const published = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+        const published = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
           input: JSON.stringify(bundle), encoding: 'utf8',
           env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
         });
@@ -157,7 +157,7 @@ function moveChoice(battle: Battle, player: PlayerID, move: string): string {
 
 for (const actor of ['p1', 'p2'] as const) {
   test(`generated Haze ${actor} clears the source-backed active stage map`, async () => {
-    const source = generatedSet('Tentacruel', [21, 2, 3, 4]);
+    const source = generatedSet('Tentacruel', [173, 2, 3, 4]);
     const target = importedTeam(`Target (Gengar)
 Ability: Cursed Body
 - Shell Smash
@@ -199,7 +199,7 @@ Ability: Cursed Body
   });
 
   test(`generated Mirror Armor ${actor} reflects the actual drop to its source`, async () => {
-    const source = generatedSet('Corviknight', [152, 2, 3, 4]);
+    const source = generatedSet('Corviknight', [187, 2, 3, 4]);
     const target = importedTeam(`Target (Snorlax)
 Ability: Thick Fat
 - Splash
@@ -238,7 +238,7 @@ Ability: Thick Fat
   });
 
   test(`generated Imposter ${actor} copies the prior public stage map at Transform`, async () => {
-    const ditto = generatedSet('Ditto', [9, 2, 3, 4]);
+    const ditto = generatedSet('Ditto', [38, 2, 3, 4]);
     const source = importedTeam(`Source (Snorlax)
 Ability: Thick Fat
 - Splash
@@ -264,7 +264,7 @@ Ability: Cursed Body
   });
 
   test(`generated Belly Drum ${actor} publishes its source-backed stage replacement`, async () => {
-    const source = generatedSet('Azumarill', [17, 2, 3, 4]);
+    const source = generatedSet('Azumarill', [49, 2, 3, 4]);
     const target = importedTeam(`Target (Snorlax)
 Ability: Thick Fat
 - Splash
@@ -403,7 +403,7 @@ for (const actor of ['p1', 'p2'] as const) {
           assert.ok(view.opponent_team.every(p => Object.keys(p.public_boosts!).length === 7));
           if (p !== actor && (i === 2 || i === 3)) assert.deepEqual(view.opponent_team.find(p => p.active)!.public_boosts, { atk: 2, def: -1, spa: 2, spd: -1, spe: 2, accuracy: -1, evasion: 1 });
           if (p === actor && (i === 2 || i === 3)) assert.deepEqual(stages(view.self_team.find(p => p.active)!.boosts!), { atk: 2, def: -1, spa: 2, spd: -1, spe: 2, accuracy: -1, evasion: 1 });
-          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(bundle), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
           assert.equal(python.status, 0, python.stderr);
@@ -416,7 +416,7 @@ for (const actor of ['p1', 'p2'] as const) {
               if (mutation === 'mixed') (bad.successor_observation as any).schema_version = OBSERVABLE_STATE_SCHEMA_VERSION;
               if (mutation === 'private') (bad.successor_observation.view.opponent_team[0] as any).stats = { atk: 999 };
               if (mutation === 'reference') (bad.successor_belief.observation as any).schema_version = OBSERVABLE_STATE_SCHEMA_VERSION;
-              const rejected = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+              const rejected = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
                 input: JSON.stringify(bad), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
               });
               assert.notEqual(rejected.status, 0, mutation);

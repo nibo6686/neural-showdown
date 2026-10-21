@@ -6,7 +6,7 @@ import { continuePipelineEpisode } from '../src/pipeline_episode';
 import { OriginalOwnerCreation } from '../src/original_owner_provider';
 import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
 import { interpretOriginalValues } from '../src/original_owner_values';
-import { checkNativeOwnerLoadoutProjection, checkNativeOwnerIdentifiersProjection, knowledgeIdentity } from '../src/perspective_knowledge';
+import { checkNativeOwnerDetailsProjection, checkNativeOwnerIdentifiersProjection, knowledgeIdentity } from '../src/perspective_knowledge';
 import { joint, native } from './helpers/owner_selection_restore';
 const owners = ['p1','p2'] as const;
 const dex = simulator.Dex.forFormat('gen9randombattle');
@@ -37,7 +37,7 @@ function oracle(set: any) {
 }
 function assertGenerated(s: PipelineIntegrationSession, r: ReturnType<typeof recipients>, starting?: any[]) {
   for (const [i, owner] of owners.entries()) {
-    const pair = read(s, r[owner]); checkNativeOwnerLoadoutProjection(pair.projection);
+    const pair = read(s, r[owner]); checkNativeOwnerDetailsProjection(pair.projection);
     assert.equal(pair.projection.result, 'incomplete');
     const source = s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner);
     source.raw_team.forEach((raw: any, n) => {
@@ -71,7 +71,7 @@ test('P59 generated both owners restore reorder and real decision caller', async
     const result = await continuePipelineEpisode(s, { limits: { max_transitions: 1 }, policy_id: 'p59-original/v1', accept_incomplete: true,
       owned_action_order: Object.fromEntries(owners.map(owner => [owner, { recipient: r[owner], callback: (input: any) => {
         calls.push(owner); assert.equal(input.knowledge.projection.starting, original[owners.indexOf(owner)]);
-        checkNativeOwnerLoadoutProjection(input.knowledge.projection); assert.equal(input.completeness, 'incomplete');
+        checkNativeOwnerDetailsProjection(input.knowledge.projection); assert.equal(input.completeness, 'incomplete');
         const selected = input.action_context.legal_actions.actions.find((a: any) => a?.choice === 'switch 2'); assert.ok(selected);
         return [selected.index, ...input.legal_indices.filter((index: number) => index !== selected.index)];
       }}])) as any });
@@ -86,7 +86,7 @@ test('P59 literal submitted default partial and rule exception oracle', async ()
   const raw = { ...basic('Pikachu','Static'), nature: 'Modest', evs: stats, ivs, happiness: 0, level: 50, gender: 'F', shiny: true, pokeball: 'Ultra Ball', teraType: 'Flying' };
   const r = recipients(), s = await create(r, [[raw], [basic()]]);
   try {
-    const pair = read(s, r.p1); checkNativeOwnerLoadoutProjection(pair.projection);
+    const pair = read(s, r.p1); checkNativeOwnerDetailsProjection(pair.projection);
     assert.deepEqual(fact(pair,'calculated_stats').value.data, { atk: 67, def: 60, spa: 112, spd: 70, spe: 111 }); assert.equal(fact(pair,'hp_max').value.data,142);
     for (const [property, expected] of Object.entries({submitted_nature:'Modest',submitted_happiness:0,level:50,gender:'F',shiny:true,ball:'Ultra Ball',details:'Pikachu, L50, F, shiny',starting_tera:'Flying'})) assert.deepEqual(fact(pair, property).value.data, expected);
     assert.deepEqual(fact(pair,'submitted_evs').value.data, stats); assert.deepEqual(fact(pair,'submitted_ivs').value.data, ivs);
@@ -96,7 +96,7 @@ test('P59 literal submitted default partial and rule exception oracle', async ()
       ['fact stat', (copy: any) => fact({projection:copy},'calculated_stats').value.data.atk++, /fact interpretation/],
       ['submission absence', (copy: any) => copy.original_interpretation[0].presence.nature='omitted', /absent submission/],
       ['complete claim', (copy: any) => copy.result='strong_complete', /const/],
-    ] as const) { const copy: any = structuredClone(pair.projection); mutate(copy); copy.id=knowledgeIdentity(copy); assert.throws(() => checkNativeOwnerLoadoutProjection(copy), error, property); }
+    ] as const) { const copy: any = structuredClone(pair.projection); mutate(copy); copy.id=knowledgeIdentity(copy); assert.throws(() => checkNativeOwnerDetailsProjection(copy), error, property); }
     assert.throws(() => checkNativeOwnerIdentifiersProjection(pair.projection));
     assert.throws(() => s.readOwnerKnowledge(structuredClone(pair) as any, r.p1), /copied-or-stale/);
   } finally { await s.close(); }
@@ -130,13 +130,13 @@ test('P59 constructed Trace and Schooling retain originals through restoration',
       else { assert.equal(actor.species.name,'Wishiwashi-School'); assert.equal(fact(pair,'calculated_stats').value.data.atk,76); assert.equal(actor.baseStoredStats.atk,316); assert.equal(fact(pair,'details').value.data,'Wishiwashi, M'); }
       await joint(s,'p1','move 1');
       assert.notEqual(native(s).p1!.active[0],actor); assert.equal(read(s,r.p1).projection.starting,starting); assert.equal(read(s,r.p1).projection.original_interpretation,interpretations); assert.equal(JSON.stringify(pair),bytes);
-      s.withOwnedDecisionInput(r.p1,input=>{assert.equal(input.knowledge.projection.starting,starting);checkNativeOwnerLoadoutProjection(input.knowledge.projection);return input.legal_indices;});
+      s.withOwnedDecisionInput(r.p1,input=>{assert.equal(input.knowledge.projection.starting,starting);checkNativeOwnerDetailsProjection(input.knowledge.projection);return input.legal_indices;});
     } finally {await s.close();}
   }
   witness('initial-effects',{constructed_not_generated_reachability:true,Trace_current_identifier:true,Schooling_changed_current_stats:true,held_fresh_objects_same_originals:true});
 });
 
-test('P59 source authority and final preparation failure preserve fresh retry', async () => {
+test('P59 rejects copied source authority and final preparation failure; fresh retry', async () => {
   const register=OriginalOwnerCreation.prototype.registerKnowledgeReceiver;
   for (const fault of ['missing','foreign']) {
     OriginalOwnerCreation.prototype.registerKnowledgeReceiver=function(receiver){return register.call(this, (environment,occurrence,rows)=>{ if(fault==='foreign')receiver(environment,{},rows); });};

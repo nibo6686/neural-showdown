@@ -51,7 +51,7 @@ async function restoredSession(actor: PlayerID, mode: Parameters<typeof wishBatt
 }
 
 function validateInPython(bundle: unknown) {
-  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     input: JSON.stringify(bundle), encoding: 'utf8',
     env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')},
   });
@@ -72,7 +72,7 @@ function assertNoTypedWish(result: {boundary: PipelineBoundary}) {
 // This proves direct Gen 9 Random Battle membership separately from the small
 // source-lifecycle teams below.
 test('Wish has a pinned Gen 9 Random Battle generated-set witness', () => {
-  const source = Teams.generate('gen9randombattle', {seed: [2, 2, 3, 4]})[3];
+  const source = Teams.generate('gen9randombattle', {seed: [341, 2, 3, 4]})[0];
   assert.equal(source.species, 'Jirachi');
   assert.ok(source.moves.includes('wish'));
 });

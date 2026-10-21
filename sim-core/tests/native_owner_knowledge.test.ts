@@ -5,7 +5,7 @@ import { PipelineIntegrationSession } from '../src/pipeline_integration';
 import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
 import { OriginalOwnerCreation } from '../src/original_owner_provider';
 import { LocalBattleEnv } from '../src/env_manager';
-import { checkNativeOwnerProjection, checkKnowledgeStructure, knowledgeIdentity } from '../src/perspective_knowledge';
+import { checkNativeOwnerDetailsProjection, checkKnowledgeStructure, knowledgeIdentity } from '../src/perspective_knowledge';
 import { installedNativeProfile } from '../src/version_profile';
 import { canonicalActionFromLegalAction } from '../src/canonical_action';
 import type { PlayerID } from '../src/types';
@@ -31,11 +31,11 @@ test('P48 generated authentic consumer restore and isolation', async () => {
     const initial = { p1: read(s, r.p1), p2: read(s, r.p2) }, handles = owners.map(owner => s!.getOwnerKnowledgeHandle(r[owner]));
     for (const owner of owners) {
       const pair = initial[owner], raw = s.readOriginalOwnerHolding(s.getOriginalOwnerHolding(owner), owner).raw_team as any[];
-      assert.equal(pair.projection.owner, owner); assert.equal(pair.projection.result, 'incomplete'); assert.equal(pair.projection.request, null);
-      assert.deepEqual(pair.projection.starting_crosswalk, []); assert.equal(pair.binding.request_adaptation, 'not_adopted');
+      assert.equal(pair.projection.owner, owner); assert.equal(pair.projection.result, 'incomplete'); assert.equal(pair.projection.request.schema, 'owned-active-options/v1');
+      assert.deepEqual(pair.projection.starting_crosswalk, []); assert.equal(pair.binding.request_adaptation, 'owned_health/v1');
       assert.equal(pair.binding.prefix_cursor, s.boundary.perspectives[owner].observation.event_cursor);
       assert.ok(Object.isFrozen(pair) && Object.isFrozen(pair.projection) && Object.isFrozen(pair.binding));
-      assert.ok(pair.projection.current.every((f: any) => f.state === 'unknown' && f.reason === 'unimplemented_family' && f.value === null));
+      assert.ok(pair.projection.current.filter((f: any) => !['K03','K04','K05','K18','K19'].includes(f.family)).every((f: any) => f.state === 'unknown' && f.reason === 'unimplemented_family' && f.value === null));
       assert.equal(pair.projection.starting.find((f: any) => f.property === 'roster_size').value.data, 6);
       for (let i = 0; i < 6; i++) {
         for (const property of ['ability', 'item']) assert.equal(value(pair, i + 1, property).value?.data ?? '', raw[i][property]);
@@ -43,7 +43,7 @@ test('P48 generated authentic consumer restore and isolation', async () => {
         assert.deepEqual(value(pair, i + 1, 'starting_moves').value.data, raw[i].moves);
         assert.equal(value(pair, i + 1, 'roster_order').value.data, i + 1);
       }
-      checkNativeOwnerProjection(pair.projection);
+      checkNativeOwnerDetailsProjection(pair.projection);
       assert.throws(() => checkKnowledgeStructure(pair.projection));
       assert.throws(() => s!.getOwnerKnowledgeHandle({ ...r[owner] }), /foreign-recipient/);
       assert.throws(() => s!.getOwnerKnowledgeHandle(owner as any), /foreign-recipient/);
@@ -90,14 +90,14 @@ test('P48 constructed initial effects and empty original item', async () => {
       if (effect === 'Trace') assert.equal(native.p1.active[0].ability, 'naturalcure');
       else { assert.equal(native.p1.active[0].species.name, 'Zacian-Crowned'); assert.equal(native.p1.activeRequest.active[0].moves[0].id, 'behemothblade'); }
       assert.equal(value(p2, 1, 'item').state, 'known_absent'); assert.equal(value(p2, 1, 'item').value, null);
-      assert.ok(p1.projection.current.every((f: any) => f.state === 'unknown'));
+      assert.ok(p1.projection.current.filter((f: any) => !['K03','K04','K05','K18','K19'].includes(f.family)).every((f: any) => f.state === 'unknown'));
       witness(effect, { actual_session_constructed_initial_mechanic: true, generated_reachability: 'not-certified',
         original_fields_retained: true, current_blocked: true, explicit_empty_item_absence: true });
     } finally { Teams.generate = generate; await s?.close(); }
   }
 });
 
-test('P48 source attacks and projection nonauthority', async () => {
+test('P48 rejects copied source attacks and projection nonauthority', async () => {
   const register = OriginalOwnerCreation.prototype.registerKnowledgeReceiver, generate = Teams.generate;
   const cases = ['missing', 'duplicate', 'environment', 'occurrence-copy', 'rows-copy', 'wrong-owner', 'missing-item', 'undefined-ability', 'unsupported', 'role'];
   for (const fault of cases) {
@@ -146,11 +146,11 @@ test('P48 source attacks and projection nonauthority', async () => {
       if (kind === 'crosswalk') copy.starting_crosswalk = [{ appearance: 'p1:appearance:1', roster: 'p1:roster:1' }];
       if (kind === 'complete') copy.result = 'strong_complete';
       copy.id = knowledgeIdentity(copy);
-      assert.throws(() => checkNativeOwnerProjection(copy));
+      assert.throws(() => checkNativeOwnerDetailsProjection(copy));
     }
     const falseOriginal: any = structuredClone(live.projection);
     falseOriginal.starting.find((f: any) => f.property === 'ability').value.data = 'NotTheOriginal';
-    falseOriginal.id = knowledgeIdentity(falseOriginal); checkNativeOwnerProjection(falseOriginal);
+    falseOriginal.id = knowledgeIdentity(falseOriginal); checkNativeOwnerDetailsProjection(falseOriginal);
     assert.throws(() => s!.readOwnerKnowledge(falseOriginal, r.p1), /copied-or-stale/);
     assert.throws(() => s!.readOwnerKnowledge(structuredClone(live) as any, r.p1), /copied-or-stale/);
     witness('structure', { coherent_negative_classes: 6, raw_false_original_structural_only: true, no_import_or_authority_mint: true,

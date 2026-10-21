@@ -32,7 +32,10 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
     for profile in ('native11','replay-compat-v1'):
         asset=load_prepared_protocol_asset(profile)
         for control in asset['protocol']['valid_record_controls']:
-            validate_protocol_record(control['record'],reader_rules=NATIVE11_GRAMMAR_CONTEXT if profile=='native11' else REPLAY_COMPAT_CONTEXT)
+            if profile=='native11' and control['record']=='|-swapsideconditions':
+                with pytest.raises(ValueError,match='prepared-family-unsupported/court-change'):validate_protocol_record(control['record'],reader_rules=NATIVE11_GRAMMAR_CONTEXT)
+            else:
+                validate_protocol_record(control['record'],reader_rules=NATIVE11_GRAMMAR_CONTEXT if profile=='native11' else REPLAY_COMPAT_CONTEXT)
         with pytest.raises(TypeError):asset['adopted']=True
         # Coherent JSON rewrite/digest cannot replace the locally reviewed code pin.
         ordinary=json.loads((ROOT/'trainer/src/neural'/('protocol_contract_b8f23c99.json' if profile=='native11' else 'protocol_contract_replay_compat_v1.json')).read_text(encoding='utf-8'))
@@ -41,7 +44,7 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
         with pytest.raises(ValueError,match='missing-version-asset'):load_prepared_protocol_asset(profile,tmp_path/'missing')
     with pytest.raises(ValueError,match='unsupported-context'):reader_context(NATIVE11_GRAMMAR_CONTEXT)
     with pytest.raises(ValueError,match='unsupported-context'):reader_context(REPLAY_COMPAT_CONTEXT)
-    with pytest.raises(ValueError,match='native11-unadopted'):select_reader_profile({},'native11')
+    assert select_reader_profile({},'native11').id=='native11'
     families=[('|-ability|p1a: Regice|Insomnia|Clear Body|[from] move: Worry Seed|[of] p2a: Blissey','ability-setter'),
       ('|-heal|p1a: Regice|90/100|[from] ability: Regenerator','heal-failure'),
       ('|cant|p1a: Regice|move: Heal Block|Pollen Puff','heal-failure'),
@@ -50,8 +53,11 @@ def test_exact_profile_grammar_and_immutability(tmp_path):
       ('|-swapsideconditions','court-change'),('|-item|p1a: Regice|Leftovers|[from] ability: Magician|[of] p2a: Blissey','magician')]
     for context in (NATIVE11_GRAMMAR_CONTEXT,REPLAY_COMPAT_CONTEXT):
         for record,family in families:
-            with pytest.raises(ValueError,match='prepared-family-unsupported/'+family):validate_protocol_record(record,reader_rules=context)
-    with pytest.raises(ValueError,match='candidate effect/lifecycle semantics unproved'):validate_protocol_record('|-sidestart|p1: Player|move: Stealth Rock',reader_rules=NATIVE11_GRAMMAR_CONTEXT)
+            if context is NATIVE11_GRAMMAR_CONTEXT and family in ('heal-failure','chilly-reception','partial-trap'):
+                validate_protocol_record(record,reader_rules=context)
+            else:
+                with pytest.raises(ValueError,match='prepared-family-unsupported/'+family):validate_protocol_record(record,reader_rules=context)
+    validate_protocol_record('|-sidestart|p1: Player|move: Stealth Rock',reader_rules=NATIVE11_GRAMMAR_CONTEXT)
     validate_protocol_record("|-hint|Psychic Terrain doesn't affect airborne Pokémon.",reader_rules=NATIVE11_GRAMMAR_CONTEXT)
     print('P36_WITNESS '+json.dumps({'name':'python-exact-grammar','negative_forms':len(negatives),'blocked_forms':len(families),'target_runtime':'UNEXECUTED'}))
 

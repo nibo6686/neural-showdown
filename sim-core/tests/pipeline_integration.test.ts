@@ -22,12 +22,12 @@ import type { ChoiceRequestView, PlayerID } from '../src/types';
 import { toSeededSnapshotRef } from '../src/transition';
 import { PROTOCOL_CONTRACT } from '../src/protocol_contract';
 
-const SEED = [101, 202, 303, 404] as const;
+const SEED = [2, 202, 303, 404] as const;
 const TERMINAL_CONTROLLER_SEEDS = { p1: 0x51a7, p2: 0xc0de } as const;
 
 function validateInPython(bundle: unknown) {
   const trainerSource = path.resolve(__dirname, '../../../trainer/src');
-  const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+  const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     cwd: path.resolve(__dirname, '../../..'),
     env: { ...process.env, PYTHONPATH: trainerSource },
     input: JSON.stringify(bundle),
@@ -190,12 +190,12 @@ function runFreshSimulatorProcess() {
     `const trainerSource = ${JSON.stringify(trainerSource)};`,
     `const repositoryRoot = ${JSON.stringify(repositoryRoot)};`,
     "(async () => {",
-    "  const session = await api.createPipelineIntegrationSession({ battle_id: 'pipeline-smoke-v1', format: 'gen9randombattle', seed: [101,202,303,404] });",
+    "  const session = await api.createPipelineIntegrationSession({ battle_id: 'pipeline-smoke-v1', format: 'gen9randombattle', seed: [2,202,303,404] });",
     "  try {",
     "    const result = await session.step();",
     "    const records = {};",
     "    for (const player of ['p1','p2']) {",
-    "      const checked = spawnSync(process.env.PYTHON || 'python3', ['-m','neural.pipeline_record'], { cwd: repositoryRoot, env: { ...process.env, PYTHONPATH: trainerSource }, input: JSON.stringify(result.record_bundles[player]), encoding: 'utf8' });",
+    "      const checked = spawnSync(process.env.PYTHON || 'python3', ['-m','neural.pipeline_record', '--reader-profile=native11'], { cwd: repositoryRoot, env: { ...process.env, PYTHONPATH: trainerSource }, input: JSON.stringify(result.record_bundles[player]), encoding: 'utf8' });",
     "      if (checked.status !== 0) throw new Error(checked.stderr || 'Python record validation failed');",
     "      records[player] = JSON.parse(checked.stdout).record_id;",
     "    }",
@@ -736,10 +736,10 @@ test('v2 voluntary switch-plus-switch remains a joint request pair with determin
 test('a naturally hidden Arena Trap rejection preserves the committed pipeline lineage', async () => {
   const options = {
     format: 'gen9randombattle',
-    // Teams.generate receives p1 seed [57, 123, 235, 347] and p2 seed
-    // [75, 159, 289, 419] after LocalBattleEnv's documented seed offsets.
+    // Teams.generate receives p1 seed [1636, 123, 235, 347] and p2 seed
+    // [1654, 159, 289, 419] after LocalBattleEnv's documented seed offsets.
     // These pinned teams include p1 Dugtrio/Arena Trap and p2 Tinkaton/Steel.
-    seed: [46, 101, 202, 303] as const,
+    seed: [1625, 101, 202, 303] as const,
   };
   const session = await createPipelineIntegrationSession({ battle_id: 'pipeline-natural-reject-v1', ...options });
   const control = await createPipelineIntegrationSession({ battle_id: 'pipeline-natural-reject-v1', ...options });
@@ -755,8 +755,8 @@ test('a naturally hidden Arena Trap rejection preserves the committed pipeline l
     const advanceToTrap = async (target: typeof session) => {
       const initial = target.boundary;
       const actions = {
-        p1: choose(initial, 'p1', (choice) => choice === 'switch 3'),
-        p2: choose(initial, 'p2', (choice) => choice === 'switch 6'),
+        p1: choose(initial, 'p1', (choice) => choice === 'switch 5'),
+        p2: choose(initial, 'p2', (choice) => choice === 'switch 2'),
       };
       return target.step(actions);
     };
@@ -775,7 +775,7 @@ test('a naturally hidden Arena Trap rejection preserves the committed pipeline l
         event_cursor: view.observation.event_cursor,
       };
     });
-    const attemptedSwitch = choose(committed, 'p2', (choice) => choice === 'switch 2');
+    const attemptedSwitch = choose(committed, 'p2', (choice) => choice === 'switch 3');
     const validP1 = choose(committed, 'p1', (choice) => choice.startsWith('move '));
     await assert.rejects(
       session.step({ p1: validP1, p2: attemptedSwitch }),

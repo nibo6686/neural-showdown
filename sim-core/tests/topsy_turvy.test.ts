@@ -161,7 +161,7 @@ for (const actor of ['p1', 'p2'] as const) for (const direction of ['positive'] 
           const other = p === 'p1' ? 'p2' : 'p1';
           assert.deepEqual(view.opponent_team.find(p => p.active)!.public_boosts, stages(battle[other].active[0].boosts));
           assert.ok(view.opponent_team.every(p => p.boosts === undefined && p.stats === undefined));
-          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(bundle), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
           assert.equal(python.status, 0, python.stderr);

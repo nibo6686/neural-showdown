@@ -5,7 +5,7 @@ import {PipelineIntegrationSession} from '../src/pipeline_integration';
 import {OwnedRequestHealthHost} from '../src/owned_request_health';
 import {NativeOwnerKnowledgeController} from '../src/native_owner_knowledge';
 import {LocalBattleEnv} from '../src/env_manager';
-import {checkNativeOwnerIdentifiersProjection,knowledgeIdentity} from '../src/perspective_knowledge';
+import {checkNativeOwnerDetailsProjection,knowledgeIdentity} from '../src/perspective_knowledge';
 import {choice,joint,native,env} from './helpers/owner_selection_restore';
 const owners=['p1','p2'] as const;
 const recipients=()=>({p1:{},p2:{}});
@@ -14,7 +14,7 @@ const emit=(name:string,data:object)=>console.log('P54_WITNESS '+JSON.stringify(
 const basic=['Alpha (Magikarp) @ Leftovers\nAbility: Swift Swim\n- Splash\n\nBeta (Magikarp)\nAbility: Swift Swim\n- Splash','Gamma (Magikarp)\nAbility: Swift Swim\n- Splash\n\nDelta (Magikarp) @ Leftovers\nAbility: Swift Swim\n- Splash'];
 async function create(r:ReturnType<typeof recipients>,teams?:string[]){const generate=Teams.generate;let count=0;if(teams)Teams.generate=()=>Teams.import(teams[count++])!;try{return await PipelineIntegrationSession.create({battle_id:'P54',format:'gen9randombattle',seed:[1,2,3,4],knowledge_recipients:r});}finally{Teams.generate=generate;}}
 const fact=(pair:any,p:string,slot:number,property:string,section='current')=>pair.projection[section].find((f:any)=>f.subject===p+':roster:'+slot&&f.property===property);
-function check(s:PipelineIntegrationSession,r:ReturnType<typeof recipients>){for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);assert.equal(pair.projection.result,'incomplete');const request=env(s).getRequest(p)!.raw as any;
+function check(s:PipelineIntegrationSession,r:ReturnType<typeof recipients>){for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerDetailsProjection(pair.projection);assert.equal(pair.projection.result,'incomplete');const request=env(s).getRequest(p)!.raw as any;
  for(let slot=1;slot<=pair.projection.starting.find((f:any)=>f.property==='roster_size').value.data;slot++){
   const actor=native(s)[p]!.pokemon.find(a=>a.set===native(s)[p]!.team[slot-1])!;const row=request.side.pokemon[native(s)[p]!.pokemon.indexOf(actor)];
   for(const property of ['item','ability']){const f=fact(pair,p,slot,property);assert.equal(f.state,row[property]===''?(property==='item'?'known_absent':'unknown'):'known');if(row[property])assert.equal(f.value.data,row[property]);else assert.equal(f.value,null);if(f.state!=='unknown')assert.equal(f.observed_at,pair.binding.prefix_cursor);assert.equal(row[property],actor[property as 'item'|'ability']);}
@@ -26,7 +26,7 @@ test('P54 generated both owner identifiers held continuity and privacy',async()=
  check(s,r);const first=owners.map(p=>read(s,r[p])),bytes=JSON.stringify(first),actors=owners.map(p=>native(s)[p]!.active[0]);await joint(s,'p1','switch 2','switch 2');check(s,r);await joint(s,'p1','switch 2','switch 2');check(s,r);
  for(const [i,p] of owners.entries()){assert.equal(read(s,r[p]).projection.starting,first[i].projection.starting);assert.notEqual(native(s)[p]!.active[0],actors[i]);}assert.equal(JSON.stringify(first),bytes);
  const ordinary=JSON.stringify({boundary:s.boundary,snapshot:(s as any).snapshot,diagnostics:env(s).diagnostics()});assert.ok(!ordinary.includes('native-owner-identifiers'));assert.ok(!ordinary.includes('native11-identifiers-v1'));
- const malformed:any=structuredClone(read(s,r.p1).projection);fact({projection:malformed},'p1',1,'ability').state='known_absent';fact({projection:malformed},'p1',1,'ability').value=null;fact({projection:malformed},'p1',1,'ability').precision='not_applicable';malformed.id=knowledgeIdentity(malformed);assert.throws(()=>checkNativeOwnerIdentifiersProjection(malformed));assert.throws(()=>s.readOwnerKnowledge(malformed,r.p1),/copied-or-stale/);
+ const malformed:any=structuredClone(read(s,r.p1).projection);fact({projection:malformed},'p1',1,'ability').state='known_absent';fact({projection:malformed},'p1',1,'ability').value=null;fact({projection:malformed},'p1',1,'ability').precision='not_applicable';malformed.id=knowledgeIdentity(malformed);assert.throws(()=>checkNativeOwnerDetailsProjection(malformed));assert.throws(()=>s.readOwnerKnowledge(malformed,r.p1),/copied-or-stale/);
  emit('generated',{both_owners:true,actual_writer_delivery_consumer:true,fresh_B2_actors:true,starting_and_suffix_immutable:true,privacy:true,health_PP_preserved:true});
 }finally{await s.close();}});
 test('P54 constructed Trace consumption empty item and equal delivery',async()=>{let r=recipients(),s=await create(r,['Gardevoir\nAbility: Trace\n- Splash','Blissey\nAbility: Natural Cure\n- Splash']);try{
@@ -41,7 +41,7 @@ test('P54 constructed Trace consumption empty item and equal delivery',async()=>
 test('P54 identifier source faults omissions and rollback',async()=>{
  const received=OwnedRequestHealthHost.prototype.received;
  OwnedRequestHealthHost.prototype.received=function(environment,emission,receipt){if(receipt.owner!=='p1')received.call(this,environment,emission,receipt);};
- try{const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);for(const property of ['item','ability']){const f=fact(pair,'p1',1,property);assert.equal(f.state,'unknown');assert.equal(f.reason,'unsupported_writer');}assert.equal(pair.projection.request.state,'unsupported');checkNativeOwnerIdentifiersProjection(pair.projection);}finally{await s.close();}}finally{OwnedRequestHealthHost.prototype.received=received;}
+ try{const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);for(const property of ['item','ability']){const f=fact(pair,'p1',1,property);assert.equal(f.state,'unknown');assert.equal(f.reason,'unsupported_writer');}assert.equal(pair.projection.request.state,'unsupported');checkNativeOwnerDetailsProjection(pair.projection);}finally{await s.close();}}finally{OwnedRequestHealthHost.prototype.received=received;}
  const original=(OwnedRequestHealthHost.prototype as any).checkCapture;
  for(const fault of ['copy','foreign','value','unknown','label','missing','empty-ability']){let injected=false;
   (OwnedRequestHealthHost.prototype as any).checkCapture=function(c:any,w:any,settled:boolean){if(!injected&&c.owner==='p1'){injected=true;const row=c.rows[0],ids=row.identifiers;
@@ -51,7 +51,7 @@ test('P54 identifier source faults omissions and rollback',async()=>{
    if(fault==='missing'){delete row.data.item;delete row.data.ability;ids.itemPresent=false;ids.abilityPresent=false;ids.item=undefined;ids.ability=undefined;}
    if(fault==='empty-ability'){ids.ability=row.data.ability='';ids.nativeAbility=row.actor.ability='';}
   }return original.call(this,c,w,settled);};
-  try{if(fault==='missing'||fault==='empty-ability'){const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);assert.equal(fact(pair,'p1',1,'ability').state,'unknown');assert.equal(fact(pair,'p1',1,'ability').reason,fault==='missing'?'not_emitted':'unsupported_writer');if(fault==='missing'){assert.equal(fact(pair,'p1',1,'item').state,'unknown');assert.equal(fact(pair,'p1',1,'item').value,null);}checkNativeOwnerIdentifiersProjection(pair.projection);}finally{await s.close();}}
+  try{if(fault==='missing'||fault==='empty-ability'){const r=recipients(),s=await create(r,basic);try{const pair=read(s,r.p1);assert.equal(fact(pair,'p1',1,'ability').state,'unknown');assert.equal(fact(pair,'p1',1,'ability').reason,fault==='missing'?'not_emitted':'unsupported_writer');if(fault==='missing'){assert.equal(fact(pair,'p1',1,'item').state,'unknown');assert.equal(fact(pair,'p1',1,'item').value,null);}checkNativeOwnerDetailsProjection(pair.projection);}finally{await s.close();}}
    else await assert.rejects(create(recipients(),basic),fault==='copy'||fault==='foreign'?/altered-writer-row/:fault==='value'?/altered-identifier-row/:fault==='unknown'?/unknown-identifier/:/identifier-grammar/);
   }finally{(OwnedRequestHealthHost.prototype as any).checkCapture=original;}
  }
@@ -62,7 +62,7 @@ test('P54 identifier source faults omissions and rollback',async()=>{
  }finally{OwnedRequestHealthHost.prototype.prepare=prepare;LocalBattleEnv.prototype.close=close;NativeOwnerKnowledgeController.prototype.preflight=barrier;await s.close();}
 });
 test('P54 constructed waiting forced Revival and terminal lifetime',async()=>{let r=recipients(),s=await create(r,['First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer (Pawmot)\nAbility: Iron Fist\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash','Watcher (Giratina)\nAbility: Pressure\n- Splash\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash']);
- const available=()=>{for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property)))assert.notEqual(f.state,'unknown');}};
+ const available=()=>{for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerDetailsProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property)))assert.notEqual(f.state,'unknown');}};
  try{await joint(s,'p1','move 2');available();assert.equal(read(s,r.p2).projection.request.state,'waiting');await s.stepForcedSwitch(choice(s,'p1','switch 2'));await joint(s,'p1','move 1');available();assert.equal(read(s,r.p1).projection.request.state,'revival_selection');await s.stepRevival(choice(s,'p1','switch 2'));check(s,r);emit('wait',{actual_constructed_forced_Revival_wait_owned_rows:true});}finally{await s.close();}
- r=recipients();s=await create(r,['Mewtwo\nAbility: Pressure\n- Psystrike','Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash']);try{await joint(s,'p1','move 1');for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerIdentifiersProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property))){assert.equal(f.state,'unknown');assert.equal(f.value,null);assert.equal(f.reason,'not_emitted');}}emit('terminal',{no_stale_identifier_carry_forward:true});}finally{await s.close();}
+ r=recipients();s=await create(r,['Mewtwo\nAbility: Pressure\n- Psystrike','Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash']);try{await joint(s,'p1','move 1');for(const p of owners){const pair=read(s,r[p]);checkNativeOwnerDetailsProjection(pair.projection);for(const f of pair.projection.current.filter((f:any)=>['item','ability'].includes(f.property))){assert.equal(f.state,'unknown');assert.equal(f.value,null);assert.equal(f.reason,'not_emitted');}}emit('terminal',{no_stale_identifier_carry_forward:true});}finally{await s.close();}
 });

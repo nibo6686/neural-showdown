@@ -212,6 +212,15 @@ function generate({source, historical, check=false}) {
   for (const key of ['format_provenance','public_typed_state_lifecycle','public_consequence_matrix','public_ability_effectiveness','public_item_evidence']) {
     value[key] = {...value[key],native_source_comparison:'effect_source_comparison.entries; unreviewed deltas unsupported-fail-closed; class_review names adopted changes; other claims remain historical only'};
   }
+  if(!value.local_coverage_sources.files.includes('../docs/contracts/OBSERVABLE_STATE.md'))value.local_coverage_sources.files.push('../docs/contracts/OBSERVABLE_STATE.md');
+  const localHash=require('node:crypto').createHash('sha256');
+  for(const name of [...value.local_coverage_sources.files].sort()) {
+    const bytes=fs.readFileSync(path.resolve(root,'sim-core',name)), text=bytes.toString('utf8');
+    if(!Buffer.from(text,'utf8').equals(bytes))throw new Error('Invalid UTF-8 local coverage source: '+name);
+    localHash.update(name).update('\0').update(text.replace(/\r\n/g,'\n')).update('\0');
+  }
+  value.local_coverage_sources.sha256=localHash.digest('hex');
+  value.local_coverage_sources.native_digest_scope='Current local bytes only; historical semantic review digest is retained separately';
   value.review_status='source-compared-with-fail-closed-deltas';
   const output=path.join(root,'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json');
   const bytes=JSON.stringify(value)+'\n';

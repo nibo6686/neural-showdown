@@ -41,7 +41,7 @@ function python(value: unknown, identityOnly = false) {
     'import sys', 'from neural.pipeline_json_wire import load_json',
     'from neural.ts_identity import verify_bundle_identities',
     'for bundle in load_json(sys.stdin): verify_bundle_identities(bundle)',
-  ].join('\n')] : ['-m', 'neural.pipeline_record'], {
+  ].join('\n')] : ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     cwd: root, env: {...env, PYTHONPATH: path.join(root, 'trainer/src')},
     input: JSON.stringify(value), encoding: 'utf8', timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
   });

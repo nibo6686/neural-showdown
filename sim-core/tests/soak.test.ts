@@ -220,7 +220,7 @@ for (const actor of ['p1', 'p2'] as const) {
           const ownView = bundle.successor_observation.view;
           const target = p === actor ? ownView.self_team.find(p => p.active)! : ownView.opponent_team.find(p => p.active)!;
           assert.deepEqual(target.types, ['Water']);
-          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const python = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(bundle), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
           assert.equal(python.status, 0, python.stderr);

@@ -1,3 +1,4 @@
+import {NATIVE11_CONTEXT} from '../src/version_profile';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Battle, BattleStream, Side, Teams } from 'pokemon-showdown';
@@ -76,7 +77,7 @@ class Probe {
       }
       for (const row of selected) {
         const publicIndex = this.indexed.length;
-        const projected = projectPipelineProtocolPrefix([row.record]);
+        const projected = projectPipelineProtocolPrefix([row.record],NATIVE11_CONTEXT);
         this.indexed.push({ ...row, public: publicIndex,
           normalized: projected.length ? this.indexed.filter(x => x.normalized !== null).length : null });
       }
@@ -149,7 +150,7 @@ function assertBirth(probe: Probe, owner: PlayerID) {
 function assertCommittedIndices(probe: Probe, session: PipelineIntegrationSession) {
   const publicRows = probe.indexed.map(row => row.record);
   assert.deepEqual((env(session) as any).logLines, publicRows, 'actual spectator positional ledger');
-  const projected = projectPipelineProtocolPrefix(publicRows);
+  const projected = projectPipelineProtocolPrefix(publicRows,NATIVE11_CONTEXT);
   for (const owner of owners) {
     assert.deepEqual(session.boundary.perspectives[owner].observation.protocol_prefix, projected);
     assert.deepEqual(history(session, owner).boundaries.at(-1)!.prefix, projected);
@@ -321,7 +322,7 @@ test('P26 indexed events', async () => taps(async probes => {
     assert.throws(() => projectPipelineProtocolPrefix(['||>>> diagnostic']), /Unsupported raw protocol event: <empty>/); 
     assert.ok(probe.indexed.some(row => row.record.startsWith('|tier|') && row.normalized === null));
     const timestamp = probe.indexed.find(row => row.record === '|t:|123')!;
-    assert.equal(projectPipelineProtocolPrefix(publicRows)[timestamp.normalized!], '|t:|0');
+    assert.equal(projectPipelineProtocolPrefix(publicRows,NATIVE11_CONTEXT)[timestamp.normalized!], '|t:|0');
     const openings = probe.mappedEvents().filter(e => e.command === 'switch'); assert.equal(openings.length, 2);
     assert.deepEqual(openings.map(e => [e.token, e.first_internal, e.end_internal, e.rows[0].public, e.rows[0].normalized]),
       [['p1:slot:1', 15, 18, 15, 13], ['p2:slot:1', 18, 21, 16, 14]]);

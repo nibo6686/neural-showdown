@@ -37,9 +37,9 @@ def test_historical_paths_and_literals():
 
 def test_revision_structure_negatives():
     f, negatives = load('reader-fixtures'), load('resealed-negatives')
-    for name, pattern in [('target', 'native11-unadopted'), ('unknown', 'unknown-revision'), ('conflict', 'conflicting-revisions')]:
+    for name, pattern in [('target', 'unknown-revision'), ('unknown', 'unknown-revision'), ('conflict', 'conflicting-revisions')]:
         with pytest.raises(ValueError, match=pattern): reader.validate_historical_pipeline_bundle(negatives[name])
-    with pytest.raises(ValueError, match='native11-unadopted'): reader.validate_historical_pipeline_episode_evidence(negatives['predecessor'])
+    with pytest.raises(ValueError, match='unknown-revision'): reader.validate_historical_pipeline_episode_evidence(negatives['predecessor'])
     bad_result = copy.deepcopy(f['result']); bad_result['records']['p1'][0] = negatives['target']
     with pytest.raises(ValueError, match='conflicting-revisions'): reader.validate_historical_pipeline_episode_result(bad_result)
     bad_sweep = copy.deepcopy(f['sweep']); bad_sweep['beliefs'][1]['fields']['transition_lineage']['simulator_revision'] = TARGET
@@ -47,7 +47,7 @@ def test_revision_structure_negatives():
     bad_evidence = copy.deepcopy(f['bundle']); bad_evidence['successor_belief']['evidence'] = [{'provenance': {'kind': 'simulator_only_truth', 'simulator_revision': TARGET}}]
     with pytest.raises(ValueError, match='conflicting-revisions'): reader.validate_pipeline_bundle(bad_evidence)
     assert recognized_reader_revisions({'schema_version': 'pipeline-linked-record/v1', 'transition': {'simulator_revision': OLD}, 'request': {'simulator_revision': TARGET}}) == (OLD,)
-    for selection, pattern in [('native11', 'native11-unadopted'), ('alien', 'unknown-profile')]:
+    for selection, pattern in [('native11', 'unknown-revision'), ('alien', 'unknown-profile')]:
         with pytest.raises(ValueError, match=pattern): select_reader_profile(f['bundle'], selection)
     assert select_reader_profile(f['bundle']) is HISTORICAL10
     # Reserved calls never change the active singleton/default reader.
@@ -70,7 +70,7 @@ def test_cli_dispatch_branches():
     empty = json.loads((ROOT / 'artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json').read_text(encoding='utf-8'))
     result = cli(empty, '--reader-profile', 'historical10'); assert result.returncode == 0 and result.stdout == '[]\n', result.stderr
     failures = [(empty, ('--reader-profile=auto',), 'ambiguous-revision'),
-                (f['bundle'], ('--reader-profile=native11',), 'native11-unadopted'),
+                (f['bundle'], ('--reader-profile=native11',), 'unknown-revision'),
                 (f['bundle'], ('--reader-profile=alien',), 'unknown-profile'),
                 (load('resealed-negatives')['unknown'], (), 'unknown-revision')]
     for value, args, pattern in failures:

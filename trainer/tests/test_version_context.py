@@ -60,5 +60,5 @@ def test_cli_compact_and_negative():
     valid = cli(load('reader-fixtures')['sweep'], '--reader-profile=historical10')
     assert valid.returncode == 0 and valid.stdout == load('old-publication-goldens')['sweep']['cli_literal'], valid.stderr
     invalid = cli(load('resealed-negatives')['target'])
-    assert invalid.returncode == 2 and invalid.stdout == '' and 'native11-unadopted' in invalid.stderr
+    assert invalid.returncode == 2 and invalid.stdout == '' and 'unknown-revision' in invalid.stderr
     emit('python-cli', compact_literal=True, invalid_exit=2, invalid_stdout='')

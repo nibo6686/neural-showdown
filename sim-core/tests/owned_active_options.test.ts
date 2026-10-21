@@ -6,7 +6,7 @@ import { NativeBirthEnrollment } from '../src/owner_identity_crosswalk';
 import { OwnedRequestHealthHost } from '../src/owned_request_health';
 import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
 import { LocalBattleEnv } from '../src/env_manager';
-import { checkNativeOwnerActiveOptionsProjection, knowledgeIdentity } from '../src/perspective_knowledge';
+import { checkNativeOwnerDetailsProjection, knowledgeIdentity } from '../src/perspective_knowledge';
 import { choice, joint, native, env } from './helpers/owner_selection_restore';
 const owners=['p1','p2'] as const;
 const base={battle_id:'P53',format:'gen9randombattle',seed:[1,2,3,4],observation_schema_version:'observable-battle-state/v2' as const};
@@ -17,7 +17,7 @@ const simple=['Alpha (Magikarp)\nAbility: Swift Swim\n- Splash\n- Tackle\n\nBeta
 async function create(r:ReturnType<typeof recipients>,teams?:string[]){const generate=Teams.generate;let count=0;if(teams)Teams.generate=()=>Teams.import(teams[count++])!;try{return await PipelineIntegrationSession.create({...base,knowledge_recipients:r});}finally{Teams.generate=generate;}}
 function check(s:PipelineIntegrationSession,r:ReturnType<typeof recipients>){
  for(const p of owners){const pair=read(s,r[p]),descriptor=pair.projection.request,request=env(s).getRequest(p)!.raw as any;
-  checkNativeOwnerActiveOptionsProjection(pair.projection);assert.equal(pair.binding.request_descriptor,'owned-active-options/v1');assert.equal(pair.projection.result,'incomplete');
+  checkNativeOwnerDetailsProjection(pair.projection);assert.equal(pair.binding.request_descriptor,'owned-active-options/v1');assert.equal(pair.projection.result,'incomplete');
   assert.equal(descriptor.schema,'owned-active-options/v1');assert.equal(descriptor.cursor,pair.binding.prefix_cursor);
   assert.equal(descriptor.sequence,s.readRequestDeliveryHistory(s.getRequestDeliveryHandle(p),p).boundaries.at(-1)!.current!.sequence);
   assert.equal(descriptor.state,'ordinary_pp');assert.match(descriptor.subject,new RegExp('^'+p+':roster:[1-6]$'));
@@ -34,9 +34,9 @@ test('P53 generated ordinary options held references and privacy',async()=>{
   await joint(s,'p1','switch 2','switch 2');check(s,r);
   for(const [i,p] of owners.entries()){const pair=read(s,r[p]);assert.equal(pair.projection.starting,initial[i].projection.starting);assert.notEqual(native(s)[p]!.active[0],actors[i]);assert.ok(native(s)[p]!.active[0].moveSlots.every(slot=>!slots[i].includes(slot)));assert.equal(pair.projection.request.subject,p+':roster:1');}
   assert.equal(JSON.stringify(initial),bytes);const ordinary=JSON.stringify({boundary:s.boundary,snapshot:(s as any).snapshot,diagnostics:env(s).diagnostics()});for(const key of ['owned-active-options','request_move_label','native-owner-active-options'])assert.ok(!ordinary.includes(key));
-  const copy:any=structuredClone(read(s,r.p1).projection);copy.request.options[0].pp.value=copy.request.options[0].max_pp.value+1;copy.id=knowledgeIdentity(copy);assert.throws(()=>checkNativeOwnerActiveOptionsProjection(copy));
-  const reason:any=structuredClone(read(s,r.p1).projection);reason.request.state='unsupported';reason.request.options=null;reason.request.reason='not_emitted';reason.id=knowledgeIdentity(reason);assert.throws(()=>checkNativeOwnerActiveOptionsProjection(reason),/native unsupported options/);
-  const raw:any=structuredClone(read(s,r.p1).projection);raw.request.options[0].raw_request='forbidden';raw.id=knowledgeIdentity(raw);assert.throws(()=>checkNativeOwnerActiveOptionsProjection(raw));assert.throws(()=>s.readOwnerKnowledge(raw,r.p1),/copied-or-stale/);
+  const copy:any=structuredClone(read(s,r.p1).projection);copy.request.options[0].pp.value=copy.request.options[0].max_pp.value+1;copy.id=knowledgeIdentity(copy);assert.throws(()=>checkNativeOwnerDetailsProjection(copy));
+  const reason:any=structuredClone(read(s,r.p1).projection);reason.request.state='unsupported';reason.request.options=null;reason.request.reason='not_emitted';reason.id=knowledgeIdentity(reason);assert.throws(()=>checkNativeOwnerDetailsProjection(reason),/native unsupported options/);
+  const raw:any=structuredClone(read(s,r.p1).projection);raw.request.options[0].raw_request='forbidden';raw.id=knowledgeIdentity(raw);assert.throws(()=>checkNativeOwnerDetailsProjection(raw));assert.throws(()=>s.readOwnerKnowledge(raw,r.p1),/copied-or-stale/);
   emit('generated',{both_owner_actual_writer_delivery_consumer:true,fresh_restored_actor_and_slot_references:true,two_literal_original_slot_reorders:true,starting_and_suffix_immutable:true,privacy:true});
  }finally{await s.close();}
 });
@@ -84,7 +84,7 @@ test('P53 writer source substitution and prepared PP rollback',async()=>{
 });
 test('P53 constructed no-active descriptors and terminal',async()=>{
  let r=recipients(),s=await create(r,['First (Snorlax)\nAbility: Immunity\n- Splash\n- Explosion\n\nHealer (Pawmot)\nAbility: Iron Fist\n- Revival Blessing\n- Splash\n\nReserve (Magikarp)\nAbility: Swift Swim\n- Splash','Watcher (Giratina)\nAbility: Pressure\n- Splash\n\nWaitingReserve (Magikarp)\nAbility: Swift Swim\n- Splash']);
- const unavailable=(p:'p1'|'p2',state:string)=>{const pair=read(s,r[p]),desc=pair.projection.request;checkNativeOwnerActiveOptionsProjection(pair.projection);assert.equal(desc.state,state);assert.equal(desc.options,null);assert.equal(desc.subject,null);assert.equal(desc.reason,'not_emitted');};
+ const unavailable=(p:'p1'|'p2',state:string)=>{const pair=read(s,r[p]),desc=pair.projection.request;checkNativeOwnerDetailsProjection(pair.projection);assert.equal(desc.state,state);assert.equal(desc.options,null);assert.equal(desc.subject,null);assert.equal(desc.reason,'not_emitted');};
  try{await joint(s,'p1','move 2');unavailable('p1','forced_switch');unavailable('p2','waiting');await s.stepForcedSwitch(choice(s,'p1','switch 2'));await joint(s,'p1','move 1');unavailable('p1','revival_selection');unavailable('p2','waiting');await s.stepRevival(choice(s,'p1','switch 2'));check(s,r);emit('no-active',{constructed_forced_Revival_wait:true,nullable_options_not_empty_repertoire:true});}finally{await s.close();}
  r=recipients();s=await create(r,['Mewtwo\nAbility: Pressure\n- Psystrike','Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash']);
  try{await joint(s,'p1','move 1');for(const p of owners){unavailable(p,'terminal');assert.equal(read(s,r[p]).projection.request.sequence,null);}emit('terminal',{actual_constructed_terminal:true,no_retained_PP_as_current:true});}finally{await s.close();}

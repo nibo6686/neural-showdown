@@ -11,10 +11,6 @@ const root=path.resolve(__dirname,'../../..');
 const load=(f:string)=>JSON.parse(readFileSync(path.join(root,f),'utf8'));
 const emit=(name:string,data:object)=>console.log('P34_WITNESS '+JSON.stringify({name,...data}));
 const saved=load('docs/planning/perspective-fidelity-prompt31-reader-fixtures.json');
-const origin={battle_key:'fixture-Éclair-😀',format:'gen9randombattle',engine:'pokemon-showdown@0.11.10',rule_version:'pk-rules/v1'};
-const replay=['|start','|switch|p1a: Éclair|Pikachu, L80|100/100','|switch|p2a: Beta|Gengar, L80|100/100','|-enditem|p1a: Éclair|Oran Berry|[eat]',
-'|move|p2a: Beta|Tackle|p1a: Éclair','|replace|p2a: Beta|Zoroark, L80|100/100','|win|Éclair'];
-
 test('P34 PRE eligibility and historical readers',()=>{
  assert.equal(positiveFidelityScope('historical10','gen9randombattle'),true);assert.equal(positiveFidelityScope('historical10','unknown'),false);
  assert.equal(positiveFidelityScope('native11','gen9randombattle'),false);
@@ -35,7 +31,7 @@ test('P34 PRE eligibility and historical readers',()=>{
  emit('pre-eligibility',{finite_target_policy_only:true,old_true_and_conservative_flag_meaning:true,saved_ids_unchanged:true,target_callers:'UNEXECUTED'});
 });
 
-test('P34 PRE bounded historical producer',async()=>{
+test('P34 PRE bounded historical producer',{skip:'Retired: requires live 0.11.10; committed historical reader controls and native LIVE producer remain'},async()=>{
  const generate=Teams.generate;let calls=0;
  Teams.generate=function(){return Teams.import(calls++===0?'Snorlax\nLevel: 100\nAbility: Immunity\n- Body Slam':'Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash')!;};
  try {
@@ -46,17 +42,9 @@ test('P34 PRE bounded historical producer',async()=>{
  }finally{Teams.generate=generate;}
 });
 
-test('P34 PRE source entry and origin negatives',()=>{
- const audit=load('docs/contracts/fixtures/perspective-knowledge-v1/replay-ordinary.json'), before=JSON.stringify(audit);
- const b=new SourceRegistryBuilder();b.setOrigin(origin);b.setReplaySource(replay);const registry=b.freeze();
- const checked=checkKnowledgeSourceBinding(audit,registry,null,audit.required_profile);
- assert.equal(checked.source_verification.replay_source,true);assert.equal(checked.fact_semantics,'unverified');assert.equal(checked.published,false);
- assert.equal(JSON.stringify(audit),before);
- assert.throws(()=>checkKnowledgeSourceBinding(audit,{} as any,null,audit.required_profile),/capability\/registry/);
- const target=new SourceRegistryBuilder();assert.throws(()=>target.setOrigin({...origin,engine:'pokemon-showdown@0.11.11'}),/registry\/origin/);
- target.setOrigin(origin);assert.equal(target.freeze().availability.origin,true,'old trusted-owner source remains supported');
- assert.ok(new LegacyContextBuilder().freeze());
- emit('old-source',{actual_saved_factory_and_checker:true,old_origin_unchanged:true,target_label_rejected:true,no_native_content_provenance_claim:true});
+test('P34 source factories reject native runtime',()=>{
+ assert.throws(()=>new SourceRegistryBuilder(),/historical-origin-quarantined/);
+ assert.throws(()=>new LegacyContextBuilder(),/historical-origin-quarantined/);
 });
 
 const live=String(installedNativeProfile().package_version)==='0.11.11';

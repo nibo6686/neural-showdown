@@ -50,7 +50,7 @@ test('Node UTF-8 names and canonical identities survive actual Python publicatio
     assert.ok(bundle);
     const wire = JSON.stringify(bundle);
     assert.ok(wire.includes('Flabébé') && wire.includes('Pokémon'));
-    const published = runPython(['-m', 'neural.pipeline_record'], wire);
+    const published = runPython(['-m', 'neural.pipeline_record', '--reader-profile=native11'], wire);
     assert.equal(published.status, 0, published.stderr);
     assert.equal(published.stderr, '');
     const row = JSON.parse(published.stdout);
@@ -64,7 +64,7 @@ test('Node UTF-8 names and canonical identities survive actual Python publicatio
 
     const tampered = structuredClone(bundle);
     tampered.input_observation.protocol_prefix.push('|message|Flabébé');
-    const rejected = runPython(['-m', 'neural.pipeline_record'], JSON.stringify(tampered));
+    const rejected = runPython(['-m', 'neural.pipeline_record', '--reader-profile=native11'], JSON.stringify(tampered));
     assert.equal(rejected.status, 2, rejected.stderr);
     assert.equal(rejected.stdout, '');
     assert.doesNotMatch(rejected.stderr, /Traceback/);
@@ -92,7 +92,7 @@ test('Python production CLI rejects malformed wire input and Unicode diagnostics
     { wire: '{"\\ud800":{"root_seed":1}}', diagnostic: /\\ud800/ },
   ];
   for (const { wire, diagnostic } of cases) {
-    const rejected = runPython(['-m', 'neural.pipeline_record'], wire);
+    const rejected = runPython(['-m', 'neural.pipeline_record', '--reader-profile=native11'], wire);
     assert.equal(rejected.status, 2, rejected.stderr);
     assert.equal(rejected.stdout, '');
     assert.match(rejected.stderr, /^pipeline-record validation failed:/);

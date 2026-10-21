@@ -153,7 +153,7 @@ and current projection limits.
 `transformed`, `displayed_species_uncertain`, `illusion_revealed`, `details`,
 `active`, `fainted`, `hp_text`, `hp_ratio`, `status`, `status_source`,
 `status_started_turn`, `status_turns_public`, `gender`, `level`, `types`,
-`terastallized`, and `volatiles`. These fields are copied for both teams.
+`terastallized`, optional `ability_effects`, and `volatiles`. These fields are copied for both teams.
 Acting-player `self_team` additionally receives the explicit self-only allowlist
 `item`, `last_item`, `item_state`, `item_suppressed`, `ability`, `base_ability`,
 `ability_state`, `ability_suppressed`, `moves`, `revealed_moves`, `tera_type`,
@@ -253,6 +253,7 @@ model eligibility stated in the preceding table):
 | `ability`, `base_ability` | optional string or null | acting_player_private | copied only for self | eligible only at source visibility |
 | `ability_state`, `ability_suppressed` | optional fixed enum/boolean | acting_player_private | copied only for self | eligible only at source visibility |
 | `moves`, `revealed_moves` | optional string arrays | acting_player_private | cloned only for self; omitted for opponent | eligible only at source visibility |
+| `ability_effects` | optional string array | public | announced ability-state effects (currently Slow Start); start adds, expiry/silent end or departure clears; omitted before evidence; no counter or duration | eligible |
 | `types`, `volatiles` | string arrays, non-null | public | cloned for both teams | eligible |
 | `tera_type` | optional string or null | acting_player_private | copied only for self | eligible only at source visibility |
 | `terastallized` | boolean, non-null | public | protocol/request reduction, cloned | eligible |

@@ -288,7 +288,7 @@ for (const actor of ['p1', 'p2'] as const) {
               const state = outputs[0].boundary.perspectives[player];
               assert.deepEqual(state.belief, outputs[1].boundary.perspectives[player].belief);
               for (const foeView of state.observation.view.opponent_team) assert.equal('tera_type' in foeView, false);
-              const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+              const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
                 input: JSON.stringify(outputs[0].record_bundles[player]), encoding: 'utf8',
                 env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
               });
@@ -417,7 +417,7 @@ for (const actor of ['p1', 'p2'] as const) {
         assert.deepEqual(outputs[0].record_bundles, outputs[1].record_bundles);
         for (const player of ['p1', 'p2'] as const) {
           assert.deepEqual(outputs[0].boundary.perspectives[player].belief, outputs[1].boundary.perspectives[player].belief);
-          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(outputs[0].record_bundles[player]), encoding: 'utf8',
             env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
@@ -503,7 +503,7 @@ for (const actor of ['p1', 'p2'] as const) {
         assert.deepEqual(outputs[0].record_bundles, outputs[1].record_bundles);
         for (const player of ['p1', 'p2'] as const) {
           assert.deepEqual(outputs[0].boundary.perspectives[player].belief, outputs[1].boundary.perspectives[player].belief);
-          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(outputs[0].record_bundles[player]), encoding: 'utf8',
             env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });
@@ -666,7 +666,7 @@ for (const actor of ['p1', 'p2'] as const) {
           assert.equal(state.belief.observation.observation_id, state.observation.observation_id);
           assert.equal(state.belief.transition_lineage?.transition_id, outputs[0].transition_id);
           assert.deepEqual(state.belief, outputs[1].boundary.perspectives[p].belief);
-          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+          const check = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
             input: JSON.stringify(outputs[0].record_bundles[p]), encoding: 'utf8',
             env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
           });

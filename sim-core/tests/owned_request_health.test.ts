@@ -6,7 +6,7 @@ import { OwnedRequestHealthHost } from '../src/owned_request_health';
 import { NativeOwnerKnowledgeController } from '../src/native_owner_knowledge';
 import { NativeBirthEnrollment, NativeObjectAssociation } from '../src/owner_identity_crosswalk';
 import { LocalBattleEnv } from '../src/env_manager';
-import { checkNativeOwnerHealthProjection, checkNativeOwnerProjection, knowledgeIdentity } from '../src/perspective_knowledge';
+import { checkNativeOwnerDetailsProjection, checkNativeOwnerProjection, knowledgeIdentity } from '../src/perspective_knowledge';
 import { choice, joint, native, env } from './helpers/owner_selection_restore';
 const owners = ['p1', 'p2'] as const;
 const r = () => ({ p1: {}, p2: {} });
@@ -22,9 +22,9 @@ async function create(recipients: ReturnType<typeof r>, teams?: string[]) {
 function check(s: PipelineIntegrationSession, recipients: ReturnType<typeof r>) {
   for(const owner of owners) {
     const pair=read(s,recipients[owner]), battle=native(s), side=battle[owner]!;
-    checkNativeOwnerHealthProjection(pair.projection);assert.throws(()=>checkNativeOwnerProjection(pair.projection));
-    assert.equal(pair.projection.result,'incomplete');assert.equal(pair.projection.request,null);
-    assert.equal(pair.binding.request_adaptation,'owned_health/v1');assert.equal(pair.binding.request_descriptor,'not_adopted');
+    checkNativeOwnerDetailsProjection(pair.projection);assert.throws(()=>checkNativeOwnerProjection(pair.projection));
+    assert.equal(pair.projection.result,'incomplete');assert.equal(pair.projection.request.schema,'owned-active-options/v1');
+    assert.equal(pair.binding.request_adaptation,'owned_health/v1');assert.equal(pair.binding.request_descriptor,'owned-active-options/v1');
     for(const [i,set] of side.team.entries()) {
       const actor=side.pokemon.find(p=>p.set===set)!;assert.ok(actor);
       assert.equal(health(s,recipients[owner],i+1,'hp').value.data,actor.hp);
@@ -34,7 +34,7 @@ function check(s: PipelineIntegrationSession, recipients: ReturnType<typeof r>) 
       else if(actor.status)assert.equal(status.value.data,actor.status);
       else{assert.equal(status.state,'known_absent');assert.equal(status.value,null);}
     }
-    for(const fact of pair.projection.current)if(fact.family!=='K05')assert.equal(fact.state,'unknown');
+    for(const fact of pair.projection.current)if(!['K03','K04','K05','K18','K19'].includes(fact.family))assert.equal(fact.state,'unknown');
     assert.throws(()=>s.readOwnerKnowledge(s.getOwnerKnowledgeHandle(recipients[owner]),recipients[owner==='p1'?'p2':'p1']),/copied-or-stale/);
   }
 }
@@ -42,7 +42,7 @@ test('P50 generated health writer delivery restore and privacy',async()=>{
   const recipients=r(),s=await create(recipients),pin=Object.getOwnPropertyDescriptor(Battle.prototype,'getRequests');
   try {
     check(s,recipients);const projection=read(s,recipients.p1).projection;
-    for(const fault of ['faint-absence','current-ability','bad-status','cursor']){const copy:any=structuredClone(projection);const fact=copy.current.find((f:any)=>f.property==='status');if(fault==='faint-absence'){fact.property='fainted';fact.state='known_absent';fact.value=null;fact.precision='not_applicable';}if(fault==='current-ability'){const a=copy.current.find((f:any)=>f.property==='ability');a.state='known';a.value={type:'text',data:'Pressure'};a.reason='none';a.precision='exact';a.observed_at=0;}if(fault==='bad-status'){fact.state='known';fact.value={type:'text',data:'garbage'};fact.reason='none';fact.precision='exact';}if(fault==='cursor')fact.observed_at=-1;copy.id=knowledgeIdentity(copy);assert.throws(()=>checkNativeOwnerHealthProjection(copy));}
+    for(const fault of ['faint-absence','current-ability','bad-status','cursor']){const copy:any=structuredClone(projection);const fact=copy.current.find((f:any)=>f.property==='status');if(fault==='faint-absence'){fact.property='fainted';fact.state='known_absent';fact.value=null;fact.precision='not_applicable';}if(fault==='current-ability'){const a=copy.current.find((f:any)=>f.property==='ability');a.state='known';a.value={type:'text',data:'Pressure'};a.reason='none';a.precision='exact';a.observed_at=0;}if(fault==='bad-status'){fact.state='known';fact.value={type:'text',data:'garbage'};fact.reason='none';fact.precision='exact';}if(fault==='cursor')fact.observed_at=-1;copy.id=knowledgeIdentity(copy);assert.throws(()=>checkNativeOwnerDetailsProjection(copy));}
     const first=owners.map(p=>read(s,recipients[p])),bytes=JSON.stringify(first);
     for(let n=0;n<2;n++){
       const step=await s.step({p1:choice(s,'p1','switch 2'),p2:choice(s,'p2','switch 2')});check(s,recipients);
@@ -83,7 +83,7 @@ test('P50 constructed equal deliveries update forced Revival wait terminal',asyn
   try{const before=read(s,recipients.p1);await assert.rejects(joint(s,'p1','switch 2'),/rejected-action/);assert.ok(updates>0);assert.equal(read(s,recipients.p1),before);await joint(s,'p1','move 1');check(s,recipients);}finally{OwnedRequestHealthHost.prototype.received=received;await s.close();}
   emit('constructed',{generated_reachability:'not-certified',equal_byte_fresh_commit:true,native_update_receipt_rejection_parent_retained:true,forced:true,Revival:true,waiting:true,terminal_health_unknown:true,actual_admitted_terminal_zero_capture:true,status_omission_vs_absence:true});
 });
-test('P50 source transfer and settled contradiction rollback retry',async()=>{
+test('P50 rejects copied source transfer and settled contradiction; rollback retry',async()=>{
   const register=NativeBirthEnrollment.prototype.registerRequestHealthReceiver;
   for(const fault of ['frame','rows','owner']){
     let cause: Error | undefined;

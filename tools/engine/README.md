@@ -57,3 +57,11 @@ For Node/Python full runs, create a temporary directory and set `NEURAL_TEST_OUT
 for both runtimes. Run the Node target-fidelity LIVE producer before its Python
 consumer; remove the directory in a `finally` block. Without this variable the
 Python LIVE handoff test skips. `tools/test_fast.ps1` manages this automatically.
+
+Find a generated witness on the pinned engine with
+`node tools/engine/find_witness_seed.cjs --species=Jirachi --move=wish --max=5000`.
+Optional `--ability`, `--item`, one-based `--slot`, `--start` and `--tail=a,b,c`
+bound the predicate/search. The exported `findWitnessSeed(predicate, options)`
+also accepts team predicates (and receives the seed as its second argument).
+Native inventory regeneration includes the current local source digest, including
+`OBSERVABLE_STATE.md`; its historical semantic-review digest remains separate.

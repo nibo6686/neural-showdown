@@ -27,12 +27,12 @@ import { rehash } from './public_consequence_test_helpers';
 const CONFIG = { battle_id: 'episode-regression', format: 'gen9randombattle', seed: [101, 202, 303, 404] };
 
 for (const scenario of [
-  {label: 'plain Air Lock', seed: 16, ability: 'Air Lock', current: 'airlock', base: 'airlock', choice: 'move 2', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
-  {label: 'boost Intimidate', seed: 2, ability: 'Intimidate', current: 'intimidate', base: 'intimidate', choice: 'move 1', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
-  {label: 'Imposter cleanup', seed: 9, ability: 'Imposter', current: 'imposter', base: 'imposter', choice: 'move 1', partner: 'Pikachu\nLevel: 100\nEVs: 252 HP / 252 Atk\nAbility: Static\n- Explosion'},
-  {label: 'Terapagos silent replacement', seed: 135, ability: 'Tera Shift', current: null, base: null, choice: 'move 2 terastallize', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
-  {label: 'Terapagos public replacement', seed: 135, ability: 'Tera Shift', current: 'teraformzero', base: 'teraformzero', choice: 'move 2 terastallize', partner: 'Torkoal\nLevel: 1\nAbility: Drought\n- Splash'},
-  {label: 'Ogerpon public replacement', seed: 109, ability: 'Defiant', current: 'embodyaspectteal', base: 'embodyaspectteal', choice: 'move 2 terastallize', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
+  {label: 'plain Air Lock', seed: 101, ability: 'Air Lock', current: 'airlock', base: 'airlock', choice: 'move 2', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
+  {label: 'boost Intimidate', seed: 5, ability: 'Intimidate', current: 'intimidate', base: 'intimidate', choice: 'move 1', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
+  {label: 'Imposter cleanup', seed: 38, ability: 'Imposter', current: 'imposter', base: 'imposter', choice: 'move 1', partner: 'Pikachu\nLevel: 100\nEVs: 252 HP / 252 Atk\nAbility: Static\n- Explosion'},
+  {label: 'Terapagos silent replacement', seed: 28, ability: 'Tera Shift', current: null, base: null, choice: 'move 4 terastallize', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
+  {label: 'Terapagos public replacement', seed: 28, ability: 'Tera Shift', current: 'teraformzero', base: 'teraformzero', choice: 'move 4 terastallize', partner: 'Torkoal\nLevel: 1\nAbility: Drought\n- Splash'},
+  {label: 'Ogerpon public replacement', seed: 4, ability: 'Defiant', current: 'embodyaspectteal', base: 'embodyaspectteal', choice: 'move 3 terastallize', partner: 'Pikachu\nLevel: 1\nAbility: Static\n- Splash'},
 ]) for (const actor of PLAYERS) for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2'] as const) {
   test(`C22 bounded ability ${scenario.label} ${actor} ${version}: joined requestless authority controls`, async () => {
     console.log(`Ability authority control: ${scenario.label}/${actor}/${version}`);
@@ -159,7 +159,7 @@ for (const scenario of [
 for (const actor of PLAYERS) for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2'] as const) {
   test(`C22 generated Trace ${actor} ${version}: joined requestless copy controls`, async () => {
     console.log(`Trace copied-ability control: ${actor}/${version}`);
-    const generated = Teams.generate('gen9randombattle', {seed: [2, 2, 3, 4]})[2];
+    const generated = Teams.generate('gen9randombattle', {seed: [236, 2, 3, 4]})[2];
     assert.equal(generated.species, 'Gardevoir'); assert.equal(generated.ability, 'Trace');
     const direct = new Battle({formatid: 'gen9randombattle', seed: '1,2,3,4'});
     const partner = Teams.import('Pikachu\nLevel: 1\nAbility: Static\n- Splash')!;
@@ -258,7 +258,7 @@ for (const actor of PLAYERS) for (const version of ['observable-battle-state/v1'
 test('C22 generated Trace terminal faint cleanup publishes restored owner base and rejects stale copied name', async () => {
   for (const actor of PLAYERS) {
     console.log(`Trace terminal cleanup publication: ${actor}`);
-    const generated = Teams.generate('gen9randombattle', {seed: [2,2,3,4]})[2];
+    const generated = Teams.generate('gen9randombattle', {seed: [236, 2, 3, 4]})[2];
     const partner = Teams.import('Pikachu\nLevel: 100\nEVs: 252 HP / 252 Atk\nAbility: Static\n- Explosion')!;
     const direct = new Battle({formatid: 'gen9randombattle', seed: '1,2,3,4'});
     direct.setPlayer('p1', {name: 'One', team: actor === 'p1' ? [generated] : partner});
@@ -351,14 +351,14 @@ function assertRecords(result: PipelineEpisodeResult) {
   if (parentBranch) assert.equal(result.final_boundary?.branch_id, parentBranch);
 }
 function pythonValidate(bundle: unknown) {
-  const processResult = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+  const processResult = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     input: JSON.stringify(bundle), encoding: 'utf8',
     env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
   });
   assert.equal(processResult.status, 0, processResult.stderr);
 }
-function pythonRun(value: unknown, timeout = 30_000) {
-  const result = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+function pythonRun(value: unknown, timeout = 30_000, profile = 'native11') {
+  const result = spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile='+profile], {
     input: JSON.stringify(value), encoding: 'utf8',
     maxBuffer: 256 * 1024 * 1024, timeout,
     env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
@@ -1247,7 +1247,7 @@ test('v2 evidence retains both owners at every commit and rejects rehashed chain
   delete legacyControl.closure;
   const legacyEvidence = reseal(legacyControl);
   validatePipelineEpisodeEvidence(legacyEvidence, result.records, evidenceExpectation(result));
-  assert.equal(pythonRun(legacyEvidence).status, 0, 'historical v1 evidence remains readable');
+  assert.equal(pythonRun(legacyEvidence,30_000,'historical10').status, 0, 'historical v1 evidence remains readable');
 
   const encodedEnvelope = JSON.stringify(envelope);
   for (const privateKey of ['"simulator_snapshot"', '"simulator_state"', '"seed"', '"hidden_roster"', '"hidden_set"', '"opponent_request"']) {
@@ -1383,7 +1383,7 @@ test('continuation v2 evidence binds its segment origin to both current owned ob
 
 for (const actor of PLAYERS) {
   test(`source Destiny Bond simultaneous terminal ${actor} closes from original requests and publishes both actors`, async () => {
-    const own = Teams.generate('gen9randombattle', { seed: [147, 2, 3, 4] })[0];
+    const own = Teams.generate('gen9randombattle', { seed: [99, 2, 3, 4] })[3];
     assert.equal(own.species, 'Froslass');
     assert.ok(own.moves.includes('destinybond') && own.moves.includes('poltergeist'));
     const other = Teams.import('Snorlax\nAbility: Immunity\n- Splash\n- Crunch\n')![0];
@@ -1850,7 +1850,7 @@ for (const testCase of [
 }
 
 test('simulator failure after a valid commit retains only committed records and final lineage', async () => {
-  const session = await createPipelineIntegrationSession(CONFIG);
+  const session = await createPipelineIntegrationSession({...CONFIG, seed:[2,202,303,404]});
   const original = LocalBattleEnv.prototype.stepSeededTransition;
   let calls = 0;
   try {

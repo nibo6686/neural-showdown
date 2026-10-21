@@ -24,7 +24,7 @@ async function start(own: string, foe: string, owner: 'p1'|'p2') {
   return {stream,battle:(stream as any).battle as Battle,originals};
 }
 
-test('actual environment generates and packs two arrays before submission; production original authority is absent', async () => {
+test('actual environment generates and packs two arrays before submission; production original authority is absent', {skip:'Retired: live 0.11.10 absence/source characterization; native original authority is covered by native_owner_knowledge and original_owner_loadout'}, async () => {
   const generate = Teams.generate, pack = Teams.pack;
   const arrays: Row[][] = [], submitted: string[] = [], events: string[] = [];
   Teams.generate = function(...args: Parameters<typeof generate>) {

@@ -22,7 +22,7 @@ function Start-Gate($name, $executable, $arguments, $directory) {
 try {
     & node (Join-Path $repo 'sim-core/node_modules/typescript/bin/tsc') -p (Join-Path $repo 'sim-core/tsconfig.json')
     if ($LASTEXITCODE -ne 0) { exit 1 }
-    $producer = Start-Gate 'Node producer' 'node' @('--test', '--test-timeout=25000', '--test-name-pattern=P34 LIVE', 'dist/tests/target_fidelity_eligibility.test.js') (Join-Path $repo 'sim-core')
+    $producer = Start-Gate 'Node producer' 'node' @('--test', '--test-timeout=25000', 'dist/tests/target_fidelity_eligibility.test.js') (Join-Path $repo 'sim-core')
     $runs += $producer
     if (-not $producer.Process.WaitForExit([Math]::Max(0,175000-[int]$watch.ElapsedMilliseconds))) { throw 'Node producer timed out' }
     if ($producer.Process.ExitCode -ne 0) { Write-Output $producer.Output.GetAwaiter().GetResult(); Write-Output $producer.Error.GetAwaiter().GetResult(); exit 1 }

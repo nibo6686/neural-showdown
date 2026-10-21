@@ -120,7 +120,7 @@ async function step(session: Session, next: Record<PlayerID, string>) {
 }
 
 function python(bundle: unknown) {
-  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     input: JSON.stringify(bundle), encoding: 'utf8',
     env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')},
   });

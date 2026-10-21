@@ -65,7 +65,7 @@ export function rehash(candidate: Record<string, any>): void {
 export function python(value: unknown, identityOnly = false) {
   const result = spawnSync(process.env.PYTHON || 'python3', identityOnly
     ? ['-c', 'import json,sys; from neural.ts_identity import verify_bundle_identities; verify_bundle_identities(json.loads(sys.stdin.buffer.read().decode("utf8")))']
-    : ['-m', 'neural.pipeline_record'], {
+    : ['-m', 'neural.pipeline_record', '--reader-profile=auto'], {
     input: JSON.stringify(value), encoding: 'utf8',
     timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
     env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')},

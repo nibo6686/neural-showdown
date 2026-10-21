@@ -17,7 +17,7 @@ function validator(historical=false){
  m._compile(fs.readFileSync(filename,'utf8')+'\nexports.exactValidatorTestOnly=validateActiveRequestOverride;',filename);
  return m.exports.exactValidatorTestOnly;
 }
-test('P51 exact target marker and historical strict validator controls',()=>{
+test('P51 exact target marker and historical strict validator controls',t=>{
  const check=validator(),runtime=versions.installedNativeProfile();
  const base={side:{id:'p1',pokemon:[{ident:'p1: Alpha',condition:'10/10'}]},active:[{maybeTrapped:true,moves:[{id:'splash',move:'Splash',pp:10,maxpp:10,target:'self',disabled:false}]}]};
  const side={activeRequest:base,active:[{trapped:true,getLockedMove:()=>null,getMoves:()=>[{id:'splash',disabled:true}]}]};
@@ -31,6 +31,7 @@ test('P51 exact target marker and historical strict validator controls',()=>{
  assert.throws(()=>check(trap(),{...side,active:[{...side.active[0],trapped:false}]},'p1',runtime),/not trapped/);
  assert.throws(()=>check(disabled(),{...side,active:[{...side.active[0],getMoves:()=>[{id:'splash',disabled:false}]}]},'p1',runtime),/not disabled/);
  assert.throws(()=>check(trap(),side,'p1',{...runtime}),/unowned-runtime-profile/);
+ if(!process.env.NEURAL_HISTORICAL_SIM_CORE) { t.diagnostic('Retired live 0.11.10 marker controls; committed historical reader fixtures remain in version_context'); return; }
  const oldVersions=historicalVersions(),old=oldVersions.installedNativeProfile(),oldCheck=validator(true);
  assert.equal(old.package_version,'0.11.10');assert.throws(()=>oldCheck(trap(),side,'p1',old),/keys that differ/);oldCheck(noMarker,side,'p1',old);
  emit('finite-validator',{level:'lower-level-validator-with-model-side-not-native-authority',target_true_and_real_edit:true,disabled_and_trap_truth_checks:true,literal_input_unchanged:true,update_only_noop_rejected:true,owned_historical_runtime:old.package_version,historical_marker_rejected:true,copied_runtime_rejected:true});

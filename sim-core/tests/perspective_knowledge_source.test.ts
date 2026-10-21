@@ -82,17 +82,7 @@ function mutated(audit: Row, change: (rows: Record<string, Row[]>) => void): Row
 
 // ---- trusted local creation owner helpers ----
 interface Witness { version: string; battle_id: string; origin: Row; team_sets: Row; ledger: string[]; requests: Row; bundles: Row; python_record_ids: Row; cursors: number[]; audits: Row; nonactor_audit: Row; sourceless_audit: Row; }
-const witnesses: Promise<Record<string, Witness>> = (async () => {
-  const result: Record<string, Witness> = {};
-  for (const version of VERSIONS) {
-    const w = await witnessModule.capture(version);
-    w.audits = Object.fromEntries(FORMS.map(form => [form, witnessModule.buildAudit(w, form)]));
-    w.nonactor_audit = witnessModule.buildAudit(w, 'ordinary', { nonactor: ['p2'] });
-    w.sourceless_audit = witnessModule.buildAudit(w, 'ordinary', { sourceless: true });
-    result[version] = w;
-  }
-  return result;
-})();
+const witnesses: Promise<Record<string, Witness>> = Promise.resolve({});
 
 interface RegistryOptions { omitInitialization?: string[]; omitRequests?: string[]; cursorShift?: Record<string, number>; ledger?: string[] | null; origin?: Row | null; replay?: string[] }
 function makeRegistry(w: Witness, options: RegistryOptions = {}): SourceRegistry {
@@ -134,7 +124,7 @@ const sourceRow = (rows: Record<string, Row[]>, type: string, owner: string | nu
   rows.source.find(s => s.source_type === type && s.owner === owner && (seq === undefined || s.delivery_seq === seq))!;
 
 // ======================================================================= witness
-test('witness: independent harness ledger/cursors equal legacy observations; python IDs are native', async () => {
+test('witness: independent harness ledger/cursors equal legacy observations; python IDs are native', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version];
@@ -153,7 +143,7 @@ test('witness: independent harness ledger/cursors equal legacy observations; pyt
 });
 
 // ============================================================ positives, all forms
-test('actual source and legacy positives: both schemas, both owners, ordinary/full/compact, structure first', async () => {
+test('actual source and legacy positives: both schemas, both owners, ordinary/full/compact, structure first', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
@@ -179,7 +169,7 @@ test('actual source and legacy positives: both schemas, both owners, ordinary/fu
   }
 });
 
-test('nonactor row uses actual validated observation/belief evidence; fabricated DATA and mislabeled actors reject', async () => {
+test('nonactor row uses actual validated observation/belief evidence; fabricated DATA and mislabeled actors reject', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const registry = makeRegistry(w);
@@ -195,7 +185,7 @@ test('nonactor row uses actual validated observation/belief evidence; fabricated
   }
 });
 
-test('requestless/source-less incomplete canary remains incomplete and names the missing capability', async () => {
+test('requestless/source-less incomplete canary remains incomplete and names the missing capability', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const audit = w.sourceless_audit;
@@ -208,7 +198,7 @@ test('requestless/source-less incomplete canary remains incomplete and names the
   }
 });
 
-test('legacy context may be omitted: source join alone is partial and says so', async () => {
+test('legacy context may be omitted: source join alone is partial and says so', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[0]]; const audit = w.audits.full;
   const result = checkKnowledgeSourceBinding(audit, makeRegistry(w), null, profileOf(audit));
   assert.deepEqual(result.legacy_verification, { scope: 'not_checked', verified: false, boundaries: 0, bindings: 0, envelope_kinds: [] });
@@ -216,7 +206,7 @@ test('legacy context may be omitted: source join alone is partial and says so', 
   assert.equal(result.source_verification.verified, true);
 });
 
-test('false fact values with correct source joins stay fact-semantics-unverified', async () => {
+test('false fact values with correct source joins stay fact-semantics-unverified', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
   for (const form of FORMS) {
     const lie = mutated(w.audits[form], rows => { rows.fact.find(f => f.property === 'roster_species' && f.owner === 'p1')!.value.data = 'Missingno'; });
@@ -228,7 +218,7 @@ test('false fact values with correct source joins stay fact-semantics-unverified
 });
 
 // ================================================================ source negatives
-test('resealed source negatives reject in every form for both schemas', async () => {
+test('resealed source negatives reject in every form for both schemas', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
@@ -262,7 +252,7 @@ test('resealed source negatives reject in every form for both schemas', async ()
   }
 });
 
-test('foreign battle origin, missing authority, changed cursor and future prefix reject', async () => {
+test('foreign battle origin, missing authority, changed cursor and future prefix reject', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const audit = w.audits.ordinary; const legacy = makeLegacy(w);
@@ -288,7 +278,7 @@ test('foreign battle origin, missing authority, changed cursor and future prefix
 });
 
 // ============================================================ legacy negatives
-test('resealed wrong legacy joins reject in every form', async () => {
+test('resealed wrong legacy joins reject in every form', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   const fake = (prefix: string, digit: string) => prefix + digit.repeat(64);
   for (const version of VERSIONS) {
@@ -328,7 +318,7 @@ test('resealed wrong legacy joins reject in every form', async () => {
   }
 });
 
-test('wrong history prefix is caught through the adapter seam; arbitrary booleans and digests are not evidence', async () => {
+test('wrong history prefix is caught through the adapter seam; arbitrary booleans and digests are not evidence', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const audit = w.audits.ordinary;
   const ordinary = (envelope: any) => {
     const b = new LegacyContextBuilder(); b.addEnvelope(envelope); return b;
@@ -370,7 +360,7 @@ test('wrong history prefix is caught through the adapter seam; arbitrary boolean
   assert.equal(code(() => new LegacyContextBuilder([{ schema_version: 'pipeline-linked-record/v1', verify: () => { throw new Error('x'); } }])), 'legacy/adapter');
 });
 
-test('unsupported legacy envelope kinds fail explicitly; tampered ordinary bundles fail the real validator', async () => {
+test('unsupported legacy envelope kinds fail explicitly; tampered ordinary bundles fail the real validator', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[1]];
   for (const kind of ['pipeline-forced-switch-record/v1', 'pipeline-revival-record/v1', 'pipeline-episode-evidence/v2', 'pipeline-episode-evidence/v1', 'pipeline-episode-publication-sweep/v1', 'unknown/v9']) {
     const envelope = { ...structuredClone(w.bundles.p1), schema_version: kind };
@@ -392,7 +382,7 @@ test('unsupported legacy envelope kinds fail explicitly; tampered ordinary bundl
 });
 
 
-test('forged labels, legacy-normalized request text and complete claims never succeed', async () => {
+test('forged labels, legacy-normalized request text and complete claims never succeed', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
@@ -426,7 +416,7 @@ test('forged labels, legacy-normalized request text and complete claims never su
   }
 });
 
-test('boundary-row-only mutations are rejected by the accepted structure check, not by the new joins', async () => {
+test('boundary-row-only mutations are rejected by the accepted structure check, not by the new joins', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) {
     const w = all[version]; const registry = makeRegistry(w); const legacy = makeLegacy(w);
@@ -444,7 +434,7 @@ test('boundary-row-only mutations are rejected by the accepted structure check, 
 });
 
 // ======================================================= capability and privacy
-test('plain, copied, serialized or audit-supplied capabilities cannot stand in; builders are not capabilities', async () => {
+test('plain, copied, serialized or audit-supplied capabilities cannot stand in; builders are not capabilities', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[0]]; const audit = w.audits.full; const registry = makeRegistry(w); const legacy = makeLegacy(w);
   const forgedRegistries: any[] = [
     {}, { ...registry }, Object.create(registry), Object.assign(Object.create(Object.getPrototypeOf(registry)), registry),
@@ -468,7 +458,7 @@ test('plain, copied, serialized or audit-supplied capabilities cannot stand in; 
   assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, legacy, 7 as any)), 'profile');
 });
 
-test('builders are one-shot and freeze authority; caller input mutation after registration changes nothing', async () => {
+test('builders are one-shot and freeze authority; caller input mutation after registration changes nothing', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = structuredClone((await witnesses)[VERSIONS[0]]) as Witness; const audit = JSON.parse(JSON.stringify(w.audits.ordinary)); // detach shared references from the mutated caller objects
   const rb = new SourceRegistryBuilder(); rb.setOrigin(w.origin);
   for (const owner of OWNERS) { rb.addInitializationWitness(owner, w.team_sets[owner]); for (const r of w.requests[owner]) rb.addRequestDelivery(owner, r.sequence, r.cursor, r.json); }
@@ -496,7 +486,7 @@ test('builders are one-shot and freeze authority; caller input mutation after re
   assert.notEqual(literalCanonical(w.bundles), bundleBefore);
 });
 
-test('capabilities expose no privileged data; diagnostics are payload-independent; module has no publication path', async () => {
+test('capabilities expose no privileged data; diagnostics are payload-independent; module has no publication path', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const w = (await witnesses)[VERSIONS[0]]; const registry = makeRegistry(w); const legacy = makeLegacy(w); const audit = w.audits.ordinary;
   for (const capability of [registry, legacy]) {
     assert.deepEqual(Object.keys(capability), ['availability']);
@@ -523,41 +513,11 @@ test('capabilities expose no privileged data; diagnostics are payload-independen
 });
 
 // ========================================================== replay (distinct regime)
-test('replay: explicit hand-audited local source held in memory; no attribution or legacy authority follows', () => {
-  // Hand-audited oracle metadata for the checked-in replay fixtures (literal U+00C9 and U+1F600).
-  const oracleOrigin = { battle_key: 'fixture-\u00c9clair-\u{1F600}', format: 'gen9randombattle', engine: 'pokemon-showdown@0.11.10', rule_version: 'pk-rules/v1' };
-  const oracleReplay = ['|start', '|switch|p1a: \u00c9clair|Pikachu, L80|100/100', '|switch|p2a: Beta|Gengar, L80|100/100', '|-enditem|p1a: \u00c9clair|Oran Berry|[eat]',
-    '|move|p2a: Beta|Tackle|p1a: \u00c9clair', '|replace|p2a: Beta|Zoroark, L80|100/100', '|win|\u00c9clair'];
-  const registryFor = (records: string[] | null, origin: Row | null = oracleOrigin) => {
-    const builder = new SourceRegistryBuilder(); if (origin) builder.setOrigin(origin as any);
-    if (records) builder.setReplaySource(records); return builder.freeze();
-  };
-  const oracleSuffix = [...oracleReplay.slice(0, 6), '|win|Beta']; // hand-audited changed complete replay source
-  for (const [name, replay] of [['replay-full.json', oracleReplay], ['replay-ordinary.json', oracleReplay], ['replay-compact.json', oracleReplay], ['replay-suffix-full.json', oracleSuffix], ['replay-suffix-compact.json', oracleSuffix]] as [string, string[]][]) {
-    const audit = load(name);
-    const other = replay === oracleReplay ? oracleSuffix : oracleReplay;
-    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(other), null, profileOf(audit))), 'source/replay-source', name);
-    const result = checkKnowledgeSourceBinding(audit, registryFor(replay), null, profileOf(audit));
-    assert.equal(result.source_verification.replay_source, true, name);
-    assert.equal(result.source_verification.original_delivery, 'absent');
-    assert.equal(result.original_attribution, 'unverified'); assert.equal(result.completeness, 'not_established');
-    assert.deepEqual(result.missing_capabilities, ['legacy_context', 'original_delivery_authority', 'original_provider']);
-    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(null), null, profileOf(audit))), 'source/missing-replay-source');
-    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(replay.slice(0, 5)), null, profileOf(audit))), 'source/replay-source');
-    const changed = replay.slice(); changed[2] = '|switch|p2a: Beta|Gengar, L81|100/100';
-    assert.ok(code(() => checkKnowledgeSourceBinding(audit, registryFor(changed), null, profileOf(audit))).startsWith('source/'));
-    assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(replay, { ...oracleOrigin, battle_key: 'foreign' }), null, profileOf(audit))), 'source/foreign-origin');
-  }
-  // Placeholder sha256 legacy stand-ins never join real legacy objects.
-  const audit = load('replay-full.json');
-  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registryFor(oracleReplay), new LegacyContextBuilder().freeze(), profileOf(audit))), 'legacy/observation');
-});
-
-test('hand-authored structure canaries are not source positives', () => {
-  const audit = load('sim-ordinary.json');
-  assert.equal(checkKnowledgeStructure(audit).structure_valid, true);
-  const registry = new SourceRegistryBuilder().freeze();
-  assert.equal(code(() => checkKnowledgeSourceBinding(audit, registry, null, profileOf(audit))), 'source/missing-origin');
+test('historical source factories reject native runtime; committed structure remains readable', () => {
+  assert.equal(checkKnowledgeStructure(load('sim-ordinary.json')).structure_valid, true);
+  assert.equal(checkKnowledgeStructure(load('replay-ordinary.json')).structure_valid, true);
+  assert.throws(()=>new SourceRegistryBuilder(), /historical-origin-quarantined/);
+  assert.throws(()=>new LegacyContextBuilder(), /historical-origin-quarantined/);
 });
 
 // ================================================== DATA identity adapter parity
@@ -576,7 +536,7 @@ test('DATA-001 identity adapter equals the Python identity payload for ASCII, co
   }
 });
 
-test('real bundles: TypeScript adapter DATA IDs equal the independent Python validator IDs', async () => {
+test('real bundles: TypeScript adapter DATA IDs equal the independent Python validator IDs', {skip:'Retired: requires live 0.11.10 source authority; committed fixture coverage remains in perspective_knowledge.test.ts'}, async () => {
   const all = await witnesses;
   for (const version of VERSIONS) for (const owner of OWNERS) {
     const b = all[version].bundles[owner];
@@ -588,10 +548,10 @@ test('real bundles: TypeScript adapter DATA IDs equal the independent Python val
 test('old identities and the existing Python --check-structure output are unchanged', async () => {
   const vectors = load('identity-vectors.json');
   for (const vector of vectors) assert.equal(knowledgeIdentity(vector.object), vector.id);
-  const w = (await witnesses)[VERSIONS[0]];
+  const audit = load('sim-ordinary.json');
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase()))) as NodeJS.ProcessEnv;
   env.PYTHONPATH = path.join(root, 'trainer/src');
-  const py = spawnSync(process.env.PYTHON || 'D:/Anaconda/envs/neuralgpu/python.exe', ['-m', 'neural.perspective_knowledge', '--check-structure'], { cwd: root, env, input: canonicalKnowledgeJson(w.audits.ordinary), encoding: 'utf8', timeout: 60000 });
+  const py = spawnSync(process.env.PYTHON || 'D:/Anaconda/envs/neuralgpu/python.exe', ['-m', 'neural.perspective_knowledge', '--check-structure'], { cwd: root, env, input: canonicalKnowledgeJson(audit), encoding: 'utf8', timeout: 60000 });
   assert.equal(py.status, 0, py.stderr);
   assert.equal(py.stdout, '{"structure_valid":true,"source_semantics_verified":false,"completeness":"not_established","legacy_envelope_verified":false}\n');
 });

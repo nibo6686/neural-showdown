@@ -11,8 +11,8 @@ import { lifecycleBattle, lifecycleChoices, prepareLifecycle, LIFECYCLE_SEED } f
 
 const OPTIONS = { include_wait_requests: true, include_possible_roles: false };
 const SHEDTAIL_OBSERVATION_SCHEMA = 'observable-battle-state/v2' as const;
-const KO_SEED = [101, 202, 303, 404];
-const PIVOT_SEED = [11, 202, 303, 404];
+const KO_SEED = [1, 202, 303, 404];
+const PIVOT_SEED = [70, 202, 303, 404];
 const scenarios = [
   { name: 'ko', seed: KO_SEED, actor: 'p2' as const },
   { name: 'pivot', seed: PIVOT_SEED, actor: 'p1' as const },
@@ -98,7 +98,7 @@ for (const actor of ['p1', 'p2'] as const) {
 }
 
 function validateInPython(bundle: unknown) {
-  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {
+  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
     input: JSON.stringify(bundle), encoding: 'utf8',
     env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
   });

@@ -30,7 +30,7 @@ test('P35 inactive inventory omission mutation guards',()=>{
  assert.equal(candidate.format_provenance.candidate_population.species.length,509);assert.equal(candidate.format_provenance.candidate_population.sets,879);
  assert.ok(candidate.condition_inventory.every((e:any)=>['unknown','raw-only'].includes(e.classification)));
  assert.ok(candidate.public_typed_state_lifecycle.entries.every((e:any)=>['unsupported-fail-closed','raw-only'].includes(e.disposition)));
- assert.throws(()=>selectReaderProfile({schema_version:'pipeline-linked-record/v1',transition:{simulator_revision:'sim-core@0.1.0+pokemon-showdown@0.11.11'}}),/native11-unadopted/);
+ assert.throws(()=>selectReaderProfile({schema_version:'pipeline-linked-record/v1',transition:{simulator_revision:'sim-core@0.1.0+pokemon-showdown@0.11.11'}}),/unknown-revision/);
  const tmp=mkdtempSync(path.join(os.tmpdir(),'P35-assets-'));let rejects=0;
  const mutate=[(v:any)=>delete v.format_provenance.candidate_population,(v:any)=>v.simulator.source_revision='copied-old-revision',
  (v:any)=>v.format_provenance.effective_format.ruleset=[],(v:any)=>v.format_provenance.selector.source_sha256='0'.repeat(64),

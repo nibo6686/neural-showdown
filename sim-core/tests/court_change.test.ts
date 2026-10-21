@@ -10,7 +10,7 @@ import { createPipelineIntegrationSession } from '../src/pipeline_integration';
 import type { PlayerID } from '../src/types';
 
 const PLAYERS = ['p1', 'p2'] as const;
-const CINDERACE_SEED = [91, 274, 457, 640];
+const CINDERACE_SEED = [6, 2, 3, 4];
 type Session = Awaited<ReturnType<typeof createPipelineIntegrationSession>>;
 type Witness = {
 	name: string;
@@ -27,24 +27,24 @@ type Witness = {
 // emitted by pokemon-showdown@0.11.10 for gen9randombattle and is rechecked
 // at runtime before it enters the source-engine witness.
 const WITNESSES: Witness[] = [
-	{name: 'Spikes', seed: [212, 637, 1062, 1487], species: 'Skarmory', setup_moves: [4], conditions: {spikes: 1}, hazard_entry: {species: 'Ting-Lu', records: [/^\|-damage\|p[12]a: Ting-Lu\|.*\|\[from\] Spikes$/]}},
-	{name: 'Stealth Rock', seed: [6, 19, 32, 45], species: 'Iron Treads', setup_moves: [2], conditions: {stealthrock: 1}, hazard_entry: {species: 'Rampardos', records: [/^\|-damage\|p[12]a: Rampardos\|.*\|\[from\] Stealth Rock$/]}},
-	{name: 'Sticky Web', seed: [26, 79, 132, 185], species: 'Ribombee', setup_moves: [3], conditions: {stickyweb: 1}, hazard_entry: {species: 'Brute Bonnet', records: [/^\|-activate\|p[12]a: Brute Bonnet\|move: Sticky Web$/, /^\|-unboost\|p[12]a: Brute Bonnet\|spe\|1$/]}},
-	{name: 'Reflect and Light Screen', seed: [32, 97, 162, 227], species: 'Meowstic', setup_moves: [2, 3], conditions: {reflect: 1, lightscreen: 1}, source_owned: true},
-	{name: 'Aurora Veil', seed: [45, 136, 227, 318], species: 'Abomasnow', setup_moves: [3], conditions: {auroraveil: 1}, snow_warning: true, source_owned: true},
-	{name: 'Toxic Spikes', seed: [119, 358, 597, 836], species: 'Ariados', setup_moves: [4, 4], conditions: {toxicspikes: 2}, hazard_entry: {species: 'Electivire', records: [/^\|-status\|p[12]a: Electivire\|tox$/]}},
-	{name: 'Tailwind', seed: [110, 331, 552, 773], species: 'Shiftry', setup_moves: [2], conditions: {tailwind: 1}, source_owned: true},
+	{name: 'Spikes', seed: [58, 2, 3, 4], species: 'Skarmory', setup_moves: [1], conditions: {spikes: 1}, hazard_entry: {species: 'Roaring Moon', records: [/^\|-damage\|p[12]a: Roaring Moon\|.*\|\[from\] Spikes$/]}},
+	{name: 'Stealth Rock', seed: [54, 2, 3, 4], species: 'Iron Treads', setup_moves: [1], conditions: {stealthrock: 1}, hazard_entry: {species: 'Munkidori', records: [/^\|-damage\|p[12]a: Munkidori\|.*\|\[from\] Stealth Rock$/]}},
+	{name: 'Sticky Web', seed: [66, 2, 3, 4], species: 'Ribombee', setup_moves: [3], conditions: {stickyweb: 1}, hazard_entry: {species: 'Hydrapple', records: [/^\|-activate\|p[12]a: Hydrapple\|move: Sticky Web$/, /^\|-unboost\|p[12]a: Hydrapple\|spe\|1$/]}},
+	{name: 'Reflect and Light Screen', seed: [136, 2, 3, 4], species: 'Meowstic', setup_moves: [1, 2], conditions: {reflect: 1, lightscreen: 1}, source_owned: true},
+	{name: 'Aurora Veil', seed: [38, 2, 3, 4], species: 'Abomasnow', setup_moves: [1], conditions: {auroraveil: 1}, snow_warning: true, source_owned: true},
+	{name: 'Toxic Spikes', seed: [532, 2, 3, 4], species: 'Ariados', setup_moves: [2, 2], conditions: {toxicspikes: 2}, hazard_entry: {species: 'Chesnaught', records: [/^\|-status\|p[12]a: Chesnaught\|tox$/]}},
+	{name: 'Tailwind', seed: [224, 2, 3, 4], species: 'Shiftry', setup_moves: [4], conditions: {tailwind: 1}, source_owned: true},
 ];
 
 const generatedTeam = (seed: number[]) => Teams.generate('gen9randombattle', {seed});
 const choices = (actor: PlayerID, actorChoice: string, foeChoice: string): Record<PlayerID, string> => actor === 'p1' ? {p1: actorChoice, p2: foeChoice} : {p1: foeChoice, p2: actorChoice};
 
 function generatedWitness(actor: PlayerID, witness: Witness) {
-	const cinderace = generatedTeam(CINDERACE_SEED);
+	const cinderace = generatedTeam(CINDERACE_SEED).sort((a,b)=>Number(b.species==='Cinderace')-Number(a.species==='Cinderace'));
 	const setter = generatedTeam(witness.seed);
 	const changer = cinderace.find(set => set.species === 'Cinderace');
 	const source = setter.find(set => set.species === witness.species);
-	assert.deepEqual(changer?.moves, ['pyroball', 'highjumpkick', 'suckerpunch', 'courtchange']);
+	assert.deepEqual(changer?.moves, ['courtchange', 'willowisp', 'pyroball', 'uturn']);
 	assert.equal(changer?.ability, 'Libero');
 	assert.ok(source, `${witness.name} seed must generate ${witness.species}`);
 	for (const move of witness.setup_moves) assert.ok(source!.moves[move - 1], `${witness.name} setup move ${move}`);
@@ -73,7 +73,7 @@ async function step(session: Session, next: Record<PlayerID, string>) {
 	return session.step({p1: select(session, 'p1', next.p1), p2: select(session, 'p2', next.p2)});
 }
 function python(bundle: unknown) {
-	return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {input: JSON.stringify(bundle), encoding: 'utf8', env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
+	return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {input: JSON.stringify(bundle), encoding: 'utf8', env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
 }
 function sourceSide(battle: Battle, actor: PlayerID) { return battle.sides[actor === 'p1' ? 1 : 0]; }
 function switchChoice(side: any, species?: string) {
@@ -102,8 +102,8 @@ for (const actor of PLAYERS) {
 			let restored: Session | undefined;
 			try {
 				const setup: Record<PlayerID, string>[] = [];
-				if (source_index !== 1) setup.push(choices(actor, 'move 3', `switch ${source_index}`));
-				for (const move of witness.setup_moves) setup.push(choices(actor, 'move 3', `move ${move}`));
+				if (source_index !== 1) setup.push(choices(actor, 'move 2', `switch ${source_index}`));
+				for (const move of witness.setup_moves) setup.push(choices(actor, 'move 2', `move ${move}`));
 				for (const turn of setup) { direct.makeChoices(turn.p1, turn.p2); await step(session, turn); await step(twin, turn); }
 				if (witness.snow_warning) {
 					const side = actor === 'p1' ? 'p2' : 'p1';
@@ -119,7 +119,7 @@ for (const actor of PLAYERS) {
 
 				// A normal source-side switch proves that the condition is side-owned;
 				// Court Change then swaps this generated asymmetric state atomically.
-				const court = choices(actor, 'move 4', switchChoice(sourceSide(direct, actor)));
+				const court = choices(actor, 'move 1', switchChoice(sourceSide(direct, actor)));
 				direct.makeChoices(court.p1, court.p2);
 				const result = await step(session, court); const twinResult = await step(twin, court);
 				assert.equal(result.transition_id, twinResult.transition_id);
@@ -147,7 +147,7 @@ for (const actor of PLAYERS) {
 				assert.equal(JSON.stringify(session.boundary), frozen);
 
 				if (witness.hazard_entry) {
-					const entry = choices(actor, 'move 3', switchChoice(sourceSide(direct, actor), witness.hazard_entry.species));
+					const entry = choices(actor, 'move 2', switchChoice(sourceSide(direct, actor), witness.hazard_entry.species));
 					direct.makeChoices(entry.p1, entry.p2);
 					const advanced = await step(session, entry); const advancedTwin = await step(twin, entry); const advancedRestored = await step(restored, entry);
 					assert.equal(advanced.transition_id, advancedTwin.transition_id);
@@ -157,7 +157,7 @@ for (const actor of PLAYERS) {
 				} else if (witness.conditions.tailwind) {
 					let expired = false;
 					for (let turn = 0; turn < 4; turn += 1) {
-						const next = choices(actor, 'move 3', switchChoice(sourceSide(direct, actor)));
+						const next = choices(actor, 'move 2', switchChoice(sourceSide(direct, actor)));
 						direct.makeChoices(next.p1, next.p2);
 						const advanced = await step(session, next); const advancedTwin = await step(twin, next); const advancedRestored = await step(restored, next);
 						assert.equal(advanced.transition_id, advancedTwin.transition_id);

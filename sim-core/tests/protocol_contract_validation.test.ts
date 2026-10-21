@@ -166,7 +166,7 @@ test('shared contract fixtures cover every supported and recognized-unsupported 
 
   const result = runPython(contract, `import json,sys
 from neural.protocol_contract import RECORD_FIXTURES, REJECTION_FIXTURES, validate_protocol_record, ProtocolRecordError
-x=json.load(sys.stdin)
+x=json.load(sys.stdin.buffer)
 assert {r['token'] for r in RECORD_FIXTURES} == {r['token'] for r in x['record_fixtures']}
 assert len(RECORD_FIXTURES) == len(x['record_fixtures'])
 for row in x['record_fixtures']: validate_protocol_record(row['record'])
@@ -419,7 +419,7 @@ test('player-ident fields require the emitted colon-space spelling across active
   const pythonBoostCheck = runPython([malformedBoostSource], [
     'import json,sys',
     'from neural.public_boosts import public_boost_evidence',
-    'try: public_boost_evidence(json.load(sys.stdin))',
+    'try: public_boost_evidence(json.load(sys.stdin.buffer))',
     'except ValueError as error: assert "source identifier" in str(error)',
     'else: raise AssertionError("side-only source was accepted")',
   ].join('\n'));
@@ -463,7 +463,7 @@ test('shared contract loaders reject bad structure and load only a complete supp
   const result = runPython({ invalid, contract }, `import json,sys,tempfile
 from pathlib import Path
 from neural.protocol_contract import ProtocolContractError, load_protocol_contract, validate_protocol_contract
-x=json.load(sys.stdin)
+x=json.load(sys.stdin.buffer)
 for candidate in x['invalid']:
  try: validate_protocol_contract(candidate)
  except ProtocolContractError: pass
@@ -685,15 +685,16 @@ for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2
       assert.ok(validBundles.length >= 6, 'two unmodified source bundles and four warnings remain positive');
       const response = runPython({ validBundles, rejectedBundles, semanticRejectedBundles, grammarRecords }, `import io,json,sys,re
 from unittest.mock import patch
+from neural.version_profile import NATIVE11_CONTEXT
 from neural.pipeline_record import PipelineRecordError, main, validate_pipeline_bundle
 from neural.ts_identity import verify_bundle_identities
 from neural.protocol_contract import validate_protocol_record
-x=json.load(sys.stdin)
+x=json.load(sys.stdin.buffer)
 for record in x['grammarRecords']: validate_protocol_record(record)
 for b in x['validBundles']:
- verify_bundle_identities(b); validate_pipeline_bundle(b)
+ verify_bundle_identities(b); validate_pipeline_bundle(b, reader_rules=NATIVE11_CONTEXT)
  out,err=io.StringIO(),io.StringIO()
- with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main()
+ with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main(['--reader-profile=native11'])
  assert status == 0 and out.getvalue(), (status,out.getvalue(),err.getvalue())
  record=json.loads(out.getvalue())
  assert 'observation_prefix_hash' in record
@@ -703,24 +704,24 @@ for b in x['validBundles']:
 for b in x['semanticRejectedBundles']:
  verify_bundle_identities(b)
  before=json.dumps(b,sort_keys=True)
- try: validate_pipeline_bundle(b)
+ try: validate_pipeline_bundle(b, reader_rules=NATIVE11_CONTEXT)
  except PipelineRecordError as error:
   assert re.search(r'(?:Public (?:health|item|ability)|Typed lifecycle) evidence mismatch',str(error),re.I), str(error)
  else: raise AssertionError('synthetic grammar target acquired owned authority')
  assert json.dumps(b,sort_keys=True) == before
  out,err=io.StringIO(),io.StringIO()
- with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main()
+ with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main(['--reader-profile=native11'])
  assert status == 2 and out.getvalue() == '', (status,out.getvalue(),err.getvalue())
  assert json.dumps(b,sort_keys=True) == before
 for b in x['rejectedBundles']:
  verify_bundle_identities(b)
  before=json.dumps(b,sort_keys=True)
- try: validate_pipeline_bundle(b)
+ try: validate_pipeline_bundle(b, reader_rules=NATIVE11_CONTEXT)
  except PipelineRecordError: pass
  else: raise AssertionError('rehashed rejected candidate published')
  assert json.dumps(b,sort_keys=True) == before
  out,err=io.StringIO(),io.StringIO()
- with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main()
+ with patch('sys.stdin',io.StringIO(json.dumps(b))), patch('sys.stdout',out), patch('sys.stderr',err): status=main(['--reader-profile=native11'])
  assert status == 2 and out.getvalue() == '', (status,out.getvalue(),err.getvalue())
  assert json.dumps(b,sort_keys=True) == before
 print(len(x['validBundles']),len(x['semanticRejectedBundles']),len(x['rejectedBundles']))`);

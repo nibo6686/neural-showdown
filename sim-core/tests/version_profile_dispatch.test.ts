@@ -100,7 +100,7 @@ test('P31 recognized revision dispatch', () => {
   const empty = load('artifacts/validation/ce08b-independent-review-2026-10-09/valid-cancellation-control.json');
   assert.equal(selectReaderProfile(empty, 'historical10'), HISTORICAL10); assert.throws(() => selectReaderProfile(empty), /ambiguous-revision/);
   assert.equal(validateHistoricalPipelineEpisodeFaithfulClaim(empty), false);
-  for (const selection of ['native11', 'unknown']) assert.throws(() => selectReaderProfile(b, selection as any), /native11-unadopted|unknown-profile/);
+  for (const selection of ['native11', 'unknown']) assert.throws(() => selectReaderProfile(b, selection as any), /unknown-revision|unknown-profile/);
   const cases: any[] = [
     { schema_version: 'pipeline-episode-evidence/v2', commits: [{ transition: { simulator_revision: OLD } }], closure: { predecessor: { schema_version: 'pipeline-episode-evidence/v1', commits: [{ transition: { simulator_revision: TARGET } }] } } },
     { schema_version: 'pipeline-episode-publication-sweep/v1', beliefs: [{ fields: { transition_lineage: { simulator_revision: TARGET } }, arrays: { transition_history: { items: [{ simulator_revision: OLD }] } } }] },
@@ -115,15 +115,15 @@ test('P31 recognized revision dispatch', () => {
 
 test('P31 coherent rejection before old rules', () => {
   for (const revision of [TARGET, 'sim-core@unknown']) {
-    const b = savedBundle(); resealRevision(b, revision); assert.throws(() => validateHistoricalPipelineLinkedRecordBundle(b), /native11-unadopted|unknown-revision/);
+    const b = savedBundle(); resealRevision(b, revision); assert.throws(() => validateHistoricalPipelineLinkedRecordBundle(b), /unknown-revision|unknown-revision/);
     // Malformed old grammar deliberately behind dispatch: profile error must win.
     b.input_observation.protocol_prefix.push('|unrecognized|');
-    assert.throws(() => validatePipelineLinkedRecordBundle(b), /native11-unadopted|unknown-revision/);
+    assert.throws(() => validatePipelineLinkedRecordBundle(b), /unknown-revision|unknown-revision/);
   }
   const conflict = savedBundle(); conflict.successor_belief.transition_lineage.simulator_revision = TARGET; rehash(conflict);
   assert.throws(() => validateHistoricalPipelineLinkedRecordBundle(conflict), /conflicting-revisions/);
   const f = fixtures(), e = structuredClone(f.envelope); e.commits[0].transition.simulator_revision = TARGET;
-  const sealed = sealPipelineEpisodeEvidence(e); assert.throws(() => validateHistoricalPipelineEpisodeEvidence(sealed), /native11-unadopted/);
+  const sealed = sealPipelineEpisodeEvidence(e); assert.throws(() => validateHistoricalPipelineEpisodeEvidence(sealed), /unknown-revision/);
   validatePipelineLinkedRecordBundle(savedBundle());
   witness('negative', { canonical_belief_evidence_resealing: true, profile_error_before_old_grammar: true, interleaved_old_unchanged: true });
 });

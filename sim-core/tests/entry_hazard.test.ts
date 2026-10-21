@@ -67,7 +67,7 @@ async function step(session: Session, choices_: Record<PlayerID, string>) {
   return session.step({p1: select(session, 'p1', choices_.p1), p2: select(session, 'p2', choices_.p2)});
 }
 function python(bundle: unknown) {
-  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record'], {input: JSON.stringify(bundle), encoding: 'utf8', env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
+  return spawnSync(process.env.PYTHON || 'python3', ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {input: JSON.stringify(bundle), encoding: 'utf8', env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
 }
 
 // The cap witnesses use pinned Battle mechanics directly. The later v2 test

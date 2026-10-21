@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, {afterEach} from 'node:test';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -21,13 +21,35 @@ function sealBeliefs(b: any) {
   }
 }
 function python(value: any, code?: string) {
-  return spawnSync(process.env.PYTHON || 'python3', code ? ['-c', code] : ['-m', 'neural.pipeline_record'], {
-    input: JSON.stringify(value), encoding: 'utf8', env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
+  return spawnSync(process.env.PYTHON || 'python3', code ? ['-c', code] : ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
+    input: JSON.stringify(value), encoding: 'utf8', timeout: 30000, env: { ...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src') },
   });
 }
+const rejectionCases: Array<{bundle: any; pattern: string; ignoreCase: boolean}> = [];
 function rejected(b: any, pattern = /identity|reference|version|schema|history/i) {
-  const p = python(b); assert.equal(p.status, 2, p.stdout + p.stderr); assert.equal(p.stdout, ''); assert.match(p.stderr, pattern);
+  rejectionCases.push({bundle: structuredClone(b), pattern: pattern.source, ignoreCase: pattern.ignoreCase});
 }
+// Keep every CLI status/stdout/diagnostic assertion, with one fresh Python process
+// per test instead of hundreds of process launches in each rejection matrix.
+afterEach(()=>{
+  const cases=rejectionCases.splice(0);
+  if (!cases.length) return;
+  const response=python(cases, `import io,json,re,sys
+from unittest.mock import patch
+from neural.pipeline_record import main
+cases=json.load(sys.stdin.buffer)
+for index,case in enumerate(cases):
+ out,err=io.StringIO(),io.StringIO()
+ with patch('sys.stdin',io.StringIO(json.dumps(case['bundle']))), patch('sys.stdout',out), patch('sys.stderr',err):
+  status=main(['--reader-profile=native11'])
+ assert status==2,(index,status,err.getvalue())
+ assert out.getvalue()=='',(index,out.getvalue())
+ assert re.search(case['pattern'],err.getvalue(),re.I if case['ignoreCase'] else 0),(index,err.getvalue())
+print(len(cases))`);
+  assert.equal(response.status,0,response.stderr);
+  assert.equal(Number(response.stdout),cases.length);
+});
+
 for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2'] as const) {
   test(`${version} Python verifies current, successor and nested identities before publication`, async () => {
     const session = await createPipelineIntegrationSession({ battle_id: 'identity-é-😀', format: 'gen9randombattle', seed: [1, 2, 3, 4], observation_schema_version: version });

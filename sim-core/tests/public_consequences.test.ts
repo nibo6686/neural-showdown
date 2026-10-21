@@ -164,7 +164,8 @@ for (const target of [
   try {
     battle.makeChoices('switch 2', 'move 1');
     assert.equal(!battle.p2.active[0].ignoringAbility(), target.effective);
-    if (target.text.includes('Slow Start')) assert.ok(battle.log.includes('|-end|p2a: Foe|Slow Start|[silent]'));
+    // Pinned data/abilities.ts:2926 checks obsolete volatiles.slowstart; Gas emits no silent end.
+    if (target.text.includes('Slow Start')) assert.equal(battle.log.includes('|-end|p2a: Foe|Slow Start|[silent]'), false);
     battle.makeChoices('switch 2', 'move 1');
     assert.equal(battle.p2.active[0].ignoringAbility(), false);
     if (target.text.includes('Slow Start')) assert.equal(battle.log.filter((line) => line.startsWith('|-start|p2a: Foe|ability: Slow Start')).length, 2);

@@ -12,13 +12,13 @@ import { PlayerStateExtractor } from '../src/state_extractor';
 
 const PLAYERS = ['p1', 'p2'] as const;
 const SOURCES = [
-  { move: 'destinybond', seed: 147, species: 'Froslass', suffix: 'Destiny Bond', next: 'poltergeist' },
-  { move: 'glaiverush', seed: 79, species: 'Baxcalibur', suffix: 'Glaive Rush|[silent]', next: 'earthquake' },
+  { move: 'destinybond', seed: 99, slot: 3, species: 'Froslass', suffix: 'Destiny Bond', next: 'poltergeist' },
+  { move: 'glaiverush', seed: 79, slot: 0, species: 'Baxcalibur', suffix: 'Glaive Rush|[silent]', next: 'earthquake' },
 ] as const;
 
 const ANIM_SOURCES = [
-  { id: 'solarbeam', label: 'Solar Beam', seed: 93, slot: 4, species: 'Sunflora', setup: 'sunnyday' },
-  { id: 'meteorbeam', label: 'Meteor Beam', seed: 22, slot: 4, species: 'Armarouge', setup: undefined },
+  { id: 'solarbeam', label: 'Solar Beam', seed: 184, slot: 4, species: 'Sunflora', setup: 'sunnyday' },
+  { id: 'meteorbeam', label: 'Meteor Beam', seed: 66, slot: 1, species: 'Armarouge', setup: undefined },
   { id: 'dragondarts', label: 'Dragon Darts', seed: 59, slot: 2, species: 'Dragapult', setup: undefined },
 ] as const;
 
@@ -102,7 +102,7 @@ test('all source singlemove suffixes are exact raw-only evidence before extracti
 for (const source of SOURCES) for (const actor of PLAYERS) {
   for (const version of ['observable-battle-state/v1', 'observable-battle-state/v2'] as const) {
     test(`${source.move} ${actor} ${version}: source emission, expiry, restore and terminal publication`, async () => {
-      const own = Teams.generate('gen9randombattle', { seed: [source.seed, 2, 3, 4] })[0];
+      const own = Teams.generate('gen9randombattle', { seed: [source.seed, 2, 3, 4] })[source.slot];
       assert.equal(own.species, source.species);
       assert.ok(own.moves.includes(source.move));
       const other = Teams.import('Snorlax\nAbility: Immunity\n- Splash\n- Crunch\n')![0];

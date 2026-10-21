@@ -43,7 +43,7 @@ for(const version of ['observable-battle-state/v1','observable-battle-state/v2']
   assert.throws(()=>validateObservableProtocolPrefix(b[where+'_observation'].protocol_prefix,p),/copy|identifier/);
   assert.throws(()=>projectBeliefState({observation:b[where+'_observation']}),/copy|identifier|stages/);
  }
- const response=py({valid:validBundles,bad:bundles},`import json,sys\nfrom neural.pipeline_record import validate_pipeline_bundle,PipelineRecordError\nfrom neural.ts_identity import verify_bundle_identities\nx=json.load(sys.stdin)\nfor b in x['valid']: validate_pipeline_bundle(b)\nfor b in x['bad']:\n verify_bundle_identities(b)\n try: validate_pipeline_bundle(b)\n except PipelineRecordError as e:\n  assert 'copy' in str(e),str(e)\n  if any(line.startswith('|copyboost') for line in b['successor_observation']['protocol_prefix']): assert 'unsupported raw protocol event: copyboost' in str(e),str(e)\n else: raise AssertionError('published malformed copy')\nprint(len(x['bad']))`);
+ const response=py({valid:validBundles,bad:bundles},`import json,sys\nfrom neural.version_profile import NATIVE11_CONTEXT\nfrom neural.pipeline_record import validate_pipeline_bundle,PipelineRecordError\nfrom neural.ts_identity import verify_bundle_identities\nx=json.load(sys.stdin.buffer)\nfor b in x['valid']: validate_pipeline_bundle(b, reader_rules=NATIVE11_CONTEXT)\nfor b in x['bad']:\n verify_bundle_identities(b)\n try: validate_pipeline_bundle(b, reader_rules=NATIVE11_CONTEXT)\n except PipelineRecordError as e:\n  assert 'copy' in str(e),str(e)\n  if any(line.startswith('|copyboost') for line in b['successor_observation']['protocol_prefix']): assert 'unsupported raw protocol event: copyboost' in str(e),str(e)\n else: raise AssertionError('published malformed copy')\nprint(len(x['bad']))`);
  assert.equal(response.status,0,response.stderr);assert.equal(Number(response.stdout),publicationRejections.length*4);
  }finally{await s.close()}
 });
@@ -52,13 +52,13 @@ test('copy helpers validate before routing; valid unresolved identities remain u
  const valid=['p1a: Unseen','p1a: é😀'];
  for(const ident of valid) {const line=`|-copyboost|${ident}|p2a: Unknown|[from] move: Psych Up`;validateObservableProtocolPrefix([line],'p1');assert.ok(Object.values(opponentPublicBoosts([line],ident)).every(x=>x===null));}
  const prefix=['|-setboost|p1a: Caller|atk|6','|-copyboost|p1a: Caller|p2a: Unseen|[from] move: Psych Up'];assert.ok(Object.values(opponentPublicBoosts(prefix,'p1a: Caller')).every(x=>x===null));
- const response=py({bad:lines,valid:valid.map(id=>`|-copyboost|${id}|p2a: Unknown|[from] move: Psych Up`),prefix},`import json,sys\nfrom neural.public_boosts import public_boost_evidence\nx=json.load(sys.stdin)\nfor line in x['bad']:\n try: public_boost_evidence([line])\n except ValueError as e: assert 'copy' in str(e)\n else: raise AssertionError(line)\nfor line in x['valid']:\n for stages in public_boost_evidence([line]).values(): assert all(v is None for v in stages.values())\nassert all(v is None for v in public_boost_evidence(x['prefix'])['p1: Caller'].values())`);assert.equal(response.status,0,response.stderr);
+ const response=py({bad:lines,valid:valid.map(id=>`|-copyboost|${id}|p2a: Unknown|[from] move: Psych Up`),prefix},`import json,sys\nfrom neural.public_boosts import public_boost_evidence\nx=json.load(sys.stdin.buffer)\nfor line in x['bad']:\n try: public_boost_evidence([line])\n except ValueError as e: assert 'copy' in str(e)\n else: raise AssertionError(line)\nfor line in x['valid']:\n for stages in public_boost_evidence([line]).values(): assert all(v is None for v in stages.values())\nassert all(v is None for v in public_boost_evidence(x['prefix'])['p1: Caller'].values())`);assert.equal(response.status,0,response.stderr);
 });
 test('original fully rehashed review reproductions reject before Python CLI output',()=>{
  const folder=path.resolve(__dirname,'../../../artifacts/validation/psych-up-review-2026-09-25');
  for(const name of fs.readdirSync(folder).filter(n=>n.startsWith('malformed-')&&n.endsWith('.json'))) {
   const b=JSON.parse(fs.readFileSync(path.join(folder,name),'utf8'));
-  const result=spawnSync(process.env.PYTHON||'python3',['-m','neural.pipeline_record'],{input:JSON.stringify(b),encoding:'utf8',env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')}});
+  const result=spawnSync(process.env.PYTHON||'python3',['-m','neural.pipeline_record', '--reader-profile=historical10'],{input:JSON.stringify(b),encoding:'utf8',env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')}});
   assert.equal(result.status,2,result.stderr);assert.equal(result.stdout,'');assert.match(result.stderr,/copy/);
  }
 });
@@ -67,9 +67,9 @@ test('original bare-alias reproductions reject before publication with unchanged
  const folder=path.resolve(__dirname,'../../../artifacts/validation/psych-up-alias-review-2026-09-25');
  for(const name of ['valid-v1.json','valid-v2.json','alias-v1.json','alias-v2.json']) {
   const b=JSON.parse(fs.readFileSync(path.join(folder,name),'utf8'));
-  const verification=py(b,'import json,sys; from neural.ts_identity import verify_bundle_identities; verify_bundle_identities(json.load(sys.stdin))');
+  const verification=py(b,'import json,sys; from neural.ts_identity import verify_bundle_identities; verify_bundle_identities(json.load(sys.stdin.buffer))');
   assert.equal(verification.status,0,verification.stderr);
-  const result=spawnSync(process.env.PYTHON||'python3',['-m','neural.pipeline_record'],{input:JSON.stringify(b),encoding:'utf8',env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')}});
+  const result=spawnSync(process.env.PYTHON||'python3',['-m','neural.pipeline_record', '--reader-profile=historical10'],{input:JSON.stringify(b),encoding:'utf8',env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')}});
   if(name.startsWith('alias')) {assert.equal(result.status,2,result.stderr);assert.equal(result.stdout,'');assert.match(result.stderr,/unsupported raw protocol event: copyboost/);assert.throws(()=>projectBeliefState({observation:b.successor_observation}),/copyboost/);}
   else {assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).observation_id,b.input_observation.observation_id);projectBeliefState({observation:b.successor_observation});}
  }
