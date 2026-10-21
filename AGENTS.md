@@ -20,6 +20,10 @@ starting.
   Python suite** unless the brief explicitly asks; Claude runs full-suite
   comparisons during review. Read failing-test output selectively (the failing
   test's lines), not whole logs.
+- No known timeouts. A test that is known to hang or exceed its time limit
+  must either be skipped in code with a stated reason (long tests opt in via
+  `NEURAL_LONG_TESTS=1`), or be fixed in the current slice. Never leave a
+  suite to run into a timeout it is known to hit.
 - Build with `node node_modules/typescript/bin/tsc -p tsconfig.json` in
   `sim-core`. Python is `D:\Anaconda\envs\neuralgpu\python.exe`. Keep
   `PYTHONUTF8` and `PYTHONIOENCODING` unset. Keep `core.autocrlf=false`.
