@@ -167,11 +167,14 @@ moves the settling cause to `Error.cause`. Target: at least 190/198 clean.
 extract cleanly, with 0 mismatches across 797,186 public-state checks against
 the simulator. **0.5b3** (brief `P0.5b3.md`) covers the Slow Start lifecycle
 (the last residual), a shared `NEURAL_TEST_OUTPUT_DIR` for the Node→Python
-test-output handoff, and the `request_emission_trace` hang. **0.5c** covers
-the
-authority-dependent tests (item identity, request knowledge, pipeline,
-restore), moved onto real sessions after 0.5b re-baselines which are still
-red. Then: This brings the suite back to
+test-output handoff, and the `request_emission_trace` hang. **0.5b3 — done** (`35d10ba`): all 198 probe replays extract cleanly, with
+0 mismatches across 842,652 checks. **0.5c1** (brief `P0.5c1.md`) makes the
+mechanical updates: fixed-seed witnesses re-found on b8f23c99, historical-10
+reader tests switched or retired, current profiles, the Wish tuple fix and the
+`ability_effects` contract doc. **0.5c2** (brief `P0.5c2.md`) moves about 336
+authority tests from raw restore to *born sessions*: injected teams, real
+session creation and scripted legal play, the pattern P48/P59 already use.
+Both promote registry rows as their proof tests turn green. Then: This brings the suite back to
 green-or-explained:
 
 - migrate the shared raw-snapshot restore helpers to native11
