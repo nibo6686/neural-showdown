@@ -156,7 +156,14 @@ field, `cant`, `heal`) that native11 had quarantined as "unproved". 90% of real
 replays contain them, so the extractor failed on almost every realistic battle.
 The b8f23c99 effect inventory is generated from source and diffed against
 0.11.10, the replay corpus is the acceptance oracle, root causes are surfaced
-in settling diagnostics, and test randomness is seeded. **0.5c** covers the
+in settling diagnostics, and test randomness is seeded. **0.5b — done, partially** (`9faa5c0`): the
+generated inventory, root causes and seeded tests landed, but 0/198 replays
+extract cleanly, because shared engine-method diffs marked nearly every effect
+"changed". **0.5b2** (brief `P0.5b2.md`) reviews each change class once,
+closes the `|request|`/`|rated|`/item grammar gaps that hit nearly every
+replay, adds a public-state differential check against the simulator, and
+moves the settling cause to `Error.cause`. Target: at least 190/198 clean.
+**0.5c** covers the
 authority-dependent tests (item identity, request knowledge, pipeline,
 restore), moved onto real sessions after 0.5b re-baselines which are still
 red. Then: This brings the suite back to
