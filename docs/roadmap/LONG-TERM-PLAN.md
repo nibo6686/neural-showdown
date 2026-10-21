@@ -150,9 +150,16 @@ witnesses.
 *simulation-only* env mode: raw restore is allowed but there's no identity or
 knowledge authority, and authoritative consumers reject it. The mechanics
 tests move onto it with assertions unchanged. The same mode later serves
-search and rollouts (B4). **0.5b** covers the authority-dependent tests
-(item identity, request knowledge, pipeline, restore), which move onto real
-sessions. Then: This brings the suite back to
+search and rollouts (B4). **0.5b** (brief `P0.5b.md`) re-adopts the ten
+effect-lifecycle protocol families (`-start`/`-end`, side conditions, weather,
+field, `cant`, `heal`) that native11 had quarantined as "unproved". 90% of real
+replays contain them, so the extractor failed on almost every realistic battle.
+The b8f23c99 effect inventory is generated from source and diffed against
+0.11.10, the replay corpus is the acceptance oracle, root causes are surfaced
+in settling diagnostics, and test randomness is seeded. **0.5c** covers the
+authority-dependent tests (item identity, request knowledge, pipeline,
+restore), moved onto real sessions after 0.5b re-baselines which are still
+red. Then: This brings the suite back to
 green-or-explained:
 
 - migrate the shared raw-snapshot restore helpers to native11
