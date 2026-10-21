@@ -1381,22 +1381,36 @@ export class LocalBattleEnv {
 
   /** Diagnostic replay only: no decisions, observations or identity authority. */
   async replaySimulation(input: string, consume: (owner: PlayerID, chunk: string) => void,
-    consumePublic?: (chunk: string) => void): Promise<void> {
+    consumePublic?: (chunk: string) => void, boundary?: (battle: Battle) => void): Promise<void> {
     if (!simulationEnvironments.has(this)) throw new Error('simulation-only/v1/replay-required');
     if (this.initialized || this.battleStream) throw new Error('simulation-only/v1/replay-requires-fresh-env');
     const allowed = new Set(['>start', '>player', '>p1', '>p2', '>reseed', '>forcewin', '>forcelose', '>forcetie']);
     for (const line of input.split('\n')) {
       if (line && !allowed.has(line.split(' ')[0])) throw new Error('Unsupported simulation replay command');
     }
-    const stream = new BattleStream({noCatch: true, keepAlive: true});
+    const delivery = new SettlingBarrier();
+    class ReplayStream extends BattleStream {
+      override pushMessage(type: string, data: string): void { delivery.emitted(type,data);super.pushMessage(type,data); }
+      override pushError(error: Error, recoverable?: boolean): void { delivery.fail('simulator-error',error);super.pushError(error,recoverable); }
+    }
+    const stream = new ReplayStream({noCatch: true, keepAlive: true});
     const streams = getPlayerStreams(stream);
     const tasks = (['p1', 'p2', 'spectator'] as const).map(async owner => {
       for await (const chunk of streams[owner]) {
         if (owner === 'spectator') consumePublic?.(chunk);
         else consume(owner, chunk);
+        delivery.acknowledge(owner);
       }
     });
-    try { await stream.write(input); }
+    try {
+      if(!boundary)await stream.write(input);
+      else for(const line of input.split('\n').filter(Boolean)) {
+        await stream.write(line);
+        await delivery.wait(()=>stream.battle?.ended?'terminal':'decision');
+        const battle=stream.battle;
+        if(battle?.started && !battle.ended && battle.sides.some(side=>side.activeRequest && !side.activeRequest.wait && !side.isChoiceDone()))boundary(battle);
+      }
+    }
     finally { await stream.writeEnd(); await Promise.all(tasks); }
   }
 

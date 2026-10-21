@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import test, {after} from 'node:test';
@@ -335,7 +336,7 @@ for (const actor of ['p1', 'p2'] as const) for (const revealed of [false, true])
           const candidateResult = structuredClone(result) as any; candidateResult.evidence_envelope = candidate;
           itemIdentityMatrixCounts.fullResult++; itemIdentityMatrixCounts.sweep++;
           for (const [index, payload] of [candidateResult, sweep(candidateResult)].entries()) {
-            if (name === 'missing') writeFileSync(`/tmp/c22-c23-missing-predecessor-${actor}-${revealed}-${index}.json`, JSON.stringify(payload));
+            if (name === 'missing') writeFileSync(testOutput(`c22-c23-missing-predecessor-${actor}-${revealed}-${index}.json`), JSON.stringify(payload));
             const rejected = python(payload); assert.equal(rejected.status, 2, `${name}: ${rejected.stderr}`); assert.equal(rejected.stdout, '');
             assert.match(rejected.stderr, /predecessor|gap|coverage|Public health|Public item|request/i);
           }
@@ -632,7 +633,7 @@ test('source turn-1000 terminal switches preserve visible owned identity and rej
           const rejected = python(bad.evidence_envelope); assert.equal(rejected.status, 2, rejected.stderr); assert.equal(rejected.stdout, ''); assert.match(rejected.stderr, /sufficient owned identity authority/);
           itemIdentityMatrixCounts.envelope++;
           assert.doesNotThrow(() => validatePipelineEpisodeEvidence(bad.evidence_envelope, bad.records));
-          writeFileSync(`/tmp/c22-c23-normal-terminal-${player}-${field}.json`, JSON.stringify(bad));
+          writeFileSync(testOutput(`c22-c23-normal-terminal-${player}-${field}.json`), JSON.stringify(bad));
           console.log(`C22/C23 short turn-limit: action-bound full ${player} ${field}, ${origin.protocol_prefix.length} prefix records`);
           const started = Date.now(), valid = python(bad); assert.equal(valid.status, 0, valid.stderr);
           console.log(`C22/C23 short turn-limit: action-bound full completed ${Date.now() - started}ms`);

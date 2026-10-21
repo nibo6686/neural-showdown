@@ -993,6 +993,7 @@ def _finite_json_tree(value):
 def _request(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
     reader_context(reader_rules)
     payload = "|".join(parts[2:])
+    if payload == 'null' and (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT): return
     if not payload:
         _malformed(command)
     try:
@@ -1126,6 +1127,8 @@ def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
                 _malformed(command, "invalid source tag")
         if len(parts) > 6: _malformed(command)
     elif command == "detailschange":
+        if (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and len(parts)==5 and parts[4]=="[silent]" and re.match(r"p[12]: ",parts[2]) and _is_player_ident(parts[2],reader_rules=reader_rules):
+            _field(parts,3,command,"details"); return
         if len(parts) not in (4, 5): _malformed(command)
         ident(); _field(parts, 3, command, "details")
         if len(parts) == 5: _health_condition(parts, 4, command, reader_rules=reader_rules)
@@ -1246,11 +1249,12 @@ def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
         if len(parts) > 3: _field(parts, 3, command, "action")
     elif command in ("prepare", "-prepare"):
         at_least(4); ident(); _field(parts, 3, command, "move")
+        if (reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and command=="-prepare" and len(parts)==5 and parts[3:]==["Chilly Reception","[premajor]"]: return
         if len(parts) > 4: _target(parts, 4, command, reader_rules=reader_rules)
     elif command in ("inactive", "inactiveoff"):
         at_least(3); _field(parts, 2, command, "message")
     elif command == "rated":
-        if len(parts) > 3 or (len(parts) == 3 and not parts[2].strip(_JS_TRIM)): _malformed(command)
+        if len(parts) > 3 or (len(parts) == 3 and not parts[2].strip(_JS_TRIM) and not ((reader_rules is NATIVE11_CONTEXT or reader_rules is NATIVE11_GRAMMAR_CONTEXT) and parts[2]=="")): _malformed(command)
     elif command == "t:":
         if len(parts) != 3: _malformed(command)
         _integer(parts, 2, command, "timestamp", reader_rules=reader_rules)
@@ -1280,6 +1284,10 @@ def validate_protocol_record(record, *, reader_rules=HISTORICAL10_CONTEXT):
     if command not in reader_context(reader_rules).protocol["supported_commands"]:
         raise ProtocolRecordError("unknown", command, f"unsupported raw protocol event: {command or '<empty>'}")
     _shape(parts, command, reader_rules=reader_rules)
+    binding=reader_context(reader_rules).protocol['validation_rules'].get('partial_trap')
+    if binding and command=='-damage' and '[partiallytrapped]' in parts:
+        if len(parts)!=6 or parts[5]!='[partiallytrapped]' or not parts[4].startswith('[from] move: ') or parts[4][len('[from] move: '):] not in binding['move_names']:
+            _malformed(command,'invalid binding source')
     if command in ("-start", "-end"):
         _classify_effect_record(command, parts[3], reader_rules=NATIVE11_CONTEXT if reader_rules is NATIVE11_GRAMMAR_CONTEXT else reader_rules)
     elif command in ("-weather", "-fieldstart", "-fieldend"):

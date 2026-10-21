@@ -41,7 +41,7 @@ export function projectPublicHealth(prefix: readonly string[]): Record<string, H
     if (command === 'switch' || command === 'drag' || command === 'replace') state.active = true;
     const healthField = ['switch', 'drag', 'replace', 'detailschange', '-detailschange'].includes(command) ? 4
       : ['-damage', '-heal', '-sethp', 'damage', 'heal', 'sethp'].includes(command) ? 3 : null;
-    if (healthField !== null && parts[healthField]) {
+    if (healthField !== null && parts[healthField] && parts[healthField] !== '[silent]') {
       const next = condition(parts[healthField]);
       // Zero-HP damage precedes faintMessages, which performs the status clear.
       if (next.fainted && ['-damage', '-sethp', 'damage', 'sethp'].includes(command)) delete (next as Health).status;

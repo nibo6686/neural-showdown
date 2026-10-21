@@ -8,7 +8,9 @@ from neural.sim_branch_evaluator import evaluate_actions
 
 class RolloutRegressionTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.tmpdir = Path(tempfile.mkdtemp())
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.tmpdir = Path(temporary.name)
         (self.tmpdir / "artifacts" / "regression").mkdir(parents=True, exist_ok=True)
 
     def _write_trace(self, name: str, protocol_log: list, turns: list):
@@ -199,8 +201,8 @@ class RolloutRegressionTests(unittest.TestCase):
             report["cases"].append({"name": name, "method_set": sorted(list(method_set)), "rollout_available": rollout_available, "verdict": verdict, "note": note})
 
         # Write report files
-        out_json = Path("artifacts/regression/rollout_regression_report.json")
-        out_md = Path("artifacts/regression/rollout_regression_report.md")
+        out_json = self.tmpdir / "artifacts/regression/rollout_regression_report.json"
+        out_md = self.tmpdir / "artifacts/regression/rollout_regression_report.md"
         out_json.parent.mkdir(parents=True, exist_ok=True)
         out_json.write_text(json.dumps(report, indent=2), encoding="utf-8")
 

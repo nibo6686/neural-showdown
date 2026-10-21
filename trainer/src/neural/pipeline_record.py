@@ -182,6 +182,7 @@ def _prefix(observation: Mapping[str, Any], label: str, *, reader_rules=HISTORIC
         raise PipelineRecordError(f"{label} event cursor does not match its protocol prefix")
     retained_rqid = None
     has_retained_rqid = False
+    request_cleared = False
     for record_index, line in enumerate(prefix):
         try:
             validate_protocol_record(line, reader_rules=reader_rules)
@@ -208,6 +209,11 @@ def _prefix(observation: Mapping[str, Any], label: str, *, reader_rules=HISTORIC
                 request_payload = json.loads(request_text)
             except json.JSONDecodeError as exc:
                 raise PipelineRecordError(f"{label} protocol prefix contains a raw request") from exc
+            if request_text == "null":
+                has_retained_rqid = False
+                request_cleared = True
+                continue
+            request_cleared = False
             if not isinstance(request_payload, dict) or set(request_payload) - {"rqid"}:
                 raise PipelineRecordError(f"{label} protocol prefix contains a private request")
             try:
@@ -224,6 +230,8 @@ def _prefix(observation: Mapping[str, Any], label: str, *, reader_rules=HISTORIC
         if line == "|":
             raise PipelineRecordError(f"{label} protocol prefix contains filtered framing metadata")
     associated_request = observation.get("request")
+    if request_cleared and associated_request is not None:
+        raise PipelineRecordError(f"{label} cleared request has an associated request object")
     if associated_request is not None and not isinstance(associated_request, Mapping):
         raise PipelineRecordError(f"{label} request must be an object or null")
     if has_retained_rqid:

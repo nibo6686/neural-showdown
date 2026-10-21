@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync, writeFileSync} from 'node:fs';
@@ -60,9 +61,8 @@ export function publish(payload: unknown, error?: RegExp, rows = 0) {
     env: {...process.env, PYTHONPATH: path.resolve(__dirname, '../../../trainer/src')}});
   if (r.error) {
     const name = `failed-publication-${createHash('sha256').update(before).digest('hex')}`;
-    const out = path.resolve(__dirname, '../../../artifacts/validation/faithful-flag-2026-10-09');
-    writeFileSync(path.join(out, `${name}.json`), before);
-    writeFileSync(path.join(out, `${name}-diagnostic.json`), JSON.stringify({status:r.status, signal:r.signal, error:r.error.message, stdout_bytes:Buffer.byteLength(r.stdout || ''), stderr:r.stderr, python:process.env.PYTHON || 'python3'}));
+    writeFileSync(testOutput(`${name}.json`), before);
+    writeFileSync(testOutput(`${name}-diagnostic.json`), JSON.stringify({status:r.status, signal:r.signal, error:r.error.message, stdout_bytes:Buffer.byteLength(r.stdout || ''), stderr:r.stderr, python:process.env.PYTHON || 'python3'}));
   }
   assert.equal(r.status, error ? 2 : 0, r.stderr || r.error?.message); assert.equal(JSON.stringify(payload), before);
   if (error) {assert.equal(r.stdout, ''); assert.match(r.stderr, error);}

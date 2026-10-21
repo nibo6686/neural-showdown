@@ -368,7 +368,7 @@ export class PlayerStateExtractor {
 
   private handleRequest(rawJson: string): void {
     const rawRequest = JSON.parse(rawJson);
-    this.currentRequest = normalizeRequest(this.player, rawRequest, this.rulesContext);
+    this.currentRequest = rawRequest === null ? null : normalizeRequest(this.player, rawRequest, this.rulesContext);
     if (Array.isArray(rawRequest?.side?.pokemon)) {this.ownRequestData = rawRequest; this.submittedSwitch = null;}
   }
 
@@ -652,7 +652,7 @@ export class PlayerStateExtractor {
     pokemon.details = details || pokemon.details;
     pokemon.level = parsedDetails.level ?? pokemon.level;
     pokemon.gender = parsedDetails.gender ?? pokemon.gender;
-    if (parts.length > 4) {
+    if (parts.length > 4 && condition !== '[silent]') {
       pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
       pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
       // A condition-bearing public record includes the current major status

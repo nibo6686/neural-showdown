@@ -46,10 +46,23 @@ contract.protocol.validation_rules.ability.payload_domains.dash_trace_copy = [..
     const ability = dex.abilities.get(name); return !ability.flags.notrace && ability.id !== 'noability';
   }).sort();
 const historical = JSON.parse(fs.readFileSync(path.join(root,'trainer/src/neural/protocol_contract.json'),'utf8'));
+// Item selector literals and required species items are public payload domains,
+// never evidence that a particular Pokemon holds an unrevealed item.
+const selector = fs.readFileSync(path.join(engine,'data/random-battles/gen9/teams.ts'),'utf8');
+const selectedItems = [...selector.matchAll(/['"]([^'"\r\n]+)['"]/g)].map(m=>m[1])
+  .filter(name=>dex.items.get(name).exists && dex.items.get(name).name===name);
+const itemRules = contract.protocol.validation_rules.item;
+itemRules.payloads = [...new Set([...itemRules.payloads,...selectedItems.filter(name=>!dex.items.get(name).isNonstandard),
+  ...Object.keys(sets).map(name=>dex.species.get(name)).flatMap(s=>s.requiredItems || (s.requiredItem?[s.requiredItem]:[])).filter(name=>!dex.items.get(name).isNonstandard)])].sort();
+itemRules.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:itemRules.payloads.filter(name=>dex.items.get(name).isBerry)});
+contract.protocol.validation_rules.partial_trap = {move_names: [...new Set(dex.moves.all()
+  .filter(move=>move.volatileStatus==='partiallytrapped').map(move=>move.name))].sort()};
 const restored = new Set(['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions']);
 contract.protocol.supported_commands = historical.supported_commands.slice();
 contract.protocol.recognized_unsupported_commands = contract.protocol.recognized_unsupported_commands.filter(e=>!restored.has(e.token));
-contract.semantic_dispositions.effect_lifecycle = 'source-identical-reviewed-effects-only; changed/new unsupported-fail-closed';
+contract.semantic_dispositions.effect_lifecycle = 'source-reviewed classes; uncovered deltas unsupported-fail-closed';
+contract.semantic_dispositions.partial_trap = 'public-damage-only; binding-source-and-duration-untyped';
+contract.semantic_dispositions.chilly_reception = 'exact-premajor-prepare; transient-state-raw-only';
 contract.semantic_dispositions.heal_failure = 'historical-raw-shapes; no inferred attribution';
 // Restoring a family does not turn its valid old shape into a negative fixture.
 // Keep malformed controls and the separately quarantined Court Change control.

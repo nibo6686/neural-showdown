@@ -45,7 +45,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(!equal(value.provenance,selectedProvenance))fail('provenance');
  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
  if(profile==='native11'){
-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,effect_lifecycle:'source-identical-reviewed-effects-only; changed/new unsupported-fail-closed',heal_failure:'historical-raw-shapes; no inferred attribution',trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
+  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,effect_lifecycle:'source-reviewed classes; uncovered deltas unsupported-fail-closed',partial_trap:'public-damage-only; binding-source-and-duration-untyped',chilly_reception:'exact-premajor-prepare; transient-state-raw-only',heal_failure:'historical-raw-shapes; no inferred attribution',trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
  keys(p,Object.keys(base),'protocol');
@@ -56,6 +56,9 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(profile==='native11')rules.major_status.cure_forms=rules.major_status.cure_forms.map((x:any)=>equal(x.tags,['[from] ability: Natural Cure'])?form:x);
  else rules.major_status.cure_forms.push(form);
  if(profile==='native11'){
+  rules.item.payloads=[...rules.item.payloads,'Covert Cloak','Expert Belt','Insect Plate','Life Orb','Rusted Shield','Rusted Sword'].sort();
+  rules.partial_trap={move_names:['Bind','Clamp','Fire Spin','Infestation','Magma Storm','Sand Tomb','Snap Trap','Thunder Cage','Whirlpool','Wrap']};
+  rules.item.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:rules.item.payloads.filter((name:string)=>name.endsWith(' Berry'))});
   rules.ability.dash_templates=['reveal','boost','trace-copy-prior-Trace'];
   rules.ability.payload_domains.dash_trace_copy=rules.ability.payload_domains.dash_trace_copy.filter((a:string)=>a!=='Steely Spirit').concat('Gale Wings').sort();
   rules.ability.source_evidence.dash_trace_copy='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification';

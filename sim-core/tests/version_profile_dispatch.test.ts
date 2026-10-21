@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -79,7 +80,7 @@ test('P31 historical TS readers', () => {
   assert.deepEqual([b.input_observation.observation_id, b.action.action_id, b.transition.transition_id, b.successor_belief.belief_id], ids);
   const f: any = fixtures(); validateHistoricalPipelineEpisodeEvidence(f.envelope);
   assert.equal(validateHistoricalPipelineEpisodeFaithfulClaim(f.result as any), true);
-  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
+  writeFileSync(testOutput('perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
   const negatives: any = {};
   for (const [name, revision] of [['target', TARGET], ['unknown', 'sim-core@unknown']]) { const b = savedBundle(); resealRevision(b, revision); negatives[name] = b; }
   negatives.conflict = savedBundle(); negatives.conflict.successor_belief.transition_lineage.simulator_revision = TARGET; rehash(negatives.conflict);
@@ -87,10 +88,10 @@ test('P31 historical TS readers', () => {
   const current: any = { ...prior.commits.at(-1).boundary, battle_id: prior.battle_id, perspectives: Object.fromEntries(['p1','p2'].map(p => [p,{observation: prior.commits.at(-1).boundary.perspectives[p]}])) };
   const continuation = createPipelineEpisodeEvidence({ run_id: 'episode-' + 'a'.repeat(64), battle_id: prior.battle_id, ruleset: prior.ruleset, kind: 'continuation_segment', boundaries: [current], transitions: [], predecessor: prior })!;
   validateHistoricalPipelineEpisodeEvidence(continuation); f.continuation = continuation;
-  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
+  writeFileSync(testOutput('perspective-fidelity-prompt31-reader-fixtures.json'), JSON.stringify(f));
   const changedPrior = structuredClone(prior); changedPrior.commits[0].transition.simulator_revision = TARGET;
   continuation.closure!.predecessor = sealPipelineEpisodeEvidence(changedPrior); negatives.predecessor = sealPipelineEpisodeEvidence(continuation);
-  writeFileSync(path.join(root, 'docs/planning/perspective-fidelity-prompt31-resealed-negatives.json'), JSON.stringify(negatives));
+  writeFileSync(testOutput('perspective-fidelity-prompt31-resealed-negatives.json'), JSON.stringify(negatives));
   witness('historical', { saved_ids: ids, constructed_terminal: true, native_execution: false, evidence_id: f.envelope.evidence_id });
 });
 

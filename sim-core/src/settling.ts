@@ -9,16 +9,15 @@ export interface SettlingOptions {
 }
 export type SettlingFailureCode = 'timeout' | 'message-limit' | 'simulator-error' | 'stream-closed' | 'cancelled';
 export class SettlingError extends Error {
-  readonly diagnostic: { schema_version: 'settling-failure/v1'; code: string; timeout_ms: number; max_messages: number;
-    cause?: {name: string; message: string; at: string | null} };
+  readonly cause?: Error;
+  readonly diagnostic: { schema_version: 'settling-failure/v1'; code: string; timeout_ms: number; max_messages: number };
   constructor(code: SettlingFailureCode, timeout: number, messages: number, cause?: Error) {
     super(`settling/v1/${code}`);
     this.diagnostic = { schema_version: 'settling-failure/v1', code: this.message, timeout_ms: timeout, max_messages: messages };
     if (cause) {
-      this.diagnostic.cause = {name: cause.name, message: cause.message,
-        at: cause.stack?.split('\n').find(line => /^\s+at /.test(line))?.trim() ?? null};
+      Object.defineProperty(this, 'cause', {value: cause, configurable: true});
       // Node's test runner prints the stack even when it omits custom fields.
-      this.stack += `\nCaused by ${cause.name}: ${cause.message}\n${this.diagnostic.cause.at ?? ''}`;
+      this.stack += `\nCaused by ${cause.stack ?? `${cause.name}: ${cause.message}`}`;
     }
   }
 }

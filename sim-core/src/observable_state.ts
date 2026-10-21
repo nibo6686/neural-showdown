@@ -781,8 +781,9 @@ function hasOnlyFiniteJsonNumbers(value: unknown): boolean {
   return true;
 }
 
-function parseRawRequestPayload(parts: string[]): Record<string, unknown> {
+function parseRawRequestPayload(parts: string[], rulesContext: ProtocolRulesContext): Record<string, unknown> | null {
   const payload = parts.slice(2).join('|');
+  if (payload === 'null' && (rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT)) return null;
   if (!payload) throw new ObservableStateError('Malformed raw request record.');
   let parsed: unknown;
   try {
@@ -967,7 +968,7 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
       return;
     case 'request':
       requireAtLeast(3);
-      parseRawRequestPayload(parts);
+      parseRawRequestPayload(parts, rulesContext);
       return;
     case 'move':
       requireAtLeast(4);
@@ -1046,6 +1047,7 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
       if (parts.length > 6) throw new ObservableStateError(`Malformed raw ${command} record.`);
       return;
     case 'detailschange':
+      if ((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && parts.length === 5 && parts[4] === '[silent]' && /^p[12]: /.test(parts[2]) && isCanonicalPlayerIdent(parts[2], false, rulesContext)) { requireRawField(parts, 3, command, 'details'); return; }
       if (parts.length !== 4 && parts.length !== 5) throw new ObservableStateError(`Malformed raw ${command} record.`);
       requireIdent();
       requireRawField(parts, 3, command, 'details');
@@ -1315,6 +1317,7 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
       requireAtLeast(4);
       requireIdent();
       requireRawField(parts, 3, command, 'move');
+      if ((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && command === '-prepare' && parts.length === 5 && parts[3] === 'Chilly Reception' && parts[4] === '[premajor]') return;
       if (parts.length > 4) requireRawTarget(parts, 4, command, rulesContext);
       return;
     case 'inactive':
@@ -1326,7 +1329,7 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
       requireRawField(parts, 2, command, 'message');
       return;
     case 'rated':
-      if (parts.length > 3 || (parts.length === 3 && !parts[2].trim())) {
+      if (parts.length > 3 || (parts.length === 3 && !parts[2].trim() && !((rulesContext === NATIVE11_CONTEXT || rulesContext === NATIVE11_GRAMMAR_CONTEXT) && parts[2] === ''))) {
         throw new ObservableStateError(`Malformed raw ${command} record.`);
       }
       return;
@@ -1366,7 +1369,8 @@ function sanitizeProtocolPrefix(prefix: readonly string[], rulesContext: ReaderC
       sanitized.push(record);
       continue;
     }
-    const request = parseRawRequestPayload(parts);
+    const request = parseRawRequestPayload(parts, rulesContext);
+    if (request === null) { sanitized.push('|request|null'); continue; }
     const publicRequest = Object.hasOwn(request, 'rqid') ? { rqid: request.rqid } : {};
     sanitized.push(`|request|${canonicalize(publicRequest)}`);
   }
@@ -1466,6 +1470,7 @@ type RawEvidence = {
   terminal_kind?: 'win' | 'tie';
   winner_token?: string;
   request_rqid?: number;
+  request_cleared?: boolean;
 };
 
 /** Validate one supported record before any event-specific state routing. */
@@ -1483,6 +1488,11 @@ export function validateRawProtocolRecord(record: string, rulesContext: Protocol
     throw new ObservableStateError(`Unsupported raw protocol event: ${command}.`);
   }
   validateRawRecordShape(parts, command, rulesContext);
+  const binding=protocolContext(rulesContext).protocol.validation_rules.partial_trap;
+  if(binding && command==='-damage' && parts.includes('[partiallytrapped]')) {
+    if(parts.length!==6 || parts[5]!=='[partiallytrapped]' || !parts[4].startsWith('[from] move: ')
+      || !binding.move_names.includes(parts[4].slice('[from] move: '.length)))throw new ObservableStateError('Malformed raw -damage record: invalid binding source.');
+  }
   const effectField = ['-start', '-end'].includes(command) ? 3
     : ['-weather', '-fieldstart', '-fieldend'].includes(command) ? 2
       : ['-sidestart', '-sideend'].includes(command) ? 3 : -1;
@@ -1552,7 +1562,9 @@ function parseRawEvidence(prefix: readonly string[], perspective: PlayerID, rule
       evidence.terminal_kind = 'tie';
       evidence.winner_token = 'tie';
     } else if (command === 'request') {
-      const rawRequest = parseRawRequestPayload(parts);
+      const rawRequest = parseRawRequestPayload(parts, rulesContext);
+      if (rawRequest === null) { delete evidence.request_rqid; evidence.request_cleared=true; continue; }
+      evidence.request_cleared=false;
       const side = rawRequest.side;
       if (side !== undefined && (!side || typeof side !== 'object' || Array.isArray(side))) {
         throw new ObservableStateError('Malformed raw request side.');
@@ -1610,6 +1622,7 @@ function validateRawEvidence(
   if (evidence.terminal_kind !== undefined && !view.terminated) {
     throw new ObservableStateContradictionError('Raw terminal evidence requires a terminated BattleView.');
   }
+  if (evidence.request_cleared && request) throw new ObservableStateContradictionError('Cleared raw request has an associated request.');
   if (evidence.request_rqid !== undefined && request && request.rqid !== evidence.request_rqid) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with request.rqid.');
   }
@@ -1630,7 +1643,8 @@ export function validateObservableProtocolPrefix(
   for (const record of normalized) {
     if (!record.startsWith('|request|')) continue;
     const parts = record.split('|');
-    const rawRequest = parseRawRequestPayload(parts);
+    const rawRequest = parseRawRequestPayload(parts, rulesContext);
+    if (rawRequest === null) continue;
     if (Object.keys(rawRequest).some((key) => key !== 'rqid')
       || canonicalize(rawRequest) !== parts.slice(2).join('|')) {
       throw new ObservableStateError('Observable request prefix record is not sanitized.');
@@ -1658,6 +1672,7 @@ export function validateObservableProtocolPrefix(
   if (evidence.terminal_kind !== undefined && !view.terminated) {
     throw new ObservableStateContradictionError('Raw terminal evidence requires a terminated view.');
   }
+  if (evidence.request_cleared && request) throw new ObservableStateContradictionError('Cleared raw request has an associated request.');
   if (evidence.request_rqid !== undefined && request && request.rqid !== evidence.request_rqid) {
     throw new ObservableStateContradictionError('Raw evidence disagrees with request.rqid.');
   }

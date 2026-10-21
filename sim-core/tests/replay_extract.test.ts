@@ -11,7 +11,7 @@ const root = path.resolve(__dirname, '../../..');
 const {extractReplay} = require(path.join(root, 'tools/replay_repro/index.cjs'));
 const families = new Set(['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions']);
 const comparison = NATIVE11_CONTEXT.inventory.effect_source_comparison.entries;
-const blocked = new Set(comparison.filter((e: any) => e.status !== 'unchanged').map((e: any) => e.id));
+const blocked = new Set(comparison.filter((e: any) => e.blocked_reason).map((e: any) => e.id));
 
 for (const directory of ['replay-repro', 'replay-extract']) {
   for (const name of fs.readdirSync(path.join(root, 'sim-core/tests/fixtures', directory)).filter(n => n.endsWith('.json'))) {
@@ -38,7 +38,7 @@ test('native lifecycle restores raw shapes while source changes, unknown IDs and
     '|-weather|none','|-fieldstart|move: Gravity','|-fieldend|move: Gravity']) {
     assert.doesNotThrow(() => validateRawProtocolRecord(record, NATIVE11_CONTEXT));
   }
-  for (const row of comparison.filter((e: any) => e.status !== 'unchanged')) {
+  for (const row of comparison.filter((e: any) => e.blocked_reason)) {
     const command = row.category === 'weather' ? '-weather' : ['terrain','pseudo_weather'].includes(row.category) ? '-fieldstart'
       : row.category === 'side_condition' ? '-sidestart' : '-start';
     if (row.category === 'major_status') continue;
@@ -70,8 +70,8 @@ test('settling simulator errors retain the class, message and first cause frame'
     await assert.rejects(env.step({}), error => {
       assert.ok(error instanceof SettlingError);
       assert.equal(error.message, 'settling/v1/simulator-error');
-      assert.deepEqual(error.diagnostic.cause, {name:'TypeError',message:cause.message,
-        at:cause.stack!.split('\n').find(line => /^\s+at /.test(line))!.trim()});
+      assert.equal(error.cause, cause);
+      assert.deepEqual(Object.keys(error.diagnostic).sort(), ['code','max_messages','schema_version','timeout_ms']);
       assert.match(error.stack!, /Caused by TypeError: Unsupported raw protocol event: -end\./);
       return true;
     });

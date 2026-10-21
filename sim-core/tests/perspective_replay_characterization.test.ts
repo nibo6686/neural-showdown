@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,7 +13,7 @@ const root = path.resolve(__dirname, '../../..');
 const fixtures = path.join(root, 'trainer/tests/fixtures/perspective-replay');
 const ledger = JSON.parse(fs.readFileSync(path.join(fixtures, 'expected-ledger.json'), 'utf8'));
 const requirements = process.env.PERSPECTIVE_REPLAY_REQUIREMENTS === '1';
-const reportPath = process.env.PERSPECTIVE_REPLAY_REPORT;
+const reportPath = process.env.PERSPECTIVE_REPLAY_REPORT ? testOutput('perspective-replay-report.json') : undefined;
 const rows: any[] = [];
 const originalRows: any[] = [];
 const integrations: any[] = [];

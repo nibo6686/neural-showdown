@@ -59,6 +59,7 @@ export interface ProtocolContract {
       payload_domains: Record<'dash_reveal' | 'dash_boost' | 'dash_trace_copy' | 'bare_reveal', string[]>;
       source_evidence: Record<'dash_reveal' | 'dash_boost' | 'dash_trace_copy' | 'bare_reveal', string>;
     };
+    partial_trap?: {move_names: string[]};
     detailschange: { condition: string };
     trapped_activation: { token: '-activate'; target_role: 'active'; effect: 'trapped'; payload_fields: number };
     singleturn: { untagged_effects: string[]; tagged_forms: Array<{ effect: string; tag: string; tag_value: string; ident_role?: 'active' | 'side-or-active' }> };

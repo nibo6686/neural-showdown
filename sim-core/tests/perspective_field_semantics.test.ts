@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -15,7 +16,7 @@ import { PLAYERS, type PlayerID } from '../src/types';
 import { terminalOwnedItems, terminalOwnedRequests } from '../src/public_health';
 
 const root = path.resolve(__dirname, '../../..');
-const artifact = (name: string) => path.join(root, 'docs/planning', `perspective-fidelity-prompt5-${name}`);
+const artifact = (name: string) => testOutput(`perspective-fidelity-prompt5-${name}`);
 const originalArtifact = (name: string) => path.join(root, 'docs/planning', `perspective-fidelity-prompt4-${name}`);
 type Family = 'weather' | 'terrain' | 'pseudo_weather';
 type Json = Record<string, any>;

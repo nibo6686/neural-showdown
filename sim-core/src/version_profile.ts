@@ -182,11 +182,11 @@ function pinnedAsset(assetPath: string, expected: string): any {
 /** Fixed local replay decoder, not a native profile or portable publication contract. */
 export const REPLAY_COMPAT = Object.freeze({id: 'replay-compat-v1', revision: 'importer-replay-compatibility/v1', adopted: false} as const);
 export interface ProtocolRulesContext { readonly protocol: ProtocolContract; }
-const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '1b51f474c9592b383d059fccf7f86f3deac5286791a06144bd88708d6b867f20');
+const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '6b822f2fed433e507543f30dc71c3b26762d9ae674c86d2237ce202d03c9c802');
 const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
 export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
 export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
-const targetInventory = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json'), '4ae8f4875e2beba6ac53dfeac1967e84c44ab181e564b43f433463eaa4f040c0');
+const targetInventory = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json'), '7d161ea874bd6baa40130d80194cee788a1c68f010cd9d166a7acea5c0435680');
 const targetEffects = Object.fromEntries([...targetInventory.condition_inventory, ...targetInventory.effect_discovery.additional_entries].map((e: any) => [e.id, e]));
 export const NATIVE11_CONTEXT: ReaderContext = freezeTree({profile: NATIVE11, protocol: targetProtocolAsset.protocol,
   inventory: targetInventory, effects: targetEffects,
@@ -239,8 +239,8 @@ export function assertPreparedProtocolPolicy(record: string, context: unknown): 
   const revival = (context === NATIVE11_CONTEXT || context === NATIVE11_GRAMMAR_CONTEXT) && command === '-heal' && p.includes('[from] move: Revival Blessing');
   const family = context === REPLAY_COMPAT_CONTEXT && ['-heal', 'heal', 'cant'].includes(command) && !stableLeftovers && !revival ? 'heal-failure'
     : ['-swapsideconditions', 'swapsideconditions'].includes(command) || (command === '-activate' && p[3] === 'move: Court Change') ? 'court-change'
-    : command === '-prepare' && p[3] === 'Chilly Reception' ? 'chilly-reception'
-    : command === '-damage' && p.includes('[partiallytrapped]') ? 'partial-trap'
+    : context === REPLAY_COMPAT_CONTEXT && command === '-prepare' && p[3] === 'Chilly Reception' ? 'chilly-reception'
+    : context === REPLAY_COMPAT_CONTEXT && command === '-damage' && p.includes('[partiallytrapped]') ? 'partial-trap'
     : ['-item', 'item'].includes(command) && p.includes('[from] ability: Magician') ? 'magician'
     : command === '-activate' && ['ability: Mummy', 'ability: Lingering Aroma'].includes(p[3]) ? 'ability-setter'
     : command === '-ability' && p.length > 5 && !p.includes('[from] ability: Trace') ? 'ability-setter' : null;
@@ -258,7 +258,7 @@ export function assertPublicationReaderContext(context: unknown): void {
 /** Asset inspection seam: trusted hashes remain code-owned even for an alternate path. */
 export function loadPreparedProtocolAsset(profile: 'native11' | 'replay-compat-v1', assetPath?: string): any {
   const validate = (asset: any, selected: 'native11' | 'replay-compat-v1') => require('./prepared_protocol_contract').validatePreparedProtocolAsset(asset, selected);
-  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '1b51f474c9592b383d059fccf7f86f3deac5286791a06144bd88708d6b867f20'), profile);
+  if (profile === 'native11') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_b8f23c99.json'), '6b822f2fed433e507543f30dc71c3b26762d9ae674c86d2237ce202d03c9c802'), profile);
   if (profile === 'replay-compat-v1') return validate(pinnedAsset(assetPath ?? path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'), profile);
   return fail('unknown-grammar-profile');
 }

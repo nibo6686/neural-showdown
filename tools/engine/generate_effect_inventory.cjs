@@ -117,7 +117,7 @@ function generate({source, historical, check=false}) {
   value.simulator = {...old.simulator,version:'0.11.11',source_commit:commit,source_tree_sha256:after.source_sha256,
     source_roots:['sim','data'],source_root_sha256:undefined,reviewed_source_tree_sha256:undefined,
     package_declaration:'sim-core/package.json commit-pinned file dependency', installed_metadata:'Full Git source checkout',
-    source_commit_note:'Full clean source checkout; per-effect source comparison below. Historical review is inherited only for identical units.'};
+    source_commit_note:'Full clean source checkout; per-effect source comparison below. Historical review is inherited for identical units or exact reviewed change classes.'};
   const entries = [...value.condition_inventory,...value.effect_discovery.additional_entries];
   const known = new Set(entries.map(e=>e.id));
   const reviewedIds = new Set([...known,...old.effect_discovery.special_values.map(e=>e.id)]);
@@ -164,18 +164,50 @@ function generate({source, historical, check=false}) {
   value.effect_source_comparison = {schema_version:'effect-source-comparison/v1',historical_source_sha256:before.source_sha256,
     source_sha256:after.source_sha256,scope:'Exact declaring callbacks, literal emitters and shared lifecycle methods in full sim/data source; no reachability promotion',
     shared_lifecycle:shared,entries:comparison};
+  const reviews=JSON.parse(read(path.join(__dirname,'effect_class_reviews.json')));
+  if(reviews.engine_commit!==commit)throw new Error('Class reviews require the reviewed engine commit');
+  const approved=new Map(reviews.class_review.flatMap(c=>c.units.map(u=>[u.source,{...u,class:c.class}])));
+  const matches=d=>{
+    if(d.shared_lifecycle_diff)d=shared.find(s=>s.source===d.shared_lifecycle_diff);
+    const reviewed=approved.get(d.source);
+    return reviewed && reviewed.before_sha256===hash(d.before||'') && reviewed.after_sha256===hash(d.after||'');
+  };
+  const historicalRows=[...old.condition_inventory,...old.effect_discovery.additional_entries];
+  for(const entry of comparison) {
+    const solelyShared=entry.differences.every(d=>d.shared_lifecycle_diff);
+    if(entry.status==='changed' && entry.id!=='slowstart' && (solelyShared || reviews.semantic_ids.includes(entry.id)) && entry.differences.every(matches)) {
+      entry.adoption='reviewed-class';
+      for(const row of all.filter(r=>r.id===entry.id))Object.assign(row,{classification:historicalRows.find(r=>r.id===entry.id).classification,review_status:'class-reviewed'});
+      for(const row of special.filter(r=>r.id===entry.id))row.classification=old.effect_discovery.special_values.find(r=>r.id===entry.id).classification;
+      for(const row of value.public_typed_state_lifecycle.entries.filter(r=>r.id===entry.id))row.disposition=old.public_typed_state_lifecycle.entries.find(r=>r.id===entry.id&&r.family===row.family).disposition;
+    } else if(entry.status!=='unchanged')entry.blocked_reason='Unreviewed source delta or out-of-scope Slow Start drift';
+  }
+  // Newly inventoried values expose public hints/results, never their private
+  // binding source, turn counter or Supreme Overlord multiplier.
+  for(const row of all.filter(r=>comparison.some(e=>e.id===r.id&&e.status==='new'))) {
+    const entry=comparison.find(e=>e.id===row.id);
+    const reviewed=reviews.new_ids.find(r=>r.id===row.id);
+    if(!reviewed || reviewed.before_sha256!==entry.before_sha256 || reviewed.after_sha256!==entry.after_sha256)continue;
+    row.classification='raw-only';row.review_status='reviewed-new-public-evidence';
+    const lifecycle={...structuredClone(old.public_typed_state_lifecycle.entries.find(e=>e.id==='partiallytrapped')),
+      id:row.id,disposition:'raw-only',tests:['sim-core/tests/effect_change_classes.test.ts']};
+    const existing=value.public_typed_state_lifecycle.entries.find(e=>e.id===row.id);
+    if(existing)Object.assign(existing,lifecycle);else value.public_typed_state_lifecycle.entries.push(lifecycle);
+    entry.adoption='reviewed-new-raw-only';delete entry.blocked_reason;
+  }
+  value.class_review=reviews.class_review;
   // Matrices remain historical evidence; explicitly annotate their per-ID adoption
   // rather than silently presenting their old provenance as native proof.
-  for(const group of Object.values(value.condition_semantics)) group.native_source_comparison='effect_source_comparison.entries; only unchanged IDs inherit this historical semantic review';
+  for(const group of Object.values(value.condition_semantics)) group.native_source_comparison='effect_source_comparison.entries; unchanged or class-reviewed IDs inherit this historical semantic review';
   for (const key of ['format_provenance','public_typed_state_lifecycle','public_consequence_matrix','public_ability_effectiveness','public_item_evidence']) {
-    value[key] = {...value[key],native_source_comparison:'effect_source_comparison.entries; changed/new IDs unsupported-fail-closed; other claims remain historical only'};
+    value[key] = {...value[key],native_source_comparison:'effect_source_comparison.entries; unreviewed deltas unsupported-fail-closed; class_review names adopted changes; other claims remain historical only'};
   }
   value.review_status='source-compared-with-fail-closed-deltas';
   const output=path.join(root,'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json');
   const bytes=JSON.stringify(value)+'\n';
   if(check) {if(read(output)!==bytes)throw new Error('Generated effect inventory differs');} else fs.writeFileSync(output,bytes);
   const summary={};for(const e of comparison){const counts=summary[e.category]??={unchanged:0,changed:0,new:0};counts[e.status]++;}
-  console.log(JSON.stringify({sha256:hash(bytes),summary,blocked:comparison.filter(e=>e.status!=='unchanged').map(e=>e.id)}));
+  console.log(JSON.stringify({sha256:hash(bytes),summary,blocked:comparison.filter(e=>e.blocked_reason).map(e=>e.id)}));
   return value;
 }
 module.exports={generate};

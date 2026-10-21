@@ -21,8 +21,10 @@ Generate the effect inventory from the full source checkout, using an unpacked
 ```
 
 The generator checks the clean Git commit and historical source-tree hashes.
-It compares declaring callbacks, emitters and shared lifecycle methods, records
-exact source differences in the inventory, and keeps changed/new IDs fail-closed.
+It compares declaring callbacks, emitters and shared lifecycle methods and records
+exact source differences in the inventory. `effect_class_reviews.json` names
+reviewed classes and exact before/after hashes; uncovered changes stay fail-closed.
+New binding/ability/preparation hints retain raw evidence without private counters.
 Repeat this step when re-pinning, then update both readers' inventory SHA-256 pins.
 Restoring a command's historical grammar does not adopt a changed effect.
 
@@ -31,6 +33,7 @@ After the TypeScript build, reproduce the local probe with:
 ```powershell
 node tools/replay_repro/index.cjs data/replays/probe-2026-10-16
 node tools/replay_repro/index.cjs --extract data/replays/probe-2026-10-16
+node tools/replay_repro/index.cjs --diff data/replays/probe-2026-10-16
 ```
 
 The command emits one JSON result per replay plus exact-match totals, excludes `impulse-*` and acquisition summaries, and fails on mismatches, invalid input, or a foreign engine version. Forfeit/inactivity results compare the prefix before the server-only ending message. No replay download is performed.
@@ -40,3 +43,12 @@ feeds the full addressed streams to both owner extractors. It groups failures
 by command, effect ID and message, and exits nonzero for any failure. Continued
 scanning after rejection is diagnostic only: no partially accepted view or
 dataset row is returned. Unrelated grammar failures remain visible.
+
+`--diff` settles both owner streams and the public fan-out after each input command,
+then compares both views at pending decision boundaries with read-only simulator
+truth. It checks typed public side layers, field effects, Substitute, public
+boost/status evidence, exact owned HP and rounded opposing HP. Raw-only volatile
+lifecycles and internal rule pseudo-weather remain outside typed projection;
+they are not treated as absent. Truth never enters the extractor. The summary
+lists excluded unclean replays and mismatches by fact/effect ID. A mismatch or
+zero completed comparisons exits nonzero. No additional replay download is needed.

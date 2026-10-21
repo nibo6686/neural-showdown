@@ -60,7 +60,7 @@ async function reproduceReplay(replay) {
     sim: fullMatch ? null : actual[matched] ?? null, public: fullMatch ? null : expected[matched] ?? null};
 }
 
-async function extractReplay(replay) {
+async function extractReplay(replay, {diff=false}={}) {
   // Reproduction validates the engine pin, input command allowlist and public log.
   const reproduction = await reproduceReplay(replay);
   if (!reproduction.full_match) throw new Error('Replay reproduction diverged: '+replay.id);
@@ -70,6 +70,8 @@ async function extractReplay(replay) {
   const env = LocalBattleEnv.createSimulationOnly({id:replay.id,format:'gen9randombattle'});
   const trackers = Object.fromEntries(['p1','p2'].map(owner=>[owner,new PlayerStateExtractor(replay.id,'gen9randombattle',owner,NATIVE11_CONTEXT)]));
   const failures = [], records = {p1:0,p2:0};
+  const prefixes={p1:[],p2:[]},mismatches=[];let checks=0,boundaries=0;
+  const {compareReplayPublicState}=require(path.join(root,'sim-core/dist/src/replay_public_diff.js'));
   const input = replay.inputlog.split(/\r?\n/).filter(line=>!line.startsWith('>version ')&&!line.startsWith('>chat ')).join('\n');
   const consume = (owner,chunk,publicHealingWish=false)=> {
       for(const record of chunk.split('\n')) {
@@ -78,6 +80,7 @@ async function extractReplay(replay) {
         try {
           if(publicHealingWish)trackers[owner].consumePublicHealingWishRecord(record);
           else trackers[owner].consumeChunk(record);
+          if(!publicHealingWish || /^\|-heal\|[^|]+\|100\/100\|\[from\] move: Healing Wish$/.test(record))prefixes[owner].push(record);
         }
         catch(error) {
           const parts=record.split('|'), command=parts[1]||'';
@@ -92,22 +95,29 @@ async function extractReplay(replay) {
     // Match LocalBattleEnv.listenSpectator's exact public Healing Wish seam.
     await env.replaySimulation(input,consume,chunk=> {
       for(const owner of ['p1','p2'])consume(owner,chunk,true);
-    });
+    },diff ? battle=> {
+      if(failures.length)return;
+      boundaries++;
+      for(const owner of ['p1','p2']) {
+        try {const result=compareReplayPublicState(battle,trackers[owner].getView(),prefixes[owner]);checks+=result.checks;mismatches.push(...result.mismatches);}
+        catch(error){mismatches.push({owner,turn:battle.turn,fact:'public-prefix',effect_id:'',message:error.message});}
+      }
+    }:undefined);
   } finally { await env.close(); }
   // A failed record invalidates that perspective's state; continued scanning is
   // diagnostic only and never returns a partially accepted view or dataset row.
-  return {id:replay.id,records,failures};
+  return {id:replay.id,records,failures,...(diff?{boundaries,checks,mismatches}: {})};
 }
 
-async function main(directory, extract=false) {
+async function main(directory, extract=false, diff=false) {
   if (!directory) throw new Error('Usage: node tools/replay_repro/index.cjs <replay-directory>');
-  let count = 0, matches = 0, failed=0; const groups=new Map();
+  let count = 0, matches = 0, failed=0, boundaries=0,checks=0; const groups=new Map(),mismatches=[];
   for (const name of fs.readdirSync(directory).sort()) {
     if (!name.endsWith('.json') || name.startsWith('impulse-')) continue;
     const replay = JSON.parse(fs.readFileSync(path.join(directory, name), 'utf8'));
     // The probe directory also contains acquisition summaries, not replay records.
     if (!Object.hasOwn(replay, 'inputlog') && !Object.hasOwn(replay, 'log')) continue;
-    const result = extract ? await extractReplay(replay) : await reproduceReplay(replay);
+    const result = extract ? await extractReplay(replay,{diff}) : await reproduceReplay(replay);
     count++; if (extract ? !result.failures.length : result.full_match) matches++;
     if(extract) for(const failure of result.failures) {
       failed++;
@@ -115,12 +125,13 @@ async function main(directory, extract=false) {
       const group=groups.get(key)||{command:failure.command,effect_id:failure.effect_id,message:failure.message,records:0,replays:new Set()};
       group.records++;group.replays.add(replay.id);groups.set(key,group);
     }
+    if(diff&&!result.failures.length){boundaries+=result.boundaries;checks+=result.checks;mismatches.push(...result.mismatches.map(m=>({id:replay.id,...m})));}
     if(!extract)console.log(JSON.stringify(result));
   }
   if (!count) throw new Error('No replay records found');
   console.log(JSON.stringify(extract?{replays:count,extracted_without_failures:matches,failed_records:failed,
-    failures:[...groups.values()].map(g=>({...g,replays:[...g.replays]}))}:{replays: count, exact_matches: matches}));
-  if (matches !== count) process.exitCode = 1;
+    failures:[...groups.values()].map(g=>({...g,replays:[...g.replays]})),...(diff?{boundaries,checks,mismatches,excluded_unclean_replays:count-matches,scope:'Typed public contract facts; raw-only lifecycles remain unprojected, not absent'}:{})}:{replays: count, exact_matches: matches}));
+  if (diff ? !matches || !checks || mismatches.length>0 : matches !== count) process.exitCode = 1;
 }
 module.exports = {reproduceReplay,extractReplay};
-if (require.main === module) main(process.argv.slice(2).find(a=>a!=='--extract'),process.argv.includes('--extract')).catch(error => { console.error(error); process.exitCode = 1; });
+if (require.main === module) main(process.argv.slice(2).find(a=>!a.startsWith('--')),process.argv.includes('--extract')||process.argv.includes('--diff'),process.argv.includes('--diff')).catch(error => { console.error(error); process.exitCode = 1; });

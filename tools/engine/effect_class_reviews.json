@@ -1,0 +1,388 @@
+{
+  "schema_version": "effect-class-reviews/v1",
+  "engine_commit": "b8f23c99629132611ba59e99480cb148ea8c5d3d",
+  "semantic_ids": [
+    "auroraveil",
+    "charge",
+    "confusion",
+    "deltastream",
+    "desolateland",
+    "disable",
+    "electricterrain",
+    "encore",
+    "flashfire",
+    "frz",
+    "futuremove",
+    "grassyterrain",
+    "hail",
+    "healblock",
+    "illusion",
+    "leechseed",
+    "lightscreen",
+    "magnetrise",
+    "mistyterrain",
+    "movefuturesight",
+    "noretreat",
+    "partiallytrapped",
+    "primordialsea",
+    "protosynthesis",
+    "psychicterrain",
+    "quarkdrive",
+    "raindance",
+    "reflect",
+    "saltcure",
+    "sandstorm",
+    "snowscape",
+    "spikes",
+    "stealthrock",
+    "stickyweb",
+    "substitute",
+    "sunnyday",
+    "tailwind",
+    "taunt",
+    "throatchop",
+    "toxicspikes",
+    "typeadd",
+    "typechange",
+    "yawn"
+  ],
+  "class_review": [
+    {
+      "class": "effect-specific-public-lifecycle",
+      "review": "Semantic per-ID review: Substitute hit/recoil path preserves explicit break; hazards/spin may emit on faint; Heal Block adds Pollen Puff cant; Encore/Disable guards change; Illusion skips called-back reveal; Future Sight retains end before hit without clearing Protect; Libero/Protean once-per-entry flags, inactive datapreview rules and non-Gen9 endTurn paths do not supply hidden state. Tests use actual emitters and decision-boundary differential.",
+      "tests": [
+        "sim-core/tests/effect_change_classes.test.ts",
+        "sim-core/tests/replay_diff.test.ts"
+      ],
+      "units": [
+        {
+          "source": "data/abilities.ts:Abilities.illusion.onEnd",
+          "before_sha256": "66e7cbf1cbac038bebadb727483d31d48de66e1cf2238c9fa8215505ef6c9a42",
+          "after_sha256": "72bc4b6463cdba397505b71f55b5f3da17b69cdee146bbae924f2555d2abc435"
+        },
+        {
+          "source": "data/abilities.ts:Abilities.libero.onPrepareHit",
+          "before_sha256": "2b71db768c48ae3082f397149131e4117ce91602791c910cdfca546cbe022363",
+          "after_sha256": "18f174409f35d85e63c587db213278e6e79ba3db25d3b8bb4917d6a1d4c91fcd"
+        },
+        {
+          "source": "data/abilities.ts:Abilities.protean.onPrepareHit",
+          "before_sha256": "fc7b382d6c26d03f832788e8ffc2edeeb93f3fded48f2c8cf948cfcc1d8e20e4",
+          "after_sha256": "25f6901e0b7386bd80355bedef07858542f6c866cbab4199634dc14152f887ba"
+        },
+        {
+          "source": "data/abilities.ts:Abilities.windpower.onAllySideConditionStart",
+          "before_sha256": "521056433d61a28420421a1c73d95058ecaff815aac0b6b8b0165e039af270ff",
+          "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "source": "data/abilities.ts:Abilities.windpower.onSideConditionStart",
+          "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_sha256": "8b4e4a6f5b95820bad737917b22364311b2be325c98a4460cc1e1f55df7dea2c"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.dynamax.onStart",
+          "before_sha256": "3176826824b7b3b61402c0d7b12dc6ec078736a55a6bb8967243780e2fa90ebf",
+          "after_sha256": "f26205951f8446f446ecc2a90be6760d43694eac30213e852877add026264ce4"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.frz",
+          "before_sha256": "e5505435f96fa6070309da1bb641a0dc27899e288e278e4f8263ec088bf43e3a",
+          "after_sha256": "8589f35f001a701c31e634aada2b6b35347f08adba9c769883da814ef28855ba"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.futuremove",
+          "before_sha256": "09ced4ea7a923ddca1475e350e19d54ba08388f96cd8e4f8f3b465899cad2030",
+          "after_sha256": "4bbf8d28003eb57379f46aea2a512e7690558d470bd61b50ce8ee3197d2825b6"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.futuremove.onEnd",
+          "before_sha256": "39b02c0636f1ecfe78b1a587db5824e32e25ffc00813b06e86037c375c48cdf0",
+          "after_sha256": "1949333c977d944201ff2e7c46cfd5567663c4b730358fb792aea40235365043"
+        },
+        {
+          "source": "data/moves.ts:Moves.ceaselessedge.onAfterHit",
+          "before_sha256": "8b4f8f346f7809d9675050a355a88262e6fbb1815789b7a9d7467063ab32c68c",
+          "after_sha256": "1376fa9f539889295bdb8969caa17cfc2463df206b2ddfb8fa7b3cc1ca89e6aa"
+        },
+        {
+          "source": "data/moves.ts:Moves.disable.condition",
+          "before_sha256": "1206f83ac5d62cb836598d103b6c3853ea6b416d79e1853a1199b39293502122",
+          "after_sha256": "b879494133f4f5bc8977d4e164a8d90be8e0409c3a5f5ca0163aaae402142f34"
+        },
+        {
+          "source": "data/moves.ts:Moves.encore.condition",
+          "before_sha256": "42c4ece8b22150d4a917baa94ef0e30e3d1db56fe4f47110f2b82b4b88894741",
+          "after_sha256": "26c040e7d643905616b08d23e5b747fb5e4f734233b89443a9e624103482b19a"
+        },
+        {
+          "source": "data/moves.ts:Moves.encore.onResidual",
+          "before_sha256": "adcad8840a3c73aafbdca980e1df247f57cc948cbbe1df6fea9a31f6d09ec2d4",
+          "after_sha256": "11eeaa24aad76e83ec9bf1210ae55c09acd316de1d210ec00ab26f2c156ff5ff"
+        },
+        {
+          "source": "data/moves.ts:Moves.encore.onStart",
+          "before_sha256": "44286d2686c96e9aa8e7c23a1a3443b4844db3b55092dbf8490a5367b4abd443",
+          "after_sha256": "141e9d478a5684f95104cf8da9354c961814f5a679638f58011f819be60237c7"
+        },
+        {
+          "source": "data/moves.ts:Moves.healblock.condition",
+          "before_sha256": "f33e858aeb07bc0b8f36492db4c1382950ceee4ab2d1b7ad1ecee562c186d475",
+          "after_sha256": "64143de4dbb9f7bac19fa12d052037bcb4117b7e35a8562cc9676bebaed1ba94"
+        },
+        {
+          "source": "data/moves.ts:Moves.mortalspin.onAfterHit",
+          "before_sha256": "dbadaf325fb63701768dcc4a07a95c9ddc0a900badaccde0ffd3ca3758b61aaf",
+          "after_sha256": "a33c3351f8fd0197fad0a7914967c801d140c2a7342ec978813a87ad451a9cef"
+        },
+        {
+          "source": "data/moves.ts:Moves.rapidspin.onAfterHit",
+          "before_sha256": "5fb6fee0508300352c902919e25c20deb140e3e54da9bd3fb4c57ff53ddc0287",
+          "after_sha256": "d10640ff511c8806f728e0bac99b09eb5bb76cc6273d8d6fc52811bc7d2e62de"
+        },
+        {
+          "source": "data/moves.ts:Moves.stoneaxe.onAfterHit",
+          "before_sha256": "fb7dc7f1e2cd5224c022527b49d5c8d6fffa68bc5493dcf8310e7dcb25d63bf4",
+          "after_sha256": "02c0661e85273c6eb68b48352ef1c5aff3fbe62070802ede2dc6bb5746df54ee"
+        },
+        {
+          "source": "data/moves.ts:Moves.substitute.condition",
+          "before_sha256": "afbd0fe7cf34e56afa628ac2ee405bcf8c77e7abc761676ae98d92cee6bbce81",
+          "after_sha256": "7ac4c5e4241dcab6843385ee23bbe14a6f9de269ce26a0c4bd42a6ab90725410"
+        },
+        {
+          "source": "data/moves.ts:Moves.substitute.onTryPrimaryHit",
+          "before_sha256": "be62006b8406f1e55d0c6741627b38ce4f04eeda615cb640322b2eddaf362afc",
+          "after_sha256": "c127fa615850c9c6b2cd45f416d47b1f668bdc496cea5f63f0b68eda53d830d4"
+        },
+        {
+          "source": "data/moves.ts:Moves.taunt.condition",
+          "before_sha256": "b8591b0943f7a04e6c53d98b5b69b2eee4109d2b1cceeed781a8777091e914f3",
+          "after_sha256": "822c22c2e442cb441a74404a44218fe3da2ce9fac3f65373eb20ebebe4a0e933"
+        },
+        {
+          "source": "data/moves.ts:Moves.throatchop.condition",
+          "before_sha256": "e42d3d04186af3b95030c6a2b80edefd6d0ca61e0ef4b7d544a77cf3bceb7588",
+          "after_sha256": "a56d4af234f26d73ee0d1ae0b4cc8ed4703e45654e037d3c1a207e222b7a248e"
+        },
+        {
+          "source": "data/rulesets.ts:Rulesets.camomonsmod.onAfterMega",
+          "before_sha256": "3b66c79e1dd26f1cd4f8bae7d16e3055d0b154b701346bd72a0f4bc9f12fbdcc",
+          "after_sha256": "d0c9fdca7466e2427229e434a3b3d77c8649c135f6c6c72e3575b5358f763c9a"
+        },
+        {
+          "source": "data/rulesets.ts:Rulesets.camomonsmod.onSwitchIn",
+          "before_sha256": "da20f9b19f824d765e9eecb5aed009ef134780a66187e49fe9ebeb6e965ac397",
+          "after_sha256": "f162ebd71949946a57fa83ad71f736129f8b356b0dc4c8e1492b9eff03320fd8"
+        },
+        {
+          "source": "data/rulesets.ts:Rulesets.datapreview.onDamagingHit",
+          "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_sha256": "006323c479d8eef1a73358b22a1d108f884daab8215386acd6c5ab3fef096cc4"
+        },
+        {
+          "source": "data/rulesets.ts:Rulesets.datapreview.onSwitchIn",
+          "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "after_sha256": "8510ef0306b6d7b23608ec424afef19c11dbc02c27cdab3dbdd28a0df110d000"
+        },
+        {
+          "source": "sim/battle.ts:core..endTurn",
+          "before_sha256": "54b75e62561e0218a35aa74243e93967c0ea214761c24c9771defbd94f630bdb",
+          "after_sha256": "33fd8aaa792530d441264d7bb576998a196abb49d102e3d7641673bcb1ee7810"
+        }
+      ]
+    },
+    {
+      "class": "terrain-declarations",
+      "review": "Terrain effectType declaration and Psychic Terrain hint wording change; start/end, reset and duration visibility unchanged.",
+      "tests": [
+        "sim-core/tests/effect_change_classes.test.ts",
+        "sim-core/tests/replay_diff.test.ts"
+      ],
+      "units": [
+        {
+          "source": "data/moves.ts:Moves.electricterrain.condition",
+          "before_sha256": "355007165196ca7a79bda48876926f56ab4f457e7af008aff26784b4ca879ec6",
+          "after_sha256": "35e4cbb9c4099c90eb8d057e152b248abb54a2bd416960f98f6b4f9a45e22c15"
+        },
+        {
+          "source": "data/moves.ts:Moves.grassyterrain.condition",
+          "before_sha256": "70c740976ca0df5fb3367bdcd12449dbff64e2169a8f9c7899c0604c11dddc37",
+          "after_sha256": "44f8e0ae354738a1b466719ad1b4ac472c2387d65560cd73da91bbadf70eed45"
+        },
+        {
+          "source": "data/moves.ts:Moves.mistyterrain.condition",
+          "before_sha256": "60f15985b586baf682a8fb730b7e29116937b8e6637d30e5d7e3c4aba42b3d24",
+          "after_sha256": "de6089f3e8c9ed5b84c133d1a07262b31a1d433173173bc7a353d0c9a0f4e3a1"
+        },
+        {
+          "source": "data/moves.ts:Moves.psychicterrain.condition",
+          "before_sha256": "7358fd9bcc491c70542547d14ae438d35366f2939c5410a284246838c020ecf6",
+          "after_sha256": "a689f31140c443aadb8714583df6955e0003d5c44d1a5cb76ea0106df2c77df7"
+        }
+      ]
+    },
+    {
+      "class": "effective-weather",
+      "review": "Damage/stat/freeze modifiers now consult effectiveWeather (including suppression/umbrella). Start/end/upkeep emitters and field lifetime are unchanged; changed damage/status still arrive as explicit records.",
+      "tests": [
+        "sim-core/tests/effect_change_classes.test.ts",
+        "sim-core/tests/replay_diff.test.ts"
+      ],
+      "units": [
+        {
+          "source": "data/conditions.ts:Conditions.desolateland",
+          "before_sha256": "00b4d6b0efd12040faefc670c87f10d9cb8e9dff3cd630c0c4714517d60db6d2",
+          "after_sha256": "e6c6875c57e4a02aeea09917342f8516736d0dbb768e4e440d3d98fdab630150"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.primordialsea",
+          "before_sha256": "767cc1a3022b21d162bae7d26058f42dd9762a2e1df0c46a5ea0ab07305303b4",
+          "after_sha256": "b8fbcdfac8e439c7e511a16b56a3d9d2dc8428d20cabb7745c8b7a3e0c42d10d"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.raindance",
+          "before_sha256": "d44ff162d35c6741b0015c85843595bb4b628e4f3ed46e71adc975e671939fde",
+          "after_sha256": "419d0bb7daa5cc9aba5146cb43d1c7c528a16150b8aebe0b01e2568538c05cef"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.sandstorm",
+          "before_sha256": "a5c031b26e1d14ad67b84f15a11ff2da577e466235dc6d8efb780ba208106df7",
+          "after_sha256": "3939eed1096c37a83fe52d216ee2540dd5eb29900fbdea651ac1317a5ad36e30"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.snowscape",
+          "before_sha256": "0e9e8d5e7dbc0614320834cf8b8bf9e1384de3d758e92111904d30c38c1e7633",
+          "after_sha256": "15cafea991e69646243e977d57fc7e670262b157fdc30ec6915a784f7dbe0335"
+        },
+        {
+          "source": "data/conditions.ts:Conditions.sunnyday",
+          "before_sha256": "f193c80be80d6523c35df74158081a76e190d37b307a5947e36b87f54eb8b25d",
+          "after_sha256": "b557199fbf0ae82f39f498e3f3dd62826dff9821ef7b09cab354af619ccc721e"
+        }
+      ]
+    },
+    {
+      "class": "volatile-reset-copy",
+      "review": "removeVolatile destructuring is equivalent; Gen1 Mimic/Gen2 Encore reset removal has no Gen9 public effect. copyVolatileFrom now sets target to recipient: semantic repair, copied public effects still follow recipient switch/start/end records; no counters copied to extractor.",
+      "tests": [
+        "sim-core/tests/effect_change_classes.test.ts",
+        "sim-core/tests/replay_diff.test.ts"
+      ],
+      "units": [
+        {
+          "source": "sim/pokemon.ts:clearVolatile",
+          "before_sha256": "b93d2bdff7f568e5b84224f4c29f065aac8820da61c1a8ceeaa407514fe456cb",
+          "after_sha256": "9e44c7b893d733b5b3d07287264a6e65e1b8e0aee7ed708ba8e78e25c957fcab"
+        },
+        {
+          "source": "sim/pokemon.ts:copyVolatileFrom",
+          "before_sha256": "2126947b5a192c7d19b6a429fe89e628949df6ffdd1072e099261d3a29257471",
+          "after_sha256": "81daf35a72f2bc6a6ac0214163a4a7ab669a7bf6746a53bd31262f81b43ae687"
+        },
+        {
+          "source": "sim/pokemon.ts:removeVolatile",
+          "before_sha256": "c8457f84f058d6ff44b7b69d8f474ced36710216ac5d3414e9fb9431e77c7239",
+          "after_sha256": "2779144f61c5070cdde3f191efa56c274f7988d4f5205f6bcd4cf27d9d0f37d4"
+        }
+      ]
+    },
+    {
+      "class": "side-condition-receiver",
+      "review": "SideConditionStart receives Side instead of Pokemon. Wind Power handler moves to onSideConditionStart; Tailwind/Charge public events stay explicit. Side start/end/layer grammar unchanged.",
+      "tests": [
+        "sim-core/tests/effect_change_classes.test.ts",
+        "sim-core/tests/replay_diff.test.ts"
+      ],
+      "units": [
+        {
+          "source": "sim/side.ts:addSideCondition",
+          "before_sha256": "fb7478c6e2e45533274db1dab2c1f9d3cfba2cb4f479143b246b492a95a0d724",
+          "after_sha256": "ae8983a47640948fcf0a23d9102f1ca678116a4ead96ce474dbe7b9f941903e2"
+        }
+      ]
+    }
+  ],
+  "new_ids": [
+    {
+      "id": "bind",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "chillyreception",
+      "before_sha256": "5ccc3001eb9007ada5cb63934db01ebb7110a789513cab591eec353aba5d73ac",
+      "after_sha256": "ec830f5616b558dc1dccad1bd50b4bb2e1d3f1b5aef37b77945eb34b74679d28"
+    },
+    {
+      "id": "clamp",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "fallen1",
+      "before_sha256": "76e5eac4ad3dffabb4c114b3ae86e1eff977ca4755315dbfe5022c86d4f0fbe9",
+      "after_sha256": "f2b671af243ce0bf003f0572115f865b68d9adb7475591ef1d7bdab2e53aecd9"
+    },
+    {
+      "id": "fallen2",
+      "before_sha256": "76e5eac4ad3dffabb4c114b3ae86e1eff977ca4755315dbfe5022c86d4f0fbe9",
+      "after_sha256": "f2b671af243ce0bf003f0572115f865b68d9adb7475591ef1d7bdab2e53aecd9"
+    },
+    {
+      "id": "fallen3",
+      "before_sha256": "76e5eac4ad3dffabb4c114b3ae86e1eff977ca4755315dbfe5022c86d4f0fbe9",
+      "after_sha256": "f2b671af243ce0bf003f0572115f865b68d9adb7475591ef1d7bdab2e53aecd9"
+    },
+    {
+      "id": "fallen4",
+      "before_sha256": "76e5eac4ad3dffabb4c114b3ae86e1eff977ca4755315dbfe5022c86d4f0fbe9",
+      "after_sha256": "f2b671af243ce0bf003f0572115f865b68d9adb7475591ef1d7bdab2e53aecd9"
+    },
+    {
+      "id": "fallen5",
+      "before_sha256": "76e5eac4ad3dffabb4c114b3ae86e1eff977ca4755315dbfe5022c86d4f0fbe9",
+      "after_sha256": "f2b671af243ce0bf003f0572115f865b68d9adb7475591ef1d7bdab2e53aecd9"
+    },
+    {
+      "id": "firespin",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "infestation",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "magmastorm",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "sandtomb",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "snaptrap",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "thundercage",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "whirlpool",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    },
+    {
+      "id": "wrap",
+      "before_sha256": "1cefb3beea3edded1ac66afd2c092913af1c6623fe6b6df356fdcabef661aa6d",
+      "after_sha256": "96d0b2c9bb031cce4cc1a12014057e6bf1d90eca5c668ba98d90e2098bbfe5e7"
+    }
+  ]
+}

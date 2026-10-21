@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync,writeFileSync} from 'node:fs';
@@ -72,7 +73,7 @@ test('P34 LIVE target completion and source quarantine',{skip:!live},async()=>{
   // Flag has no separate hash; all nested target identities come from the actual producer.
   const claim=structuredClone(result);claim.faithful_complete_episode=true;
   assert.throws(()=>validatePipelineEpisodeFaithfulClaim(claim,installedNativeProfile().reader),/positive-unaccepted/);
-  writeFileSync(path.join(root,'docs/planning/perspective-fidelity-prompt34-live-target-result.json'),JSON.stringify(result));
+  writeFileSync(testOutput('perspective-fidelity-prompt34-live-target-result.json'),JSON.stringify(result));
   const beliefs:any[]=[],records:any={p1:[],p2:[]},seen=new Set<string>();
   for(const owner of ['p1','p2'] as const)for(const b of result.records[owner]) {
     for(const belief of [b.input_belief,b.successor_belief])if(!seen.has(belief.belief_id)){
@@ -83,7 +84,7 @@ test('P34 LIVE target completion and source quarantine',{skip:!live},async()=>{
     records[owner].push({transition_id:b.transition.transition_id,action:b.action,input_belief_id:b.input_belief.belief_id,successor_belief_id:b.successor_belief.belief_id});
   }
   const {records:_records,evidence_envelope,...metadata}=result;
-  writeFileSync(path.join(root,'docs/planning/perspective-fidelity-prompt34-live-target-sweep.json'),JSON.stringify({schema_version:'pipeline-episode-publication-sweep/v1',result:metadata,evidence_envelope,records,beliefs}));
+  writeFileSync(testOutput('perspective-fidelity-prompt34-live-target-sweep.json'),JSON.stringify({schema_version:'pipeline-episode-publication-sweep/v1',result:metadata,evidence_envelope,records,beliefs}));
   assert.throws(()=>new SourceRegistryBuilder(),/historical-origin-quarantined/);
   assert.throws(()=>new LegacyContextBuilder(),/historical-origin-quarantined/);
  }finally{Teams.generate=generate;}

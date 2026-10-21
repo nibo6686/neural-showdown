@@ -1,3 +1,4 @@
+import {testOutput} from './helpers/test_outputs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
@@ -171,6 +172,6 @@ for (const owner of ['p1','p2'] as const) {
 }
 
 test.after(() => {
-  if (process.env.PROMPT22_REPORT) fs.writeFileSync(process.env.PROMPT22_REPORT,
+  if (process.env.PROMPT22_REPORT) fs.writeFileSync(testOutput('original-owner-report.json'),
     JSON.stringify({scope:'source characterization only; no provider, causal crosswalk or delivery ledger implemented',evidence},null,2)+'\n','utf8');
 });

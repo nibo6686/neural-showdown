@@ -46,7 +46,7 @@ def project_public_health(prefix):
             state["active"] = True
         field = (4 if command in ("switch", "drag", "replace", "detailschange", "-detailschange")
                  else 3 if command in ("-damage", "-heal", "-sethp", "damage", "heal", "sethp") else None)
-        if field is not None and len(parts) > field and parts[field]:
+        if field is not None and len(parts) > field and parts[field] and parts[field] != "[silent]":
             next_state = _condition(parts[field])
             if next_state["fainted"] and command in ("-damage", "-sethp", "damage", "sethp"):
                 next_state.pop("status")
