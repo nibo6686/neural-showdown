@@ -10,7 +10,8 @@
     "test:fast": "node node_modules/typescript/bin/tsc -p tsconfig.json && node scripts/test-fast.cjs",
     "test:episode:focused": "npm run build && node --test --test-isolation=none --test-reporter=spec --test-skip-pattern=\"source turn-limit tie retains a complete two-perspective chain and bulk-publishes every actor row\" dist/tests/pipeline_episode.test.js",
     "test:soak": "npm run build && node dist/tests/soak.js",
-    "check:simulator-coverage": "node scripts/check-simulator-coverage.cjs"
+    "check:simulator-coverage": "node scripts/check-simulator-coverage.cjs",
+    "test:knowledge": "node node_modules/typescript/bin/tsc -p tsconfig.json && node scripts/test-knowledge.cjs"
   },
   "dependencies": {
     "@smogon/calc": "0.11.0",

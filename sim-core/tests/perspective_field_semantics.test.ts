@@ -35,13 +35,13 @@ function walk(value: any, visit: (o: Json) => void): void {
   if (!Array.isArray(value)) visit(value);
   for (const child of Object.values(value)) walk(child, visit);
 }
-function python(value: unknown, identityOnly = false) {
+function python(value: unknown, profile: 'historical10' | 'native11', identityOnly = false) {
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !['PYTHONUTF8', 'PYTHONIOENCODING'].includes(key.toUpperCase())));
   const result = spawnSync(process.env.PYTHON || 'python3', identityOnly ? ['-c', [
     'import sys', 'from neural.pipeline_json_wire import load_json',
     'from neural.ts_identity import verify_bundle_identities',
     'for bundle in load_json(sys.stdin): verify_bundle_identities(bundle)',
-  ].join('\n')] : ['-m', 'neural.pipeline_record', '--reader-profile=native11'], {
+  ].join('\n')] : ['-m', 'neural.pipeline_record', `--reader-profile=${profile}`], {
     cwd: root, env: {...env, PYTHONPATH: path.join(root, 'trainer/src')},
     input: JSON.stringify(value), encoding: 'utf8', timeout: 30_000, maxBuffer: 8 * 1024 * 1024,
   });
@@ -192,7 +192,7 @@ function checkJoins(r: Json, original: Json) {
     }
     if (e.closure.terminal) assert.equal(e.closure.terminal.final_boundary.perspectives[player].observation_id, previous.observation_id);
   }
-  const verified = python([...r.records.p1, ...r.records.p2], true);
+  const verified = python([...r.records.p1, ...r.records.p2], 'native11', true);
   assert.equal(verified.status, 0, verified.stderr); assert.equal(verified.stdout, '');
 }
 
@@ -295,7 +295,7 @@ function probe(r: Json, player: PlayerID, recordIndex: number, label: string, ki
   const tsEpisode = tsOutcome(() => validatePipelineEpisodeEvidence(r.evidence_envelope, r.records, expectation(r)));
   const tsClaim = tsOutcome(() => {validatePipelineEpisodeFaithfulClaim(r as any);});
   for (const [form, payload] of [['ordinary', record], ['full', r], ['envelope', r.evidence_envelope], ['compact', compact(r)]] as const) {
-    const out = python(payload), published = out.stdout.trim() ? JSON.parse(out.stdout) : null;
+    const out = python(payload, 'native11'), published = out.stdout.trim() ? JSON.parse(out.stdout) : null;
     const rows = published === null || form === 'envelope' ? [] : Array.isArray(published) ? published : [published];
     if (out.status === 0) {
       if (form === 'envelope') assert.equal(published.evidence_id, r.evidence_envelope.evidence_id, 'validation receipt joins resealed envelope');
@@ -367,8 +367,8 @@ test('V01 repaired: source controls and fully resealed false field values throug
 for (const family of ['weather', 'terrain', 'pseudo_weather'] as const) {
   test(`V01 SAVED WITNESS: ${family} contradiction must reject before publication`, () => {
     const candidate = JSON.parse(fs.readFileSync(originalArtifact(`${family}-reproduction.json`), 'utf8'));
-    const identities = python([candidate], true); assert.equal(identities.status, 0, identities.stderr);
-    const out = python(candidate);
+    const identities = python([candidate], 'historical10', true); assert.equal(identities.status, 0, identities.stderr);
+    const out = python(candidate, 'historical10');
     assert.equal(out.status, 2, out.stderr);
     assert.equal(out.stdout, '');
     assert.match(out.stderr, /Public field evidence mismatch/);
@@ -394,17 +394,17 @@ test('field evidence applies to real waiting/requestless reports and v1/v2 ordin
       const committed = JSON.stringify(session.boundary);
       for (const player of PLAYERS) {
         const control = stepped.record_bundles[player];
-        const valid = python(control); assert.equal(valid.status, 0, valid.stderr);
+        const valid = python(control, 'native11'); assert.equal(valid.status, 0, valid.stderr);
         assert.equal(control.input_observation.view.field.weather, 'sunnyday');
         assert.equal(control.successor_observation.view.field.weather, 'raindance');
         for (const which of ['input', 'successor']) {
           const forged: Json = structuredClone(control);
           forged[`${which}_observation`].view.field.weather = which === 'input' ? 'raindance' : 'sunnyday';
           sealBundle(forged);
-          const identities = python([forged], true); assert.equal(identities.status, 0, identities.stderr);
+          const identities = python([forged], 'native11', true); assert.equal(identities.status, 0, identities.stderr);
           const unchanged = JSON.stringify(forged);
           assert.throws(() => validatePipelineEpisodeRecordBundle(forged as any), /Public field evidence mismatch/);
-          const rejected = python(forged);
+          const rejected = python(forged, 'native11');
           assert.equal(rejected.status, 2, rejected.stderr); assert.equal(rejected.stdout, '');
           assert.match(rejected.stderr, /Public field evidence mismatch/);
           assert.equal(JSON.stringify(forged), unchanged);

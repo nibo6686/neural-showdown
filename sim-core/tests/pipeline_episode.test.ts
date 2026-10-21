@@ -1,3 +1,5 @@
+import {bornSession, playTo, withBornTeams} from './helpers/born_session';
+import {simulationEnv} from './helpers/simulation_env';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -6,23 +8,32 @@ import test from 'node:test';
 import { isDeepStrictEqual } from 'node:util';
 import { Battle, Teams } from 'pokemon-showdown';
 import { canonicalActionFromLegalAction, serializeCanonicalAction } from '../src/canonical_action';
-import { serializeBeliefState, validateObservableBattleState } from '../src/belief_state';
+import { serializeBeliefState as nativeSerializeBeliefState, validateObservableBattleState as nativeValidateObservableBattleState } from '../src/belief_state';
 import { LocalBattleEnv } from '../src/env_manager';
 import { continuePipelineEpisode, runPipelineEpisode, summarizeEpisodeBoundary, type EpisodeRecord, type PipelineEpisodeResult } from '../src/pipeline_episode';
 import {
-  createPipelineEpisodeEvidence, sealPipelineEpisodeEvidence, validatePipelineEpisodeEvidence,
+  createPipelineEpisodeEvidence as nativeCreatePipelineEpisodeEvidence, sealPipelineEpisodeEvidence, validatePipelineEpisodeEvidence as nativeValidatePipelineEpisodeEvidence,
   type EpisodeEvidenceExpectation, type EpisodeEvidenceTransition, type PipelineEpisodeEvidence,
 } from '../src/pipeline_episode_evidence';
-import { createPipelineIntegrationSession, PipelineIntegrationError, validatePipelineLinkedRecordBundle, type PipelineBoundary } from '../src/pipeline_integration';
+import { createPipelineIntegrationSession, PipelineIntegrationError, validatePipelineLinkedRecordBundle as nativeValidatePipelineLinkedRecordBundle, type PipelineBoundary } from '../src/pipeline_integration';
 import { SettlingError } from '../src/settling';
 import { PUBLIC_STAGES_SCHEMA_VERSION } from '../src/observable_state';
 import { PLAYERS, type PlayerID } from '../src/types';
-import { projectPublicTypedState } from '../src/typed_state_lifecycle';
+import { projectPublicTypedState as nativeProjectPublicTypedState } from '../src/typed_state_lifecycle';
 import { wishBattle } from './wish_fixture';
 import { healingWishBattle, futureSightBattle, revivalBattle } from './slot_consequence_fixtures';
 import { opponentPublicBoosts } from '../src/public_boosts';
 import { fingerprintSimulatorState } from '../src/transition';
 import { rehash } from './public_consequence_test_helpers';
+import {NATIVE11_CONTEXT} from '../src/version_profile';
+
+const validateObservableBattleState: typeof nativeValidateObservableBattleState = value => nativeValidateObservableBattleState(value, NATIVE11_CONTEXT);
+const validatePipelineLinkedRecordBundle: typeof nativeValidatePipelineLinkedRecordBundle = bundle => nativeValidatePipelineLinkedRecordBundle(bundle, NATIVE11_CONTEXT);
+const validatePipelineEpisodeEvidence: typeof nativeValidatePipelineEpisodeEvidence = (value, records, expected, depth = 0) => nativeValidatePipelineEpisodeEvidence(value, records, expected, depth, NATIVE11_CONTEXT);
+const createPipelineEpisodeEvidence: typeof nativeCreatePipelineEpisodeEvidence = input => nativeCreatePipelineEpisodeEvidence(input, NATIVE11_CONTEXT);
+
+const serializeBeliefState: typeof nativeSerializeBeliefState = state => nativeSerializeBeliefState(state, NATIVE11_CONTEXT);
+const projectPublicTypedState: typeof nativeProjectPublicTypedState = prefix => nativeProjectPublicTypedState(prefix, NATIVE11_CONTEXT);
 
 const CONFIG = { battle_id: 'episode-regression', format: 'gen9randombattle', seed: [101, 202, 303, 404] };
 
@@ -47,7 +58,7 @@ for (const scenario of [
     let terminalSnapshot: Record<string, any> | undefined;
     let result: PipelineEpisodeResult;
     try {
-      LocalBattleEnv.prototype.resetWithOptions = function (options) {return this.resetFromSerialized(structuredClone(snapshot), options);};
+      LocalBattleEnv.prototype.resetWithOptions = function (options) {return withBornTeams({p1: direct.p1!.team, p2: direct.p2!.team}, () => reset.call(this, options));};
       LocalBattleEnv.prototype.serializeBattle = function () {const value = serialize.call(this); if (value.ended) terminalSnapshot = structuredClone(value); return value;};
       result = await runPipelineEpisode({battle_id: `ability-${scenario.label}-${actor}-${version}`, format: 'gen9randombattle', seed: [1,2,3,4],
         observation_schema_version: version, limits: {max_transitions: 1}, policy_id: 'trace-copy-control/v1',
@@ -75,7 +86,8 @@ for (const scenario of [
       assert.ok(terminal.view.self_team[0].fainted);
     }
     if (scenario.label.includes('replacement')) assert.ok(terminal.protocol_prefix.some((line) => line.startsWith(`|detailschange|${actor}a: `)));
-    const terminalEnv = new LocalBattleEnv(`ability-terminal-restore-${actor}`, 'gen9randombattle', [1,2,3,4]);
+    // This comparison checks simulator view reconstruction, not identity or publication authority.
+    const terminalEnv = simulationEnv({id: `ability-terminal-restore-${actor}`, format: 'gen9randombattle', seed: [1,2,3,4]});
     try {
       assert.equal(terminalSnapshot?.__neural_terminal_request_history.schema_version, 'terminal-request-history/v1');
       const restoredTerminal = await terminalEnv.resetFromSerialized(structuredClone(terminalSnapshot!));
@@ -169,7 +181,7 @@ for (const actor of PLAYERS) for (const version of ['observable-battle-state/v1'
     const reset = LocalBattleEnv.prototype.resetWithOptions;
     let result: PipelineEpisodeResult;
     try {
-      LocalBattleEnv.prototype.resetWithOptions = function (options) {return this.resetFromSerialized(structuredClone(snapshot), options);};
+      LocalBattleEnv.prototype.resetWithOptions = function (options) {return withBornTeams({p1: direct.p1!.team, p2: direct.p2!.team}, () => reset.call(this, options));};
       result = await runPipelineEpisode({battle_id: `trace-${actor}-${version}`, format: 'gen9randombattle', seed: [1,2,3,4],
         observation_schema_version: version, limits: {max_transitions: 1}, policy_id: 'trace-copy-control/v1',
         action_order(observation) {
@@ -267,7 +279,7 @@ test('C22 generated Trace terminal faint cleanup publishes restored owner base a
     const reset = LocalBattleEnv.prototype.resetWithOptions;
     let result: PipelineEpisodeResult;
     try {
-      LocalBattleEnv.prototype.resetWithOptions = function (options) {return this.resetFromSerialized(structuredClone(snapshot), options);};
+      LocalBattleEnv.prototype.resetWithOptions = function (options) {return withBornTeams({p1: direct.p1!.team, p2: direct.p2!.team}, () => reset.call(this, options));};
       result = await runPipelineEpisode({battle_id: `trace-terminal-faint-${actor}`, format: 'gen9randombattle', seed: [1,2,3,4],
         observation_schema_version: PUBLIC_STAGES_SCHEMA_VERSION, limits: {max_transitions: 1}, policy_id: 'trace-terminal-cleanup/v1',
         action_order(observation) {
@@ -954,12 +966,11 @@ test('v2 episode origin boundary requires exactly one visible Substitute roster 
 
 test('C23 fully rehashed Wish episode health matrix rejects atomically in both runtimes', async () => {
   const direct = wishBattle('p1', 'heal');
-  const snapshot = structuredClone(direct.toJSON()) as Record<string, unknown>;
   const reset = LocalBattleEnv.prototype.resetWithOptions;
   let result: PipelineEpisodeResult;
   try {
     LocalBattleEnv.prototype.resetWithOptions = function (options) {
-      return this.resetFromSerialized(structuredClone(snapshot), options);
+      return withBornTeams({p1: direct.p1!.team, p2: direct.p2!.team}, () => reset.call(this, options));
     };
     result = await runPipelineEpisode({
       battle_id: 'c23-wish-episode-health', format: 'gen9randombattle', seed: [1, 2, 3, 4],
@@ -1048,19 +1059,25 @@ for (const family of ['Healing Wish', 'Future Sight', 'Revival Blessing'] as con
   test(`C23 ${family} ${actor} full-result health rejection covers acting and waiting perspectives`, async () => {
     const direct = family === 'Healing Wish' ? healingWishBattle(actor, true)
       : family === 'Future Sight' ? futureSightBattle(actor, 'drag') : revivalBattle(actor);
-    const snapshot = structuredClone(direct.toJSON()) as Record<string, unknown>;
     const startingTurn = direct.turn;
-    const reset = LocalBattleEnv.prototype.resetWithOptions;
+    const setupBeliefs: EpisodeBelief[] = [];
     let session: Awaited<ReturnType<typeof createPipelineIntegrationSession>>;
     try {
-      LocalBattleEnv.prototype.resetWithOptions = function (options) {
-        return this.resetFromSerialized(structuredClone(snapshot), options);
-      };
-      session = await createPipelineIntegrationSession({
-        battle_id: `c23-${family}-${actor}-envelope`, format: 'gen9randombattle', seed: [1, 2, 3, 4],
+      session = await bornSession({teams: {p1: direct.p1!.team, p2: direct.p2!.team}, seed: [1, 2, 3, 4], options: {
+        battle_id: `c23-${family}-${actor}-envelope`, format: 'gen9randombattle',
         observation_schema_version: PUBLIC_STAGES_SCHEMA_VERSION,
-      });
-    } finally { LocalBattleEnv.prototype.resetWithOptions = reset; direct.destroy(); }
+      }});
+      const step = (own: string, other = 'move 1') => actor === 'p1' ? {p1: own, p2: other} : {p1: other, p2: own};
+      try {
+        if (family === 'Healing Wish') for (const boundary of await playTo(session, [step('switch 2', 'move 1'), step('switch 2', 'move 2')])) {
+          setupBeliefs.push(...PLAYERS.map(owner => structuredClone(boundary.perspectives[owner].belief)));
+        }
+        if (family === 'Revival Blessing') for (const boundary of await playTo(session, [
+          step('move 2', 'move 2'), step('move 1'), {[actor]: 'switch 2'},
+          step('move 1'), {[actor]: 'switch 3'}, step('move 1'),
+        ])) {setupBeliefs.push(...PLAYERS.map(owner => structuredClone(boundary.perspectives[owner].belief)));}
+      } catch (error) {await session.close(); throw error;}
+    } finally {direct.destroy();}
     const originBeliefs = PLAYERS.map((player) => structuredClone(session.boundary.perspectives[player].belief));
     let finalBeliefs: EpisodeBelief[] = [];
     const close = session.close.bind(session);
@@ -1082,7 +1099,7 @@ for (const family of ['Healing Wish', 'Future Sight', 'Revival Blessing'] as con
         return [preferred.index, ...request.legal_actions.available_indices.filter((index) => index !== preferred.index)];
       },
     });
-    const boundaryBeliefs = [...originBeliefs, ...finalBeliefs];
+    const boundaryBeliefs = [...setupBeliefs, ...originBeliefs, ...finalBeliefs];
     assert.ok(result.evidence_envelope);
     assert.equal(result.evidence_envelope.origin.kind, 'continuation_segment');
     assert.equal(result.evidence_envelope.closure!.complete_capture, false);
@@ -1387,15 +1404,9 @@ for (const actor of PLAYERS) {
     assert.equal(own.species, 'Froslass');
     assert.ok(own.moves.includes('destinybond') && own.moves.includes('poltergeist'));
     const other = Teams.import('Snorlax\nAbility: Immunity\n- Splash\n- Crunch\n')![0];
-    const sourceBattle = new Battle({ formatid: 'gen9randombattle', seed: '1,2,3,4' });
-    sourceBattle.setPlayer('p1', { name: 'Agent-1', team: actor === 'p1' ? [own] : [other] });
-    sourceBattle.setPlayer('p2', { name: 'Agent-2', team: actor === 'p2' ? [own] : [other] });
-    const sourceSnapshot = structuredClone(sourceBattle.toJSON()) as unknown as Record<string, unknown>;
-    sourceBattle.destroy();
-
     const originalReset = LocalBattleEnv.prototype.resetWithOptions;
     LocalBattleEnv.prototype.resetWithOptions = function (options) {
-      return this.resetFromSerialized(structuredClone(sourceSnapshot), options);
+      return withBornTeams({p1: actor === 'p1' ? [own] : [other], p2: actor === 'p2' ? [own] : [other]}, () => originalReset.call(this, options));
     };
     const create = () => {
       let phase = 0;
@@ -1725,11 +1736,11 @@ for (const [limit, code] of [['max_transitions', 'transition-budget'], ['max_att
 }
 
 test('natural Arena Trap rejection retries a different current-request tuple and preserves control identity', async () => {
-  const config = { ...CONFIG, seed: [46, 101, 202, 303] };
+  const config = { ...CONFIG, seed: [1625, 101, 202, 303] };
   const session = await createPipelineIntegrationSession(config);
   const control = await createPipelineIntegrationSession(config);
   for (const s of [session, control]) {
-    await s.step({ p1: choose(s.boundary, 'p1', 'switch 3'), p2: choose(s.boundary, 'p2', 'switch 6') });
+    await s.step({ p1: choose(s.boundary, 'p1', 'switch 5'), p2: choose(s.boundary, 'p2', 'switch 2') });
   }
   const before = summarizeEpisodeBoundary(session.boundary);
   const result = await continuePipelineEpisode(session, {
@@ -2015,18 +2026,11 @@ test('CE-08B cleanup preserves preceding diagnostics and terminal precedence', a
   for (const mode of ['cancelled', 'cancelled-after-commit', 'error', 'terminal', 'completed'] as const) {
     console.log(`CE-08B cleanup ${mode}`);
     const signal = new AbortController();
-    const reset = LocalBattleEnv.prototype.resetWithOptions;
-    let battle: Battle | undefined;
-    if (mode === 'terminal' || mode === 'completed') {
-      battle = new Battle({formatid: 'gen9randombattle', seed: '1,2,3,4'});
-      battle.setPlayer('p1', {name: 'One', team: Teams.import('Snorlax\nLevel: 100\nAbility: Immunity\n- Body Slam')!});
-      battle.setPlayer('p2', {name: 'Two', team: Teams.import('Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash')!});
-      const snapshot = structuredClone(battle.toJSON());
-      LocalBattleEnv.prototype.resetWithOptions = function (options) {return this.resetFromSerialized(structuredClone(snapshot), options);};
-    }
-    let session;
-    try {session = await createPipelineIntegrationSession({...CONFIG, observation_schema_version: PUBLIC_STAGES_SCHEMA_VERSION});}
-    finally {LocalBattleEnv.prototype.resetWithOptions = reset; battle?.destroy();}
+    const terminal = mode === 'terminal' || mode === 'completed';
+    const session = await bornSession({teams: {
+      p1: terminal ? 'Snorlax\nLevel: 100\nAbility: Immunity\n- Body Slam' : 'Snorlax\nAbility: Immunity\n- Splash',
+      p2: terminal ? 'Magikarp\nLevel: 1\nAbility: Swift Swim\n- Splash' : 'Giratina\nAbility: Pressure\n- Splash',
+    }, seed: CONFIG.seed, options: {...CONFIG, observation_schema_version: PUBLIC_STAGES_SCHEMA_VERSION}});
     const before = session.boundary, frozen = structuredClone(before), step = session.step.bind(session), close = session.close.bind(session);
     if (mode !== 'completed') session.close = async () => {await close(); throw new Error('private cleanup detail must not escape');};
     if (mode === 'cancelled') signal.abort();
