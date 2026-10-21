@@ -9,8 +9,8 @@ async function main(): Promise<void> {
   try {
     for (let battle = 0; battle < 1000; battle += 1) {
       const envId = manager.createEnv('gen9randombattle', [battle + 1, 2, 3, 4], {
-        p1: { controller: 'random' },
-        p2: { controller: 'random' },
+        p1: { controller: 'random', random_seed: 0x51a7 },
+        p2: { controller: 'random', random_seed: 0xc0de },
       }).env_id;
       const result = await manager.resetEnv(envId);
       if (result.winner === 'p1') wins += 1;

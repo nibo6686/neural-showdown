@@ -8,15 +8,13 @@ const os = require('node:os');
 const assert = require('node:assert/strict');
 
 const root = path.resolve(__dirname, '..');
-// Separate inactive inspection: no active engine, generated counts or old attestation checker runs.
+// Regenerate native source comparison separately from the historical checker.
 const candidateOption = process.argv.find(arg => arg.startsWith('--candidate-profile='));
 if (candidateOption) {
   if (candidateOption !== '--candidate-profile=native11') throw new Error('unsupported-candidate-profile');
-  const {loadInactiveTargetInventory} = require('../dist/src/version_profile.js');
-  const candidate = loadInactiveTargetInventory();
-  console.log(JSON.stringify({profile: 'native11', adopted: false, check: 'source-bound-inactive-inventory',
-    runtime: 'UNEXECUTED', static_species: candidate.format_provenance.candidate_population.species.length,
-    static_set_rows: candidate.format_provenance.candidate_population.sets}));
+  const option = name => process.argv.find(a=>a.startsWith(`--${name}=`))?.slice(name.length+3);
+  require('../../tools/engine/generate_effect_inventory.cjs').generate({source:option('source'),
+    historical:option('historical-source'),check:process.argv.includes('--check')});
   process.exit(0);
 }
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'simulator_coverage/pokemon-showdown-0.11.10-gen9randombattle.json'), 'utf8'));

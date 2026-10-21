@@ -45,5 +45,29 @@ contract.protocol.validation_rules.ability.payload_domains.dash_trace_copy = [..
   .flatMap(species => species.sets.flatMap(set => set.abilities)))].filter(name => {
     const ability = dex.abilities.get(name); return !ability.flags.notrace && ability.id !== 'noability';
   }).sort();
+const historical = JSON.parse(fs.readFileSync(path.join(root,'trainer/src/neural/protocol_contract.json'),'utf8'));
+const restored = new Set(['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions']);
+contract.protocol.supported_commands = historical.supported_commands.slice();
+contract.protocol.recognized_unsupported_commands = contract.protocol.recognized_unsupported_commands.filter(e=>!restored.has(e.token));
+contract.semantic_dispositions.effect_lifecycle = 'source-identical-reviewed-effects-only; changed/new unsupported-fail-closed';
+contract.semantic_dispositions.heal_failure = 'historical-raw-shapes; no inferred attribution';
+// Restoring a family does not turn its valid old shape into a negative fixture.
+// Keep malformed controls and the separately quarantined Court Change control.
+contract.protocol.rejection_fixtures = contract.protocol.rejection_fixtures.filter(e=>!restored.has(e.record.split('|')[1]) || e.kind==='malformed' || e.record.split('|')[1]==='-swapsideconditions');
+const examples = {'-start':'|-start|p1a: Pikachu|aquaring','-end':'|-end|p1a: Pikachu|aquaring',
+  '-sidestart':'|-sidestart|p1: Alice|move: Toxic Spikes','-sideend':'|-sideend|p1: Alice|Toxic Spikes',
+  '-weather':'|-weather|none','-fieldstart':'|-fieldstart|move: Gravity','-fieldend':'|-fieldend|move: Gravity',
+  cant:'|cant|p1a: Pikachu|move: Disable',heal:'|heal|p1a: Pikachu|100/100','-swapsideconditions':'|-swapsideconditions'};
+for (const token of restored) {
+  const record=examples[token], fixture=structuredClone(contract.protocol.record_fixtures[0]);
+  const index=contract.protocol.valid_record_controls.length;
+  const control={...contract.protocol.valid_record_controls[0],token,record,
+    evidence:'P0.5b source-compared historical grammar control'};
+  contract.protocol.valid_record_controls.push(control);
+  Object.assign(fixture,{token,record,evidence:control.evidence,fixture_reference:`control:${index}`});
+  contract.protocol.record_fixtures.push(fixture);
+}
+contract.protocol.rejection_fixtures = contract.protocol.rejection_fixtures.filter(e=>!(e.kind==='unproved_semantic_family'&&e.record.startsWith('|-heal|')));
+contract.protocol.rejection_fixtures.push({record:'|-swapsideconditions',kind:'unproved_semantic_family'});
 write(`trainer/src/neural/protocol_contract_${commit.slice(0, 8)}.json`, contract);
 console.log('abilities_sha256=' + contract.provenance.target_abilities_sha256);

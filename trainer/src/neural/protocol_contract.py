@@ -476,6 +476,10 @@ def _classify_effect_record(command, value, *, reader_rules=HISTORICAL10_CONTEXT
     special = next((item for item in reader_context(reader_rules).inventory["effect_discovery"].get("special_values", [])
                     if command in item.get("commands", []) and item.get("id") == identifier), None)
     if special:
+        if special['classification'] not in ('represented', 'raw-only'):
+            raise ProtocolRecordError('unsupported_stop', command,
+                f"simulator-coverage/v1/unclassified-effect-value command={command} family={family} value={value} disposition={special['classification']}",
+                code='simulator-coverage/v1/unclassified-effect-value', family=family, value=value, disposition=special['classification'])
         return special["classification"]
     prefix = re.match(r"^(?:move|ability|item):\s*", value, re.IGNORECASE)
     if prefix:
@@ -486,6 +490,12 @@ def _classify_effect_record(command, value, *, reader_rules=HISTORICAL10_CONTEXT
         raise ProtocolRecordError("unknown", command, diagnostic + " disposition=unknown",
                                   code="simulator-coverage/v1/unclassified-effect-value", family=family,
                                   value=value, disposition="unknown")
+    lifecycle = reader_context(reader_rules).lifecycle.get((family, identifier))
+    if lifecycle and lifecycle['disposition'] in ('source-proven-unreachable', 'unsupported-fail-closed'):
+        raise ProtocolRecordError('unsupported_stop', command, diagnostic + f" disposition={lifecycle['disposition']}",
+            code='simulator-coverage/v1/unclassified-effect-value', family=family, value=value, disposition=lifecycle['disposition'])
+    if lifecycle and lifecycle['disposition'] == 'raw-only':
+        return 'raw-only'
     if entry["classification"] == "raw-only":
         return "raw-only"
     if entry["classification"] != "represented":
@@ -1270,11 +1280,9 @@ def validate_protocol_record(record, *, reader_rules=HISTORICAL10_CONTEXT):
     if command not in reader_context(reader_rules).protocol["supported_commands"]:
         raise ProtocolRecordError("unknown", command, f"unsupported raw protocol event: {command or '<empty>'}")
     _shape(parts, command, reader_rules=reader_rules)
-    if reader_rules is NATIVE11_GRAMMAR_CONTEXT and command in ('-start', '-end', '-weather', '-fieldstart', '-fieldend', '-sidestart', '-sideend'):
-        raise ProtocolRecordError('unsupported', command, 'Native11 candidate effect/lifecycle semantics unproved')
     if command in ("-start", "-end"):
-        _classify_effect_record(command, parts[3], reader_rules=reader_rules)
+        _classify_effect_record(command, parts[3], reader_rules=NATIVE11_CONTEXT if reader_rules is NATIVE11_GRAMMAR_CONTEXT else reader_rules)
     elif command in ("-weather", "-fieldstart", "-fieldend"):
-        _classify_effect_record(command, parts[2], reader_rules=reader_rules)
+        _classify_effect_record(command, parts[2], reader_rules=NATIVE11_CONTEXT if reader_rules is NATIVE11_GRAMMAR_CONTEXT else reader_rules)
     elif command in ("-sidestart", "-sideend"):
-        _classify_effect_record(command, parts[3], reader_rules=reader_rules)
+        _classify_effect_record(command, parts[3], reader_rules=NATIVE11_CONTEXT if reader_rules is NATIVE11_GRAMMAR_CONTEXT else reader_rules)

@@ -171,7 +171,7 @@ test('response shaping can return only p1 without log delta or possible roles', 
   const manager = new EnvironmentManager();
   const envId = manager.createEnv('gen9randombattle', [9, 10, 11, 12], {
     p1: { controller: 'external' },
-    p2: { controller: 'random' },
+    p2: { controller: 'random', random_seed: 0xc0de },
   }).env_id;
 
   try {
@@ -195,7 +195,7 @@ test('invalid external choices return the pending request instead of hanging', a
   const manager = new EnvironmentManager();
   const envId = manager.createEnv('gen9randombattle', [21, 22, 23, 24], {
     p1: { controller: 'external' },
-    p2: { controller: 'random' },
+    p2: { controller: 'random', random_seed: 0xc0de },
   }).env_id;
 
   try {
@@ -233,7 +233,7 @@ test('canonical submissions reject stale actions before raw choice forwarding', 
   const manager = new EnvironmentManager();
   const envId = manager.createEnv('gen9randombattle', [31, 32, 33, 34], {
     p1: { controller: 'external' },
-    p2: { controller: 'random' },
+    p2: { controller: 'random', random_seed: 0xc0de },
   }).env_id;
 
   try {

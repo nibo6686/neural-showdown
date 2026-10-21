@@ -7,7 +7,7 @@ const framing = 'Historical separator shape reused for PRE grammar; target emiss
 const oldNC = '|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure';
 const nativeNC = oldNC + '|[silent]';
 const commonStops = ['heal', 'cant', '-swapsideconditions'];
-const nativeStops = ['-start','-end','-weather','-fieldstart','-fieldend','-sidestart','-sideend'];
+const lifted = ['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions'];
 const semantic = {natural_cure:'prepared-status-clear-existing-helper-path',ability_setter:'unsupported-unproved-typed-base-current-transition',
  heal_failure:'unsupported-unproved-attribution-routing',chilly_reception:'unsupported-premajor-helper-gap',partial_trap:'unsupported-sourceEffect-semantics',
  court_change:'unsupported-retargeted-lifecycle',magician:'unsupported-actor-source-attribution',psychic_terrain_hint:'raw-only-presentation-no-typed-consequence',
@@ -45,7 +45,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(!equal(value.provenance,selectedProvenance))fail('provenance');
  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
  if(profile==='native11'){
-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
+  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,effect_lifecycle:'source-identical-reviewed-effects-only; changed/new unsupported-fail-closed',heal_failure:'historical-raw-shapes; no inferred attribution',trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
  keys(p,Object.keys(base),'protocol');
@@ -63,7 +63,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(!equal(p.validation_rules,rules))fail('rule-template');
  if(!equal(p.framing_only_records,[{...base.framing_only_records[0],evidence:framing}]))fail('framing');
  if(!equal(p.disposition_rules,Object.fromEntries(Object.keys(base.disposition_rules).map(k=>[k,scope]))))fail('disposition-claims');
- const stops=new Set(commonStops.concat(profile==='native11'?nativeStops:[]));
+ const stops=new Set(profile==='native11'?[]:commonStops);
  const wanted=base.supported_commands.filter((x:string)=>!stops.has(x));
  if(!Array.isArray(p.supported_commands)||!equal(p.supported_commands.slice().sort(),wanted.slice().sort()))fail('token-partition');
  if(!Array.isArray(p.recognized_unsupported_commands))fail('unsupported-entries');
@@ -89,15 +89,16 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
   projection.rejection_fixtures[i].kind=wanted.includes(token)?'malformed':'unsupported_stop';
  }
  try{validateProtocolContract(projection);}catch(e){fail('protocol-structure: '+(e as Error).message);}
+ if(profile==='native11'&&!p.valid_record_controls.some((x:any)=>x.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"))fail('trace-controls');
  for(const fixture of p.record_fixtures){
   if(fixture.inventory_classification!=='raw-only')fail('fixture-acceptance-claim');
-  if(fixture.grammar_summary!==scope||fixture.evidence!=='Prompt37 fixed selected grammar control'||!equal(fixture.inventory_grammar,{required:'exact selected profile record',optional:'only reviewed rule-template forms',shape:'validated against fixed grammar and quarantine'})||Object.hasOwn(fixture,'pinned_emitter_sources')||Object.hasOwn(fixture,'pinned_dynamic_emitter_source'))fail('fixture-evidence');
+  if(fixture.grammar_summary!==scope||fixture.evidence!==(profile==='native11'&&lifted.includes(fixture.token)?'P0.5b source-compared historical grammar control':'Prompt37 fixed selected grammar control')||!equal(fixture.inventory_grammar,{required:'exact selected profile record',optional:'only reviewed rule-template forms',shape:'validated against fixed grammar and quarantine'})||Object.hasOwn(fixture,'pinned_emitter_sources')||Object.hasOwn(fixture,'pinned_dynamic_emitter_source'))fail('fixture-evidence');
   const match=/^control:(0|[1-9][0-9]*)$/.exec(fixture.fixture_reference);const control=match&&p.valid_record_controls[Number(match[1])];
   if(!control||fixture.record!==control.record||fixture.token!==control.token)fail('fixture-reference');
  }
  for(const control of p.valid_record_controls){
   if(control.reconstruction_scope!==scope)fail('control-scope');
-  const evidence=profile==='native11'&&control.record==="|-heal|p1: First|50/100|[from] move: Revival Blessing"?"Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance":profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
+  const evidence=profile==='native11'&&lifted.includes(control.token)?'P0.5b source-compared historical grammar control':profile==='native11'&&control.record==="|-heal|p1: First|50/100|[from] move: Revival Blessing"?"Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance":profile==='native11'&&control.record==="|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey"?"Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance":profile==='replay-compat-v1'&&control.record===nativeNC?'Verified target Natural Cure source form; PRE only':'Prompt37 bounded fixed-grammar fixture check; no target engine execution';
   if(control.evidence!==evidence)fail('control-evidence');
  }
  const records=p.valid_record_controls.map((x:any)=>x.record);
@@ -111,7 +112,16 @@ export function checkPreparedProtocolRecords(value:any,profile:PreparedProfile):
  assertPreparedRecordCheckInput(value,profile);
  const context=profile==='native11'?NATIVE11_GRAMMAR_CONTEXT:REPLAY_COMPAT_CONTEXT;
  for(const x of [...value.protocol.record_fixtures,...value.protocol.valid_record_controls]){
-  try{validateRawProtocolRecord(x.record,context);}catch(e){fail('positive-rejected: '+x.token+' '+(e as Error).message);}
+  try {
+   if(profile==='native11'&&lifted.includes(x.token)) {
+    // These are historical shape controls, not acceptance claims for changed IDs.
+    validateRawProtocolRecord(x.record,HISTORICAL10_CONTEXT);
+    try {validateRawProtocolRecord(x.record,context);} catch(e) {
+     if((e as {code?:string}).code!=='simulator-coverage/v1/unclassified-effect-value'
+       && !(x.token==='-swapsideconditions'&&(e as Error).message.includes('prepared-family-unsupported/court-change')))throw e;
+    }
+   } else validateRawProtocolRecord(x.record,context);
+  } catch(e){fail('positive-rejected: '+x.token+' '+(e as Error).message);}
  }
  for(const x of value.protocol.rejection_fixtures){
   let error:Error|undefined;try{validateRawProtocolRecord(x.record,context);}catch(e){error=e as Error;}

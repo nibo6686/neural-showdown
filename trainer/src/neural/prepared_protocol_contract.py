@@ -8,7 +8,7 @@ FRAMING='Historical separator shape reused for PRE grammar; target emission UNEX
 OLD_NC='|-curestatus|p2a: Blissey|par|[from] ability: Natural Cure'
 NATIVE_NC=OLD_NC+'|[silent]'
 COMMON_STOPS={'heal','cant','-swapsideconditions'}
-NATIVE_STOPS={'-start','-end','-weather','-fieldstart','-fieldend','-sidestart','-sideend'}
+LIFTED=set(['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions'])
 PROVENANCE={'historical_contract_sha256':'4cbea57639e3a5d11e8387f9f84befcc531a613b13175351630b4377d087c213',
  'old_abilities_sha256':'7975eb69496fb38ec8c9f2d7288dedea14e78ec81579f6e2b58ad1c9716d3ce6','target_abilities_sha256':'175067b1e827ca11ae4728169215c9bdd27ac4cb3e35d2e83eaaaee7e9e8c842',
  'target_revision':'739a5e1fee432ad80ff7136d70cca993be358b59','source':'Prompt29 verified npm artifacts; abilities.ts old onSwitchOut and target 2868–2875; ordinary add routes shared/public','runtime':'UNEXECUTED'}
@@ -47,7 +47,7 @@ def validate_prepared_protocol_structure(value,profile):
     if not _same_json(value['provenance'],selected_provenance):_fail('provenance')
     if not _same_json(value['inherited_raw_shape_evidence'],{'contract_sha256':PROVENANCE['historical_contract_sha256'],'scope':'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}):_fail('inherited-evidence')
     if profile=='native11':
-        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'trace':'finite-source-qualified-current-copy; prior field is provenance only','revival':'finite-public-bench-health-status-faint-clear; owned selection remains required'}):_fail('closure-claims')
+        if not _same_json(value['admission_scope'],['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear']) or not _same_json(value['semantic_dispositions'],{**SEMANTIC,'effect_lifecycle':'source-identical-reviewed-effects-only; changed/new unsupported-fail-closed','heal_failure':'historical-raw-shapes; no inferred attribution','trace':'finite-source-qualified-current-copy; prior field is provenance only','revival':'finite-public-bench-health-status-faint-clear; owned selection remains required'}):_fail('closure-claims')
     elif value['base_lookup_profile']!='historical10' or value['publication']!='unsupported-without-persisted-profile-contract' or value['authority'] is not False or not _same_json(value['changed_forms'],['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']):_fail('closure-claims')
     base=_thaw(HISTORICAL10_CONTEXT.protocol);p=value['protocol'];_keys(p,base,'protocol')
     if p['source_basis']!=['Historical raw rule templates and Prompt29 Natural Cure; Prompt41 source-qualified target Trace; only finite Trace emitter/audience and owned publication controls executed, broader closure unproved; Prompt42 finite public Revival bench heal' if profile=='native11' else 'Historical raw rule templates and Prompt29 exact Natural Cure writer; PRE only, runtime/publication UNEXECUTED']:_fail('source-claims')
@@ -62,7 +62,7 @@ def validate_prepared_protocol_structure(value,profile):
     if not _same_json(p['validation_rules'],rules):_fail('rule-template')
     if not _same_json(p['framing_only_records'],[{**base['framing_only_records'][0],'evidence':FRAMING}]):_fail('framing')
     if not _same_json(p['disposition_rules'],{k:SCOPE for k in base['disposition_rules']}):_fail('disposition-claims')
-    stops=COMMON_STOPS|(NATIVE_STOPS if profile=='native11' else set());wanted=[t for t in base['supported_commands'] if t not in stops]
+    stops=(set() if profile=='native11' else COMMON_STOPS);wanted=[t for t in base['supported_commands'] if t not in stops]
     if type(p['supported_commands']) is not list or any(type(t) is not str for t in p['supported_commands']) or sorted(p['supported_commands'])!=sorted(wanted):_fail('token-partition')
     if type(p['recognized_unsupported_commands']) is not list:_fail('unsupported-entries')
     expected={x['token']:x['kind'] for x in base['recognized_unsupported_commands']};expected['swapsideconditions']='unproved_semantic_family'
@@ -90,16 +90,17 @@ def validate_prepared_protocol_structure(value,profile):
             projection['rejection_fixtures'][i]['kind']='malformed' if token in wanted else 'unsupported_stop'
     try:validate_protocol_contract(projection)
     except ProtocolContractError as e:_fail('protocol-structure: '+str(e))
+    if profile=='native11' and not any(x['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' for x in p['valid_record_controls']):_fail('trace-controls')
     for f in p['record_fixtures']:
         if f['inventory_classification']!='raw-only':_fail('fixture-acceptance-claim')
-        if f['grammar_summary']!=SCOPE or f['evidence']!='Prompt37 fixed selected grammar control' or f['inventory_grammar']!={'required':'exact selected profile record','optional':'only reviewed rule-template forms','shape':'validated against fixed grammar and quarantine'} or 'pinned_emitter_sources' in f or 'pinned_dynamic_emitter_source' in f:_fail('fixture-evidence')
+        if f['grammar_summary']!=SCOPE or f['evidence']!=('P0.5b source-compared historical grammar control' if profile=='native11' and f['token'] in LIFTED else 'Prompt37 fixed selected grammar control') or f['inventory_grammar']!={'required':'exact selected profile record','optional':'only reviewed rule-template forms','shape':'validated against fixed grammar and quarantine'} or 'pinned_emitter_sources' in f or 'pinned_dynamic_emitter_source' in f:_fail('fixture-evidence')
         import re
         m=re.fullmatch(r'control:(0|[1-9][0-9]*)',f['fixture_reference']);index=int(m[1]) if m else -1
         control=p['valid_record_controls'][index] if 0<=index<len(p['valid_record_controls']) else None
         if not control or f['record']!=control['record'] or f['token']!=control['token']:_fail('fixture-reference')
     for c in p['valid_record_controls']:
         if c['reconstruction_scope']!=SCOPE:_fail('control-scope')
-        evidence='Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance' if profile=='native11' and c['record']=='|-heal|p1: First|50/100|[from] move: Revival Blessing' else 'Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
+        evidence='P0.5b source-compared historical grammar control' if profile=='native11' and c['token'] in LIFTED else 'Prompt42 source-qualified Revival public bench heal and bounded held-restoration publication; no general healing or completeness acceptance' if profile=='native11' and c['record']=='|-heal|p1: First|50/100|[from] move: Revival Blessing' else 'Prompt41 source-qualified target Trace; actual native emitter/audience witness and bounded owned publication controls; no completeness or positive fidelity acceptance' if profile=='native11' and c['record']=='|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' else 'Verified target Natural Cure source form; PRE only' if profile=='replay-compat-v1' and c['record']==NATIVE_NC else 'Prompt37 bounded fixed-grammar fixture check; no target engine execution'
         if c['evidence']!=evidence:_fail('control-evidence')
     records=[x['record'] for x in p['valid_record_controls']]
     if profile=='native11' and '|-ability|p1a: Gardevoir|Natural Cure|Trace|[from] ability: Trace|[of] p2a: Blissey' not in records:_fail('trace-controls')
@@ -112,7 +113,13 @@ def check_prepared_protocol_records(value,profile):
     assert_prepared_record_check_input(value,profile)
     context=NATIVE11_GRAMMAR_CONTEXT if profile=='native11' else REPLAY_COMPAT_CONTEXT
     for x in value['protocol']['record_fixtures']+value['protocol']['valid_record_controls']:
-        try:validate_protocol_record(x['record'],reader_rules=context)
+        try:
+            if profile=='native11' and x['token'] in LIFTED:
+                validate_protocol_record(x['record'],reader_rules=HISTORICAL10_CONTEXT)
+                try:validate_protocol_record(x['record'],reader_rules=context)
+                except ValueError as e:
+                    if getattr(e,'code',None)!='simulator-coverage/v1/unclassified-effect-value' and not (x['token']=='-swapsideconditions' and 'prepared-family-unsupported/court-change' in str(e)):raise
+            else:validate_protocol_record(x['record'],reader_rules=context)
         except ValueError as e:_fail('positive-rejected: '+x['token']+' '+str(e))
     for x in value['protocol']['rejection_fixtures']:
         try:validate_protocol_record(x['record'],reader_rules=context)

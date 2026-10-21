@@ -86,7 +86,10 @@ export function classifyEffectRecord(command: string, rawValue: string, rulesCon
 
   const special = readerContext(rulesContext).inventory.effect_discovery.special_values.find((item: {commands: string[]; id: string; classification: string}) =>
     item.commands.includes(command) && item.id === toEffectID(rawValue));
-  if (special) return special.classification as EffectDisposition;
+  if (special) {
+    if (!['represented', 'raw-only'].includes(special.classification)) throw new EffectInventoryError(command, rule.family, rawValue, special.classification);
+    return special.classification as EffectDisposition;
+  }
 
   const sourcePrefix = /^(move|ability|item):\s*/i.exec(rawValue);
   const identifier = toEffectID(sourcePrefix ? rawValue.slice(sourcePrefix[0].length) : rawValue);

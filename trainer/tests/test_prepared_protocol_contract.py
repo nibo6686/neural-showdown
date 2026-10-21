@@ -29,7 +29,7 @@ def mutate(v,c):
     else:raise AssertionError(op)
 def test_full_assets_mutations_and_integrity(tmp_path):
     results=[]
-    for profile,count in [('native11',101),('replay-compat-v1',108)]:
+    for profile,count in [('native11',111),('replay-compat-v1',108)]:
         v=asset(profile);out=validate_prepared_protocol_asset(v,profile);assert out is not v
         assert len(out['protocol']['record_fixtures'])==count
         with pytest.raises(TypeError):out['adopted']=True
@@ -45,7 +45,7 @@ def test_full_assets_mutations_and_integrity(tmp_path):
         with pytest.raises(ValueError,match='version-asset-integrity'):load_prepared_protocol_asset(profile,p)
         with pytest.raises(ValueError,match='missing-version-asset'):load_prepared_protocol_asset(profile,tmp_path/'missing')
     validate_protocol_contract(json.loads((ROOT/'trainer/src/neural/protocol_contract.json').read_text()))
-    print('P37_WITNESS '+json.dumps({'name':'python-full-validation','mutations':results,'fixture_counts':[101,108],'target_runtime':'UNEXECUTED'}))
+    print('P37_WITNESS '+json.dumps({'name':'python-full-validation','mutations':results,'fixture_counts':[111,108],'target_runtime':'UNEXECUTED'}))
 
 def test_owned_bootstrap_threads_and_sticky_failure():
     good="""

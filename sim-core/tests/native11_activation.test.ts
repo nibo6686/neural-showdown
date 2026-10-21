@@ -57,7 +57,8 @@ test('P38 native Natural Cure emitter audience and quarantine',()=>{
   const routed=extractChannelMessages(native.log.join('\n'),[0,1,2]);for(const side of [0,1,2] as const)assert.ok(routed[side].includes(expected));
   validateRawProtocolRecord(expected,NATIVE11_CONTEXT);
   for(const record of [expected.replace('|[silent]',''),expected.replace('|[from] ability: Natural Cure|[silent]','|[silent]|[from] ability: Natural Cure'),expected+'|[silent]'])assert.throws(()=>validateRawProtocolRecord(record,NATIVE11_CONTEXT));
-  const stops=['|-heal|p1a: Blissey|90/100|[from] ability: Regenerator','|cant|p1a: Blissey|move: Heal Block|Pollen Puff','|-prepare|p1a: Blissey|Chilly Reception|[premajor]','|-swapsideconditions'];
+  for(const row of ['|-heal|p1a: Blissey|90/100|[from] ability: Regenerator','|cant|p1a: Blissey|move: Heal Block|Pollen Puff'])assert.doesNotThrow(()=>validateRawProtocolRecord(row,NATIVE11_CONTEXT));
+  const stops=['|-prepare|p1a: Blissey|Chilly Reception|[premajor]','|-swapsideconditions'];
   for(const row of stops)assert.throws(()=>validateRawProtocolRecord(row,NATIVE11_CONTEXT),/prepared-family-unsupported|Unsupported raw/);
   writeFileSync(path.join(root,'docs/planning/perspective-fidelity-prompt38-natural-cure-live.json'),JSON.stringify({record:expected,audiences:[0,1,2],scope:'constructed lower-level customgame mechanic, not generated reachability'}));
   emit('natural-cure',{record:expected,audiences:[0,1,2],level:'actual-native-lower-level-constructed',generated_reachability:'UNPROVED',quarantines:stops.length});

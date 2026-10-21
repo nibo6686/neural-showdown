@@ -1486,8 +1486,7 @@ export function validateRawProtocolRecord(record: string, rulesContext: Protocol
   const effectField = ['-start', '-end'].includes(command) ? 3
     : ['-weather', '-fieldstart', '-fieldend'].includes(command) ? 2
       : ['-sidestart', '-sideend'].includes(command) ? 3 : -1;
-  if (effectField >= 0 && rulesContext === NATIVE11_GRAMMAR_CONTEXT) throw new ObservableStateError('Native11 candidate effect/lifecycle semantics unproved.');
-  if (effectField >= 0) classifyEffectRecord(command, parts[effectField] || '', helperContext(rulesContext));
+  if (effectField >= 0) classifyEffectRecord(command, parts[effectField] || '', rulesContext === NATIVE11_GRAMMAR_CONTEXT ? NATIVE11_CONTEXT : helperContext(rulesContext));
 }
 
 function parseIntegerRecord(parts: string[], label: string): number {

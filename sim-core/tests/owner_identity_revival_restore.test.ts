@@ -60,7 +60,7 @@ test('P42 finite Revival grammar and unrelated quarantine',()=>{
  const malformed=[publicHeal.replace('p1: First','p1a: First'),publicHeal.replace('50/100','51/100'),publicHeal.replace('50/100','50/100 brn'),publicHeal+'|[silent]',publicHeal+'|[from] move: Revival Blessing',publicHeal.replace('p1: First','p3: First')];
  for(const line of malformed)assert.throws(()=>validateRawProtocolRecord(line,NATIVE11_CONTEXT),/Malformed raw -heal record/);
  const siblings=[publicHeal.replace('Revival Blessing','Recover'),publicHeal.replace('move: Revival Blessing','ability: Regenerator'),publicHeal.replace('Revival Blessing','Healing Wish'),publicHeal.replace('|[from] move: Revival Blessing','')];
- for(const line of siblings)assert.throws(()=>validateRawProtocolRecord(line,NATIVE11_CONTEXT),/prepared-family-unsupported\/heal-failure/);
+ for(const line of siblings)assert.throws(()=>validateRawProtocolRecord(line,NATIVE11_CONTEXT),/Malformed raw -heal record/);
  validateRawProtocolRecord(publicHeal,HISTORICAL10_CONTEXT);assert.throws(()=>validateRawProtocolRecord(publicHeal,REPLAY_COMPAT_CONTEXT),/prepared-family-unsupported\/heal-failure/);
  const script=`import json,sys
 from neural.protocol_contract import validate_protocol_record
@@ -70,7 +70,7 @@ for r in a['positive']:validate_protocol_record(r,reader_rules=NATIVE11_CONTEXT)
 for kind in ('malformed','siblings'):
  for r in a[kind]:
   try:validate_protocol_record(r,reader_rules=NATIVE11_CONTEXT)
-  except ValueError as e: assert ('Malformed raw -heal record' if kind=='malformed' else 'prepared-family-unsupported/heal-failure') in str(e),str(e)
+  except ValueError as e: assert 'Malformed raw -heal record' in str(e),str(e)
   else:raise AssertionError('negative accepted')
 print('P42 Python finite heal positives/malformed/quarantine PASS')`;
  const py=spawnSync(process.env.PYTHON || (process.platform==='win32'?'D:/Anaconda/envs/neuralgpu/python.exe':'python3'),['-c',script],{env:{...process.env,PYTHONPATH:path.resolve(__dirname,'../../../trainer/src')},input:JSON.stringify({positive:[publicHeal,secretHeal],malformed,siblings}),encoding:'utf8',timeout:30000});assert.equal(py.status,0,py.stderr);console.log(py.stdout.trim());emit('finite-heal-grammar',{public:'50/100',transport:'floor(maxHP/2)/maxHP',malformed:malformed.length,unrelated_quarantines:siblings.length,python:true});

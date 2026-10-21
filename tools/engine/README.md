@@ -12,10 +12,31 @@ After changing the file dependency, run `npm install --ignore-scripts` and `npm 
 
 `node tools/engine/generate_assets.cjs --check` recomputes both assets and requires identical bytes without rewriting them.
 
+Generate the effect inventory from the full source checkout, using an unpacked
+`pokemon-showdown@0.11.10` npm package as the historical comparison:
+
+```powershell
+./tools/engine/generate_effect_inventory.ps1 -Source engines/showdown-b8f23c99 -HistoricalSource <unpacked-package>
+./tools/engine/generate_effect_inventory.ps1 -Source engines/showdown-b8f23c99 -HistoricalSource <unpacked-package> -Check
+```
+
+The generator checks the clean Git commit and historical source-tree hashes.
+It compares declaring callbacks, emitters and shared lifecycle methods, records
+exact source differences in the inventory, and keeps changed/new IDs fail-closed.
+Repeat this step when re-pinning, then update both readers' inventory SHA-256 pins.
+Restoring a command's historical grammar does not adopt a changed effect.
+
 After the TypeScript build, reproduce the local probe with:
 
 ```powershell
 node tools/replay_repro/index.cjs data/replays/probe-2026-10-16
+node tools/replay_repro/index.cjs --extract data/replays/probe-2026-10-16
 ```
 
 The command emits one JSON result per replay plus exact-match totals, excludes `impulse-*` and acquisition summaries, and fails on mismatches, invalid input, or a foreign engine version. Forfeit/inactivity results compare the prefix before the server-only ending message. No replay download is performed.
+
+`--extract` reproduces each input in a fresh simulation-only environment and
+feeds the full addressed streams to both owner extractors. It groups failures
+by command, effect ID and message, and exits nonzero for any failure. Continued
+scanning after rejection is diagnostic only: no partially accepted view or
+dataset row is returned. Unrelated grammar failures remain visible.

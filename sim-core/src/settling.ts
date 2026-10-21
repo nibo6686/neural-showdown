@@ -9,10 +9,17 @@ export interface SettlingOptions {
 }
 export type SettlingFailureCode = 'timeout' | 'message-limit' | 'simulator-error' | 'stream-closed' | 'cancelled';
 export class SettlingError extends Error {
-  readonly diagnostic: { schema_version: 'settling-failure/v1'; code: string; timeout_ms: number; max_messages: number };
-  constructor(code: SettlingFailureCode, timeout: number, messages: number) {
+  readonly diagnostic: { schema_version: 'settling-failure/v1'; code: string; timeout_ms: number; max_messages: number;
+    cause?: {name: string; message: string; at: string | null} };
+  constructor(code: SettlingFailureCode, timeout: number, messages: number, cause?: Error) {
     super(`settling/v1/${code}`);
     this.diagnostic = { schema_version: 'settling-failure/v1', code: this.message, timeout_ms: timeout, max_messages: messages };
+    if (cause) {
+      this.diagnostic.cause = {name: cause.name, message: cause.message,
+        at: cause.stack?.split('\n').find(line => /^\s+at /.test(line))?.trim() ?? null};
+      // Node's test runner prints the stack even when it omits custom fields.
+      this.stack += `\nCaused by ${cause.name}: ${cause.message}\n${this.diagnostic.cause.at ?? ''}`;
+    }
   }
 }
 
@@ -53,8 +60,8 @@ export class SettlingBarrier {
     this.waiters.clear();
     for (const wake of waiting) wake();
   }
-  fail(code: SettlingFailureCode): void {
-    this.failure ??= new SettlingError(code, this.timeout, this.maxMessages);
+  fail(code: SettlingFailureCode, cause?: Error): void {
+    this.failure ??= new SettlingError(code, this.timeout, this.maxMessages, cause);
     this.notify();
   }
   streamClosed(consumer: SettlingConsumer | 'source' = 'source'): void {

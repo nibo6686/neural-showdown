@@ -1083,7 +1083,7 @@ export class LocalBattleEnv {
         super.pushMessage(type, data);
       }
       override pushError(error: Error, recoverable?: boolean): void {
-        settling.fail('simulator-error');
+        settling.fail('simulator-error', error);
         super.pushError(error, recoverable);
       }
       override pushEnd(): void {
@@ -1376,7 +1376,28 @@ export class LocalBattleEnv {
   markError(error: Error): void {
     this.noteLiveWrite();
     this.lastError = error;
-    this.settling.fail('simulator-error');
+    this.settling.fail('simulator-error', error);
+  }
+
+  /** Diagnostic replay only: no decisions, observations or identity authority. */
+  async replaySimulation(input: string, consume: (owner: PlayerID, chunk: string) => void,
+    consumePublic?: (chunk: string) => void): Promise<void> {
+    if (!simulationEnvironments.has(this)) throw new Error('simulation-only/v1/replay-required');
+    if (this.initialized || this.battleStream) throw new Error('simulation-only/v1/replay-requires-fresh-env');
+    const allowed = new Set(['>start', '>player', '>p1', '>p2', '>reseed', '>forcewin', '>forcelose', '>forcetie']);
+    for (const line of input.split('\n')) {
+      if (line && !allowed.has(line.split(' ')[0])) throw new Error('Unsupported simulation replay command');
+    }
+    const stream = new BattleStream({noCatch: true, keepAlive: true});
+    const streams = getPlayerStreams(stream);
+    const tasks = (['p1', 'p2', 'spectator'] as const).map(async owner => {
+      for await (const chunk of streams[owner]) {
+        if (owner === 'spectator') consumePublic?.(chunk);
+        else consume(owner, chunk);
+      }
+    });
+    try { await stream.write(input); }
+    finally { await stream.writeEnd(); await Promise.all(tasks); }
   }
 
   private ensureReady(): void {
@@ -1384,7 +1405,7 @@ export class LocalBattleEnv {
       throw new Error(`Environment ${this.id} has not been reset.`);
     }
     if (this.lastError) {
-      throw new SettlingError('simulator-error', this.settling.timeout, this.settling.maxMessages);
+      throw new SettlingError('simulator-error', this.settling.timeout, this.settling.maxMessages, this.lastError);
     }
   }
 

@@ -26,7 +26,7 @@ function mutate(v:any,c:any){
 test('P37 full assets direct mutations and integrity',()=>{
  const results:any[]=[];
  for(const p of ['native11','replay-compat-v1'] as const){const v=read(p);const out=validatePreparedProtocolAsset(v,p);assert.notEqual(out,v);
-  assert.equal(out.protocol.record_fixtures.length,p==='native11'?101:108);assert.ok(Object.isFrozen(out));
+  assert.equal(out.protocol.record_fixtures.length,p==='native11'?111:108);assert.ok(Object.isFrozen(out));
   assert.throws(()=>helperContext(out as any),/unsupported-context/);assert.throws(()=>protocolContext(out as any),/unsupported-context/);
   assert.deepEqual(loadPreparedProtocolAsset(p),out);
  }
@@ -37,7 +37,7 @@ test('P37 full assets direct mutations and integrity',()=>{
  try{for(const p of ['native11','replay-compat-v1'] as const){const v=read(p);v.adopted=true;const f=path.join(tmp,p+'.json');fs.writeFileSync(f,JSON.stringify(v));assert.throws(()=>loadPreparedProtocolAsset(p,f),/version-asset-integrity/);assert.throws(()=>loadPreparedProtocolAsset(p,path.join(tmp,'missing')),/missing-version-asset/);}}
  finally{fs.rmSync(tmp,{recursive:true,force:true});}
  validateProtocolContract(JSON.parse(fs.readFileSync(path.join(root,'trainer/src/neural/protocol_contract.json'),'utf8')));
- emit('full-validation',{mutations:results,fixture_counts:[101,108],native_runtime:'UNEXECUTED'});
+ emit('full-validation',{mutations:results,fixture_counts:[111,108],native_runtime:'UNEXECUTED'});
 });
 test('P37 owned bootstrap and sticky failure fresh processes',()=>{
  const good=`const assert=require('assert/strict'),Module=require('module');const load=Module._load;let attempts=0;Module._load=function(name,...args){if(String(name).includes('pokemon-showdown')){attempts++;throw Error('engine forbidden')}return load.call(this,name,...args)};
