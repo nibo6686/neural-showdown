@@ -1,6 +1,9 @@
 {
-  "_comment": "Slow authority/publication matrices for full review; diagnosed residuals are recorded in the slice report. Never use these alone as adoption proof.",
+  "_comment": "Authority/publication matrices for full review; diagnosed residuals are recorded in slice reports. Never use these alone as adoption proof.",
   "files": [
-    "dist/tests/pipeline_episode.test.js"
+    "dist/tests/pipeline_episode.test.js",
+    "dist/tests/active_request_restore.test.js",
+    "dist/tests/env_manager.test.js",
+    "dist/tests/request_delivery_ledger.test.js"
   ]
 }

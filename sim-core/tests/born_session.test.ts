@@ -4,11 +4,25 @@ import {Teams} from 'pokemon-showdown';
 import {LocalBattleEnv} from '../src/env_manager';
 import {NativeObjectAssociation} from '../src/owner_identity_crosswalk';
 import {bornSession, playTo, withBornTeams} from './helpers/born_session';
+import {simulationSnapshotEnv} from './helpers/simulation_env';
+import {assertAuthoritativeEnvironment} from '../src/env_manager';
+import {rejectSimulationOnlyPayload} from '../src/simulation_authority';
 
 const teams = {
   p1: 'Holder (Snorlax) @ Sitrus Berry\nEVs: 4 HP\nAbility: Immunity\n- Belly Drum\n- Splash',
   p2: 'Watcher (Giratina)\nAbility: Pressure\n- Splash',
 };
+
+test('diagnostic simulation snapshots retain the no-authority boundary', async () => {
+  const env = simulationSnapshotEnv({id: 'diagnostic-only', format: 'gen9randombattle', seed: [1, 2, 3, 4]});
+  try {
+    await env.reset();
+    const snapshot = env.captureSeededSnapshot();
+    assert.throws(() => assertAuthoritativeEnvironment(env), /simulation-only\/v1\/no-authority/);
+    assert.throws(() => rejectSimulationOnlyPayload(snapshot), /simulation-only\/v1\/no-authority/);
+    assert.deepEqual(snapshot.simulator_state, env.serializeBattle());
+  } finally {await env.close();}
+});
 
 test('born session preserves original owners and scripts legal play through held restore tickets', async () => {
   const generate = Teams.generate;

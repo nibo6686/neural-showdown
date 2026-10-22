@@ -1,10 +1,11 @@
+import {simulationSnapshotEnv as simulationEnv} from './helpers/simulation_env';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import test from 'node:test';
 import { canonicalActionFromLegalAction, type CanonicalAction } from '../src/canonical_action';
-import { projectBeliefState, serializeBeliefState, validateObservableBattleState } from '../src/belief_state';
+import { projectBeliefState as nativeProjectBeliefState, serializeBeliefState as nativeSerializeBeliefState, validateObservableBattleState as nativeValidateObservableBattleState } from '../src/belief_state';
 import { LocalBattleEnv } from '../src/env_manager';
 import type { ObservableBattleState } from '../src/observable_state';
 import {
@@ -15,12 +16,19 @@ import {
   type PipelineRequestState,
   createPipelineIntegrationSession,
   PipelineIntegrationError,
-  projectPipelineProtocolPrefix,
-  projectPipelineStepResult,
+  projectPipelineProtocolPrefix as nativeProjectPipelineProtocolPrefix,
+  projectPipelineStepResult as nativeProjectPipelineStepResult,
 } from '../src/pipeline_integration';
 import type { ChoiceRequestView, PlayerID } from '../src/types';
 import { toSeededSnapshotRef } from '../src/transition';
 import { PROTOCOL_CONTRACT } from '../src/protocol_contract';
+
+import {NATIVE11_CONTEXT} from '../src/version_profile';
+const projectPipelineProtocolPrefix: typeof nativeProjectPipelineProtocolPrefix = prefix => nativeProjectPipelineProtocolPrefix(prefix, NATIVE11_CONTEXT);
+const projectPipelineStepResult: typeof nativeProjectPipelineStepResult = (result, id, prefix, version) => nativeProjectPipelineStepResult(result, id, prefix, version, NATIVE11_CONTEXT);
+const projectBeliefState: typeof nativeProjectBeliefState = input => nativeProjectBeliefState(input, NATIVE11_CONTEXT);
+const serializeBeliefState: typeof nativeSerializeBeliefState = state => nativeSerializeBeliefState(state, NATIVE11_CONTEXT);
+const validateObservableBattleState: typeof nativeValidateObservableBattleState = value => nativeValidateObservableBattleState(value, NATIVE11_CONTEXT);
 
 const SEED = [2, 202, 303, 404] as const;
 const TERMINAL_CONTROLLER_SEEDS = { p1: 0x51a7, p2: 0xc0de } as const;
@@ -438,9 +446,9 @@ test('v2 joint transitions restore deterministic candidates and retain committed
       primary.boundary.perspectives.p2.observation.request,
     );
 
-    LocalBattleEnv.prototype.resetFromSerialized = async function recordCandidateRestore(serialized, stepOptions) {
+    LocalBattleEnv.prototype.resetFromSerialized = async function recordCandidateRestore(serialized, stepOptions, ticket) {
       if (this.id.includes('pipeline-step-0')) restoredSnapshots.push(JSON.stringify(serialized));
-      return originalResetFromSerialized.call(this, serialized, stepOptions);
+      return originalResetFromSerialized.call(this, serialized, stepOptions, ticket);
     };
     LocalBattleEnv.prototype.stepSeededTransition = async function recordCandidateDelta(request, stepOptions) {
       const result = await originalStepSeededTransition.call(this, request, stepOptions);
@@ -638,7 +646,7 @@ test('v2 voluntary switch-plus-switch remains a joint request pair with determin
     const directInitial = await direct.resetWithOptions(stepOptions);
     const prefix = [...directInitial.log_delta];
     const serializedBefore = structuredClone(direct.captureSeededSnapshot(null).simulator_state);
-    beforeRestored = new LocalBattleEnv('pipeline-v2-voluntary-switch-pair-before', options.format, [...options.seed]);
+    beforeRestored = simulationEnv({id: 'pipeline-v2-voluntary-switch-pair-before', format: options.format, seed: [...options.seed]});
     const beforeReplay = await beforeRestored.resetFromSerialized(serializedBefore, stepOptions);
     const projectedBefore = projectPipelineStepResult(
       directInitial, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version,
@@ -652,7 +660,7 @@ test('v2 voluntary switch-plus-switch remains a joint request pair with determin
     const reset = LocalBattleEnv.prototype.resetWithOptions;
     try {
       LocalBattleEnv.prototype.resetWithOptions = function (requestOptions) {
-        return this.resetFromSerialized(structuredClone(serializedBefore), requestOptions);
+        return reset.call(this, requestOptions);
       };
       session = await createPipelineIntegrationSession(options);
       twin = await createPipelineIntegrationSession(options);
@@ -702,7 +710,7 @@ test('v2 voluntary switch-plus-switch remains a joint request pair with determin
       projectedAfter,
     );
     const serializedAfter = structuredClone(direct.captureSeededSnapshot(null).simulator_state);
-    afterRestored = new LocalBattleEnv('pipeline-v2-voluntary-switch-pair-after', options.format, [...options.seed]);
+    afterRestored = simulationEnv({id: 'pipeline-v2-voluntary-switch-pair-after', format: options.format, seed: [...options.seed]});
     const afterReplay = await afterRestored.resetFromSerialized(serializedAfter, stepOptions);
     assert.deepEqual(
       projectPipelineStepResult(afterReplay, options.battle_id, projectPipelineProtocolPrefix(prefix), options.observation_schema_version),
@@ -1087,7 +1095,7 @@ test('a seeded random-controller terminal trace is repeatable and projects both 
       const protocolPrefix = projectPipelineProtocolPrefix(result.log_delta);
       const snapshot = env.captureSeededSnapshot(null);
       const snapshotRef = toSeededSnapshotRef(snapshot, 'pipeline-terminal-smoke');
-      const restored = new LocalBattleEnv('pipeline-terminal-restore', 'gen9randombattle', [...SEED]);
+      const restored = simulationEnv({id: 'pipeline-terminal-restore', format: 'gen9randombattle', seed: [...SEED]});
       try {
         const replay = await restored.resetFromSerialized(snapshot.simulator_state, { include_wait_requests: true });
         assert.equal(replay.terminated, true);

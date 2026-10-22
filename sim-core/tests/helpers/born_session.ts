@@ -3,10 +3,46 @@ import {Teams} from 'pokemon-showdown';
 import {canonicalActionFromLegalAction} from '../../src/canonical_action';
 import {PipelineIntegrationSession, type PipelineIntegrationOptions} from '../../src/pipeline_integration';
 import type {PlayerID} from '../../src/types';
+import {LocalBattleEnv} from '../../src/env_manager';
+import {NativeObjectAssociation} from '../../src/owner_identity_crosswalk';
 
 type PokemonSet = ReturnType<typeof Teams.generate>[number];
 export type BornTeams = Readonly<Record<PlayerID, string | readonly PokemonSet[]>>;
 export type BornStep = Readonly<Partial<Record<PlayerID, string>>>;
+const associations = new WeakMap<PipelineIntegrationSession, NativeObjectAssociation>();
+
+/** Observe the real initial enrollment; copied bytes never create a restore capability. */
+export async function observeBornSession(create: () => Promise<PipelineIntegrationSession>): Promise<PipelineIntegrationSession> {
+  const prepare = NativeObjectAssociation.prototype.prepareInitial;
+  const enrolled = new Map<object, NativeObjectAssociation>();
+  NativeObjectAssociation.prototype.prepareInitial = function (...args) {
+    const token = prepare.apply(this, args);
+    enrolled.set(args[0], this);
+    return token;
+  };
+  try {
+    const session = await create();
+    const association = enrolled.get((session as any).environment);
+    if (association) associations.set(session, association);
+    return session;
+  } finally {NativeObjectAssociation.prototype.prepareInitial = prepare;}
+}
+
+/** Restore only the exact snapshot held by a live, genuinely born session. */
+export function heldEnvironment(session: PipelineIntegrationSession, id: string): LocalBattleEnv {
+  const association = associations.get(session);
+  assert.ok(association, 'observed native birth required');
+  const env = new LocalBattleEnv(id, session.format, [...(session as any).seed], undefined, {}, undefined, undefined, association);
+  const reset = env.resetFromSerialized.bind(env);
+  env.resetFromSerialized = async (serialized, options) => {
+    const snapshot = (session as any).snapshot;
+    assert.ok(snapshot, 'live session snapshot required');
+    assert.deepEqual(serialized, snapshot.simulator_state, 'bytes must corroborate the held occurrence');
+    const ticket = association.prepareRestore(env, session.boundary, snapshot);
+    return reset(snapshot.simulator_state, options, ticket);
+  };
+  return env;
+}
 
 /** Scope exact team generation to the two original submissions, even for episode runners. */
 export async function withBornTeams<T>(teams: BornTeams, create: () => Promise<T>): Promise<T> {
@@ -32,9 +68,9 @@ export function bornSession({teams, seed = [1, 2, 3, 4], options}: {
   seed?: readonly number[];
   options: Omit<PipelineIntegrationOptions, 'seed' | 'format'> & {format?: string};
 }): Promise<PipelineIntegrationSession> {
-  return withBornTeams(teams, () => PipelineIntegrationSession.create({
+  return observeBornSession(() => withBornTeams(teams, () => PipelineIntegrationSession.create({
     format: 'gen9randombattle', ...options, seed,
-  }));
+  })));
 }
 
 /** Resolve every script choice against its current owner request before submitting either side. */

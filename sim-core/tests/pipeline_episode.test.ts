@@ -195,7 +195,8 @@ for (const actor of PLAYERS) for (const version of ['observable-battle-state/v1'
     assert.equal(result.status, 'completed', result.stop.reason);
     assert.equal(result.counts.committed_transitions, 1);
     const envelope = result.evidence_envelope!, other = actor === 'p1' ? 'p2' : 'p1';
-    const copy = `|-ability|${actor}a: Gardevoir|Static|[from] ability: Trace|[of] ${other}a: Pikachu`;
+    // b8f23c99 sim/pokemon.ts:1934 emits oldAbility.name before Trace provenance.
+    const copy = `|-ability|${actor}a: Gardevoir|Static|Trace|[from] ability: Trace|[of] ${other}a: Pikachu`;
     const terminal = result.records[actor][0].successor_observation;
     assert.ok(terminal.protocol_prefix.includes(copy)); assert.equal(terminal.request, null);
     assert.equal(terminal.view.self_team[0].ability, 'static'); assert.equal(terminal.view.self_team[0].ability_state, 'known');
@@ -1436,7 +1437,7 @@ for (const actor of PLAYERS) {
       const result = await create();
       const repeated = await create();
       assert.equal(result.status, 'completed', result.stop.reason);
-      assert.equal(result.faithful_complete_episode, result.status === 'completed' && result.evidence_envelope?.closure?.complete_capture === true);
+      assert.equal(result.faithful_complete_episode, false, 'native11 positive target fidelity remains quarantined');
       assert.equal(result.evidence_envelope?.origin.kind, 'fresh_episode');
       assert.equal(result.evidence_envelope?.origin.boundary.step_index, 0);
       assert.equal(result.evidence_envelope?.origin.boundary.perspectives.p1.request?.player, 'p1');
