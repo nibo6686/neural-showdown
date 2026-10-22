@@ -205,17 +205,17 @@ marked done while it owns red tests**:
 
 | Owner | Red files (failing tests at `b0afaa0`) |
 |---|---|
-| W1 moves & request info | `request_knowledge` (12), `request_knowledge_characterization` (19), `test_request_knowledge.py` (19), `test_request_knowledge_characterization.py` (8), `request_emission_trace` (4) |
-| W2 owned residue / identity / boundaries | `original_owner_provider` (3), `original_owner_provider_characterization` (2), `owner_identity_birth` (2), `owner_identity_source_characterization` (2), `owner_identity_restore` (1), `owner_identity_events` (1), `snapshot_admission` (1), `settling` (2), `transition` (2), `pipeline_utf8_transport` (2), `revival` (9) |
+| W1 moves & request info | `active_request_restore` trap-restoration fixtures expecting no `update: true` (2), `request_knowledge` (12), `request_knowledge_characterization` (19), `test_request_knowledge.py` (19), `test_request_knowledge_characterization.py` (8), `request_emission_trace` (4) |
+| W2 owned residue / identity / boundaries | `request_delivery_ledger` fixtures that mutate state via `>eval` or uncommitted choices (2), recheck of the retired `p1: Houndstone` hitcount case (likely a `p1a` expectation update), `original_owner_provider` (3), `original_owner_provider_characterization` (2), `owner_identity_birth` (2), `owner_identity_source_characterization` (2), `owner_identity_restore` (1), `owner_identity_events` (1), `snapshot_admission` (1), `settling` (2), `transition` (2), `pipeline_utf8_transport` (2), `revival` (9) |
 | W3 public actor association | `illusion` (24), `transform_types` (2), `transform_boosts` (2), `added_types` (2), `forced_switch` (3), `roost` (8), `pipeline_episode` unbound switch source (4) |
 | W4 health / status / boosts | `public_stages` (14), `selective_boosts` (4), `psych_up` (2), `topsy_turvy` (2), `public_consequences` (8), `pipeline_episode` Healing Wish health (2) |
 | W5 items & abilities | `item_identity` (37), `item` (22) |
-| W6 effect ledgers | `entry_hazard` (10), `screen` (6), `court_change` (14), `weather` (2), `terrain` (2), `trick_room` (2), `future_sight` (10), `wish` (10), `healing_wish` (8), `singlemove` (8), `repeat_use` (4), `spirit_shackle` (4), `perspective_field_semantics` (2) |
+| W6 effect ledgers | `active_request_restore` Imprison (4) and `env_manager` Torment lifecycle variants (10), `entry_hazard` (10), `screen` (6), `court_change` (14), `weather` (2), `terrain` (2), `trick_room` (2), `future_sight` (10), `wish` (10), `healing_wish` (8), `singlemove` (8), `repeat_use` (4), `spirit_shackle` (4), `perspective_field_semantics` (2) |
 | W9 publication | `protocol_contract_validation` (3) |
 | W10 assurance | `soak` (30), `test_gen9randbats_mechanics_completeness_audit.py` (2) |
 | Track B (B2 beliefs/search) | `belief_fork` (3); belief forks are blocked on native11 until search needs them |
 
-**Next after 0.5c3:** 0.7 benchmark, then W1. 0.6 (corpus) is downloading in
+**0.5c3 — done** (`fdb865d`): the four core files are migrated (38 pass, 18 residuals assigned above, 3 retirements), and the Trace/Destiny Bond expectations are updated. P0.5 is complete. **0.7 — done, provisional** (`268a5f5`): the harness and a 100-pair baseline; the full 500-pair run is in 0.6a. **Next:** 0.6a (brief `P0.6a.md`: corpus admission, census, remaining grammar gaps, full benchmark), then W1. 0.6 (corpus) is downloading in
 the background and is processed once complete.
 
 **0.6 Fresh replay corpus — downloaded and reproduction-verified (2026-10-21).**
