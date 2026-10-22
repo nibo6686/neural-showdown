@@ -218,7 +218,23 @@ marked done while it owns red tests**:
 **Next after 0.5c3:** 0.7 benchmark, then W1. 0.6 (corpus) is downloading in
 the background and is processed once complete.
 
-**0.6 Fresh replay corpus.** Download about 30k gen9randombattle replays in
+**0.6 Fresh replay corpus — downloaded and reproduction-verified (2026-10-21).**
+`data/replays/corpus-2026-10-21/` holds 29,666 main-server replays, all with
+input logs (plus 325 side-server replays, which are excluded). They span five
+server commits: `b8f23c99` 14,902, `942cda71` 10,738, `7332b60e` 2,196,
+`de1cf598` 1,158 and `51ad80fa` 672. **29,620 (99.8%) reproduce exactly on the
+pinned `b8f23c99`.** `de1cf598` is at 97.6% because of the No Retreat change;
+the other commits are at 99.9–100%, and the residual mismatches are mostly
+moderation lines. That leaves 25,340 exactly reproduced rated battles (median
+rating 1,626; 11,107 rated 1,800+). No re-pin is needed. **Admission rule
+change:** `tools/replay_repro` should admit any replay that reproduces exactly
+on the pinned engine, whatever its `>version`, and record the server commit as
+provenance, instead of requiring `>version == engine_commit`. Remaining 0.6
+work (one small slice, after W1 starts): that rule change, running `--extract`
+and `--diff` over the corpus, and recording rating, outcome, length, ending and
+commit per battle.
+
+Original 0.6 text, for reference: Download about 30k gen9randombattle replays in
 as short a window as possible (rate-limited `replay_fetch.py`, about 1 replay
 per second, so roughly 9 hours; run it in the background). Reproduce each one
 with `tools/replay_repro` and keep only exact matches on the pinned commit.
