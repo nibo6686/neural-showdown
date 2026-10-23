@@ -445,7 +445,14 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   were retired. The sidecar is no longer imported by `src`. **W1.2 must
   re-prove their still-relevant controls natively** (for example, ordinary
   slots carry pp/maxpp/target/disabled for both owners).
-- **W3.1** brief: `briefs/W3.1.md`.
+- **W3.1 — done, partial** (`e32057c`): all 8 owner-chosen pivot families
+  bind through the request → choice → native writer chain. 184/200 born
+  (92%), 0 K mismatches over 1.7M comparisons. It stopped at the drag hook,
+  as briefed. **Decision: the drag hook is approved** (the engine's single
+  `actions.dragIn` path, observed as a native writer occurrence). Interim
+  cost: the two drag-built Future Sight episode tests fail until W3.2.
+- **W3.2** brief: `briefs/W3.2.md` (drag authority, episode expectations,
+  Revival health case, full-corpus born gate).
 - **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
   continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
   mismatches on the new rows.
