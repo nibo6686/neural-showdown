@@ -1,3 +1,4 @@
+import {isEngineSeed} from './engine_seed';
 import { readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { assertPublicItemsMatchEvidence } from './public_item';
 import { assertPublicAbilityMatchesEvidence } from './public_ability';
@@ -692,8 +693,7 @@ function normalizeSnapshot(snapshot: SeededSnapshotRef, observation: ObservableB
   ], 'Simulator snapshot');
   if (snapshot.format !== observation.view.format) throw new BeliefStateError('Simulator snapshot format does not match observation.');
   if (typeof snapshot.snapshot_handle !== 'string' || !snapshot.snapshot_handle.trim()
-    || !Array.isArray(snapshot.root_seed) || snapshot.root_seed.length !== 4
-    || snapshot.root_seed.some((seed) => !isSafeInteger(seed))) {
+    || !isEngineSeed(snapshot.root_seed)) {
     throw new BeliefStateError('Simulator snapshot handle or root seed is invalid.');
   }
   if (typeof snapshot.branch_id !== 'string' || !snapshot.branch_id.trim()) throw new BeliefStateError('Simulator snapshot branch_id is invalid.');
@@ -740,8 +740,7 @@ function normalizeTransition(
     branch_id: metadata.branch_id,
     simulator_revision: metadata.simulator_revision,
   })) assertNonEmptyString(value, `Seeded transition ${key}`);
-  if (!Array.isArray(metadata.root_seed) || metadata.root_seed.length !== 4
-    || metadata.root_seed.some((seed) => !isSafeInteger(seed))) {
+  if (!isEngineSeed(metadata.root_seed)) {
     throw new BeliefStateError('Seeded transition root_seed is malformed.');
   }
   if (!isRecord(metadata.action_ids)) throw new BeliefStateError('Seeded transition action_ids are malformed.');

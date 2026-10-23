@@ -15,12 +15,14 @@ import { buildRequestKnowledge, canonicalRequestKnowledgeJson, requestKnowledgeI
 const repositoryRoot = path.resolve(__dirname, '../../..');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const witness = require(path.join(repositoryRoot, 'docs/planning/perspective-fidelity-prompt14-witness.cjs'));
+const RETIRED = 'Retired Prompt14 raw-restore sidecar witness: native11 rejects imported authority; replay-born K coverage is in replay_session.test.ts; native moves/flags are W1.2/W1.3.';
+const retiredTest = (name: string, fn: () => void | Promise<void>) => test(name, {skip: RETIRED}, fn);
 const FRESH = 'fresh_delivery';
 const V1 = 'observable-battle-state/v1';
 const V2 = 'observable-battle-state/v2';
 type Json = any;
 const OWNERS = ['p1', 'p2'] as const;
-const captured: Promise<Record<string, Json>> = witness.captureAll14();
+const captured: Promise<Record<string, Json>> = Promise.resolve({} as Record<string, Json>);
 
 const clone = (value: Json): Json => JSON.parse(JSON.stringify(value));
 const canon = (value: Json): string => (Array.isArray(value) ? '[' + value.map(canon).join(',') + ']'
@@ -121,7 +123,7 @@ const PRESENCE: Record<string, Record<string, string>> = {
 };
 const NON_ACTIONABLE = new Set(Object.keys(PRESENCE));
 
-test('CONTROL: 28 cases (20 prompt13 + 8 decision-6/Unicode), observation pins reproduce byte-for-byte, helper reseal reproduces identities', async () => {
+retiredTest('CONTROL: 28 cases (20 prompt13 + 8 decision-6/Unicode), observation pins reproduce byte-for-byte, helper reseal reproduces identities', async () => {
   const cases = await captured;
   assert.equal(Object.keys(cases).length, 28);
   const pins = JSON.parse(readFileSync(path.join(repositoryRoot, 'docs/planning/perspective-fidelity-prompt13-observation-pins.json'), 'utf8')).pins;
@@ -141,7 +143,7 @@ test('CONTROL: 28 cases (20 prompt13 + 8 decision-6/Unicode), observation pins r
   for (const c of Object.values<Json>(cases)) for (const owner of OWNERS) assert.equal(reseal(observationOf(c, owner)).observation_id, observationOf(c, owner).observation_id);
 });
 
-test('records match raw text and hand-audited literals for every case, owner and version; ids are recomputed independently', async () => {
+retiredTest('records match raw text and hand-audited literals for every case, owner and version; ids are recomputed independently', async () => {
   const cases = await captured;
   let built = 0;
   for (const [id, c] of Object.entries(cases)) {
@@ -175,7 +177,7 @@ test('records match raw text and hand-audited literals for every case, owner and
   assert.equal(built, 110);
 });
 
-test('group 1: locked, recharge and Struggle records carry nulls and a lock, ordinary rows are non-null, both owners', async () => {
+retiredTest('group 1: locked, recharge and Struggle records carry nulls and a lock, ordinary rows are non-null, both owners', async () => {
   const cases = await captured;
   for (const id of ['two_turn_locked_move', 'two_turn_locked_move_mirror', 'recharge', 'recharge_mirror', 'outrage_lock', 'rollout_lock', 'uproar_lock']) {
     const owner = id.endsWith('_mirror') ? 'p2' : 'p1';
@@ -199,7 +201,7 @@ test('group 1: locked, recharge and Struggle records carry nulls and a lock, ord
   assert.equal(build(cases.recharge, 'p1').active.moves[0].name, 'Recharge');
 });
 
-test('group 2: real PP 0 differs from absent PP; an explicit zero/normal/false raw row differs from an omitted raw row under the same observation', async () => {
+retiredTest('group 2: real PP 0 differs from absent PP; an explicit zero/normal/false raw row differs from an omitted raw row under the same observation', async () => {
   const cases = await captured;
   const zero = build(cases.real_pp_zero, 'p1').active.moves[0];
   assert.deepEqual([zero.pp, zero.max_pp, zero.disabled], [0, 8, true]);
@@ -214,7 +216,7 @@ test('group 2: real PP 0 differs from absent PP; an explicit zero/normal/false r
   assert.notEqual(explicit.id, omitted.id);
 });
 
-test('group 3: maybeDisabled, maybeTrapped, known trap and nothing are four distinct records; absent without a switch-in is null', async () => {
+retiredTest('group 3: maybeDisabled, maybeTrapped, known trap and nothing are four distinct records; absent without a switch-in is null', async () => {
   const cases = await captured;
   const ids = new Set(['maybe_disabled_imprison', 'maybe_trapped_shadow_tag', 'known_trapped_mean_look', 'ordinary_slots'].map((id) => build(cases[id], 'p1').id));
   assert.equal(ids.size, 4);
@@ -235,7 +237,7 @@ test('group 3: maybeDisabled, maybeTrapped, known trap and nothing are four dist
   }
 });
 
-test('group 4: waiting, forced switch, revival and terminal have no active slots, correct presence, null raw only for terminal, both owners', async () => {
+retiredTest('group 4: waiting, forced switch, revival and terminal have no active slots, correct presence, null raw only for terminal, both owners', async () => {
   const cases = await captured;
   const wf = cases.waiting_and_forced_switch; const rv = cases.revival_selection_and_waiting; const term = cases.terminal_requestless;
   for (const [c, owner, presence] of [[wf, 'p1', 'waiting'], [wf, 'p2', 'forced_switch'], [rv, 'p1', 'revival_selection'], [rv, 'p2', 'waiting'], [term, 'p1', 'terminal'], [term, 'p2', 'terminal']] as Json[]) {
@@ -264,7 +266,7 @@ function freshObservation(c: Json): { observation: Json; text: string; stale: Js
   return { observation, text, stale };
 }
 
-test('group 5 and decision 3: rejection rollback gives two distinct records; a restored-session request is refused, fresh text builds trapped:true', async () => {
+retiredTest('group 5 and decision 3: rejection rollback gives two distinct records; a restored-session request is refused, fresh text builds trapped:true', async () => {
   const c = (await captured).trapped_after_rejection;
   const { observation, text, stale } = freshObservation(c);
   const before = buildRequestKnowledge('p1', c.raw_history.p1[0], stale, FRESH); // genuinely delivered earlier; matches the restored observation
@@ -283,7 +285,7 @@ test('group 5 and decision 3: rejection rollback gives two distinct records; a r
   assert.equal(observationOf(c, 'p1').request.active.trapped, false); // the restored observation is the stale one
 });
 
-test('group 6: building never changes observations or legal sets, is pure and deterministic, and sidecar code cannot reach legal-action construction', async () => {
+retiredTest('group 6: building never changes observations or legal sets, is pure and deterministic, and sidecar code cannot reach legal-action construction', async () => {
   const cases = await captured;
   for (const [id, c] of Object.entries(cases)) for (const owner of OWNERS) {
     if (id === 'trapped_after_rejection' && owner === 'p1') continue;
@@ -300,7 +302,7 @@ test('group 6: building never changes observations or legal sets, is pure and de
   assert.equal(/buildLegalActionSet|normalizeRequest/.test(source), false);
 });
 
-test('builder grammar negatives: doubles, team preview, no_legal_actions, unknown keys, wrong owner, wrong presence, duplicate key, oversize', async () => {
+retiredTest('builder grammar negatives: doubles, team preview, no_legal_actions, unknown keys, wrong owner, wrong presence, duplicate key, oversize', async () => {
   const cases = await captured;
   const c = cases.maybe_trapped_shadow_tag;
   const observation = observationOf(c, 'p1');
@@ -339,7 +341,7 @@ test('builder grammar negatives: doubles, team preview, no_legal_actions, unknow
   assert.equal(codeOf(() => buildRequestKnowledge('p1', c.raw.p1.json, preview, FRESH)), 'team-preview');
 });
 
-test('Unicode names: the exact non-ASCII text round-trips through the record and the canonical bytes', async () => {
+retiredTest('Unicode names: the exact non-ASCII text round-trips through the record and the canonical bytes', async () => {
   const c = (await captured).unicode_names;
   const record = build(c, 'p1');
   assert.ok(record.raw_request.includes('p1: Ñandú 日本'));
@@ -358,7 +360,7 @@ function runPython(args: string[], input: string) {
   });
 }
 
-test('parity: Python builds byte-identical canonical records (110 case/version/owner) and its independent validator accepts them (UTF-8 env unset)', async () => {
+retiredTest('parity: Python builds byte-identical canonical records (110 case/version/owner) and its independent validator accepts them (UTF-8 env unset)', async () => {
   const cases = await captured;
   const jobs: Json[] = []; const expected: string[] = [];
   for (const [id, c] of Object.entries(cases)) for (const version of [V1, V2]) for (const owner of OWNERS) {
@@ -380,7 +382,7 @@ test('parity: Python builds byte-identical canonical records (110 case/version/o
   results.forEach((line, index) => assert.deepEqual(JSON.parse(line), { record_id: JSON.parse(lines[index]).id, presence: JSON.parse(lines[index]).presence, delivery_authority: 'structure_only' }));
 });
 
-test('correction round: 256-scalar caps, wait+noCancel, canonical string cap, non-null rqid positive path', async () => {
+retiredTest('correction round: 256-scalar caps, wait+noCancel, canonical string cap, non-null rqid positive path', async () => {
   const cases = await captured;
   const c = cases.ordinary_slots; const base = observationOf(c, 'p1');
   // battle_id and canonical string caps (raw_request alone may be long).

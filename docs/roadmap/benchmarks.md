@@ -113,3 +113,93 @@ Replay `gen9randombattle-2699893123` uses
 `|-end|p2a: Jumbao|move: Doom Desire` (`data/moves.ts:3872`,
 `data/conditions.ts:403`). It is also excluded as `custom-rules`. The native
 unclassified-effect rejection remains covered in TypeScript and Python.
+
+## Replay-born authoritative pilot (W1.1)
+
+The owner kept W1.1 scoped after the pilot exposed W3's non-direct switch
+restriction. The switch-authority fix is the immediate next slice, before W1.2.
+**The full admitted-corpus born/K gate is deferred until that fix; this is a
+500-replay pilot, not a full-corpus result or a representative pass-rate estimate.**
+The selection is the first 500 admitted IDs in the existing manifest order.
+
+Final outcomes: **227/500 complete (45.4%)**, **273 fail**, **0 timeouts/skips**.
+The git-ignored local manifest is
+`data/replays/corpus-2026-10-21/born-pilot-W1.1.jsonl`, one final outcome per ID.
+It retains exact failure reasons and switch-source diagnostics. The first pilot
+ran 811.70 s; rechecking its 290 failures after exact hard-lock mapping and source
+diagnostics took 250.58 s, **1,062.27 s total**, using six local workers. The
+recheck admitted 17 additional battles; the remaining three former mapping cases
+now reach the W3 guard. No canonical action validator or switch guard was relaxed.
+
+| Final failure | Battles | Follow-up evidence |
+|---|---:|---|
+| Unbound switch source | 247 | W3; exact kinds below |
+| Observation Pokémon schema rejection | 16 | All contain Slow Start; `belief_state.ts` does not accept the optional `ability_effects` key. Example `2695483532`; W5/public observation schema triage. |
+| Public health/request evidence disagreement | 7 | W4/W3 boundary triage; example `gen9randombattle-2695527325`; exact subjects retained per row. |
+| Public ability/request evidence disagreement | 3 | W5; example `2695485074`. |
+
+These failures precede K publication. They are not fabricated K facts, and no
+adopted registry row was demoted. The other 26 failures also need resolution
+before claiming the full ≥99% gate; fixing pivots alone does not establish it.
+
+| First blocked transition source | Battles |
+|---|---:|
+| U-turn | 120 |
+| Flip Turn | 51 |
+| Volt Switch | 50 |
+| Parting Shot | 14 |
+| Shed Tail | 6 |
+| Chilly Reception | 4 |
+| Teleport | 2 |
+
+Counts describe observed failing transitions, not every switch appearing later
+in each replay. Other W3 families (drags, items, abilities, Baton Pass) remain
+unmeasured by this first-failure pilot. The authority checks remain unchanged;
+`switch_sources` is diagnostic only.
+
+The K oracle performed **2,496,912 known-fact comparisons**, **0 mismatches**, over
+**8,833 validated boundaries** and **55,938 matched public records**. Counts include
+validated prefixes of failed replays. All 25 adopted rows have known checks;
+unknowns remain unknown. Three registry-unknown opponent applications have no
+projected values. This establishes only the measured prefixes, not whole-corpus
+correctness. The focused oracle controls reject wrong known facts, fabricated
+unknown values and known values where the registry requires unknown.
+
+| Registry row (family/property/context/own) | Known checks | Unknown observations | Mismatches |
+|---|---:|---:|---:|
+| `K01/roster_species/original/own` | 105,996 | 0 | 0 |
+| `K04/level/original/own` | 105,996 | 0 | 0 |
+| `K04/level/current/own` | 104,736 | 1,260 | 0 |
+| `K04/gender/current/own` | 104,736 | 1,260 | 0 |
+| `K04/shiny/original/own` | 105,996 | 0 | 0 |
+| `K04/shiny/current/own` | 104,736 | 1,260 | 0 |
+| `K04/ball/original/own` | 105,996 | 0 | 0 |
+| `K04/ball/current/own` | 104,736 | 1,260 | 0 |
+| `K04/details/current/own` | 104,736 | 1,260 | 0 |
+| `K01/roster_order/original/own` | 105,996 | 0 | 0 |
+| `K01/roster_size/original/own` | 17,666 | 0 | 0 |
+| `K02/starting_moves/original/own` | 105,996 | 0 | 0 |
+| `K03/submitted_nature/original/own` | 105,996 | 0 | 0 |
+| `K03/submitted_happiness/original/own` | 105,996 | 0 | 0 |
+| `K04/starting_tera/original/own` | 105,996 | 0 | 0 |
+| `K03/calculated_stats/original/own` | 105,996 | 0 | 0 |
+| `K03/calculated_stats/current/own` | 104,736 | 1,260 | 0 |
+| `K03/hp_max/original/own` | 105,996 | 0 | 0 |
+| `K03/hp_max/current/own` | 79,337 | 26,659 | 0 |
+| `K05/hp/current/own` | 104,736 | 1,260 | 0 |
+| `K05/fainted/current/own` | 104,736 | 1,260 | 0 |
+| `K05/status/current/own` | 79,337 | 26,659 | 0 |
+| `K18/item/original/own` | 105,996 | 0 | 0 |
+| `K19/ability/original/own` | 105,996 | 0 | 0 |
+| `K19/ability/current/own` | 104,736 | 1,260 | 0 |
+
+Measured command (after building sim-core):
+
+```powershell
+node tools/replay_repro/index.cjs data/replays/corpus-2026-10-21 --born --kdiff --workers=6 --limit=500 --manifest=<temporary-pilot.jsonl>
+```
+
+The full run remains available through the same command without `--limit`;
+set an outer timeout from a fresh pilot after the switch-authority fix. The
+unchanged per-replay bound is 120 s; battles over 500 turns require
+`NEURAL_LONG_TESTS=1`. No dataset writing, downloads or training occurred.

@@ -5,10 +5,7 @@ const root = path.resolve(__dirname, '../..');
 const {installedNativeProfile} = require(path.join(root, 'sim-core/dist/src/version_profile.js'));
 const runtime = installedNativeProfile();
 const {BattleStream} = require(runtime.package_root);
-const ignored = new Set(['t:', 'j', 'J', 'l', 'L', 'n', 'N', 'c', 'c:', 'raw', 'html', 'uhtml',
-  'uhtmlchange', 'inactive', 'inactiveoff', 'player', 'gametype', 'gen', 'tier', 'rated', 'rule',
-  'teampreview', 'seed', 'timer', 'debug', 'request', 'error', 'sideupdate', 'badge', '']);
-const keep = line => line.startsWith('|') && !ignored.has(line.split('|')[1]);
+const {keep} = require('./public_log.cjs');
 
 async function reproduceReplay(replay) {
   if (!replay || typeof replay.id !== 'string' || !replay.id || typeof replay.inputlog !== 'string' || typeof replay.log !== 'string') throw new Error('Invalid replay: id, inputlog and log required');
@@ -184,7 +181,9 @@ async function main(directory, extract=false, diff=false, {limit,manifest,shardI
   return summary;
 }
 module.exports = {reproduceReplay,extractReplay,admitReplay,main};
-if (require.main === module) {
+if (require.main === module && process.argv.includes('--born')) {
+  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).catch(error=>{console.error(error);process.exitCode=1;});
+} else if (require.main === module) {
   const args=process.argv.slice(2), option=name=>args.find(a=>a.startsWith('--'+name+'='))?.slice(name.length+3);
   main(args.find(a=>!a.startsWith('--')),args.includes('--extract')||args.includes('--diff'),args.includes('--diff'),
     {limit:option('limit')?Number(option('limit')):undefined,manifest:option('manifest')}).catch(error=>{console.error(error);process.exitCode=1;});

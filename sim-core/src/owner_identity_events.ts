@@ -49,6 +49,7 @@ type World = {
   writers: Writer[]; frames: Frame[]; fifo: Frame[]; valid: boolean; active: boolean;
   public: Array<{ token: object; version: number; byte: string }>; source?: SeededBattleSnapshot; parent?: PipelineBoundary;
   detach: Array<() => void>; sending?: Frame;
+  unboundSources: string[];
 };
 
 /** Session-private tentative infrastructure. No committed event capability or wire projection. */
@@ -102,7 +103,7 @@ export class SwitchEventHost {
     const native = battle as any, log = native.log as string[];
     const world: World = { battle: native, stream, load, actors: new Map(), leases: { p1: token(), p2: token() },
       rows: log.map(() => ({ token: token(), version: 0, alive: true })), log, proxy: log,
-      writers: [], frames: [], fifo: [], public: [], active: true, valid: true, detach: [] };
+      writers: [], frames: [], fifo: [], public: [], active: true, valid: true, detach: [], unboundSources: [] };
     this.#worlds.set(env, world); world.spectator = this.#spectators.get(env);
     let writing: Writer | undefined;
     const removed = (rows: Row[]) => { for (const row of rows) { row.alive = false; if (row.writer) row.writer.valid = false; } };
@@ -154,7 +155,7 @@ export class SwitchEventHost {
       object[key] = make(original);
       world.detach.push(() => { if (descriptor) Object.defineProperty(object, key, descriptor); else delete object[key]; });
     };
-    let actorFrame: { actor: object; supported: boolean; used: boolean } | undefined;
+    let actorFrame: { actor: object; supported: boolean; used: boolean; source: string } | undefined;
     const canonicalProducer = !Object.hasOwn(native.actions, 'switchIn')
       && native.actions.switchIn === BattleActions.prototype.switchIn;
     wrap(native.actions, 'switchIn', original => (...args: any[]) => {
@@ -162,10 +163,14 @@ export class SwitchEventHost {
       const previous = actorFrame;
       actorFrame = { actor: args[0], supported: canonicalProducer && native.gameType === 'singles' && native.activePerHalf === 1
         && native.sides.length === 2 && native.sides.every((side: any) => side?.active.length === 1)
-        && args[1] === 0 && !args[2] && !args[3], used: false };
+        && args[1] === 0 && !args[2] && !args[3], used: false,
+        source: (args[3] ? 'drag:' : args[2] ? 'effect-switch:' : 'direct:') + (args[2]?.id || native.effect?.id || 'unknown') };
       try { return original.apply(native.actions, args); } finally { actorFrame = previous; }
     });
     wrap(native, 'add', original => (...args: any[]) => {
+      if (['switch','drag'].includes(args[0]) && !actorFrame?.supported) {
+        world.unboundSources.push(actorFrame?.source ?? args[0] + ':unbound-producer');
+      }
       if (!writing && actorFrame?.supported && !actorFrame.used && args.length === 3 && args[0] === 'switch'
         && args[1] === actorFrame.actor && args[2] === (actorFrame.actor as any).getFullDetails) {
         const actor = world.actors.get(actorFrame.actor);
@@ -280,7 +285,9 @@ export class SwitchEventHost {
         public_index: routed.position, prefix_index: routed.prefix, branch_id: boundary.branch_id, step_index: boundary.step_index }));
     }
     // Direct switch rows lacking a qualified writer do not gain partial authority.
-    for (const row of world.public) if (row.byte.startsWith('|switch|') && !bindings.has(row.token)) fail('unbound-switch-source');
+    for (const row of world.public) if (row.byte.startsWith('|switch|') && !bindings.has(row.token)) {
+      throw Object.assign(new Error('switch-events/v1/unbound-switch-source'), {switch_sources: [...world.unboundSources]});
+    }
     const histories = Object.fromEntries((['p1', 'p2'] as const).map(owner => [owner, Object.freeze({ owner,
       events: Object.freeze(events[owner]), branch_id: boundary.branch_id, step_index: boundary.step_index })])) as Record<PlayerID, SwitchEventHistory>;
     const prepared = token(); this.#prepared.set(prepared, { environment: env, parent,

@@ -435,6 +435,7 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   Target: ≥99% born-session pass rate over the admitted corpus, with 0 K-diff
   mismatches. Without it, the corpus oracle covers only battles without such
   switches.
+- **Immediate follow-up: W3 switch authority, before W1.2** (owner decision, 2026-10-23). Qualify pivots, drags and other non-direct switch writers without relaxing identity authority. W1.1 records the observed source kinds and counts; the full born/K corpus gate resumes after this fix.
 - **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
   continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
   mismatches on the new rows.

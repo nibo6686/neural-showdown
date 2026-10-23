@@ -10,9 +10,11 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController",
       "tests": [
         "sim-core/tests/native_owner_knowledge.test.ts::P48 generated authentic consumer restore and isolation",
-        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority"
+        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -50,9 +52,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -66,7 +70,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Details level or complete-writer omitted-level100 convention; absent details is unknown.",
       "blocked_by": null,
@@ -106,7 +112,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Emitted M/F or known_absent in complete details; missing details unknown; no original random-gender hindsight.",
       "blocked_by": null,
@@ -134,9 +142,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "low"
     },
@@ -150,7 +160,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Emitted tag true or complete-details no tag false; missing details unknown.",
       "blocked_by": null,
@@ -178,9 +190,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "low"
     },
@@ -194,7 +208,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Emitted pokeball ID only; omitted is unknown, no inferred default.",
       "blocked_by": null,
@@ -234,7 +250,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Exact emitted ordered details grammar; does not repair unresolved original details.",
       "blocked_by": null,
@@ -261,9 +279,11 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController",
       "tests": [
         "sim-core/tests/native_owner_knowledge.test.ts::P48 generated authentic consumer restore and isolation",
-        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority"
+        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -312,9 +332,11 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController",
       "tests": [
         "sim-core/tests/native_owner_knowledge.test.ts::P48 generated authentic consumer restore and isolation",
-        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority"
+        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -351,9 +373,11 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController",
       "tests": [
         "sim-core/tests/native_owner_knowledge.test.ts::P48 generated authentic consumer restore and isolation",
-        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority"
+        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -367,9 +391,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -407,9 +433,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "low"
     },
@@ -423,9 +451,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "high"
     },
@@ -439,9 +469,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -455,7 +487,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Exact five request-declared baseStoredStats, never effective boosted/Transform stats.",
       "blocked_by": null,
@@ -483,9 +517,11 @@
       "tests": [
         "sim-core/tests/original_owner_loadout.test.ts::P59 generated both owners restore reorder and real decision caller",
         "sim-core/tests/original_owner_loadout.test.ts::P59 literal submitted default partial and rule exception oracle",
-        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry"
+        "sim-core/tests/original_owner_loadout.test.ts::P59 rejects copied source authority and final preparation failure; fresh retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -499,7 +535,9 @@
       "tests": [
         "sim-core/tests/owned_request_details.test.ts::P60 generated both owners selected delivery restore and real callbacks",
         "sim-core/tests/owned_request_details.test.ts::P60 literal fields omissions and boosted stored-stat distinction",
-        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback"
+        "sim-core/tests/owned_request_details.test.ts::P60 altered copied row fields and post-preparation rollback",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt60 scoped authenticated captured owned rows through selected delivery/held restore/real caller; unknown for missing fields and no-emission/terminal. Omission and foreign/copied/stale rejection controls run in fast. No runtime overlay/rejected-choice recovery proof; no opponent projection. Exact positive emitted condition denominator only; faint 0 fnt without denominator remains unknown.",
       "blocked_by": null,
@@ -574,7 +612,9 @@
       "provider": "sim-core/src/owned_request_health.ts:OwnedRequestHealthHost",
       "tests": [
         "sim-core/tests/owned_request_health.test.ts::P50 generated health writer delivery restore and privacy",
-        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry"
+        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Owned addressed request health at a committed native boundary; stale/foreign sources reject and unavailable terminal status stays unknown. No opponent exact HP.",
       "blocked_by": null,
@@ -601,7 +641,9 @@
       "provider": "sim-core/src/owned_request_health.ts:OwnedRequestHealthHost",
       "tests": [
         "sim-core/tests/owned_request_health.test.ts::P50 generated health writer delivery restore and privacy",
-        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry"
+        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Owned addressed request health at a committed native boundary; stale/foreign sources reject and unavailable terminal status stays unknown. No opponent exact HP.",
       "blocked_by": null,
@@ -628,7 +670,9 @@
       "provider": "sim-core/src/owned_request_health.ts:OwnedRequestHealthHost",
       "tests": [
         "sim-core/tests/owned_request_health.test.ts::P50 generated health writer delivery restore and privacy",
-        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry"
+        "sim-core/tests/owned_request_health.test.ts::P50 rejects copied source transfer and settled contradiction; rollback retry",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Owned addressed request health at a committed native boundary; stale/foreign sources reject and unavailable terminal status stays unknown. No opponent exact HP.",
       "blocked_by": null,
@@ -1375,9 +1419,11 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController",
       "tests": [
         "sim-core/tests/native_owner_knowledge.test.ts::P48 generated authentic consumer restore and isolation",
-        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority"
+        "sim-core/tests/native_owner_knowledge.test.ts::P48 rejects copied source attacks and projection nonauthority",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
-      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No replay-original attribution or opponent loadout claim.",
+      "limits": "Immutable owned starting facts through authenticated native creation; omission and partial submissions retain their declared uncertainty. No direct public-replay original attribution (reconstructed replays require enrolled born sessions) or opponent loadout claim.",
       "blocked_by": null,
       "impact": "medium"
     },
@@ -1414,7 +1460,9 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController.prepare",
       "tests": [
         "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 actual runner gives both owners immutable incomplete inputs and uses a changed owned ability to order actions",
-        "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders"
+        "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt58 accepted native immutable original ability; fast constructed Trace positive stays separate from current Natural Cure and excludes replay original attribution. P57 foreign/copied/stale/wrong-owner order and recipient rejection controls; TypeScript private opt-in incomplete consumer only.",
       "blocked_by": null,
@@ -1429,7 +1477,9 @@
       "provider": "sim-core/src/native_owner_knowledge.ts:NativeOwnerKnowledgeController.prepare",
       "tests": [
         "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 actual runner gives both owners immutable incomplete inputs and uses a changed owned ability to order actions",
-        "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders"
+        "sim-core/tests/pipeline_owned_decision_input.test.ts::P57 order authority rejects copied, foreign, stale, wrong-owner, and unsupported orders",
+        "sim-core/tests/replay_session.test.ts::replay-born exact fixture retains addressed K and canonical human choices through forced switches",
+        "sim-core/tests/replay_session.test.ts::K oracle detects fabricated known and registry-unknown values while retaining honest unknowns"
       ],
       "limits": "Prompt58 accepted emitted owned current ability ID; fast constructed initial Trace gives Natural Cure to real callback and changes canonical action order. No terminal carry, suppression/effectiveness or base-at-form/history claim. P57 foreign/copied/stale/wrong-owner order and recipient rejection controls; TypeScript private opt-in incomplete consumer only.",
       "blocked_by": null,

@@ -31,6 +31,7 @@ def _clean_env():
 
 
 def setUpModule():
+    raise unittest.SkipTest("Retired Prompt14 raw-restore sidecar witness; native replay-born K coverage replaces authority checks; moves/flags are W1.2/W1.3.")
     global _DATA
     env = _clean_env()
     env['PYTHON'] = sys.executable

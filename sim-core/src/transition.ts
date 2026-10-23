@@ -1,3 +1,4 @@
+import {copyEngineSeed, isEngineSeed, type EngineSeed} from './engine_seed';
 import { createHash } from 'node:crypto';
 import {
   canonicalActionToChoice,
@@ -11,7 +12,7 @@ export const SEEDED_FORCED_SWITCH_SCHEMA_VERSION = 'seeded-forced-switch/v1' as 
 export const SEEDED_REVIVAL_SCHEMA_VERSION = 'seeded-revival/v1' as const;
 import { installedNativeProfile } from './version_profile';
 export const SIMULATOR_REVISION = installedNativeProfile().reader.profile.revision;
-export type RootSeed = [number, number, number, number];
+export type RootSeed = EngineSeed;
 
 export interface SeededBattleSnapshot {
   schema_version: typeof SEEDED_TRANSITION_SCHEMA_VERSION;
@@ -159,9 +160,9 @@ function digest(value: unknown): string {
   return createHash('sha256').update(canonicalize(value), 'utf8').digest('hex');
 }
 
-function assertSeed(seed: readonly number[]): asserts seed is RootSeed {
-  if (seed.length !== 4 || seed.some((value) => !Number.isSafeInteger(value))) {
-    throw new Error('Seeded transition root_seed must contain four safe integers.');
+function assertSeed(seed: unknown): asserts seed is RootSeed {
+  if (!isEngineSeed(seed)) {
+    throw new Error('Seeded transition root_seed must contain four safe integers or a canonical native PRNG string.');
   }
 }
 
@@ -174,7 +175,7 @@ function deriveBranchId(
   return `branch-${digest({
     schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
     parent_branch_id: parentBranchId,
-    root_seed: [...rootSeed],
+    root_seed: copyEngineSeed(rootSeed),
     state_fingerprint: stateFingerprint,
     transition_id: transitionId,
   })}`;
@@ -206,18 +207,18 @@ export function fingerprintSimulatorState(simulatorState: Record<string, unknown
 
 export function createSeededBattleSnapshot(
   format: string,
-  rootSeed: readonly number[],
+  rootSeed: readonly number[] | string,
   simulatorState: Record<string, unknown>,
   parentBranchId: string | null,
   transitionId: string | null = null,
 ): SeededBattleSnapshot {
   assertSeed(rootSeed);
   const state_fingerprint = fingerprintSimulatorState(simulatorState);
-  const branch_id = deriveBranchId(parentBranchId, [...rootSeed], state_fingerprint, transitionId);
+  const branch_id = deriveBranchId(parentBranchId, copyEngineSeed(rootSeed), state_fingerprint, transitionId);
   return {
     schema_version: SEEDED_TRANSITION_SCHEMA_VERSION,
     format,
-    root_seed: [...rootSeed],
+    root_seed: copyEngineSeed(rootSeed),
     state_fingerprint,
     parent_branch_id: parentBranchId,
     transition_id: transitionId,
@@ -233,7 +234,7 @@ export function toSeededSnapshotRef(snapshot: SeededBattleSnapshot, snapshotHand
     schema_version: snapshot.schema_version,
     snapshot_handle: snapshotHandle,
     format: snapshot.format,
-    root_seed: [...snapshot.root_seed],
+    root_seed: copyEngineSeed(snapshot.root_seed),
     state_fingerprint: snapshot.state_fingerprint,
     parent_branch_id: snapshot.parent_branch_id,
     transition_id: snapshot.transition_id,
@@ -308,7 +309,7 @@ export function buildSeededTransitionResult(
     branch_id,
     input_state_fingerprint: request.snapshot.state_fingerprint,
     output_state_fingerprint: outputSnapshot.state_fingerprint,
-    root_seed: [...request.snapshot.root_seed],
+    root_seed: copyEngineSeed(request.snapshot.root_seed),
     action_ids,
     emitted_log_delta: [...stepResult.log_delta],
     simulator_revision: SIMULATOR_REVISION,
@@ -404,7 +405,7 @@ export function buildSeededForcedSwitchResult(
     parent_branch_id: request.snapshot.branch_id,
     input_state_fingerprint: request.snapshot.state_fingerprint,
     output_state_fingerprint: outputSnapshot.state_fingerprint,
-    root_seed: [...request.snapshot.root_seed] as RootSeed,
+    root_seed: copyEngineSeed(request.snapshot.root_seed),
     action_ids: { [request.acting_player]: request.actions[request.acting_player]!.action_id },
     simulator_revision: SIMULATOR_REVISION,
     step_index: request.step_index,

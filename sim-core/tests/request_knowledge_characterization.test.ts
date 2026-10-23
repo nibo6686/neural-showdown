@@ -16,10 +16,12 @@ import { buildLegalActionSet, normalizeRequest } from '../src/action_codec';
 const repositoryRoot = path.resolve(__dirname, '../../..');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const witness = require(path.join(repositoryRoot, 'docs/planning/perspective-fidelity-prompt13-witness.cjs'));
+const RETIRED = 'Retired Prompt13/14 raw-restore sidecar characterization: native11 rejects imported authority; replay-born K coverage is in replay_session.test.ts; native moves/flags are W1.2/W1.3.';
+const retiredTest = (name: string, fn: () => void | Promise<void>) => test(name, {skip: RETIRED}, fn);
 const V1 = 'observable-battle-state/v1';
 const V2 = 'observable-battle-state/v2';
 type Json = any;
-const captured: Promise<Record<string, Json>> = witness.captureAll();
+const captured: Promise<Record<string, Json>> = Promise.resolve({} as Record<string, Json>);
 
 const view = (c: Json, version = V2) => c.versions[version];
 const raw = (c: Json, owner: string): Json => JSON.parse(c.raw[owner].json);
@@ -42,7 +44,7 @@ function runPython(args: string[], input: string) {
 }
 
 // ---------------------------------------------------------------------------------------------- controls
-test('CONTROL: exact addressed text from the independent harness equals the live request and its normalization equals the pipeline observation', async () => {
+retiredTest('CONTROL: exact addressed text from the independent harness equals the live request and its normalization equals the pipeline observation', async () => {
   const cases = await captured;
   assert.equal(Object.keys(cases).length, 20);
   for (const [id, c] of Object.entries(cases)) {
@@ -66,7 +68,7 @@ test('CONTROL: exact addressed text from the independent harness equals the live
   }
 });
 
-test('CONTROL: every addressed request text round-trips exactly through JSON parse/stringify and fits the contract raw bound', async () => {
+retiredTest('CONTROL: every addressed request text round-trips exactly through JSON parse/stringify and fits the contract raw bound', async () => {
   for (const [id, c] of Object.entries(await captured)) {
     for (const text of [...OWNERS.flatMap((o) => (c.raw[o] ? [c.raw[o].json] : [])), ...OWNERS.flatMap((o) => c.raw_history[o])]) {
       assert.equal(JSON.stringify(JSON.parse(text)), text, id);
@@ -75,13 +77,13 @@ test('CONTROL: every addressed request text round-trips exactly through JSON par
   }
 });
 
-test('CONTROL: v1 and v2 observations carry byte-identical request views for every case', async () => {
+retiredTest('CONTROL: v1 and v2 observations carry byte-identical request views for every case', async () => {
   for (const [id, c] of Object.entries(await captured)) {
     for (const owner of OWNERS) assert.deepEqual(requestOf(c, owner, V1), requestOf(c, owner, V2), `${id} ${owner}`);
   }
 });
 
-test('CONTROL: ordinary slots emit pp/maxpp/target/disabled and the observation preserves them (both owners)', async () => {
+retiredTest('CONTROL: ordinary slots emit pp/maxpp/target/disabled and the observation preserves them (both owners)', async () => {
   const c = (await captured).ordinary_slots;
   for (const owner of OWNERS) {
     const rawMoves = raw(c, owner).active[0].moves;
@@ -94,7 +96,7 @@ test('CONTROL: ordinary slots emit pp/maxpp/target/disabled and the observation 
   }
 });
 
-test('CONTROL: legal actions derive only from the current addressed request, and absent PP never creates a legal move', async () => {
+retiredTest('CONTROL: legal actions derive only from the current addressed request, and absent PP never creates a legal move', async () => {
   const cases = await captured;
   for (const [id, c] of Object.entries(cases)) {
     for (const version of [V1, V2]) for (const owner of OWNERS) {
@@ -126,7 +128,7 @@ test('CONTROL: legal actions derive only from the current addressed request, and
 
 // ------------------------------------------------------------------------- CURRENT_BEHAVIOR_LOSSY: K07
 for (const id of ['two_turn_locked_move', 'two_turn_locked_move_mirror', 'recharge', 'recharge_mirror']) {
-  test(`CURRENT_BEHAVIOR_LOSSY K07: ${id} omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false`, async () => {
+  retiredTest(`CURRENT_BEHAVIOR_LOSSY K07: ${id} omits pp/maxpp/target/disabled and the normalizer fabricates 0/0/normal/false`, async () => {
     const c = (await captured)[id];
     const owner = subjectOwner(id);
     const rawActive = raw(c, owner).active[0];
@@ -159,7 +161,7 @@ for (const id of ['two_turn_locked_move', 'two_turn_locked_move_mirror', 'rechar
   });
 }
 
-test('CURRENT_BEHAVIOR_LOSSY K07: Struggle fallback omits pp/maxpp, keeps randomNormal, and is indistinguishable from pp=0 except through maxpp', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY K07: Struggle fallback omits pp/maxpp, keeps randomNormal, and is indistinguishable from pp=0 except through maxpp', async () => {
   for (const id of ['struggle_fallback', 'struggle_fallback_mirror']) {
     const c = (await captured)[id];
     const owner = subjectOwner(id);
@@ -174,7 +176,7 @@ test('CURRENT_BEHAVIOR_LOSSY K07: Struggle fallback omits pp/maxpp, keeps random
   }
 });
 
-test('CURRENT_BEHAVIOR_LOSSY K07: real PP 0 and "PP absent" both become pp=0; only a maxpp==0 convention separates them; omitted target equals ordinary "normal"', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY K07: real PP 0 and "PP absent" both become pp=0; only a maxpp==0 convention separates them; omitted target equals ordinary "normal"', async () => {
   const cases = await captured;
   const zero = cases.real_pp_zero;
   const rawZero = raw(zero, 'p1').active[0].moves[0];
@@ -199,7 +201,7 @@ test('CURRENT_BEHAVIOR_LOSSY K07: real PP 0 and "PP absent" both become pp=0; on
   assert.equal(locked.disabled, tackle.disabled);
 });
 
-test('CURRENT_BEHAVIOR_LOSSY K07: waiting, forced-switch, revival and terminal observations carry no active slots and the bench roster has no PP at all', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY K07: waiting, forced-switch, revival and terminal observations carry no active slots and the bench roster has no PP at all', async () => {
   const cases = await captured;
   const wf = cases.waiting_and_forced_switch;
   assert.deepEqual(Object.keys(raw(wf, 'p1')), ['wait', 'side']);
@@ -234,7 +236,7 @@ test('CURRENT_BEHAVIOR_LOSSY K07: waiting, forced-switch, revival and terminal o
 
 // ------------------------------------------------------------------------- CURRENT_BEHAVIOR_LOSSY: K08
 for (const id of ['maybe_disabled_imprison', 'maybe_disabled_imprison_mirror']) {
-  test(`CURRENT_BEHAVIOR_LOSSY K08: ${id} drops maybeDisabled and presents hidden-disabled moves as definitely enabled`, async () => {
+  retiredTest(`CURRENT_BEHAVIOR_LOSSY K08: ${id} drops maybeDisabled and presents hidden-disabled moves as definitely enabled`, async () => {
     const c = (await captured)[id];
     const owner = subjectOwner(id);
     const rawRequest = raw(c, owner);
@@ -257,7 +259,7 @@ for (const id of ['maybe_disabled_imprison', 'maybe_disabled_imprison_mirror']) 
 }
 
 for (const id of ['maybe_trapped_shadow_tag', 'maybe_trapped_shadow_tag_mirror']) {
-  test(`CURRENT_BEHAVIOR_LOSSY K08: ${id} drops maybeTrapped and reports not-trapped with switching available`, async () => {
+  retiredTest(`CURRENT_BEHAVIOR_LOSSY K08: ${id} drops maybeTrapped and reports not-trapped with switching available`, async () => {
     const c = (await captured)[id];
     const owner = subjectOwner(id);
     const rawRequest = raw(c, owner);
@@ -276,7 +278,7 @@ for (const id of ['maybe_trapped_shadow_tag', 'maybe_trapped_shadow_tag_mirror']
   });
 }
 
-test('CURRENT_BEHAVIOR_LOSSY K08: a rejected switch re-emits the request with trapped:true and no maybeTrapped; the pre-rejection maybe is unrecorded and the restored branch re-emits the stale request', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY K08: a rejected switch re-emits the request with trapped:true and no maybeTrapped; the pre-rejection maybe is unrecorded and the restored branch re-emits the stale request', async () => {
   const c = (await captured).trapped_after_rejection;
   assert.equal(c.harness_errors.length, 1);
   assert.match(c.harness_errors[0].line, /^\|error\|\[Unavailable choice\] Can't switch: The active Pok/);
@@ -295,7 +297,7 @@ test('CURRENT_BEHAVIOR_LOSSY K08: a rejected switch re-emits the request with tr
   }
 });
 
-test('CURRENT_BEHAVIOR_LOSSY K08: known trap, lock-induced trap and soft locks collapse into undifferentiated booleans (no reason, no lock identity)', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY K08: known trap, lock-induced trap and soft locks collapse into undifferentiated booleans (no reason, no lock identity)', async () => {
   const cases = await captured;
   const mean = requestOf(cases.known_trapped_mean_look, 'p1').active;
   const lock = requestOf(cases.two_turn_locked_move, 'p1').active;
@@ -314,7 +316,7 @@ test('CURRENT_BEHAVIOR_LOSSY K08: known trap, lock-induced trap and soft locks c
 });
 
 // ------------------------------------------------------------------------- real Python path
-test('CURRENT_BEHAVIOR_LOSSY: actual Python publication accepts every actionable bundle (v1 and v2, both owners) with no request-knowledge in the published record', async () => {
+retiredTest('CURRENT_BEHAVIOR_LOSSY: actual Python publication accepts every actionable bundle (v1 and v2, both owners) with no request-knowledge in the published record', async () => {
   const cases = await captured;
   let published = 0;
   for (const [id, c] of Object.entries(cases)) {

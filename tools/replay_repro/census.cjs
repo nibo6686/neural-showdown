@@ -7,6 +7,8 @@ const {main} = require('./index.cjs');
 
 if (!isMainThread) {
   main(workerData.directory,true,true,workerData.options).catch(error=>{console.error(error);process.exitCode=1;});
+} else if (require.main === module && process.argv.includes('--born')) {
+  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).catch(error=>{console.error(error);process.exitCode=1;});
 } else if (require.main === module) {
   const args=process.argv.slice(2), option=name=>args.find(a=>a.startsWith('--'+name+'='))?.slice(name.length+3);
   const directory=args.find(a=>!a.startsWith('--'));

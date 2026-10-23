@@ -1,3 +1,4 @@
+import {copyEngineSeed, type EngineSeed, type PlayerGenerationInputs} from './engine_seed';
 import { OwnedRequestHealthHost } from './owned_request_health';
 import { SimulationOnlyAuthorityError } from './simulation_authority';
 import { SwitchEventHost } from './owner_identity_events';
@@ -783,7 +784,7 @@ export class LocalBattleEnv {
   getReaderContext(): ReaderContext { return this.#runtimeProfile.reader; }
   readonly id: string;
   readonly format: string;
-  readonly seed: [number, number, number, number];
+  readonly seed: EngineSeed;
   readonly controllers: Record<PlayerID, ControllerSpec>;
 
   #requestTrace: RequestEmissionTrace | null = null;
@@ -809,7 +810,7 @@ export class LocalBattleEnv {
   constructor(
     id: string,
     format: string,
-    seed?: number[],
+    seed?: number[] | string,
     controllers?: Partial<Record<PlayerID, ControllerSpec>>,
     settlingOptions: SettlingOptions = {},
     originalCreation?: OriginalOwnerCreation,
@@ -818,6 +819,7 @@ export class LocalBattleEnv {
     runtimeProfile: NativeRuntimeProfile = installedNativeProfile(),
     switchEvents?: SwitchEventHost,
     requestHealth?: OwnedRequestHealthHost,
+    private readonly playerGeneration?: PlayerGenerationInputs,
   ) {
     assertNativeRuntimeProfile(runtimeProfile);
     this.#runtimeProfile = runtimeProfile;
@@ -830,7 +832,7 @@ export class LocalBattleEnv {
     if (nativeBirth) objectAssociation?.bindInitial(this);
     this.id = id;
     this.format = format;
-    this.seed = createSeed(seed);
+    this.seed = typeof seed === 'string' ? copyEngineSeed(seed) : createSeed(seed);
     this.controllers = {
       p1: controllers?.p1 || { controller: 'external' },
       p2: controllers?.p2 || { controller: 'external' },
@@ -868,7 +870,12 @@ export class LocalBattleEnv {
       this.initializeStreams();
       if (!this.streams) throw new Error('Battle streams failed to initialize.');
       const prepare = (owner: PlayerID, offset: number): string => {
-        const generated = Teams.generate(this.format, { seed: offsetSeed(this.seed, offset) });
+        let teamSeed = this.playerGeneration?.[owner].seed;
+        if (teamSeed === undefined) {
+          if (typeof this.seed === 'string') throw new Error('Native string seed requires explicit player seeds');
+          teamSeed = offsetSeed(this.seed, offset);
+        }
+        const generated = Teams.generate(this.format, {seed: teamSeed as any});
         const packingCopy = this.#originalCreation?.capture(this, owner, generated) ?? generated;
         const packed = Teams.pack(packingCopy);
         this.#originalCreation?.associate(this, owner, packed);
@@ -879,8 +886,8 @@ export class LocalBattleEnv {
 
       const payload = [
         `>start ${JSON.stringify({ formatid: this.format, seed: this.seed })}`,
-        `>player p1 ${JSON.stringify({ name: 'Agent-1', team: p1Team })}`,
-        `>player p2 ${JSON.stringify({ name: 'Agent-2', team: p2Team })}`,
+        `>player p1 ${JSON.stringify({ name: this.playerGeneration?.p1.name ?? 'Agent-1', team: p1Team })}`,
+        `>player p2 ${JSON.stringify({ name: this.playerGeneration?.p2.name ?? 'Agent-2', team: p2Team })}`,
       ].join('\n');
 
       await this.streams.omniscient.write(payload);
@@ -1648,7 +1655,7 @@ export class EnvironmentManager {
     if (
       request.snapshot.schema_version !== snapshot.schema_version
       || request.snapshot.format !== snapshot.format
-      || request.snapshot.root_seed.join(',') !== snapshot.root_seed.join(',')
+      || JSON.stringify(request.snapshot.root_seed) !== JSON.stringify(snapshot.root_seed)
       || request.snapshot.state_fingerprint !== snapshot.state_fingerprint
       || request.snapshot.parent_branch_id !== snapshot.parent_branch_id
       || request.snapshot.transition_id !== snapshot.transition_id

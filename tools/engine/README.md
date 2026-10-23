@@ -90,3 +90,58 @@ bound the predicate/search. The exported `findWitnessSeed(predicate, options)`
 also accepts team predicates (and receives the seed as its second argument).
 Native inventory regeneration includes the current local source digest, including
 `OBSERVABLE_STATE.md`; its historical semantic-review digest remains separate.
+
+## Authoritative replay sessions and the K differential
+
+`tools/replay_repro/replay_session.cjs` exports `replaySession(replay, options)`.
+It creates a real `PipelineIntegrationSession` from the native battle seed and
+both player team seeds. The pinned engine generates and enrolls the teams;
+creation uses neither a generation override nor an imported snapshot. Ordinary
+pipeline transitions retain their existing held-candidate restore mechanism.
+Native `sodium,<32 hex>` and `gen5,<16 hex>` seeds preserve their algorithm in
+snapshot lineage; legacy four-number seeds keep their existing representation.
+`player_generation` is an explicit pipeline creation option with each player's
+name and generator seed. These inputs grant no identity or knowledge authority.
+
+Each returned boundary has two addressed frames, each containing only that
+owner's observation, K projection and chosen canonical action (null for waiting,
+terminal or server-ended boundaries). `collect:false` avoids retaining frames;
+`onBoundary(frames)` supports a local streaming consumer. A move ID from an input
+log must resolve to exactly one current canonical action. A hard lock may resolve
+to the sole canonical default only when its sole emitted move ID agrees.
+
+The public oracle uses the reproduction tool's framing filter and exact native
+split alternatives. If an uploaded replay selected secret HP rather than shared
+HP, both records must be the alternatives of that same emitted split. Forfeits
+and inactivity stop at the prefix before the server-only message; no artificial
+terminal action is submitted. A divergent log fails the replay. Frames observed
+through the callback are tentative until the final oracle check succeeds and
+must not be published as an admitted episode before that result.
+
+```powershell
+node tools/replay_repro/index.cjs data/replays/corpus-2026-10-21 --born --kdiff --workers=6 --limit=500 --manifest=<temporary-pilot.jsonl>
+node tools/replay_repro/census.cjs data/replays/corpus-2026-10-21 --born --kdiff --workers=6
+```
+
+The born census reads only admitted rows from `admission.jsonl` (`--admitted`
+overrides this input); its separate default output is `born-admission.jsonl`.
+`--files` selects filenames from that admitted set. Workers continue after replay
+failures, retain exact reasons, and close when finished. `--replay-timeout-ms`
+(default 120000) bounds each worker task. Replays over 500 turns are explicitly
+skipped unless `NEURAL_LONG_TESTS=1`. Size an outer run deadline from the pilot.
+
+`--kdiff` compares all adopted registry rows with read-only native truth at each
+validated boundary. Original values use the enrolled original submission and
+native stat calculation; current values use the owner-bound live roster and
+native request-declared semantics (`baseStoredStats`, details, current ability,
+HP, status and fainting). Unknowns are counted without asserting a value.
+Known values where the registry requires unknown are mismatches. Truth stays
+outside frames and action selection. Per-row checks, unknowns, mismatches and
+bounded diagnostic examples include validated prefixes of failed replays; they
+are not a claim that those episodes completed. No datasets are written.
+
+W1.1 preserves the W3 non-direct switch authority guard. Its failures include
+source diagnostics such as `effect-switch:uturn`; source-kind battle counts are
+nonexclusive when one failed transition contains multiple kinds. The full born/K
+corpus gate resumes after the owner-requested switch-authority follow-up, before
+W1.2. The 500-replay pilot and remaining blockers are recorded in the scoreboard.

@@ -65,7 +65,8 @@ const rawOf = (r: StepResult, p: PlayerID) => r.requests[p]!.raw as Json;
 const choices = (r: StepResult, p: PlayerID) => r.requests[p]!.legal_actions.actions.map((a) => a?.choice ?? null);
 const override = (state: Json, requests: Json) => ({ ...state, [KEY]: { schema_version: SCHEMA, requests } });
 
-const trapEdit = (raw: Json): Json => { const r = structuredClone(raw); delete r.active[0].maybeTrapped; r.active[0].trapped = true; return r; };
+// Pinned sim/side.ts:522 emitRequest adds update:true when resending a rejected choice.
+const trapEdit = (raw: Json): Json => { const r = structuredClone(raw); delete r.active[0].maybeTrapped; r.active[0].trapped = true; r.update = true; return r; };
 const disableEdit = (raw: Json, index: number): Json => { const r = structuredClone(raw); r.active[0].moves[index].disabled = true; r.active[0].moves[index].disabledSource = ''; return r; };
 
 for (const owner of ['p1', 'p2'] as const) {

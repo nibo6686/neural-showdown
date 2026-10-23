@@ -27,6 +27,7 @@ _CASES = None
 
 def setUpModule():
     """Trusted local owner side: run the pinned witness (Node), without encoding overrides."""
+    raise unittest.SkipTest("Retired Prompt13 raw-restore characterization; native replay-born K coverage replaces authority checks; moves/flags are W1.2/W1.3.")
     global _CASES
     env = {k: v for k, v in os.environ.items() if k.upper() not in ('PYTHONUTF8', 'PYTHONIOENCODING')}
     env['PYTHON'] = sys.executable

@@ -148,9 +148,18 @@ function nativeOwnerStartingFacts(evidence: OriginalOwnerEvidence, runtime: Nati
   for (let i = 0; i < evidence.raw_team.length; i++) {
     const set = evidence.raw_team[i] as Record<string, any>, presence = evidence.field_presence[i], extra = evidence.non_submitted_fields[i];
     need(set && presence && extra && extra.unsupported.every(key => key === 'speciesId'), 'native-original/unsupported-field');
-    // Pinned gen9 generator writes speciesId from species.id; bookkeeping is not a fact/actor resolver.
-    if (Object.hasOwn(set, 'speciesId')) need(typeof set.speciesId === 'string'
-      && dex.species.get(set.species).exists === true && dex.species.get(set.species).id === set.speciesId, 'native-original/generator-species-id');
+    // randomSet writes speciesId before getForme selects a cosmetic submission.
+    // Enumerate that pinned method's sample domain without drawing or changing RNG.
+    if (Object.hasOwn(set, 'speciesId')) {
+      const source = dex.species.get(set.speciesId);
+      const getForme = require(runtime.package_root + '/dist/data/random-battles/gen9/teams').default.prototype.getForme;
+      const forms = new Set<string>(); let count = 1;
+      for (let index = 0; index < count; index++) forms.add(getForme.call({gen: 9,
+        format: dex.formats.get('gen9randombattle'), sample: (values: string[]) => {
+          count = Math.max(count, values.length); return values[index % values.length];
+        }}, source));
+      need(typeof set.speciesId === 'string' && source.exists && forms.has(set.species), 'native-original/generator-species-id');
+    }
     need(extra.generator_metadata.length === (Object.hasOwn(set, 'role') ? 1 : 0)
       && extra.generator_metadata.every(key => key === 'role') && (!Object.hasOwn(set, 'role') || typeof set.role === 'string' && set.role.length > 0), 'native-original/generator-metadata');
     for (const field of ['species', 'ability', 'item', 'moves']) need(presence[field] === 'present' && Object.hasOwn(set, field), 'native-original/missing-required-field');

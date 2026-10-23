@@ -1,3 +1,4 @@
+import {copyEngineSeed, isEngineSeed, type EngineSeed, type PlayerGenerationInputs} from './engine_seed';
 import { isDeepStrictEqual } from 'node:util';
 import { OwnedRequestHealthHost } from './owned_request_health';
 import { NativeOwnerKnowledgeController, type OwnerKnowledgeHandle, type OwnerKnowledgeRead } from './native_owner_knowledge';
@@ -139,7 +140,8 @@ export interface PipelineIntegrationOptions {
   settling?: SettlingOptions;
   battle_id: string;
   format: string;
-  seed: readonly number[];
+  seed: readonly number[] | string;
+  player_generation?: PlayerGenerationInputs;
 }
 
 function canonicalActionContext(request: Pick<ChoiceRequestView, 'player' | 'rqid' | 'force_switch' | 'legal_actions' | 'side'>): CanonicalActionRequestContext {
@@ -407,7 +409,8 @@ export class PipelineIntegrationSession {
   #selectionActive = false;
   #selectionPoisoned = false;
   #deliveryEnabled = false;
-  private readonly seed: number[];
+  private readonly seed: EngineSeed;
+  private readonly playerGeneration?: PlayerGenerationInputs;
   private environment: LocalBattleEnv;
   private snapshot: SeededBattleSnapshot | null;
   private rawPrefix: string[];
@@ -425,12 +428,21 @@ export class PipelineIntegrationSession {
     this.observationSchema = version;
     if (!options.battle_id.trim()) throw new PipelineIntegrationError('pipeline/v1/invalid-battle-id', 'battle_id must not be empty');
     if (!options.format.trim()) throw new PipelineIntegrationError('pipeline/v1/invalid-ruleset', 'format must not be empty');
-    if (options.seed.length !== 4 || options.seed.some((value) => !Number.isSafeInteger(value))) {
-      throw new PipelineIntegrationError('pipeline/v1/invalid-seed', 'seed must contain four safe integers');
+    if (!isEngineSeed(options.seed)) {
+      throw new PipelineIntegrationError('pipeline/v1/invalid-seed', 'seed must contain four safe integers or a canonical native PRNG string');
     }
     this.battle_id = options.battle_id;
     this.format = options.format;
-    this.seed = [...options.seed];
+    this.seed = copyEngineSeed(options.seed);
+    if (options.player_generation !== undefined) {
+      if (!options.player_generation || Object.keys(options.player_generation).sort().join(',') !== 'p1,p2') throw new Error('Invalid player generation inputs');
+      for (const owner of PLAYERS) {
+        const row = options.player_generation[owner];
+        if (!row || Object.keys(row).sort().join(',') !== 'name,seed'
+          || typeof row.name !== 'string' || !row.name || !isEngineSeed(row.seed)) throw new Error('Invalid player generation inputs');
+      }
+      this.playerGeneration = structuredClone(options.player_generation);
+    }
     this.settlingOptions = { ...options.settling };
     this.#originalCreation = new OriginalOwnerCreation({ battle_id: this.battle_id, format: this.format, simulator_revision: this.rulesContext.profile.revision });
     this.#ownerKnowledge = options.knowledge_recipients
@@ -1022,7 +1034,7 @@ export class PipelineIntegrationSession {
       suffix === 'initial' ? this.#nativeBirth : undefined,
       this.#objectAssociation,
       this.#runtimeProfile,
-      this.#switchEvents, this.#requestHealth,
+      this.#switchEvents, this.#requestHealth, this.playerGeneration,
     );
   }
 
