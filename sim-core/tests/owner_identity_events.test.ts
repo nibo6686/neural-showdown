@@ -9,6 +9,7 @@ import { PipelineIntegrationSession } from '../src/pipeline_integration';
 import { canonicalActionFromLegalAction } from '../src/canonical_action';
 import type { PlayerID } from '../src/types';
 const owners = ['p1', 'p2'] as const;
+const withoutTimestamps = (lines: readonly string[]) => lines.filter(line => !line.startsWith('|t:|'));
 const options = { battle_id: 'P45', format: 'gen9randombattle', seed: [1, 2, 3, 4] };
 const env = (s: PipelineIntegrationSession): LocalBattleEnv => (s as any).environment;
 const native = (s: PipelineIntegrationSession): Battle => (env(s) as any).battleStream.battle;
@@ -45,10 +46,11 @@ test('P45 generated creation restore and plain parity', async () => {
     }
     control = new Battle({ formatid: options.format, seed: '1,2,3,4' });
     for (const [i, owner] of owners.entries()) control.setPlayer(owner, { name: owner === 'p1' ? 'Agent-1' : 'Agent-2', team: originals[i].packed_team });
-    assert.deepEqual(birthBattle.log, control.log);
+    assert.deepEqual(withoutTimestamps(birthBattle.log), withoutTimestamps(control.log));
     const raw = birthEnv.serializeBattle();
     assert.equal(types.isProxy(raw.log), false); assert.notEqual(raw.log, birthBattle.log);
-    assert.deepEqual(raw.log, control.log); assert.deepEqual(raw, structuredClone(raw));
+    assert.ok(Array.isArray(raw.log));
+    assert.deepEqual(withoutTimestamps(raw.log), withoutTimestamps(control.log)); assert.deepEqual(raw, structuredClone(raw));
     assert.equal((raw as any).sides[0].pokemon[0].set, birthBattle.p1!.pokemon[0].set);
     assert.equal(JSON.stringify(raw), JSON.stringify(birthBattle.toJSON()));
     // Lower-level post-send stimulus: a held snapshot must not inherit later leaf invalidation.

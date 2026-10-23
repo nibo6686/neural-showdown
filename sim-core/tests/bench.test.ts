@@ -118,3 +118,25 @@ test('bench: advertised trapping seed completes without speculative rejections',
   const games = await runMatchup('greedy', 'random', seeds.slice(97, 98));
   assert.ok(games.every(g => g.record.rejected_choices === 0 && g.record.errors.length === 0));
 });
+
+
+test('bench CLI without --publish leaves the scoreboard byte-identical', {timeout:60000}, async()=>{
+  const {execFile}=await import('node:child_process');
+  const {promisify}=await import('node:util');
+  const os=await import('node:os');
+  const root=path.resolve(__dirname,'../../..'), scoreboard=path.join(root,'docs/roadmap/benchmarks.md');
+  const before=fs.readFileSync(scoreboard), temp=fs.mkdtempSync(path.join(os.tmpdir(),'p06a-bench-'));
+  try {
+    await promisify(execFile)(process.execPath,['tools/bench/index.cjs','--pairs=1','--output='+path.join(temp,'result.json')],{cwd:root,timeout:55000});
+    assert.deepEqual(fs.readFileSync(scoreboard),before);
+    const result=JSON.parse(fs.readFileSync(path.join(temp,'result.json'),'utf8'));
+    assert.equal(result.matchups.length,3);assert.deepEqual(result.errors,[]);
+  } finally {fs.rmSync(temp,{recursive:true,force:true});}
+});
+
+
+test('bench: paired seed 468 survives the source-qualified Magician item transfer', {timeout:15000},async()=>{
+  const games=await runMatchup('greedy','heuristic',seeds.slice(468,469));
+  assert.equal(games.length,2);
+  assert.ok(games.every(g=>g.record.illegal_choices===0&&g.record.rejected_choices===0&&g.record.errors.length===0));
+});

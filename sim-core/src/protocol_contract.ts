@@ -20,6 +20,7 @@ export interface ProtocolContract {
     major_status: {
       ids: string[];
       active_target: 'canonical-singles-active';
+      bench_cure_tags?: string[];
       bare_commands: string[];
       apply_forms: Array<{tags: string[]; statuses?: string[]}>;
       cure_forms: Array<{tags: string[]; statuses?: string[]}>;
@@ -64,7 +65,8 @@ export interface ProtocolContract {
     trapped_activation: { token: '-activate'; target_role: 'active'; effect: 'trapped'; payload_fields: number };
     singleturn: { untagged_effects: string[]; tagged_forms: Array<{ effect: string; tag: string; tag_value: string; ident_role?: 'active' | 'side-or-active' }> };
     singlemove: { forms: string[][] };
-    anim: { forms: string[][]; actor_role: 'active'; target_role: 'active' };
+    teampreview?: {team_sizes: number[]};
+    anim: { forms: string[][]; optional_tags?: string[]; no_target_tag?: string; actor_role: 'active'; target_role: 'active' };
     tier: { payload_fields: number; label: string };
     bigerror: { auto_tie: string; turns_left_values: number[] };
   };

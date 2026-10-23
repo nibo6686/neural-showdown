@@ -912,18 +912,21 @@ def _item_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
     for form in forms:
         expected = form["tags"]
         if len(expected) == len(tags) and all(
-            tag == actual or tag == "[of] opposing-active"
+            tag == actual or tag in ("[of] opposing-active", "[of] self-active", "[of] opposing-pokemon")
             for tag, actual in zip(expected, tags)
         ):
             matching = form
             break
     if matching is None or ("payloads" in matching and item not in matching["payloads"]):
         _malformed(command, "unsupported item source grammar")
-    if "[of] opposing-active" in matching["tags"]:
-        tag = tags[matching["tags"].index("[of] opposing-active")]
+    if "[of] self-active" in matching["tags"] and tags[matching["tags"].index("[of] self-active")] != "[of] " + actor:
+        _malformed(command, "source must be the donor itself")
+    of_role=next((tag for tag in matching["tags"] if tag in ("[of] opposing-active","[of] opposing-pokemon")),None)
+    if of_role:
+        tag = tags[matching["tags"].index(of_role)]
         prefix = "[of] "
         source = tag[len(prefix):] if tag.startswith(prefix) else ""
-        if (not _is_player_ident(source, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", source)
+        if (not _is_player_ident(source, reader_rules=reader_rules) or not re.match(r"^p[12](?:a)?: " if of_role=="[of] opposing-pokemon" else r"^p[12]a: ", source)
                 or source[:2] == actor[:2]):
             _malformed(command, "source must be an opposing Gen 9 singles active ident")
 
@@ -934,11 +937,14 @@ def _major_status_event(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
     if len(parts) < 4:
         _malformed(command)
     target = parts[2]
-    if not _is_player_ident(target, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", target):
+    bench_cure = (command == '-curestatus' and re.match(r'^p[12]: ', target) and _is_player_ident(target, reader_rules=reader_rules)
+                  and len(parts) == 5 and parts[4] in rules.get('bench_cure_tags', ()))
+    if not bench_cure and (not _is_player_ident(target, active_required=True, reader_rules=reader_rules) or not re.match(r"^p[12]a: ", target)):
         _malformed(command, "target must be a Gen 9 singles active ident")
     status = parts[3]
     if status not in rules["ids"]:
         _malformed(command, "unsupported major status")
+    if bench_cure: return
     tags = parts[4:]
     if command in rules["bare_commands"]:
         if tags:
@@ -1055,6 +1061,7 @@ def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
     if _court_change_record(parts, command, reader_rules=reader_rules):
         return
 
+    if command == 'teampreview' and len(parts) == 3 and parts[2] in [str(n) for n in reader_context(reader_rules).protocol['validation_rules'].get('teampreview', {}).get('team_sizes', ())]: return
     if command in {
         "clearallboost", "-clearallboost",
         "teampreview", "clearpoke", "done", "upkeep", "start", "end", "-nothing",
@@ -1152,12 +1159,19 @@ def _shape(parts, command, *, reader_rules=HISTORICAL10_CONTEXT):
             _malformed(command, "unsupported copy grammar")
         ident(); _ident(parts, 3, command, reader_rules=reader_rules)
     elif command == "-anim":
-        if len(parts) != 5 or (parts[3],) not in reader_context(reader_rules).protocol["validation_rules"]["anim"]["forms"]:
+        rule=reader_context(reader_rules).protocol['validation_rules']['anim']
+        no_target=len(parts)>5 and rule.get('no_target_tag') is not None and parts[5]==rule['no_target_tag']
+        if not (len(parts)==5 or len(parts)==6 and (no_target or parts[5] in rule.get('optional_tags', ()))) or (parts[3],) not in rule['forms']:
             _malformed(command, "unsupported animation grammar")
-        ident(); _ident(parts, 4, command, reader_rules=reader_rules)
-        actor_side, target_side = parts[2].split(": ", 1)[0], parts[4].split(": ", 1)[0]
-        if actor_side not in ("p1a", "p2a") or target_side not in ("p1a", "p2a") or actor_side == target_side:
-            _malformed(command, "source and target must be opposing Gen 9 singles active identifiers")
+        ident()
+        if no_target:
+            if not re.match(r'^p[12]a: ',parts[2]) or not re.match(r'^p[12]: ',parts[4]) or not _is_player_ident(parts[4],reader_rules=reader_rules) or parts[2][:2]==parts[4][:2]:
+                _malformed(command,'invalid no-target roles')
+        else:
+            _ident(parts, 4, command, reader_rules=reader_rules)
+            actor_side, target_side = parts[2].split(": ", 1)[0], parts[4].split(": ", 1)[0]
+            if actor_side not in ("p1a", "p2a") or target_side not in ("p1a", "p2a") or actor_side == target_side:
+                _malformed(command, "source and target must be opposing Gen 9 singles active identifiers")
     elif command == "-hint":
         at_least(3); _field(parts, 2, command, "message"); _repeat_use_hint_dependency(parts, command, reader_rules=reader_rules)
     elif command == "poke":

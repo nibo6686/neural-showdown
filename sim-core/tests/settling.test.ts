@@ -134,7 +134,8 @@ test('real simulator decision is not published until delayed spectator delivery 
     SettlingBarrier.prototype.acknowledge = original;
     for (const item of held) original.call(item.barrier, item.consumer);
     const actual = await reset;
-    assert.deepEqual(actual.log_delta, expected.log_delta);
+    assert.deepEqual(actual.log_delta.filter(line => !line.startsWith('|t:|')),
+      expected.log_delta.filter(line => !line.startsWith('|t:|')));
     assert.deepEqual(actual.requests, expected.requests);
     assert.equal(env.captureSeededSnapshot().state_fingerprint, control.captureSeededSnapshot().state_fingerprint);
     assert.equal(c.timers.size, 0);

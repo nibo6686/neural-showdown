@@ -6,6 +6,7 @@ const {runMatchup, summarize, BenchRunError} = require('../../sim-core/dist/src/
 const {NATIVE_ENGINE_COMMIT: ENGINE_COMMIT} = require('../../sim-core/dist/src/version_profile');
 const root = path.resolve(__dirname, '../..');
 const args = Object.fromEntries(process.argv.slice(2).map(arg => {
+  if (arg === '--publish') return ['publish', true];
   const match = /^--(pairs|output|matchup)=(.+)$/.exec(arg);
   if (!match) throw new Error(`Unknown argument: ${arg}`);
   return [match[1], match[2]];
@@ -42,7 +43,10 @@ function report() {
     'Random and heuristic adapt the existing baselines. Greedy maximizes accuracy-weighted mean calculator damage, never Terastallizes, and selects the first legal reserve only when required. Calculator guesses for unknown stats/items/abilities are explicit neutral scoring hypotheses, never added to observations. Public details without an L token mean level 100 in the pinned engine.', '',
     result.assumptions.legality, '', result.assumptions.intervals, '',
     'No model/search tuning. This measures playing strength independently of knowledge coverage. Legacy Python checkpoints need a subprocess/legacy-feature adapter and parity validation (estimate: 1–2 engineering days); deferred.', ''].join('\n');
-  fs.writeFileSync(path.join(root, 'docs/roadmap/benchmarks.md'), text);
+  const destination = path.join(root, 'docs/roadmap/benchmarks.md');
+  const prior = fs.readFileSync(destination, 'utf8');
+  const corpus = prior.indexOf('## Corpus');
+  fs.writeFileSync(destination, text + (corpus >= 0 ? '\n' + prior.slice(corpus) : ''));
 }
 save();
 (async () => {
@@ -62,6 +66,6 @@ save();
     if (error instanceof BenchRunError) result.failed_game = error.game;
     process.exitCode = 1;
   } finally {result.wall_time_seconds = (performance.now() - started) / 1000; save();
-    if (!result.errors.length && result.matchups.length === 3) report();
+    if (!result.errors.length && result.matchups.length === 3 && args.publish) report();
   }
 })();

@@ -8,6 +8,11 @@ def _ident(value):
     return re.sub(r"^(p[12])a: ", r"\1: ", value)
 
 
+def magician_donor(parts):
+    """Public Magician transfer: the source emitter has no donor end-item row."""
+    return parts[5][5:] if len(parts)==6 and parts[1]=='-item' and parts[4]=='[from] ability: Magician' and parts[5].startswith('[of] ') else None
+
+
 def _condition(value):
     parts = value.split(" ")
     hp = parts[0]

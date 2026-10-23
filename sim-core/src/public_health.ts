@@ -5,6 +5,12 @@ import {serializeCanonicalAction, type CanonicalAction} from './canonical_action
 export type Row = Record<string, unknown>;
 type Health = {hp_text?: string; hp_ratio?: number; fainted?: boolean; status?: string | null; active?: boolean};
 
+/** The Magician emitter announces a transfer without a separate donor end-item row. */
+export function magicianDonor(parts: readonly string[]): string | undefined {
+  return parts.length===6 && parts[1]==='-item' && parts[4]==='[from] ability: Magician'
+    && parts[5].startsWith('[of] ') ? parts[5].slice(5) : undefined;
+}
+
 function condition(value: string): Health {
   const [hp, status] = value.split(' ');
   const [numerator, denominator] = hp.split('/').map(Number);
@@ -136,6 +142,15 @@ export function carryTerminalOwner(context: TerminalOwnerContinuity, successor: 
     const target = ident(parts[2] || '');
     if (['switch', 'drag', 'replace'].includes(parts[1]) && target.slice(0, 2) === perspective) {currentAppearance = target; currentActual = actual;}
     const bound = target === currentAppearance ? currentActual : target;
+    const donor=magicianDonor(parts);
+    if(donor) {
+      const publicDonor=ident(donor), boundDonor=publicDonor===currentAppearance?currentActual:publicDonor;
+      if(boundDonor.slice(0,2)===perspective) {
+        items[boundDonor]=null;
+        history[boundDonor]={last_item:parts[3].toLowerCase().replace(/[^a-z0-9]/g,''),item_state:'removed'};
+      }
+    }
+
     if (bound.slice(0, 2) === perspective) {
       if (['-item', 'item'].includes(parts[1])) {items[bound] = parts[3].toLowerCase().replace(/[^a-z0-9]/g, ''); if (history[bound]) history[bound].item_state = 'held';}
       if (['-enditem', 'enditem'].includes(parts[1])) {

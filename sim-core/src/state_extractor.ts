@@ -1,3 +1,4 @@
+import {magicianDonor} from './public_health';
 import { helperContext as readerContext, runtimeData, assertReaderInput, HISTORICAL10_CONTEXT, type ReaderContext } from './version_profile';
 import { abilityEffectiveness, publicGasSources, publicTraceAbilities, publicRevealedAbilities, preservesOwnedAbilityForForm } from './public_ability';
 import {projectPublicOwnedItemHistory, ambiguousOwnedItemTargets} from './public_item';
@@ -713,15 +714,16 @@ export class PlayerStateExtractor {
     pokemon.details = details || pokemon.details;
     pokemon.hp_text = parsedCondition.hpText ?? pokemon.hp_text;
     pokemon.hp_ratio = parsedCondition.hpRatio ?? pokemon.hp_ratio;
-    // `getHealth()` includes the current major status in every emitted HP
-    // condition. Do not preserve an earlier status when this public condition
-    // has none: that would turn a known clear into stale typed state.
-    if (pokemon.status !== parsedCondition.status) {
-      pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
-      pokemon.status_turns_public = null;
+    // Illusion.onEnd emits details without health. Only a supplied condition
+    // can replace the appearance's already public major status.
+    if (parts.length > 4) {
+      if (pokemon.status !== parsedCondition.status) {
+        pokemon.status_started_turn = parsedCondition.status ? this.view.turn : null;
+        pokemon.status_turns_public = null;
+      }
+      pokemon.status = parsedCondition.status;
+      pokemon.status_source = 'protocol';
     }
-    pokemon.status = parsedCondition.status;
-    pokemon.status_source = 'protocol';
     pokemon.base_species = pokemon.species;
     pokemon.current_species = pokemon.species;
     pokemon.displayed_species = displayed;
@@ -1119,6 +1121,13 @@ export class PlayerStateExtractor {
     } else {
       pokemon.item = item || pokemon.item;
       pokemon.item_state = 'held';
+      const donorIdent=magicianDonor(parts);
+      if(donorIdent) {
+        const donorPlayer=parseIdent(donorIdent).player;
+        const donorTeam=donorPlayer===this.player?this.view.self_team:this.view.opponent_team;
+        const donor=this.findOrCreatePokemon(donorTeam,donorIdent,'');
+        donor.last_item=item;donor.item=null;donor.item_state='removed';
+      }
     }
   }
 

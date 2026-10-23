@@ -1,5 +1,5 @@
 import { publicTeamIdent as ident } from './typed_state_lifecycle';
-import { ownedAppearance as ownedAppearanceForItems, boundOwnedTarget, terminalOwnedItems, terminalOwnedItemHistory, terminalOwnedRequests, type Row } from './public_health';
+import { magicianDonor, ownedAppearance as ownedAppearanceForItems, boundOwnedTarget, terminalOwnedItems, terminalOwnedItemHistory, terminalOwnedRequests, type Row } from './public_health';
 
 /** null = established absence; empty name = presence only; missing key = unknown. */
 export function projectPublicItems(prefix: readonly string[]): Record<string, string | null> {
@@ -10,6 +10,7 @@ export function projectPublicItems(prefix: readonly string[]): Record<string, st
     const parts = line.split('|');
     const command = parts[1], target = ident(parts[2] || ''), side = target.slice(0, 2);
     if (!/^p[12]: .+/.test(target)) continue;
+    const donor=magicianDonor(parts);if(donor)items[ident(donor)]=null;
     if (command === 'switch' || command === 'drag') {
       prior[side] = {target, item: items[target]};
       active[side] = target;
@@ -40,6 +41,7 @@ export function ambiguousOwnedItemTargets(prefix: readonly string[], perspective
   let appearance: string | undefined, writer = false, revealed = false;
   for (const line of prefix) {
     const parts = line.split('|'), target = ident(parts[2] || '');
+    const donor=magicianDonor(parts);if(donor && ident(donor)===appearance)writer=true;
     if (target.slice(0, 2) !== perspective) continue;
     if (['switch', 'drag'].includes(parts[1])) {
       if (appearance && writer && !revealed) ambiguous.add(appearance);
@@ -128,6 +130,7 @@ export function projectPublicItemDispositions(prefix: readonly string[]): Record
   for (const line of prefix) {
     const parts = line.split('|'), target = ident(parts[2] || ''), side = target.slice(0, 2);
     if (!/^p[12]: .+/.test(target)) continue;
+    const donor=magicianDonor(parts);if(donor)states[ident(donor)]={item_state:'removed',last_item:parts[3].toLowerCase().replace(/[^a-z0-9]/g,'')};
     if (parts[1] === 'switch' || parts[1] === 'drag') {
       prior[side] = states[target]; active[side] = target; delete states[target];
     } else if (parts[1] === 'replace') {
@@ -153,10 +156,17 @@ function replayPublicItemHistory(prefix: readonly string[], ambiguousCarriers = 
   const history: Record<string, {item_state: string; last_item: string}> = {};
   const active: Record<string, string> = {}, touched: Record<string, boolean> = {}, prior: Record<string, typeof history[string] | undefined> = {};
   const revealed: Record<string, boolean> = {};
-  if (!prefix.some((line) => line.startsWith('|-enditem|') || line.startsWith('|enditem|'))) return {history, active, touched, prior};
+  if (!prefix.some((line) => line.startsWith('|-enditem|') || line.startsWith('|enditem|') || magicianDonor(line.split('|'))!==undefined)) return {history, active, touched, prior};
   for (const line of prefix) {
     const parts = line.split('|'), target = ident(parts[2] || ''), side = target.slice(0, 2);
     if (!/^p[12]: .+/.test(target)) continue;
+    const donor=magicianDonor(parts);
+    if(donor) {
+      const targetDonor=ident(donor),donorSide=targetDonor.slice(0,2);
+      history[targetDonor]={item_state:'removed',last_item:parts[3].toLowerCase().replace(/[^a-z0-9]/g,'')};
+      if(active[donorSide]===targetDonor)touched[donorSide]=true;
+    }
+
     if (['switch', 'drag'].includes(parts[1])) {
       const departed = active[side];
       if (ambiguousCarriers && departed && touched[side] && !revealed[side]) {

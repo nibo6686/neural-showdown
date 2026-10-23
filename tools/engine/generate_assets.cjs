@@ -55,6 +55,32 @@ const itemRules = contract.protocol.validation_rules.item;
 itemRules.payloads = [...new Set([...itemRules.payloads,...selectedItems.filter(name=>!dex.items.get(name).isNonstandard),
   ...Object.keys(sets).map(name=>dex.species.get(name)).flatMap(s=>s.requiredItems || (s.requiredItem?[s.requiredItem]:[])).filter(name=>!dex.items.get(name).isNonstandard)])].sort();
 itemRules.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:itemRules.payloads.filter(name=>dex.items.get(name).isBerry)});
+// Exact native emitter forms: abilities.ts Pickpocket, pokemon.ts cureStatus,
+// conditions.ts slp.onStart, items.ts Power Herb, battle.ts attrLastMove/makeRequest.
+const abilitiesSource = fs.readFileSync(path.join(engine,'data/abilities.ts'),'utf8');
+if (!abilitiesSource.includes("this.add('-enditem', source, yourItem, '[silent]', '[from] ability: Pickpocket', `[of] ${source}`)")) throw new Error('Pickpocket emitter changed');
+itemRules.dash_enditem_forms.push({tags:['[silent]','[from] ability: Pickpocket','[of] self-active']});
+itemRules.dash_item_forms.push({tags:['[from] ability: Pickpocket','[of] opposing-active']});
+if(!abilitiesSource.includes("this.add('-item', source, yourItem, '[from] ability: Magician', `[of] ${pokemon}`)"))throw new Error('Magician emitter changed');
+itemRules.dash_item_forms.push({tags:['[from] ability: Magician','[of] opposing-pokemon']});
+const movesSource=fs.readFileSync(path.join(engine,'data/moves.ts'),'utf8');
+for(const label of [...new Set([...movesSource.matchAll(/this\.add\('-enditem', target, item\.name, '\[from\] stealeat', '\[move\] ([^']+)'/g)].map(m=>m[1]))].sort()) {
+  itemRules.dash_enditem_forms.push({tags:['[from] stealeat','[move] '+label,'[of] opposing-active'],payloads:itemRules.payloads.filter(name=>dex.items.get(name).isBerry)});
+}
+contract.protocol.validation_rules.ability.payload_domains.dash_boost=[...new Set([...contract.protocol.validation_rules.ability.payload_domains.dash_boost,
+  ...dex.abilities.all().filter(a=>!a.isNonstandard&&a.gen<=9&&Object.values(a).some(v=>typeof v==='function'&&/this\.boost\(/.test(v.toString()))).map(a=>a.name)])].sort();
+const statusRules = contract.protocol.validation_rules.major_status;
+statusRules.bench_cure_tags = ['[msg]','[silent]'];
+for (const move of dex.moves.all().filter(move=>move.status==='slp'||move.secondary?.status==='slp'||move.secondaries?.some(s=>s.status==='slp')).sort((a,b)=>a.name.localeCompare(b.name))) {
+  const tags=['[from] move: '+move.name];
+  if (!statusRules.apply_forms.some(form=>JSON.stringify(form.tags)===JSON.stringify(tags))) statusRules.apply_forms.push({tags,statuses:['slp']});
+}
+contract.protocol.validation_rules.anim.optional_tags = ['[miss]'];
+contract.protocol.validation_rules.anim.no_target_tag = '[notarget]';
+const formatsSource=fs.readFileSync(path.join(engine,'dist/sim/dex-formats.js'),'utf8');
+const maxTeamSize=Number(/if \(this\.maxTeamSize > (\d+)\)/.exec(formatsSource)?.[1]);
+if(!maxTeamSize)throw new Error('Missing source team size limit');
+contract.protocol.validation_rules.teampreview = {team_sizes:Array.from({length:maxTeamSize},(_,i)=>i+1)};
 contract.protocol.validation_rules.partial_trap = {move_names: [...new Set(dex.moves.all()
   .filter(move=>move.volatileStatus==='partiallytrapped').map(move=>move.name))].sort()};
 const restored = new Set(['-start','-end','-sidestart','-sideend','-weather','-fieldstart','-fieldend','cant','heal','-swapsideconditions']);
@@ -82,5 +108,7 @@ for (const token of restored) {
 }
 contract.protocol.rejection_fixtures = contract.protocol.rejection_fixtures.filter(e=>!(e.kind==='unproved_semantic_family'&&e.record.startsWith('|-heal|')));
 contract.protocol.rejection_fixtures.push({record:'|-swapsideconditions',kind:'unproved_semantic_family'});
+contract.semantic_dispositions.magician='finite-public-item-transfer; current item and removal history only';
+for(const fixture of contract.protocol.rejection_fixtures)if(fixture.record.includes('[from] ability: Magician')) {fixture.record='|-item|p1a: Gardevoir|Leftovers|[from] ability: Magician|[of] p1a: Blissey';fixture.kind='malformed';}
 write(`trainer/src/neural/protocol_contract_${commit.slice(0, 8)}.json`, contract);
 console.log('abilities_sha256=' + contract.provenance.target_abilities_sha256);

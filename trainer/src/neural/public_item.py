@@ -1,6 +1,6 @@
 """Ordered public item possession; missing target is unknown, None is absent."""
 import re
-from .public_health import bound_owned_target, terminal_owner
+from .public_health import bound_owned_target, terminal_owner, magician_donor
 
 
 def _ident(value):
@@ -17,6 +17,8 @@ def project_public_items(prefix):
         if not re.match(r"^p[12]: .+", target):
             continue
         side = target[:2]
+        donor=magician_donor(parts)
+        if donor:items[_ident(donor)]=None
         if command in ("switch", "drag"):
             prior[side] = (target, target in items, items.get(target))
             active[side] = target
@@ -50,6 +52,8 @@ def ambiguous_owned_item_targets(prefix, perspective, owners):
         parts = line.split("|")
         if len(parts) < 3: continue
         target = _ident(parts[2])
+        donor=magician_donor(parts)
+        if donor and _ident(donor)==appearance:writer=True
         if target[:2] != perspective: continue
         if parts[1] in ("switch", "drag"):
             if appearance and writer and not revealed: ambiguous.add(appearance)
@@ -152,6 +156,13 @@ def validate_public_items(observation, predecessor=None):
             if parts[1] in ("switch", "drag", "replace") and target[:2] == perspective:
                 current_appearance = target; current_actual = authority[1]
             bound = current_actual if target == current_appearance else target
+            donor=magician_donor(parts)
+            if donor:
+                public_donor=_ident(donor);bound_donor=current_actual if public_donor==current_appearance else public_donor
+                if bound_donor[:2]==perspective:
+                    expected_items[bound_donor]=None
+                    expected_history[bound_donor]={'last_item':re.sub(r'[^a-z0-9]','',parts[3].lower()),'item_state':'removed'}
+
             if bound[:2] == perspective:
                 if parts[1] in ("-item", "item"):
                     expected_items[bound] = re.sub(r"[^a-z0-9]", "", parts[3].lower())
@@ -189,6 +200,8 @@ def project_public_item_dispositions(prefix):
         command, target = parts[1], _ident(parts[2])
         if not re.match(r"^p[12]: .+", target): continue
         side = target[:2]
+        donor=magician_donor(parts)
+        if donor:states[_ident(donor)]={'item_state':'removed','last_item':re.sub(r'[^a-z0-9]','',parts[3].lower())}
         if command in ("switch", "drag"):
             prior[side] = states.get(target)
             active[side] = target
@@ -213,7 +226,7 @@ def project_public_item_dispositions(prefix):
 def _replay_public_item_history(prefix, ambiguous_carriers=False):
     """Historical end-item assertions never infer current possession after a switch."""
     history, active, touched, prior, revealed = {}, {}, {}, {}, {}
-    if not any(line.startswith(("|-enditem|", "|enditem|")) for line in prefix):
+    if not any(line.startswith(("|-enditem|", "|enditem|")) or magician_donor(line.split("|")) for line in prefix):
         return history, active, touched, prior
     for line in prefix:
         parts = line.split("|")
@@ -222,6 +235,11 @@ def _replay_public_item_history(prefix, ambiguous_carriers=False):
         target = _ident(parts[2]); side = target[:2]
         if not re.match(r"^p[12]: .+", target):
             continue
+        donor=magician_donor(parts)
+        if donor:
+            target_donor=_ident(donor);donor_side=target_donor[:2]
+            history[target_donor]={'item_state':'removed','last_item':re.sub(r'[^a-z0-9]','',parts[3].lower())}
+            if active.get(donor_side)==target_donor:touched[donor_side]=True
         if parts[1] in ("switch", "drag"):
             departed = active.get(side)
             if ambiguous_carriers and departed and touched.get(side) and not revealed.get(side):

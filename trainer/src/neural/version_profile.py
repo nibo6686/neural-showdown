@@ -218,7 +218,7 @@ def load_inactive_target_inventory(path=None):
 class ProtocolRulesContext(NamedTuple):
     protocol: Mapping
 
-_TARGET_PROTOCOL_SHA256 = '6b822f2fed433e507543f30dc71c3b26762d9ae674c86d2237ce202d03c9c802'
+_TARGET_PROTOCOL_SHA256 = '9dd6c03f3fde6d5659c788aa1b4ec79ed48b4434008a799a68d0992fffd471da'
 _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
 def load_prepared_protocol_asset(profile, path=None):
     if profile == 'native11': name, pin = 'protocol_contract_b8f23c99.json', _TARGET_PROTOCOL_SHA256
@@ -312,12 +312,12 @@ def assert_prepared_protocol_policy(record, context):
               'court-change' if command in ('-swapsideconditions', 'swapsideconditions') or command == '-activate' and effect == 'move: Court Change' else
               'chilly-reception' if context is REPLAY_COMPAT_CONTEXT and command == '-prepare' and effect == 'Chilly Reception' else
               'partial-trap' if context is REPLAY_COMPAT_CONTEXT and command == '-damage' and '[partiallytrapped]' in p else
-              'magician' if command in ('-item', 'item') and '[from] ability: Magician' in p else
+              'magician' if context is REPLAY_COMPAT_CONTEXT and command in ('-item', 'item') and '[from] ability: Magician' in p else
               'ability-setter' if command == '-activate' and effect in ('ability: Mummy', 'ability: Lingering Aroma') or command == '-ability' and len(p) > 5 and '[from] ability: Trace' not in p else None)
     if family: _fail('prepared-family-unsupported/' + family)
 
 # Candidate-only fixed runtime reader. No source authority or positive fidelity scope.
-_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', '9ed202da1829412fe897c9787aa05a83927dc3a33132310c6d99609bac3fb3a2')
+_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', '45ad5117b74826190a3760a39a76f4525ed87036d5cdba974290038275965380')
 NATIVE11_CONTEXT = ReaderContext(NATIVE11, _target_protocol_asset['protocol'], _target_inventory,
     _freeze({e['id']: e for e in (*_target_inventory['condition_inventory'], *_target_inventory['effect_discovery']['additional_entries'])}),
     _freeze({(e['family'],e['id']): e for e in _target_inventory['public_typed_state_lifecycle']['entries']}))

@@ -36,22 +36,47 @@ node tools/replay_repro/index.cjs --extract data/replays/probe-2026-10-16
 node tools/replay_repro/index.cjs --diff data/replays/probe-2026-10-16
 ```
 
-The command emits one JSON result per replay plus exact-match totals, excludes `impulse-*` and acquisition summaries, and fails on mismatches, invalid input, or a foreign engine version. Forfeit/inactivity results compare the prefix before the server-only ending message. No replay download is performed.
+Admission requires exact public reproduction on the pinned engine. The replay's
+single server `>version` is retained as provenance and may differ from the local
+commit. Only the input-command allowlist is accepted; `>eval` stays forbidden.
+Forfeit/inactivity results compare the prefix before the server-only ending.
+No replay download is performed.
 
-`--extract` reproduces each input in a fresh simulation-only environment and
-feeds the full addressed streams to both owner extractors. It groups failures
-by command, effect ID and message, and exits nonzero for any failure. Continued
-scanning after rejection is diagnostic only: no partially accepted view or
-dataset row is returned. Unrelated grammar failures remain visible.
+Each replay gets an outcome, including divergence, invalid input, extraction
+failures and public-state diffs; a rejected replay never aborts the batch.
+`rom-*`, `impulse-*` and `smogtours-*` are skipped with a side-server reason.
+Custom rules or a different format fall outside the native Gen 9 Random Battle
+contract. Court Change remains an explicit W6 exclusion. Native Magician transfers retain
+both receiver possession and named donor removal history. Other extraction failures retain their exact records and messages.
+Acquisition summaries are not replay records.
 
-`--diff` settles both owner streams and the public fan-out after each input command,
-then compares both views at pending decision boundaries with read-only simulator
-truth. It checks typed public side layers, field effects, Substitute, public
-boost/status evidence, exact owned HP and rounded opposing HP. Raw-only volatile
-lifecycles and internal rule pseudo-weather remain outside typed projection;
-they are not treated as absent. Truth never enters the extractor. The summary
-lists excluded unclean replays and mismatches by fact/effect ID. A mismatch or
-zero completed comparisons exits nonzero. No additional replay download is needed.
+`--extract` feeds both addressed streams to fresh simulation-only extractors.
+After any rejected record, continued scanning is diagnostic only; that replay
+cannot return an admitted view or dataset row. `--diff` settles both owner
+streams and public fan-out at each input boundary and compares typed public
+facts with a read-only simulator oracle. Raw-only lifecycles remain unprojected,
+never assumed absent. Truth never enters the extractor.
+
+For a measured pilot and the full local census:
+
+```powershell
+node tools/replay_repro/index.cjs data/replays/corpus-2026-10-21 --diff --limit=500 --manifest=<temporary-pilot.jsonl>
+node tools/replay_repro/census.cjs data/replays/corpus-2026-10-21 --workers=2
+```
+
+`--files=<path>` can select a JSON array of replay filenames for bounded batches.
+The census defaults to two local worker threads, writes `admission.jsonl` in the input
+directory and emits a summary with commit counts, exclusions, failure kinds,
+rating quartiles, public comparison counts and total wall time. Each row
+retains metadata, reproduction/extraction outcomes and a diff mismatch count
+(null when no comparison ran). Normal exclusions do not make the command fail;
+a fatal batch/worker error does. Check admission rate, every exclusion reason,
+and zero diffs on admitted rows before using the corpus.
+
+The baseline CLI writes only machine JSON by default. Updating the committed
+scoreboard requires `node tools/bench/index.cjs --pairs=500 --publish`; an
+alternate `--output=...` alone never publishes. Publishing preserves the
+scoreboard's Corpus section.
 
 For Node/Python full runs, create a temporary directory and set `NEURAL_TEST_OUTPUT_DIR`
 for both runtimes. Run the Node target-fidelity LIVE producer before its Python

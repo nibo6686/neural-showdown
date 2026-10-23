@@ -875,16 +875,17 @@ function requireRawItemEvent(parts: string[], command: string, rulesContext: Pro
   }
   const forms = command === '-item' ? rule.dash_item_forms : rule.dash_enditem_forms;
   const match = forms.find((form) => form.tags.length === tags.length
-    && form.tags.every((tag, index) => tag === tags[index] || tag === '[of] opposing-active'));
+    && form.tags.every((tag, index) => tag === tags[index] || tag === '[of] opposing-active' || tag === '[of] self-active' || tag === '[of] opposing-pokemon'));
   if (!match || (match.payloads && !match.payloads.includes(item))) {
     throw new ObservableStateError(`Malformed raw ${command} record: unsupported item source grammar.`);
   }
-  const ofIndex = match.tags.indexOf('[of] opposing-active');
+  if (match.tags.includes('[of] self-active') && tags[match.tags.indexOf('[of] self-active')] !== '[of] '+actor) throw new ObservableStateError(`Malformed raw ${command} record: source must be the donor itself.`);
+  const ofIndex = match.tags.findIndex(tag=>tag==='[of] opposing-active'||tag==='[of] opposing-pokemon');
   if (ofIndex >= 0) {
     const source = tags[ofIndex];
     const prefix = '[of] ';
     const ident = source.startsWith(prefix) ? source.slice(prefix.length) : '';
-    if (!isCanonicalPlayerIdent(ident, true, rulesContext) || !/^p[12]a: /.test(ident) || ident.slice(0, 2) === actor.slice(0, 2)) {
+    if (!isCanonicalPlayerIdent(ident, false, rulesContext) || !(match.tags[ofIndex]==='[of] opposing-pokemon'?/^p[12](?:a)?: /:/^p[12]a: /).test(ident) || ident.slice(0, 2) === actor.slice(0, 2)) {
       throw new ObservableStateError(`Malformed raw ${command} record: source must be an opposing Gen 9 singles active ident.`);
     }
   }
@@ -900,13 +901,16 @@ function requireRawMajorStatusEvent(parts: string[], command: string, rulesConte
   const rule = protocolContext(rulesContext).protocol.validation_rules.major_status;
   if (parts.length < 4) throw new ObservableStateError(`Malformed raw ${command} record.`);
   const target = parts[2];
-  if (!isCanonicalPlayerIdent(target, true, rulesContext) || !/^p[12]a: /.test(target)) {
+  const benchCure = command === '-curestatus' && rule.bench_cure_tags && /^p[12]: /.test(target)
+    && isCanonicalPlayerIdent(target, false, rulesContext) && parts.length === 5 && rule.bench_cure_tags.includes(parts[4]);
+  if (!benchCure && (!isCanonicalPlayerIdent(target, true, rulesContext) || !/^p[12]a: /.test(target))) {
     throw new ObservableStateError(`Malformed raw ${command} record: target must be a Gen 9 singles active ident.`);
   }
   const status = parts[3];
   if (!rule.ids.includes(status)) {
     throw new ObservableStateError(`Malformed raw ${command} record: unsupported major status.`);
   }
+  if (benchCure) return;
   const tags = parts.slice(4);
   if (rule.bare_commands.includes(command)) {
     if (tags.length !== 0) throw new ObservableStateError(`Malformed raw ${command} record: compatibility form has no tags.`);
@@ -942,6 +946,7 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
   }
   requireRawCourtChange(parts, command, rulesContext);
   if (command === protocolContext(rulesContext).protocol.validation_rules.court_change.command) return;
+  if (command === 'teampreview' && parts.length === 3 && protocolContext(rulesContext).protocol.validation_rules.teampreview?.team_sizes.some(n=>String(n)===parts[2])) return;
   const noPayload = new Set([
     'clearallboost', '-clearallboost',
     'teampreview', 'clearpoke', 'done', 'upkeep', 'start', 'end', '-nothing',
@@ -1084,15 +1089,21 @@ function validateRawRecordShape(parts: string[], command: string, rulesContext: 
       requireIdent();
       requireRawPlayerIdent(parts, 3, command, rulesContext);
       return;
-    case '-anim':
-      // These source-emitted public records carry no typed mechanics. Keep
-      // their exact bounded label grammar separate from move-record grammar.
-      if (parts.length !== 5
-        || !protocolContext(rulesContext).protocol.validation_rules.anim.forms.some(([label]) => parts[3] === label)) {
+    case '-anim': {
+      const rule=protocolContext(rulesContext).protocol.validation_rules.anim;
+      const noTarget=rule.no_target_tag !== undefined && parts[5] === rule.no_target_tag;
+      if (!(parts.length === 5 || parts.length === 6 && (noTarget || rule.optional_tags?.includes(parts[5])))
+        || !rule.forms.some(([label]) => parts[3] === label)) {
         throw new ObservableStateError(`Malformed raw ${command} record: unsupported animation grammar.`);
       }
-      requireRawSinglesAnimRoles(parts, command, rulesContext);
+      if(noTarget) {
+        requireRawPlayerIdent(parts,2,command,rulesContext);
+        if(!/^p[12]a: /.test(parts[2]) || !/^p[12]: /.test(parts[4]) || !isCanonicalPlayerIdent(parts[4],false,rulesContext) || parts[2].slice(0,2)===parts[4].slice(0,2)) {
+          throw new ObservableStateError(`Malformed raw ${command} record: invalid no-target roles.`);
+        }
+      } else requireRawSinglesAnimRoles(parts,command,rulesContext);
       return;
+    }
     case '-hint':
       // Public diagnostics remain raw-only. The repeat-use source family has a
       // finite generated payload domain and must be exact.

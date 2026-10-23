@@ -447,7 +447,11 @@ test('v2 joint transitions restore deterministic candidates and retain committed
     );
 
     LocalBattleEnv.prototype.resetFromSerialized = async function recordCandidateRestore(serialized, stepOptions, ticket) {
-      if (this.id.includes('pipeline-step-0')) restoredSnapshots.push(JSON.stringify(serialized));
+      if (this.id.includes('pipeline-step-0')) {
+        restoredSnapshots.push(JSON.stringify(serialized, (_key, value) => (
+          typeof value === 'string' && /^\|t:\|\d+$/.test(value) ? '|t:|0' : value
+        )));
+      }
       return originalResetFromSerialized.call(this, serialized, stepOptions, ticket);
     };
     LocalBattleEnv.prototype.stepSeededTransition = async function recordCandidateDelta(request, stepOptions) {

@@ -45,7 +45,7 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(!equal(value.provenance,selectedProvenance))fail('provenance');
  if(!equal(value.inherited_raw_shape_evidence,{contract_sha256:provenance.historical_contract_sha256,scope:'Historical raw rule baseline; fresh PRE fixture checks, no target acceptance'}))fail('inherited-evidence');
  if(profile==='native11'){
-  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,effect_lifecycle:'source-reviewed classes; uncovered deltas unsupported-fail-closed',partial_trap:'public-damage-only; binding-source-and-duration-untyped',chilly_reception:'exact-premajor-prepare; transient-state-raw-only',heal_failure:'historical-raw-shapes; no inferred attribution',trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
+  if(!equal(value.admission_scope,['Inherited historical raw-shape baseline, not semantic acceptance','Natural Cure exact ordered source-tag then silent','Trace exact prior-Trace positional field and opposing active source','Revival Blessing exact public bench 50/100 heal; silent faint/status clear'])||!equal(value.semantic_dispositions,{...semantic,magician:'finite-public-item-transfer; current item and removal history only',effect_lifecycle:'source-reviewed classes; uncovered deltas unsupported-fail-closed',partial_trap:'public-damage-only; binding-source-and-duration-untyped',chilly_reception:'exact-premajor-prepare; transient-state-raw-only',heal_failure:'historical-raw-shapes; no inferred attribution',trace:'finite-source-qualified-current-copy; prior field is provenance only',revival:'finite-public-bench-health-status-faint-clear; owned selection remains required'}))fail('closure-claims');
  }else if(value.base_lookup_profile!=='historical10'||value.publication!=='unsupported-without-persisted-profile-contract'||value.authority!==false||!equal(value.changed_forms,['Natural Cure historical ordered from-tag','Natural Cure native11 ordered from-tag then silent']))fail('closure-claims');
  const base=JSON.parse(JSON.stringify(HISTORICAL10_CONTEXT.protocol)),p=value.protocol;
  keys(p,Object.keys(base),'protocol');
@@ -59,6 +59,16 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
   rules.item.payloads=[...rules.item.payloads,'Covert Cloak','Expert Belt','Insect Plate','Life Orb','Rusted Shield','Rusted Sword'].sort();
   rules.partial_trap={move_names:['Bind','Clamp','Fire Spin','Infestation','Magma Storm','Sand Tomb','Snap Trap','Thunder Cage','Whirlpool','Wrap']};
   rules.item.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:rules.item.payloads.filter((name:string)=>name.endsWith(' Berry'))});
+  rules.item.dash_enditem_forms.push({tags:['[silent]','[from] ability: Pickpocket','[of] self-active']});
+  rules.item.dash_item_forms.push({tags:['[from] ability: Pickpocket','[of] opposing-active']});
+  rules.item.dash_item_forms.push({tags:['[from] ability: Magician','[of] opposing-pokemon']});
+  for(const name of ['Bug Bite','Pluck'])rules.item.dash_enditem_forms.push({tags:['[from] stealeat','[move] '+name,'[of] opposing-active'],payloads:rules.item.payloads.filter((n:string)=>n.endsWith(' Berry'))});
+  rules.ability.payload_domains.dash_boost=[...new Set([...rules.ability.payload_domains.dash_boost,...['Anger Point', 'As One (Glastrier)', 'As One (Spectrier)', 'Beast Boost', 'Cotton Down', 'Guard Dog', 'Moody', 'Opportunist', 'Steadfast', 'Steam Engine', 'Supersweet Syrup']])].sort();
+  rules.major_status.bench_cure_tags=['[msg]','[silent]'];
+  for(const name of ['Dark Void','Grass Whistle','Lovely Kiss','Relic Song','Sing','Wicked Torque']) rules.major_status.apply_forms.push({tags:['[from] move: '+name],statuses:['slp']});
+  rules.anim.optional_tags=['[miss]'];
+  rules.anim.no_target_tag='[notarget]';
+  rules.teampreview={team_sizes:Array.from({length:24},(_,i)=>i+1)};
   rules.ability.dash_templates=['reveal','boost','trace-copy-prior-Trace'];
   rules.ability.payload_domains.dash_trace_copy=rules.ability.payload_domains.dash_trace_copy.filter((a:string)=>a!=='Steely Spirit').concat('Gale Wings').sort();
   rules.ability.source_evidence.dash_trace_copy='Target 0.11.11 gen9 sets candidate abilities filtered by target Trace notrace/noability guard; Gardevoir sole Trace selector; Prompt41 finite source qualification';
