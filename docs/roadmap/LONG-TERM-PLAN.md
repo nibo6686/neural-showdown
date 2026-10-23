@@ -215,7 +215,18 @@ marked done while it owns red tests**:
 | W10 assurance | `soak` (30), `test_gen9randbats_mechanics_completeness_audit.py` (2) |
 | Track B (B2 beliefs/search) | `belief_fork` (3); belief forks are blocked on native11 until search needs them |
 
-**0.5c3 — done** (`fdb865d`): the four core files are migrated (38 pass, 18 residuals assigned above, 3 retirements), and the Trace/Destiny Bond expectations are updated. P0.5 is complete. **0.7 — done, provisional** (`268a5f5`): the harness and a 100-pair baseline; the full 500-pair run is in 0.6a. **Next:** 0.6a (brief `P0.6a.md`: corpus admission, census, remaining grammar gaps, full benchmark), then W1. 0.6 (corpus) is downloading in
+**0.5c3 — done** (`fdb865d`): the four core files are migrated (38 pass, 18 residuals assigned above, 3 retirements), and the Trace/Destiny Bond expectations are updated. P0.5 is complete. **0.7 — done, provisional** (`268a5f5`): the harness and a 100-pair baseline; the full 500-pair run is in 0.6a. **0.6a — done** (`4eff6b0`): 29,404 of 29,666 main-server battles admitted
+(99.12%; 25,284 rated, 11,078 at 1,800+). There were **0 public-state mismatches
+across 123.6 million checks**, and every exclusion has a reason (154 custom
+rules, 62 Court Change, 44 diverged, 2 rejected inputs). Manifest:
+`data/replays/corpus-2026-10-21/admission.jsonl`. The full benchmark ran 3,000
+games with 0 errors: heuristic beats random 98.8%, greedy 98.0%, and greedy
+vs heuristic is 44.8% (CI 41.7–47.9%), so heuristic is the stronger baseline.
+Magician's item transfer was adopted beyond the brief, correct and tested
+(W5 territory). The Illusion status-omission bug was fixed. Follow-ups: the
+two settling raw-restore tests go to W2; Court Change stays with W6. **Phase 0
+is complete except 0.8 (throughput), which folds into Track B. Next: W1.1**
+(brief `W1.1.md`). 0.6 (corpus) is downloading in
 the background and is processed once complete.
 
 **0.6 Fresh replay corpus — downloaded and reproduction-verified (2026-10-21).**
@@ -410,7 +421,22 @@ allow it. Latency and UX are **DECIDE** at that point.
 Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
 `P0.1.md` (consolidation). W1.1 is below until it moves there.
 
-## Appendix A — W1.1 brief for Codex (replaces Prompt62)
+## W1 slicing (revised 2026-10-23)
+
+- **W1.1** (brief `briefs/W1.1.md`): **replay-born authoritative sessions.**
+  Each corpus battle is born from its input-log seeds and stepped through its
+  recorded choices as canonical actions. A corpus-wide **K differential**
+  checks every adopted registry row against the simulator's truth. W1's owned
+  red tests move as well. This makes 29k real battles the oracle for all of
+  Phase 1, and the data path for Track B. It pulls the core of W8 forward.
+- **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
+  continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
+  mismatches on the new rows.
+- **W1.3**: request flags and lock (K08).
+
+The old Appendix A below is superseded by these.
+
+## Appendix A — W1.1 brief for Codex (superseded; kept for reference)
 
 > **Slice W1.1 — owned move possession, incarnation continuity, PP freshness.**
 > Repo: `C:\Users\cloud\Downloads\neural\final`, branch `main-native11`
