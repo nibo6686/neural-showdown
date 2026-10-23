@@ -1,3 +1,5 @@
+_AS_ONE_BOOST = {"Chilling Neigh": "asoneglastrier", "Grim Neigh": "asonespectrier"}
+_AS_ONE = ('asoneglastrier', 'asonespectrier')
 from .version_profile import reader_context, assert_reader_input, HISTORICAL10_CONTEXT
 """Owned ability effectiveness from public Gas witnesses and addressed-request exemptions."""
 import json
@@ -72,8 +74,9 @@ def public_revealed_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
     def clear(target):
         row = facts.get(target)
         if row is None: return
+        row.pop("compound", None); row.pop("component", None)
         row.update(ability=row["base"], state="known" if row["base"] else "unknown", cleared=True)
-    for line in prefix:
+    for index, line in enumerate(prefix):
         parts = line.split("|")
         if len(parts) < 3: continue
         command, target = parts[1], _ident(parts[2])
@@ -86,6 +89,7 @@ def public_revealed_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
         elif command in ("detailschange", "-formechange", "-transform"):
             row = facts.setdefault(target, dict(ability=None, base=None, state="unknown", copied=False, cleared=False, invalidated=None, base_writer=None))
             if command == "detailschange" and preserves_owned_ability_for_form(parts[3], row["ability"], row["base"]): continue
+            row.pop("compound", None); row.pop("component", None)
             row.update(ability=None, state="unknown", cleared=False, invalidated="transform" if command == "-transform" else "form")
             row["base_writer"] = _REPLACEMENT_BASE_WRITERS.get(_id(parts[3].split(",")[0])) if command == "detailschange" else None
             if row["invalidated"] == "form": row.update(base=None, copied=False)
@@ -98,6 +102,13 @@ def public_revealed_abilities(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
                         else "dash_trace_copy" if command == "-ability" and len(parts) == (7 if prior_trace else 6) and (not prior_trace or parts[4] == 'Trace') and parts[from_index] == '[from] ability: Trace' else None)
             if template is None or parts[3] not in reader_context(reader_rules).protocol["validation_rules"]["ability"]["payload_domains"][template]: continue
             row = facts.setdefault(target, dict(ability=None, base=None, state="unknown", copied=False, cleared=False, invalidated=None, base_writer=None))
+            if command == '-ability' and len(parts) == 4 and parts[3] == 'Unnerve' and index > 0 and prefix[index-1] == f'|-ability|{parts[2]}|As One':
+                row.update(ability=None, base=None, state='unknown', compound=True)
+                continue
+            if row.get('compound') and template == 'dash_boost' and parts[3] in _AS_ONE_BOOST:
+                row['component'] = _AS_ONE_BOOST[parts[3]]
+                continue
+            row.pop('compound', None); row.pop('component', None)
             changed = any(tag.startswith("[from]") for tag in parts[4:])
             if (not changed and not row["base"] and not row["copied"] and row["invalidated"] != "transform"
                     and (row["invalidated"] != "form" or row["base_writer"] == _id(parts[3]))): row["base"] = _id(parts[3])
@@ -122,7 +133,7 @@ def owned_ability_after_suffix(owner, suffix):
     base_writer = None
     target = _ident(owner["ident"])
     active = bool(owner.get("active"))
-    for line in suffix:
+    for index, line in enumerate(suffix):
         parts = line.split("|")
         if len(parts) < 3: continue
         command, addressed = parts[1], _ident(parts[2])
@@ -136,6 +147,11 @@ def owned_ability_after_suffix(owner, suffix):
             ability, base = None, None
             base_writer = _REPLACEMENT_BASE_WRITERS.get(_id(parts[3].split(",")[0]))
         elif command in ("-ability", "ability"):
+            if parts[1] == '-ability' and len(parts) == 5 and parts[4] == 'boost' and _AS_ONE_BOOST.get(parts[3]) == ability and ability is not None: continue
+            if parts[1] == '-ability' and len(parts) == 4 and parts[3] == 'As One' and ability in _AS_ONE: continue
+            if parts[1] == '-ability' and len(parts) == 4 and parts[3] == 'Unnerve' and index > 0 and suffix[index-1] == f'|-ability|{parts[2]}|As One':
+                if ability not in _AS_ONE: ability = None
+                continue
             ability = _id(parts[3])
             if not base and base_writer == ability and not any(tag.startswith("[from]") for tag in parts[4:]): base = ability
     return dict(ability=ability, base_ability=base, ability_state="known" if ability else "unknown")
@@ -167,6 +183,8 @@ def validate_public_ability(observation, predecessor=None, *, reader_rules=HISTO
         prior_owner = next((entry for entry in prior_owners if entry.get("ident") == target), None)
         ability = ((owner or {}).get("ability") or ((prior_owner or {}).get("base_ability")
                    if fact["cleared"] and prior_owner else fact["ability"])) or None
+        if fact.get('compound') and (owner or {}).get('ability') and (owner['ability'] not in _AS_ONE or fact.get('component') and owner['ability'] != fact['component']):
+            raise ValueError('Public ability evidence mismatch: As One components contradict addressed ability')
         if not fact["cleared"] and fact["ability"] and (owner or {}).get("ability") and owner["ability"] != fact["ability"]:
             raise ValueError("Public ability evidence mismatch: public reveal contradicts addressed ability")
         terminal_fact = owned_ability_after_suffix(prior_owner, observation["protocol_prefix"][len(predecessor["protocol_prefix"]):]) if prior_owner and (prior_owner.get("ability") or prior_owner.get("base_ability")) else None

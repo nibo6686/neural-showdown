@@ -55,7 +55,9 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
         match = re.fullmatch(r"(p[12])a: (.+)", value)
         return f"{match.group(1)}: {match.group(2)}" if match else None
 
+    faint_ability = None
     for line in prefix:
+        prior_faint_ability, faint_ability = faint_ability, None
         if not isinstance(line, str) or not line.startswith("|"):
             continue
         parts = line.split("|")
@@ -92,6 +94,7 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
         if command == "faint":
             ident = active_ident(parts[2] if len(parts) > 2 else "")
             if ident:
+                if active.get(ident[:2]) == ident and 'slowstart' in abilities.get(ident, []): faint_ability = ident
                 clear(ident)
                 if active.get(ident[:2]) == ident:
                     active.pop(ident[:2], None)
@@ -102,7 +105,8 @@ def project_public_typed_state(prefix, *, reader_rules=HISTORICAL10_CONTEXT):
             ability_entry = reader_context(reader_rules).lifecycle.get(('ability_state', ability_id))
             if ability_entry and ability_entry['disposition']=='evidence-derived-typed':
                 ident = active_ident(parts[2] if len(parts)>2 else '')
-                if not ident or active.get(ident[:2]) != ident:
+                faint_end = ident and command == '-end' and ability_id == 'slowstart' and len(parts) == 5 and parts[4] == '[silent]' and prior_faint_ability == ident
+                if not ident or active.get(ident[:2]) != ident and not faint_end:
                     raise ValueError('Ability state targets nonactive Pokemon')
                 abilities[ident] = [ability_id] if command=='-start' else []
                 continue

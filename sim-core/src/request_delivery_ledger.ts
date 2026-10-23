@@ -3,6 +3,14 @@ import { assertAuthoritativeEnvironment, type LocalBattleEnv } from './env_manag
 import type { PipelineBoundary } from './pipeline_integration';
 import type { RequestEmissionReceipt } from './request_emission_trace';
 import { PLAYERS, type PlayerID, type StepResult } from './types';
+import {canonicalActionToChoice, type CanonicalAction} from './canonical_action';
+
+export interface DeliveredSwitchChoice {
+  readonly owner: PlayerID;
+  readonly action: CanonicalAction;
+  readonly choice: string;
+  readonly delivery: CommittedRequestDelivery;
+}
 
 export type RequestDeliveryHandle = Readonly<object>;
 export interface CommittedRequestDelivery {
@@ -45,6 +53,7 @@ export class RequestDeliveryLedger {
   #handles: Record<PlayerID, RequestDeliveryHandle> = { p1: token(), p2: token() };
   #raw: Record<PlayerID, unknown> = { p1: null, p2: null };
   #restores = new WeakMap<object, { environment: LocalBattleEnv; parent: PipelineBoundary; traces: Record<PlayerID, readonly RequestEmissionReceipt[]> }>();
+  #switchChoices = new WeakMap<object, {environment: LocalBattleEnv; parent: PipelineBoundary; choices: readonly DeliveredSwitchChoice[]}>();
   #prepared = new WeakMap<object, { parent: PipelineBoundary | null; boundary: PipelineBoundary; histories: Record<PlayerID, RequestDeliveryHistory>; raws: Record<PlayerID, unknown> }>();
 
   #healthTransfers = new WeakMap<object, { prepared: object; owner: PlayerID; environment: LocalBattleEnv; boundary: PipelineBoundary; row: RequestDeliveryBoundary }>();
@@ -80,6 +89,29 @@ export class RequestDeliveryLedger {
       if (selected && (!this.#histories[owner].boundaries.at(-1)?.current || !isDeepStrictEqual(raw(result, owner), this.#raw[owner]))) fail('missing-parent-delivery');
     }
     const proof = token(); this.#restores.set(proof, { environment, parent, traces }); return proof;
+  }
+
+  /** Only a held restoration of this ledger's current delivered boundary can submit. */
+  prepareSwitchChoices(environment: LocalBattleEnv, parent: PipelineBoundary, restoration: object,
+    actions: Partial<Record<PlayerID, CanonicalAction>>): object {
+    this.#open();
+    const restore = this.#restores.get(restoration);
+    if (!restore || restore.environment !== environment || restore.parent !== parent || parent !== this.#parent) fail('foreign-switch-restoration');
+    const choices: DeliveredSwitchChoice[] = [];
+    for (const owner of PLAYERS) {
+      const action = actions[owner];
+      if (action?.kind !== 'switch') continue;
+      const row = this.#histories[owner].boundaries.at(-1), request = environment.getRequest(owner);
+      if (!row?.current || !request || row.observation_id !== parent.perspectives[owner].observation.observation_id) fail('missing-switch-delivery');
+      const choice = canonicalActionToChoice(action, request);
+      choices.push(Object.freeze({owner, action, choice, delivery: row.current}));
+    }
+    const proof = token(); this.#switchChoices.set(proof, {environment, parent, choices: Object.freeze(choices)}); return proof;
+  }
+  consumeSwitchChoices(proof: object, environment: LocalBattleEnv): readonly DeliveredSwitchChoice[] {
+    this.#open(); const entry = this.#switchChoices.get(proof);
+    if (!entry || entry.environment !== environment || entry.parent !== this.#parent) fail('foreign-or-replayed-switch-choice');
+    this.#switchChoices.delete(proof); return entry.choices;
   }
 
   /** Both-owner preparation is detached; only this ledger can commit its token. */
@@ -156,6 +188,7 @@ export class RequestDeliveryLedger {
     return history;
   }
   revoke(): void {
+    this.#switchChoices = new WeakMap();
     this.#ready = null; this.#valid = false; this.#handles = { p1: token(), p2: token() };
     this.#healthTransfers = new WeakMap(); this.#healthEnvironments = new WeakMap(); this.#restores = new WeakMap(); this.#prepared = new WeakMap(); this.#raw = { p1: null, p2: null };
     this.#histories = { p1: { boundaries: [], deliveries: [] }, p2: { boundaries: [], deliveries: [] } };

@@ -186,7 +186,7 @@ const targetProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/prot
 const replayProtocolAsset = pinnedAsset(path.join(root, 'trainer/src/neural/protocol_contract_replay_compat_v1.json'), 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4');
 export const NATIVE11_GRAMMAR_CONTEXT: ProtocolRulesContext = freezeTree({protocol: targetProtocolAsset.protocol});
 export const REPLAY_COMPAT_CONTEXT: ReaderContext = freezeTree({...HISTORICAL10_CONTEXT, profile: REPLAY_COMPAT, protocol: replayProtocolAsset.protocol});
-const targetInventory = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json'), '6793f2bd13baad89caba80c149a727dd4d9efd0afd627876c3e120e7b5f81607');
+const targetInventory = pinnedAsset(path.join(root, 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json'), 'f04c56796dedf697fde568ffa5b07dd1f06ccf39ba99a6e494687bbd4e55af8a');
 const targetEffects = Object.fromEntries([...targetInventory.condition_inventory, ...targetInventory.effect_discovery.additional_entries].map((e: any) => [e.id, e]));
 export const NATIVE11_CONTEXT: ReaderContext = freezeTree({profile: NATIVE11, protocol: targetProtocolAsset.protocol,
   inventory: targetInventory, effects: targetEffects,

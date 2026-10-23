@@ -203,3 +203,70 @@ The full run remains available through the same command without `--limit`;
 set an outer timeout from a fresh pilot after the switch-authority fix. The
 unchanged per-replay bound is 120 s; battles over 500 turns require
 `NEURAL_LONG_TESTS=1`. No dataset writing, downloads or training occurred.
+
+## Switch-source pilot and stopping dependency (W3.1)
+
+W3.1 implements the brief's **Part A+C stopping point**, not the full born gate.
+The final sample is the **first 200 admitted IDs in manifest order**, six workers,
+`--born --kdiff`, 300,000 ms per replay. A larger 500-ID attempt was deliberately
+stopped after a real drag established Part B's architectural stop condition;
+only the fixed 200-ID sample is reported here. Rechecks use the final authority
+path for every drag-containing replay, failed sample case, and W1.1 non-switch
+case. Outcomes are in the git-ignored local
+`data/replays/corpus-2026-10-21/born-pilot-W3.1.jsonl`; the manifest retains every
+failure reason and source diagnostic. This sample is not a whole-corpus estimate.
+
+| Measurement | Result |
+|---|---:|
+| Born complete | 184/200 (92.0%) |
+| Remaining failures | 16 |
+| Known K comparisons | 1,727,148 |
+| K mismatches | 0 |
+| Validated boundaries / matched public records | 6,145 / 38,594 |
+| Timeouts / skips | 0 / 0 |
+
+The delivered request ledger now admits a single-use canonical choice occurrence.
+The native `Side.choose` action object survives through queue resolution into
+`Battle.runAction`, then qualifies its exact `BattleActions.switchIn` writer.
+Both owners pass all eight requested pivot families. Copied, foreign, replayed
+and different-slot choices fail. No binding comes from public actor names,
+species, slot values, or matching log text. Shed Tail/Baton Pass identity binding
+does not extend their existing transfer semantics.
+
+**Part B dependency.** Native `BattleActions.dragIn` selects a replacement via
+`Battle.getRandomSwitchable` and calls `switchIn(..., null, true)` without an
+owner choice. Qualifying that occurrence needs a new authenticated drag/action
+hook, widening the existing B2 authority boundary. The brief requires stopping
+there. Unqualified `drag` records now fail closed alongside `switch` records;
+they previously escaped the switch-only guard. Owner-chosen item/ability
+replacements use the same choice mechanism but were not separately corpus-gated.
+
+All 15 drag failures have reason `switch-events/v1/unbound-switch-source` and
+source `drag:unknown` (source labels are diagnostic only):
+`2695483832`, `2695485629`, `2695485887`, `2695488683`, `2695494729`,
+`2695500918`, `2695502167`, `2695506896`, `2695509429`, `2695514412`,
+`2695515096`, `2695515250`, `2695515356`, `2695529769`, `2695531409`.
+All IDs have prefix `gen9randombattle-`. Replay `2695509927` instead fails
+`pipeline/v1/observable-projection-failed: Public health evidence mismatch: Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint`.
+That newly reached W4 failure is not one of W1.1's seven percentage disagreements.
+
+**Part C.** Both readers retain Slow Start presence and its immediate, same-actor
+silent cleanup after faint; TS admits the optional `ability_effects` field
+(Python already admitted it). The producer retains publicly cleared bench effects.
+HP checks now follow the native operation order, `ceil(100 * HP / maxHP)`;
+`168/300` publicly emits `56/100`, not the floating-point artifact `57/100`.
+As One's exact adjacent component announcements preserve only an addressed owner
+variant; later Grim/Chilling Neigh boost announcements must agree with that
+variant. Public labels alone never identify a variant from species. Of the
+original 26 non-switch failures, 23 complete, including all seven health and
+all three ability cases; three Slow Start cases reach the drag dependency
+(`2695488683`, `2695494729`, `2695550558`).
+
+**Remaining gate.** The full 29,404 replay run is deferred until drag authority
+is reviewed and implemented. The unchanged episode tests now reach native outcomes:
+`real episode completes repeatably...` expects 55 transitions but gets 44;
+`v2 evidence retains both owners...` and `resumed terminal closure...` expect a
+positive faithful claim that the native11 profile still forbids, even with
+`complete_capture: true`. The native winner is also p2 rather than the fixture's
+p1. These assertions were not rewritten. Additional focused results and the fast gate are recorded in
+the W3.1 report. No >=99% acceptance claim is made.

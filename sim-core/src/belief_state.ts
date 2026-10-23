@@ -302,13 +302,15 @@ function assertObservablePokemon(value: unknown, visibility: 'self' | 'opponent'
     'ability_suppressed', 'moves', 'revealed_moves', 'tera_type', 'stats', 'boosts',
   ];
   const optional = visibility === 'self' ? ['item', ...selfOnly] : ['item'];
-  const allowed = [...base, ...optional, ...(visibility === 'opponent' && version === PUBLIC_STAGES_SCHEMA_VERSION ? ['public_boosts'] : [])];
+  const allowed = [...base, ...optional, 'ability_effects', ...(visibility === 'opponent' && version === PUBLIC_STAGES_SCHEMA_VERSION ? ['public_boosts'] : [])];
   if (base.some((key) => !(key in value)) || Object.keys(value).some((key) => !allowed.includes(key))) {
     throw new BeliefStateError('Observation Pokémon view does not match the supported public schema.');
   }
   if (visibility === 'self' && optional.some((key) => !(key in value))) {
     throw new BeliefStateError('Self Pokémon view is incomplete.');
   }
+  if ('ability_effects' in value && (!Array.isArray(value.ability_effects) || value.ability_effects.length > 1
+    || value.ability_effects.some(effect => effect !== 'slowstart'))) throw new BeliefStateError('Observation ability effects are malformed.');
   if (visibility === 'opponent' && value.item !== undefined && value.item !== 'has-item') {
     throw new BeliefStateError('Opponent Pokémon view contains a private item value.');
   }

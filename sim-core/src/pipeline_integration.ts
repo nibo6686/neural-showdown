@@ -846,6 +846,8 @@ export class PipelineIntegrationSession {
         },
         step_index: inputBoundary.step_index,
       };
+      if (restoration) this.#switchEvents.admitChoices(candidate, this.#deliveryLedger,
+        this.#deliveryLedger.prepareSwitchChoices(candidate, inputBoundary, restoration, canonicalActions));
       const transitionResult = roles
         ? await candidate.stepSeededForcedSwitch({
           ...common, ...roles, schema_version: revival ? SEEDED_REVIVAL_SCHEMA_VERSION : SEEDED_FORCED_SWITCH_SCHEMA_VERSION,

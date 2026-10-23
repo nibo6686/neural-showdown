@@ -203,6 +203,14 @@ export function boundOwnedTarget(prefix: readonly string[], perspective: string,
 }
 
 function fail(message: string): never { throw new Error(`Public health evidence mismatch: ${message}`); }
+/** Pokemon.getHealth computes 100 * integer HP / maxHP, before rounding. */
+function publicPercentage(text: string): number {
+  if (text === '0 fnt') return 0;
+  const match = /^([1-9][0-9]*)\/([1-9][0-9]*)(?: (?:brn|par|slp|frz|psn|tox))?$/.exec(text);
+  if (!match) fail('exact HP is required for percentage comparison');
+  const hp = Number(match[1]), max = Number(match[2]);
+  return Math.min(hp < max ? 99 : 100, Math.ceil(100 * hp / max));
+}
 
 export function assertPublicHealthMatchesEvidence(prefix: readonly string[], perspective: string,
   view: Row, request: Row | null, rulesContext: ReaderContext = HISTORICAL10_CONTEXT): void {
@@ -256,13 +264,13 @@ export function assertPublicHealthMatchesEvidence(prefix: readonly string[], per
     }
     if (ownerPublicPrecision) {
       const exact = condition(String(row.hp_text)).hp_ratio!;
-      const percentage = exact === 0 ? 0 : Math.min(exact < 1 ? 99 : 100, Math.ceil(exact * 100));
+      const percentage = publicPercentage(String(row.hp_text));
       if (row.hp_ratio !== exact || percentage / 100 !== publicState.hp_ratio) fail(`${target} owner/public HP disagree`);
     }
     // Request exact health and spectator percentages must describe the same current result.
     if (owner && target === ownedAppearance && publicState.hp_ratio !== undefined && publicState.hp_text?.includes('/100')) {
       const exact = expected.hp_ratio!;
-      const percentage = exact === 0 ? 0 : Math.min(exact < 1 ? 99 : 100, Math.ceil(exact * 100));
+      const percentage = publicPercentage(String(expected.hp_text));
       if (percentage / 100 !== publicState.hp_ratio) fail(`${target} request/public HP disagree`);
     }
     if (owner && target === ownedAppearance && publicState.fainted !== undefined && publicState.fainted !== expected.fainted) fail(`${target} request/public faint disagree`);

@@ -4,6 +4,9 @@ import {PROTOCOL_CONTRACT} from './protocol_contract';
 import type { PokemonView } from './types';
 import { terminalOwnedRequests, terminalOwnedAbilitySuffix } from './public_health';
 
+const AS_ONE = ['asoneglastrier', 'asonespectrier'];
+const AS_ONE_BOOST: Record<string, string> = {'Chilling Neigh':'asoneglastrier', 'Grim Neigh':'asonespectrier'};
+
 /** Reviewed permanent replacement writers; a generic form/reveal pair supplies no base. */
 function replacementBaseWriter(species: string): string | null {
   return ({terapagosstellar: 'teraformzero', ogerpontealtera: 'embodyaspectteal',
@@ -14,14 +17,14 @@ function replacementBaseWriter(species: string): string | null {
 /** Replay supported public reveals; Trace [of] remains raw source identity. */
 export function publicRevealedAbilities(prefix: readonly string[], rulesContext: ReaderContext = HISTORICAL10_CONTEXT) {
   readerContext(rulesContext);
-  const facts: Record<string, {ability: string | null; base: string | null; state: 'known' | 'changed' | 'unknown'; copied: boolean; cleared: boolean; invalidated: 'transform' | 'form' | null; baseWriter: string | null}> = {};
+  const facts: Record<string, {ability: string | null; base: string | null; state: 'known' | 'changed' | 'unknown'; copied: boolean; cleared: boolean; invalidated: 'transform' | 'form' | null; baseWriter: string | null; compound?: boolean; component?: string}> = {};
   const active: Record<string, string> = {};
   const clear = (target: string) => {
     const row = facts[target];
     if (!row) return;
-    row.ability = row.base; row.state = row.base ? 'known' : 'unknown'; row.cleared = true;
+    delete row.compound; delete row.component; row.ability = row.base; row.state = row.base ? 'known' : 'unknown'; row.cleared = true;
   };
-  for (const line of prefix) {
+  for (const [index, line] of prefix.entries()) {
     const parts = line.split('|');
     const target = (parts[2] || '').replace(/^(p[12])a: /, '$1: '), side = target.slice(0, 2);
     if (parts[1] === 'switch' || parts[1] === 'drag') {
@@ -34,7 +37,7 @@ export function publicRevealedAbilities(prefix: readonly string[], rulesContext:
       // Retain the unknown-current obligation; Transform reveals no target ability.
       const row = facts[target] ||= {ability: null, base: null, state: 'unknown', copied: false, cleared: false, invalidated: null, baseWriter: null};
       if (parts[1] === 'detailschange' && preservesOwnedAbilityForForm(parts[3], row.ability, row.base)) continue;
-      row.ability = null; row.state = 'unknown'; row.cleared = false;
+      delete row.compound; delete row.component; row.ability = null; row.state = 'unknown'; row.cleared = false;
       row.invalidated = parts[1] === '-transform' ? 'transform' : 'form';
       row.baseWriter = parts[1] === 'detailschange' ? replacementBaseWriter(parts[3]) : null;
       if (row.invalidated === 'form') {row.base = null; row.copied = false;}
@@ -49,6 +52,14 @@ export function publicRevealedAbilities(prefix: readonly string[], rulesContext:
       if (!template || !domains[template].includes(parts[3])) continue;
 
       const row = facts[target] ||= {ability: null, base: null, state: 'unknown', copied: false, cleared: false, invalidated: null, baseWriter: null};
+      // Both As One emitters announce this exact adjacent component pair;
+      // neither public label identifies Glastrier versus Spectrier.
+      if (parts[1] === '-ability' && parts.length === 4 && parts[3] === 'Unnerve'
+        && prefix[index - 1] === `|-ability|${parts[2]}|As One`) {
+        Object.assign(row, {ability: null, base: null, state: 'unknown', compound: true}); continue;
+      }
+      if (row.compound && template === 'dash_boost' && AS_ONE_BOOST[parts[3]]) {row.component = AS_ONE_BOOST[parts[3]]; continue;}
+      delete row.compound; delete row.component;
       const changed = parts.slice(4).some((tag) => tag.startsWith('[from]'));
       if (!changed && !row.base && !row.copied && row.invalidated !== 'transform'
         && (row.invalidated !== 'form' || row.baseWriter === toID(parts[3]))) row.base = toID(parts[3]);
@@ -77,7 +88,7 @@ export function ownedAbilityAfterSuffix(owner: Record<string, unknown>, suffix: 
   let baseWriter: string | null = null;
   let active = !!owner.active;
   const target = String(owner.ident).replace(/^(p[12])a: /, '$1: ');
-  for (const line of suffix) {
+  for (const [index, line] of suffix.entries()) {
     const parts = line.split('|'), addressed = (parts[2] || '').replace(/^(p[12])a: /, '$1: ');
     if (['switch', 'drag'].includes(parts[1]) && addressed.slice(0, 2) === target.slice(0, 2)) {
       if (active || addressed === target) ability = base;
@@ -90,6 +101,9 @@ export function ownedAbilityAfterSuffix(owner: Record<string, unknown>, suffix: 
       ability = null; base = null; baseWriter = replacementBaseWriter(parts[3]);
     }
     else if (['-ability', 'ability'].includes(parts[1])) {
+      if (parts[1] === '-ability' && parts.length === 5 && parts[4] === 'boost' && AS_ONE_BOOST[parts[3]] === ability) continue;
+      if (parts[1] === '-ability' && parts.length === 4 && parts[3] === 'As One' && AS_ONE.includes(String(ability))) continue;
+      if (parts[1] === '-ability' && parts.length === 4 && parts[3] === 'Unnerve' && suffix[index - 1] === `|-ability|${parts[2]}|As One`) {if (!AS_ONE.includes(String(ability))) ability = null; continue;}
       ability = toID(parts[3]);
       if (!base && baseWriter === ability && !parts.slice(4).some((tag) => tag.startsWith('[from]'))) base = ability;
     }
@@ -179,6 +193,7 @@ export function assertPublicAbilityMatchesEvidence(prefix: readonly string[], vi
     const priorOwner = terminalOwners.find((entry) => entry.ident === target);
     const terminalFact = priorOwner && (priorOwner.ability || priorOwner.base_ability) && terminalOwnedAbilitySuffix(view) ? ownedAbilityAfterSuffix(priorOwner, terminalOwnedAbilitySuffix(view)!) : null;
     const ability = terminalFact ? terminalFact.ability : owner?.ability || (fact.cleared && priorOwner ? priorOwner.base_ability : fact.ability) || null;
+    if (fact.compound && owner?.ability && (!AS_ONE.includes(String(owner.ability)) || !!fact.component && owner.ability !== fact.component)) throw new Error('Public ability evidence mismatch: As One components contradict addressed ability.');
     if (!fact.cleared && fact.ability && owner?.ability && owner.ability !== fact.ability) throw new Error('Public ability evidence mismatch: public reveal contradicts addressed ability.');
     const states = terminalFact ? [terminalFact.ability_state] : owner?.ability ? ['known'] : ability ? ['known', fact.state] : [fact.state];
     if (ability) states.push('suppressed');

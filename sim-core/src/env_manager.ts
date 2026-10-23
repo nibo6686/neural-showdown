@@ -631,7 +631,7 @@ class ManagedPlayer {
       legal_actions: request.legal_actions, side: request.side,
     });
     this.tracker.recordSubmittedSwitch(action.kind === 'switch' ? action : null, request.force_switch);
-    this.submitExternalChoice(choice);
+    this.env.withCanonicalSubmission(this.player, action, () => this.submitExternalChoice(choice));
   }
 
   suggest(agent: ControllerType, requestOverride?: ChoiceRequestView): BaselineDecision {
@@ -772,6 +772,10 @@ export interface SimulationOnlyOptions {
 }
 
 export class LocalBattleEnv {
+  withCanonicalSubmission(owner: PlayerID, action: CanonicalAction, submit: () => void): void {
+    if (this.#switchEvents) this.#switchEvents.submitChoice(this, owner, action, submit);
+    else submit();
+  }
   static createSimulationOnly(options: SimulationOnlyOptions): LocalBattleEnv {
     const environment = new LocalBattleEnv(options.id, options.format, options.seed, options.controllers, options.settling);
     simulationEnvironments.add(environment);

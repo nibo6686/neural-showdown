@@ -83,7 +83,9 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
   };
   const clear = (ident: string | undefined) => { if (ident) { getVolatiles(ident).clear(); if (abilities.has(ident)) abilities.set(ident, []); } };
 
+  let faintAbility: string | undefined;
   for (const line of prefix) {
+    const priorFaintAbility = faintAbility; faintAbility = undefined;
     if (!line.startsWith('|')) continue;
     const parts = line.split('|');
     const command = parts[1] || '';
@@ -117,6 +119,7 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
     if (command === 'faint') {
       const target = activeIdent(parts[2] || '');
       if (!target) continue;
+      if (active[target.player] === target.ident && abilities.get(target.ident)?.includes('slowstart')) faintAbility = target.ident;
       clear(target.ident);
       if (active[target.player] === target.ident) delete active[target.player];
       continue;
@@ -126,7 +129,10 @@ export function projectPublicTypedState(prefix: readonly string[], rulesContext:
       const abilityEntry=typedStateLifecycleEntry('ability_state', abilityId, rulesContext);
       if (abilityEntry?.disposition === 'evidence-derived-typed') {
         const target=activeIdent(parts[2] || '');
-        if (!target || active[target.player] !== target.ident) throw new Error('Ability state targets nonactive Pokemon');
+        // Slow Start.onEnd emits its silent cleanup immediately after faint.
+        const faintEnd = target && command === '-end' && abilityId === 'slowstart' && parts.length === 5
+          && parts[4] === '[silent]' && priorFaintAbility === target.ident;
+        if (!target || active[target.player] !== target.ident && !faintEnd) throw new Error('Ability state targets nonactive Pokemon');
         abilities.set(target.ident, command === '-start' ? [abilityId] : []);
         continue;
       }

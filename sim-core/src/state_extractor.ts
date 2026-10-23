@@ -408,6 +408,11 @@ export class PlayerStateExtractor {
       const ownedActive = submitted ? pokemon?.ident === submitted : terminalVisibleOwner ? ident.name === currentAppearance.name : !!pokemon?.active;
       const previous = ownedActive ? appearance || named
         : named && named !== appearance && (this.view.terminated || !named.displayed_species_uncertain) ? named : undefined;
+      // An observed departure clears this public state. Preserve that explicit
+      // empty result on the addressed bench row without carrying active effects
+      // or the uncertain appearance's other private/copy-sensitive fields.
+      const abilityEffects = previous?.ability_effects
+        ?? (!pokemon?.active && named?.ability_effects?.length === 0 ? [] : undefined);
       const knownHistory = itemHistory[`${ident.player}: ${ident.name}`];
       const uncertainHistory = !knownHistory && ambiguous.size > 0 && (ambiguous.has(`${ident.player}: ${ident.name}`)
         || toID(pokemon?.ability || '') === 'illusion' || toID(pokemon?.baseAbility || '') === 'illusion');
@@ -478,7 +483,7 @@ export class PlayerStateExtractor {
           ...(pokemon?.stats || {}),
         },
         boosts: previous?.boosts ? { ...previous.boosts } : {},
-        ...(previous?.ability_effects === undefined ? {} : {ability_effects: [...previous.ability_effects]}),
+        ...(abilityEffects === undefined ? {} : {ability_effects: [...abilityEffects]}),
         volatiles: previous?.volatiles ? [...previous.volatiles] : [],
         possible_roles: previous?.possible_roles ? [...previous.possible_roles] : [],
         possible_moves: previous?.possible_moves ? [...previous.possible_moves] : [],

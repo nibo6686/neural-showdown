@@ -42,12 +42,9 @@ test('replay-born forfeit validates the exact prefix without inventing a decisio
   assert.ok(result.decisions[0].every((frame: any) => frame.action === null));
 });
 
-test('replay-born reports the existing W3 pivot authority blocker without adopting its actor binding', {timeout: 60000}, async () => {
-  await assert.rejects(replaySession(fixture('2699617940'), {collect: false, kdiff: true}), (error: any) => {
-    assert.match(error.message, /unbound-switch-source/);
-    assert.ok(error.replayResult.switch_sources.some((source: string) => source === 'effect-switch:uturn'));
-    assert.equal(error.replayResult.kdiff.mismatches, 0); return true;
-  });
+test('replay-born completes the source-qualified pivot fixture with zero K differences', {timeout: 60000}, async () => {
+  const result = await replaySession(fixture('2699617940'), {collect: false, kdiff: true});
+  assert.equal(result.born, true); assert.equal(result.kdiff.mismatches, 0);
 });
 
 test('replay-born rejects nonmapping human choices, forbidden inputs and tampered public logs', {timeout: 20000}, async () => {

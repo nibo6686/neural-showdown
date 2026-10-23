@@ -142,6 +142,15 @@ def bound_owned_target(observation, target, predecessor=None):
     return authority[1] if authority and target == authority[0] and appearance == authority[0] else target
 
 
+def _public_percentage(text):
+    # Pokemon.getHealth rounds after multiplying integer HP by 100.
+    if text == '0 fnt': return 0
+    match = re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)(?: (?:brn|par|slp|frz|psn|tox))?', text)
+    if not match: raise ValueError('Exact HP is required for percentage comparison')
+    hp, maximum = int(match[1]), int(match[2])
+    return min(99 if hp < maximum else 100, math.ceil(100 * hp / maximum))
+
+
 def validate_public_health(observation, predecessor=None, *, reader_rules=HISTORICAL10_CONTEXT):
     reader_context(reader_rules)
     revival_targets = set()
@@ -201,12 +210,12 @@ def validate_public_health(observation, predecessor=None, *, reader_rules=HISTOR
                 fail(f"{target} {key} disagrees with {'owner request' if owner is not None else 'public prefix'}")
         if owner_public_precision:
             exact = _condition(row["hp_text"])["hp_ratio"]
-            percentage = 0 if exact == 0 else min(99 if exact < 1 else 100, math.ceil(exact * 100))
+            percentage = _public_percentage(row["hp_text"])
             if row.get("hp_ratio") != exact or percentage / 100 != public_state["hp_ratio"]:
                 fail(f"{target} owner/public HP disagree")
         if owner is not None and target == appearance and "hp_ratio" in public_state and "/100" in public_state.get("hp_text", ""):
             exact = expected["hp_ratio"]
-            percentage = 0 if exact == 0 else min(99 if exact < 1 else 100, math.ceil(exact * 100))
+            percentage = _public_percentage(expected["hp_text"])
             if percentage / 100 != public_state["hp_ratio"]:
                 fail(f"{target} request/public HP disagree")
         if owner is not None and target == appearance and "fainted" in public_state and public_state["fainted"] != expected["fainted"]:

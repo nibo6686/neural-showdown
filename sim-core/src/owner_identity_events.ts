@@ -1,7 +1,11 @@
 import type { PipelineBoundary } from './pipeline_integration';
 import { isDeepStrictEqual } from 'node:util';
-import type { Battle } from 'pokemon-showdown';
+import { Battle } from 'pokemon-showdown';
 import { BattleActions } from 'pokemon-showdown/dist/sim/battle-actions';
+import {Side} from 'pokemon-showdown/dist/sim/side';
+import type {CanonicalAction} from './canonical_action';
+import type {LocalBattleEnv} from './env_manager';
+import type {RequestDeliveryLedger, DeliveredSwitchChoice} from './request_delivery_ledger';
 import { NativeBirthEnrollment, NativeObjectAssociation, type NativeRestoreTicket, type SwitchActorReceiver } from './owner_identity_crosswalk';
 import type { SeededBattleSnapshot } from './transition';
 import type { PlayerID } from './types';
@@ -50,6 +54,10 @@ type World = {
   public: Array<{ token: object; version: number; byte: string }>; source?: SeededBattleSnapshot; parent?: PipelineBoundary;
   detach: Array<() => void>; sending?: Frame;
   unboundSources: string[];
+  choices: Map<PlayerID, DeliveredSwitchChoice>;
+  admitted: boolean;
+  uncaptured: boolean;
+  submitting?: {source: DeliveredSwitchChoice; captured: boolean};
 };
 
 /** Session-private tentative infrastructure. No committed event capability or wire projection. */
@@ -91,19 +99,33 @@ export class SwitchEventHost {
     if (this.#closed || !world?.active) fail('unavailable-world');
     return world!;
   }
+  admitChoices(env: LocalBattleEnv, ledger: RequestDeliveryLedger, proof: object): void {
+    const world = this.world(env);
+    if (world.admitted || world.submitting) fail('duplicate-switch-admission');
+    for (const source of ledger.consumeSwitchChoices(proof, env)) world.choices.set(source.owner, source);
+    world.admitted = true;
+  }
+  submitChoice(env: object, owner: PlayerID, action: CanonicalAction, submit: () => void): void {
+    const world = this.world(env), source = world.choices.get(owner);
+    if (!source && action.kind !== 'switch') {submit(); return;}
+    if (!source || source.action !== action || action.player !== owner || action.choice !== source.choice || world.submitting) fail('foreign-or-replayed-switch-choice');
+    world.choices.delete(owner); const frame = {source, captured: false}; world.submitting = frame;
+    try {submit(); if (!frame.captured) world.uncaptured = true;}
+    finally {world.submitting = undefined;}
+  }
   attachBirth(env: object, battle: Battle, stream: object): void {
-    this.attach(env, battle, stream, () => this.#birth.transferSwitchActors(env, battle));
+    this.attach(env, battle, stream, () => this.#birth.transferSwitchActors(env, battle), true);
   }
   attachRestored(env: object, battle: Battle, stream: object, ticket: NativeRestoreTicket): void {
-    this.attach(env, battle, stream, () => this.#association.transferSwitchActors(env, battle, ticket));
+    this.attach(env, battle, stream, () => this.#association.transferSwitchActors(env, battle, ticket), false);
     try { this.world(env).load(); } catch (error) { this.release(env); throw error; }
   }
-  private attach(env: object, battle: Battle, stream: object, load: () => void): void {
+  private attach(env: object, battle: Battle, stream: object, load: () => void, birth: boolean): void {
     if (this.#closed || this.#worlds.has(env)) fail('duplicate-world');
     const native = battle as any, log = native.log as string[];
     const world: World = { battle: native, stream, load, actors: new Map(), leases: { p1: token(), p2: token() },
       rows: log.map(() => ({ token: token(), version: 0, alive: true })), log, proxy: log,
-      writers: [], frames: [], fifo: [], public: [], active: true, valid: true, detach: [], unboundSources: [] };
+      writers: [], frames: [], fifo: [], public: [], active: true, valid: true, detach: [], unboundSources: [], choices: new Map(), admitted: false, uncaptured: false };
     this.#worlds.set(env, world); world.spectator = this.#spectators.get(env);
     let writing: Writer | undefined;
     const removed = (rows: Row[]) => { for (const row of rows) { row.alive = false; if (row.writer) row.writer.valid = false; } };
@@ -155,7 +177,41 @@ export class SwitchEventHost {
       object[key] = make(original);
       world.detach.push(() => { if (descriptor) Object.defineProperty(object, key, descriptor); else delete object[key]; });
     };
-    let actorFrame: { actor: object; supported: boolean; used: boolean; source: string } | undefined;
+    const chosen = new WeakMap<object, {target: object; pokemon: object; kind: string; source: DeliveredSwitchChoice}>();
+    const wrappedSides = new WeakSet<object>();
+    wrap(native, 'choose', original => (...args: any[]) => {
+      const side = native[args[0]], submission = world.submitting;
+      if (submission && (args[0] !== submission.source.owner || args[1] !== submission.source.choice || original !== Battle.prototype.choose)) fail('foreign-native-choice');
+      if (side && !wrappedSides.has(side)) {
+        const canonical = side.choose === Side.prototype.choose;
+        wrap(side, 'choose', choose => (...inputs: any[]) => {
+          const source = world.submitting;
+          const result = choose.apply(side, inputs);
+          if (source && result !== false) {
+            const actions = side.choice.actions, action = actions[0];
+            if (!canonical || side !== native[source.source.owner] || inputs[0] !== source.source.choice || result !== true
+              || source.captured || actions.length !== 1 || !['switch','instaswitch'].includes(action?.choice)
+              || action.target?.side !== side || action.pokemon !== side.active[0]) fail('invalid-native-switch-choice');
+            chosen.set(action, {target: action.target, pokemon: action.pokemon, kind: action.choice, source: source.source});
+            source.captured = true;
+          }
+          return result;
+        }); wrappedSides.add(side);
+      }
+      return original.apply(native, args);
+    });
+    let running: {action: any; target: object; used: boolean} | undefined, birthPending = birth;
+    wrap(native, 'runAction', original => (action: any) => {
+      const previous = running, choice = chosen.get(action);
+      if (choice) {
+        if (original !== Battle.prototype.runAction || action.target !== choice.target || action.pokemon !== choice.pokemon || action.choice !== choice.kind) fail('altered-native-switch-choice');
+        chosen.delete(action); running = {action, target: choice.target, used: false};
+      } else running = undefined;
+      const starting = birthPending && action.choice === 'start' && original === Battle.prototype.runAction;
+      try {return original.call(native, action);}
+      finally {if (starting) birthPending = false; running = previous;}
+    });
+    let actorFrame: { actor: object; supported: boolean; used: boolean; source: string; effect: any } | undefined;
     const canonicalProducer = !Object.hasOwn(native.actions, 'switchIn')
       && native.actions.switchIn === BattleActions.prototype.switchIn;
     wrap(native.actions, 'switchIn', original => (...args: any[]) => {
@@ -163,7 +219,8 @@ export class SwitchEventHost {
       const previous = actorFrame;
       actorFrame = { actor: args[0], supported: canonicalProducer && native.gameType === 'singles' && native.activePerHalf === 1
         && native.sides.length === 2 && native.sides.every((side: any) => side?.active.length === 1)
-        && args[1] === 0 && !args[2] && !args[3], used: false,
+        && args[1] === 0 && !args[3]
+        && (birthPending && !args[2] || !!running && !running.used && running.target === args[0] && (args[2] ?? null) === (running.action.sourceEffect ?? null)), used: false, effect: args[2],
         source: (args[3] ? 'drag:' : args[2] ? 'effect-switch:' : 'direct:') + (args[2]?.id || native.effect?.id || 'unknown') };
       try { return original.apply(native.actions, args); } finally { actorFrame = previous; }
     });
@@ -171,11 +228,13 @@ export class SwitchEventHost {
       if (['switch','drag'].includes(args[0]) && !actorFrame?.supported) {
         world.unboundSources.push(actorFrame?.source ?? args[0] + ':unbound-producer');
       }
-      if (!writing && actorFrame?.supported && !actorFrame.used && args.length === 3 && args[0] === 'switch'
+      if (!writing && actorFrame?.supported && !actorFrame.used
+        && (actorFrame.effect ? args.length === 4 && args[3] === `[from] ${actorFrame.effect}` : args.length === 3) && args[0] === 'switch'
         && args[1] === actorFrame.actor && args[2] === (actorFrame.actor as any).getFullDetails) {
         const actor = world.actors.get(actorFrame.actor);
         if (!actor) fail('unregistered-direct-switch-actor');
         actorFrame.used = true;
+        if (running) running.used = true;
         const writer: Writer = { token: token(), actor: Object.freeze({ owner: actor.owner, slot: actor.slot, original: actor.original }), rows: [], valid: true };
         world.writers.push(writer); writing = writer;
         try { return original.apply(native, args); } finally { writing = undefined; }
@@ -249,6 +308,8 @@ export class SwitchEventHost {
   prepare(env: object, boundary: PipelineBoundary, snapshot: SeededBattleSnapshot,
     projection: { prefix: string[]; positions: Array<number | null> }, parent: PipelineBoundary | null): object {
     const world = this.world(env), prior = this.#current, lineage = this.#snapshots.get(snapshot);
+    if (world.choices.size || world.submitting) fail('unsubmitted-switch-choice');
+    if (world.uncaptured) fail('missing-native-switch-choice');
     if (!world.valid || world.battle.log !== world.proxy || world.fifo.length || world.frames.some(frame => !frame.received)) fail('incomplete-routed-proof');
     this.validateWriters(world);
     if (parent !== (prior?.parent ?? null) || (parent ? world.parent !== parent || world.source !== prior!.snapshot : !!world.source)) fail('foreign-event-parent');
@@ -284,8 +345,8 @@ export class SwitchEventHost {
       events[owner].push(Object.freeze({ owner, original_slot: writer.actor.slot, event_index: events[owner].length,
         public_index: routed.position, prefix_index: routed.prefix, branch_id: boundary.branch_id, step_index: boundary.step_index }));
     }
-    // Direct switch rows lacking a qualified writer do not gain partial authority.
-    for (const row of world.public) if (row.byte.startsWith('|switch|') && !bindings.has(row.token)) {
+    // Every entry needs a qualified writer; drags cannot inherit choice authority.
+    for (const row of world.public) if ((row.byte.startsWith('|switch|') || row.byte.startsWith('|drag|')) && !bindings.has(row.token)) {
       throw Object.assign(new Error('switch-events/v1/unbound-switch-source'), {switch_sources: [...world.unboundSources]});
     }
     const histories = Object.fromEntries((['p1', 'p2'] as const).map(owner => [owner, Object.freeze({ owner,

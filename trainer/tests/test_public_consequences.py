@@ -6,6 +6,41 @@ from neural.public_ability import public_gas_sources, validate_public_ability
 
 
 class PublicConsequenceTests(unittest.TestCase):
+    def test_native_hp_rounding_and_as_one_components(self):
+        from neural.version_profile import NATIVE11_CONTEXT
+        from neural.typed_state import project_public_typed_state
+        for actor in ("p1", "p2"):
+            ident = f"{actor}: Own"
+            prefix = [f"|switch|{actor}a: Own|Sylveon|56/100"]
+            row = dict(ident=ident, hp_text="168/300", hp_ratio=168/300, status=None, fainted=False, active=True)
+            observation = dict(perspective=actor, protocol_prefix=prefix, request={"side":[dict(ident=ident, condition="168/300", active=True)]}, view=dict(self_team=[row], opponent_team=[]))
+            for request in (observation["request"], None):
+                observation["request"] = request
+                validate_public_health(observation, reader_rules=NATIVE11_CONTEXT)
+                for wrong in (55,57):
+                    bad = copy.deepcopy(observation); bad["protocol_prefix"] = [prefix[0].replace("56/100", f"{wrong}/100")]
+                    with self.assertRaisesRegex(ValueError, "HP disagree"): validate_public_health(bad, reader_rules=NATIVE11_CONTEXT)
+            prefix = [f"|switch|{actor}a: Own|Calyrex-Shadow|100/100", f"|-ability|{actor}a: Own|As One", f"|-ability|{actor}a: Own|Unnerve"]
+            for ability in ("asonespectrier", "asoneglastrier"):
+                row = dict(ident=ident, ability=ability, base_ability=ability, ability_state="known", ability_suppressed=False, active=True, fainted=False, transformed=False, item=None)
+                observation = dict(perspective=actor, protocol_prefix=prefix, request={"side":[copy.deepcopy(row)]}, view=dict(self_team=[row], opponent_team=[]))
+                validate_public_ability(observation, reader_rules=NATIVE11_CONTEXT)
+                component = "Grim Neigh" if ability == "asonespectrier" else "Chilling Neigh"
+                boosted = copy.deepcopy(observation); boosted["protocol_prefix"] = prefix + [f"|-ability|{actor}a: Own|{component}|boost"]
+                validate_public_ability(boosted, reader_rules=NATIVE11_CONTEXT)
+                wrong = "Chilling Neigh" if component == "Grim Neigh" else "Grim Neigh"
+                boosted["protocol_prefix"] = prefix + [f"|-ability|{actor}a: Own|{wrong}|boost"]
+                with self.assertRaisesRegex(ValueError,"contradict"): validate_public_ability(boosted, reader_rules=NATIVE11_CONTEXT)
+                bad=copy.deepcopy(observation); bad["protocol_prefix"]=[prefix[0],prefix[2]]
+                with self.assertRaisesRegex(ValueError,"contradicts"): validate_public_ability(bad,reader_rules=NATIVE11_CONTEXT)
+                bad=copy.deepcopy(observation); bad["view"]["self_team"][0]["ability"]="unnerve"; bad["request"]["side"][0]["ability"]="unnerve"
+                with self.assertRaisesRegex(ValueError,"contradict"): validate_public_ability(bad,reader_rules=NATIVE11_CONTEXT)
+            prefix=[f"|switch|{actor}a: Own|Regigigas|100/100",f"|-start|{actor}a: Own|Slow Start",f"|faint|{actor}a: Own"]
+            end=f"|-end|{actor}a: Own|Slow Start|[silent]"
+            project_public_typed_state(prefix+[end],reader_rules=NATIVE11_CONTEXT)
+            for suffix in (["|turn|2",end],[end.replace("|[silent]","")],[end.replace("Own","Foreign")]):
+                with self.assertRaisesRegex(ValueError,"nonactive"): project_public_typed_state(prefix+suffix,reader_rules=NATIVE11_CONTEXT)
+
     def test_partial_terminal_authority_replays_only_supplied_ability_fields(self):
         for actor, other in (("p1", "p2"), ("p2", "p1")):
             for fields, suffix, expected in (
