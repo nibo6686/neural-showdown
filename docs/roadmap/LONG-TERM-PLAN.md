@@ -429,6 +429,12 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   checks every adopted registry row against the simulator's truth. W1's owned
   red tests move as well. This makes 29k real battles the oracle for all of
   Phase 1, and the data path for Track B. It pulls the core of W8 forward.
+- **W3.1 (pulled forward, runs right after W1.1)**: switch-source authority
+  for non-direct entries (pivots, drags, Red Card, Eject Button/Pack,
+  Emergency Exit, Shed Tail/Baton Pass), scoped by W1.1's failure breakdown.
+  Target: ≥99% born-session pass rate over the admitted corpus, with 0 K-diff
+  mismatches. Without it, the corpus oracle covers only battles without such
+  switches.
 - **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
   continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
   mismatches on the new rows.
