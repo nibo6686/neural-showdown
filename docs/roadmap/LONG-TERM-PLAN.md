@@ -436,6 +436,16 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   mismatches. Without it, the corpus oracle covers only battles without such
   switches.
 - **Immediate follow-up: W3 switch authority, before W1.2** (owner decision, 2026-10-23). Qualify pivots, drags and other non-direct switch writers without relaxing identity authority. W1.1 records the observed source kinds and counts; the full born/K corpus gate resumes after this fix.
+- **W1.1 — done** (`ef3deca`): `replaySession` births authoritative sessions
+  from input-log seeds. The K differential covers all 25 adopted rows. Pilot:
+  227/500 complete, **0 K mismatches over 2.5M checks**. Blockers: pivots 247
+  (U-turn 120, Flip Turn 51, Volt Switch 50, Parting Shot 14, Shed Tail 6,
+  Chilly Reception 4, Teleport 2), Slow Start schema 16, public health 7,
+  public ability 3. 58 old Prompt13/14 request-sidecar characterizations
+  were retired. The sidecar is no longer imported by `src`. **W1.2 must
+  re-prove their still-relevant controls natively** (for example, ordinary
+  slots carry pp/maxpp/target/disabled for both owners).
+- **W3.1** brief: `briefs/W3.1.md`.
 - **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
   continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
   mismatches on the new rows.
