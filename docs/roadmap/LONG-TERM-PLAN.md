@@ -463,7 +463,15 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   durable: resilient writes, an auto-resuming supervisor, a keep-awake hold
   (no settings change), and sleep/time-jump tolerance. It then relaunches the
   full gate on the latest commit (W1.2 included) from a fresh worktree.
-- **W1.2** brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
+- **W1.2 — done** (`b5f4a63`; reviewed in an isolated worktree together with
+  W3.2's code): six own move/PP rows adopted within the opt-in ordinary/base
+  scope; 300/300 sample, **0 K mismatches over 4.0M checks**; retired request
+  controls re-proven natively. No real suite regressions (26 new failures
+  come from two Python tests needing git-ignored data; `pipeline_episode`
+  improved from 8 to 3 failures).
+- **W1.3** brief: `briefs/W1.3.md` (K08 flags and lock; parallel Python fast
+  gate; data-dependent tests skip cleanly).
+- W1.2 brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
   PP; re-proves the retired sidecar controls natively; 300-battle K-diff
   sample).
 - W3.2 brief: `briefs/W3.2.md` (drag authority, episode expectations,
