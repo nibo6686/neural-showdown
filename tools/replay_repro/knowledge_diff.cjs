@@ -5,10 +5,15 @@ const {installedNativeProfile} = require('../../sim-core/dist/src/version_profil
 const {Teams} = require(installedNativeProfile().package_root);
 const owners = ['p1', 'p2'], stats = ['atk', 'def', 'spa', 'spd', 'spe'];
 const keyOf = row => [row.family, row.property, row.context, row.perspective].join('/');
-const relevant = registry.rows.filter(r => r.status === 'adopted' || r.status === 'legitimately_unknown');
+const moveProperties = new Set(['current_moves','move_incarnation','pp','max_pp']);
+const registered = registry.rows.filter(r => r.status === 'adopted' || r.status === 'legitimately_unknown');
 
 /** Offline read-only oracle. Simulator truth never enters projections or chosen actions. */
-function createKnowledgeDiff(session) {
+function createKnowledgeDiff(session, {ownerMoves=false}={}) {
+  // Old private profiles keep their previous oracle obligations and output.
+  const hasMoves=ownerMoves;
+  const relevant=registered.filter(row=>!moveProperties.has(row.property)||hasMoves);
+  const observed=new Map();
   const rows = Object.fromEntries(relevant.map(row => [keyOf(row), {checks: 0, unknown: 0, mismatches: 0}]));
   const examples = [], starting = {};
   const initial = session.environment.battleStream.battle;
@@ -39,6 +44,43 @@ function createKnowledgeDiff(session) {
       const association = current.readNativeObjectHolding(current.getNativeObjectHolding(owner), owner);
       const roster = new Map(association.original_slots.map((slot, position) => [slot, battle[owner].pokemon[position]]));
       for (const row of relevant) {
+        if(moveProperties.has(row.property)){
+          const key=keyOf(row),moves=projection.owned_moves,history=current.readRequestDeliveryHistory(current.getRequestDeliveryHandle(owner),owner);
+          const delivered=sequence=>{const d=history.deliveries.find(d=>d.sequence===sequence);return d?JSON.parse(d.source.request_json):null;};
+          if(!moves){mismatch(key,frame,null,null,'missing-move-profile');continue;}
+          if(row.property==='current_moves'){
+            for(const inventory of moves.roster){const f=inventory.current_moves;if(f.state==='unknown'){rows[key].unknown++;continue;}
+              rows[key].checks++;const slot=Number(inventory.subject.split(':')[2]),actor=roster.get(slot),position=battle[owner].pokemon.indexOf(actor);
+              const raw=delivered(f.sequence),expected=raw?.side?.pokemon[position]?.moves;
+              if(!isDeepStrictEqual(f.value,expected))mismatch(key,frame,inventory,expected,'roster-emission-mismatch');
+            }continue;
+          }
+          if(row.property==='move_incarnation'){
+            for(const m of moves.moves){if(m.membership!=='present'){rows[key].unknown++;continue;}rows[key].checks++;
+              const actor=roster.get(Number(m.subject.split(':')[2])),base=actor?.baseMoveSlots[m.anchor-1];
+              if(m.incarnation!==1||!base||base.virtual||!actor.moveSlots.includes(base))mismatch(key,frame,m,1,'native-base-incarnation-mismatch');
+            }
+            rows[key].unknown+=moves.roster.reduce((n,r)=>n+r.unbound_positions.length,0);continue;
+          }
+          if(row.context==='request'){
+            const raw=delivered(projection.request.sequence);
+            for(const option of projection.request.options||[]){rows[key].checks++;const projected=option[row.property],expected=raw?.active?.[0]?.moves[option.option_index-1]?.[row.property==='max_pp'?'maxpp':'pp'];
+              if(projected.state!=='known'||projected.value!==expected)mismatch(key,frame,option,expected,'option-emission-mismatch');
+            }
+            if(!projection.request.options)rows[key].unknown++;continue;
+          }
+          for(const m of moves.moves){const f=m[row.property],obsKey=owner+'/'+m.subject+'/'+row.property;
+            if(f.state==='unknown'){rows[key].unknown++;if(f.value!==null)mismatch(key,frame,m,null,'fabricated-unknown-PP');continue;}
+            rows[key].checks++;let expected=observed.get(obsKey);
+            if(f.freshness==='current'){
+              const actor=roster.get(Number(m.subject.split(':')[2])),base=actor?.baseMoveSlots[m.anchor-1],index=actor?.moveSlots.indexOf(base),raw=delivered(f.sequence);
+              const value=raw?.active?.[0]?.moves[index]?.[row.property==='max_pp'?'maxpp':'pp'];
+              expected={value,sequence:f.sequence,observed_at:f.observed_at};observed.set(obsKey,expected);
+              if(value!==base?.[row.property==='max_pp'?'maxpp':'pp'])mismatch(key,frame,m,base?.pp,'native-PP-emission-mismatch');
+            }
+            if(!expected||f.value!==expected.value||f.sequence!==expected.sequence||f.observed_at!==expected.observed_at)mismatch(key,frame,m,expected,'retained-PP-mismatch');
+          }continue;
+        }
         const key = keyOf(row), context = row.context === 'original' ? projection.starting : projection.current;
         const facts = context.filter(f => f.property === row.property && f.family === row.family
           && (row.perspective === 'own' ? f.owner === owner : f.owner !== owner));

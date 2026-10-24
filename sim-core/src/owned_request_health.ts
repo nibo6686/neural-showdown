@@ -9,6 +9,7 @@ import type { PlayerID } from './types';
 import type { OriginalOwnerEvidence } from './original_owner_provider';
 import type { RequestEmissionReceipt, RequestProducerEmission } from './request_emission_trace';
 import type { RequestDeliveryLedger, RequestDeliveryBoundary } from './request_delivery_ledger';
+import {OwnedRequestMoveState, type OwnedMovesData} from './owned_request_moves';
 const owners = ['p1', 'p2'] as const;
 const pinned = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests')!;
 const sideDataPin = Object.getOwnPropertyDescriptor(Side.prototype, 'getRequestData')!;
@@ -34,7 +35,7 @@ export interface OwnedActiveOptions { readonly schema: 'owned-active-options/v1'
 type World = { battle: Battle; rows?: AssociationRows; undo: Array<() => void>; sides: Set<object>; decodeCalls: number; receipts: Set<object>; moveData: Set<object> };
 type SnapshotRows = { rows: Partial<Record<PlayerID, readonly { slot: number; condition: string }[]>>; originals: Partial<Record<PlayerID, object>> };
 type Prepared = { environment: object; boundary: PipelineBoundary; ledger: RequestDeliveryLedger;
-  transfers: Record<PlayerID, object>; captures: Partial<Record<PlayerID, Capture>>; facts: Record<PlayerID, readonly any[]>; states: Record<PlayerID, string>; descriptors: Record<PlayerID, OwnedActiveOptions> };
+  transfers: Record<PlayerID, object>; captures: Partial<Record<PlayerID, Capture>>; facts: Record<PlayerID, readonly any[]>; states: Record<PlayerID, string>; descriptors: Record<PlayerID, OwnedActiveOptions>; moves?:Record<PlayerID,OwnedMovesData> };
 /** Exact native writer lineage and held B1/B2 associations. No JSON/source admission. */
 export class OwnedRequestHealthHost {
   readonly #birth: NativeBirthEnrollment;
@@ -55,7 +56,9 @@ export class OwnedRequestHealthHost {
   #prepared = new Map<object, Prepared>();
   #ready: Prepared | null = null;
   #parent: PipelineBoundary | null = null;
-  constructor(birth: NativeBirthEnrollment, association: NativeObjectAssociation) {
+  readonly #moves: OwnedRequestMoveState | undefined;
+  constructor(birth: NativeBirthEnrollment, association: NativeObjectAssociation, moves = false) {
+    this.#moves = moves ? new OwnedRequestMoveState() : undefined;
     this.#birth = birth;
     const receiver = (issuer: NativeBirthEnrollment | NativeObjectAssociation) => ({
       observe: (environment: object, battle: Battle) => this.attach(environment, battle, true),
@@ -66,6 +69,7 @@ export class OwnedRequestHealthHost {
           && rows[owner].objects.length === rows[owner].original.raw_team.length
           && rows[owner].objects.every(actor => actor?.side === battle[owner])), 'owner-association');
         world.rows = rows;
+        this.#moves?.enroll(environment,rows);
       },
       restore: (environment: object, parent: PipelineBoundary, snapshot: SeededBattleSnapshot, ticket: NativeRestoreTicket) => {
         this.open(); need(parent === this.#parent && !this.#restores.has(environment), 'foreign-restore-parent');
@@ -84,6 +88,7 @@ export class OwnedRequestHealthHost {
     this.open(); need(!this.#worlds.has(environment) && !Object.hasOwn(battle, 'getRequests')
       && battle.getRequests === pinned.value && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests'), pinned), 'noncanonical-producer');
     const world: World = { battle, undo: [], sides: new Set(), decodeCalls: 0, receipts: new Set(), moveData: new Set() }; this.#worlds.set(environment, world);
+    this.#moves?.attach(environment,battle,initial);
     this.replace(world, battle, 'getRequests', (...args: any[]) => {
       if (decoding) need(++world.decodeCalls === 1, 'multiple-regeneration');
       if (initial && !world.rows) this.#birth.transferRequestHealthActors(environment, battle);
@@ -105,6 +110,7 @@ export class OwnedRequestHealthHost {
         need(!Object.hasOwn(actor, 'getSwitchRequestData') && actor.getSwitchRequestData === rowPin.value
           && isDeepStrictEqual(Object.getOwnPropertyDescriptor(Pokemon.prototype, 'getSwitchRequestData'), rowPin), 'noncanonical-pokemon');
         this.attachMoveWriter(world, actor);
+        this.#moves?.wrapActor(environment,actor);
         const writer = actor.getSwitchRequestData;
         this.replace(world, actor, 'getSwitchRequestData', (...args: any[]) => {
           const data = writer.apply(actor, args);
@@ -212,7 +218,7 @@ export class OwnedRequestHealthHost {
         max_pp: Object.freeze({ state: 'known', value: row.maxpp, precision: 'exact', reason: 'none' }) }))) : null });
   }
   /** Only the final admitted synchronous native decode. Probe callers never use this seam. */
-  decode(environment: object, ticket: object, operation: () => Battle): Battle {
+  decode(environment: object, ticket: object, operation: () => Battle, input?:Record<string,unknown>): Battle {
     assertAuthoritativeEnvironment(environment);
     this.open(); const restore = this.#restores.get(environment);
     need(restore?.ticket === ticket && !decoding, 'foreign-or-nested-decode');
@@ -230,7 +236,8 @@ export class OwnedRequestHealthHost {
     } });
     const host = this, intercept = Object.getOwnPropertyDescriptor(Battle.prototype, 'getRequests')!;
     try {
-      returned = operation(); need(!captured || captured === returned, 'foreign-decoded-battle');
+      returned = this.#moves ? this.#moves.decode(environment,restore.snapshot,input,operation) : operation(); need(!captured || captured === returned, 'foreign-decoded-battle');
+      need(returned,'missing-decoded-battle');
       const expected = (restore.snapshot.simulator_state as any).sides.some((side: any) => side.activeRequest === undefined);
       need(count === (expected ? 1 : 0), 'missing-regeneration');
       if (!captured) { Object.defineProperty(Battle.prototype, 'getRequests', pinned); this.attach(environment, returned, false); }
@@ -298,7 +305,11 @@ export class OwnedRequestHealthHost {
     if (settled) need(capture.rows.every(row => row.actor.hp === row.hp && row.actor.maxhp === row.maxhp
       && row.actor.status === row.status && row.actor.fainted === row.fainted), 'stale-settled-value');
   }
-  recordSnapshot(environment: object, snapshot: SeededBattleSnapshot): void {
+  serialize(environment:object,battle:Battle,operation:()=>Record<string,unknown>):Record<string,unknown> {
+    return this.#moves ? this.#moves.serialize(environment,battle,operation) : operation();
+  }
+  recordSnapshot(environment: object, snapshot: SeededBattleSnapshot, raw?:Record<string,unknown>): void {
+    this.#moves?.recordSnapshot(environment,raw,snapshot);
     const world = this.#worlds.get(environment); if (!world?.rows) return;
     const saved: SnapshotRows = { rows: {}, originals: {} };
     for (const owner of owners) {
@@ -313,6 +324,7 @@ export class OwnedRequestHealthHost {
     this.#snapshots.set(snapshot, saved);
   }
   finalizeSnapshot(source: SeededBattleSnapshot, target: SeededBattleSnapshot): void {
+    this.#moves?.finalizeSnapshot(source,target);
     const held = this.#snapshots.get(source); if (held) this.#snapshots.set(target, held);
   }
   cloneOverlay(environment: object, battle: Battle, owner: PlayerID, override: any): any {
@@ -333,10 +345,11 @@ export class OwnedRequestHealthHost {
     assertAuthoritativeEnvironment(environment);
     this.open(); const world = this.#worlds.get(environment); need(world?.rows, 'missing-enrollment');
     const facts = {} as Record<PlayerID, readonly any[]>, states = {} as Record<PlayerID, string>, captures: Prepared['captures'] = {};
-    const transfers = {} as Record<PlayerID, object>, descriptors = {} as Record<PlayerID, OwnedActiveOptions>;
+    const transfers = {} as Record<PlayerID, object>, descriptors = {} as Record<PlayerID, OwnedActiveOptions>, deliveries={} as Record<PlayerID,RequestDeliveryBoundary>;
     for (const owner of owners) {
       const transfer = transfers[owner] = ledger.prepareHealthTransfer(delivery, owner);
       const row = ledger.readHealthTransfer(transfer, owner, environment, boundary);
+      deliveries[owner]=row;
       const capture = row.selected && this.#receipts.get(row.selected);
       const observation = boundary.perspectives[owner].observation;
       states[owner] = observation.view.terminated ? 'terminal' : !row.current ? 'requestless' : capture?.request.wait ? 'waiting'
@@ -393,16 +406,17 @@ export class OwnedRequestHealthHost {
       facts[owner] = Object.freeze(out);
       descriptors[owner] = this.descriptor(usable ? capture! : undefined, world, owner, states[owner], row);
     }
-    const key = token(); this.#prepared.set(key, { environment, boundary, ledger, transfers, captures, facts, states, descriptors }); return key;
+    const key = token(), moves=this.#moves?.prepare(key,environment,boundary,captures,deliveries);
+    this.#prepared.set(key, { environment, boundary, ledger, transfers, captures, facts, states, descriptors, ...(moves?{moves}:{}) }); return key;
   }
   assertPreparedBinding(key: object, environment: object, boundary: PipelineBoundary, originals: readonly OriginalOwnerEvidence[]): void {
     this.open(); const entry = this.#prepared.get(key), world = this.#worlds.get(environment);
     need(entry?.environment === environment && entry.boundary === boundary && world?.rows
       && owners.every((owner, i) => world.rows![owner].original === originals[i]), 'foreign-knowledge-binding');
   }
-  readPrepared(key: object, owner: PlayerID): { facts: readonly any[]; state: string; descriptor: OwnedActiveOptions } {
+  readPrepared(key: object, owner: PlayerID): { facts: readonly any[]; state: string; descriptor: OwnedActiveOptions; moves?:OwnedMovesData } {
     this.open(); const entry = this.#prepared.get(key); need(entry && owners.includes(owner), 'foreign-preparation');
-    return { facts: entry.facts[owner], state: entry.states[owner], descriptor: entry.descriptors[owner] };
+    return { facts: entry.facts[owner], state: entry.states[owner], descriptor: entry.descriptors[owner], ...(entry.moves?{moves:entry.moves[owner]}:{}) };
   }
   preflight(key: object): void {
     this.open(); const entry = this.#prepared.get(key); need(entry, 'foreign-preparation');
@@ -411,15 +425,17 @@ export class OwnedRequestHealthHost {
       entry.ledger.readHealthTransfer(entry.transfers[owner], owner, entry.environment, entry.boundary);
       if (entry.captures[owner]) { this.checkCapture(entry.captures[owner]!, world, true); this.checkMove(entry.captures[owner]!, world); }
     }
-    this.#ready = entry;
+    this.#moves?.preflight(key); this.#ready = entry;
   }
-  installReady(): void { this.#parent = this.#ready!.boundary; this.#ready = null; this.#prepared.clear(); }
+  installReady(): void { this.#moves?.installReady(); this.#parent = this.#ready!.boundary; this.#ready = null; this.#prepared.clear(); }
   release(environment: object): void {
     const world = this.#worlds.get(environment); world?.moveData.forEach(data => this.#moveData.delete(data)); world?.receipts.forEach(receipt => this.#receipts.delete(receipt)); world?.undo.reverse().forEach(undo => undo());
+    this.#moves?.release(environment);
     this.#worlds.delete(environment); this.#latest.delete(environment); this.#restores.delete(environment);
     for (const [key, value] of this.#prepared) if (value.environment === environment) this.#prepared.delete(key);
     if (this.#ready?.environment === environment) this.#ready = null;
   }
   revoke(): void { for (const environment of this.#worlds.keys()) this.release(environment); this.#closed = true;
+    this.#moves?.revoke();
     this.#prepared.clear(); this.#ready = null; this.#receipts = new WeakMap(); this.#emissions = new WeakMap(); this.#snapshots = new WeakMap(); this.#moveData = new WeakMap(); }
 }

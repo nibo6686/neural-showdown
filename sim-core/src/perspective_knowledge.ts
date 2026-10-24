@@ -745,3 +745,59 @@ export function checkNativeOwnerDetailsProjection(input: unknown): void {
     if (['terminal','requestless'].includes(value.request.state)) requireStructure(DECLARED_PROPERTIES.every(property => get(property).state === 'unknown' && get(property).reason === 'not_emitted'),'native declared requestless');
   }
 }
+
+let nativeMovesContext: Readonly<{schema:Row;profile:Row}> | undefined;
+export function nativeOwnerMovesContext(): Readonly<{schema:Row;profile:Row}> {
+  if(nativeMovesContext)return nativeMovesContext;
+  const folder=path.resolve(__dirname,__dirname.endsWith(path.join('dist','src'))?'../../..':'../..','docs/contracts/fixtures/perspective-knowledge-native11-owner-moves-v1');
+  const data:Row={};
+  for(const [name,pin] of Object.entries({'profile.json':'f8a4205490f94949e173de8a90643b6e1bc9d41bf12f14d3e15b36779e4dfc6f','schema.json':'10a52210d38b588573baff6787576e730378b8f9d408fd1f16402e924da25124'})){
+    const bytes=readFileSync(path.join(folder,name));requireStructure(createHash('sha256').update(bytes).digest('hex')===pin,'native moves contract content');data[name]=parseKnowledgeJson(bytes);
+  }
+  requireStructure(data['profile.json'].id===knowledgeIdentity(data['profile.json']),'native moves profile identity');
+  function freeze(value:any):any{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
+  return nativeMovesContext=freeze({schema:data['schema.json'],profile:data['profile.json']});
+}
+/** Additive decoder: validates the inherited details contract unchanged. */
+export function checkNativeOwnerMovesProjection(input:unknown):void {
+  canonicalKnowledgeJson(input);const value=input as Row,context=nativeOwnerMovesContext();
+  shape(value,context.schema,context.schema.$defs);
+  requireStructure(value.id===knowledgeIdentity(value),'native moves identity');
+  const legacy=structuredClone(value),details=nativeOwnerDetailsContext();delete legacy.owned_moves;
+  legacy.schema='perspective-knowledge-consumer/native11-details-v1';legacy.policy=details.profile.policy;legacy.required_profile=details.profile.id;
+  for(const fact of legacy.current)if(fact.property==='current_moves')Object.assign(fact,{state:'unknown',value:null,reason:'unimplemented_family',observed_at:null,precision:'not_applicable'});
+  legacy.id=knowledgeIdentity(legacy);checkNativeOwnerDetailsProjection(legacy);
+  const moves=value.owned_moves,count=value.starting.find((f:Row)=>f.property==='roster_size').value.data;
+  requireStructure(moves.owner===value.owner&&moves.roster.length===count,'native moves owner roster');
+  const checkFact=(f:Row,quantity:boolean)=>{
+    requireStructure(f.state==='known'?f.reason==='none'&&f.value!==null&&Number.isSafeInteger(f.observed_at)&&f.observed_at>=0&&Number.isSafeInteger(f.sequence)&&f.sequence>=0:
+      f.reason==='not_emitted'&&f.value===null&&f.observed_at===null&&f.sequence===null&&f.freshness==='current','native moves fact tuple');
+    if(f.state==='known'&&quantity)requireStructure(Number.isSafeInteger(f.value)&&f.value>=0,'native moves quantity');
+    if(f.state==='known'&&f.freshness==='current')requireStructure(f.observed_at===value.request.cursor&&f.sequence===value.request.sequence,'native moves selected emission');
+  };
+  moves.roster.forEach((row:Row,i:number)=>{
+    requireStructure(row.subject===value.owner+':roster:'+(i+1),'native moves roster subject');checkFact(row.current_moves,false);
+    const fact=value.current.find((f:Row)=>f.property==='current_moves'&&f.subject===row.subject);
+    requireStructure(fact&&fact.owner===value.owner&&fact.family==='K02'&&fact.effect_key===null&&fact.state===row.current_moves.state&&fact.reason===row.current_moves.reason&&fact.observed_at===row.current_moves.observed_at&&fact.freshness==='current'&&fact.precision===(fact.state==='known'?'exact':'not_applicable')&&
+      (fact.state==='known'?fact.value?.type==='texts'&&canonicalKnowledgeJson(fact.value.data).equals(canonicalKnowledgeJson(row.current_moves.value)):fact.value===null),'native moves vector fact');
+    const positions=row.unbound_positions;
+    requireStructure(new Set(positions).size===positions.length&&positions.every((n:number)=>n<=row.current_moves.value?.length),'native moves unbound positions');
+    requireStructure(row.current_moves.state==='unknown'?row.incarnation_coverage==='blocked'&&row.reason==='not_emitted'&&positions.length===0:
+      row.incarnation_coverage===(positions.length?'blocked':'ordinary_base')&&row.reason===(positions.length?'unsupported_writer':'none'),'native moves coverage');
+  });
+  const subjects=new Map<string,Row>();
+  for(const row of moves.moves){
+    requireStructure(!subjects.has(row.subject)&&row.subject===value.owner+':roster:'+row.subject.split(':')[2]+':move:'+row.anchor+':incarnation:1'&&+row.subject.split(':')[2]<=count,'native move incarnation');subjects.set(row.subject,row);
+    checkFact(row.pp,true);checkFact(row.max_pp,true);
+    requireStructure(row.pp.state===row.max_pp.state&&row.pp.freshness===row.max_pp.freshness&&row.pp.sequence===row.max_pp.sequence&&row.pp.observed_at===row.max_pp.observed_at,'native move PP tuple');
+    if(row.pp.state==='known')requireStructure(row.pp.value<=row.max_pp.value,'native move PP range');
+    if(row.membership==='present')requireStructure(moves.roster[+row.subject.split(':')[2]-1].current_moves.state==='known','native move membership');
+  }
+  const indices=new Set<number>(),linked=new Set<string>();
+  for(const link of moves.option_links){
+    const row=subjects.get(link.subject),option=value.request.options?.[link.option_index-1];
+    requireStructure(row&&row.membership==='present'&&!indices.has(link.option_index)&&!linked.has(link.subject)&&link.cursor===value.request.cursor&&link.sequence===value.request.sequence&&option&&row.pp.state==='known'&&row.pp.freshness==='current'&&row.pp.value===option.pp.value&&row.max_pp.value===option.max_pp.value&&row.subject.startsWith(value.request.subject+':move:'),'native move option link');
+    indices.add(link.option_index);linked.add(link.subject);
+  }
+  for(const row of moves.moves)if(row.pp.state==='known'&&row.pp.freshness==='current')requireStructure(linked.has(row.subject),'native move unlinked current PP');
+}

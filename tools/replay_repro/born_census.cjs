@@ -9,7 +9,7 @@ if (!isMainThread) parentPort.on('message', async task => {
   try {
     const replay = JSON.parse(fs.readFileSync(task.file, 'utf8'));
     if (replay.id !== task.id) throw new Error('replay/manifest-id-mismatch');
-    const result = await require('./replay_session.cjs').replaySession(replay, {collect: false, kdiff: task.kdiff});
+    const result = await require('./replay_session.cjs').replaySession(replay, {collect: false, kdiff: task.kdiff, ownerMoves: task.ownerMoves});
     parentPort.postMessage({...result, seconds: (performance.now() - started) / 1000});
   } catch (error) {
     parentPort.postMessage({id: task.id, born: false, reason: error.message,
@@ -101,7 +101,7 @@ async function runBornCensus(args) {
         old.terminate().then(() => {record({id: active.id, born: false, reason: 'replay-time-limit'}); dispatch();}, reject);
       }, deadline);
       timers.add(timer);
-      worker.postMessage({id: active.id, file: path.join(directory, active.id + '.json'), kdiff: args.includes('--kdiff')});
+      worker.postMessage({id: active.id, file: path.join(directory, active.id + '.json'), kdiff: args.includes('--kdiff'), ownerMoves: args.includes('--owner-moves')});
     };
     const spawn = () => {
       worker = new Worker(__filename, memory === undefined ? {} : {resourceLimits:{maxOldGenerationSizeMb:memory}}); const epoch = ++generation;

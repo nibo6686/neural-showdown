@@ -60,16 +60,16 @@ function parseReplay(replay) {
 }
 
 /** Local paired replay consumer. Each addressed frame contains only its owner's private K. */
-async function replaySession(replay, {collect = true, kdiff = false, onBoundary, maxBoundaries = 2000} = {}) {
+async function replaySession(replay, {collect = true, kdiff = false, ownerMoves = false, onBoundary, maxBoundaries = 2000} = {}) {
   const {start, players, choices, server_commit} = parseReplay(replay), expected = expectedPublic(replay);
   const recipients = {p1: {}, p2: {}};
   const session = await PipelineIntegrationSession.create({battle_id: replay.id, format: start.formatid,
-    seed: start.seed, player_generation: players, knowledge_recipients: recipients});
+    seed: start.seed, player_generation: players, knowledge_recipients: recipients, ...(ownerMoves ? {knowledge_profile:"native-owner-moves/v1"} : {})});
   const boundaries = [];
   let differential;
   let count = 0, cursor = 0, matched = 0;
   try {
-    differential = kdiff ? require('./knowledge_diff.cjs').createKnowledgeDiff(session) : null;
+    differential = kdiff ? require('./knowledge_diff.cjs').createKnowledgeDiff(session,{ownerMoves}) : null;
     while (true) {
       const boundary = session.boundary;
       if (++count > maxBoundaries) throw new Error('replay/long-case-boundary-limit');

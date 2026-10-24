@@ -2,7 +2,7 @@ import { assertAuthoritativeEnvironment } from './env_manager';
 import { interpretOriginalValues } from './original_owner_values';
 import { OwnedRequestHealthHost } from './owned_request_health';
 import { OriginalOwnerCreation, type OriginalOwnerEvidence } from './original_owner_provider';
-import { checkNativeOwnerProjection, nativeOwnerDetailsContext, checkNativeOwnerDetailsProjection, nativeOwnerLoadoutContext, checkNativeOwnerLoadoutProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
+import { checkNativeOwnerMovesProjection, nativeOwnerMovesContext, checkNativeOwnerProjection, nativeOwnerDetailsContext, checkNativeOwnerDetailsProjection, nativeOwnerLoadoutContext, checkNativeOwnerLoadoutProjection, knowledgeIdentity, nativeOwnerProjectionContext, nativeOwnerHealthProjectionContext, checkNativeOwnerHealthProjection, nativeOwnerActiveOptionsContext, checkNativeOwnerActiveOptionsProjection, nativeOwnerIdentifiersContext, checkNativeOwnerIdentifiersProjection } from './perspective_knowledge';
 import { assertNativeRuntimeProfile, NATIVE_ENGINE_COMMIT, NATIVE_ENGINE_INTEGRITY, type NativeRuntimeProfile } from './version_profile';
 import type { PipelineBoundary } from './pipeline_integration';
 import type { PlayerID } from './types';
@@ -66,9 +66,10 @@ export class NativeOwnerKnowledgeController {
   }
   prepare(environment: object, boundary: PipelineBoundary, parent: PipelineBoundary | null, healthHost?: OwnedRequestHealthHost, healthToken?: object): object {
     assertAuthoritativeEnvironment(environment);
-    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined, profile = (health ? nativeOwnerDetailsContext() : nativeOwnerProjectionContext()).profile;
+    const source = this.source(), prior = this.#current, health = healthHost && healthToken ? { host: healthHost, token: healthToken } : undefined;
     if (parent !== (prior?.parent ?? null) || (parent ? boundary.step_index !== parent.step_index + 1 : boundary.step_index !== 0 || environment !== source.environment)) fail('parent');
     health?.host.assertPreparedBinding(health.token, environment, boundary, source.rows);
+    const moves = !!health?.host.readPrepared(health.token, 'p1').moves, profile = (moves ? nativeOwnerMovesContext() : health ? nativeOwnerDetailsContext() : nativeOwnerProjectionContext()).profile;
     const starting = prior?.starting ?? Object.freeze({ p1: nativeOwnerStartingFacts(source.rows[0], this.#runtime, this.#dex, !!health), p2: nativeOwnerStartingFacts(source.rows[1], this.#runtime, this.#dex, !!health) });
     const interpret = (owner: PlayerID, index: number) => Object.freeze(source.rows[index].raw_team.map((set: any, slot) =>
       freeze({ subject: owner + ':roster:' + (slot + 1), ...interpretOriginalValues(set, this.#dex, require(this.#runtime.entry)).interpretation })));
@@ -86,10 +87,14 @@ export class NativeOwnerKnowledgeController {
       });
       const adapted = health?.host.readPrepared(health.token, owner);
       if (adapted) current.push(...adapted.facts);
-      const projection: Record<string, any> = { kind: 'projection', id: '', schema: health ? 'perspective-knowledge-consumer/native11-details-v1' : 'perspective-knowledge-consumer/v1', owner,
+      if(adapted?.moves)for(const row of adapted.moves.roster){
+        const index=current.findIndex((f:any)=>f.property==='current_moves'&&f.subject===row.subject),fact=row.current_moves;
+        current[index]=freeze({owner,subject:row.subject,family:'K02',property:'current_moves',effect_key:null,state:fact.state,value:fact.state==='known'?{type:'texts',data:fact.value}:null,reason:fact.reason,freshness:'current',precision:fact.state==='known'?'exact':'not_applicable',observed_at:fact.observed_at});
+      }
+      const projection: Record<string, any> = { kind: 'projection', id: '', schema: moves ? 'perspective-knowledge-consumer/native11-moves-v1' : health ? 'perspective-knowledge-consumer/native11-details-v1' : 'perspective-knowledge-consumer/v1', owner,
         policy: profile.policy, boundary: boundary.step_index, required_profile: profile.id, result: 'incomplete',
-        starting: starting[owner], ...(health ? { original_interpretation: interpretations![owner], current_stats_semantics: 'request-declared-baseStoredStats/v1' } : {}), starting_crosswalk: [], current, request: adapted?.descriptor ?? null };
-      projection.id = knowledgeIdentity(projection); (health ? checkNativeOwnerDetailsProjection : checkNativeOwnerProjection)(projection);
+        starting: starting[owner], ...(health ? { original_interpretation: interpretations![owner], current_stats_semantics: 'request-declared-baseStoredStats/v1' } : {}), ...(adapted?.moves ? {owned_moves:adapted.moves} : {}), starting_crosswalk: [], current, request: adapted?.descriptor ?? null };
+      projection.id = knowledgeIdentity(projection); (moves ? checkNativeOwnerMovesProjection : health ? checkNativeOwnerDetailsProjection : checkNativeOwnerProjection)(projection);
       reads[owner] = freeze({ projection, binding: { observation_id: obs.observation_id,
         prefix_cursor: obs.event_cursor, ...(adapted ? { request_adaptation: 'owned_health/v1' as const, request_descriptor: 'owned-active-options/v1' as const, request_state: adapted.state } : { request_adaptation: 'not_adopted' as const }) } });
     }
@@ -103,7 +108,7 @@ export class NativeOwnerKnowledgeController {
     entry.health?.host.assertPreparedBinding(entry.health.token, entry.environment, entry.state.parent, source.rows);
     entry.health?.host.preflight(entry.health.token);
     for (const owner of owners) {
-      (entry.health ? checkNativeOwnerDetailsProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
+      (entry.state.reads[owner].projection.owned_moves ? checkNativeOwnerMovesProjection : entry.health ? checkNativeOwnerDetailsProjection : checkNativeOwnerProjection)(entry.state.reads[owner].projection);
       if (this.#current && entry.state.starting[owner] !== this.#current.starting[owner]) fail('starting-lineage');
     }
     this.#ready = entry;

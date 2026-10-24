@@ -1,0 +1,649 @@
+{
+  "kind": "profile",
+  "name": "native-owner-moves/v1",
+  "policy": "native-owner-moves/v1",
+  "provider": "native-owner-moves-provider/v1",
+  "engine": "pokemon-showdown@0.11.11+b8f23c99",
+  "format": "gen9randombattle",
+  "result": "incomplete",
+  "request_adaptation": "owned_health/v1",
+  "rules": [
+    {
+      "context": "starting",
+      "family": "K01",
+      "property": "roster_size",
+      "subject": "side",
+      "states": [
+        "known"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "starting",
+      "family": "K01",
+      "property": "roster_order",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "starting",
+      "family": "K01",
+      "property": "roster_species",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "starting",
+      "family": "K19",
+      "property": "ability",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "starting",
+      "family": "K18",
+      "property": "item",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "starting",
+      "family": "K02",
+      "property": "starting_moves",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reason": "none"
+    },
+    {
+      "context": "current",
+      "family": "K01",
+      "property": "roster_size",
+      "subject": "side",
+      "states": [
+        "unknown"
+      ],
+      "reason": "unimplemented_family"
+    },
+    {
+      "context": "current",
+      "family": "K01",
+      "property": "roster_species",
+      "subject": "roster",
+      "states": [
+        "unknown"
+      ],
+      "reason": "unimplemented_family"
+    },
+    {
+      "context": "current",
+      "family": "K19",
+      "property": "ability",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K18",
+      "property": "item",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K02",
+      "property": "current_moves",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K05",
+      "property": "hp",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K05",
+      "property": "fainted",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K05",
+      "property": "status",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "submitted_nature",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "submitted_evs",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "submitted_ivs",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "submitted_happiness",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "calculated_stats",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K03",
+      "property": "hp_max",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "level",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "gender",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "shiny",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "ball",
+      "subject": "roster",
+      "states": [
+        "known",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "details",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "starting",
+      "family": "K04",
+      "property": "starting_tera",
+      "subject": "roster",
+      "states": [
+        "known"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K03",
+      "property": "calculated_stats",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K03",
+      "property": "hp_max",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K04",
+      "property": "level",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K04",
+      "property": "gender",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown",
+        "known_absent"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K04",
+      "property": "shiny",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K04",
+      "property": "ball",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    },
+    {
+      "context": "current",
+      "family": "K04",
+      "property": "details",
+      "subject": "roster",
+      "states": [
+        "known",
+        "unknown"
+      ],
+      "reasons": {
+        "known": [
+          "none"
+        ],
+        "known_absent": [
+          "none"
+        ],
+        "unknown": [
+          "not_emitted",
+          "unsupported_writer"
+        ]
+      }
+    }
+  ],
+  "generator_metadata": {
+    "role": "nonempty_text",
+    "speciesId": "pinned_species_id_inert"
+  },
+  "request_descriptor": "owned-active-options/v1",
+  "request_options_coverage": "emitted_active_rows_only",
+  "current_possession": "literal-authenticated-roster-vector/v1",
+  "current_identifiers": "emitted_owned_item_ability_only",
+  "original_interpretation": "submitted-presence-and-pinned-defaults/v1",
+  "current_stats_semantics": "request-declared-baseStoredStats/v1",
+  "current_details": "literal-authenticated-roster-row/v1",
+  "id": "sha256:1618f17312fdb727b595c727fa43cebd79a12487513a77bc40d939a994bc2ee2",
+  "engine_commit": "b8f23c99629132611ba59e99480cb148ea8c5d3d",
+  "engine_integrity": "sha512-ihktUZgY1oy6U7TyCDmHg4lUlPeMb2jcedhqOnc/R0GIAeMgMFTlIDzmVsZ1xjBJ4ddaa/OM8dpfNsqo1dNe3Q==",
+  "move_rules": {
+    "K02/current_moves": "literal emitted roster vector",
+    "K02/move_incarnation": "ordinary/base identity only",
+    "K07/pp": "selected emitted option; otherwise last_known or not_emitted",
+    "K07/max_pp": "selected emitted option; otherwise last_known or not_emitted"
+  },
+  "limits": "Copied/virtual, Mimic, Sketch, replacement writers and unsupported alias partitions are blocked; no disabled/maybe/trapped/lock adoption. No positive fidelity."
+}

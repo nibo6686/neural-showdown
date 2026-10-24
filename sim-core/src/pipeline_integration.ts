@@ -136,6 +136,7 @@ export interface PipelineForcedSwitchStepResult extends ForcedSwitchRoles {
 export interface PipelineIntegrationOptions {
   /** Privileged local recipient registration only; not an RPC option or owner-string grant. */
   knowledge_recipients?: Readonly<Record<PlayerID, object>>;
+  knowledge_profile?: 'native-owner-moves/v1';
   observation_schema_version?: ObservableSchemaVersion;
   settling?: SettlingOptions;
   battle_id: string;
@@ -450,7 +451,8 @@ export class PipelineIntegrationSession {
     this.#nativeBirth = new NativeBirthEnrollment(this.#originalCreation);
     this.#objectAssociation = new NativeObjectAssociation(this.#nativeBirth);
     this.#switchEvents = new SwitchEventHost(this.#nativeBirth, this.#objectAssociation);
-    this.#requestHealth = options.knowledge_recipients ? new OwnedRequestHealthHost(this.#nativeBirth, this.#objectAssociation) : undefined;
+    if (options.knowledge_profile !== undefined && (options.knowledge_profile !== 'native-owner-moves/v1' || !options.knowledge_recipients)) throw new Error('native-owner-moves/v1/profile-registration');
+    this.#requestHealth = options.knowledge_recipients ? new OwnedRequestHealthHost(this.#nativeBirth, this.#objectAssociation, options.knowledge_profile === 'native-owner-moves/v1') : undefined;
     this.environment = this.newEnvironment('initial');
     this.snapshot = null;
     this.rawPrefix = [];

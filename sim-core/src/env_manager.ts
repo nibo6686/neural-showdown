@@ -961,7 +961,7 @@ export class LocalBattleEnv {
       // state with their source or siblings.
       this.#objectAssociation?.beforeRestore(this, serialized, snapshot, associationTicket);
       const battle = associationTicket && this.#requestHealth
-        ? this.#requestHealth.decode(this, associationTicket, () => Battle.fromJSON(snapshot)) : Battle.fromJSON(snapshot);
+        ? this.#requestHealth.decode(this, associationTicket, () => Battle.fromJSON(snapshot), snapshot) : Battle.fromJSON(snapshot);
       try { this.#objectAssociation?.acceptRestore(this, snapshot, battle, associationTicket); }
       catch (error) { battle.destroy(); throw error; }
       if (associationTicket) this.#switchEvents?.attachRestored(this, battle, this.battleStream!, associationTicket);
@@ -1009,7 +1009,8 @@ export class LocalBattleEnv {
     this.ensureReady();
     const battle = (this.battleStream as unknown as { battle: Battle | null })?.battle;
     if (!battle) throw new Error(`Environment ${this.id} has no active battle.`);
-    const serialized = battle.toJSON() as Record<string, unknown>;
+    const operation = ():Record<string,unknown> => {
+    const serialized = battle.toJSON() as Record<string,unknown>;
     this.#switchEvents?.plainSerialization(this, battle, serialized);
     if (!battle.ended) return this.withActiveRequestOverrides(battle, serialized);
     const requests: Partial<Record<PlayerID, TerminalHistoryRequest>> = {};
@@ -1035,6 +1036,8 @@ export class LocalBattleEnv {
         ...(Object.keys(switches).length ? {submitted_switches: switches} : {}),
       },
     };
+    };
+    return this.#requestHealth ? this.#requestHealth.serialize(this,battle,operation) : operation();
   }
 
   /**
@@ -1183,7 +1186,7 @@ export class LocalBattleEnv {
     const snapshot = createSeededBattleSnapshot(this.format, this.seed, raw, parentBranchId);
     this.#objectAssociation?.recordSerialization(this, this.battleStream!.battle!, raw, snapshot);
     this.#switchEvents?.recordSnapshot(this, raw, snapshot);
-    this.#requestHealth?.recordSnapshot(this, snapshot);
+    this.#requestHealth?.recordSnapshot(this, snapshot, raw);
     return snapshot;
   }
 
