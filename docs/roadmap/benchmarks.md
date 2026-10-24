@@ -270,3 +270,65 @@ positive faithful claim that the native11 profile still forbids, even with
 `complete_capture: true`. The native winner is also p2 rather than the fixture's
 p1. These assertions were not rewritten. Additional focused results and the fast gate are recorded in
 the W3.1 report. No >=99% acceptance claim is made.
+
+## Drag authority and born gate (W3.2)
+
+The approved native `BattleActions.dragIn` wrapper opens a synchronous frame for
+this battle's side and position. Only its one associated native incoming object
+may produce a drag writer. Nested/foreign frames, overrides, absent or duplicate
+entries, wrong side/position and unassociated actors reject; failed drags bind
+nothing. No actor is chosen from public values. Red Card's exact native
+`-enditem ... [of] opposing-active` form and payload were added to the finite
+native contract in both readers. Scanning all admitted logs found no Eject Button,
+Eject Pack, Emergency Exit or Wimp Out announcements, so their optional fixture
+requirement did not activate; owner-request authority remains W3.1's mechanism.
+
+Revival replay `2695509927` completes with **0 K mismatches / 75 boundaries**.
+Its revived bench was valid at terminal but there was no current request.
+The corrected validator uses only the authenticated terminal predecessor,
+requires exact retained half HP, and rejects absent/foreign authority or a
+changed exact value even when the public percentage is unchanged.
+
+Episode expectation changes (validators remain unchanged):
+
+- Direct completion: 55 transitions → 44, from pinned b8f23c99 behavior.
+- v2 terminal winner: p1 → p2; wrong-winner mutation: p2 → p1.
+- Completed native faithful claims (v2, resumed closure and shared assertion):
+  true/complete-capture-derived → false; complete_capture remains true.
+- v1 envelope control: historical10 → native11 reader, because an envelope
+  schema version does not change its engine's provenance.
+- Gap/reorder controls: fixed early indices → a joint-boundary run, preserving
+  their lineage rejection checks after native11's early selection boundary.
+
+Pilot: **20/20 complete**, **0 K mismatches / 173,906 checks**, 621 boundaries,
+3,915 matched records, no skips/timeouts; **59.21 s with six workers**. The full
+29,404-battle gate is pending. The pilot rate suggests roughly 24 hours, not an
+acceptance estimate. Runtime logs and final outcomes remain under
+`data/replays/corpus-2026-10-21/`.
+
+After committing W3.2, resume from the isolated worktree at BelowNormal priority:
+
+```powershell
+Set-Location C:/dev/neural-born-W3.2
+node tools/replay_repro/index.cjs C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21 --born --kdiff --workers=5 --worker-memory-mb=1024 --replay-timeout-ms=300000 --update-admission --resume --admitted=C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/admission.jsonl --manifest=C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/born-W3.2.jsonl
+```
+
+The journal records every per-battle failure reason and K result. `admission.jsonl`
+receives `born_session` checkpoints every 250 outcomes and on orderly exit:
+`complete` is the actual born result, `kdiff_mismatches` is a count or null when
+unmeasured, and failure/skip reasons are retained. Unprocessed entries are not
+assigned false completion or zero mismatches. Track B may select entries with
+`born_session.complete === true` and `born_session.kdiff_mismatches === 0`.
+`--resume` reuses completed journal rows, validates membership/uniqueness and K
+availability for passed cases, and processes remaining entries; use it only with
+the same built code and corpus. It does not waive any replay or K validation.
+The full run has a 72-hour outer limit, five-minute per-replay limits and a
+1 GiB old-generation heap cap per worker. Failures remain visible in the gate.
+
+**Full result:** pending; results will go in a follow-up commit. The existing
+journal is resumed, never silently restarted, from `C:/dev/neural-born-W3.2` at
+the W3.2 code commit. Five workers run at BelowNormal priority. Do not modify or
+rebuild that worktree while active. Development and builds may continue in the
+main tree. Operational state/progress/summary remain `born-W3.2.run.json`,
+`born-W3.2.progress.log`, and `born-W3.2.summary.json` in the main corpus directory.
+No >=99% or full-corpus zero-mismatch claim yet.

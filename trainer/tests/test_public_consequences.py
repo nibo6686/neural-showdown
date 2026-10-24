@@ -6,6 +6,28 @@ from neural.public_ability import public_gas_sources, validate_public_ability
 
 
 class PublicConsequenceTests(unittest.TestCase):
+    def test_red_card_source_grammar_is_finite(self):
+        from neural.protocol_contract import validate_protocol_record
+        from neural.version_profile import NATIVE11_CONTEXT
+        line = "|-enditem|p1a: Own|Red Card|[of] p2a: Foe"
+        validate_protocol_record(line,reader_rules=NATIVE11_CONTEXT)
+        for wrong in (line.replace("p2a:","p1a:"),line.replace("Red Card","Leftovers"),line+"|[silent]",line.replace("p2a:","p2:")):
+            with self.assertRaisesRegex(ValueError,"Malformed raw"): validate_protocol_record(wrong,reader_rules=NATIVE11_CONTEXT)
+
+    def test_revived_bench_health_at_terminal_requires_exact_predecessor_authority(self):
+        from neural.version_profile import NATIVE11_CONTEXT
+        for actor in ("p1", "p2"):
+            prefix = [f"|switch|{actor}a: Bench|Snorlax|100/100", f"|faint|{actor}a: Bench", f"|switch|{actor}a: Lead|Pawmot|100/100", f"|-heal|{actor}: Bench|50/100|[from] move: Revival Blessing"]
+            rows = [dict(ident=f"{actor}: Lead",active=True,hp_text="100/100",hp_ratio=1,fainted=False,status=None), dict(ident=f"{actor}: Bench",active=False,hp_text="131/263",hp_ratio=131/263,fainted=False,status=None)]
+            predecessor = dict(schema_version="observable-battle-state/v2",battle_id="terminal-revival",perspective=actor,protocol_prefix=prefix,request={"side":[dict(ident=row["ident"],condition=row["hp_text"],active=row["active"]) for row in rows]},view=dict(self_team=rows,opponent_team=[]))
+            successor=copy.deepcopy(predecessor); successor["request"]=None; successor["view"]["terminated"]=True; successor["protocol_prefix"] += [f"|win|{actor}"]
+            validate_public_health(successor,predecessor,reader_rules=NATIVE11_CONTEXT)
+            with self.assertRaisesRegex(ValueError,"Revival bench outcome"): validate_public_health(successor,reader_rules=NATIVE11_CONTEXT)
+            bad=copy.deepcopy(successor); bad["view"]["self_team"][1].update(hp_text="130/263",hp_ratio=130/263)
+            with self.assertRaisesRegex(ValueError,"terminal bench HP"): validate_public_health(bad,predecessor,reader_rules=NATIVE11_CONTEXT)
+            foreign=copy.deepcopy(successor); foreign["perspective"]="p2" if actor=="p1" else "p1"
+            with self.assertRaisesRegex(ValueError,"discontinuous|requires exactly"): validate_public_health(foreign,predecessor,reader_rules=NATIVE11_CONTEXT)
+
     def test_native_hp_rounding_and_as_one_components(self):
         from neural.version_profile import NATIVE11_CONTEXT
         from neural.typed_state import project_public_typed_state

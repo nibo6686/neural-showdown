@@ -56,8 +56,9 @@ def validate_prepared_protocol_structure(value,profile):
     if profile=='native11':rules['major_status']['cure_forms']=[form if x['tags']==['[from] ability: Natural Cure'] else x for x in rules['major_status']['cure_forms']]
     else:rules['major_status']['cure_forms'].append(form)
     if profile=='native11':
-        rules['item']['payloads']=sorted(rules['item']['payloads']+['Covert Cloak','Expert Belt','Insect Plate','Life Orb','Rusted Shield','Rusted Sword'])
+        rules['item']['payloads']=sorted(rules['item']['payloads']+['Covert Cloak','Expert Belt','Insect Plate','Life Orb','Red Card','Rusted Shield','Rusted Sword'])
         rules['partial_trap']={'move_names':['Bind','Clamp','Fire Spin','Infestation','Magma Storm','Sand Tomb','Snap Trap','Thunder Cage','Whirlpool','Wrap']}
+        rules['item']['dash_enditem_forms'].append({'tags':['[of] opposing-active'],'payloads':['Red Card']})
         rules['item']['dash_item_forms'].append({'tags':['[from] ability: Harvest'],'payloads':[n for n in rules['item']['payloads'] if n.endswith(' Berry')]})
         rules['item']['dash_enditem_forms'].append({'tags':['[silent]','[from] ability: Pickpocket','[of] self-active']})
         rules['item']['dash_item_forms'].append({'tags':['[from] ability: Pickpocket','[of] opposing-active']})

@@ -116,7 +116,7 @@ test('P45 constructed mutations split sends and equal text', async () => {
       b.actions.switchIn(b.p1!.pokemon[1], 0);
     } finally { (b as any).gameType = gameType; }
     b.actions.switchIn(b.p2!.pokemon[1], 0, b.dex.moves.get('uturn'));
-    b.actions.switchIn(b.p1!.pokemon[1], 0, null, true);
+    assert.throws(() => b.actions.switchIn(b.p1!.pokemon[1], 0, null, true), /missing-drag-frame/);
     assert.equal(host.inspect(e).writers.length, writerCount, 'shape/tagged/drag paths remain unbound');
     const writerRow = initial.rows.findIndex(r => r.token === initial.writers[0].rows[1]);
     b.log[writerRow] += '|changed';

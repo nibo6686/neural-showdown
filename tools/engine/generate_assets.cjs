@@ -52,7 +52,10 @@ const selector = fs.readFileSync(path.join(engine,'data/random-battles/gen9/team
 const selectedItems = [...selector.matchAll(/['"]([^'"\r\n]+)['"]/g)].map(m=>m[1])
   .filter(name=>dex.items.get(name).exists && dex.items.get(name).name===name);
 const itemRules = contract.protocol.validation_rules.item;
-itemRules.payloads = [...new Set([...itemRules.payloads,...selectedItems.filter(name=>!dex.items.get(name).isNonstandard),
+const pokemonSource = fs.readFileSync(path.join(engine,'sim/pokemon.ts'),'utf8');
+if (!pokemonSource.includes("case 'redcard':\n\t\t\t\tthis.battle.add('-enditem', this, item, `[of] ${source}`)")) throw new Error('Red Card emitter changed');
+itemRules.dash_enditem_forms.push({tags:['[of] opposing-active'],payloads:['Red Card']});
+itemRules.payloads = [...new Set([...itemRules.payloads,'Red Card',...selectedItems.filter(name=>!dex.items.get(name).isNonstandard),
   ...Object.keys(sets).map(name=>dex.species.get(name)).flatMap(s=>s.requiredItems || (s.requiredItem?[s.requiredItem]:[])).filter(name=>!dex.items.get(name).isNonstandard)])].sort();
 itemRules.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:itemRules.payloads.filter(name=>dex.items.get(name).isBerry)});
 // Exact native emitter forms: abilities.ts Pickpocket, pokemon.ts cureStatus,

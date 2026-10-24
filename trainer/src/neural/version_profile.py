@@ -218,7 +218,7 @@ def load_inactive_target_inventory(path=None):
 class ProtocolRulesContext(NamedTuple):
     protocol: Mapping
 
-_TARGET_PROTOCOL_SHA256 = '9dd6c03f3fde6d5659c788aa1b4ec79ed48b4434008a799a68d0992fffd471da'
+_TARGET_PROTOCOL_SHA256 = 'e640d9e1bff668df5f54c87cae6e5af1e76de28af9d4b75d74e489976ae03f4d'
 _REPLAY_PROTOCOL_SHA256 = 'e8e8dcee5aa9952749047c3e87d70a16da8c04f6e4f480a81568e4bcd9fe02f4'
 def load_prepared_protocol_asset(profile, path=None):
     if profile == 'native11': name, pin = 'protocol_contract_b8f23c99.json', _TARGET_PROTOCOL_SHA256
@@ -317,7 +317,7 @@ def assert_prepared_protocol_policy(record, context):
     if family: _fail('prepared-family-unsupported/' + family)
 
 # Candidate-only fixed runtime reader. No source authority or positive fidelity scope.
-_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', 'f04c56796dedf697fde568ffa5b07dd1f06ccf39ba99a6e494687bbd4e55af8a')
+_target_inventory = _pinned_asset(_root / 'sim-core/simulator_coverage/pokemon-showdown-b8f23c99-gen9randombattle.json', '34f8691ed4f90cdcc7c911b3d1e6dbc4bc1530087c61c4b4ae50f2c73cea525d')
 NATIVE11_CONTEXT = ReaderContext(NATIVE11, _target_protocol_asset['protocol'], _target_inventory,
     _freeze({e['id']: e for e in (*_target_inventory['condition_inventory'], *_target_inventory['effect_discovery']['additional_entries'])}),
     _freeze({(e['family'],e['id']): e for e in _target_inventory['public_typed_state_lifecycle']['entries']}))

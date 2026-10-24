@@ -213,7 +213,7 @@ function generate({source, historical, check=false}) {
     value[key] = {...value[key],native_source_comparison:'effect_source_comparison.entries; unreviewed deltas unsupported-fail-closed; class_review names adopted changes; other claims remain historical only'};
   }
   if(!value.local_coverage_sources.files.includes('../docs/contracts/OBSERVABLE_STATE.md'))value.local_coverage_sources.files.push('../docs/contracts/OBSERVABLE_STATE.md');
-  for (const file of ['src/engine_seed.ts','tests/replay_session.test.ts','tests/switch_sources.test.ts','tests/switch_publication.test.ts']) if (!value.local_coverage_sources.files.includes(file)) value.local_coverage_sources.files.push(file);
+  for (const file of ['src/engine_seed.ts','tests/replay_session.test.ts','tests/switch_sources.test.ts','tests/switch_publication.test.ts','tests/drag_sources.test.ts','tests/revival_terminal_health.test.ts']) if (!value.local_coverage_sources.files.includes(file)) value.local_coverage_sources.files.push(file);
   const localHash=require('node:crypto').createHash('sha256');
   for(const name of [...value.local_coverage_sources.files].sort()) {
     const bytes=fs.readFileSync(path.resolve(root,'sim-core',name)), text=bytes.toString('utf8');

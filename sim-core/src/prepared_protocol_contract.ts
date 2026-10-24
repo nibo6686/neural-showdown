@@ -56,7 +56,8 @@ export function validatePreparedProtocolStructure(value:any,profile:PreparedProf
  if(profile==='native11')rules.major_status.cure_forms=rules.major_status.cure_forms.map((x:any)=>equal(x.tags,['[from] ability: Natural Cure'])?form:x);
  else rules.major_status.cure_forms.push(form);
  if(profile==='native11'){
-  rules.item.payloads=[...rules.item.payloads,'Covert Cloak','Expert Belt','Insect Plate','Life Orb','Rusted Shield','Rusted Sword'].sort();
+  rules.item.dash_enditem_forms.push({tags:['[of] opposing-active'],payloads:['Red Card']});
+  rules.item.payloads=[...rules.item.payloads,'Covert Cloak','Expert Belt','Insect Plate','Life Orb','Red Card','Rusted Shield','Rusted Sword'].sort();
   rules.partial_trap={move_names:['Bind','Clamp','Fire Spin','Infestation','Magma Storm','Sand Tomb','Snap Trap','Thunder Cage','Whirlpool','Wrap']};
   rules.item.dash_item_forms.push({tags:['[from] ability: Harvest'],payloads:rules.item.payloads.filter((name:string)=>name.endsWith(' Berry'))});
   rules.item.dash_enditem_forms.push({tags:['[silent]','[from] ability: Pickpocket','[of] self-active']});

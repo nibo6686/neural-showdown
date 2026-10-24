@@ -196,10 +196,13 @@ def validate_public_health(observation, predecessor=None, *, reader_rules=HISTOR
             if row.get('active') is not False or row.get('fainted') is not False or row.get('status') != public_state.get('status'):
                 fail('Revival bench outcome must remain inactive, unfainted and status-cleared')
             if team=='self_team':
-                owned=[entry for entry in owners if entry.get('ident')==target]
+                terminal = terminal_owner(predecessor, observation) if request is None else None
+                owned=[entry for entry in (owners if request is not None else (predecessor.get('request') or {}).get('side', []) if terminal else []) if entry.get('ident')==target]
                 hp=re.fullmatch(r'([1-9][0-9]*)/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?',owned[0].get('condition','')) if len(owned)==1 else None
                 if not hp or owned[0].get('active') is not False or (hp[3] or None)!=public_state.get('status') or int(hp[1])!=int(hp[2])//2 or int(hp[2])>9007199254740991:
                     fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint')
+                if request is None and (row.get('hp_text') != f'{hp[1]}/{hp[2]}' or row.get('hp_ratio') != int(hp[1])/int(hp[2])):
+                    fail('Revival terminal bench HP disagrees with validated predecessor')
         owner_public_precision = (owner is None and team == "self_team" and isinstance(row.get("hp_text"), str)
                                   and "/" in row["hp_text"] and "/100" in public_state.get("hp_text", ""))
         expected = {**_condition(owner["condition"]), "active": bool(owner["active"] and not _condition(owner["condition"])["fainted"])} if owner is not None else public_state

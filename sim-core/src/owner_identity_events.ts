@@ -211,16 +211,40 @@ export class SwitchEventHost {
       try {return original.call(native, action);}
       finally {if (starting) birthPending = false; running = previous;}
     });
-    let actorFrame: { actor: object; supported: boolean; used: boolean; source: string; effect: any } | undefined;
+    let drag: {side: any; position: number; calls: number; writers: Writer[]} | undefined;
+    const rejectDrag = (reason: string): never => {world.valid = false; return fail(reason);};
+    wrap(native.actions, 'dragIn', original => (side: any, position: number) => {
+      if (original !== BattleActions.prototype.dragIn) rejectDrag('foreign-native-drag');
+      if (drag) rejectDrag('nested-drag-frame');
+      if (![native.p1, native.p2].includes(side) || position !== 0) rejectDrag('foreign-drag-frame');
+      const frame = {side, position, calls: 0, writers: [] as Writer[]}; drag = frame;
+      try {
+        const result = original.call(native.actions, side, position);
+        if (result === false) {
+          if (frame.writers.length) rejectDrag('failed-drag-writer');
+        } else if (result !== true || frame.calls !== 1 || frame.writers.length !== 1) rejectDrag('incomplete-drag-frame');
+        return result;
+      } catch (error) {
+        frame.writers.forEach(writer => {writer.valid = false;}); world.valid = false; throw error;
+      } finally {drag = undefined;}
+    });
+    let actorFrame: { actor: object; supported: boolean; used: boolean; source: string; effect: any; drag: boolean } | undefined;
     const canonicalProducer = !Object.hasOwn(native.actions, 'switchIn')
       && native.actions.switchIn === BattleActions.prototype.switchIn;
     wrap(native.actions, 'switchIn', original => (...args: any[]) => {
       if (!world.actors.size) world.load();
+      const isDrag = args[3] === true;
+      if (isDrag) {
+        if (!drag) rejectDrag('missing-drag-frame');
+        if (++drag!.calls !== 1 || args[0]?.side !== drag!.side || args[1] !== drag!.position || args[2] != null) rejectDrag('mismatched-drag-entry');
+        const actor = world.actors.get(args[0]);
+        if (!actor || native[actor.owner] !== drag!.side) rejectDrag('foreign-drag-actor');
+      } else if (drag) rejectDrag('mismatched-drag-entry');
       const previous = actorFrame;
       actorFrame = { actor: args[0], supported: canonicalProducer && native.gameType === 'singles' && native.activePerHalf === 1
         && native.sides.length === 2 && native.sides.every((side: any) => side?.active.length === 1)
-        && args[1] === 0 && !args[3]
-        && (birthPending && !args[2] || !!running && !running.used && running.target === args[0] && (args[2] ?? null) === (running.action.sourceEffect ?? null)), used: false, effect: args[2],
+        && args[1] === 0 && (isDrag || !args[3]
+        && (birthPending && !args[2] || !!running && !running.used && running.target === args[0] && (args[2] ?? null) === (running.action.sourceEffect ?? null))), used: false, effect: args[2], drag: isDrag,
         source: (args[3] ? 'drag:' : args[2] ? 'effect-switch:' : 'direct:') + (args[2]?.id || native.effect?.id || 'unknown') };
       try { return original.apply(native.actions, args); } finally { actorFrame = previous; }
     });
@@ -229,14 +253,15 @@ export class SwitchEventHost {
         world.unboundSources.push(actorFrame?.source ?? args[0] + ':unbound-producer');
       }
       if (!writing && actorFrame?.supported && !actorFrame.used
-        && (actorFrame.effect ? args.length === 4 && args[3] === `[from] ${actorFrame.effect}` : args.length === 3) && args[0] === 'switch'
+        && (actorFrame.effect ? args.length === 4 && args[3] === `[from] ${actorFrame.effect}` : args.length === 3) && args[0] === (actorFrame.drag ? 'drag' : 'switch')
         && args[1] === actorFrame.actor && args[2] === (actorFrame.actor as any).getFullDetails) {
         const actor = world.actors.get(actorFrame.actor);
         if (!actor) fail('unregistered-direct-switch-actor');
         actorFrame.used = true;
-        if (running) running.used = true;
+        if (running && !actorFrame.drag) running.used = true;
         const writer: Writer = { token: token(), actor: Object.freeze({ owner: actor.owner, slot: actor.slot, original: actor.original }), rows: [], valid: true };
         world.writers.push(writer); writing = writer;
+        if (actorFrame.drag) drag!.writers.push(writer);
         try { return original.apply(native, args); } finally { writing = undefined; }
       }
       return original.apply(native, args);

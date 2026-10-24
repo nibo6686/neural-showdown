@@ -54,14 +54,3 @@ test('switch submissions reject copied, foreign, replayed and different-slot cho
     assert.equal(checked, 1);
   } finally {LocalBattleEnv.prototype.withCanonicalSubmission = submit; RequestDeliveryLedger.prototype.prepareSwitchChoices = transfer; await session?.close();}
 });
-
-for (const owner of ['p1','p2'] as const) {
-  test(`engine-selected drag remains fail-closed without a native occurrence hook for ${owner}`, {timeout:20000}, async () => {
-    const session = await bornSession({teams:{[owner]:'Own (Snorlax)\n- Splash\n\nBench (Blissey)\n- Splash',[other(owner)]:'Foe (Blissey)\n- Whirlwind'} as any,options:{battle_id:`drag-${owner}`}});
-    try {
-      const boundary = session.boundary;
-      await assert.rejects(playTo(session,[{[owner]:'move 1',[other(owner)]:'move 1'}]), /unbound-switch-source/);
-      assert.equal(session.boundary,boundary);
-    } finally {await session.close();}
-  });
-}

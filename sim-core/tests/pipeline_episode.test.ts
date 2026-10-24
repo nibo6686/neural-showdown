@@ -335,7 +335,7 @@ const BELIEF_HISTORY_FIELDS: BeliefHistoryField[] = [
   'candidates', 'evidence', 'unresolved', 'contradictions',
 ];
 function assertRecords(result: PipelineEpisodeResult) {
-  assert.equal(result.faithful_complete_episode, result.status === 'completed' && result.evidence_envelope?.closure?.complete_capture === true);
+  assert.equal(result.faithful_complete_episode, false, 'native11 positive fidelity remains quarantined');
   assert.equal(result.transition_ids.length, result.counts.committed_transitions);
   assert.equal(new Set(result.transition_ids).size, result.transition_ids.length);
   const seen = new Set<string>();
@@ -1208,7 +1208,8 @@ test('real episode completes repeatably through joint and both one-sided actor p
   const repeated = await runPipelineEpisode(CONFIG);
   assert.equal(first.status, 'completed');
   assert.equal(first.stop.code, 'episode/v1/terminal');
-  assert.equal(first.counts.committed_transitions, 55);
+  // b8f23c99 team generation/mechanics finish this seed in 44 transitions.
+  assert.equal(first.counts.committed_transitions, 44);
   assert.equal(first.evidence_envelope, null);
   assert.deepEqual(first, repeated);
   assertRecords(first);
@@ -1224,14 +1225,14 @@ test('v2 evidence retains both owners at every commit and rejects rehashed chain
   const result = await runPipelineEpisode({ ...CONFIG, observation_schema_version: PUBLIC_STAGES_SCHEMA_VERSION });
   const envelope = result.evidence_envelope;
   assert.equal(result.status, 'completed');
-  assert.equal(result.faithful_complete_episode, result.status === 'completed' && result.evidence_envelope?.closure?.complete_capture === true);
+  assert.equal(result.faithful_complete_episode, false, 'native11 positive fidelity remains quarantined');
   assert.ok(envelope);
   validatePipelineEpisodeEvidence(envelope, result.records, evidenceExpectation(result));
   assert.equal(envelope.schema_version, 'pipeline-episode-evidence/v2');
   assert.equal(envelope.closure?.origin_coverage, 'original_initial_requests');
   assert.equal(envelope.closure?.complete_capture, true);
   assert.equal(envelope.closure?.terminal?.outcome, 'win');
-  assert.equal(envelope.closure?.terminal?.winner, 'p1');
+  assert.equal(envelope.closure?.terminal?.winner, 'p2');
   assert.equal(envelope.closure?.terminal?.final_boundary.step_index, envelope.commits.at(-1)?.boundary.step_index);
   assert.equal(envelope.origin.kind, 'fresh_episode');
   assert.equal(envelope.origin.boundary.perspectives.p1.request?.player, 'p1');
@@ -1265,7 +1266,7 @@ test('v2 evidence retains both owners at every commit and rejects rehashed chain
   delete legacyControl.closure;
   const legacyEvidence = reseal(legacyControl);
   validatePipelineEpisodeEvidence(legacyEvidence, result.records, evidenceExpectation(result));
-  assert.equal(pythonRun(legacyEvidence,30_000,'historical10').status, 0, 'historical v1 evidence remains readable');
+  assert.equal(pythonRun(legacyEvidence).status, 0, 'v1 envelope schema retains its native11 engine reader');
 
   const encodedEnvelope = JSON.stringify(envelope);
   for (const privateKey of ['"simulator_snapshot"', '"simulator_state"', '"seed"', '"hidden_roster"', '"hidden_set"', '"opponent_request"']) {
@@ -1273,7 +1274,7 @@ test('v2 evidence retains both owners at every commit and rejects rehashed chain
   }
 
   const wrongWinner = structuredClone(envelope);
-  wrongWinner.closure!.terminal!.winner = 'p2';
+  wrongWinner.closure!.terminal!.winner = 'p1';
   assertFullResultTamperRejected(result, reseal(wrongWinner), 'rehashed terminal winner');
   const wrongOutcome = structuredClone(envelope);
   wrongOutcome.closure!.terminal!.outcome = 'tie';
@@ -1303,11 +1304,16 @@ test('v2 evidence retains both owners at every commit and rejects rehashed chain
   assert.match(invalidPrivacyPublication.stderr, /request is not owned by its perspective/);
 
   const gap = structuredClone(envelope);
-  gap.commits.splice(1, 1);
+  // Native11 has an early selection boundary; mutate a joint run so these
+  // controls exercise lineage before actor-role validation.
+  const jointRun = envelope.commits.findIndex((entry, index, commits) => index > 0
+    && [commits[index - 1], entry, commits[index + 1]].every(commit => commit?.actors.length === 2));
+  assert.ok(jointRun > 0);
+  gap.commits.splice(jointRun, 1);
   assertTamperRejected(result, reseal(gap), 'gap', /lineage|gap, reorder, or transition mismatch|terminal transition continuity is invalid/);
 
   const reordered = structuredClone(envelope);
-  [reordered.commits[0], reordered.commits[1]] = [reordered.commits[1], reordered.commits[0]];
+  [reordered.commits[jointRun], reordered.commits[jointRun + 1]] = [reordered.commits[jointRun + 1], reordered.commits[jointRun]];
   assertTamperRejected(result, reseal(reordered), 'reorder', /lineage|gap, reorder, or transition mismatch|terminal transition continuity is invalid/);
 
   const duplicate = structuredClone(envelope);
@@ -1700,7 +1706,7 @@ test('resumed terminal closure needs a validated predecessor chain to claim orig
   assert.deepEqual(linked.evidence_envelope?.closure?.predecessor, predecessor);
   assert.equal(linked.evidence_envelope?.closure?.origin_coverage, 'original_initial_requests');
   assert.equal(linked.evidence_envelope?.closure?.complete_capture, true);
-  assert.equal(linked.faithful_complete_episode, true);
+  assert.equal(linked.faithful_complete_episode, false, 'native11 positive fidelity remains quarantined');
   const linkedPublication = pythonRun(linked);
   assert.equal(linkedPublication.status, 0, linkedPublication.stderr);
   assert.equal(JSON.parse(linkedPublication.stdout).length, 2);

@@ -250,9 +250,12 @@ export function assertPublicHealthMatchesEvidence(prefix: readonly string[], per
     if (revivalTargets.has(target)) {
       if (row.active !== false || row.fainted !== false || row.status !== publicState.status) fail('Revival bench outcome must remain inactive, unfainted and match ordered public status');
       if (expectedTeam === 'self_team') {
-        const owned = requestRows.filter(entry => entry.ident === target);
+        // A terminal boundary has no request; its validated predecessor still
+        // authenticates unchanged revived bench HP through the terminal suffix.
+        const owned = (request ? requestRows : terminalOwnedRequests(view) || []).filter(entry => entry.ident === target);
         const hp = owned.length === 1 && typeof owned[0].condition === 'string' ? /^([1-9][0-9]*)\/([1-9][0-9]*)(?: (brn|frz|par|psn|slp|tox))?$/.exec(owned[0].condition) : null;
         if (!hp || owned[0].active !== false || (hp[3] || null) !== publicState.status || Number(hp[1]) !== Math.floor(Number(hp[2]) / 2) || !Number.isSafeInteger(Number(hp[2]))) fail('Revival bench outcome requires one inactive owner request with exact half HP and cleared status/faint');
+        if (!request && (row.hp_text !== `${hp[1]}/${hp[2]}` || row.hp_ratio !== Number(hp[1]) / Number(hp[2]))) fail('Revival terminal bench HP disagrees with validated predecessor');
       }
     }
     const ownerPublicPrecision = !owner && expectedTeam === 'self_team' && typeof row.hp_text === 'string'
