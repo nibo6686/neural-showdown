@@ -451,7 +451,16 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   as briefed. **Decision: the drag hook is approved** (the engine's single
   `actions.dragIn` path, observed as a native writer occurrence). Interim
   cost: the two drag-built Future Sight episode tests fail until W3.2.
-- **W3.2** brief: `briefs/W3.2.md` (drag authority, episode expectations,
+- **W3.2 — code validated** (drag hook, Revival terminal health, episode
+  expectation updates; 20/20 born pilot, 0 K mismatches). The full 29,404
+  born/K gate runs for about 26 h from a **separate git worktree** at the W3.2
+  commit (5 workers, below-normal priority, resuming its journal), so
+  development continues in the main tree. Results are recorded when it
+  finishes.
+- **W1.2** brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
+  PP; re-proves the retired sidecar controls natively; 300-battle K-diff
+  sample).
+- W3.2 brief: `briefs/W3.2.md` (drag authority, episode expectations,
   Revival health case, full-corpus born gate).
 - **W1.2**: the Prompt61 design (ordinary/base move possession, incarnation
   continuity, PP freshness), accepted with tests **and** 0 corpus K-diff
