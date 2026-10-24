@@ -457,6 +457,12 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   commit (5 workers, below-normal priority, resuming its journal), so
   development continues in the main tree. Results are recorded when it
   finishes.
+- **W3.2 full run failed** at 1,607/29,404 (12:37, 2026-10-24): an `EBUSY`
+  journal append aborted the whole run, and nothing restarted it. The machine
+  also sleeps overnight. **R1** (brief `briefs/R1.md`) makes long runs
+  durable: resilient writes, an auto-resuming supervisor, a keep-awake hold
+  (no settings change), and sleep/time-jump tolerance. It then relaunches the
+  full gate on the latest commit (W1.2 included) from a fresh worktree.
 - **W1.2** brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
   PP; re-proves the retired sidecar controls natively; 300-battle K-diff
   sample).
