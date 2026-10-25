@@ -469,6 +469,15 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   controls re-proven natively. No real suite regressions (26 new failures
   come from two Python tests needing git-ignored data; `pipeline_episode`
   improved from 8 to 3 failures).
+- **R1 — done** (`e028cf7`): durable runs (shared fsynced journal with
+  retrying writes, supervisor auto-resume capped at 20 restarts, sleep
+  detection that re-runs suspended work, monotonic timeouts, and a keep-awake
+  helper). The full born/K gate is running from `C:\dev
+eural-born-R1`
+  under the supervisor, output `born-R1.jsonl`, about 37 h. At 610: 2 failures
+  (one public ability, one public health), 0 K mismatches over 7.9M checks.
+  A reboot still needs a manual relaunch: the supervisor isn't started at
+  logon.
 - **W1.3** brief: `briefs/W1.3.md` (K08 flags and lock; parallel Python fast
   gate; data-dependent tests skip cleanly).
 - W1.2 brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
