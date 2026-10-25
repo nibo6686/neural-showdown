@@ -148,43 +148,52 @@ async function admitReplay(replay, {extract=false, diff=false}={}) {
   } catch(error) {return {...row,reproduction:row.reproduction==='not-run'?'failed':row.reproduction,reason:'failed',error:error.message};}
 }
 
-async function main(directory, extract=false, diff=false, {limit,manifest,shardIndex=0,shardCount=1,quiet=false,files}={}) {
-  if (!directory) throw new Error('Usage: node tools/replay_repro/index.cjs <replay-directory> [--extract] [--diff] [--limit=N] [--manifest=path]');
-  const started = performance.now(), summary = {replays:0,admitted:0,by_commit:Object.create(null),exclusions:{},failure_kinds:{},diff_mismatches:0,checks:0};
-  if (manifest) fs.writeFileSync(manifest,'');
-  const selected=files?new Set(files):null;
-  let fileIndex=0;
-  for (const name of fs.readdirSync(directory).sort()) {
-    if (!name.endsWith('.json') || selected && !selected.has(name)) continue;
-    if (fileIndex++ % shardCount !== shardIndex) continue;
-    let replay;
-    try {replay=JSON.parse(fs.readFileSync(path.join(directory,name),'utf8'));}
-    catch(error) {const row={id:path.basename(name,'.json'),admitted:false,reason:'invalid-json',error:error.message};if(manifest)fs.appendFileSync(manifest,JSON.stringify(row)+'\n');summary.replays++;summary.exclusions['invalid-json']=(summary.exclusions['invalid-json']||0)+1;continue;}
-    if (!replay || typeof replay !== 'object') replay={id:path.basename(name,'.json'),inputlog:null,log:null};
-    if (!Object.hasOwn(replay,'inputlog') && !Object.hasOwn(replay,'log')) continue;
-    replay.id ??= path.basename(name,'.json');
-    if (limit && summary.replays >= limit) break;
-    const row=await admitReplay(replay,{extract,diff});
-    summary.replays++; if(row.admitted)summary.admitted++;
-    const commit=row.server_commit ?? 'unknown';
-    const group=summary.by_commit[commit] ||= {replays:0,admitted:0};group.replays++;if(row.admitted)group.admitted++;
+async function main(directory, extract=false, diff=false, {limit,manifest,shardIndex=0,shardCount=1,quiet=false,files,resume=false,onStatus}={}) {
+  if(!directory)throw new Error('Replay directory required');
+  const {Journal,retry}=require('./durable_io.cjs');
+  const notify=onStatus||(data=>{if(process.connected)process.send({type:'status',...data});});
+  const journal=manifest?new Journal(manifest,{notify}):null;
+  const started=performance.now(),summary={replays:0,admitted:0,by_commit:Object.create(null),exclusions:{},failure_kinds:{},diff_mismatches:0,checks:0},seen=new Set();
+  const count=row=>{
+    if(seen.has(row.id)||typeof row.admitted!=='boolean')throw new Error('Invalid resumed census row');seen.add(row.id);
+    summary.replays++;if(row.admitted)summary.admitted++;
+    const commit=row.server_commit??'unknown',group=summary.by_commit[commit]||={replays:0,admitted:0};group.replays++;if(row.admitted)group.admitted++;
     if(row.reason)summary.exclusions[row.reason]=(summary.exclusions[row.reason]||0)+1;
     for(const kind of row.failure_kinds||[])summary.failure_kinds[kind]=(summary.failure_kinds[kind]||0)+1;
     summary.diff_mismatches+=row.diff_mismatch_count||0;summary.checks+=row.checks||0;
-    if(manifest)fs.appendFileSync(manifest,JSON.stringify(row)+'\n');
-    else console.log(JSON.stringify(row));
-    if(summary.replays%500===0)console.error(`Processed ${summary.replays}; admitted ${summary.admitted}`);
-  }
-  if(!summary.replays)throw new Error('No replay records found');
-  summary.wall_time_seconds=(performance.now()-started)/1000;
-  if(!quiet)console.log(JSON.stringify(summary));
-  return summary;
+  };
+  try {
+    for(const row of journal?await journal.open(resume):[])count(row);
+    const selected=files?new Set(files):null;let fileIndex=0;
+    for(const name of fs.readdirSync(directory).sort()){
+      if(!name.endsWith('.json')||selected&&!selected.has(name))continue;
+      let replay,row;
+      try{replay=JSON.parse(await retry(()=>fs.promises.readFile(path.join(directory,name),'utf8'),{notify}));}
+      catch(error){if(!(error instanceof SyntaxError))throw error;row={id:path.basename(name,'.json'),admitted:false,reason:'invalid-json',error:error.message};}
+      if(!row){
+        if(!replay||typeof replay!=='object')replay={id:path.basename(name,'.json'),inputlog:null,log:null};
+        if(!Object.hasOwn(replay,'inputlog')&&!Object.hasOwn(replay,'log'))continue;
+        replay.id??=path.basename(name,'.json');
+      }
+      // Status/summary JSON is not a replay and must not shift shard ordinals.
+      if(fileIndex++%shardCount!==shardIndex)continue;
+      if(seen.has(row?.id??replay.id))continue;
+      if(limit&&summary.replays>=limit)break;
+      if(!row){row=await admitReplay(replay,{extract,diff});
+      }
+      if(journal)await journal.append(row);else console.log(JSON.stringify(row));count(row);
+      if(summary.replays%500===0)console.error(`Processed ${summary.replays}; admitted ${summary.admitted}`);
+    }
+    if(!summary.replays)throw new Error('No replay records found');
+    summary.wall_time_seconds=(performance.now()-started)/1000;
+    if(!quiet)console.log(JSON.stringify(summary));return summary;
+  } finally {await journal?.close();}
 }
 module.exports = {reproduceReplay,extractReplay,admitReplay,main};
 if (require.main === module && process.argv.includes('--born')) {
-  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).catch(error=>{console.error(error);process.exitCode=1;});
+  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).then(require('./durable_io.cjs').complete).catch(require('./durable_io.cjs').failure);
 } else if (require.main === module) {
   const args=process.argv.slice(2), option=name=>args.find(a=>a.startsWith('--'+name+'='))?.slice(name.length+3);
   main(args.find(a=>!a.startsWith('--')),args.includes('--extract')||args.includes('--diff'),args.includes('--diff'),
-    {limit:option('limit')?Number(option('limit')):undefined,manifest:option('manifest')}).catch(error=>{console.error(error);process.exitCode=1;});
+    {limit:option('limit')?Number(option('limit')):undefined,manifest:option('manifest'),resume:args.includes('--resume')}).then(require('./durable_io.cjs').complete).catch(require('./durable_io.cjs').failure);
 }

@@ -145,3 +145,65 @@ source diagnostics such as `effect-switch:uturn`; source-kind battle counts are
 nonexclusive when one failed transition contains multiple kinds. The full born/K
 corpus gate resumes after the owner-requested switch-authority follow-up, before
 W1.2. The 500-replay pilot and remaining blockers are recorded in the scoreboard.
+
+## Durable corpus jobs (R1)
+
+Use the supervisor for long born/K runs. Commit the code and build an isolated
+worktree first; do not edit, install, build or check it out while the job runs.
+All corpus paths must point at the main tree's data directory, since ignored
+replays are not copied into a worktree. Include `--owner-moves` for W1.2's new
+move/PP differential rows.
+
+```powershell
+node tools/replay_repro/supervise.cjs C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21 --born --kdiff --owner-moves --workers=5 --worker-memory-mb=1024 --replay-timeout-ms=300000 --update-admission --admitted=C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/admission.jsonl --manifest=C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/born-R1.jsonl
+```
+
+The supervisor and child use BelowNormal priority. Unexpected census exits
+restart with ID-based resume and exponential backoff (1 s to 60 s), at most 20
+automatic restarts. A live `.supervisor.lock` prevents a second writer. An
+operator relaunch must add `--resume`; changing the commit, corpus manifest or
+selection/configuration is rejected without replacing the original status.
+The manifest identity includes every input row/field except `born_session`,
+which is the derived checkpoint this run updates. Worktree location is not code
+identity. Ordinary extraction census jobs can also be supervised; supply
+`--corpus-manifest=<immutable-input-manifest>` and retain their `.part-N` journals
+for resume. Status/summary JSON never changes replay shard assignment.
+
+Journal lines are written by one persistent shared handle and fsynced before
+commit/checkpoint/dispatch. Resume truncates only an incomplete last line; a
+malformed complete line or duplicate/foreign born outcome rejects. Journal,
+checkpoint and atomic status/summary writes retry EBUSY/EPERM/EACCES with capped
+backoff, remaining paused and retrying beyond 60 seconds. `blocked-write` in the
+status identifies the resource. Other worker completions queue without starting
+more work. A genuine per-replay deadline must expire on two attempts before a
+`replay-time-limit` outcome becomes final. A heartbeat gap or wall/monotonic jump
+interrupts in-flight work and reruns it without recording a failure. Infrastructure
+worker errors restart the census rather than becoming replay failures.
+
+The Windows helper holds `ES_CONTINUOUS | ES_SYSTEM_REQUIRED` while the supervisor
+lives, then releases it on exit. Its PID is recorded in status and it follows the
+original process object so PID reuse cannot keep it alive. No power settings,
+registry entries or power plans change. The display may turn off; closing the lid
+or choosing manual Sleep still suspends the machine. On wake, interrupted work
+resumes through the supervisor/worker interruption logic.
+
+**Readers/watchdogs:** prefer `born-R1.run.json`, updated at least every 15 seconds
+with PID, child/helper PIDs, heartbeat, status, restart count, committed outcome
+counts and K counts. `complete` means the scan finished, not that every replay
+passed; inspect its summary/failure totals. Admission `born_session` rows may
+still describe an older run until this run has processed those IDs. Never infer
+current progress from those rows. Inspecting status through Node uses libuv's
+read/write/delete sharing:
+
+```powershell
+node -e "console.log(require('node:fs').readFileSync(process.argv[1],'utf8'))" C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/born-R1.run.json
+```
+
+If a watchdog must read the active journal or status through .NET, explicitly
+open `FileAccess.Read` with `FileShare.ReadWrite -bor FileShare.Delete`, dispose
+promptly, and accept a partial final journal line while the writer is active.
+Do not use ordinary `Get-Content`, exclusive handles, editors that lock the file,
+or a whole-journal poll. A blocked status-file replacement itself retries until
+the reader releases it. A successful job saves `born-R1.summary.json`; retain
+`born-W3.2.jsonl` as history from different code. Gate results belong in a later
+results-only commit, not an amendment to the implementation.

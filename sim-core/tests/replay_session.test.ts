@@ -103,10 +103,10 @@ test('born census workers record a divergent replay and continue with admitted f
     assert.equal(fs.readFileSync(path.join(directory,'born-admission.jsonl'),'utf8'),retained);
     const {writeBornAdmission} = require(path.join(root,'tools/replay_repro/born_census.cjs'));
     const originalAdmission = fs.readFileSync(path.join(directory,'admission.jsonl'),'utf8');
-    assert.throws(() => writeBornAdmission(path.join(directory,'admission.jsonl'),[{id:'foreign',born:true}]),/Invalid born admission/);
+    await assert.rejects(writeBornAdmission(path.join(directory,'admission.jsonl'),[{id:'foreign',born:true}]),/Invalid born admission/);
     assert.equal(fs.readFileSync(path.join(directory,'admission.jsonl'),'utf8'),originalAdmission);
     fs.writeFileSync(path.join(directory,'admission.jsonl'),entries.map(entry => JSON.stringify({id:entry.id,admitted:true,turns:0})).join('\n')+'\n');
-    writeBornAdmission(path.join(directory,'admission.jsonl'),[{id:entries[0].id,born:true}]);
+    await writeBornAdmission(path.join(directory,'admission.jsonl'),[{id:entries[0].id,born:true}]);
     const partial = fs.readFileSync(path.join(directory,'admission.jsonl'),'utf8').trim().split('\n').map(line => JSON.parse(line));
     assert.equal(partial[0].born_session.kdiff_mismatches,null,'unmeasured is not zero');
     assert.equal('born_session' in partial[1],false,'unprocessed is not failed');

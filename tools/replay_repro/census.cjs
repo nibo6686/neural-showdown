@@ -1,14 +1,15 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const {Worker, isMainThread, workerData} = require('node:worker_threads');
+const {Worker, isMainThread, workerData, parentPort} = require('node:worker_threads');
 const {performance} = require('node:perf_hooks');
 const {main} = require('./index.cjs');
+const {atomicWrite,retry,complete,failure}=require('./durable_io.cjs');
 
 if (!isMainThread) {
-  main(workerData.directory,true,true,workerData.options).catch(error=>{console.error(error);process.exitCode=1;});
+  main(workerData.directory,true,true,{...workerData.options,onStatus:data=>parentPort.postMessage(data)}).catch(error=>{console.error(error);process.exitCode=1;});
 } else if (require.main === module && process.argv.includes('--born')) {
-  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).catch(error=>{console.error(error);process.exitCode=1;});
+  require('./born_census.cjs').runBornCensus(process.argv.slice(2)).then(require('./durable_io.cjs').complete).catch(require('./durable_io.cjs').failure);
 } else if (require.main === module) {
   const args=process.argv.slice(2), option=name=>args.find(a=>a.startsWith('--'+name+'='))?.slice(name.length+3);
   const directory=args.find(a=>!a.startsWith('--'));
@@ -20,20 +21,27 @@ if (!isMainThread) {
   (async()=>{
     const shards=Array.from({length:workers},(_,i)=>manifest+`.part-${i}`);
     const pool=[];
+    let interrupted=false;
+    const interrupt=()=>{interrupted=true;for(const worker of pool)worker.terminate();};
+    const control=message=>{if(['interrupt','stop'].includes(message.type))interrupt();};
+    process.on('message',control);process.on('disconnect',interrupt);
     try {await Promise.all(shards.map((file,i)=>new Promise((resolve,reject)=>{
-      const worker=new Worker(__filename,{workerData:{directory,options:{manifest:file,files,shardIndex:i,shardCount:workers,limit:limit?Math.ceil(limit/workers):undefined,quiet:true}}});
+      const worker=new Worker(__filename,{workerData:{directory,options:{manifest:file,files,shardIndex:i,shardCount:workers,limit:limit?Math.ceil(limit/workers):undefined,quiet:true,resume:args.includes('--resume')}}});
       pool.push(worker);
-      worker.on('error',reject);worker.on('exit',code=>code?reject(new Error(`Census worker ${i} exited ${code}`)):resolve());
+      worker.on('message',data=>{if(process.connected)process.send({type:'status',...data});});
+      worker.on('error',reject);worker.on('exit',code=>code||interrupted?reject(new Error(`Census worker ${i} exited ${code}; interrupted=${interrupted}`)):resolve());
     })));} catch(error) {
       await Promise.allSettled(pool.map(worker=>worker.terminate()));
       throw error;
     }
     const rows=shards.flatMap(file=>fs.readFileSync(file,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse)).sort((a,b)=>a.id.localeCompare(b.id));
-    fs.writeFileSync(manifest,rows.map(row=>JSON.stringify(row)).join('\n')+'\n');
-    for(const file of shards)fs.unlinkSync(file);
+    if(new Set(rows.map(row=>row.id)).size!==rows.length)throw new Error('Duplicate merged census replay IDs');
+    await atomicWrite(manifest,rows.map(row=>JSON.stringify(row)).join('\n')+'\n');
+    // Retain shards as the idempotent resume source until a new run replaces them.
     const summary=summarizeAdmission(rows,{workers,wall_time_seconds:(performance.now()-started)/1000});
-    console.log(JSON.stringify(summary));
-  })().catch(error=>{console.error(error);process.exitCode=1;});
+    process.removeListener('message',control);process.removeListener('disconnect',interrupt);
+    console.log(JSON.stringify(summary));complete(summary);
+  })().catch(failure);
 }
 
 
