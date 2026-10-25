@@ -472,8 +472,7 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
 - **R1 — done** (`e028cf7`): durable runs (shared fsynced journal with
   retrying writes, supervisor auto-resume capped at 20 restarts, sleep
   detection that re-runs suspended work, monotonic timeouts, and a keep-awake
-  helper). The full born/K gate is running from `C:\dev
-eural-born-R1`
+  helper). The full born/K gate is running from `C:\dev\neural-born-R1`
   under the supervisor, output `born-R1.jsonl`, about 37 h. At 610: 2 failures
   (one public ability, one public health), 0 K mismatches over 7.9M checks.
   A reboot still needs a manual relaunch: the supervisor isn't started at
