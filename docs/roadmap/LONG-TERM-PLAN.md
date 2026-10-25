@@ -477,6 +477,18 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   (one public ability, one public health), 0 K mismatches over 7.9M checks.
   A reboot still needs a manual relaunch: the supervisor isn't started at
   logon.
+- **Corpus gating policy (owner decision, 2026-10-24).** Each workstream gates
+  on a **seeded random 3,000-battle sample** of admitted battles: born pass
+  rate at least 99%, **0 K mismatches** including that workstream's new rows,
+  normal priority, under the R1 supervisor. That's a few hours instead of a
+  day, and it estimates the pass rate to about ±0.5%. The **full-corpus**
+  born/K run happens **once, right before the Track B dataset build**, when
+  the knowledge layer is stable; it also produces the per-battle "fully
+  born" flag the dataset needs. The R1 full run was stopped at 678/29,404
+  (676 passed, 2 failed, 0 K mismatches over 8.8M checks; kept as history).
+  Current sample gate: `sample-3000-seed20261024.json` → `born-S3000.jsonl`
+  (commit `e028cf7`, includes W1.2). Live view:
+  `pwsh -NoProfile -File tools\replay_repro\watch_progress.ps1 -Name born-S3000`.
 - **W1.3** brief: `briefs/W1.3.md` (K08 flags and lock; parallel Python fast
   gate; data-dependent tests skip cleanly).
 - W1.2 brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
