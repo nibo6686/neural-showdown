@@ -489,6 +489,12 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   Current sample gate: `sample-3000-seed20261024.json` → `born-S3000.jsonl`
   (commit `e028cf7`, includes W1.2). Live view:
   `pwsh -NoProfile -File tools\replay_repro\watch_progress.ps1 -Name born-S3000`.
+- **Sample gate result (commit `e028cf7`: W3.2 drag authority + W1.2 move/PP
+  + R1).** **Passed: 2,994/3,000 born (99.8%), 0 K mismatches over 39.9M
+  checks**, 0 restarts, about 3.5 h at normal priority. The 6 failures are all
+  public-evidence projection checks: health ×4 (Jirachi ×2, Indeedee, Zoroark
+  active details) → W4; ability ×2 (reveal ordering; terminal current/base)
+  → W5. This closes the W3.1/W3.2 born-session gate.
 - **W1.3** brief: `briefs/W1.3.md` (K08 flags and lock; parallel Python fast
   gate; data-dependent tests skip cleanly).
 - W1.2 brief: `briefs/W1.2.md` (Prompt61 move possession, incarnation and
