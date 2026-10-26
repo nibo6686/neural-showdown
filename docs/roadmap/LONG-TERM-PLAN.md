@@ -336,6 +336,13 @@ to get right while Track A is still being built. The benchmark shows which
 missing properties actually cost games, which feeds the `impact` ordering
 without changing the scope.
 
+**W1 and W9-lite — done.** W1.3 (`93e95f5`) added 7 K08 flag/lock rows; W9L
+(`8f94b9d`) added 29 curated real-replay fixtures to the fast gate (0 K
+mismatches across all 38 adopted rows) and `decision-frame/v1` export to a
+validating Python reader, with the leakage-invariance test passing in TS and
+Python. Full suite in an isolated worktree: 1,761 pass / 295 fail, no
+regressions. **Track B can start.**
+
 **W9-lite** (Track A, right after W1): expose the adopted K snapshot per
 decision to Python through the existing episode path, plus the leakage
 invariance test. The full W9 replaces it later. **Brief: `briefs/W9L.md`** (which also adds the
