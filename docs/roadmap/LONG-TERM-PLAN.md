@@ -341,7 +341,9 @@ without changing the scope.
 mismatches across all 38 adopted rows) and `decision-frame/v1` export to a
 validating Python reader, with the leakage-invariance test passing in TS and
 Python. Full suite in an isolated worktree: 1,761 pass / 295 fail, no
-regressions. **Track B can start.**
+regressions. **Track B can start.** Track B's plan of record is **`docs/roadmap/TRACK-B.md`**; its first
+slice is `briefs/B1.md` (vocabulary, `feature-v1`, dataset). M1, the first
+learned model, follows in B2.
 
 **W9-lite** (Track A, right after W1): expose the adopted K snapshot per
 decision to Python through the existing episode path, plus the leakage
