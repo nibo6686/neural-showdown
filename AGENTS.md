@@ -24,6 +24,11 @@ starting.
   must either be skipped in code with a stated reason (long tests opt in via
   `NEURAL_LONG_TESTS=1`), or be fixed in the current slice. Never leave a
   suite to run into a timeout it is known to hit.
+- No routine corpus runs. Don't run the replay corpus (born/K census or
+  differential over many battles) unless the brief explicitly asks for it.
+  The curated real-replay fixtures in the fast gate are the per-slice check.
+  Any corpus run a brief does ask for runs in the background under the R1
+  supervisor from an immutable worktree, and must never block the slice.
 - Build with `node node_modules/typescript/bin/tsc -p tsconfig.json` in
   `sim-core`. Python is `D:\Anaconda\envs\neuralgpu\python.exe`. Keep
   `PYTHONUTF8` and `PYTHONIOENCODING` unset. Keep `core.autocrlf=false`.

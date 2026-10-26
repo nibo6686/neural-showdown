@@ -338,7 +338,8 @@ without changing the scope.
 
 **W9-lite** (Track A, right after W1): expose the adopted K snapshot per
 decision to Python through the existing episode path, plus the leakage
-invariance test. The full W9 replaces it later.
+invariance test. The full W9 replaces it later. **Brief: `briefs/W9L.md`** (which also adds the
+curated real-replay fixtures to the fast gate). W1 is complete after W1.3.
 
 **B1. Data.**
 
@@ -477,18 +478,27 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   (one public ability, one public health), 0 K mismatches over 7.9M checks.
   A reboot still needs a manual relaunch: the supervisor isn't started at
   logon.
-- **Corpus gating policy (owner decision, 2026-10-24).** Each workstream gates
-  on a **seeded random 3,000-battle sample** of admitted battles: born pass
-  rate at least 99%, **0 K mismatches** including that workstream's new rows,
-  normal priority, under the R1 supervisor. That's a few hours instead of a
-  day, and it estimates the pass rate to about ±0.5%. The **full-corpus**
-  born/K run happens **once, right before the Track B dataset build**, when
-  the knowledge layer is stable; it also produces the per-battle "fully
-  born" flag the dataset needs. The R1 full run was stopped at 678/29,404
-  (676 passed, 2 failed, 0 K mismatches over 8.8M checks; kept as history).
-  Current sample gate: `sample-3000-seed20261024.json` → `born-S3000.jsonl`
-  (commit `e028cf7`, includes W1.2). Live view:
-  `pwsh -NoProfile -File tools\replay_repro\watch_progress.ps1 -Name born-S3000`.
+- **Corpus run policy (revised, owner decision 2026-10-26).** Corpus runs are
+  for **discovery and final audit, not routine per-slice confirmation**. The
+  per-slice gates found nothing beyond what slice tests already proved (0 K
+  mismatches across about 50M checks), and a day-long run between checkpoints
+  was a planning mistake: the brief asked for a full-corpus run without
+  estimating its runtime.
+  - **Per slice:** accept on focused and born-session tests plus
+    `tools/test_fast.ps1`. **No corpus run.**
+  - **Real-battle regression in the fast gate:** a committed, curated set of
+    about 20 real replays covering the tricky mechanics, run born with the K
+    differential in seconds on every fast gate (brief `W9L.md`, Part A).
+  - **Discovery runs** (a few hundred to 3,000 battles, background,
+    supervised, never blocking): only when a slice or workstream starts on
+    unfamiliar mechanics, or a brief explicitly asks.
+  - **Full corpus once**, right before the Track B dataset build. It also
+    produces the per-battle "fully born" flag the dataset needs.
+  - The R1 full run was stopped at 678/29,404 (676 passed, 2 failed, 0 K
+    mismatches over 8.8M checks; kept as history). The in-flight W1.3
+    3,000-battle sample (`born-W1.3.jsonl`) is allowed to finish in the
+    background as the end-of-W1 check. Live view:
+    `pwsh -NoProfile -File tools\replay_repro\watch_progress.ps1 -Name <run>`.
 - **Sample gate result (commit `e028cf7`: W3.2 drag authority + W1.2 move/PP
   + R1).** **Passed: 2,994/3,000 born (99.8%), 0 K mismatches over 39.9M
   checks**, 0 restarts, about 3.5 h at normal priority. The 6 failures are all
