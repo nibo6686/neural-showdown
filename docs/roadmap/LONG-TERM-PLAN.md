@@ -495,9 +495,10 @@ Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
   - **Full corpus once**, right before the Track B dataset build. It also
     produces the per-battle "fully born" flag the dataset needs.
   - The R1 full run was stopped at 678/29,404 (676 passed, 2 failed, 0 K
-    mismatches over 8.8M checks; kept as history). The in-flight W1.3
-    3,000-battle sample (`born-W1.3.jsonl`) is allowed to finish in the
-    background as the end-of-W1 check. Live view:
+    mismatches over 8.8M checks; kept as history). The W1.3 3,000-battle
+    sample was **stopped by owner decision at 404** (402 passed, 2 known
+    public-evidence failures, **0 K mismatches over 5.5M checks**, including the
+    new flag/lock rows). That's the end-of-W1 record; `born-W1.3.jsonl` is kept. Live view:
     `pwsh -NoProfile -File tools\replay_repro\watch_progress.ps1 -Name <run>`.
 - **Sample gate result (commit `e028cf7`: W3.2 drag authority + W1.2 move/PP
   + R1).** **Passed: 2,994/3,000 born (99.8%), 0 K mismatches over 39.9M
