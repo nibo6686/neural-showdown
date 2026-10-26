@@ -1,0 +1,242 @@
+{
+  "_note": "Hand-maintained inputs for docs/status/index.html. Regenerate with: node tools/status/build_status.cjs. Git history and the knowledge registry are read automatically.",
+  "updated": "2026-10-26",
+  "now": {
+    "in_progress": [
+      "W3.3 brief is ready (public association provider, 11 rows); next step is handing it to Codex. The W3.4 brief is written ahead so Codex can stack it."
+    ],
+    "next": [
+      "W3.4: form, types, Tera, Transform and public details (12 rows); it ends W3 and triggers the workstream-end full suite.",
+      "Then W4.1, W4.2, W5.1, W5.2, W6.1-W6.4, W7.1 and W2.1, per the plan's remaining-slice table."
+    ],
+    "blocked": [
+      "Track B (models): paused by owner decision 2026-10-26 until W10 proves mechanics and provenance. B1 was accepted as code only.",
+      "W2.1 needs an owner decision on the Prompt59 blocked rows (partial EV/IV tuples, random gender).",
+      "3 own move-restriction rows (maybe_disabled, lock) are blocked: Showdown reports them per Pokemon, not per move.",
+      "Fast gate headroom: 159 s of 175 s. W3.3 must recover time before adding tests.",
+      "Every Claude to Codex handoff goes through the owner, so work stops whenever the owner is away."
+    ]
+  },
+  "workstreams": [
+    {
+      "id": "P0",
+      "name": "Phase 0: foundations",
+      "covers": "Engine pinned to the Showdown server commit, tests migrated, 29,404 real replays admitted, benchmark harness.",
+      "status": "done",
+      "slices_est": "13"
+    },
+    {
+      "id": "W1",
+      "name": "Your own moves",
+      "covers": "Which moves you have, their PP and when it is fresh, and disabled / trapped / locked moves.",
+      "status": "done",
+      "slices_est": "3-5"
+    },
+    {
+      "id": "W2",
+      "name": "Your own leftovers and decision points",
+      "covers": "What kind of decision point this is (normal, forced switch, end of battle), and the unresolved EV/IV and random-gender questions.",
+      "status": "not started",
+      "slices_est": "3-4"
+    },
+    {
+      "id": "W3",
+      "name": "Who is who on the field",
+      "covers": "Which Pokemon is really in play after switches, U-turn, Roar, Illusion and Transform: roster, slot, team size, party order, appearance, form, types and Tera, plus opponent details. Every later public fact depends on this.",
+      "status": "in progress",
+      "slices_est": "5-7"
+    },
+    {
+      "id": "W4",
+      "name": "HP, status and boosts",
+      "covers": "Opponent HP, fainting and status; how long a status has lasted (sleep, toxic counters); stat boosts for both sides.",
+      "status": "not started",
+      "slices_est": "4-5"
+    },
+    {
+      "id": "W5",
+      "name": "Items and abilities",
+      "covers": "Items (identity, held, active) for both sides; opponent ability and whether abilities are active.",
+      "status": "not started",
+      "slices_est": "4-6"
+    },
+    {
+      "id": "W6",
+      "name": "Effects with a lifetime",
+      "covers": "Volatiles (Substitute, Leech Seed, Taunt...), single-turn effects (Protect), single-move effects (Destiny Bond), hazards and screens with layers, weather / terrain / Trick Room with turns left, and pending effects (Future Sight, Wish).",
+      "status": "not started",
+      "slices_est": "8-12"
+    },
+    {
+      "id": "W7",
+      "name": "Move history",
+      "covers": "Which moves each Pokemon has used, including copied moves (Mimic, Sketch, Transform).",
+      "status": "not started",
+      "slices_est": "2-3"
+    },
+    {
+      "id": "W8",
+      "name": "Replay ingestion",
+      "covers": "Real replays run through the same knowledge path as self-play; the old unsafe replay tools are retired.",
+      "status": "partly done (W1.1 born replays)",
+      "slices_est": "2-3"
+    },
+    {
+      "id": "W9",
+      "name": "Publication to Python",
+      "covers": "Full knowledge snapshots to Python with tamper checks. W9-lite (decision frames) is done.",
+      "status": "lite done",
+      "slices_est": "3-4"
+    },
+    {
+      "id": "W10",
+      "name": "Final assurance",
+      "covers": "Registry at zero missing, one end-to-end test from battle start to end for both players, final review.",
+      "status": "not started",
+      "slices_est": "2"
+    },
+    {
+      "id": "TB",
+      "name": "Track B: learned models",
+      "covers": "Features, dataset, imitation model, search, self-play. B1 code is committed.",
+      "status": "paused until W10",
+      "slices_est": "-"
+    }
+  ],
+  "red_tests": {
+    "_as_of": "Failing tests assigned to workstreams at b0afaa0 (2026-10-21). W1's were retired or fixed in W1.1-W1.3. Last full suite (W9L review, 2026-10-26): 1,761 pass, 295 fail, 155 skip.",
+    "W2": 29,
+    "W3": 45,
+    "W4": 32,
+    "W5": 59,
+    "W6": 96,
+    "W9": 3,
+    "W10": 32,
+    "TB": 3
+  },
+  "slices": {
+    "P0.1": "Made the Showdown 0.11.11 candidate the main code line.",
+    "P0.2": "Ran every test on Windows and sorted the failures by cause.",
+    "P0.3": "Added the fast test gate and the 123-row registry of what the bot is allowed to know.",
+    "P0.4": "Pinned the simulator to the exact commit the Showdown server runs, so real replays reproduce exactly.",
+    "P0.5a": "Gave mechanics tests a simulator-only mode that needs no knowledge authority.",
+    "P0.5b": "Re-accepted effect protocol messages (start/end, weather, heal, cant...) on the pinned engine.",
+    "P0.5b2": "Grouped engine changes by kind, closed replay parsing gaps, added a public-state check against the simulator.",
+    "P0.5b3": "Fixed Slow Start, the Node to Python test handoff and a hanging test.",
+    "P0.5c1": "Updated about 150 tests for the pinned engine's changed behaviour.",
+    "P0.5c2": "Moved tests that need authority onto born sessions (battles created the legitimate way).",
+    "P0.5c3": "Moved core infrastructure tests to born sessions; assigned every remaining failing test to a workstream.",
+    "P0.6a": "Admitted 29,404 real replays by exact reproduction; 0 public-state mismatches in 123.6M checks; baseline benchmark.",
+    "P0.7": "Built the benchmark harness (paired seeds, confidence intervals).",
+    "W1.1": "Real replays become legitimate battle sessions, and the bot's knowledge is checked against simulator truth.",
+    "W3.1": "Proved who comes in after U-turn, Volt Switch and other non-direct switches.",
+    "W3.2": "Same for forced switches: Roar, Whirlwind, Dragon Tail, Red Card.",
+    "W1.2": "Your own moves: which moves you have, their PP, and when PP is fresh.",
+    "R1": "Long runs survive sleep, crashes and restarts.",
+    "W1.3": "Your own move restrictions: disabled, trapped and locked moves.",
+    "W9L": "29 real-replay regression battles in the fast gate; decision snapshots exported to Python with a leak test.",
+    "B1": "Vocabulary, model input features and dataset builder (code only; Track B then paused).",
+    "W3.3": "Public association provider: who is where, appearance vs identity (11 rows).",
+    "W3.4": "Form, types, Tera and Transform; opponent level, gender, shiny, details (12 rows)."
+  },
+  "days": {
+    "2026-10-16": "New lean plan; native11 adopted; Windows baseline; fast gate and knowledge registry (9 rows adopted).",
+    "2026-10-19": "Engine re-pinned to server commit b8f23c99; simulator-only test mode.",
+    "2026-10-20": "Effect protocol re-accepted; replay parsing gaps closed.",
+    "2026-10-21": "Tests migrated to the pinned engine and born sessions; benchmark harness; 29,620 of 29,666 replays reproduce. Registry 9 to 25 adopted (reclassified as tests moved).",
+    "2026-10-23": "Corpus admitted (P0.6a); replay-born sessions with knowledge check (W1.1); switch authority (W3.1).",
+    "2026-10-24": "Forced-switch authority (W3.2); own moves and PP (W1.2, +6 rows); durable runs (R1); 3,000-battle sample gate started.",
+    "2026-10-26": "Own move restrictions (W1.3, +7 rows); corpus-run policy cut back; real-replay fixtures and decision frames (W9L); Track B started, then paused after B1 code. B1 accepted as code; remaining Track A slices planned; W3.3 brief written. Lean verification rules adopted (fast gate once per slice, full suites at workstream ends); W3.4 brief written."
+  },
+  "gaps": {
+    "c8f97f1": "30k replay download (rate-limited, about 8.5 h) and the P0.6a admission/census run.",
+    "3bafc52": "W3.2 full-corpus born gate run in a worktree.",
+    "5775a13": "3,000-battle sample gate (about 3.5 h) and full-corpus runs that were later stopped; W1.3 waited on them."
+  },
+  "pace": [
+    "When a slice is being worked on, it is fast: most go from brief to accepted in under two hours (see the slice table).",
+    "Most of the calendar time is waiting: long corpus runs (downloads, 3.5 h sample gates, 24-37 h full-corpus runs that were planned and then stopped), plus the time between sessions. Every handoff between Claude and Codex goes through the owner.",
+    "Most slices so far built infrastructure, not knowledge. Of 21 slices, only W1.2 and W1.3 adopted new knowledge rows (+13). P0.5c1's +16 was reclassification. Phase 0 and the born-session / switch-authority work were prerequisites.",
+    "Before 2026-10-16, the Prompt-era process (Prompts 1-62, about 1,350 planning and evidence files, 44 MB) ended with 9 adopted rows. That ceremony was dropped for the lean process.",
+    "The hard part is ahead: 75 rows missing and 7 blocked, including 26 effect-ledger rows (W6, 8-12 slices). The plan estimates about 25-40 more Track A slices.",
+    "Scope note: no opponent (public) row is adopted yet, but the public readers behind the v2 observation already match the simulator (0 mismatches in 123.6M checks). The 2026-10-26 plan reuses them: each public row must equal simulator truth, agree with v2 where v2 has the field, and never be known before its reveal. That should make public rows cheaper than the own-side W1 rows were.",
+    "Known gap (found 2026-10-26): the v2 public view does not carry the opponent's revealed moves, ability, item or Tera type."
+  ],
+  "planned": [
+    {
+      "id": "W3.3",
+      "covers": "Who is where: current roster, active slot, team size, party order; appearance vs real identity (Illusion).",
+      "rows": 11
+    },
+    {
+      "id": "W3.4",
+      "covers": "Form, types, Tera and Transform for both sides; opponent level, gender, shiny, details.",
+      "rows": 12
+    },
+    {
+      "id": "W4.1",
+      "covers": "Opponent HP, fainting and status; stat boosts for both sides.",
+      "rows": 5
+    },
+    {
+      "id": "W4.2",
+      "covers": "Status timing as intervals (how long asleep / poisoned), never invented.",
+      "rows": 6
+    },
+    {
+      "id": "W5.1",
+      "covers": "Items: identity, whether one is held, whether it is active (both sides).",
+      "rows": 6
+    },
+    {
+      "id": "W5.2",
+      "covers": "Opponent ability; whether abilities are active (both sides).",
+      "rows": 3
+    },
+    {
+      "id": "W6.1",
+      "covers": "Side conditions: hazards, screens, Tailwind, with layers.",
+      "rows": 4
+    },
+    {
+      "id": "W6.2",
+      "covers": "Weather, terrain, pseudo-weather (Trick Room...), whether active, turns left.",
+      "rows": 10
+    },
+    {
+      "id": "W6.3",
+      "covers": "Lasting volatiles, single-turn and single-move effects.",
+      "rows": 6
+    },
+    {
+      "id": "W6.4",
+      "covers": "Pending effects: Future Sight, Wish, Healing Wish.",
+      "rows": 6
+    },
+    {
+      "id": "W7.1",
+      "covers": "Move execution history, including the opponent's revealed moves.",
+      "rows": 2
+    },
+    {
+      "id": "W2.1",
+      "covers": "Decision-point kind and request presence; owner decision on the Prompt59 blocked rows.",
+      "rows": 4
+    },
+    {
+      "id": "W8",
+      "covers": "Replay provenance on episodes; retire the old unsafe replay tools.",
+      "rows": 0
+    },
+    {
+      "id": "W9",
+      "covers": "Full knowledge publication to Python, all forms, tamper rejection.",
+      "rows": 0
+    },
+    {
+      "id": "W10",
+      "covers": "Registry at 0 missing; one full-corpus born/K audit; integrated both-player test; full suites.",
+      "rows": 0
+    }
+  ]
+}
