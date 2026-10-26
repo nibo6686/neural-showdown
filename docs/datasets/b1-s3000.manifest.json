@@ -1,0 +1,48 @@
+{
+  "schema_version": "b1-dataset/v1",
+  "status": "deferred-until-W10",
+  "commit": null,
+  "commit_binding": "No completed dataset: owner paused Track B until Track A W10; B1 is code only. The stopped partial run retains its original implementation commit in build.run.json.",
+  "engine_commit": "b8f23c99629132611ba59e99480cb148ea8c5d3d",
+  "frame_schema": "decision-frame/v1",
+  "feature_version": "feature-v1",
+  "vocabulary_sha256": "15508f3539c26d338c5b206a979842f1f1007d670a1ea237016941fbde54dd08",
+  "sample_list": "data/replays/corpus-2026-10-21/sample-3000-seed20261024.json",
+  "sample_list_sha256": "43f3e4990b7851511493c629133037eda70eb33855643244e529554974d00492",
+  "split_seed": "20261024",
+  "counts": {
+    "train": null,
+    "validation": null,
+    "test": null
+  },
+  "label_definitions": {
+    "policy": "human canonical action index within legal list",
+    "value": "owner win=1 loss=0 tie=0.5; departing owner loses administrative endings",
+    "ending": "normal / forfeit / inactivity",
+    "rating": "float plus rating_known; unknown is not imputed"
+  },
+  "failures": null,
+  "output": "data/datasets/b1-s3000/",
+  "pilot_output": "data/datasets/b1-s3000-pilot-v2/",
+  "run_status": "data/datasets/b1-s3000/build.run.json",
+  "split_battle_ids_sha256": {
+    "train": "c41aa977eaba5767299d2bf353799007f80853bf694b37a5a12ba275a12e6b0f",
+    "validation": "c1497204d50834990084578c0f4722ed6b273a50c780d87636eba49c4bd09f75",
+    "test": "0a64dd11e3188b534d99b5ac3279837524b442957be7cd707b18cf3a8a76ca50"
+  },
+  "split_battle_counts": {
+    "train": 2700,
+    "validation": 150,
+    "test": 150
+  },
+  "pilot": {
+    "commit": "424b3c9a20e81b9aabb1152e0cf495dc54e758de",
+    "battles": 50,
+    "examples": 2646,
+    "failures": 0,
+    "workers": 3,
+    "wall_time_seconds": 534.8259923,
+    "estimated_full_seconds": 32089.559538,
+    "scope": "same export pipeline and array layout; final feature mask clarifications do not change reproduction work"
+  }
+}
