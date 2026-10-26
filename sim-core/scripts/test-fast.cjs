@@ -6,6 +6,7 @@ const { files } = require('../test-fast-files.json');
 // Start measured long files early; every listed file still runs exactly once.
 // The CLI's glob expansion sorts paths instead of preserving this order.
 const longFiles = [
+  'dist/tests/replay_real.test.js',
   'tests/durable_jobs.test.cjs', 'dist/tests/perspective_knowledge.test.js',
   'dist/tests/pipeline_episode_stop_repair.test.js', 'dist/tests/pipeline_episode_faithful.test.js',
   'dist/tests/pipeline_integration.test.js', 'dist/tests/bench.test.js',
