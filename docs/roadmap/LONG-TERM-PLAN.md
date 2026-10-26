@@ -322,7 +322,38 @@ Workstream notes:
 
 ## Phase 2 — ML (Track B)
 
-**Ordering (owner decision, 2026-10-16): parallel tracks.** Track B begins
+**Ordering revised (owner decision, 2026-10-26): Track A first; Track B is
+paused after B1's code (`a55f614`).** No dataset builds, training or model
+slices until W10 has proven the battle mechanics and information provenance.
+B1's vocabulary, `feature-v1` and builder stay committed and tested in the
+fast gate. No 3,000-battle dataset is built. Before Track B resumes, the
+builder's overhead must be fixed. Its 50-battle pilot took about 32 s per
+battle per worker, against about 52 ms for a bare reproduction. By code
+reading, the likely causes are:
+- one Python featurizer process serves every worker, one frame at a time;
+- each worker waits for an ack after every frame;
+- each frame carries the full observation, including protocol history, as
+  JSON;
+- K is computed and validated per boundary, then discarded.
+
+**B1 review (Claude): accepted as code.** Checked:
+- the featurizer reads only the owner's v2 view and own request;
+- the vocabulary regenerates byte-identical;
+- 17 focused tests pass, including feature-tensor leakage invariance;
+- the fast gate passes in 159 s of 175 s, with 16 s of headroom left.
+
+Two findings for Track A:
+- **The v2 public view has no opponent revealed moves, ability, item
+  identity or Tera type.** All four are publicly revealed in the protocol.
+  The "0 public mismatches" result covers only the fields v2 has. They're
+  adopted as K rows in W3.4 (Tera), W5 (items and abilities) and W7 (move
+  history), and `feature-v2` reads them from K.
+- **The fast-gate headroom is shrinking.** The next slice that adds fast
+  tests must recover time first.
+
+The text below records the earlier parallel-tracks decision.
+
+**Ordering (owner decision, 2026-10-16, superseded above): parallel tracks.** Track B begins
 after Phase 0, W1 and **W9-lite** (Python read access to the currently adopted
 subset, without the full publication schema). It trains on the honest adopted
 subset while Track A continues, with missing properties as explicit `unknown`
@@ -430,6 +461,57 @@ allow it. Latency and UX are **DECIDE** at that point.
 
 Ready-to-run Codex briefs live in `docs/roadmap/briefs/`:
 `P0.1.md` (consolidation). W1.1 is below until it moves there.
+
+## Track A remaining slices (planned 2026-10-26)
+
+**Registry state at `a55f614`:** 38 of 123 rows adopted, 75 missing, 7 blocked
+and 3 legitimately unknown. **All 38 adopted rows are own-perspective**: they
+come from the owner's requests and native birth evidence. **No
+opponent-perspective (public) row is adopted yet.** The public readers
+(`public_health`, `public_item`, `public_ability`, `public_boosts`,
+`public_move_history` and the state extractor) feed the v2 observation, with
+0 mismatches over 123.6M checks. None of them is a K provider. The v2 view also
+leaves out opponent revealed moves, ability, item identity and Tera type
+(B1 review). So the rest of Phase 1 is mostly public knowledge, built on one
+association provider (W3).
+
+**Public-row proof (applies to every slice below).** The K differential
+extends to opponent rows:
+- **soundness:** every known value equals simulator truth;
+- **parity:** it agrees with the v2 public view wherever v2 has the field;
+- **causality:** nothing is known before its public reveal. This is proved
+  by born reveal tests and by extending the W9L leakage-invariance cases to K
+  projections.
+
+Hidden values stay unknown. "Revealed but reported unknown" is a
+completeness failure, and the curated fixtures assert it at named reveal
+points.
+
+| Slice | Rows (missing → adopted) | Red tests it owns |
+|---|---|---|
+| **W3.3** (brief `briefs/W3.3.md`) public association provider: who is where, appearance vs identity | K01 current `roster_species`, `active_slot`, `roster_size` (both owners), `party_position` own; K17 `appearance`, `identity_reveal` (both): **11** | `illusion` (24), `forced_switch` (3), `pipeline_episode` unbound switch source (4) |
+| **W3.4** form, types, Tera, Transform; public details | K16 `form`, `types`, `tera`, `transformed` (both); K04 opponent `level`, `gender`, `shiny`, `details`: **12** | `transform_types`, `transform_boosts`, `added_types`, `roost` |
+| **W4.1** opponent health/status, boosts | K05 opponent `hp`, `fainted`, `status`; K09 `boosts` (both): **5** | `public_stages`, `selective_boosts`, `psych_up`, `topsy_turvy`, `public_consequences`, `pipeline_episode` Healing Wish |
+| **W4.2** status timing (intervals, never invented) | K06 `status_observed_since`, `status_elapsed`, `status_remaining` (both): **6** | — |
+| **W5.1** items: identity, held, effective | K18 `item`, `item_held`, `item_effective` current (both): **6** | `item_identity` (37), `item` (22) |
+| **W5.2** abilities | K19 opponent `ability`; `ability_effective` (both): **3** | — |
+| **W6.1–W6.4** effect ledgers: side conditions; weather/terrain/pseudo-weather/remaining; persistent/single-turn/single-move; pending | K13 (4), K14 (10), K10–K12 (6), K15 (6): **26** | the W6 list above (Imprison, Torment, hazards, screens, Court Change, Future Sight, Wish, …) |
+| **W7.1** move execution history (opponent revealed moves) | K02 `move_execution` (both): **2** | — |
+| **W2.1** owned residue and boundaries | K20 `boundary_kind`, `request_presence` (current, request): **4**; Prompt59 blocked rows → owner DECIDE | the W2 list above |
+| **W8** replay provenance; retire unsafe replay callers | — | — |
+| **W9** full publication of K to Python (all forms, tamper rejection) | — | `protocol_contract_validation` |
+| **W10** final assurance | registry at 0 `missing`; **one full-corpus born/K run (the final audit)**; integrated both-owner test; full suites | `soak`, completeness audit |
+
+Total: 75 rows. Order follows the dependency graph: W3.3 → W3.4 → W4 → W5;
+W6 after W3.3; W2 and W7 any time after W3.3. Splits happen at review if a
+slice balloons.
+
+**Cross-cutting conditions:**
+- **Fast-gate headroom.** It was 159 s of 175 s at the B1 review. W3.3 must
+  recover time before it adds tests.
+- **Born/K throughput.** A 3,000-battle gate took about 3.5 h. Profiling it
+  belongs to W10's preparation, so the final full-corpus audit takes hours,
+  not days.
 
 ## W1 slicing (revised 2026-10-23)
 

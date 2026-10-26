@@ -5,6 +5,12 @@
 (knowledge) continues in parallel; models are retrained as knowledge lands.
 The final model waits for W10.
 
+**Paused (owner decision, 2026-10-26).** Track A comes first. After B1's code
+(`a55f614`), nothing in this track runs until W10: no dataset build, B2 or
+training. Resuming starts with fixing the builder's overhead
+(`LONG-TERM-PLAN.md`, Phase 2). The rest of this file is the plan for when it
+resumes.
+
 ## First milestone: M1, a learned imitation policy with a value head
 
 **Goal.** A model trained on reproduced human battles that plays legal Gen 9
@@ -86,9 +92,69 @@ every later change is measured.
 | Slice | Content |
 |---|---|
 | **B1** (brief `briefs/B1.md`) | Vocabulary generator; `feature-v1` contract and Python featurizer; streaming dataset builder (born frames → features → shards) under the R1 supervisor; 3,000-battle dataset in the background; split/manifest; feature tests including leakage invariance |
-| **B2** | M1 model and training; held-out metrics (agreement by rating band, NLL, Brier, reliability); baseline-agent agreement on the same frames; **Python agent bridge** for `tools/bench` (subprocess, JSON lines, legal-only); benchmark M1 vs random/greedy/heuristic, 500 pairs each |
+| **B2** | M1 model and training; held-out metrics (agreement by rating band, NLL, Brier, reliability); baseline-agent agreement on the same frames; **auxiliary heads** (opponent hidden set, opponent next action; L1 below); **Python agent bridge** for `tools/bench` (subprocess, JSON lines, legal-only); benchmark M1 vs random/greedy/heuristic, 500 pairs each |
 | B3 | Error analysis: categorize benchmark losses and disagreements (missing info, belief, tactical, strategic); pick the next lever |
 | Later | `feature-v2` (K projection, born-session benchmark agents); B2 belief model (random-set priors and posteriors); one-turn search; self-play/RL with an opponent pool; larger datasets after the full-corpus run |
+
+## Lessons from other bots (2026-10-26)
+
+Taken from the 2026 Smogon bot threads: Jaxcalibur and Eevenator (Gen 9
+randbats, #1 on the ladder at 2557 and 2626 Elo), and mikumiku37, Nessie123
+and qtipsa's bot (VGC). All of them use small transformers trained mostly by
+self-play, with search on top.
+
+- **L1. Auxiliary heads (B2).** Add heads for each opponent Pokémon's item,
+  ability, moves and Tera type, and for the opponent's next action.
+  Jaxcalibur says the next-action head made its bot "substantially stronger".
+  Reproduced battles give **exact labels** for both, from the other owner's
+  own view and choice at the same step. These are targets only, never
+  inputs. The opponent-set head is also M1's first learned belief model,
+  which matches Eevenator's approach: hard deductions plus a learned
+  posterior from the opponent's behavior.
+- **L2. Measure throughput before planning RL.** Jaxcalibur played about
+  100M games (a week on one H100, in a JAX engine it rewrote itself);
+  mikumiku37 about 330M games (48 h, on a simulator 650× faster than
+  Showdown). Before the RL stage, measure self-play games per second on the
+  pinned engine (in-process, batched GPU inference) and decide: Showdown with
+  more cores, or a fast engine checked against the corpus. The admitted
+  replays are an exact differential oracle for a fast engine.
+- **L3. Search: start with one turn, solved as a matrix game.** mikumiku37
+  and Nessie build a payoff table of top-k actions against the opponent's
+  top-k replies in each sampled world, and solve it for a mixed strategy.
+  That's simpler than pUCT and fits our one-turn search slot. Jaxcalibur
+  estimates search adds 100–150 Elo; the net does most of the work, so the
+  order (model, then search) stays.
+- **L4. No hidden-information leaks inside search.** A simulated opponent
+  must not act on our private information. Jaxcalibur truncates the
+  opponent's search once we do something surprising from their view (an
+  unrevealed switch-in, or a move they'd predict below 65%); after that, the
+  opponent uses the policy prior only. This is the plan §1 perspective rule
+  applied to search. Every search slice must have a leakage test.
+- **L5. RL-stage details.** Use a zero-avoiding regularizer (KL toward
+  uniform) so situational moves like Encore never drop to zero probability.
+  Small models trained longer beat larger ones (8.5M parameters); M1's size
+  is fine. Jaxcalibur's known weaknesses are PP stalling and predictability:
+  `feature-v2` exact PP tracking addresses the first, and mixed strategies
+  from L3 the second.
+- **L6. Evaluation and use: offline only.** All five developers stopped
+  laddering or held back their releases over ladder-integrity concerns. Our
+  bots never play the public ladder. For strength beyond the in-repo
+  baselines, add **Foul Play** (open source; about 2341 Elo peak) as a
+  local benchmark opponent. That needs the owner's approval to download it.
+  Challenge matches against public bots are the owner's call. The product
+  direction stays post-battle analysis: an evaluation bar and a "what it
+  was thinking" view, as Nessie and Jaxcalibur show.
+
+## B1 review checklist (beyond the brief's done-when)
+- Opponent-set and next-action labels (L1) can be rebuilt **without raw
+  frames**: each example has a join key (battle ID, step, owner), and the
+  other owner's example at the same step has its full own-team features
+  (species, item, ability, moves, Tera type) and its chosen action. If not,
+  B2 adds those label columns to the builder before the full-corpus build.
+- Own-team PP and the opponent's revealed moves are encoded with
+  known/unknown kept distinct, so L5's PP-stalling fix has the data.
+- The leakage-invariance test covers the featurized tensors, not only the
+  frames.
 
 ## Compute and time budgets
 - Dataset build for 3,000 battles: background and supervised, a few hours.
