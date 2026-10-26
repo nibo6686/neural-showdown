@@ -15,11 +15,18 @@ starting.
   automatic-delegation skills (`model-routing-advisor`, `project-lead`, and
   similar), even if they say they apply to every task. Use the session's
   default model.
-- Run the slice's focused tests and `tools/test_fast.ps1` before reporting.
-  Give potentially hanging commands a timeout. **Don't run the full Node or
-  Python suite** unless the brief explicitly asks; Claude runs full-suite
-  comparisons during review. Read failing-test output selectively (the failing
-  test's lines), not whole logs.
+- **Lean verification.** Iterate with the slice's focused tests only. Run
+  `tools/test_fast.ps1` **once**, just before committing, and again only if
+  code changed after that run. Don't rerun it to re-measure timing, and don't
+  run pilots or measurement jobs unless the brief asks. Proof tests for
+  adopted rows (positive and negative) and the leakage-invariance tests are
+  deliverables, never deferred. Give potentially hanging commands a timeout.
+  **Don't run the full Node or Python suite** unless the brief explicitly
+  asks. Read failing-test output selectively (the failing test's lines), not
+  whole logs.
+- **Stacking.** When the next brief is ready, you may start it on top of a
+  slice that is still under review. Review fixes for the earlier slice come
+  first, in their own small commit.
 - No known timeouts. A test that is known to hang or exceed its time limit
   must either be skipped in code with a stated reason (long tests opt in via
   `NEURAL_LONG_TESTS=1`), or be fixed in the current slice. Never leave a

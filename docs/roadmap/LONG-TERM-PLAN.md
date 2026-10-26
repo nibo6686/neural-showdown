@@ -74,10 +74,31 @@ corpus is downloaded after the re-pin, and only exact reproductions are kept.
 evidence during ordinary development, mandatory second reviewers and
 process-group ceremony. Use timeouts where tests can hang.
 
-**Testing.** Codex runs the focused tests plus `tools/test_fast.ps1` before each
-report, and does not run full suites unless a brief asks. Claude runs the full
-Node/Python comparison against `docs/roadmap/baseline.md` during review, when
-a slice touches shared infrastructure or ends a workstream.
+**Testing (lean verification, owner decision 2026-10-26).** Check at
+milestones, not at every step. Never defer the proof itself.
+- **Every slice:**
+  - Codex iterates on focused tests and runs the fast gate **once** before
+    committing.
+  - Proof tests for adopted rows, the leakage-invariance tests and the
+    curated real-replay fixtures in the fast gate are required. They're the
+    deliverable, not overhead.
+- **Claude's review of a slice:**
+  - Read the diff and the report, and trust Codex's reported test results.
+  - Rerun something only when the diff touches shared infrastructure, the
+    numbers look inconsistent, or a semantic risk needs a spot check (one
+    focused test, not the gate).
+- **Workstream end** (for example the end of W3, W4 or W5): one full Node
+  and Python comparison against the last baseline, in an isolated worktree.
+  Regressions found there are fixed before the next workstream starts.
+- **W10 only:** the full-corpus born/K audit.
+- **Stacking:** Claude writes the next brief ahead. Codex may start it on
+  top of a slice under review, and review fixes land first in their own
+  small commit.
+
+Why: in practice most of our verification time went into repeating checks
+that had already passed: several fast-gate runs per slice, reruns during
+review, per-slice full suites and corpus runs. Bugs were found by
+first-time real-data checks and by diff reading, not by the repeats.
 
 **Cost.** Codex works each slice itself in one session: no sub-agent
 delegation, project-lead or model-routing skills (see `AGENTS.md`). P0.4 hit
@@ -490,7 +511,7 @@ points.
 | Slice | Rows (missing → adopted) | Red tests it owns |
 |---|---|---|
 | **W3.3** (brief `briefs/W3.3.md`) public association provider: who is where, appearance vs identity | K01 current `roster_species`, `active_slot`, `roster_size` (both owners), `party_position` own; K17 `appearance`, `identity_reveal` (both): **11** | `illusion` (24), `forced_switch` (3), `pipeline_episode` unbound switch source (4) |
-| **W3.4** form, types, Tera, Transform; public details | K16 `form`, `types`, `tera`, `transformed` (both); K04 opponent `level`, `gender`, `shiny`, `details`: **12** | `transform_types`, `transform_boosts`, `added_types`, `roost` |
+| **W3.4** (brief `briefs/W3.4.md`) form, types, Tera, Transform; public details | K16 `form`, `types`, `tera`, `transformed` (both); K04 opponent `level`, `gender`, `shiny`, `details`: **12** | `transform_types`, `transform_boosts`, `added_types`, `roost` |
 | **W4.1** opponent health/status, boosts | K05 opponent `hp`, `fainted`, `status`; K09 `boosts` (both): **5** | `public_stages`, `selective_boosts`, `psych_up`, `topsy_turvy`, `public_consequences`, `pipeline_episode` Healing Wish |
 | **W4.2** status timing (intervals, never invented) | K06 `status_observed_since`, `status_elapsed`, `status_remaining` (both): **6** | — |
 | **W5.1** items: identity, held, effective | K18 `item`, `item_held`, `item_effective` current (both): **6** | `item_identity` (37), `item` (22) |
