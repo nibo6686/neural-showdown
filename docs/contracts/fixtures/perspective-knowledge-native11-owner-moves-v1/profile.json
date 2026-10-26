@@ -636,7 +636,7 @@
   "original_interpretation": "submitted-presence-and-pinned-defaults/v1",
   "current_stats_semantics": "request-declared-baseStoredStats/v1",
   "current_details": "literal-authenticated-roster-row/v1",
-  "id": "sha256:1618f17312fdb727b595c727fa43cebd79a12487513a77bc40d939a994bc2ee2",
+  "id": "sha256:0a3d00294fd9771c04ddad187435b6d42767174fa0e7c332fbc768046292c37c",
   "engine_commit": "b8f23c99629132611ba59e99480cb148ea8c5d3d",
   "engine_integrity": "sha512-ihktUZgY1oy6U7TyCDmHg4lUlPeMb2jcedhqOnc/R0GIAeMgMFTlIDzmVsZ1xjBJ4ddaa/OM8dpfNsqo1dNe3Q==",
   "move_rules": {
@@ -645,5 +645,6 @@
     "K07/pp": "selected emitted option; otherwise last_known or not_emitted",
     "K07/max_pp": "selected emitted option; otherwise last_known or not_emitted"
   },
-  "limits": "Copied/virtual, Mimic, Sketch, replacement writers and unsupported alias partitions are blocked; no disabled/maybe/trapped/lock adoption. No positive fidelity."
+  "limits": "Copied/virtual, Mimic, Sketch, replacement writers and unsupported alias partitions are blocked; no disabled/maybe/trapped/lock adoption. No positive fidelity.",
+  "request_flags_semantics": "Literal selected request flags; actor aggregates; restriction only, public Encore cause only; no per-move maybe-disabled attribution."
 }

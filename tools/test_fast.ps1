@@ -26,8 +26,14 @@ try {
     $runs += $producer
     if (-not $producer.Process.WaitForExit([Math]::Max(0,175000-[int]$watch.ElapsedMilliseconds))) { throw 'Node producer timed out' }
     if ($producer.Process.ExitCode -ne 0) { Write-Output $producer.Output.GetAwaiter().GetResult(); Write-Output $producer.Error.GetAwaiter().GetResult(); exit 1 }
+    # Warm the shared model DLL pages once before concurrent replay-loader probes.
+    # The probes retain their guarded real imports and their existing timeouts.
+    $warmup = Start-Gate 'Python import warmup' 'D:\Anaconda\envs\neuralgpu\python.exe' @('-c', 'import sys; sys.path.insert(0, "trainer/src"); import neural.compare_action_rankers') $repo
+    $runs += $warmup
+    if (-not $warmup.Process.WaitForExit([Math]::Max(0,175000-[int]$watch.ElapsedMilliseconds))) { throw 'Python import warmup timed out' }
+    if ($warmup.Process.ExitCode -ne 0) { Write-Output $warmup.Output.GetAwaiter().GetResult(); Write-Output $warmup.Error.GetAwaiter().GetResult(); exit 1 }
     # Producer files are complete before the Python consumer starts.
-    $runs += Start-Gate 'Node' $env:ComSpec @('/d', '/c', 'npm run test:fast') (Join-Path $repo 'sim-core')
+    $runs += Start-Gate 'Node' 'node' @('scripts/test-fast.cjs') (Join-Path $repo 'sim-core')
     $runs += Start-Gate 'Python' (Get-Process -Id $PID).Path @('-NoProfile', '-File', (Join-Path $PSScriptRoot 'test_fast_py.ps1')) $repo
     $failed = $false
     foreach ($run in $runs) {

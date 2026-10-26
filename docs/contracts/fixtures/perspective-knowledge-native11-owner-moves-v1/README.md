@@ -13,7 +13,16 @@ possession at terminal/requestless boundaries is not an empty repertoire.
 
 Copied/virtual, Mimic, Sketch, same-label replacement and unsupported serializer
 alias partitions mint no subjects or PP facts. Authenticated dormant base leases
-may resume after a qualified reset. Disabled/maybe/trapped/lock remain W1.3.
+may resume after a qualified reset. The additive `request` contains selected-receipt option disabled flags and actor
+`emitted_flags`. Every flag retains presence and literal value; omitted is unknown.
+Actor maybeDisabled/maybeLocked have affected_options=unspecified and cannot be
+attributed to moves. `restriction.permitted_options` describes emitted request
+options, never a hidden lock mechanic. Only the typed public Encore start/end
+rule names a cause; it clears on switch/drag/replace/faint. Other causes stay
+unknown. Current disabled attribution requires an ordinary option link; synthetic
+Recharge/Struggle and restricted options mint no possession or PP. Their
+`exact_options` descriptor permits the canonical callback, including Recharge's
+canonical `default` action. Default (non-opt-in) descriptors are unchanged.
 Python/model adoption is not implied; existing Python readers do not consume
 private native P59/P60 profiles either. Source validation and the born-session
 consumer remain native TypeScript paths.
@@ -24,7 +33,7 @@ For the offline born oracle, opt in separately with `--owner-moves`, for example
 node tools/replay_repro/index.cjs C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21 --born --kdiff --owner-moves --limit=300 --workers=5 --replay-timeout-ms=300000 --manifest=C:/Users/cloud/Downloads/neural/final/data/replays/corpus-2026-10-21/born-W1.2.jsonl
 ```
 
-This sample journal is separate from W3.2. Do not use `--update-admission` while
-the isolated W3.2 full-corpus job owns the admission manifest. The move oracle
+Use a separate sample journal. Do not use `--update-admission` while
+the isolated R1 full-corpus job owns the admission manifest. The move oracle
 compares current vectors to actual addressed emissions, base identity to native
 slot aliases, and retained PP to earlier observations, without influencing actions.

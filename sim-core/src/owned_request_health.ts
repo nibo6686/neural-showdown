@@ -26,10 +26,10 @@ type Row = { declaration?: DeclaredRow; identifiers?: Identifiers; actor: any; d
 type NativeMoveSlot = { reference: any; id: string; pp: number; maxpp: number; virtual: unknown };
 type MoveSource = { actor: any; data?: any; array?: any[]; slots?: readonly NativeMoveSlot[]; moves?: any[];
   rows?: readonly { reference: any; id: string; label: string; pp: number; maxpp: number }[];
-  locked?: unknown; semi?: unknown; semiArgument?: unknown; argument?: unknown; trace: string[]; calls: Record<string, number>; transformed: unknown; ordinary: boolean };
+  locked?: unknown; semi?: unknown; semiArgument?: unknown; argument?: unknown; trace: string[]; calls: Record<string, number>; transformed: unknown; ordinary: boolean; emitted?: any; emittedArray?:any[]; emittedRows?:any[] };
 type Capture = { owner: PlayerID; request: any; rows: readonly Row[]; move?: MoveSource; active?: any[] };
 export interface OwnedActiveOptions { readonly schema: 'owned-active-options/v1'; readonly subject: string | null; readonly sequence: number | null;
-  readonly cursor: number; readonly state: 'ordinary_pp' | 'unsupported' | 'waiting' | 'forced_switch' | 'revival_selection' | 'terminal' | 'requestless';
+  readonly cursor: number; readonly state: 'ordinary_pp' | 'exact_options' | 'unsupported' | 'waiting' | 'forced_switch' | 'revival_selection' | 'terminal' | 'requestless';
   readonly reason: 'none' | 'not_emitted' | 'unsupported_writer'; readonly options: readonly Record<string, any>[] | null }
 
 type World = { battle: Battle; rows?: AssociationRows; undo: Array<() => void>; sides: Set<object>; decodeCalls: number; receipts: Set<object>; moveData: Set<object> };
@@ -176,6 +176,7 @@ export class OwnedRequestHealthHost {
       const source: MoveSource = { actor, calls: {}, trace: [], transformed: actor.transformed, ordinary: false }; host.#moving = source;
       try {
         const data = movePins.getMoveRequestData.value.apply(actor, args); source.data = data;
+        if (host.#moves) {source.emitted = structuredClone(data);source.emittedArray=data.moves;source.emittedRows=[...data.moves];}
         source.ordinary = source.trace.join(',') === 'getLockedMove:start,getLockedMove:end,getSemiLockedMove:start,getSemiLockedMove:end,getMoves:start,getMoves:end'
           && source.calls.getLockedMove === 1 && source.calls.getSemiLockedMove === 1 && source.calls.getMoves === 1
           && source.locked === null && source.semi === null && source.semiArgument === true && source.argument === null && !source.transformed && !!source.slots
@@ -191,6 +192,10 @@ export class OwnedRequestHealthHost {
     need(capture.request.active === capture.active && capture.active?.length === 1 && capture.active[0] === source.data
       && source.actor.side === world.battle[capture.owner] && world.battle[capture.owner]!.active[0] === source.actor
       && (!world.rows || world.rows[capture.owner].objects.includes(source.actor)), 'foreign-active-binding');
+    if (this.#moves) {
+      need(source.data.moves===source.emittedArray&&source.data.moves.length===source.emittedRows?.length&&source.emittedRows!.every((row,i)=>source.data.moves[i]===row),'copied-active-emission');
+      need(isDeepStrictEqual(source.data, source.emitted), 'altered-active-emission');
+    }
     if (!source.ordinary) return;
     need(source.actor.transformed === source.transformed && source.actor.moveSlots === source.array
       && source.array!.length === source.slots!.length && source.slots!.every((slot, i) => source.array![i] === slot.reference
@@ -208,14 +213,20 @@ export class OwnedRequestHealthHost {
     if (capture) this.checkMove(capture, world);
     const slot = source ? world.rows![owner].objects.indexOf(source.actor) + 1 : 0;
     const ordinary = !!source?.ordinary && state === 'move';
+    const exact = !!this.#moves && !!source?.emitted && state === 'move' && source.calls.getMoves === 1
+      && Array.isArray(source.emitted.moves) && source.emitted.moves.length >= 1 && source.emitted.moves.length <= 4
+      && source.emitted.moves.every((m:any) => typeof m.id === 'string' && m.id.length && typeof m.move === 'string' && m.move.length
+        && (!Object.hasOwn(m,'disabled') || typeof m.disabled === 'boolean'));
     const unavailable = ['waiting','forced_switch','revival_selection','terminal','requestless'].includes(state);
     return Object.freeze({ schema: 'owned-active-options/v1', subject: slot ? owner + ':roster:' + slot : null,
       sequence: delivery.current?.sequence ?? null, cursor: delivery.boundary_cursor,
-      state: ordinary ? 'ordinary_pp' : unavailable ? state as OwnedActiveOptions['state'] : 'unsupported',
-      reason: ordinary ? 'none' : unavailable ? 'not_emitted' : 'unsupported_writer',
+      state: ordinary ? 'ordinary_pp' : exact ? 'exact_options' : unavailable ? state as OwnedActiveOptions['state'] : 'unsupported',
+      reason: ordinary || exact ? 'none' : unavailable ? 'not_emitted' : 'unsupported_writer',
       options: ordinary ? Object.freeze(source!.rows!.map((row, i) => Object.freeze({ option_index: i + 1, request_move_id: row.id, request_move_label: row.label,
         pp: Object.freeze({ state: 'known', value: row.pp, precision: 'exact', reason: 'none' }),
-        max_pp: Object.freeze({ state: 'known', value: row.maxpp, precision: 'exact', reason: 'none' }) }))) : null });
+        max_pp: Object.freeze({ state: 'known', value: row.maxpp, precision: 'exact', reason: 'none' }) }))) : exact ? Object.freeze(source!.emitted.moves.map((row:any,i:number)=>Object.freeze({option_index:i+1,request_move_id:row.id,request_move_label:row.move,
+          pp:Object.freeze({state:'unknown',value:null,precision:'not_applicable',reason:Object.hasOwn(row,'pp')?'unsupported_writer':'not_emitted'}),
+          max_pp:Object.freeze({state:'unknown',value:null,precision:'not_applicable',reason:Object.hasOwn(row,'maxpp')?'unsupported_writer':'not_emitted'})}))) : null });
   }
   /** Only the final admitted synchronous native decode. Probe callers never use this seam. */
   decode(environment: object, ticket: object, operation: () => Battle, input?:Record<string,unknown>): Battle {

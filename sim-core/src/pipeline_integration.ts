@@ -680,7 +680,7 @@ export class PipelineIntegrationSession {
       && read.binding.request_adaptation === 'owned_health/v1'
       && read.binding.request_descriptor === 'owned-active-options/v1'
       && descriptor.sequence === current.sequence && descriptor.cursor === row.boundary_cursor
-      && ((descriptor.state === 'ordinary_pp' && read.binding.request_state === 'move' && requestState === 'actionable')
+      && ((['ordinary_pp','exact_options'].includes(descriptor.state) && read.binding.request_state === 'move' && requestState === 'actionable')
         || (descriptor.state === 'forced_switch' && read.binding.request_state === 'forced_switch' && requestState === 'forced_switch')
         || (descriptor.state === 'revival_selection' && read.binding.request_state === 'revival_selection' && requestState === 'revival_selection'));
     const observationRequest = frame.observation.request;

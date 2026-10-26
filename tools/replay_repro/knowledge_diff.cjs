@@ -12,7 +12,7 @@ const registered = registry.rows.filter(r => r.status === 'adopted' || r.status 
 function createKnowledgeDiff(session, {ownerMoves=false}={}) {
   // Old private profiles keep their previous oracle obligations and output.
   const hasMoves=ownerMoves;
-  const relevant=registered.filter(row=>!moveProperties.has(row.property)||hasMoves);
+  const relevant=registered.filter(row=>(!moveProperties.has(row.property)&&row.family!=='K08')||hasMoves);
   const observed=new Map();
   const rows = Object.fromEntries(relevant.map(row => [keyOf(row), {checks: 0, unknown: 0, mismatches: 0}]));
   const examples = [], starting = {};
@@ -44,6 +44,34 @@ function createKnowledgeDiff(session, {ownerMoves=false}={}) {
       const association = current.readNativeObjectHolding(current.getNativeObjectHolding(owner), owner);
       const roster = new Map(association.original_slots.map((slot, position) => [slot, battle[owner].pokemon[position]]));
       for (const row of relevant) {
+        if(row.family==='K08'){
+          const key=keyOf(row),request=projection.owned_moves?.request;
+          if(!request){mismatch(key,frame,null,null,'missing-request-flags');continue;}
+          const history=current.readRequestDeliveryHistory(current.getRequestDeliveryHandle(owner),owner);
+          const d=history.deliveries.find(d=>d.sequence===request.sequence),raw=d?JSON.parse(d.source.request_json).active?.[0]:null;
+          const checkFlag=(f,object,property)=>{
+            rows[key].checks++;const present=!!object&&Object.hasOwn(object,property);
+            if(!f||f.present!==present||f.state!==(present?'known':'unknown')||f.value!==(present?object[property]:null)||f.reason!==(present?'none':'not_emitted'))mismatch(key,frame,f,{present,value:present?object[property]:null},'literal-flag-mismatch');
+            if(!present)rows[key].unknown++;
+          };
+          if(row.property==='disabled'){
+            for(const option of request.options||[]){
+              if(row.context==='current'&&!option.subject){rows[key].unknown++;continue;}
+              checkFlag(option.disabled,raw?.moves[option.option_index-1],'disabled');
+            }
+            if(!request.options)rows[key].unknown++;
+          }else if(row.property==='lock'){
+            rows[key].checks++;const expected=raw?raw.moves.flatMap((m,i)=>m.disabled===true?[]:[i+1]):null;
+            if(request.restriction.state!==(raw?'known':'unknown')||!isDeepStrictEqual(request.restriction.permitted_options,expected))mismatch(key,frame,request.restriction,expected,'request-restriction-mismatch');
+            let appearance=null,encore=false;
+            for(const line of current.boundary.perspectives[owner].observation.protocol_prefix){const p=line.split('|');if(!p[2]?.startsWith(owner+'a: '))continue;
+              if(['switch','drag','replace'].includes(p[1])){appearance=p[2];encore=false;}
+              else if(p[2]===appearance){if(p[1]==='faint'){appearance=null;encore=false;}else if(p[3]==='Encore'&&p[1]==='-end')encore=false;else if(p.length===4&&p[3]==='Encore'&&p[1]==='-start')encore=true;}}
+            const reason=request.restriction.reason,expectedReason=raw&&!raw.moves.some(m=>['recharge','struggle'].includes(m.id))&&appearance&&encore?'encore':null;
+            if(reason.value!==expectedReason||reason.state!==(expectedReason?'known':'unknown'))mismatch(key,frame,reason,expectedReason,'unproven-lock-reason');
+          }else checkFlag(request.emitted_flags[row.property],raw,row.property==='maybe_trapped'?'maybeTrapped':row.property);
+          continue;
+        }
         if(moveProperties.has(row.property)){
           const key=keyOf(row),moves=projection.owned_moves,history=current.readRequestDeliveryHistory(current.getRequestDeliveryHandle(owner),owner);
           const delivered=sequence=>{const d=history.deliveries.find(d=>d.sequence===sequence);return d?JSON.parse(d.source.request_json):null;};
@@ -65,7 +93,7 @@ function createKnowledgeDiff(session, {ownerMoves=false}={}) {
           if(row.context==='request'){
             const raw=delivered(projection.request.sequence);
             for(const option of projection.request.options||[]){rows[key].checks++;const projected=option[row.property],expected=raw?.active?.[0]?.moves[option.option_index-1]?.[row.property==='max_pp'?'maxpp':'pp'];
-              if(projected.state!=='known'||projected.value!==expected)mismatch(key,frame,option,expected,'option-emission-mismatch');
+              if((projected.state==='known'?projected.value!==expected:projected.value!==null||projection.request.state!=='exact_options'))mismatch(key,frame,option,expected,'option-emission-mismatch');
             }
             if(!projection.request.options)rows[key].unknown++;continue;
           }

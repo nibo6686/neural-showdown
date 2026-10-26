@@ -751,7 +751,7 @@ export function nativeOwnerMovesContext(): Readonly<{schema:Row;profile:Row}> {
   if(nativeMovesContext)return nativeMovesContext;
   const folder=path.resolve(__dirname,__dirname.endsWith(path.join('dist','src'))?'../../..':'../..','docs/contracts/fixtures/perspective-knowledge-native11-owner-moves-v1');
   const data:Row={};
-  for(const [name,pin] of Object.entries({'profile.json':'f8a4205490f94949e173de8a90643b6e1bc9d41bf12f14d3e15b36779e4dfc6f','schema.json':'10a52210d38b588573baff6787576e730378b8f9d408fd1f16402e924da25124'})){
+  for(const [name,pin] of Object.entries({'profile.json':'e68b7e2dcf727a9a5258afca36c86ca27596579a7590bb710de750d7af1d1ec3','schema.json':'0fbb126216c1d5d173757646e36705ce77d7fae478494d9cabc4a4eddde36615'})){
     const bytes=readFileSync(path.join(folder,name));requireStructure(createHash('sha256').update(bytes).digest('hex')===pin,'native moves contract content');data[name]=parseKnowledgeJson(bytes);
   }
   requireStructure(data['profile.json'].id===knowledgeIdentity(data['profile.json']),'native moves profile identity');
@@ -766,6 +766,7 @@ export function checkNativeOwnerMovesProjection(input:unknown):void {
   const legacy=structuredClone(value),details=nativeOwnerDetailsContext();delete legacy.owned_moves;
   legacy.schema='perspective-knowledge-consumer/native11-details-v1';legacy.policy=details.profile.policy;legacy.required_profile=details.profile.id;
   for(const fact of legacy.current)if(fact.property==='current_moves')Object.assign(fact,{state:'unknown',value:null,reason:'unimplemented_family',observed_at:null,precision:'not_applicable'});
+  if(legacy.request.state==='exact_options')Object.assign(legacy.request,{state:'unsupported',reason:'unsupported_writer',options:null});
   legacy.id=knowledgeIdentity(legacy);checkNativeOwnerDetailsProjection(legacy);
   const moves=value.owned_moves,count=value.starting.find((f:Row)=>f.property==='roster_size').value.data;
   requireStructure(moves.owner===value.owner&&moves.roster.length===count,'native moves owner roster');
@@ -785,6 +786,26 @@ export function checkNativeOwnerMovesProjection(input:unknown):void {
     requireStructure(row.current_moves.state==='unknown'?row.incarnation_coverage==='blocked'&&row.reason==='not_emitted'&&positions.length===0:
       row.incarnation_coverage===(positions.length?'blocked':'ordinary_base')&&row.reason===(positions.length?'unsupported_writer':'none'),'native moves coverage');
   });
+  const request=moves.request,descriptor=value.request;
+  requireStructure(request.subject===descriptor.subject&&request.sequence===descriptor.sequence&&request.cursor===descriptor.cursor,'native flags selected emission');
+  const checkFlag=(f:Row,actor:boolean)=>requireStructure(f.present ? f.state==='known'&&f.reason==='none'&&typeof f.value==='boolean'&&(!actor||f.value===true) : f.state==='unknown'&&f.reason==='not_emitted'&&f.value===null,'native emitted flag tuple');
+  for(const f of Object.values(request.emitted_flags) as Row[]){checkFlag(f,true);requireStructure(f.subject===request.subject&&f.affected_options==='unspecified','native aggregate scope');}
+  const permits:number[]=[];
+  if(request.options){
+    requireStructure(request.subject!==null&&request.sequence!==null&&Array.isArray(descriptor.options)&&descriptor.options.length===request.options.length&&['ordinary_pp','exact_options'].includes(descriptor.state),'native flags options');
+    request.options.forEach((option:Row,i:number)=>{
+      checkFlag(option.disabled,false);
+      requireStructure(option.option_index===i+1&&option.request_move_id===descriptor.options[i].request_move_id,'native flags option index');
+      const link=moves.option_links.find((l:Row)=>l.option_index===i+1);
+      requireStructure(option.subject===(link?.subject??null),'native flags lease link');
+      if(option.disabled.value!==true)permits.push(i+1);
+      const o=descriptor.options[i];
+      requireStructure(descriptor.state==='ordinary_pp'?o.pp.state==='known'&&o.max_pp.state==='known'&&o.pp.value<=o.max_pp.value:o.pp.state==='unknown'&&o.max_pp.state==='unknown'&&o.pp.value===null&&o.max_pp.value===null,'native exact option PP');
+    });
+  }else requireStructure(!descriptor.options&&Object.values(request.emitted_flags).every((f:any)=>!f.present),'native missing flags');
+  const restriction=request.restriction;
+  requireStructure(restriction.state===(request.options?'known':'unknown')&&canonicalKnowledgeJson(restriction.permitted_options).equals(canonicalKnowledgeJson(request.options?permits:null)),'native request restriction');
+  requireStructure(restriction.reason.state==='known'?restriction.reason.value==='encore'&&request.options!==null&&!request.options.some((o:Row)=>['recharge','struggle'].includes(o.request_move_id)):restriction.reason.value===null,'native restriction reason');
   const subjects=new Map<string,Row>();
   for(const row of moves.moves){
     requireStructure(!subjects.has(row.subject)&&row.subject===value.owner+':roster:'+row.subject.split(':')[2]+':move:'+row.anchor+':incarnation:1'&&+row.subject.split(':')[2]<=count,'native move incarnation');subjects.set(row.subject,row);

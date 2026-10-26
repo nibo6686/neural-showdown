@@ -21,8 +21,24 @@ type Saved = {snapshot:SeededBattleSnapshot; actors:SavedActor[]};
 type World = {battle:any; actors:Map<object,Actor>; rows?:AssociationRows; initial:boolean; traces:WeakMap<object,Trace>; undo:Array<()=>void>};
 type Probe = {world:World; actors:SavedActor[]};
 type Pending = {saved:Saved; input:any; decoded:Array<{source:SavedActor; actor:any; current:any[]; base:any[]}>};
-export type OwnedMovesData = Readonly<{schema:'native-owner-moves/v1'; owner:PlayerID; roster:readonly any[]; moves:readonly any[]; option_links:readonly any[]}>;
+export type OwnedMovesData = Readonly<{schema:'native-owner-moves/v1'; owner:PlayerID; roster:readonly any[]; moves:readonly any[]; option_links:readonly any[]; request:Readonly<Record<string,any>>}>;
 type Preparation = {environment:object; parent:PipelineBoundary|null; boundary:PipelineBoundary; data:Record<PlayerID,OwnedMovesData>; checks:Array<()=>void>};
+
+/** Typed public Encore lifecycle for the current appearance, never native volatiles. */
+export function publicRequestLockReason(prefix:readonly string[],owner:PlayerID):'encore'|null {
+  let active:string|null=null,encore=false;
+  for(const line of prefix){
+    const p=line.split('|'),target=p[2];
+    if(!target?.startsWith(owner+'a: '))continue;
+    if(['switch','drag','replace'].includes(p[1])){active=target;encore=false;}
+    else if(target===active){
+      if(p[1]==='faint') {active=null;encore=false;}
+      else if(p[3]==='Encore'&&p[1]==='-end')encore=false;
+      else if(p.length===4&&p[3]==='Encore'&&p[1]==='-start')encore=true;
+    }
+  }
+  return active&&encore?'encore':null;
+}
 
 /** Private member of the request host. No caller-supplied map creates a lease. */
 export class OwnedRequestMoveState {
@@ -178,7 +194,27 @@ export class OwnedRequestMoveState {
         }
         roster.push({subject:`${owner}:roster:${index+1}`,current_moves:fact(trace?.reported,valid),incarnation_coverage:!valid||unbound.length?'blocked':'ordinary_base',reason:!valid?'not_emitted':unbound.length?'unsupported_writer':'none',unbound_positions:unbound});
       }
-      data[owner]=frozen({schema:'native-owner-moves/v1',owner,roster,moves:[...history.values()],option_links:links});
+      const source=capture?.move, emitted=source?.emitted;
+      const active=emitted ? world.actors.get(source.actor) : undefined;
+      const subject=active ? `${owner}:roster:${active.roster}` : null;
+      const literal=(object:any,key:string)=>{
+        const present=!!object&&Object.hasOwn(object,key);
+        const value=present?object[key]:null;
+        need(!present||typeof value==='boolean','nonboolean-request-flag');
+        return {state:present?'known':'unknown',present,value,reason:present?'none':'not_emitted'};
+      };
+      const emitted_flags=Object.fromEntries([['trapped','trapped'],['maybe_trapped','maybeTrapped'],['maybe_disabled','maybeDisabled'],['maybe_locked','maybeLocked']].map(([name,key])=>{
+        const fact=literal(emitted,key);need(!fact.present||fact.value===true,'nontrue-actor-flag');
+        return [name,{subject,...fact,affected_options:'unspecified'}];
+      }));
+      const options=emitted?.moves.map((m:any,i:number)=>({option_index:i+1,request_move_id:m.id,
+        subject:links.find(link=>link.option_index===i+1)?.subject??null,disabled:literal(m,'disabled')}))??null;
+      // Only an already projected public effect can name this supported cause.
+      const encore=!!emitted&&!emitted.moves.some((m:any)=>['recharge','struggle'].includes(m.id))&&publicRequestLockReason(boundary.perspectives[owner].observation.protocol_prefix,owner)==='encore';
+      const request={subject,sequence:delivery.current?.sequence??null,cursor:delivery.boundary_cursor,emitted_flags,options,
+        restriction:{state:options?'known':'unknown',permitted_options:options?options.filter((m:any)=>m.disabled.value!==true).map((m:any)=>m.option_index):null,
+          reason:{state:encore?'known':'unknown',value:encore?'encore':null}}};
+      data[owner]=frozen({schema:'native-owner-moves/v1',owner,roster,moves:[...history.values()],option_links:links,request});
     }
     this.#prepared.set(key,{environment,parent:this.#parent,boundary,data,checks});return data;
   }

@@ -26,7 +26,7 @@
       "maximum": 2147483647
     },
     "required_profile": {
-      "const": "sha256:1618f17312fdb727b595c727fa43cebd79a12487513a77bc40d939a994bc2ee2"
+      "const": "sha256:0a3d00294fd9771c04ddad187435b6d42767174fa0e7c332fbc768046292c37c"
     },
     "result": {
       "const": "incomplete"
@@ -91,7 +91,8 @@
             "forced_switch",
             "revival_selection",
             "terminal",
-            "requestless"
+            "requestless",
+            "exact_options"
           ]
         },
         "reason": {
@@ -126,56 +127,118 @@
                     "maxLength": 256
                   },
                   "pp": {
-                    "type": "object",
-                    "properties": {
-                      "state": {
-                        "const": "known"
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "const": "known"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          "precision": {
+                            "const": "exact"
+                          },
+                          "reason": {
+                            "const": "none"
+                          }
+                        },
+                        "required": [
+                          "state",
+                          "value",
+                          "precision",
+                          "reason"
+                        ],
+                        "additionalProperties": false
                       },
-                      "value": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 2147483647
-                      },
-                      "precision": {
-                        "const": "exact"
-                      },
-                      "reason": {
-                        "const": "none"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "const": "unknown"
+                          },
+                          "value": {
+                            "type": "null"
+                          },
+                          "precision": {
+                            "const": "not_applicable"
+                          },
+                          "reason": {
+                            "enum": [
+                              "not_emitted",
+                              "unsupported_writer"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "state",
+                          "value",
+                          "precision",
+                          "reason"
+                        ],
+                        "additionalProperties": false
                       }
-                    },
-                    "required": [
-                      "state",
-                      "value",
-                      "precision",
-                      "reason"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   "max_pp": {
-                    "type": "object",
-                    "properties": {
-                      "state": {
-                        "const": "known"
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "const": "known"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647
+                          },
+                          "precision": {
+                            "const": "exact"
+                          },
+                          "reason": {
+                            "const": "none"
+                          }
+                        },
+                        "required": [
+                          "state",
+                          "value",
+                          "precision",
+                          "reason"
+                        ],
+                        "additionalProperties": false
                       },
-                      "value": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 2147483647
-                      },
-                      "precision": {
-                        "const": "exact"
-                      },
-                      "reason": {
-                        "const": "none"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "const": "unknown"
+                          },
+                          "value": {
+                            "type": "null"
+                          },
+                          "precision": {
+                            "const": "not_applicable"
+                          },
+                          "reason": {
+                            "enum": [
+                              "not_emitted",
+                              "unsupported_writer"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "state",
+                          "value",
+                          "precision",
+                          "reason"
+                        ],
+                        "additionalProperties": false
                       }
-                    },
-                    "required": [
-                      "state",
-                      "value",
-                      "precision",
-                      "reason"
-                    ],
-                    "additionalProperties": false
+                    ]
                   }
                 },
                 "required": [
@@ -1260,6 +1323,415 @@
             "additionalProperties": false
           },
           "maxItems": 4
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "subject": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^p[12]:roster:[1-6]$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sequence": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cursor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "emitted_flags": {
+              "type": "object",
+              "properties": {
+                "trapped": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^p[12]:roster:[1-6]$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "known",
+                        "unknown"
+                      ]
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reason": {
+                      "enum": [
+                        "none",
+                        "not_emitted"
+                      ]
+                    },
+                    "affected_options": {
+                      "const": "unspecified"
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "state",
+                    "present",
+                    "value",
+                    "reason",
+                    "affected_options"
+                  ],
+                  "additionalProperties": false
+                },
+                "maybe_trapped": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^p[12]:roster:[1-6]$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "known",
+                        "unknown"
+                      ]
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reason": {
+                      "enum": [
+                        "none",
+                        "not_emitted"
+                      ]
+                    },
+                    "affected_options": {
+                      "const": "unspecified"
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "state",
+                    "present",
+                    "value",
+                    "reason",
+                    "affected_options"
+                  ],
+                  "additionalProperties": false
+                },
+                "maybe_disabled": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^p[12]:roster:[1-6]$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "known",
+                        "unknown"
+                      ]
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reason": {
+                      "enum": [
+                        "none",
+                        "not_emitted"
+                      ]
+                    },
+                    "affected_options": {
+                      "const": "unspecified"
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "state",
+                    "present",
+                    "value",
+                    "reason",
+                    "affected_options"
+                  ],
+                  "additionalProperties": false
+                },
+                "maybe_locked": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^p[12]:roster:[1-6]$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "known",
+                        "unknown"
+                      ]
+                    },
+                    "present": {
+                      "type": "boolean"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reason": {
+                      "enum": [
+                        "none",
+                        "not_emitted"
+                      ]
+                    },
+                    "affected_options": {
+                      "const": "unspecified"
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "state",
+                    "present",
+                    "value",
+                    "reason",
+                    "affected_options"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "trapped",
+                "maybe_trapped",
+                "maybe_disabled",
+                "maybe_locked"
+              ],
+              "additionalProperties": false
+            },
+            "options": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "maxItems": 4,
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "option_index": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      },
+                      "request_move_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      "subject": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^p[12]:roster:[1-6]:move:[1-4]:incarnation:1$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "disabled": {
+                        "type": "object",
+                        "properties": {
+                          "state": {
+                            "enum": [
+                              "known",
+                              "unknown"
+                            ]
+                          },
+                          "present": {
+                            "type": "boolean"
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "reason": {
+                            "enum": [
+                              "none",
+                              "not_emitted"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "state",
+                          "present",
+                          "value",
+                          "reason"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "option_index",
+                      "request_move_id",
+                      "subject",
+                      "disabled"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "restriction": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "known",
+                    "unknown"
+                  ]
+                },
+                "permitted_options": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "type": "object",
+                  "properties": {
+                    "state": {
+                      "enum": [
+                        "known",
+                        "unknown"
+                      ]
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "encore"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "state",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "state",
+                "permitted_options",
+                "reason"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "subject",
+            "sequence",
+            "cursor",
+            "emitted_flags",
+            "options",
+            "restriction"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -1267,7 +1739,8 @@
         "owner",
         "roster",
         "moves",
-        "option_links"
+        "option_links",
+        "request"
       ],
       "additionalProperties": false
     }

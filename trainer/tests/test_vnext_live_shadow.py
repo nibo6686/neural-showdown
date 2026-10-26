@@ -64,6 +64,8 @@ _USE_FIXTURE = object()
 
 def _dry_run(*, tera: bool = True, request=_USE_FIXTURE, log=None):
     payload = _request(tera=tera) if request is _USE_FIXTURE else request
+    if not shadow._checkpoint_path().is_file():
+        raise unittest.SkipTest(f"Missing local checkpoint: {shadow._checkpoint_path()}")
     return shadow.build_dry_run(
         log=log if log is not None else BASE_LOG,
         room_id="shadow-test",

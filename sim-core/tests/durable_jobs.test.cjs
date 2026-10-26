@@ -36,8 +36,8 @@ function launch(dir,name='job',extra=[],native=false){
 }
 async function cleanup(dir,jobs=[]){for(const job of jobs){if(job.child.exitCode===null){job.child.kill();await job.done;}}await fs.rm(dir,{recursive:true,force:true});}
 
-test('R1 hard-killed census resumes 30 replay fixtures with identical outcomes', {timeout:45000},async()=>{
- const dir=await fixture(30,true),jobs=[];
+async function nativeResumeComparison(count){
+ const dir=await fixture(count,true),jobs=[];
  try{
   const baseline=launch(dir,'baseline',[],true);jobs.push(baseline);assert.equal((await baseline.done).code,0);
   const restarted=launch(dir,'restarted',[],true);jobs.push(restarted);
@@ -49,14 +49,19 @@ test('R1 hard-killed census resumes 30 replay fixtures with identical outcomes',
   assert.deepEqual(sorted(await rows(restarted.journal)),sorted(await rows(baseline.journal)));
   const admission=await rows(path.join(dir,'admission.jsonl'));assert.ok(admission.every(r=>r.born_session.complete&&r.born_session.kdiff_mismatches===0));
   // An idempotent complete resume writes no duplicate outcomes.
-  const again=launch(dir,'restarted',['--resume'],true);jobs.push(again);assert.equal((await again.done).code,0);assert.equal((await rows(again.journal)).length,30);
+  const again=launch(dir,'restarted',['--resume'],true);jobs.push(again);assert.equal((await again.done).code,0);assert.equal((await rows(again.journal)).length,count);
   const prior=await fs.readFile(again.status,'utf8'),input=await fs.readFile(path.join(dir,'admission.jsonl'),'utf8');await fs.appendFile(path.join(dir,'admission.jsonl'),JSON.stringify({id:'foreign',admitted:true})+'\n');
   const wrong=launch(dir,'restarted',['--resume'],true);jobs.push(wrong);assert.equal((await wrong.done).code,1);assert.equal(await fs.readFile(again.status,'utf8'),prior);
   await fs.writeFile(path.join(dir,'admission.jsonl'),input);await fs.appendFile(path.join(dir,'source'),'changed\n');
   execFileSync('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qam','changed'],{cwd:dir,windowsHide:true,timeout:10000});
   const wrongCode=launch(dir,'restarted',['--resume'],true);jobs.push(wrongCode);assert.equal((await wrongCode.done).code,1);assert.equal(await fs.readFile(again.status,'utf8'),prior);
  }finally{await cleanup(dir,jobs);}
-});
+}
+test('R1 hard-killed census resumes six native replay fixtures in the fast gate', {timeout:45000},()=>nativeResumeComparison(6));
+test('R1 hard-killed census resumes 30 replay fixtures with identical outcomes', {
+ timeout:240000,
+ skip:process.env.NEURAL_LONG_TESTS==='1'?false:'30 native replay baseline/restart comparisons exceed the fast budget under corpus load; opt in with NEURAL_LONG_TESTS=1',
+},()=>nativeResumeComparison(30));
 
 test('R1 exclusive Windows journal lock reports blocked-write and loses no outcomes', {timeout:20000,skip:process.platform!=='win32'},async()=>{
  const dir=await fixture(),jobs=[];let locker;

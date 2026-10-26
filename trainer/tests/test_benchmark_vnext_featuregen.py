@@ -194,6 +194,8 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
         path = Path(
             "data/replays/raw/gen9randombattle/gen9randombattle-2594129364.log"
         )
+        if not path.is_file():
+            self.skipTest(f"Missing local replay: {path.resolve()}")
         trajectory = parse_protocol_log(
             path.read_text(encoding="utf-8").splitlines(),
             replay_id="gen9randombattle-2594129364",
@@ -237,6 +239,8 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
 
     def _replay_decision(self, replay_id, raw_command, *, side=None):
         path = Path("data/replays/raw/gen9randombattle") / f"{replay_id}.log"
+        if not path.is_file():
+            self.skipTest(f"Missing local replay: {path.resolve()}")
         trajectory = parse_protocol_log(
             path.read_text(encoding="utf-8").splitlines(),
             replay_id=replay_id,
@@ -362,6 +366,8 @@ class VNextFeaturegenBenchmarkTest(unittest.TestCase):
 
     def _opponent_belief_at(self, replay_id, raw_command, *, opponent_side, turn_number):
         path = Path("data/replays/raw/gen9randombattle") / f"{replay_id}.log"
+        if not path.is_file():
+            self.skipTest(f"Missing local replay: {path.resolve()}")
         trajectory = parse_protocol_log(
             path.read_text(encoding="utf-8").splitlines(),
             replay_id=replay_id,
